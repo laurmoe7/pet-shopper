@@ -38,23 +38,47 @@
   }
 
   /**
-   * A fluffy feather boa: puffs along the bottom of the body with an end hanging down one side.
+   * A fluffy feather boa: lots of overlapping puffs draped along the bottom of the body,
+   * with one end hanging down. The puffs are drawn twice, outlined underneath and filled
+   * on top, so they merge into one soft, bumpy shape.
    * @returns {string} SVG markup.
    */
   function boa() {
-    var out = '';
-    // puffs along a gentle curve from one side of the body to the other
-    for (var i = 0; i <= 12; i++) {
-      var t = i / 12, x = 18 + 124 * t, y = 112 + 22 * t * (1 - t) + (i % 2 ? 1.2 : -1.2);
-      out += '<circle class="boa-puff" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (i % 3 ? 6.2 : 7) + '"/>';
+    var puffs = [];
+    // a fixed wobble (not random) so the boa looks the same every time
+    function wob(i, k) { return Math.sin(i * 12.9898 + k * 78.233) * 0.5; }
+    // across the body, sagging in the middle
+    for (var i = 0; i <= 26; i++) {
+      var t = i / 26, x = 17 + 126 * t, y = 115 + 22 * t * (1 - t);
+      puffs.push([x + wob(i, 1) * 2, y + wob(i, 2) * 4, 6.4 + wob(i, 3) * 2]);
+      // a second, offset row of puffs for volume
+      if (i % 2) puffs.push([x + 2, y + 3.5 + wob(i, 6) * 2, 5 + wob(i, 7) * 1.4]);
     }
-    // the end that hangs down the right side
-    [[138, 122], [140, 130], [139, 138]].forEach(function (p, i) {
-      out += '<circle class="boa-puff" cx="' + p[0] + '" cy="' + p[1] + '" r="' + (6 - i * 0.6) + '"/>';
+    // the end that drapes down the right side, getting thinner
+    for (var j = 1; j <= 8; j++) {
+      puffs.push([137 + Math.sin(j * 0.9) * 2.6 + wob(j, 4), 117 + j * 3.6, 6.2 - j * 0.4 + wob(j, 5) * 0.8]);
+    }
+    function circles(cls) {
+      return puffs.map(function (p) {
+        return '<circle class="' + cls + '" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="' + p[2].toFixed(1) + '"/>';
+      }).join('');
+    }
+    // feathery wisps fanning out of every puff, up, down and outwards
+    var wisps = '';
+    puffs.forEach(function (q, k) {
+      [-1, 1].forEach(function (side) {
+        var ang = (side < 0 ? -Math.PI / 2 : Math.PI / 2) + wob(k, side + 8) * 1.6;
+        var x0 = q[0] + Math.cos(ang) * (q[2] - 1), y0 = q[1] + Math.sin(ang) * (q[2] - 1);
+        var x1 = q[0] + Math.cos(ang) * (q[2] + 3.4), y1 = q[1] + Math.sin(ang) * (q[2] + 3.4);
+        wisps += 'M' + x0.toFixed(1) + ' ' + y0.toFixed(1) + ' Q' + (x0 + 2).toFixed(1) + ' ' + ((y0 + y1) / 2).toFixed(1) + ' ' + x1.toFixed(1) + ' ' + y1.toFixed(1) + ' ';
+      });
     });
-    // little feather wisps on top
-    out += '<path class="boa-wisp" d="M28 111 q2 -4 5 -4 M60 116 q2 -4 5 -4 M95 116 q2 -4 5 -4 M128 111 q2 -4 5 -4"/>';
-    return out;
+    var shine = puffs.filter(function (_, n) { return n % 4 === 1; }).map(function (p) {
+      return 'M' + (p[0] - 2).toFixed(1) + ' ' + (p[1] - 1).toFixed(1) + ' q1.4 -1.8 3.2 -1.6';
+    }).join(' ');
+    return '<path class="boa-wisp" d="' + wisps + '"/>' + circles('boa-edge') + circles('boa-puff') +
+      '<path class="boa-wisp-in" d="' + wisps + '"/>' +
+      '<path class="boa-shine" d="' + shine + '"/>';
   }
 
   root.Wardrobe = [
@@ -240,30 +264,32 @@
       svg: '<g class="neck-boa">' + boa() + '</g>'
     },
     {
-      id: 'boots', slot: 'feet', label: 'Boots', icon: '38 116 84 34',
+      id: 'boots', slot: 'feet', label: 'Boots', icon: '40 126 80 24',
       lines: ['puddle time!', 'stomp stomp!', 'ready for a walk!'],
       svg: '<g class="feet-boots">' + [58, 102].map(function (x) {
-        return '<g transform="translate(' + (x - 58) + ' 0)">' +
-          '<path class="boot" d="M48 124 H68 V135 C72 136 73 139 72 141.5 H44.5 C43.5 139 45 136 48 135 Z"/>' +
-          '<path class="boot-sole" d="M44 141 H72.5 Q73 144.5 70 145 H46.5 Q43.5 144.5 44 141 Z"/>' +
-          '<path class="boot-cuff" d="M46.5 125 C46.5 120.5 69.5 120.5 69.5 125 C69.5 129 46.5 129 46.5 125 Z"/>' +
-          '<path class="boot-shine" d="M51.5 130 V135"/>' +
-          '</g>';
+        // a round little booty with a fluffy cloud cuff
+        var l = x - 10, cuff = 'M' + l + ' 133.6';
+        for (var i = 0; i < 5; i++) cuff += ' a2.2 2.2 0 0 1 4 0';
+        cuff += ' a2.2 2.2 0 0 1 0 4.2';
+        for (var j = 0; j < 5; j++) cuff += ' a2.2 2.2 0 0 1 -4 0';
+        cuff += ' a2.2 2.2 0 0 1 0 -4.2 Z';
+        return '<path class="boot" d="M' + (x - 9) + ' 135 H' + (x + 9) + ' V140.6 C' + (x + 9.4) + ' 145.6 ' + (x + 5) + ' 146.6 ' + x + ' 146.6 C' + (x - 5) + ' 146.6 ' + (x - 9.4) + ' 145.6 ' + (x - 9) + ' 140.6 Z"/>' +
+          '<path class="boot-sole" d="M' + (x - 8.6) + ' 143.4 Q' + x + ' 146.2 ' + (x + 8.6) + ' 143.4"/>' +
+          '<path class="boot-shine" d="M' + (x - 5.4) + ' 139.6 V141.6"/>' +
+          '<path class="boot-cuff" d="' + cuff + '"/>';
       }).join('') + '</g>'
     },
     {
-      id: 'heels', slot: 'feet', label: 'High heels', icon: '38 116 84 34',
+      id: 'heels', slot: 'feet', label: 'High heels', icon: '40 126 80 26',
       lines: ['so tall!', 'click clack click', 'catwalk ready!'],
       svg: '<g class="feet-heels">' + [58, 102].map(function (x) {
-        // the outer foot has its heel on the outside
-        var flip = x === 58 ? '' : ' transform="translate(160 0) scale(-1 1)"';
-        return '<g' + flip + '>' +
-          '<path class="heel-spike" d="M46 136 L50.5 136.5 L49.2 148.5 L46.8 148.5 Z"/>' +
-          '<path class="heel-shoe" d="M45 134 C45 130 50 129.5 55 131.5 C61 133.5 67 135.5 71 139 C73.5 141.5 71.5 145 67.5 145 C61 145 55.5 142.5 50.5 140.5 C46.5 139 45 137 45 134 Z"/>' +
-          '<path class="heel-shine" d="M55 135.4 Q60 136.6 64 138.6"/>' +
-          '<path class="heel-bow" d="M64 137.2 L60.6 135 L60.6 139.4 Z M64 137.2 L67.4 135 L67.4 139.4 Z"/>' +
-          '<circle class="heel-bow" cx="64" cy="137.2" r="1.3"/>' +
-          '</g>';
+        // a round little shoe on a tiny heel, with a bow on the toe
+        return '<path class="heel-spike" d="M' + (x - 2.4) + ' 143 L' + (x - 1.1) + ' 149.6 H' + (x + 1.1) + ' L' + (x + 2.4) + ' 143 Z"/>' +
+          '<ellipse class="heel-shoe" cx="' + x + '" cy="140.4" rx="10" ry="4.8"/>' +
+          '<ellipse class="heel-foot" cx="' + x + '" cy="138.2" rx="6.4" ry="2.1"/>' +
+          '<path class="heel-shine" d="M' + (x - 7.4) + ' 141 Q' + (x - 6.4) + ' 143 ' + (x - 3.8) + ' 143.6"/>' +
+          '<path class="heel-bow" d="M' + x + ' 141.8 l-3.6 -2.2 v4.4 Z M' + x + ' 141.8 l3.6 -2.2 v4.4 Z"/>' +
+          '<circle class="heel-bow" cx="' + x + '" cy="141.8" r="1.3"/>';
       }).join('') + '</g>'
     },
     {
