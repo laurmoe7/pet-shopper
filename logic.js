@@ -23,6 +23,8 @@
    * @property {{hat: string}} outfit  Wardrobe item id per slot; "none" for no hat.
    * @property {Object<string, Progress>} achievements  Progress per achievement id.
    * @property {Guard} guard  What the anti-cheat rules remember.
+   * @property {string} personality  Id from personalities.js; "foodie" to start.
+   * @property {Object<string, number>} tastes  How many of each food category it has eaten.
    * @property {Object<string, {x: number, y: number}>} room  Placed decor by id, with its
    *   spot in the room (0 to 1 across and down).
    */
@@ -86,6 +88,8 @@
       outfit: { hat: (saved.outfit && saved.outfit.hat) || 'none' },
       achievements: saved.achievements && typeof saved.achievements === 'object' ? saved.achievements : {},
       room: saved.room && typeof saved.room === 'object' ? saved.room : {},
+      personality: saved.personality || 'foodie',
+      tastes: saved.tastes && typeof saved.tastes === 'object' ? saved.tastes : {},
       guard: {
         day: (saved.guard && saved.guard.day) || '',
         words: (saved.guard && Array.isArray(saved.guard.words)) ? saved.guard.words : [],
@@ -440,6 +444,68 @@
     return achievements.filter(function (a) { return a.unlocks && a.unlocks.kind === kind && a.unlocks.id === id; })[0] || null;
   }
 
+  // ---------- personalities ----------
+
+  /**
+   * Counts an eaten food towards the personalities. Like goals, it only counts
+   * once the item has been on the list for a while.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {Item} item
+   * @param {Date} now
+   * @returns {boolean} True if it counted (the app keeps this to undo it).
+   */
+  function recordTaste(profile, item, now) {
+    if (item.cat === 'nonfood' || item.cat === 'mystery' || !isFresh(item, now)) return false;
+    profile.tastes[item.cat] = (profile.tastes[item.cat] || 0) + 1;
+    return true;
+  }
+
+  /**
+   * Takes a taste back when an eaten item is put back on the list.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {Item} item
+   */
+  function refundTaste(profile, item) {
+    if (profile.tastes[item.cat] > 0) profile.tastes[item.cat]--;
+  }
+
+  /**
+   * How close a personality is to unlocking.
+   * @param {PetProfile} profile
+   * @param {Object} personality  An entry from personalities.js.
+   * @returns {{count: number, goal: number, done: boolean}}
+   */
+  function personalityProgress(profile, personality) {
+    if (!personality.earn) return { count: 0, goal: 0, done: true };
+    var count = personality.earn.cats.reduce(function (n, c) { return n + (profile.tastes[c] || 0); }, 0);
+    var goal = personality.earn.count;
+    return { count: Math.min(count, goal), goal: goal, done: count >= goal };
+  }
+
+  /**
+   * @param {Object} personality
+   * @param {{cat: string}} item
+   * @returns {boolean} True if this personality gets excited about the item.
+   */
+  function likes(personality, item) {
+    return !!personality && personality.likes.indexOf(item.cat) !== -1;
+  }
+
+  /**
+   * Picks something for the pet to ask for: one of its personality's favourites
+   * that isn't already on the list.
+   * @param {Object} personality
+   * @param {Item[]} items  The current list.
+   * @param {function(): number} [random]  Defaults to Math.random.
+   * @returns {?string} The item text, or null if everything is already on the list.
+   */
+  function suggestion(personality, items, random) {
+    var have = items.filter(function (i) { return !i.done; }).map(function (i) { return Foods.normalize(i.text); });
+    var options = personality.suggests.filter(function (t) { return have.indexOf(Foods.normalize(t)) === -1; });
+    if (!options.length) return null;
+    return options[Math.floor((random || Math.random)() * options.length)];
+  }
+
   // ---------- room decor ----------
 
   /**
@@ -476,6 +542,11 @@
   }
 
   root.PetLogic = {
+    recordTaste: recordTaste,
+    refundTaste: refundTaste,
+    personalityProgress: personalityProgress,
+    likes: likes,
+    suggestion: suggestion,
     toggleDecor: toggleDecor,
     moveDecor: moveDecor,
     FRESH_MS: FRESH_MS,

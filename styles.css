@@ -391,11 +391,56 @@ button { font: inherit; color: inherit; }
 .pet.hooded [data-sp="puppy"] .ear, .pet.hooded .twist { display: none; }
 .pet.hooded .arm ellipse:not(.arm-hi) { fill: #fffdf9; }
 
+/* ---------- shopping cart ---------- */
+.cart { position: absolute; left: calc(50% - 128px); bottom: 2px; width: 66px; height: 70px; z-index: 2; pointer-events: none; }
+.cart:not([hidden]) { animation: cart-in .7s cubic-bezier(.3, 1.3, .5, 1); }
+.cart.bump { animation: cart-bump .35s ease-out; }
+@keyframes cart-in { from { transform: translateX(-60px) rotate(-8deg); opacity: 0; } }
+@keyframes cart-bump { 40% { transform: translateY(-5px) rotate(-3deg); } }
+.cart-svg { position: absolute; left: 0; bottom: 0; width: 66px; height: 54px; overflow: visible; transform: scaleX(-1); }
+.cart-load { position: absolute; left: 4px; bottom: 26px; width: 44px; height: 26px; }
+.cart-load img { position: absolute; width: 22px; height: 22px; bottom: 0; }
+.cart-load img:nth-child(1) { left: 0; transform: rotate(-12deg); }
+.cart-load img:nth-child(2) { left: 13px; bottom: 5px; }
+.cart-load img:nth-child(3) { left: 25px; transform: rotate(10deg); }
+.cart-handle { fill: none; stroke: var(--pet-ink, #5b4239); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.cart-basket { fill: #fff3f6; stroke: #5b4239; stroke-width: 2.4; stroke-linejoin: round; }
+.cart-grid { fill: none; stroke: #f3a9bb; stroke-width: 1.4; }
+.cart-wheel { fill: #ff9fb5; stroke: #5b4239; stroke-width: 2; }
+.cart-heart { fill: #ff9fb5; }
+@media (prefers-reduced-motion: reduce) { .cart:not([hidden]), .cart.bump { animation: none; } }
+
+/* ---------- daydreams ---------- */
+.dream { position: absolute; left: calc(50% - 40px); top: -4px; width: 60px; height: 58px; z-index: 3; pointer-events: none; }
+.dream:not([hidden]) { animation: dream-in .5s ease-out; }
+@keyframes dream-in { from { opacity: 0; transform: translateY(8px) scale(.7); } }
+.dream-cloud {
+  position: absolute; left: 0; top: 0; width: 50px; height: 40px; display: grid; place-items: center;
+  background: var(--surface); border: 1.8px solid var(--outline); border-radius: 50% 46% 50% 44% / 55% 50% 50% 45%;
+  box-shadow: 0 2px 0 var(--outline);
+}
+.dream-cloud img { width: 26px; height: 26px; animation: dream-bob 1.6s ease-in-out infinite; }
+@keyframes dream-bob { 50% { transform: translateY(-2px) rotate(-6deg); } }
+.dream-dot { position: absolute; border-radius: 50%; background: var(--surface); border: 1.6px solid var(--outline); }
+.dream-dot.d1 { width: 9px; height: 9px; left: 42px; top: 40px; }
+.dream-dot.d2 { width: 6px; height: 6px; left: 52px; top: 50px; }
+.dream.love .dream-cloud { background: #ffe6ec; }
+
+/* ---------- suggestions ---------- */
+.suggest { display: flex; align-items: center; gap: 8px; margin: 0 4px 10px; font-size: .85rem; color: var(--muted); font-weight: 700; flex-wrap: wrap; }
+.suggest-btn {
+  display: inline-flex; align-items: center; gap: 6px; border: 1.5px dashed var(--outline); background: var(--surface);
+  border-radius: 999px; padding: 4px 12px 4px 6px; font-weight: 800; color: var(--ink); cursor: pointer;
+}
+.suggest-btn img { width: 22px; height: 22px; }
+.suggest-no { padding: 4px 8px; }
+
 /* ---------- room decor, behind the pet ---------- */
 .room { position: absolute; inset: 0; z-index: 0; }
 .decor { position: absolute; transform: translate(-50%, -50%); touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
 .decor svg { width: 100%; height: 100%; display: block; overflow: visible; pointer-events: none; }
 .decor.dragging { cursor: grabbing; filter: drop-shadow(0 4px 0 rgba(91, 66, 57, .25)); z-index: 1; }
+.mood-strip img { width: 34px; height: 34px; }
 .decor-hint { margin: 0; font-size: .8rem; color: var(--muted); }
 
 /* ---------- dressing room ---------- */

@@ -30,6 +30,8 @@
       <!-- the room behind the pet: decor you place from the dressing room -->
       <div class="room" id="room"></div>
       <div class="bubble" id="bubble" role="status" aria-live="polite" hidden></div>
+      <!-- a daydream: a thought cloud with something from the list -->
+      <div class="dream" id="dream" aria-hidden="true" hidden><span class="dream-dot d1"></span><span class="dream-dot d2"></span><span class="dream-cloud" id="dreamCloud"></span></div>
       <div class="pet" id="pet" data-state="sleepy" data-species="mochi" data-arms="rest" aria-label="Nibble, your pet">
         <svg viewBox="0 0 160 150" class="pet-svg" aria-hidden="true">
           <defs>
@@ -204,6 +206,17 @@
         <div class="tummy" id="tummy" aria-hidden="true"></div>
       </div>
       <div class="cushion" aria-hidden="true"></div>
+      <!-- the pet's little shopping cart, out once you start ticking things off -->
+      <div class="cart" id="cart" aria-hidden="true" hidden>
+        <div class="cart-load" id="cartLoad"></div>
+        <svg viewBox="0 0 64 52" class="cart-svg">
+          <path class="cart-handle" d="M4 8 H12 L16 14"/>
+          <path class="cart-basket" d="M14 14 H60 L55 36 Q54 39 51 39 H22 Q19 39 18 36 Z"/>
+          <path class="cart-grid" d="M25 15 L27 38 M36 15 V38 M47 15 L45 38 M16 22 H58 M18 30 H56"/>
+          <circle class="cart-wheel" cx="24" cy="46" r="4.5"/><circle class="cart-wheel" cx="50" cy="46" r="4.5"/>
+          <path class="cart-heart" d="M37 27 c-1.2 -2 -4.4 -.8 -3 1.4 l3 3 l3 -3 c1.4 -2.2 -1.8 -3.4 -3 -1.4z"/>
+        </svg>
+      </div>
       <div class="goal-toast" id="goalToast" role="status" aria-live="polite" hidden></div>
       <div class="stage-tools">
         <button type="button" class="pill-btn" id="dressBtn">♡ Dress up</button>
@@ -220,6 +233,11 @@
       <span class="add-preview" id="addPreview" aria-hidden="true"></span>
       <button type="submit" class="add-btn" aria-label="Add item">Add</button>
     </form>
+    <div class="suggest" id="suggest" hidden>
+      <span class="suggest-label"><span class="pet-name">Nibble</span> suggests</span>
+      <button type="button" class="suggest-btn" id="suggestBtn"></button>
+      <button type="button" class="text-btn suggest-no" id="suggestNo" aria-label="No thanks">✕</button>
+    </div>
 
     <ul class="items" id="todo" aria-label="To buy"></ul>
     <p class="empty" id="emptyHint"><span class="pet-name">Nibble</span> is napping. Add something to the list to wake it up.</p>
@@ -258,6 +276,11 @@
     <fieldset class="species">
       <legend class="field-label">Species</legend>
       <div class="species-grid" id="speciesGrid"></div>
+    </fieldset>
+    <fieldset class="species">
+      <legend class="field-label">Personality</legend>
+      <div class="hat-strip mood-strip" id="personalityStrip"></div>
+      <p class="decor-hint">Earned by what you feed it. Each one has its own favourite foods to daydream about and ask for.</p>
     </fieldset>
     <p class="lock-hint" id="speciesHint" aria-live="polite" hidden></p>
     <div class="picker-foot">
@@ -305,6 +328,7 @@
 <script src="achievements.js"></script>
 <script src="wardrobe.js"></script>
 <script src="decor.js"></script>
+<script src="personalities.js"></script>
 <script src="sounds.js"></script>
 <script src="app.js"></script>
 </body>

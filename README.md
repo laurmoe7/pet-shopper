@@ -39,6 +39,9 @@ The tests live in `tests/` and load the same scripts the browser uses.
   - The same item counts once a day.
   - A finished list needs 3 or more items to count as a trip.
   - If the phone's clock goes back, counting pauses until it catches up. Goals are a list in `achievements.js`.
+- Once you start ticking things off, your pet brings out a little shopping cart with the last few things it picked up.
+- Now and then it daydreams about something on the list (a thought cloud) and gets excited about its favourites. Tap it and it may suggest something to add; the suggestion shows under the add box.
+- Personalities, picked in "Edit pet", change what your pet loves, daydreams about and asks for. Foodie is there from the start; Sweet tooth, Veggie lover, Little chef and Cosy sipper are earned by what you feed it. Personalities are a list in `personalities.js`.
 - Quiet mode turns off the chomp sound and speech bubbles.
 - Everything is saved on the device (`localStorage`). A service worker caches the app for offline use.
 
@@ -50,6 +53,7 @@ Not in it yet: accounts, shared lists, payments, multiple lists.
 - `foods.js`: the keyword dictionary and matching.
 - `logic.js`: the app's rules with no page code (item order, mood, emoji picks, sound choice, saved state, achievement counting and unlocks), so they can be tested.
 - `achievements.js`: the goals, what counts for each, the daily limit and what they unlock.
+- `personalities.js`: personalities, what they like and suggest, and how to earn them.
 - `decor.js`: furniture and decor for the room behind the pet.
 - `wardrobe.js`: the dressing-room items (hats), drawn as SVG on the pet's head.
 - `sounds.js`: the eating sounds, made with the Web Audio API.
