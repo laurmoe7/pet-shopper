@@ -363,6 +363,10 @@ button { font: inherit; color: inherit; }
 .species-grid button:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
 .pet.mini { width: 72px; height: 66px; margin: 0; cursor: inherit; pointer-events: none; }
 .pet-sheet .picker-inner { overflow-y: auto; }
+/* one scroll area per sheet: lists inside it grow instead of scrolling on their own,
+   and the Done row stays pinned to the bottom */
+.pet-sheet .options, .pet-sheet .goal-list { overflow: visible; }
+.pet-sheet .picker-foot { position: sticky; bottom: calc(-12px - env(safe-area-inset-bottom, 0px)); background: var(--surface); margin: 0 -16px; padding: 8px 16px calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 2; }
 
 /* ---------- hats ---------- */
 .hat-dark { fill: #4d3c43; stroke: var(--pet-ink); stroke-width: 2; }
@@ -422,6 +426,15 @@ button { font: inherit; color: inherit; }
 .option input:checked { background: var(--accent); }
 .option input:checked::after { transform: translateX(19px); }
 .option input:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
+
+/* ---------- developer tools ---------- */
+.dev-link { font-size: .8rem; color: var(--muted); text-decoration-color: var(--line); }
+.dev-warning { margin: 0; font-size: .85rem; font-weight: 700; color: var(--ink); background: var(--butter); border: 1.5px dashed var(--outline); border-radius: 14px; padding: 8px 12px; }
+.dev-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.dev-actions button { border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 14px; padding: 10px 8px; font-weight: 800; font-size: .82rem; cursor: pointer; text-align: center; line-height: 1.25; }
+.dev-actions button:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
+.dev-actions button.danger { color: var(--danger); border-color: var(--danger); }
+.dev-status { margin: 0; min-height: 1.2em; font-size: .82rem; color: var(--muted); font-weight: 700; }
 
 /* ---------- shopping cart ---------- */
 .cart { position: absolute; left: max(-4px, calc(50% - 150px)); bottom: 2px; width: 88px; height: 92px; z-index: 2; pointer-events: none; }
@@ -593,11 +606,13 @@ button { font: inherit; color: inherit; }
   border: 1.8px solid var(--outline); border-bottom: 0; padding: 0; margin: auto auto 0; width: 100%; max-width: 560px;
   background: var(--surface); color: var(--ink); border-radius: 26px 26px 0 0;
   max-height: 75vh;
+  /* the inner form does the scrolling, so the sheet itself never shows a second scroll bar */
+  overflow: hidden;
 }
 .picker::backdrop { background: rgba(60, 35, 40, .4); }
 .picker[open] { animation: sheet .3s cubic-bezier(.3, 1.3, .5, 1); }
 @keyframes sheet { from { transform: translateY(60px); opacity: .5; } to { transform: none; opacity: 1; } }
-.picker-inner { padding: 18px 16px calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; max-height: 75vh; }
+.picker-inner { padding: 18px 16px calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; max-height: calc(75vh - 2px); }
 .picker h2 { font-family: var(--font-display); font-weight: 500; font-size: 1.1rem; margin: 0; text-wrap: balance; }
 .picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 6px; overflow-y: auto; min-height: 0; padding: 2px; }
 .picker-grid button { border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 16px; aspect-ratio: 1; padding: 6px; cursor: pointer; max-width: 100%; }

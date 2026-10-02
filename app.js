@@ -472,6 +472,19 @@
   }
 
   /**
+   * The item as the goal rules should see it. With the dev menu's "skip the
+   * 15-minute wait" on, it looks like it has been on the list for ages.
+   * @param {Item} item
+   * @returns {Item}
+   */
+  function rulesItem(item) {
+    if (!state.dev.noWait) return item;
+    var copy = {};
+    Object.keys(item).forEach(function (k) { if (k !== 'added') copy[k] = item[k]; });
+    return copy;
+  }
+
+  /**
    * Checks an item off (the pet eats it) or puts it back (the pet spits it out).
    * @param {string} id
    */
@@ -485,16 +498,16 @@
     var now = new Date(), goals = null;
     if (item.done) {
       var openBefore = Personalities.filter(personalityOpen);
-      goals = L.recordEaten(state.pet, item, now, Achievements);
+      goals = L.recordEaten(state.pet, rulesItem(item), now, Achievements);
       item.counted = goals.counted;
       item.countedDay = L.dayKey(now);
-      item.tasted = L.recordTaste(state.pet, item, now);
+      item.tasted = L.recordTaste(state.pet, rulesItem(item), now);
       // personalities this bite just earned are cheered like other unlocks
       Personalities.filter(personalityOpen).forEach(function (p) {
         if (openBefore.indexOf(p) === -1) goals.unlocked.push({ icon: p.icon, unlocks: { kind: 'personality', id: p.id, label: p.label } });
       });
       if (L.mood(state.items) === 'stuffed') {
-        var trip = L.recordTrip(state.pet, state.items, now, Achievements);
+        var trip = L.recordTrip(state.pet, state.items.map(rulesItem), now, Achievements);
         goals.counted = goals.counted.concat(trip.counted);
         goals.capped = goals.capped.concat(trip.capped);
         goals.unlocked = goals.unlocked.concat(trip.unlocked);
@@ -1297,6 +1310,58 @@
     if (optionsSheet.showModal) optionsSheet.showModal(); else optionsSheet.setAttribute('open', '');
   });
   optionsSheet.addEventListener('click', function (e) { if (e.target === optionsSheet) optionsSheet.close(); });
+
+  // ---------- developer tools ----------
+  var devSheet = $('devSheet'), devStatus = $('devStatus'), devNoWait = $('devNoWait');
+  /** Redraws everything that depends on progress after a dev action. */
+  function refreshAll() {
+    save();
+    render();
+    applyPet();
+    refreshLocks();
+    renderPersonalities();
+    renderRoom();
+  }
+  var DEV_ACTIONS = [
+    { label: 'Unlock everything', run: function () { L.unlockAll(state.pet, Achievements, Personalities); return 'All goals finished and personalities earned.'; } },
+    { label: 'Lock everything again', run: function () { L.lockAll(state.pet, Achievements, FreeUnlocks); return 'Progress wiped. Locked items are locked again.'; } },
+    { label: 'Skip to tomorrow', run: function () { L.skipDays(state, 1); return 'A day has passed: daily limits are fresh.'; } },
+    { label: 'Daydream now', run: function () { devSheet.close(); setTimeout(daydream, 400); return ''; } },
+    { label: 'Suggest something now', run: function () { devSheet.close(); lastSuggestion = 0; setTimeout(offerSuggestion, 400); return ''; } },
+    { label: 'Fill with sample items', run: function () { state.items = state.items.concat(L.parseState(null, newId).items); return 'Sample items added.'; } },
+    { label: 'Clear the list', run: function () { state.items = []; return 'List cleared.'; } },
+    { label: 'Reset all saved data', danger: true, run: function () {
+      if (!confirm('Reset everything? Your list, pet, progress and options will be gone.')) return 'Nothing changed.';
+      try { localStorage.removeItem(STORE_KEY); } catch (e) { /* storage blocked */ }
+      location.reload();
+      return 'Resetting…';
+    } }
+  ];
+  DEV_ACTIONS.forEach(function (a, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.i = i;
+    b.textContent = a.label;
+    if (a.danger) b.className = 'danger';
+    $('devActions').appendChild(b);
+  });
+  $('devActions').addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    devStatus.textContent = DEV_ACTIONS[b.dataset.i].run();
+    refreshAll();
+  });
+  devNoWait.addEventListener('change', function () {
+    state.dev.noWait = devNoWait.checked;
+    save();
+  });
+  $('devBtn').addEventListener('click', function () {
+    optionsSheet.close();
+    devNoWait.checked = state.dev.noWait;
+    devStatus.textContent = '';
+    if (devSheet.showModal) devSheet.showModal(); else devSheet.setAttribute('open', '');
+  });
+  devSheet.addEventListener('click', function (e) { if (e.target === devSheet) devSheet.close(); });
 
   // ---------- daydreams ----------
   // Now and then, while nothing else is going on, the pet daydreams about

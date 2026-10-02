@@ -329,6 +329,24 @@
     <h2 id="optionsTitle">Options</h2>
     <div class="options" id="optionsList"></div>
     <div class="picker-foot">
+      <button type="button" class="text-btn dev-link" id="devBtn">Developer tools</button>
+      <button value="done" class="add-btn">Done</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="picker pet-sheet" id="devSheet" aria-labelledby="devTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="devTitle">Developer tools</h2>
+    <p class="dev-warning">For testing only. These change your pet's progress and list right away.</p>
+    <label class="option">
+      <span class="option-title">Skip the 15-minute wait</span>
+      <input type="checkbox" role="switch" id="devNoWait">
+      <span class="option-text">Items count as soon as you tick them off. The once-a-day and daily limits still apply.</span>
+    </label>
+    <div class="dev-actions" id="devActions"></div>
+    <p class="dev-status" id="devStatus" aria-live="polite"></p>
+    <div class="picker-foot">
       <span></span>
       <button value="done" class="add-btn">Done</button>
     </div>

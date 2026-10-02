@@ -11,6 +11,15 @@
 
   root.Decor = [
     {
+      // listed first so it lies under everything else, right below the cushion
+      id: 'rug', label: 'Rug', x: 0.5, y: 0.93, w: 220, h: 36, view: '0 0 200 34',
+      svg: '<ellipse cx="100" cy="17" rx="97" ry="14.5" fill="#ffd9e2" ' + INK + '/>' +
+        '<ellipse cx="100" cy="17" rx="84" ry="10.5" fill="none" stroke="#ff9fb5" stroke-width="2.4" stroke-dasharray="5 4"/>' +
+        '<ellipse cx="100" cy="17" rx="66" ry="7" fill="#fff0f4"/>' +
+        '<path d="M44 17 l5 -3 5 3 -5 3z M151 17 l5 -3 5 3 -5 3z M97 12.5 l3 -2 3 2 -3 2z" fill="#ffb3c6"/>' +
+        '<path d="M3 13 l-3 -1 M2 17 h-3 M3 21 l-3 1 M197 13 l3 -1 M198 17 h3 M197 21 l3 1" stroke="#5b4239" stroke-width="1.6" stroke-linecap="round"/>'
+    },
+    {
       id: 'window', label: 'Window', x: 0.84, y: 0.32, w: 70, h: 64, view: '0 0 60 56',
       svg: '<path d="M8 6 Q30 0 52 6" fill="none" ' + INK + '/>' +
         '<rect x="7" y="5" width="46" height="42" rx="6" fill="#fffaf4" ' + INK + '/>' +
@@ -46,6 +55,42 @@
         '<path d="M16 47 V56 M28 47 V52" stroke="#5b4239" stroke-width="1.2"/>' +
         '<ellipse cx="16" cy="59.5" rx="3" ry="5" fill="#c98f6a" stroke="#5b4239" stroke-width="1.6"/>' +
         '<ellipse cx="28" cy="55.5" rx="3" ry="5" fill="#c98f6a" stroke="#5b4239" stroke-width="1.6"/>'
+    },
+    {
+      id: 'desk', label: 'Gaming desk', x: 0.16, y: 0.78, w: 96, h: 76, view: '0 0 90 72',
+      // a pastel desk with a glowing PC, a little game on screen and a kitty-ear headset
+      svg: '<rect x="6" y="46" width="5" height="24" rx="2" fill="#b79ad6" ' + INK + '/>' +
+        '<rect x="79" y="46" width="5" height="24" rx="2" fill="#b79ad6" ' + INK + '/>' +
+        '<rect x="2" y="40" width="86" height="7" rx="3" fill="#d9c4f2" ' + INK + '/>' +
+        '<rect x="13" y="9" width="42" height="27" rx="4" fill="#4d3c43" ' + INK + '/>' +
+        '<rect x="16.5" y="12.5" width="35" height="20" rx="2" fill="#a9dcff"/>' +
+        '<path d="M16.5 27 H51.5 V32.5 H16.5 Z" fill="#9ed99a"/>' +
+        '<rect x="24" y="21" width="5" height="6" rx="1" fill="#ff9fb5"/><rect x="25" y="22.5" width="1" height="1" fill="#5b4239"/><rect x="27" y="22.5" width="1" height="1" fill="#5b4239"/>' +
+        '<path d="M41 18 c-1 -1.6 -3.4 -.6 -2.4 1 l2.4 2.4 2.4 -2.4 c1 -1.6 -1.4 -2.6 -2.4 -1z" fill="#ff7a99"/>' +
+        '<rect x="31" y="36" width="6" height="4" fill="#4d3c43"/>' +
+        '<rect x="15" y="37.5" width="28" height="3.5" rx="1.5" fill="#fffaf4" stroke="#5b4239" stroke-width="1.4"/>' +
+        '<path d="M18 39.2 h4 M24 39.2 h4 M30 39.2 h4 M36 39.2 h4" stroke="#ff9fb5" stroke-width="1.4" stroke-linecap="round"/>' +
+        '<ellipse cx="49" cy="39" rx="3" ry="2" fill="#fffaf4" stroke="#5b4239" stroke-width="1.4"/>' +
+        '<rect x="61" y="10" width="20" height="30" rx="3" fill="#fffaf4" ' + INK + '/>' +
+        '<circle cx="71" cy="19" r="4.5" fill="#ffc1cf" stroke="#5b4239" stroke-width="1.4"/>' +
+        '<circle cx="71" cy="31" r="4.5" fill="#bfe8d4" stroke="#5b4239" stroke-width="1.4"/>' +
+        '<path d="M71 16 v6 M68 19 h6 M71 28 v6 M68 31 h6" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>' +
+        '<path d="M64 13 V37" stroke="#c7a6ff" stroke-width="1.6" stroke-linecap="round"/>' +
+        '<path d="M58 9 C58 2 72 0 74 7" fill="none" stroke="#ff9fb5" stroke-width="2.4" stroke-linecap="round"/>' +
+        '<path d="M58 4 l1 -4 3 3 M71 1.5 l3 -2 .5 4" fill="#ff9fb5" stroke="#5b4239" stroke-width="1" stroke-linejoin="round"/>'
+    },
+    {
+      id: 'burgerphone', label: 'Burger phone', x: 0.9, y: 0.6, w: 54, h: 50, view: '0 0 50 46',
+      // the top bun is the handset; the cord curls off to the side
+      svg: '<path d="M44 31 q5 1 4 5 q-1 4 -4 4 q-3 1 -1 4" fill="none" stroke="#5b4239" stroke-width="1.6" stroke-linecap="round"/>' +
+        '<path d="M5 33 Q5 43 25 43 Q45 43 45 33 Z" fill="#f1c48d" ' + INK + '/>' +
+        '<path d="M3 32.5 q3 -3 6 0 q3 3 6 0 q3 -3 6 0 q3 3 6 0 q3 -3 6 0 q3 3 6 0 q3 -3 6 0" fill="#9ed99a" stroke="#5b4239" stroke-width="1.6" stroke-linejoin="round"/>' +
+        '<rect x="5" y="24" width="40" height="8" rx="4" fill="#8a5a44" ' + INK + '/>' +
+        '<circle cx="17" cy="28" r="1.4" fill="#ffe9c9"/><circle cx="22" cy="28" r="1.4" fill="#ffe9c9"/><circle cx="27" cy="28" r="1.4" fill="#ffe9c9"/><circle cx="32" cy="28" r="1.4" fill="#ffe9c9"/>' +
+        '<path d="M8 24 L14 20.5 L20 24 L28 20.5 L36 24 L42 20.5 L44 24 Z" fill="#ffd65c" stroke="#5b4239" stroke-width="1.4" stroke-linejoin="round"/>' +
+        '<path d="M5 20 Q5 5 25 5 Q45 5 45 20 Q25 23 5 20 Z" fill="#f6c27e" ' + INK + '/>' +
+        '<path d="M12 11 Q16 8 20 8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/>' +
+        '<ellipse cx="18" cy="13" rx="1.6" ry="1" fill="#fffaf4"/><ellipse cx="27" cy="10" rx="1.6" ry="1" fill="#fffaf4"/><ellipse cx="33" cy="14" rx="1.6" ry="1" fill="#fffaf4"/><ellipse cx="24" cy="16" rx="1.6" ry="1" fill="#fffaf4"/>'
     }
   ];
 })(typeof self !== 'undefined' ? self : globalThis);
