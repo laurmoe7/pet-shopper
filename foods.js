@@ -135,24 +135,51 @@
     ['🥃', 'drink', 'whisky, whiskey, rum, gin, vodka, liquor, spirits'],
     ['🍼', 'drink', 'baby milk, formula'],
 
-    // not food
-    ['🧻', 'nonfood', 'toilet paper, kitchen roll, paper towel, tissue, tissues, napkin'],
-    ['🧼', 'nonfood', 'soap, hand soap, washing up liquid, dish soap, dishwasher tablets, detergent, cleaner'],
-    ['🧽', 'nonfood', 'sponge, scrubber'],
-    ['🧴', 'nonfood', 'shampoo, conditioner, lotion, shower gel, sunscreen, sun cream, deodorant, moisturiser, body wash'],
-    ['🪥', 'nonfood', 'toothbrush, toothpaste, floss, mouthwash'],
-    ['🔋', 'nonfood', 'battery, batteries'],
-    ['💡', 'nonfood', 'light bulb, lightbulb, bulb'],
-    ['🧺', 'nonfood', 'laundry, laundry detergent, fabric softener'],
-    ['🗑️', 'nonfood', 'bin bags, trash bags, garbage bags, bin liners'],
-    ['🪒', 'nonfood', 'razor, razor blades'],
-    ['🩹', 'nonfood', 'plaster, plasters, band aid, bandage'],
-    ['💊', 'nonfood', 'medicine, vitamins, paracetamol, ibuprofen, painkillers, tablets'],
-    ['🕯️', 'nonfood', 'candle, tealights'],
-    ['💐', 'nonfood', 'flowers, bouquet, tulips'],
-    ['🦴', 'nonfood', 'dog food, dog treats, cat food, pet food, cat litter'],
-    ['🧷', 'nonfood', 'nappies, diapers, wipes, baby wipes'],
-    ['🎞️', 'nonfood', 'foil, aluminium foil, cling film, baking paper, freezer bags']
+    // not food: still on the list, but the pet tucks them away instead of eating them.
+    // The 4th field is the kind of shop item, for the pet's comments:
+    // 'health' (pharmacy), 'home' (cleaning and household) or 'stuff' (everything else a superstore sells).
+    // pharmacy
+    ['🧴', 'nonfood', 'shampoo, conditioner, lotion, shower gel, sunscreen, sun cream, deodorant, moisturiser, moisturizer, body wash, hand cream, face wash, hair gel, hairspray', 'health'],
+    ['🪥', 'nonfood', 'toothbrush, toothpaste, floss, mouthwash, dental floss', 'health'],
+    ['🪒', 'nonfood', 'razor, razor blades, shaving cream, shaving foam', 'health'],
+    ['🩹', 'nonfood', 'plaster, plasters, band aid, bandage, first aid, first aid kit', 'health'],
+    ['💊', 'nonfood', 'medicine, vitamins, paracetamol, ibuprofen, aspirin, painkillers, tablets, pills, cough syrup, cough drops, antihistamine, allergy tablets, cold medicine, prescription, multivitamin', 'health'],
+    ['🌡️', 'nonfood', 'thermometer', 'health'],
+    ['💄', 'nonfood', 'makeup, make up, lipstick, lip balm, mascara, eyeliner, foundation, concealer, nail polish, nail varnish, blush, eyeshadow', 'health'],
+    ['🪮', 'nonfood', 'hairbrush, hair brush, comb, hair ties, hair clips, bobby pins', 'health'],
+    ['👓', 'nonfood', 'reading glasses, contact lenses, contact lens solution, glasses case', 'health'],
+    ['🧷', 'nonfood', 'nappies, diapers, wipes, baby wipes, safety pins, cotton pads, cotton buds, q tips, tampons, pads', 'health'],
+    // household
+    ['🧻', 'nonfood', 'toilet paper, toilet roll, kitchen roll, paper towel, tissue, tissues, napkin', 'home'],
+    ['🧼', 'nonfood', 'soap, hand soap, washing up liquid, dish soap, dishwasher tablets, detergent, cleaner, bleach, disinfectant, spray cleaner', 'home'],
+    ['🧽', 'nonfood', 'sponge, scrubber, cloths, dishcloth', 'home'],
+    ['🧺', 'nonfood', 'laundry, laundry detergent, fabric softener, washing powder, laundry basket, pegs', 'home'],
+    ['🗑️', 'nonfood', 'bin bags, trash bags, garbage bags, bin liners, bin', 'home'],
+    ['🧹', 'nonfood', 'broom, dustpan, duster, vacuum bags', 'home'],
+    ['🪣', 'nonfood', 'bucket, mop', 'home'],
+    ['🔋', 'nonfood', 'battery, batteries', 'home'],
+    ['💡', 'nonfood', 'light bulb, lightbulb, bulb', 'home'],
+    ['🕯️', 'nonfood', 'candle, tealights, matches, lighter', 'home'],
+    ['🎞️', 'nonfood', 'foil, aluminium foil, aluminum foil, cling film, plastic wrap, baking paper, freezer bags, sandwich bags, zip bags', 'home'],
+    ['🛏️', 'nonfood', 'pillow, bedding, bed sheets, duvet, blanket, towel, towels', 'home'],
+    ['🪴', 'nonfood', 'house plant, potted plant, pot plant, potting soil, compost, plant food, flower seeds, garden seeds, flower pot', 'home'],
+    // everything else a superstore sells
+    ['💐', 'nonfood', 'flowers, bouquet, tulips, roses', 'stuff'],
+    ['🦴', 'nonfood', 'dog food, dog treats, cat food, cat treats, pet food, cat litter, dog toy, cat toy, bird seed, fish food', 'stuff'],
+    ['🧸', 'nonfood', 'toy, toys, teddy, teddy bear, lego, puzzle, board game, doll, plushie', 'stuff'],
+    ['🎮', 'nonfood', 'video game, game controller, controller, console, gift card', 'stuff'],
+    ['🎧', 'nonfood', 'headphones, earbuds, earphones, speaker', 'stuff'],
+    ['🔌', 'nonfood', 'charger, phone charger, cable, usb cable, adapter, extension cord, extension lead, plug', 'stuff'],
+    ['📱', 'nonfood', 'phone case, screen protector, phone', 'stuff'],
+    ['📚', 'nonfood', 'book, books, magazine, comic, notebook, diary, calendar', 'stuff'],
+    ['✏️', 'nonfood', 'pencil, pen, pens, crayons, markers, stationery, glue, scissors, sticky notes, envelopes, printer paper', 'stuff'],
+    ['🧦', 'nonfood', 'socks, tights, underwear, pyjamas, pajamas', 'stuff'],
+    ['👕', 'nonfood', 't shirt, tshirt, shirt, clothes, jumper, sweater, hoodie, jacket, trousers, jeans', 'stuff'],
+    ['👟', 'nonfood', 'shoes, trainers, sneakers, slippers, flip flops, shoe laces', 'stuff'],
+    ['🔧', 'nonfood', 'tools, screwdriver, wrench, spanner, hammer, nails, screws, duct tape, tape, glue gun, drill', 'stuff'],
+    ['🎈', 'nonfood', 'balloons, party supplies, birthday candles, decorations, streamers', 'stuff'],
+    ['🎀', 'nonfood', 'gift wrap, wrapping paper, ribbon, birthday card, card, gift bag', 'stuff'],
+    ['⚽', 'nonfood', 'ball, football, soccer ball, basketball, tennis balls, yoga mat, water bottle', 'stuff']
   ];
 
   var MYSTERY = { emoji: '🎁', cat: 'mystery' };
@@ -179,8 +206,10 @@
   var index = [];
   var seen = {};
   var emojiCat = {};
+  var emojiKind = {};
   FOODS.forEach(function (row) {
     if (!emojiCat[row[0]]) emojiCat[row[0]] = row[1];
+    if (row[3] && !emojiKind[row[0]]) emojiKind[row[0]] = row[3];
     row[2].split(',').forEach(function (kw) {
       kw = kw.trim().toLowerCase();
       if (!kw) return;
@@ -248,6 +277,9 @@
     match: match,
     normalize: normalize,
     categoryOf: function (emoji) { return emojiCat[emoji] || 'mystery'; },
+    /** For non-food items: 'health', 'home' or 'stuff' (the default). */
+    kindOf: function (emoji) { return emojiKind[emoji] || 'stuff'; },
+    KINDS: ['health', 'home', 'stuff'],
     all: ALL,
     emojiFile: emojiFile,
     keywordCount: index.length

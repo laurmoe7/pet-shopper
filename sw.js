@@ -1,6 +1,6 @@
 // Offline support: cache the app shell and every emoji on install, then serve cache-first.
 importScripts('foods.js');
-var CACHE = 'nibble-v20';
+var CACHE = 'nibble-v21';
 var SHELL = ['./', 'index.html', 'styles.css', 'app.js', 'foods.js', 'logic.js', 'achievements.js', 'sounds.js', 'wardrobe.js', 'decor.js', 'personalities.js', 'manifest.webmanifest', 'icon.svg', 'icon-180.png', 'icon-512.png'];
 
 self.addEventListener('install', function (e) {

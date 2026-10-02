@@ -32,3 +32,14 @@ test('there are dances for every pet', () => {
   assert.match(css, /@keyframes shuffle/);
   assert.match(css, /@keyframes boogie/);
 });
+
+test('Dress up, Edit pet and Goals are in one drop-down menu', () => {
+  const menu = html.match(/<div class="pet-menu" id="petMenu"[\s\S]*?<\/div>/)[0];
+  for (const id of ['dressBtn', 'editPetBtn', 'goalsBtn']) assert.match(menu, new RegExp('id="' + id + '"'));
+  assert.match(html, /id="petMenuBtn" aria-haspopup="true" aria-expanded="false"/);
+});
+
+test('glasses have their own place on the pet, over the eyes', () => {
+  assert.match(html, /<g class="outfit-face"><\/g>/);
+  assert.match(html, /id="faceStrip"/);
+});

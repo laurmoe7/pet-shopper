@@ -20,7 +20,7 @@
    * @typedef {Object} PetProfile
    * @property {string} name
    * @property {string} species  One of the species ids, e.g. "mochi", "pig", "penguin".
-   * @property {{hat: string}} outfit  Wardrobe item id per slot; "none" for no hat.
+   * @property {{hat: string, face: string}} outfit  Wardrobe item id per slot (hat, glasses); "none" for nothing.
    * @property {Object<string, Progress>} achievements  Progress per achievement id.
    * @property {Guard} guard  What the anti-cheat rules remember.
    * @property {string} personality  Id from personalities.js; "foodie" to start.
@@ -85,7 +85,7 @@
     return {
       name: typeof saved.name === 'string' ? saved.name : 'Nibble',
       species: saved.species || 'mochi',
-      outfit: { hat: (saved.outfit && saved.outfit.hat) || 'none' },
+      outfit: { hat: (saved.outfit && saved.outfit.hat) || 'none', face: (saved.outfit && saved.outfit.face) || 'none' },
       achievements: saved.achievements && typeof saved.achievements === 'object' ? saved.achievements : {},
       room: saved.room && typeof saved.room === 'object' ? saved.room : {},
       personality: saved.personality || 'foodie',
@@ -684,6 +684,7 @@
     profile.personality = 'foodie';
     if (!isUnlocked(profile, 'species', profile.species, achievements, free)) profile.species = 'mochi';
     if (!isUnlocked(profile, 'hat', profile.outfit.hat, achievements, free)) profile.outfit.hat = 'none';
+    if (!isUnlocked(profile, 'hat', profile.outfit.face, achievements, free)) profile.outfit.face = 'none';
   }
 
   /**

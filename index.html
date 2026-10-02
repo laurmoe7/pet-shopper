@@ -195,6 +195,8 @@
               <!-- hats are drawn at a slightly bigger scale, centred on the top of the head -->
               <!-- full-size outfits such as hoodies cover the whole pet -->
               <g class="outfit-body"></g>
+              <!-- glasses sit over the eyes, alongside any hat -->
+              <g class="outfit-face"></g>
               <g transform="translate(80 45) scale(1.3) translate(-80 -40)"><g class="outfit-hat"></g></g>
               <!-- little nubbly arms -->
               <g class="arm arm-l"><ellipse cx="27" cy="117" rx="7" ry="9"/><ellipse class="arm-hi" cx="25" cy="114" rx="2.4" ry="3"/></g>
@@ -240,9 +242,12 @@
       </div></div>
       <div class="goal-toast" id="goalToast" role="status" aria-live="polite" hidden></div>
       <div class="stage-tools">
-        <button type="button" class="pill-btn" id="dressBtn">♡ Dress up</button>
-        <button type="button" class="pill-btn" id="editPetBtn" aria-label="Change your pet's name and species">✎ Edit pet</button>
-        <button type="button" class="pill-btn" id="goalsBtn" aria-label="Goals: unlock new pets and hats">★ Goals</button>
+        <button type="button" class="pill-btn menu-btn" id="petMenuBtn" aria-haspopup="true" aria-expanded="false" aria-controls="petMenu">✿ Pet <span class="caret" aria-hidden="true">▾</span></button>
+        <div class="pet-menu" id="petMenu" role="menu" hidden>
+          <button type="button" class="menu-item" role="menuitem" id="dressBtn">♡ Dress up</button>
+          <button type="button" class="menu-item" role="menuitem" id="editPetBtn" aria-label="Change your pet's name and species">✎ Edit pet</button>
+          <button type="button" class="menu-item" role="menuitem" id="goalsBtn" aria-label="Goals: unlock new pets and hats">★ Goals</button>
+        </div>
       </div>
     </div>
   </header>
@@ -321,6 +326,10 @@
     <fieldset class="species">
       <legend class="field-label">Outfits</legend>
       <div class="hat-strip" id="hatStrip"></div>
+    </fieldset>
+    <fieldset class="species">
+      <legend class="field-label">Glasses</legend>
+      <div class="hat-strip" id="faceStrip"></div>
     </fieldset>
     <p class="lock-hint" id="hatHint" aria-live="polite" hidden></p>
     <fieldset class="species">

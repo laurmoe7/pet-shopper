@@ -1,10 +1,11 @@
 /* Wardrobe: the items you can dress your pet in.
- * Each item has a slot (only "hat" for now: one thing on the head at a time), a
- * label, `lines` the pet says when you point at it in the dressing room, and SVG
+ * Each item has a slot: "hat" (one thing on the head at a time) or "face"
+ * (glasses, worn alongside a hat), a label, `lines` the pet says when you point at it in the dressing room, and SVG
  * drawn in the pet's 160x150 coordinate space.
  * Hats sit on the top of the head (around x 80, y 38) and are drawn a little
  * bigger. Items with `layer: 'body'` (like the hoodie) are drawn at full size
  * over the whole pet instead; `hood: true` tucks the pet's own ears away.
+ * Face items are drawn at normal size over the eyes (around y 92).
  * `icon` is the viewBox for the dressing-room button.
  * Add a new item here and it shows up in the dressing room.
  */
@@ -95,6 +96,56 @@
         '<ellipse class="hood-rim" cx="80" cy="99.5" rx="56.5" ry="33.5"/>' +
         '<path class="hood-string" d="M68 131 C67 134 66 136 66 139 M92 131 C93 134 94 136 94 139"/>' +
         '<circle class="hood-toggle" cx="66" cy="140" r="2.4"/><circle class="hood-toggle" cx="94" cy="140" r="2.4"/>' +
+        '</g>'
+    },
+    {
+      id: 'hardhat', slot: 'hat', label: 'Hard hat',
+      lines: ['safety first!', 'let\'s build a snack fort!', 'construction crew!'],
+      svg: '<g transform="rotate(-5 80 40)" class="hat-hard">' +
+        '<path class="hard-dome" d="M55 41 C55 15 105 15 105 41 Z"/>' +
+        '<path class="hard-ridge" d="M74 41 V21 Q80 17 86 21 V41"/>' +
+        '<path class="hard-shine" d="M62 30 Q64 24 69 21"/>' +
+        '<path class="hard-brim" d="M48 41 Q80 34 112 41 Q113 46 108 46 Q80 41 52 46 Q47 46 48 41 Z"/>' +
+        '<circle class="hard-sticker" cx="95" cy="31" r="4.2"/>' +
+        '<path class="hard-sticker-face" d="M93.3 30.2 v.1 M96.7 30.2 v.1 M93.4 32.6 Q95 34 96.6 32.6"/>' +
+        '</g>'
+    },
+    {
+      id: 'bandana', slot: 'hat', label: 'Bandana',
+      lines: ['ready for adventure!', 'so cool, so comfy!', 'tied it myself!'],
+      svg: '<g class="hat-bandana">' +
+        '<path class="bandana-cloth" d="M42 58 C44 26 116 26 118 58 C100 50 60 50 42 58 Z"/>' +
+        '<path class="bandana-edge" d="M42 58 C60 50 100 50 118 58"/>' +
+        '<circle class="bandana-dot" cx="62" cy="40" r="2"/><circle class="bandana-dot" cx="80" cy="34" r="2"/>' +
+        '<circle class="bandana-dot" cx="98" cy="40" r="2"/><circle class="bandana-dot" cx="72" cy="48" r="1.6"/>' +
+        '<circle class="bandana-dot" cx="90" cy="48" r="1.6"/><circle class="bandana-dot" cx="54" cy="50" r="1.6"/><circle class="bandana-dot" cx="106" cy="50" r="1.6"/>' +
+        '<path class="bandana-cloth" d="M116 54 L128 50 L124 60 Z"/>' +
+        '<path class="bandana-cloth" d="M116 55 L126 64 L117 64 Z"/>' +
+        '<circle class="bandana-cloth" cx="116" cy="55" r="3.6"/>' +
+        '</g>'
+    },
+    {
+      id: 'headphones', slot: 'hat', label: 'Head\u00ADphones',
+      lines: ['my jam!', 'turn it up!', '♪ shopping beats ♪'],
+      svg: '<g class="hat-phones">' +
+        '<path class="phones-band" d="M38 62 C36 18 124 18 122 62"/>' +
+        '<path class="phones-band-in" d="M38 62 C36 18 124 18 122 62"/>' +
+        '<rect class="phones-cup" x="27" y="52" width="17" height="24" rx="8"/>' +
+        '<rect class="phones-cup" x="116" y="52" width="17" height="24" rx="8"/>' +
+        '<rect class="phones-pad" x="31" y="57" width="9" height="14" rx="4.5"/>' +
+        '<rect class="phones-pad" x="120" y="57" width="9" height="14" rx="4.5"/>' +
+        '<path class="phones-note" d="M77 23 v-6 l6 -1.5 v6 M77 23 a1.6 1.4 0 1 1 -.1 0 M83 21.5 a1.6 1.4 0 1 1 -.1 0"/>' +
+        '</g>'
+    },
+    {
+      id: 'shades', slot: 'face', label: 'Heart shades', icon: '28 74 104 36',
+      lines: ['too cool for school!', 'the future is bright!', 'no paparazzi, please!'],
+      svg: '<g class="face-shades">' +
+        '<path class="shades-arm" d="M45.5 87 L31 84 M114.5 87 L129 84"/>' +
+        '<path class="shades-bridge" d="M70 87 Q80 82 90 87"/>' +
+        '<path class="shades-lens" d="M58 104 C44 95 42 86 49 81.5 C53.5 79 57 81 58 84.5 C59 81 62.5 79 67 81.5 C74 86 72 95 58 104 Z"/>' +
+        '<path class="shades-lens" d="M102 104 C88 95 86 86 93 81.5 C97.5 79 101 81 102 84.5 C103 81 106.5 79 111 81.5 C118 86 116 95 102 104 Z"/>' +
+        '<path class="shades-shine" d="M50 86 Q51 83.5 53.5 83.5 M94 86 Q95 83.5 97.5 83.5"/>' +
         '</g>'
     }
   ];

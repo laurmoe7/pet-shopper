@@ -37,6 +37,26 @@
     return img;
   }
 
+  // ---------- pet menu ----------
+  // Dress up, Edit pet and Goals sit in one drop-down; it closes when you pick one,
+  // tap anywhere else or press Escape.
+  (function () {
+    var btn = document.getElementById('petMenuBtn'), menu = document.getElementById('petMenu');
+    function setOpen(open, focusFirst) {
+      menu.hidden = !open;
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open && focusFirst) menu.querySelector('.menu-item').focus();
+    }
+    btn.addEventListener('click', function (e) { setOpen(menu.hidden, e.detail === 0); });
+    menu.addEventListener('click', function (e) { if (e.target.closest('.menu-item')) setOpen(false); });
+    document.addEventListener('pointerdown', function (e) {
+      if (!menu.hidden && !e.target.closest('.stage-tools')) setOpen(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !menu.hidden) { setOpen(false); btn.focus(); }
+    });
+  })();
+
   // ---------- elements ----------
   var $ = function (id) { return document.getElementById(id); };
   var pet = $('pet'), bubble = $('bubble'), todoEl = $('todo'), doneEl = $('done');
@@ -388,7 +408,9 @@
           crumbs(mouthPoint(), CRUMB_COLORS[item.cat] || '#e8b04a', 7);
         }
         sound(L.soundFor(item));
-        say(pick(r.lines), 1400);
+        // shop items that aren't food get a comment in the personality's voice
+        if (nonfood) talk(Foods.kindOf(item.emoji), r.lines, 1400);
+        else say(pick(r.lines), 1400);
         if (goals) goalToast(goals);
         var hold = 750 * sp;
         if (r.then) return wait(hold / 2).then(function () { setFace(r.then); return wait(hold / 2); });
@@ -737,30 +759,38 @@
   function dressUp(el, outfit) {
     var item = wardrobeItem(outfit.hat);
     var body = !!(item && item.layer === 'body');
+    var face = wardrobeItem(outfit.face);
     el.querySelector('.outfit-hat').innerHTML = item && !body ? item.svg : '';
     el.querySelector('.outfit-body').innerHTML = item && body ? item.svg : '';
+    el.querySelector('.outfit-face').innerHTML = face ? face.svg : '';
     el.classList.toggle('hooded', !!(item && item.hood));
   }
 
-  var dressSheet = $('dressSheet'), dressPreview = $('dressPreview'), hatStrip = $('hatStrip');
+  var dressSheet = $('dressSheet'), dressPreview = $('dressPreview'), hatStrip = $('hatStrip'), faceStrip = $('faceStrip');
   var SVGNS = 'http://www.w3.org/2000/svg';
-  [{ id: 'none', label: 'Nothing' }].concat(Wardrobe.filter(function (w) { return w.slot === 'hat'; })).forEach(function (item) {
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.dataset.hat = item.id;
-    var icon = document.createElementNS(SVGNS, 'svg');
-    icon.setAttribute('viewBox', item.id === 'none' ? '0 0 40 40' : item.icon || '32 2 96 60');
-    icon.setAttribute('aria-hidden', 'true');
-    icon.innerHTML = item.svg || '<circle class="hat-none" cx="20" cy="20" r="12"/><path class="hat-none" d="M11.5 28.5 L28.5 11.5"/>';
-    var label = document.createElement('span');
-    label.textContent = item.label;
-    b.append(icon, label);
-    hatStrip.appendChild(b);
+  // one strip per slot: hats (and hoodies) on the head, glasses on the face
+  [{ slot: 'hat', strip: hatStrip, none: 'Nothing' }, { slot: 'face', strip: faceStrip, none: 'No glasses' }].forEach(function (row) {
+    [{ id: 'none', label: row.none }].concat(Wardrobe.filter(function (w) { return w.slot === row.slot; })).forEach(function (item) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.hat = item.id;
+      b.dataset.slot = row.slot;
+      var icon = document.createElementNS(SVGNS, 'svg');
+      icon.setAttribute('viewBox', item.id === 'none' ? '0 0 40 40' : item.icon || '32 2 96 60');
+      icon.setAttribute('aria-hidden', 'true');
+      icon.innerHTML = item.svg || '<circle class="hat-none" cx="20" cy="20" r="12"/><path class="hat-none" d="M11.5 28.5 L28.5 11.5"/>';
+      var label = document.createElement('span');
+      label.textContent = item.label;
+      b.append(icon, label);
+      row.strip.appendChild(b);
+    });
   });
-  /** Marks the chosen hat in the dressing room and updates its preview. */
+  /** Every wardrobe button, hats and glasses. */
+  function wearButtons() { return dressSheet.querySelectorAll('#hatStrip button, #faceStrip button'); }
+  /** Marks the chosen hat and glasses in the dressing room and updates its preview. */
   function refreshDressRoom() {
-    hatStrip.querySelectorAll('button').forEach(function (b) {
-      b.setAttribute('aria-pressed', b.dataset.hat === state.pet.outfit.hat ? 'true' : 'false');
+    wearButtons().forEach(function (b) {
+      b.setAttribute('aria-pressed', b.dataset.hat === state.pet.outfit[b.dataset.slot] ? 'true' : 'false');
     });
     var view = dressPreview.querySelector('.pet');
     if (view) dressUp(view, state.pet.outfit);
@@ -782,12 +812,12 @@
     refreshDressRoom();
     if (dressSheet.showModal) dressSheet.showModal(); else dressSheet.setAttribute('open', '');
   });
-  hatStrip.addEventListener('click', function (e) {
+  function onWearClick(e) {
     var b = e.target.closest('button');
     if (!b) return;
     if (!unlocked('hat', b.dataset.hat)) { lockHint(hatHint, 'hat', b.dataset.hat); return; }
     hatHint.hidden = true;
-    state.pet.outfit.hat = b.dataset.hat;
+    state.pet.outfit[b.dataset.slot] = b.dataset.hat;
     save();
     refreshDressRoom();
     dressUp(pet, state.pet.outfit);
@@ -805,7 +835,9 @@
       view.dataset.arms = b.dataset.hat === 'none' ? 'idle' : 'cheer';
       view.classList.remove('hop'); void view.offsetWidth; view.classList.add('hop');
     }
-  });
+  }
+  hatStrip.addEventListener('click', onWearClick);
+  faceStrip.addEventListener('click', onWearClick);
   // pointing at an unlocked outfit makes the pet react to it
   var dressBubble = $('dressBubble'), dressBubbleTimer, hoveredHat = null, lastOoh = 0;
   /**
@@ -829,7 +861,7 @@
    */
   function hatLine(id) {
     var item = wardrobeItem(id);
-    if (!item) return pick(['the natural look?', 'just me!', 'hat off?']);
+    if (!item) return pick(['the natural look?', 'just me!', 'all natural!']);
     return pick(item.lines || ['ooh!']);
   }
   /**
@@ -839,10 +871,10 @@
   function onHatHover(e) {
     // a finger has no hover: on phones the tap itself gets the outfit's line
     if (e.pointerType === 'touch') return;
-    var b = e.target.closest && e.target.closest('#hatStrip button');
+    var b = e.target.closest && e.target.closest('#hatStrip button, #faceStrip button');
     if (!b || b.dataset.hat === hoveredHat) return;
     hoveredHat = b.dataset.hat;
-    if (!unlocked('hat', b.dataset.hat) || b.dataset.hat === state.pet.outfit.hat) return;
+    if (!unlocked('hat', b.dataset.hat) || b.dataset.hat === state.pet.outfit[b.dataset.slot]) return;
     dressSay(hatLine(b.dataset.hat), 1600);
     var view = dressPreview.querySelector('.pet');
     if (view) sparkle(view);
@@ -860,20 +892,23 @@
     clearTimeout(sparkleTimer);
     sparkleTimer = setTimeout(function () { view.dataset.eyes = 'open'; view.dataset.mouth = 'smile'; }, 600);
   }
-  hatStrip.addEventListener('pointerover', onHatHover);
-  hatStrip.addEventListener('focusin', onHatHover);
-  hatStrip.addEventListener('pointerleave', function () {
+  [hatStrip, faceStrip].forEach(function (strip) {
+    strip.addEventListener('pointerover', onHatHover);
+    strip.addEventListener('focusin', onHatHover);
+    strip.addEventListener('pointerleave', onHatLeave);
+  });
+  function onHatLeave() {
     hoveredHat = null;
     var view = dressPreview.querySelector('.pet');
     if (view && view.dataset.eyes === 'sparkle') { view.dataset.eyes = 'open'; view.dataset.mouth = 'smile'; }
-  });
+  }
 
   dressSheet.addEventListener('close', function () {
     dressBubble.hidden = true;
     hoveredHat = null;
     if (!busy) {
       setFace(FACES.tada); pulse('hop', 500);
-      var item = wardrobeItem(state.pet.outfit.hat);
+      var item = wardrobeItem(state.pet.outfit.hat) || wardrobeItem(state.pet.outfit.face);
       if (item) talk('look', ['so fancy!', 'how do I look?', 'kawaii?', 'ta-da!'], 1500); else say('fresh look!', 1500);
       setTimeout(function () { if (!busy) settle(); }, 1000);
     }
@@ -1082,7 +1117,7 @@
   /** Brings every lock in the species grid and hat strip up to date. */
   function refreshLocks() {
     speciesGrid.querySelectorAll('button').forEach(function (b) { markLock(b, 'species', b.dataset.species); });
-    hatStrip.querySelectorAll('button').forEach(function (b) { markLock(b, 'hat', b.dataset.hat); });
+    wearButtons().forEach(function (b) { markLock(b, 'hat', b.dataset.hat); });
   }
   /**
    * Explains how to unlock a locked species or hat.

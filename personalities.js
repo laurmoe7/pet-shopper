@@ -11,6 +11,7 @@
  *   lower    all lower case
  *   bang     what '!' turns into (sleepy pets don't shout)
  * A line with a line break is said in two bubbles, one after the other.
+ * `health`, `home` and `stuff` are its comments on pharmacy, household and other shop items.
  * Add a new personality here and it shows up in the pet sheet.
  */
 (function (root) {
@@ -40,6 +41,9 @@
         full: ['best trip EVER!!', 'so full! thank you!!'],
         quick: ['wait, already?!', 'that was super quick!'],
         spit: ['oops! ptoo!', 'not yet? okay!'],
+        health: ['medicine? I\'ll be brave!!', 'ooh, sparkly clean teeth!', 'it smells so good!!'],
+        home: ['a clean home! yay!!', 'shiny house time!', 'wow, so useful!!'],
+        stuff: ['ooh, presents?!', 'we\'re getting EVERYTHING!', 'shopping spree!!'],
         name: ['I\'m {name}!!', '{name}, that\'s me!']
       }
     },
@@ -66,6 +70,9 @@
         full: ['thank you, sweetie ♡', 'my tummy is so happy~'],
         quick: ['hmm, so quick, sweetie?', 'was that really bought? ♡'],
         spit: ['oopsie ♡', 'sorry, sorry~'],
+        health: ['take care of yourself ♡', 'get well soon, sweetie~', 'pamper time ♡'],
+        home: ['a cosy clean home ♡', 'you work so hard, sweetie~'],
+        stuff: ['a little treat for you ♡', 'aww, so lovely~', 'is it a gift? ♡'],
         name: ['I\'m {name} ♡', 'call me {name}~']
       }
     },
@@ -92,6 +99,9 @@
         full: ['a good, wholesome trip.', 'thank you. I feel great~'],
         quick: ['hm, that was fast.', 'from the shop already?'],
         spit: ['ah, not yet.', 'I\'ll wait~'],
+        health: ['rest and look after yourself.', 'health first~', 'gentle self-care.'],
+        home: ['a tidy space, a calm mind.', 'fresh and clean~'],
+        stuff: ['do we need it? okay~', 'hm, useful.', 'mindful shopping.'],
         name: ['I\'m {name}.', '{name}, nice to meet you~']
       }
     },
@@ -118,6 +128,9 @@
         full: ['not bad. not bad at all.', 'a proper haul, finally!'],
         quick: ['you did NOT buy that yet.', 'nice try, cheeky.'],
         spit: ['ptoo! not cooked yet.', 'rude. take it back then.'],
+        health: ['finally, some self-care.', 'don\'t get sick on my watch!'],
+        home: ['clean that kitchen. now.', 'a chef needs a clean bench!'],
+        stuff: ['you can\'t eat that, genius.', 'not food. rude.', 'fine, but where\'s dinner?'],
         name: ['it\'s chef {name} to you.', '{name}. remember it.']
       }
     },
@@ -144,6 +157,9 @@
         full: ['full… time for a nap…', 'thank you… zzz'],
         quick: ['hm… that was fast…', 'already…?'],
         spit: ['mm… not yet…', 'later…'],
+        health: ['get some rest… like me…', 'mm… self-care… nap…'],
+        home: ['cleaning…? later…', 'so many chores… zzz'],
+        stuff: ['is it a new pillow…?', 'mm… shiny… zzz'],
         name: ['i\'m… {name}… zzz', '{name}… yawn…']
       }
     },
@@ -170,6 +186,9 @@
         full: ['a five-star haul!', 'bravo! encore!'],
         quick: ['you skipped the shop? scandal!', 'cheating? how tacky.'],
         spit: ['ew, not that, darling.', 'send it back to the chef!'],
+        health: ['my beauty routine!', 'flawless skin, darling.', 'glam essentials!'],
+        home: ['a spotless palace, darling.', 'the help will love this.'],
+        stuff: ['retail therapy!', 'add it to my collection.', 'a gift for me? obviously.'],
         name: ['the one, the only {name}!', '{name}. you\'re welcome.']
       }
     },
@@ -196,6 +215,9 @@
         full: ['experiment: success!', 'list completed. 100%!'],
         quick: ['that defies physics…', 'statistically suspicious.'],
         spit: ['error! returning item.', 'oops, wrong variable.'],
+        health: ['vitamins: science in a pill!', 'hygiene prevents germs!', 'for science and health.'],
+        home: ['entropy: defeated!', 'efficient household upkeep.'],
+        stuff: ['ooh, a new gadget!', 'acquiring equipment.', 'adding to inventory.'],
         name: ['Dr. {name}, at your service.', 'designation: {name}.']
       }
     }

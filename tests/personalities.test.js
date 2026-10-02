@@ -82,7 +82,7 @@ test('personality and tastes are saved with the pet', () => {
   assert.deepEqual(back.tastes, { dairy: 1 });
 });
 
-const KEYS = ['hi', 'tap', 'sleepy', 'suggest', 'decline', 'dream', 'idle', 'look', 'room', 'full', 'quick', 'spit', 'name'];
+const KEYS = ['hi', 'tap', 'sleepy', 'suggest', 'decline', 'dream', 'idle', 'look', 'room', 'full', 'quick', 'spit', 'name', 'health', 'home', 'stuff'];
 
 test('every personality has its own voice for every moment', () => {
   const seen = new Map();
