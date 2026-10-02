@@ -17,9 +17,21 @@
       SAMPLE.forEach(function (t) { data.items.push(makeItem(t, data.overrides)); });
     }
     data.overrides = data.overrides || {};
-    data.pet = data.pet || { name: 'Nibble', species: 'mochi' };
-    data.pet.outfit = data.pet.outfit || { hat: 'none' };
+    data.pet = petProfile(data.pet);
     return data;
+  }
+
+  // Everything about the pet itself lives in one plain object, state.pet, so it can
+  // later be stored online and shared by a household without touching the rest:
+  //   { name: 'Nibble', species: 'mochi', outfit: { hat: 'none' } }
+  // The pet's mood is not stored; it is worked out from the list (see baseState).
+  function petProfile(saved) {
+    saved = saved || {};
+    return {
+      name: typeof saved.name === 'string' ? saved.name : 'Nibble',
+      species: saved.species || 'mochi',
+      outfit: { hat: (saved.outfit && saved.outfit.hat) || 'none' }
+    };
   }
   function save() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* storage blocked */ }
@@ -439,7 +451,10 @@
     { id: 'kitty', label: 'Cat' },
     { id: 'puppy', label: 'Dog' },
     { id: 'bunny', label: 'Bunny' },
-    { id: 'chick', label: 'Chick' }
+    { id: 'chick', label: 'Chick' },
+    { id: 'cow', label: 'Cow' },
+    { id: 'hamster', label: 'Hamster' },
+    { id: 'penguin', label: 'Penguin' }
   ];
   var petSheet = $('petSheet'), petNameInput = $('petNameInput'), speciesGrid = $('speciesGrid');
 
