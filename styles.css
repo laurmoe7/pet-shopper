@@ -623,6 +623,10 @@ button { font: inherit; color: inherit; }
 .phones-cup { fill: #ffb3c6; stroke: var(--pet-ink); stroke-width: 2; }
 .phones-pad { fill: #9fdcc8; stroke: var(--pet-ink); stroke-width: 1.2; }
 .phones-note { fill: none; stroke: #e2607f; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.specs-lens { fill: rgba(255, 255, 255, .35); stroke: none; }
+.specs-top { fill: none; stroke: rgba(200, 60, 60, .35); stroke-width: 1; }
+.specs-rim { fill: none; stroke: #d6334a; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.specs-shine { fill: none; stroke: #fff; stroke-width: 1.4; stroke-linecap: round; opacity: .9; }
 .shades-lens { fill: #4a3a4f; stroke: #ff7f9e; stroke-width: 2.4; stroke-linejoin: round; }
 .shades-bridge, .shades-arm { fill: none; stroke: #ff7f9e; stroke-width: 2.4; stroke-linecap: round; }
 .shades-shine { fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; opacity: .8; }

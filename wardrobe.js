@@ -104,7 +104,7 @@
       svg: '<g transform="rotate(-5 80 40)" class="hat-hard">' +
         '<path class="hard-dome" d="M55 41 C55 15 105 15 105 41 Z"/>' +
         '<path class="hard-ridge" d="M74 41 V21 Q80 17 86 21 V41"/>' +
-        '<path class="hard-shine" d="M62 30 Q64 24 69 21"/>' +
+        '<path class="hard-shine" d="M63.5 34 Q65 28.5 69.5 25.5"/>' +
         '<path class="hard-brim" d="M48 41 Q80 34 112 41 Q113 46 108 46 Q80 41 52 46 Q47 46 48 41 Z"/>' +
         '<circle class="hard-sticker" cx="95" cy="31" r="4.2"/>' +
         '<path class="hard-sticker-face" d="M93.3 30.2 v.1 M96.7 30.2 v.1 M93.4 32.6 Q95 34 96.6 32.6"/>' +
@@ -114,14 +114,15 @@
       id: 'bandana', slot: 'hat', label: 'Bandana',
       lines: ['ready for adventure!', 'so cool, so comfy!', 'tied it myself!'],
       svg: '<g class="hat-bandana">' +
-        '<path class="bandana-cloth" d="M42 58 C44 26 116 26 118 58 C100 50 60 50 42 58 Z"/>' +
-        '<path class="bandana-edge" d="M42 58 C60 50 100 50 118 58"/>' +
-        '<circle class="bandana-dot" cx="62" cy="40" r="2"/><circle class="bandana-dot" cx="80" cy="34" r="2"/>' +
-        '<circle class="bandana-dot" cx="98" cy="40" r="2"/><circle class="bandana-dot" cx="72" cy="48" r="1.6"/>' +
-        '<circle class="bandana-dot" cx="90" cy="48" r="1.6"/><circle class="bandana-dot" cx="54" cy="50" r="1.6"/><circle class="bandana-dot" cx="106" cy="50" r="1.6"/>' +
-        '<path class="bandana-cloth" d="M116 54 L128 50 L124 60 Z"/>' +
-        '<path class="bandana-cloth" d="M116 55 L126 64 L117 64 Z"/>' +
-        '<circle class="bandana-cloth" cx="116" cy="55" r="3.6"/>' +
+        // hugs the top of the head down to the forehead, with a knot on the side
+        '<path class="bandana-cloth" d="M124 57 C123.2 55.8 121.2 51.7 119.5 49.6 C117.8 47.5 115.7 45.8 113.6 44.2 C111.5 42.6 109.3 41.1 106.8 39.8 C104.3 38.5 101.6 37.4 98.8 36.5 C96.0 35.6 93.0 34.9 89.9 34.4 C86.8 33.9 83.3 33.6 80 33.6 C76.7 33.6 73.2 33.9 70.1 34.4 C67.0 34.9 64.0 35.6 61.2 36.5 C58.4 37.4 55.7 38.5 53.2 39.8 C50.7 41.1 48.5 42.6 46.4 44.2 C44.3 45.8 42.2 47.5 40.5 49.6 C38.8 51.7 36.8 55.8 36 57 C60 60 100 60 124 57 Z"/>' +
+        '<path class="bandana-edge" d="M38 56 C60 58.6 100 58.6 122 56"/>' +
+        '<circle class="bandana-dot" cx="64" cy="41" r="2"/><circle class="bandana-dot" cx="80" cy="37.5" r="2"/>' +
+        '<circle class="bandana-dot" cx="96" cy="41" r="2"/><circle class="bandana-dot" cx="72" cy="49" r="1.6"/>' +
+        '<circle class="bandana-dot" cx="88" cy="49" r="1.6"/><circle class="bandana-dot" cx="54" cy="50" r="1.6"/><circle class="bandana-dot" cx="106" cy="50" r="1.6"/>' +
+        '<path class="bandana-cloth" d="M123 55 L134 50 L131 59 Z"/>' +
+        '<path class="bandana-cloth" d="M123 56 L132 65 L124.5 66 Z"/>' +
+        '<circle class="bandana-cloth" cx="123" cy="56" r="3.6"/>' +
         '</g>'
     },
     {
@@ -146,6 +147,19 @@
         '<path class="shades-lens" d="M58 104 C44 95 42 86 49 81.5 C53.5 79 57 81 58 84.5 C59 81 62.5 79 67 81.5 C74 86 72 95 58 104 Z"/>' +
         '<path class="shades-lens" d="M102 104 C88 95 86 86 93 81.5 C97.5 79 101 81 102 84.5 C103 81 106.5 79 111 81.5 C118 86 116 95 102 104 Z"/>' +
         '<path class="shades-shine" d="M50 86 Q51 83.5 53.5 83.5 M94 86 Q95 83.5 97.5 83.5"/>' +
+        '</g>'
+    },
+    {
+      id: 'redspecs', slot: 'face', label: 'Red specs', icon: '28 74 104 36',
+      lines: ['very studious!', 'peering over my glasses…', 'sharp eyes, sharp mind.'],
+      svg: '<g class="face-redspecs">' +
+        // half-rim reading glasses: a thin red frame under clear lenses, worn a little low
+        '<path class="specs-lens" d="M45 93 H71 C71 101 66 104 58 104 C50 104 45 101 45 93 Z"/>' +
+        '<path class="specs-lens" d="M89 93 H115 C115 101 110 104 102 104 C94 104 89 101 89 93 Z"/>' +
+        '<path class="specs-top" d="M45 93 H71 M89 93 H115"/>' +
+        '<path class="specs-rim" d="M45 93 C45 101 50 104 58 104 C66 104 71 101 71 93 M89 93 C89 101 94 104 102 104 C110 104 115 101 115 93"/>' +
+        '<path class="specs-rim" d="M71 94 Q80 89 89 94 M45 93.5 L31 89 M115 93.5 L129 89"/>' +
+        '<path class="specs-shine" d="M49 96 Q50 99.5 53 101"/>' +
         '</g>'
     }
   ];
