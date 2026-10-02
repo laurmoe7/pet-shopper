@@ -108,3 +108,17 @@ test('older saves get the dev switch off', () => {
   const on = PetLogic.parseState(JSON.stringify({ items: [], dev: { noWait: true } }), () => 1);
   assert.equal(on.dev.noWait, true);
 });
+
+test('renaming needs a double-tap: two taps close together, not one', () => {
+  assert.equal(PetLogic.isDoubleTap(0, 1000), false, 'the first tap only remembers the time');
+  assert.equal(PetLogic.isDoubleTap(1000, 1250), true);
+  assert.equal(PetLogic.isDoubleTap(1000, 1000 + PetLogic.DOUBLE_TAP_MS + 1), false, 'too slow');
+  assert.equal(PetLogic.isDoubleTap(2000, 1000), false, 'clock went backwards');
+});
+
+test('a typed name is tidied, and an empty one keeps the old name', () => {
+  assert.equal(PetLogic.cleanName('  Mochi  ', 'Nibble'), 'Mochi');
+  assert.equal(PetLogic.cleanName('   ', 'Mochi'), 'Mochi');
+  assert.equal(PetLogic.cleanName('a really long pet name', 'x').length, 16);
+  assert.equal(PetLogic.cleanName('', ''), 'Nibble');
+});

@@ -81,3 +81,50 @@ test('personality and tastes are saved with the pet', () => {
   assert.equal(back.personality, 'chef');
   assert.deepEqual(back.tastes, { dairy: 1 });
 });
+
+const KEYS = ['hi', 'tap', 'sleepy', 'suggest', 'decline', 'dream', 'idle', 'look', 'room', 'full', 'quick', 'spit', 'name'];
+
+test('every personality has its own voice for every moment', () => {
+  const seen = new Map();
+  for (const p of Personalities) {
+    assert.ok(p.voice && p.voice.tone && p.voice.style, p.id);
+    for (const k of KEYS) {
+      assert.ok(Array.isArray(p.voice[k]) && p.voice[k].length, p.id + ' has ' + k + ' lines');
+      for (const line of p.voice[k]) {
+        assert.ok(line.length <= 34, p.id + ' line is short: ' + line);
+        assert.ok(!seen.has(line), line + ' is used by both ' + seen.get(line) + ' and ' + p.id);
+        seen.set(line, p.id);
+      }
+    }
+    assert.ok(p.voice.suggest.every((l) => l.includes('{x}')), p.id + ' suggestions name the item');
+    assert.ok(p.voice.dream.every((l) => l.includes('{x}')), p.id + ' daydreams name the item');
+    assert.ok(p.voice.name.every((l) => l.includes('{name}')), p.id + ' says its name');
+  }
+});
+
+test('the tones Lauren asked for are all there', () => {
+  const tones = Personalities.map((p) => p.voice.tone);
+  for (const t of ['sassy', 'sweet', 'sleepy', 'excited']) assert.ok(tones.includes(t), t);
+  assert.equal(new Set(tones).size, tones.length, 'each personality sounds different');
+});
+
+test('a personality line fills in the item and keeps its own tone', () => {
+  const chef = Personalities.find((p) => p.voice.tone === 'sassy');
+  const first = () => 0;
+  assert.equal(L.voiceLine(chef, 'suggest', ['x'], { x: 'eggs' }, first), chef.voice.suggest[0].replace('{x}', 'eggs'));
+  const plain = { id: 'plain', lines: [] };
+  assert.equal(L.voiceLine(plain, 'tap', ['hi!'], {}, first), 'hi!', 'falls back without a voice');
+});
+
+test('other lines pick up the tone: sleepy is quiet and lower case, sweet adds hearts', () => {
+  const sleepy = Personalities.find((p) => p.voice.tone === 'sleepy');
+  const sweet = Personalities.find((p) => p.voice.tone === 'sweet');
+  const sassy = Personalities.find((p) => p.voice.tone === 'sassy');
+  const always = () => 0;
+  const never = () => 0.99;
+  assert.equal(L.styleLine(sleepy, 'HOT HOT HOT!', never), 'hot hot hot…');
+  assert.equal(L.styleLine(sweet, 'yum yum!', always), 'aww, yum yum' + sweet.voice.style.endings[0]);
+  assert.match(L.styleLine(sassy, 'tasty!', always), /^tasty, obviously$|^ugh, tasty, obviously$/);
+  assert.equal(L.styleLine(sweet, 'is it ok?', never), 'is it ok?', 'questions keep their ending');
+  assert.equal(L.styleLine(sleepy, 'Zzz… tea…', never, true), 'zzz… tea…');
+});

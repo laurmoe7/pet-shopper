@@ -201,12 +201,13 @@
    * Shows a speech bubble, unless quiet mode is on.
    * @param {string} text
    * @param {number} [ms=1500] How long it stays.
+   * @param {boolean} [own] Already in the personality's voice (from `line`), so not restyled.
    */
-  function say(text, ms) {
+  function say(text, ms, own) {
     if (state.quiet || !state.settings.bubbles || !text) return;
     bubble.hidden = true;
     void bubble.offsetWidth;
-    bubble.textContent = text;
+    bubble.textContent = own ? text : L.styleLine(personality(), text);
     bubble.hidden = false;
     clearTimeout(bubbleTimer);
     bubbleTimer = setTimeout(function () { bubble.hidden = true; }, ms || 1500);
@@ -216,6 +217,16 @@
    * @param {T[]} list
    * @returns {T} A random entry.
    */
+  /**
+   * The current personality's line for a moment (see `voice` in personalities.js).
+   * @param {string} key
+   * @param {string[]} fallback
+   * @param {Object<string, string>} [vars]
+   * @returns {string}
+   */
+  function line(key, fallback, vars) { return L.voiceLine(personality(), key, fallback, vars); }
+  /** Says the personality's line for a moment. */
+  function talk(key, fallback, ms, vars) { say(line(key, fallback, vars), ms, true); }
   function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
   /**
    * @param {number} ms
@@ -381,14 +392,14 @@
           // its favourite kind of food: hearts and a happy wiggle
           setFace(FACES.love);
           pulse('hop', 460);
-          say(pick(personality().lines), 1300);
+          say(L.styleLine(personality(), pick(personality().lines), null, true), 1300);
           return wait(800 * sp);
         }
       }).then(function () {
         if (goals && goals.blocked === 'too-fast' && state.settings.fairPlayTips) {
           // a playful nudge rather than a telling-off
           setFace(FACES.suspicious);
-          say(pick(['did you really buy that?', 'hmm, that was quick…', 'straight from the list?']), 1600);
+          talk('quick', ['did you really buy that?', 'hmm, that was quick…', 'straight from the list?'], 1600);
           return wait(1100 * sp);
         }
       }).then(function () {
@@ -413,7 +424,7 @@
       if (btn) btn.classList.add('gone');
       var to = rect ? center(rect) : { x: innerWidth / 2, y: innerHeight - 40 };
       var p = fly(item.emoji, mouthPoint(), to, { duration: 520, scaleFrom: 0.5, scaleTo: 1, spin: -160, lift: 40 });
-      setTimeout(function () { setFace(FACES.sheepish); say(pick(['oops, sorry', 'spit! my bad', 'not yet? ok', 'ptoo!']), 1400); }, 200);
+      setTimeout(function () { setFace(FACES.sheepish); talk('spit', ['oops, sorry', 'spit! my bad', 'not yet? ok', 'ptoo!'], 1400); }, 200);
       return p.then(function () {
         if (btn) btn.classList.remove('gone');
         return wait(700);
@@ -430,7 +441,7 @@
     setFace(FACES.party);
     pulse('pat', 1700);
     sound('party');
-    say(pick(['so full! thank you!', 'best trip ever!', '*happy belly pat*']), 2200);
+    talk('full', ['so full! thank you!', 'best trip ever!', '*happy belly pat*'], 2200);
     buzz([20, 60, 20]);
     if (!reduceMotion) {
       var from = mouthPoint();
@@ -648,22 +659,57 @@
     applyPet();
     if (!busy) { setFace(FACES.tada); pulse('hop', 500); setTimeout(function () { if (!busy) settle(); }, 900); }
   });
-  petNameInput.addEventListener('input', function () {
-    state.pet.name = petNameInput.value.slice(0, 16);
-    save();
-    applyPet();
+  // The name shows as text; a double-tap (or Enter) turns it into a box to type in,
+  // so opening the sheet doesn't pop up the phone keyboard.
+  var petNameShow = $('petNameShow'), lastNameTap = 0;
+  function showName() {
+    $('petNameText').textContent = petName();
+    petNameInput.hidden = true;
+    petNameShow.hidden = false;
+  }
+  function startRename() {
+    petNameInput.value = state.pet.name || '';
+    petNameShow.hidden = true;
+    petNameInput.hidden = false;
+    petNameInput.focus();
+    petNameInput.select();
+  }
+  function finishRename(keep) {
+    if (petNameInput.hidden) return;
+    if (keep) {
+      state.pet.name = L.cleanName(petNameInput.value, petName());
+      save();
+      applyPet();
+    }
+    showName();
+    petNameShow.focus();
+  }
+  petNameShow.addEventListener('click', function (e) {
+    var now = Date.now();
+    // detail is 0 for keyboard clicks (Enter or Space): rename straight away
+    if (e.detail === 0 || L.isDoubleTap(lastNameTap, now)) { lastNameTap = 0; startRename(); return; }
+    lastNameTap = now;
+    petNameShow.classList.remove('nudge'); void petNameShow.offsetWidth; petNameShow.classList.add('nudge');
   });
+  petNameShow.addEventListener('dblclick', function (e) { e.preventDefault(); if (petNameInput.hidden) startRename(); });
+  petNameInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); finishRename(true); }
+    else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finishRename(false); }
+  });
+  petNameInput.addEventListener('blur', function () { finishRename(true); });
   $('editPetBtn').addEventListener('click', function () {
-    petNameInput.value = state.pet.name;
+    showName();
+    lastNameTap = 0;
     refreshLocks();
     applyPet();
     if (petSheet.showModal) petSheet.showModal(); else petSheet.setAttribute('open', '');
   });
   petSheet.addEventListener('close', function () {
+    finishRename(true);
     state.pet.name = petName();
     save();
     applyPet();
-    if (!busy) { pulse('hop', 500); say("I'm " + petName() + '!', 1500); }
+    if (!busy) { pulse('hop', 500); talk('name', ["I'm {name}!"], 1500, { name: petName() }); }
   });
   petSheet.addEventListener('click', function (e) { if (e.target === petSheet) petSheet.close(); });
 
@@ -740,7 +786,8 @@
     dressUp(pet, state.pet.outfit);
     if (b.dataset.hat !== 'none') sound('excited');
     var pointed = hoveredHat === b.dataset.hat;
-    dressSay(b.dataset.hat === 'none' ? 'fresh look!' : pointed ? pick(['how do I look?', 'I love it!', 'kawaii?', 'more outfits!', 'ta-da!']) : hatLine(b.dataset.hat), 1600);
+    if (pointed && b.dataset.hat !== 'none') dressSay(line('look', ['how do I look?', 'I love it!', 'kawaii?', 'ta-da!']), 1600, true);
+    else dressSay(b.dataset.hat === 'none' ? 'fresh look!' : hatLine(b.dataset.hat), 1600);
     var view = dressPreview.querySelector('.pet');
     if (view) {
       view.dataset.mouth = 'smile';
@@ -759,9 +806,9 @@
    * @param {string} text
    * @param {number} ms
    */
-  function dressSay(text, ms) {
+  function dressSay(text, ms, own) {
     if (state.quiet || !state.settings.bubbles) return;
-    dressBubble.textContent = text;
+    dressBubble.textContent = own ? text : L.styleLine(personality(), text);
     dressBubble.hidden = false;
     // restart the pop animation
     dressBubble.style.animation = 'none'; void dressBubble.offsetWidth; dressBubble.style.animation = '';
@@ -820,7 +867,7 @@
     if (!busy) {
       setFace(FACES.tada); pulse('hop', 500);
       var item = wardrobeItem(state.pet.outfit.hat);
-      say(item ? pick(['so fancy!', 'how do I look?', 'kawaii?', 'ta-da!']) : 'fresh look!', 1500);
+      if (item) talk('look', ['so fancy!', 'how do I look?', 'kawaii?', 'ta-da!'], 1500); else say('fresh look!', 1500);
       setTimeout(function () { if (!busy) settle(); }, 1000);
     }
   });
@@ -889,7 +936,7 @@
     var placed = L.toggleDecor(state.pet.room, decorItem(b.dataset.decor));
     save();
     renderRoom();
-    if (placed) { sound('ooh'); dressSay(pick(['so cosy!', 'home sweet home!', 'I love it here!']), 1500); }
+    if (placed) { sound('ooh'); dressSay(line('room', ['so cosy!', 'home sweet home!', 'I love it here!']), 1500, true); }
   });
 
   // drag placed decor around the room
@@ -1171,7 +1218,8 @@
     pulse('hop', 460);
     var s = baseState();
     if (s !== 'stuffed' && Math.random() < 0.12 && offerSuggestion()) return;
-    say(s === 'sleepy' || s === 'stuffed' ? 'zzz… snack?' : pick(['hi!', 'hungry!', 'shopping?', 'hehe']), 1200);
+    if (s === 'sleepy' || s === 'stuffed') talk('sleepy', ['zzz… snack?'], 1200);
+    else talk('tap', ['hi!', 'hungry!', 'shopping?', 'hehe'], 1200);
   });
 
   // ---------- personalities ----------
@@ -1257,7 +1305,7 @@
     lastSuggestion = Date.now();
     clearTimeout(suggestTimer);
     suggestTimer = setTimeout(function () { suggestEl.hidden = true; }, 15000);
-    say(pick(['ooh, how about ' + text.toLowerCase() + '?', 'can we get ' + text.toLowerCase() + '?', text.toLowerCase() + ', please?']), 1800);
+    talk('suggest', ['ooh, how about {x}?', 'can we get {x}?', '{x}, please?'], 1800, { x: text.toLowerCase() });
     return true;
   }
   suggestBtn.addEventListener('click', function () {
@@ -1266,7 +1314,7 @@
   });
   $('suggestNo').addEventListener('click', function () {
     suggestEl.hidden = true;
-    if (!busy) { setFace(FACES.sheepish); say(pick(['ok, maybe next time', 'aww, fine']), 1200); setTimeout(function () { if (!busy) settle(); }, 1000); }
+    if (!busy) { setFace(FACES.sheepish); talk('decline', ['ok, maybe next time', 'aww, fine'], 1200); setTimeout(function () { if (!busy) settle(); }, 1000); }
   });
 
   // ---------- options ----------
@@ -1406,7 +1454,7 @@
       setFace(FACES.love);
       pulse('hop', 460);
       sound('ooh');
-      say(pick(['ooh, ' + item.text.toLowerCase() + '!', 'can\'t wait!', 'my favourite!']), 1600);
+      talk('dream', ['ooh, {x}!', 'can\'t wait!', 'my favourite!'], 1600, { x: item.text.toLowerCase() });
     } else {
       setFace(FACES.dreamy);
     }
@@ -1463,7 +1511,7 @@
     { moods: ['happy'], run: function () { setFace(FACES.tada); pulse('twirl', 800); } },
     { moods: ['happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); } },
     { moods: ['happy'], run: function () { if (!cartEl.hidden) { setFace({ eyes: 'open', mouth: 'open', arms: 'reach', x: [] }); pulse('peek', 1400); say(pick(['what\'s in the cart?', 'so much loot!', 'cart buddy!']), 1300); } } },
-    { moods: ['curious'], run: function () { setFace({ eyes: 'open', mouth: 'o', arms: 'scratch', x: ['question'] }); say(pick(['what\'s next?', 'shopping time?']), 1300); } },
+    { moods: ['curious'], run: function () { setFace({ eyes: 'open', mouth: 'o', arms: 'scratch', x: ['question'] }); talk('idle', ['what\'s next?', 'shopping time?'], 1300); } },
     { moods: ['sleepy', 'stuffed'], run: function () { pulse('wiggle', 900); } },
     { moods: ['stuffed'], run: function () { setFace({ eyes: 'closed', mouth: 'smile', arms: 'pat', x: ['zzz', 'cheeks'] }); } }
   ];
@@ -1523,7 +1571,7 @@
       setFace(FACES.wake);
       pulse('stretch', 1000);
       var away = Date.now() - (state.lastOpen || 0);
-      say(away > 6 * 3600 * 1000 ? '*yaaawn* hi!' : 'oh, hi!', 1400);
+      if (away > 6 * 3600 * 1000) say('*yaaawn* hi!', 1400); else talk('hi', ['oh, hi!'], 1400);
       setTimeout(function () { busy--; if (!busy) settle(); }, 1000);
     }, 700);
   }

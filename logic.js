@@ -538,6 +538,80 @@
     return options[Math.floor((random || Math.random)() * options.length)];
   }
 
+  // ---------- pet name ----------
+
+  /** Taps closer together than this (ms) count as a double-tap. */
+  var DOUBLE_TAP_MS = 400;
+
+  /**
+   * @param {number} last  Time of the previous tap (0 if none).
+   * @param {number} now
+   * @returns {boolean} True if this tap completes a double-tap.
+   */
+  function isDoubleTap(last, now) {
+    return last > 0 && now - last >= 0 && now - last <= DOUBLE_TAP_MS;
+  }
+
+  /**
+   * Tidies a typed name: trimmed, at most 16 characters, and the old name if left empty.
+   * @param {string} typed
+   * @param {string} old
+   * @returns {string}
+   */
+  function cleanName(typed, old) {
+    var name = String(typed || '').trim().slice(0, 16).trim();
+    return name || old || 'Nibble';
+  }
+
+  // ---------- how the pet talks ----------
+
+  /**
+   * Gives a line the personality's tone (see `voice.style` in personalities.js).
+   * @param {Object} personality
+   * @param {string} text
+   * @param {function(): number} [random]
+   * @param {boolean} [own] True for the personality's own lines, which already
+   *   sound right: they only get the case and '!' changes, no extra endings.
+   * @returns {string}
+   */
+  function styleLine(personality, text, random, own) {
+    var st = personality && personality.voice && personality.voice.style;
+    if (!st || !text) return text;
+    var rnd = random || Math.random;
+    var out = text;
+    if (st.lower) out = out.toLowerCase();
+    if (st.bang && st.bang !== '!') out = out.replace(/!+/g, st.bang);
+    if (own) return out;
+    var ended = /[?♡…]$|zzz$/.test(out) || st.endings.some(function (e) { return out.slice(-e.length) === e; });
+    if (!ended && st.endings.length && rnd() < 0.4) {
+      out = out.replace(/[.!~]+$/, '') + st.endings[Math.floor(rnd() * st.endings.length)];
+    }
+    if (st.prefixes.length && rnd() < 0.2) {
+      var pre = st.prefixes[Math.floor(rnd() * st.prefixes.length)];
+      if (out.indexOf(pre.trim()) !== 0) out = pre + out;
+    }
+    return out;
+  }
+
+  /**
+   * Picks the personality's own line for a moment, or one of the fallbacks.
+   * @param {Object} personality
+   * @param {string} key  e.g. 'tap', 'suggest', 'dream'.
+   * @param {string[]} fallback  Used when the personality has no lines for it.
+   * @param {Object<string, string>} [vars]  Filled in for {x}, {name}, …
+   * @param {function(): number} [random]
+   * @returns {string}
+   */
+  function voiceLine(personality, key, fallback, vars, random) {
+    var rnd = random || Math.random;
+    var own = personality && personality.voice && personality.voice[key];
+    var list = own && own.length ? own : fallback;
+    var text = list[Math.floor(rnd() * list.length)].replace(/\{(\w+)\}/g, function (m, k) {
+      return vars && vars[k] != null ? vars[k] : m;
+    });
+    return styleLine(personality, text, rnd, !!(own && own.length));
+  }
+
   // ---------- developer tools ----------
   // Shortcuts for testing from the dev menu. Not used in normal play.
 
@@ -648,6 +722,11 @@
     personalityProgress: personalityProgress,
     likes: likes,
     suggestion: suggestion,
+    styleLine: styleLine,
+    DOUBLE_TAP_MS: DOUBLE_TAP_MS,
+    isDoubleTap: isDoubleTap,
+    cleanName: cleanName,
+    voiceLine: voiceLine,
     toggleDecor: toggleDecor,
     moveDecor: moveDecor,
     FRESH_MS: FRESH_MS,

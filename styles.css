@@ -352,6 +352,18 @@ button { font: inherit; color: inherit; }
   font: inherit; font-size: 1.05rem; color: var(--ink); background: var(--surface-2);
   border: 1.8px solid var(--outline); border-radius: 999px; padding: 10px 16px; outline: 0;
 }
+.name-show {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  width: 100%; min-height: 46px; padding: 10px 16px; border-radius: 999px;
+  border: 1.8px dashed var(--outline); background: var(--surface-2); color: var(--ink);
+  font: inherit; font-size: 1.05rem; font-weight: 800; text-align: left; cursor: pointer;
+  touch-action: manipulation; -webkit-user-select: none; user-select: none;
+}
+.name-show[hidden] { display: none; }
+.name-show .name-pen { color: var(--muted); font-size: .9rem; }
+.name-show.nudge { animation: name-nudge .35s ease; }
+@keyframes name-nudge { 30% { transform: translateX(-3px); } 60% { transform: translateX(3px); } }
+.name-hint { font-size: .78rem; color: var(--muted); font-weight: 700; }
 .field input:focus-visible { box-shadow: 0 0 0 4px var(--stage-top); }
 .species { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .species-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }

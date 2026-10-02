@@ -270,10 +270,12 @@
 <dialog class="picker pet-sheet" id="petSheet" aria-labelledby="petSheetTitle">
   <form method="dialog" class="picker-inner" id="petForm">
     <h2 id="petSheetTitle">Your pet</h2>
-    <label class="field">
-      <span class="field-label">Name</span>
-      <input id="petNameInput" type="text" maxlength="16" autocomplete="off" enterkeyhint="done" placeholder="Nibble">
-    </label>
+    <div class="field">
+      <span class="field-label" id="petNameLabel">Name</span>
+      <button type="button" class="name-show" id="petNameShow" aria-describedby="petNameHint"><span id="petNameText">Nibble</span><span class="name-pen" aria-hidden="true">✎</span></button>
+      <input id="petNameInput" type="text" maxlength="16" autocomplete="off" enterkeyhint="done" placeholder="Nibble" aria-labelledby="petNameLabel" hidden>
+      <span class="name-hint" id="petNameHint">Double-tap the name to change it</span>
+    </div>
     <fieldset class="species">
       <legend class="field-label">Species</legend>
       <div class="species-grid" id="speciesGrid"></div>
@@ -281,7 +283,7 @@
     <fieldset class="species">
       <legend class="field-label">Personality</legend>
       <div class="hat-strip mood-strip" id="personalityStrip"></div>
-      <p class="decor-hint">Earned by what you feed it. Each one has its own favourite foods to daydream about and ask for.</p>
+      <p class="decor-hint">Earned by what you feed it. Each one has its own favourite foods and its own way of talking.</p>
     </fieldset>
     <p class="lock-hint" id="speciesHint" aria-live="polite" hidden></p>
     <div class="picker-foot">
