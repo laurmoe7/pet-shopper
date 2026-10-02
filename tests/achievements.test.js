@@ -143,13 +143,15 @@ test('a finished shopping trip counts once a day', () => {
   assert.equal(L.progress(pet, tidy, day(2)).count, 2);
 });
 
-test('Mochi, Cat, Dog, Pig and the top hat are free; the rest are locked at first', () => {
+test('Mochi, Cat, Dog, Pig, the top hat, boy cap and cow hoodie are free; the rest are locked at first', () => {
   const pet = fresh();
   const open = (k, id) => L.isUnlocked(pet, k, id, Achievements, FreeUnlocks);
   for (const id of ['mochi', 'pig', 'kitty', 'puppy']) assert.ok(open('species', id), id);
   for (const id of ['bunny', 'chick', 'cow', 'hamster', 'penguin']) assert.ok(!open('species', id), id);
   assert.ok(open('hat', 'none'));
   assert.ok(open('hat', 'tophat'));
+  assert.ok(open('hat', 'cap'));
+  assert.ok(open('hat', 'hoodie'));
   assert.ok(!open('hat', 'maid'));
   assert.ok(!open('hat', 'sunhat'));
 });
@@ -182,6 +184,14 @@ test('an item ticked off right after adding it does not count', () => {
   assert.equal(r.blocked, 'too-fast');
   const later = L.recordEaten(pet, quick, new Date(added + L.FRESH_MS), Achievements);
   assert.deepEqual(later.counted, ['fish-fan']);
+});
+
+test('the wait before an item counts is 15 minutes', () => {
+  assert.equal(L.FRESH_MS, 15 * 60 * 1000);
+  const added = day(1, 12).getTime();
+  const item = { text: 'tuna', emoji: '🐟', cat: 'protein', added };
+  assert.equal(L.recordEaten(fresh(), item, new Date(added + 14 * 60 * 1000), Achievements).blocked, 'too-fast');
+  assert.deepEqual(L.recordEaten(fresh(), item, new Date(added + 15 * 60 * 1000), Achievements).counted, ['fish-fan']);
 });
 
 test('new items remember when they were added; old saved items still count', () => {

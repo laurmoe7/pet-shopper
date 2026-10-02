@@ -54,5 +54,5 @@
   ];
 
   // Available from the start, no achievement needed.
-  root.FreeUnlocks = { species: ['mochi', 'pig', 'kitty', 'puppy'], hat: ['none', 'tophat'] };
+  root.FreeUnlocks = { species: ['mochi', 'pig', 'kitty', 'puppy'], hat: ['none', 'tophat', 'cap', 'hoodie'] };
 })(typeof self !== 'undefined' ? self : globalThis);

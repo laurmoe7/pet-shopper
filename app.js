@@ -626,24 +626,26 @@
     return null;
   }
   /**
-   * Draws an outfit's hat into a pet drawing.
+   * Draws an outfit into a pet drawing: hats on the head, body items (hoodies) over the whole pet.
    * @param {Element} el A .pet element.
    * @param {{hat: string}} outfit
    */
   function dressUp(el, outfit) {
-    var slot = el.querySelector('.outfit-hat');
     var item = wardrobeItem(outfit.hat);
-    slot.innerHTML = item ? item.svg : '';
+    var body = !!(item && item.layer === 'body');
+    el.querySelector('.outfit-hat').innerHTML = item && !body ? item.svg : '';
+    el.querySelector('.outfit-body').innerHTML = item && body ? item.svg : '';
+    el.classList.toggle('hooded', !!(item && item.hood));
   }
 
   var dressSheet = $('dressSheet'), dressPreview = $('dressPreview'), hatStrip = $('hatStrip');
   var SVGNS = 'http://www.w3.org/2000/svg';
-  [{ id: 'none', label: 'No hat' }].concat(Wardrobe.filter(function (w) { return w.slot === 'hat'; })).forEach(function (item) {
+  [{ id: 'none', label: 'Nothing' }].concat(Wardrobe.filter(function (w) { return w.slot === 'hat'; })).forEach(function (item) {
     var b = document.createElement('button');
     b.type = 'button';
     b.dataset.hat = item.id;
     var icon = document.createElementNS(SVGNS, 'svg');
-    icon.setAttribute('viewBox', item.id === 'none' ? '0 0 40 40' : '32 2 96 60');
+    icon.setAttribute('viewBox', item.id === 'none' ? '0 0 40 40' : item.icon || '32 2 96 60');
     icon.setAttribute('aria-hidden', 'true');
     icon.innerHTML = item.svg || '<circle class="hat-none" cx="20" cy="20" r="12"/><path class="hat-none" d="M11.5 28.5 L28.5 11.5"/>';
     var label = document.createElement('span');
@@ -764,7 +766,7 @@
   var toastTimer;
   // what the toast says when a fair-play rule stops something counting
   var FAIR_PLAY = {
-    'too-fast': 'Too quick! Items count after 20 min',
+    'too-fast': 'Too quick! Items count after 15 min',
     repeat: 'Already counted that today',
     clock: 'Clock went back, goals paused'
   };

@@ -168,6 +168,8 @@
               </g>
               <path data-sp="chick" class="beak" d="M75 99 Q80 95 85 99 Q80 103 75 99Z"/>
               <!-- hats are drawn at a slightly bigger scale, centred on the top of the head -->
+              <!-- full-size outfits such as hoodies cover the whole pet -->
+              <g class="outfit-body"></g>
               <g transform="translate(80 45) scale(1.3) translate(-80 -40)"><g class="outfit-hat"></g></g>
               <!-- little nubbly arms -->
               <g class="arm arm-l"><ellipse cx="27" cy="117" rx="7" ry="9"/><ellipse class="arm-hi" cx="25" cy="114" rx="2.4" ry="3"/></g>
@@ -269,7 +271,7 @@
     <h2 id="dressTitle">Dressing room</h2>
     <div class="dress-stage"><div class="dress-preview" id="dressPreview"></div><div class="dress-bubble" id="dressBubble" aria-live="polite" hidden></div></div>
     <fieldset class="species">
-      <legend class="field-label">Hats</legend>
+      <legend class="field-label">Outfits</legend>
       <div class="hat-strip" id="hatStrip"></div>
     </fieldset>
     <p class="lock-hint" id="hatHint" aria-live="polite" hidden></p>
@@ -283,7 +285,7 @@
 <dialog class="picker pet-sheet" id="goalsSheet" aria-labelledby="goalsTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="goalsTitle">Goals</h2>
-    <p class="goals-intro">Feed <span class="pet-name">Nibble</span> to unlock new friends and hats. Only a few count each day, so come back tomorrow for more. Items count once they've been on your list for 20 minutes, and each item once a day.</p>
+    <p class="goals-intro">Feed <span class="pet-name">Nibble</span> to unlock new friends and hats. Only a few count each day, so come back tomorrow for more. Items count once they've been on your list for 15 minutes, and each item once a day.</p>
     <ul class="goal-list" id="goalList"></ul>
     <div class="picker-foot">
       <span></span>

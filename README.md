@@ -32,10 +32,10 @@ The tests live in `tests/` and load the same scripts the browser uses.
 - Tap an item's emoji, or long-press the item, to pick a different one. The choice is remembered for that word.
 - Nibble has five states: sleepy, curious, happy, stuffed, plus eating. The emoji hops into its mouth when you check it off, with a reaction per food type (fruit, veg, sweets, spicy, drinks, bread, non-food, mystery). Unchecking makes Nibble spit it back. Finishing the list gets a little celebration and a nap.
 - Tap "Edit pet" to rename your pet and pick a species: mochi, pig, cat, dog, bunny, chick, cow, hamster or penguin. Its little arms join in on every reaction, and its eyes follow your finger or cursor.
-- Tap "Dress up" to open the dressing room and try on a hat: top hat, maid's hairband or sun hat. Point at a hat and your pet says something about it; try one on and it squeaks with excitement. Hats are a list in `wardrobe.js` (with the pet's lines for each), so more items can be added there. This is a test of the cosmetics idea; nothing is paid yet.
-- Tap "Goals" to see achievements. Mochi, Pig, Cat, Dog and the top hat are free; Bunny, Chick, Cow, Hamster, Penguin, the maid's hairband and the sun hat unlock by feeding your pet (for example, 20 fish for the Penguin). Only a few count each calendar day (2 fish a day for the Penguin), so nothing unlocks in one day. Some fair-play rules keep it about real shopping:
+- Tap "Dress up" to open the dressing room and try on an outfit: top hat, maid's hairband, sun hat, boy cap or a white cow hoodie (horns, ears and spots on the hood). Point at a hat and your pet says something about it; try one on and it squeaks with excitement. Hats are a list in `wardrobe.js` (with the pet's lines for each), so more items can be added there. This is a test of the cosmetics idea; nothing is paid yet.
+- Tap "Goals" to see achievements. Mochi, Pig, Cat, Dog, the top hat, boy cap and cow hoodie are free; Bunny, Chick, Cow, Hamster, Penguin, the maid's hairband and the sun hat unlock by feeding your pet (for example, 20 fish for the Penguin). Only a few count each calendar day (2 fish a day for the Penguin), so nothing unlocks in one day. Some fair-play rules keep it about real shopping:
   - Putting an item back the same day takes its count back.
-  - An item only counts after 20 minutes on the list. Tick it off sooner and the pet asks if you really bought it.
+  - An item only counts after 15 minutes on the list. Tick it off sooner and the pet asks if you really bought it.
   - The same item counts once a day.
   - A finished list needs 3 or more items to count as a trip.
   - If the phone's clock goes back, counting pauses until it catches up. Goals are a list in `achievements.js`.

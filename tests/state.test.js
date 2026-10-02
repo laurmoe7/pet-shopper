@@ -40,11 +40,23 @@ test('older saves without pet details get the defaults', () => {
 
 test('wardrobe hats have unique ids and a drawing', () => {
   const hatIds = Wardrobe.map((w) => w.id);
-  assert.deepEqual(hatIds, ['tophat', 'maid', 'sunhat']);
+  assert.deepEqual(hatIds, ['tophat', 'maid', 'sunhat', 'cap', 'hoodie']);
   assert.equal(new Set(hatIds).size, hatIds.length);
   for (const w of Wardrobe) {
     assert.equal(w.slot, 'hat');
     assert.match(w.svg, /^<g[\s\S]*<\/g>$/);
     assert.ok(Array.isArray(w.lines) && w.lines.length > 0, w.id + ' needs dressing-room lines');
+    assert.ok(!w.layer || w.layer === 'body', w.id);
   }
+});
+
+test('the cow hoodie covers the whole pet and tucks its ears away', () => {
+  const hoodie = Wardrobe.find((w) => w.id === 'hoodie');
+  assert.equal(hoodie.layer, 'body');
+  assert.equal(hoodie.hood, true);
+  // horns, ears and spots, with a hole for the face
+  assert.match(hoodie.svg, /hood-horn/);
+  assert.match(hoodie.svg, /hood-ear/);
+  assert.match(hoodie.svg, /hood-spot/);
+  assert.match(hoodie.svg, /fill-rule="evenodd"/);
 });

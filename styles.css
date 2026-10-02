@@ -370,6 +370,28 @@ button { font: inherit; color: inherit; }
 .sun-flower circle { fill: #fff; stroke: var(--pet-ink); stroke-width: 1; }
 .sun-flower .sun-flower-mid { fill: #ffd65c; }
 
+/* boy cap */
+.cap-crown { fill: #fdf6ec; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
+.cap-panel, .cap-brim { fill: #8db6ea; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
+.cap-seam { fill: none; stroke: var(--pet-ink); stroke-width: 1.2; stroke-linecap: round; opacity: .55; }
+.cap-band { fill: none; stroke: var(--pet-ink); stroke-width: 2; stroke-linecap: round; }
+.cap-button { fill: #8db6ea; stroke: var(--pet-ink); stroke-width: 1.6; }
+.cap-star { fill: #ffd65c; stroke: var(--pet-ink); stroke-width: 1; stroke-linejoin: round; }
+
+/* cow hoodie: a hood with a face opening, so it fits every species */
+.hood { fill: #fffdf9; stroke: var(--pet-ink); stroke-width: 2.6; stroke-linejoin: round; }
+.hood-rim { fill: none; stroke: #f3e6df; stroke-width: 5; }
+.hood-spot { fill: #4d3c43; opacity: .9; }
+.hood-ear { fill: #fffdf9; stroke: var(--pet-ink); stroke-width: 2.4; }
+.hood-ear-in { fill: #ffc1cf; }
+.hood-horn { fill: #fff3cf; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
+.hood-string { fill: none; stroke: #f39bb0; stroke-width: 2; stroke-linecap: round; }
+.hood-toggle { fill: #ffc1cf; stroke: var(--pet-ink); stroke-width: 1.2; }
+/* the hood tucks the pet's own ears, horns and tufts away; sleeves match the hoodie */
+.pet.hooded .squish > [data-sp]:not(.skin ~ *),
+.pet.hooded [data-sp="puppy"] .ear, .pet.hooded .twist { display: none; }
+.pet.hooded .arm ellipse:not(.arm-hi) { fill: #fffdf9; }
+
 /* ---------- dressing room ---------- */
 .dress-stage {
   display: flex; justify-content: center; padding: 18px 0 8px; border-radius: 22px;

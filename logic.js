@@ -239,8 +239,8 @@
   // ---------- fair play ----------
   // Goals should reward real shopping, so a few rules stop the quick tricks.
 
-  /** An item has to sit on the list this long before eating it counts (20 minutes). */
-  var FRESH_MS = 20 * 60 * 1000;
+  /** An item has to sit on the list this long before eating it counts (15 minutes). */
+  var FRESH_MS = 15 * 60 * 1000;
   /** How far the clock may slip backwards (e.g. a network time fix) before counting pauses. */
   var CLOCK_SLACK_MS = 10 * 60 * 1000;
   /** A finished list counts as a shopping trip only with at least this many items. */
