@@ -17,6 +17,7 @@
       SAMPLE.forEach(function (t) { data.items.push(makeItem(t, data.overrides)); });
     }
     data.overrides = data.overrides || {};
+    data.pet = data.pet || { name: 'Nibble', species: 'mochi' };
     return data;
   }
   function save() {
@@ -100,29 +101,31 @@
   }
 
   // ---------- Nibble ----------
+  // eyes, mouth, arm pose and extras for each mood
   var FACES = {
-    sleepy: { eyes: 'closed', mouth: 'o', x: ['zzz'] },
-    curious: { eyes: 'open', mouth: 'smile', x: [] },
-    happy: { eyes: 'open', mouth: 'smile', x: ['cheeks'] },
-    stuffed: { eyes: 'closed', mouth: 'smile', x: ['zzz', 'cheeks'] },
-    catching: { eyes: 'open', mouth: 'open', x: [] },
-    sheepish: { eyes: 'closed', mouth: 'wavy', x: ['sweat', 'cheeks'] },
-    wake: { eyes: 'happy', mouth: 'open', x: ['sparkles'] },
-    party: { eyes: 'happy', mouth: 'open', x: ['hearts', 'sparkles', 'cheeks'] }
+    sleepy: { eyes: 'closed', mouth: 'o', arms: 'rest', x: ['zzz'] },
+    curious: { eyes: 'open', mouth: 'smile', arms: 'idle', x: [] },
+    happy: { eyes: 'open', mouth: 'smile', arms: 'idle', x: ['cheeks'] },
+    stuffed: { eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['zzz', 'cheeks'] },
+    catching: { eyes: 'open', mouth: 'open', arms: 'reach', x: [] },
+    sheepish: { eyes: 'closed', mouth: 'wavy', arms: 'cover', x: ['sweat', 'cheeks'] },
+    wake: { eyes: 'happy', mouth: 'open', arms: 'reach', x: ['sparkles'] },
+    party: { eyes: 'happy', mouth: 'open', arms: 'pat', x: ['hearts', 'sparkles', 'cheeks'] },
+    tada: { eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['sparkles', 'cheeks'] }
   };
-  var CHEW = { eyes: 'happy', mouth: 'chew', x: ['cheeks'] };
+  var CHEW = { eyes: 'happy', mouth: 'chew', arms: 'nom', x: ['cheeks'] };
   var REACTIONS = {
-    fruit: { face: { eyes: 'happy', mouth: 'chew', x: ['hearts', 'cheeks'] }, lines: ['so juicy!', 'fruity ♡', 'yum yum!', 'amai~ (sweet!)'] },
-    veg: { face: { eyes: 'teary', mouth: 'wavy', x: [] }, then: CHEW, lines: ['b-brave face…', 'crunchy. fine!', 'for my health…', 'okay… not bad'] },
-    sweets: { face: { eyes: 'sparkle', mouth: 'chew', x: ['sparkles', 'cheeks'] }, lines: ['kira kira!', 'treat time ♡', 'SUGAR!', 'one more?'] },
-    spicy: { face: { eyes: 'squint', mouth: 'open', x: ['steam', 'redface', 'shock'] }, lines: ['HOT HOT HOT', 'hii~ spicy!', 'fire! fire!', 'water?!'] },
-    drink: { face: { eyes: 'happy', mouth: 'o', x: ['cheeks'] }, lines: ['gokun gokun', 'sluuurp', 'refreshing!', 'puhaa~'] },
-    baked: { face: { eyes: 'happy', mouth: 'chew', x: ['cheeks'] }, lines: ['fuwa fuwa ♡', 'warm & chewy', 'carbs!', 'mmm, bready'] },
+    fruit: { face: { eyes: 'happy', mouth: 'chew', arms: 'cheer', x: ['hearts', 'cheeks'] }, lines: ['so juicy!', 'fruity ♡', 'yum yum!', 'amai~ (sweet!)'] },
+    veg: { face: { eyes: 'teary', mouth: 'wavy', arms: 'clench', x: [] }, then: CHEW, lines: ['b-brave face…', 'crunchy. fine!', 'for my health…', 'okay… not bad'] },
+    sweets: { face: { eyes: 'sparkle', mouth: 'chew', arms: 'cheer', x: ['sparkles', 'cheeks'] }, lines: ['kira kira!', 'treat time ♡', 'SUGAR!', 'one more?'] },
+    spicy: { face: { eyes: 'squint', mouth: 'open', arms: 'fan', x: ['steam', 'redface', 'shock'] }, lines: ['HOT HOT HOT', 'hii~ spicy!', 'fire! fire!', 'water?!'] },
+    drink: { face: { eyes: 'happy', mouth: 'o', arms: 'hold', x: ['cheeks'] }, lines: ['gokun gokun', 'sluuurp', 'refreshing!', 'puhaa~'] },
+    baked: { face: { eyes: 'happy', mouth: 'chew', arms: 'nom', x: ['cheeks'] }, lines: ['fuwa fuwa ♡', 'warm & chewy', 'carbs!', 'mmm, bready'] },
     dairy: { face: CHEW, lines: ['creamy ♡', 'mogu mogu', 'MORE?', 'so smooth'] },
     protein: { face: CHEW, lines: ['mogu mogu', 'strong snack!', 'tasty!', 'MORE?'] },
     pantry: { face: CHEW, lines: ['mogu mogu', 'tiny snack!', 'ooh, yum', 'paku!'] },
-    nonfood: { face: { eyes: 'confused', mouth: 'wavy', x: ['question'] }, lines: ["that's not food", 'hmm… for later', 'tuck it away'] },
-    mystery: { face: { eyes: 'sparkle', mouth: 'chew', x: ['sparkles', 'cheeks'] }, lines: ['a surprise?!', 'mystery snack!', 'what was that?'] }
+    nonfood: { face: { eyes: 'confused', mouth: 'wavy', arms: 'scratch', x: ['question'] }, lines: ["that's not food", 'hmm… for later', 'tuck it away'] },
+    mystery: { face: { eyes: 'sparkle', mouth: 'chew', arms: 'cheer', x: ['sparkles', 'cheeks'] }, lines: ['a surprise?!', 'mystery snack!', 'what was that?'] }
   };
 
   var busy = 0;
@@ -138,6 +141,7 @@
   function setFace(face) {
     pet.dataset.eyes = face.eyes;
     pet.dataset.mouth = face.mouth;
+    pet.dataset.arms = face.arms || 'idle';
     ['zzz', 'steam', 'hearts', 'sparkles', 'question', 'sweat', 'shock', 'redface', 'cheeks'].forEach(function (x) {
       pet.classList.toggle('x-' + x, face.x.indexOf(x) !== -1);
     });
@@ -426,6 +430,75 @@
     if (id) removeItem(id);
   });
   picker.addEventListener('click', function (e) { if (e.target === picker) closePicker(); });
+
+  // ---------- your pet: name and species ----------
+  var SPECIES = [
+    { id: 'mochi', label: 'Mochi' },
+    { id: 'bunny', label: 'Bunny' },
+    { id: 'kitty', label: 'Kitty' },
+    { id: 'chick', label: 'Chick' },
+    { id: 'puppy', label: 'Puppy' }
+  ];
+  var petSheet = $('petSheet'), petNameInput = $('petNameInput'), speciesGrid = $('speciesGrid');
+
+  function petName() { return (state.pet.name || '').trim() || 'Nibble'; }
+  function applyPet() {
+    var name = petName();
+    pet.dataset.species = state.pet.species;
+    pet.setAttribute('aria-label', name + ', your pet');
+    document.querySelectorAll('.pet-name').forEach(function (el) { el.textContent = name; });
+    document.title = name + "'s List";
+    speciesGrid.querySelectorAll('button').forEach(function (b) {
+      b.setAttribute('aria-pressed', b.dataset.species === state.pet.species ? 'true' : 'false');
+    });
+  }
+
+  // species buttons show a small static copy of the pet
+  var petSvg = pet.querySelector('.pet-svg');
+  SPECIES.forEach(function (sp) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.species = sp.id;
+    var mini = document.createElement('div');
+    mini.className = 'pet mini x-cheeks';
+    mini.dataset.species = sp.id;
+    mini.dataset.eyes = 'open';
+    mini.dataset.mouth = 'smile';
+    mini.dataset.arms = 'rest';
+    var copy = petSvg.cloneNode(true);
+    copy.querySelectorAll('defs').forEach(function (d) { d.remove(); });
+    mini.appendChild(copy);
+    var label = document.createElement('span');
+    label.textContent = sp.label;
+    b.append(mini, label);
+    speciesGrid.appendChild(b);
+  });
+  speciesGrid.addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    state.pet.species = b.dataset.species;
+    save();
+    applyPet();
+    if (!busy) { setFace(FACES.tada); pulse('hop', 500); setTimeout(function () { if (!busy) settle(); }, 900); }
+  });
+  petNameInput.addEventListener('input', function () {
+    state.pet.name = petNameInput.value.slice(0, 16);
+    save();
+    applyPet();
+  });
+  $('editPetBtn').addEventListener('click', function () {
+    petNameInput.value = state.pet.name;
+    applyPet();
+    if (petSheet.showModal) petSheet.showModal(); else petSheet.setAttribute('open', '');
+  });
+  petSheet.addEventListener('close', function () {
+    state.pet.name = petName();
+    save();
+    applyPet();
+    if (!busy) { pulse('hop', 500); say("I'm " + petName() + '!', 1500); }
+  });
+  petSheet.addEventListener('click', function (e) { if (e.target === petSheet) petSheet.close(); });
+  applyPet();
 
   // ---------- events ----------
   addForm.addEventListener('submit', function (e) {

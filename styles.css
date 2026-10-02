@@ -164,10 +164,36 @@ button { font: inherit; color: inherit; }
 @keyframes twinkle { 0%, 100% { transform: scale(.6) rotate(0); opacity: .25; } 50% { transform: scale(1) rotate(20deg); opacity: .8; } }
 
 /* ---------- Nibble ---------- */
-.skin { fill: url(#mochi); stroke: var(--pet-ink); stroke-width: 2.6; }
+.skin { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.6; }
+.shine { fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; opacity: .8; }
+.ear { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+.ear-in { fill: var(--pet-ear-in); stroke: none; }
+.tuft path { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+.stripes path { fill: none; stroke: var(--pet-mark); stroke-width: 3; stroke-linecap: round; }
+.whiskers path { stroke-width: 1.6; }
+.spot { fill: var(--pet-mark); opacity: .7; }
+.beak { fill: #ffb259; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
+
+/* species: colours and which parts show */
+.pet { --pet-skin: #fff8f2; --pet-skin-shade: #ffe4d8; --pet-ear-in: #ffc4cf; --pet-mark: #f3c9a8; }
+.pet[data-species="bunny"] { --pet-skin: #fffafb; --pet-skin-shade: #f7e3ea; --pet-ear-in: #ffbfcc; }
+.pet[data-species="kitty"] { --pet-skin: #fdecd8; --pet-skin-shade: #f5d6b8; --pet-ear-in: #ffc4cf; --pet-mark: #f0b98a; }
+.pet[data-species="chick"] { --pet-skin: #fff1b0; --pet-skin-shade: #ffe07f; }
+.pet[data-species="puppy"] { --pet-skin: #fff6ec; --pet-skin-shade: #f2dcc4; --pet-mark: #d9b08c; }
+.pet-svg [data-sp] { display: none; }
+.pet[data-species="mochi"] [data-sp="mochi"],
+.pet[data-species="bunny"] [data-sp="bunny"],
+.pet[data-species="kitty"] [data-sp="kitty"],
+.pet[data-species="chick"] [data-sp="chick"],
+.pet[data-species="puppy"] [data-sp="puppy"] { display: inline; }
+.pet[data-species="puppy"] .ear { fill: var(--pet-mark); }
 .twist { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 .foot { fill: var(--pet-skin-shade); stroke: var(--pet-ink); stroke-width: 2.4; }
-.arm { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.4; transform-box: fill-box; transform-origin: 50% 20%; }
+.arm ellipse { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.2; }
+.arm .arm-hi { fill: #fff; stroke: none; opacity: .7; }
+.arm { transform-box: fill-box; transform-origin: 50% 12%; transition: transform .25s cubic-bezier(.3, 1.5, .5, 1); }
+.arm-l { transform: rotate(18deg); }
+.arm-r { transform: rotate(-18deg); }
 .cheek { fill: var(--pet-cheek); opacity: .55; transition: opacity .3s; }
 .hatch { fill: none; stroke: #f27d93; stroke-width: 1.6; stroke-linecap: round; opacity: 0; transition: opacity .3s; }
 .redface { fill: #ff6b6b; opacity: 0; transition: opacity .3s; }
@@ -232,9 +258,6 @@ button { font: inherit; color: inherit; }
 .pet.hop .pet-svg { animation: hop .5s cubic-bezier(.3, 1.4, .5, 1); }
 .pet.chomp .squish { animation: chomp .32s ease-out; }
 .pet.stretch .squish { animation: stretch 1s ease-in-out; }
-.pet.stretch .arm-l { animation: arm-up-l 1s ease-in-out; }
-.pet.stretch .arm-r { animation: arm-up-r 1s ease-in-out; }
-.pet.pat .arm-r { animation: pat .3s ease-in-out 5 alternate; }
 .pet.pat .squish { animation: wobble 1.6s ease-in-out; }
 .pet.spit .squish { animation: spit .35s ease-out; }
 
@@ -245,9 +268,6 @@ button { font: inherit; color: inherit; }
 @keyframes chomp { 0% { transform: scale(1, 1); } 30% { transform: scale(1.14, .84); } 60% { transform: scale(.94, 1.08); } 80% { transform: scale(1.03, .97); } 100% { transform: scale(1, 1); } }
 @keyframes spit { 0% { transform: scale(1); } 40% { transform: scale(.9, 1.1) translateY(-4px); } 100% { transform: scale(1); } }
 @keyframes stretch { 0%, 100% { transform: scale(1, 1); } 45% { transform: scale(.88, 1.14); } 70% { transform: scale(1.06, .95); } }
-@keyframes arm-up-l { 0%, 100% { transform: none; } 45% { transform: translate(4px, -24px) rotate(25deg); } }
-@keyframes arm-up-r { 0%, 100% { transform: none; } 45% { transform: translate(-4px, -24px) rotate(-25deg); } }
-@keyframes pat { from { transform: translate(0, 0); } to { transform: translate(-18px, 4px) rotate(-30deg); } }
 @keyframes wobble { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
 @keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
 @keyframes chew { from { transform: scaleX(1) translateY(0); } to { transform: scaleX(.75) translateY(1.5px); } }
@@ -255,6 +275,62 @@ button { font: inherit; color: inherit; }
 @keyframes nose { 0%, 100% { transform: scale(.3); } 50% { transform: scale(1.15); } }
 @keyframes steam { from { transform: translateY(0); opacity: .9; } to { transform: translateY(-4px); opacity: .4; } }
 @keyframes float-up { from { transform: translateY(2px); opacity: 1; } to { transform: translateY(-6px); opacity: .6; } }
+
+/* ---------- arms ----------
+   The arms hang from the shoulder; rotating the left arm clockwise raises it outward,
+   the right arm mirrors it. Each face picks an arm pose with data-arms. */
+.pet[data-arms="idle"] .arm-l { animation: sway-l 2.6s ease-in-out infinite; }
+.pet[data-arms="idle"] .arm-r { animation: sway-r 2.6s ease-in-out infinite .3s; }
+.pet[data-arms="reach"] .arm-l { transform: translate(6px, -30px) rotate(160deg); }
+.pet[data-arms="reach"] .arm-r { transform: translate(-6px, -30px) rotate(-160deg); }
+.pet[data-arms="nom"] .arm-l { animation: nom-l .32s ease-in-out infinite alternate; }
+.pet[data-arms="nom"] .arm-r { animation: nom-r .32s ease-in-out infinite alternate .16s; }
+.pet[data-arms="hold"] .arm-l { transform: translate(20px, -10px) rotate(-120deg); }
+.pet[data-arms="hold"] .arm-r { transform: translate(-20px, -10px) rotate(120deg); }
+.pet[data-arms="cover"] .arm-l { transform: translate(24px, -12px) rotate(-130deg); }
+.pet[data-arms="cover"] .arm-r { transform: translate(-24px, -12px) rotate(130deg); }
+.pet[data-arms="cheer"] .arm-l { animation: cheer-l .3s ease-in-out infinite alternate; }
+.pet[data-arms="cheer"] .arm-r { animation: cheer-r .3s ease-in-out infinite alternate .15s; }
+.pet[data-arms="fan"] .arm-l { animation: fan-l .12s linear infinite alternate; }
+.pet[data-arms="fan"] .arm-r { animation: fan-r .12s linear infinite alternate .06s; }
+.pet[data-arms="scratch"] .arm-r { animation: scratch .2s ease-in-out infinite alternate; }
+.pet[data-arms="clench"] .arm-l { animation: clench-l .1s linear infinite alternate; }
+.pet[data-arms="clench"] .arm-r { animation: clench-r .1s linear infinite alternate; }
+.pet[data-arms="pat"] .arm-l { animation: cheer-l .3s ease-in-out infinite alternate; }
+.pet[data-arms="pat"] .arm-r { animation: pat .28s ease-in-out infinite alternate; }
+
+@keyframes sway-l { 0%, 100% { transform: rotate(14deg); } 50% { transform: rotate(26deg); } }
+@keyframes sway-r { 0%, 100% { transform: rotate(-14deg); } 50% { transform: rotate(-26deg); } }
+@keyframes nom-l { from { transform: translate(16px, -6px) rotate(-100deg); } to { transform: translate(20px, -12px) rotate(-130deg); } }
+@keyframes nom-r { from { transform: translate(-16px, -6px) rotate(100deg); } to { transform: translate(-20px, -12px) rotate(130deg); } }
+@keyframes cheer-l { from { transform: translate(6px, -24px) rotate(140deg); } to { transform: translate(4px, -32px) rotate(175deg); } }
+@keyframes cheer-r { from { transform: translate(-6px, -24px) rotate(-140deg); } to { transform: translate(-4px, -32px) rotate(-175deg); } }
+@keyframes fan-l { from { transform: translate(10px, -14px) rotate(-150deg); } to { transform: translate(10px, -14px) rotate(-100deg); } }
+@keyframes fan-r { from { transform: translate(-10px, -14px) rotate(150deg); } to { transform: translate(-10px, -14px) rotate(100deg); } }
+@keyframes scratch { from { transform: translate(-4px, -30px) rotate(-170deg); } to { transform: translate(-4px, -34px) rotate(-150deg); } }
+@keyframes clench-l { from { transform: translate(6px, -2px) rotate(-10deg); } to { transform: translate(7px, -2px) rotate(-16deg); } }
+@keyframes clench-r { from { transform: translate(-6px, -2px) rotate(10deg); } to { transform: translate(-7px, -2px) rotate(16deg); } }
+@keyframes pat { from { transform: translate(-14px, 0) rotate(40deg); } to { transform: translate(-18px, 4px) rotate(70deg); } }
+
+/* ---------- pet editor ---------- */
+.edit-pet { position: absolute; right: 0; bottom: 10px; z-index: 2; font-size: .78rem; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field-label { font-weight: 800; font-size: .85rem; color: var(--muted); padding: 0; }
+.field input {
+  font: inherit; font-size: 1.05rem; color: var(--ink); background: var(--surface-2);
+  border: 1.8px solid var(--outline); border-radius: 999px; padding: 10px 16px; outline: 0;
+}
+.field input:focus-visible { box-shadow: 0 0 0 4px var(--stage-top); }
+.species { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.species-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+.species-grid button {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px 6px;
+  border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 18px; cursor: pointer; font-weight: 700; font-size: .85rem;
+}
+.species-grid button[aria-pressed="true"] { border-color: var(--outline); background: var(--stage-top); box-shadow: 0 2px 0 var(--outline); }
+.species-grid button:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
+.pet.mini { width: 72px; height: 66px; margin: 0; cursor: inherit; pointer-events: none; }
+.pet-sheet .picker-inner { overflow-y: auto; }
 
 /* flying emoji, crumbs and petals live above everything */
 .flyer { position: fixed; left: 0; top: 0; width: 34px; height: 34px; z-index: 50; pointer-events: none; will-change: transform; }
