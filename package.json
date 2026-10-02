@@ -1,0 +1,8 @@
+{
+  "name": "pet-shopper",
+  "private": true,
+  "description": "A grocery list with a little pet who eats what you check off.",
+  "scripts": {
+    "test": "node --test"
+  }
+}

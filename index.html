@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nibble's List</title>
+<meta name="description" content="A grocery list with a little pet who eats what you check off.">
+<meta name="theme-color" content="#fdf1f3">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@500&family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <header class="scene" id="scene">
+    <div class="scene-bar">
+      <h1 class="brand"><span class="pet-name" id="brandName">Nibble</span><span class="brand-sub">'s list</span><span class="brand-jp" lang="ja" title="mogu mogu: munch munch">もぐもぐ</span></h1>
+      <div class="scene-tools">
+        <span class="tally" id="tally" aria-live="polite"></span>
+        <button class="pill-btn" id="quietBtn" type="button" aria-pressed="false" title="Quiet mode: no sounds or speech bubbles">Quiet</button>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="bubble" id="bubble" role="status" aria-live="polite" hidden></div>
+      <div class="pet" id="pet" data-state="sleepy" data-species="mochi" data-arms="rest" aria-label="Nibble, your pet">
+        <svg viewBox="0 0 160 150" class="pet-svg" aria-hidden="true">
+          <defs>
+            <!-- a slight wobble so the lines look drawn by hand -->
+            <filter id="handdrawn" x="-10%" y="-10%" width="120%" height="120%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7"/>
+              <feDisplacementMap in="SourceGraphic" scale="2.4"/>
+            </filter>
+          </defs>
+          <g class="pet-body" filter="url(#handdrawn)">
+            <ellipse class="foot" cx="58" cy="137" rx="11" ry="6"/>
+            <ellipse class="foot" cx="102" cy="137" rx="11" ry="6"/>
+            <g class="squish">
+              <!-- species parts drawn behind the body -->
+              <g data-sp="bunny">
+                <path class="ear" d="M58 52 C46 24 47 4 58 5 C69 6 72 28 70 46"/>
+                <path class="ear-in" d="M59 44 C52 26 53 13 58 13 C63 14 65 28 64 42"/>
+                <path class="ear" d="M102 52 C114 24 113 4 102 5 C91 6 88 28 90 46"/>
+                <path class="ear-in" d="M101 44 C108 26 107 13 102 13 C97 14 95 28 96 42"/>
+              </g>
+              <g data-sp="kitty">
+                <path class="ear" d="M34 66 L40 28 Q42 22 47 25 L72 42"/>
+                <path class="ear-in" d="M41 52 L44 33 L58 43"/>
+                <path class="ear" d="M126 66 L120 28 Q118 22 113 25 L88 42"/>
+                <path class="ear-in" d="M119 52 L116 33 L102 43"/>
+              </g>
+              <g data-sp="chick" class="tuft">
+                <path d="M74 41 C70 30 76 25 80 28 C78 31 78 35 79 39"/>
+                <path d="M80 39 C80 24 90 21 92 26 C87 27 85 32 84 39"/>
+              </g>
+
+              <g data-sp="hamster">
+                <circle class="ear" cx="50" cy="48" r="11"/>
+                <circle class="ear-in" cx="50" cy="48" r="6"/>
+                <circle class="ear" cx="110" cy="48" r="11"/>
+                <circle class="ear-in" cx="110" cy="48" r="6"/>
+              </g>
+              <g data-sp="cow">
+                <ellipse class="ear" cx="30" cy="62" rx="13" ry="6.5" transform="rotate(-25 30 62)"/>
+                <ellipse class="ear-in" cx="30" cy="62" rx="7" ry="3" transform="rotate(-25 30 62)"/>
+                <ellipse class="ear" cx="130" cy="62" rx="13" ry="6.5" transform="rotate(25 130 62)"/>
+                <ellipse class="ear-in" cx="130" cy="62" rx="7" ry="3" transform="rotate(25 130 62)"/>
+                <path class="horn" d="M60 46 C55 35 58 27 64 29 C64 34 66 39 69 42 Z"/>
+                <path class="horn" d="M100 46 C105 35 102 27 96 29 C96 34 94 39 91 42 Z"/>
+              </g>
+              <path class="skin" d="M80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 Z"/>
+              <path class="shine" d="M40 66 C46 56 54 51 62 48"/>
+
+              <!-- species parts drawn on top of the body -->
+              <path data-sp="mochi" class="twist" d="M73 40 C74 31 80 27 86 30 C82 32 81 36 84 40"/>
+              <g data-sp="kitty" class="stripes">
+                <path d="M72 44 l3 9 M80 42 v10 M88 44 l-3 9"/>
+              </g>
+              <g data-sp="kitty" class="whiskers line">
+                <path d="M22 98 l-10 -2 M22 104 l-10 2 M138 98 l10 -2 M138 104 l10 2"/>
+              </g>
+              <g data-sp="puppy">
+                <path class="ear" d="M42 52 C24 50 14 74 18 92 C21 102 32 100 36 90 C40 78 44 66 52 58"/>
+                <path class="ear" d="M118 52 C136 50 146 74 142 92 C139 102 128 100 124 90 C120 78 116 66 108 58"/>
+                <ellipse class="spot" cx="102" cy="88" rx="11" ry="10"/>
+              </g>
+
+              <g data-sp="pig">
+                <path class="ear" d="M44 54 C38 40 42 30 49 33 C57 37 63 43 66 47 C59 50 52 53 44 54Z"/>
+                <path class="ear-in" d="M48 48 C46 41 48 37 51 39 C55 41 58 44 59 46 C55 47 52 48 48 48Z"/>
+                <path class="ear" d="M116 54 C122 40 118 30 111 33 C103 37 97 43 94 47 C101 50 108 53 116 54Z"/>
+                <path class="ear-in" d="M112 48 C114 41 112 37 109 39 C105 41 102 44 101 46 C105 47 108 48 112 48Z"/>
+              </g>
+              <ellipse data-sp="hamster" class="belly" cx="80" cy="110" rx="50" ry="28"/>
+              <path data-sp="penguin" class="belly" d="M80 58 C104 58 131 78 131 104 C131 126 110 135 80 135 C50 135 29 126 29 104 C29 78 56 58 80 58 Z"/>
+              <g data-sp="cow">
+                <path class="spot" d="M30 84 C28 72 40 66 48 72 C55 77 50 90 42 92 C35 94 31 90 30 84 Z"/>
+                <path class="spot" d="M104 50 C110 44 124 48 126 58 C127 66 118 70 110 66 C103 62 100 55 104 50 Z"/>
+                <ellipse class="muzzle" cx="80" cy="105" rx="17" ry="9.5"/>
+                <ellipse class="nostril-dot" cx="73" cy="101" rx="1.6" ry="2"/>
+                <ellipse class="nostril-dot" cx="87" cy="101" rx="1.6" ry="2"/>
+              </g>
+              <path data-sp="penguin" class="beak" d="M74 98 Q80 93 86 98 Q80 103 74 98Z"/>
+              <ellipse class="redface" cx="80" cy="100" rx="56" ry="32"/>
+              <g class="cheeks">
+                <ellipse class="cheek" cx="40" cy="106" rx="11" ry="6"/>
+                <ellipse class="cheek" cx="120" cy="106" rx="11" ry="6"/>
+                <path class="hatch" d="M34 108 l4 -6 M40 108 l4 -6 M46 108 l4 -6 M114 108 l4 -6 M120 108 l4 -6 M126 108 l4 -6"/>
+              </g>
+
+              <g data-eyes="open" class="eyes-open">
+                <g class="pupils">
+                  <ellipse cx="58" cy="92" rx="4.6" ry="5.2" class="ink"/>
+                  <ellipse cx="102" cy="92" rx="4.6" ry="5.2" class="ink"/>
+                  <circle cx="56.6" cy="90" r="1.6" class="glint"/>
+                  <circle cx="100.6" cy="90" r="1.6" class="glint"/>
+                </g>
+              </g>
+              <g data-eyes="closed" class="line">
+                <path d="M52 92 Q58 97 64 92"/>
+                <path d="M96 92 Q102 97 108 92"/>
+              </g>
+              <g data-eyes="happy" class="line">
+                <path d="M52 95 Q58 87 64 95"/>
+                <path d="M96 95 Q102 87 108 95"/>
+              </g>
+              <g data-eyes="sparkle" class="star">
+                <path d="M58 83 L60 89.5 L66 92 L60 94.5 L58 101 L56 94.5 L50 92 L56 89.5Z"/>
+                <path d="M102 83 L104 89.5 L110 92 L104 94.5 L102 101 L100 94.5 L94 92 L100 89.5Z"/>
+              </g>
+              <g data-eyes="squint" class="line">
+                <path d="M53 87 L63 92 L53 97"/>
+                <path d="M107 87 L97 92 L107 97"/>
+              </g>
+              <g data-eyes="teary">
+                <ellipse cx="58" cy="92" rx="5.4" ry="6" class="ink"/>
+                <ellipse cx="102" cy="92" rx="5.4" ry="6" class="ink"/>
+                <circle cx="56" cy="89.5" r="2.4" class="glint"/>
+                <circle cx="100" cy="89.5" r="2.4" class="glint"/>
+                <circle cx="60" cy="94.5" r="1.1" class="glint"/>
+                <circle cx="104" cy="94.5" r="1.1" class="glint"/>
+                <path class="tear" d="M52 99 q-3 6 0 8 q3 -2 0 -8z"/>
+                <path class="tear" d="M108 99 q-3 6 0 8 q3 -2 0 -8z"/>
+              </g>
+              <g data-eyes="confused">
+                <ellipse cx="58" cy="92" rx="4.6" ry="5.2" class="ink"/>
+                <circle cx="56.6" cy="90" r="1.6" class="glint"/>
+                <path class="line" d="M96 92 L108 92"/>
+              </g>
+
+              <path data-mouth="smile" class="line" d="M75 103 Q80 108 85 103"/>
+              <g data-mouth="open">
+                <path d="M73 102 Q80 101 87 102 Q87 113 80 113 Q73 113 73 102Z" class="mouth-in"/>
+                <ellipse cx="80" cy="110" rx="3.6" ry="2.4" class="tongue"/>
+              </g>
+              <path data-mouth="chew" class="line chew" d="M73 105 q3.5 -3.5 7 0 q3.5 3.5 7 0"/>
+              <path data-mouth="wavy" class="line" d="M71 106 q3 -3 6 0 q3 3 6 0 q3 -3 6 0"/>
+              <ellipse data-mouth="o" cx="80" cy="105" rx="2.6" ry="3" class="mouth-in"/>
+              <g data-sp="pig" class="snout">
+                <ellipse cx="80" cy="97" rx="9" ry="5.6"/>
+                <ellipse class="nostril" cx="76.6" cy="97" rx="1.4" ry="2"/>
+                <ellipse class="nostril" cx="83.4" cy="97" rx="1.4" ry="2"/>
+              </g>
+              <path data-sp="chick" class="beak" d="M75 99 Q80 95 85 99 Q80 103 75 99Z"/>
+              <!-- hats are drawn at a slightly bigger scale, centred on the top of the head -->
+              <g transform="translate(80 45) scale(1.3) translate(-80 -40)"><g class="outfit-hat"></g></g>
+              <!-- little nubbly arms -->
+              <g class="arm arm-l"><ellipse cx="27" cy="117" rx="7" ry="9"/><ellipse class="arm-hi" cx="25" cy="114" rx="2.4" ry="3"/></g>
+              <g class="arm arm-r"><ellipse cx="133" cy="117" rx="7" ry="9"/><ellipse class="arm-hi" cx="131" cy="114" rx="2.4" ry="3"/></g>
+            </g>
+          </g>
+
+          <g data-extra="zzz" class="zzz">
+            <text x="118" y="50">z</text><text x="128" y="38" class="z2">z</text><text x="137" y="28" class="z3">z</text>
+          </g>
+          <g data-extra="zzz" class="nose-bubble"><circle cx="93" cy="101" r="6"/></g>
+          <g data-extra="steam" class="steam">
+            <path d="M56 32 q-5 -5 0 -10 q5 -5 0 -10"/>
+            <path d="M104 32 q-5 -5 0 -10 q5 -5 0 -10"/>
+            <path d="M80 22 q-5 -5 0 -10 q5 -5 0 -10"/>
+          </g>
+          <g data-extra="hearts" class="hearts">
+            <path d="M22 52 c-3 -5 -10 -2 -7 3 l7 7 l7 -7 c3 -5 -4 -8 -7 -3z"/>
+            <path d="M139 46 c-2.5 -4 -8 -1.5 -5.5 2.5 l5.5 5.5 l5.5 -5.5 c2.5 -4 -3 -6.5 -5.5 -2.5z"/>
+          </g>
+          <g data-extra="sparkles" class="sparkles">
+            <path d="M24 66 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2z"/>
+            <path d="M138 64 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6z"/>
+            <path d="M120 30 l1.3 3.2 l3.2 1.3 l-3.2 1.3 l-1.3 3.2 l-1.3 -3.2 l-3.2 -1.3 l3.2 -1.3z"/>
+          </g>
+          <g data-extra="question" class="question"><text x="126" y="56">?</text></g>
+          <g data-extra="sweat" class="sweat"><path d="M131 62 q-6 10 0 14 q6 -4 0 -14z"/></g>
+          <g data-extra="shock" class="shock line"><path d="M30 44 l6 8 M24 56 l9 3 M130 44 l-6 8 M136 56 l-9 3"/></g>
+        </svg>
+        <div class="tummy" id="tummy" aria-hidden="true"></div>
+      </div>
+      <div class="cushion" aria-hidden="true"></div>
+      <div class="stage-tools">
+        <button type="button" class="pill-btn" id="dressBtn">♡ Dress up</button>
+        <button type="button" class="pill-btn" id="editPetBtn" aria-label="Change your pet's name and species">✎ Edit pet</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="list-area">
+    <form class="add" id="addForm" autocomplete="off">
+      <label class="visually-hidden" for="addInput">Add an item</label>
+      <input id="addInput" name="item" type="text" placeholder="Add an item, like bananas" enterkeyhint="done" maxlength="80">
+      <span class="add-preview" id="addPreview" aria-hidden="true"></span>
+      <button type="submit" class="add-btn" aria-label="Add item">Add</button>
+    </form>
+
+    <ul class="items" id="todo" aria-label="To buy"></ul>
+    <p class="empty" id="emptyHint"><span class="pet-name">Nibble</span> is napping. Add something to the list to wake it up.</p>
+
+    <section class="eaten" id="eatenSection" hidden>
+      <div class="eaten-head">
+        <h2>Eaten <span id="eatenCount" class="count"></span></h2>
+        <button type="button" class="text-btn" id="clearBtn">Clear eaten</button>
+      </div>
+      <ul class="items" id="done" aria-label="Eaten"></ul>
+    </section>
+
+    <p class="hint">Tap an item's emoji, or long-press the item, to pick a different one.</p>
+    <p class="credit">Emoji by <a href="https://openmoji.org/" target="_blank" rel="noopener">OpenMoji</a>, CC BY-SA 4.0</p>
+  </main>
+</div>
+
+<dialog class="picker" id="picker" aria-labelledby="pickerTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="pickerTitle">Pick an emoji for <span id="pickerName"></span></h2>
+    <div class="picker-grid" id="pickerGrid"></div>
+    <div class="picker-foot">
+      <button type="button" class="text-btn danger" id="deleteBtn">Delete item</button>
+      <button value="cancel" class="text-btn">Close</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="picker pet-sheet" id="petSheet" aria-labelledby="petSheetTitle">
+  <form method="dialog" class="picker-inner" id="petForm">
+    <h2 id="petSheetTitle">Your pet</h2>
+    <label class="field">
+      <span class="field-label">Name</span>
+      <input id="petNameInput" type="text" maxlength="16" autocomplete="off" enterkeyhint="done" placeholder="Nibble">
+    </label>
+    <fieldset class="species">
+      <legend class="field-label">Species</legend>
+      <div class="species-grid" id="speciesGrid"></div>
+    </fieldset>
+    <div class="picker-foot">
+      <span></span>
+      <button value="done" class="add-btn">Done</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="picker pet-sheet" id="dressSheet" aria-labelledby="dressTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="dressTitle">Dressing room</h2>
+    <div class="dress-stage"><div class="dress-preview" id="dressPreview"></div></div>
+    <fieldset class="species">
+      <legend class="field-label">Hats</legend>
+      <div class="hat-strip" id="hatStrip"></div>
+    </fieldset>
+    <div class="picker-foot">
+      <span class="hint">More outfits coming soon.</span>
+      <button value="done" class="add-btn">Done</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="foods.js"></script>
+<script src="logic.js"></script>
+<script src="wardrobe.js"></script>
+<script src="sounds.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
