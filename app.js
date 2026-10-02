@@ -122,7 +122,8 @@
     sheepish: { eyes: 'closed', mouth: 'wavy', arms: 'cover', x: ['sweat', 'cheeks'] },
     wake: { eyes: 'happy', mouth: 'open', arms: 'reach', x: ['sparkles'] },
     party: { eyes: 'happy', mouth: 'open', arms: 'pat', x: ['hearts', 'sparkles', 'cheeks'] },
-    tada: { eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['sparkles', 'cheeks'] }
+    tada: { eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['sparkles', 'cheeks'] },
+    suspicious: { eyes: 'squint', mouth: 'wavy', arms: 'scratch', x: ['question'] }
   };
   var CHEW = { eyes: 'happy', mouth: 'chew', arms: 'nom', x: ['cheeks'] };
   var REACTIONS = {
@@ -354,6 +355,13 @@
         if (r.then) return wait(hold / 2).then(function () { setFace(r.then); return wait(hold / 2); });
         return wait(hold);
       }).then(function () {
+        if (goals && goals.blocked === 'too-fast') {
+          // a playful nudge rather than a telling-off
+          setFace(FACES.suspicious);
+          say(pick(['did you really buy that?', 'hmm, that was quick…', 'straight from the list?']), 1600);
+          return wait(1100 * sp);
+        }
+      }).then(function () {
         if (goals && goals.unlocked.length) return cheerUnlocks(goals.unlocked);
       }).then(function () {
         if (pending === 1 && baseState() === 'stuffed') return celebrate();
@@ -420,7 +428,7 @@
   function addItem(text) {
     text = text.trim();
     if (!text) return;
-    var item = L.createItem(text, state.overrides, newId());
+    var item = L.createItem(text, state.overrides, newId(), Date.now());
     L.addToList(state.items, item);
     freshIds[item.id] = true;
     save();
@@ -450,13 +458,14 @@
       item.counted = goals.counted;
       item.countedDay = L.dayKey(now);
       if (L.mood(state.items) === 'stuffed') {
-        var trip = L.recordTrip(state.pet, now, Achievements);
+        var trip = L.recordTrip(state.pet, state.items, now, Achievements);
         goals.counted = goals.counted.concat(trip.counted);
+        goals.capped = goals.capped.concat(trip.capped);
         goals.unlocked = goals.unlocked.concat(trip.unlocked);
       }
     } else {
       // putting it back takes today's count back, so ticking on and off can't farm goals
-      L.refundEaten(state.pet, item.counted, item.countedDay, now, Achievements);
+      L.refundEaten(state.pet, item, now, Achievements);
       delete item.counted;
       delete item.countedDay;
     }
@@ -753,6 +762,12 @@
   var goalToastEl = $('goalToast'), goalsSheet = $('goalsSheet'), goalList = $('goalList');
   var speciesHint = $('speciesHint'), hatHint = $('hatHint');
   var toastTimer;
+  // what the toast says when a fair-play rule stops something counting
+  var FAIR_PLAY = {
+    'too-fast': 'Too quick! Items count after 20 min',
+    repeat: 'Already counted that today',
+    clock: 'Clock went back, goals paused'
+  };
 
   /**
    * @param {string} id
@@ -775,6 +790,10 @@
    * @param {{counted: string[], capped: string[], unlocked: Object[]}} goals
    */
   function goalToast(goals) {
+    if (goals.blocked && FAIR_PLAY[goals.blocked] && !goals.counted.length) {
+      showToast('🧺', FAIR_PLAY[goals.blocked], false, 3000);
+      return;
+    }
     var id = goals.counted[0] || goals.capped[0];
     var ach = id && achievement(id);
     if (!ach || goals.unlocked.length) return;

@@ -47,7 +47,7 @@
     },
     {
       id: 'tidy-shopper', title: 'Tidy shopper', icon: '🧺',
-      text: 'Finish your whole list on 5 different days',
+      text: 'Finish a list of 3 or more items on 5 different days',
       trips: true, goal: 5, perDay: 1,
       unlocks: { kind: 'hat', id: 'maid', label: "Maid's hairband" }
     }

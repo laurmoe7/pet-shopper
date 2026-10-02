@@ -13,6 +13,7 @@
    * @property {string} emoji  The emoji shown for it.
    * @property {string} cat    Food category, e.g. "fruit", "drink", "nonfood", "mystery".
    * @property {boolean} done  True once checked off (eaten).
+   * @property {number} [added]  When it was put on the list (ms since 1970). Older saves have none.
    */
 
   /**
@@ -21,6 +22,14 @@
    * @property {string} species  One of the species ids, e.g. "mochi", "pig", "penguin".
    * @property {{hat: string}} outfit  Wardrobe item id per slot; "none" for no hat.
    * @property {Object<string, Progress>} achievements  Progress per achievement id.
+   * @property {Guard} guard  What the anti-cheat rules remember.
+   */
+
+  /**
+   * @typedef {Object} Guard
+   * @property {string} day       The calendar day the words list is for.
+   * @property {string[]} words   Item words that already counted that day.
+   * @property {number} lastSeen  The latest clock time seen when counting (ms).
    */
 
   /**
@@ -50,11 +59,14 @@
    * @param {string} text
    * @param {Object<string, string>} overrides
    * @param {string} id
+   * @param {number} [added]  When it was put on the list (ms); counts towards goals only after a while.
    * @returns {Item}
    */
-  function createItem(text, overrides, id) {
+  function createItem(text, overrides, id, added) {
     var found = emojiFor(text, overrides);
-    return { id: id, text: text, emoji: found.emoji, cat: found.cat, done: false };
+    var item = { id: id, text: text, emoji: found.emoji, cat: found.cat, done: false };
+    if (typeof added === 'number') item.added = added;
+    return item;
   }
 
   /**
@@ -70,7 +82,12 @@
       name: typeof saved.name === 'string' ? saved.name : 'Nibble',
       species: saved.species || 'mochi',
       outfit: { hat: (saved.outfit && saved.outfit.hat) || 'none' },
-      achievements: saved.achievements && typeof saved.achievements === 'object' ? saved.achievements : {}
+      achievements: saved.achievements && typeof saved.achievements === 'object' ? saved.achievements : {},
+      guard: {
+        day: (saved.guard && saved.guard.day) || '',
+        words: (saved.guard && Array.isArray(saved.guard.words)) ? saved.guard.words : [],
+        lastSeen: (saved.guard && saved.guard.lastSeen) || 0
+      }
     };
   }
 
@@ -219,45 +236,121 @@
     return 'counted';
   }
 
+  // ---------- fair play ----------
+  // Goals should reward real shopping, so a few rules stop the quick tricks.
+
+  /** An item has to sit on the list this long before eating it counts (20 minutes). */
+  var FRESH_MS = 20 * 60 * 1000;
+  /** How far the clock may slip backwards (e.g. a network time fix) before counting pauses. */
+  var CLOCK_SLACK_MS = 10 * 60 * 1000;
+  /** A finished list counts as a shopping trip only with at least this many items. */
+  var TRIP_MIN_ITEMS = 3;
+
+  /**
+   * @param {Item} item
+   * @returns {string} The word that identifies the item for the once-a-day rule.
+   */
+  function wordOf(item) { return item.text ? Foods.normalize(item.text) : item.emoji; }
+
+  /**
+   * @param {Item} item
+   * @param {Date} now
+   * @returns {boolean} True if the item was on the list long enough to count.
+   *   Items from older saves, with no time, count.
+   */
+  function isFresh(item, now) {
+    return typeof item.added !== 'number' || now.getTime() - item.added >= FRESH_MS;
+  }
+
+  /**
+   * Checks the phone's clock against the latest time seen. If it went back,
+   * counting pauses until real time catches up, so changing the date doesn't help.
+   * @param {PetProfile} profile  Changed in place: remembers the latest time.
+   * @param {Date} now
+   * @returns {boolean} True if the clock looks fine.
+   */
+  function clockOk(profile, now) {
+    var t = now.getTime();
+    if (t < profile.guard.lastSeen - CLOCK_SLACK_MS) return false;
+    if (t > profile.guard.lastSeen) profile.guard.lastSeen = t;
+    return true;
+  }
+
+  /**
+   * @param {PetProfile} profile
+   * @param {string} today  dayKey of now.
+   * @returns {string[]} The words that already counted today (reset on a new day).
+   */
+  function wordsToday(profile, today) {
+    if (profile.guard.day !== today) { profile.guard.day = today; profile.guard.words = []; }
+    return profile.guard.words;
+  }
+
   /**
    * @typedef {Object} RecordResult
    * @property {string[]} counted   Achievement ids that went up by one.
    * @property {string[]} capped    Achievement ids that matched but hit today's limit.
    * @property {Object[]} unlocked  Achievements finished by this, with their rewards.
+   * @property {?string} blocked    Why nothing counted: 'too-fast' (just added),
+   *   'repeat' (same word already counted today), 'clock' (clock went back),
+   *   'small-trip' (list too short), or null.
    */
 
   /**
-   * Counts an eaten item towards every matching achievement, within the daily limits.
+   * Counts an eaten item towards every matching achievement, within the daily
+   * limits and the fair-play rules.
    * @param {PetProfile} profile  Changed in place.
-   * @param {{emoji: string, cat: string}} item
+   * @param {Item} item
    * @param {Date} now
    * @param {Object[]} achievements  The list from achievements.js.
    * @returns {RecordResult}
    */
   function recordEaten(profile, item, now, achievements) {
-    return record(profile, now, achievements.filter(function (a) { return countsFor(a, item); }));
+    var matching = achievements.filter(function (a) { return countsFor(a, item); });
+    if (!matching.length) return result(null);
+    if (!clockOk(profile, now)) return result('clock');
+    if (!isFresh(item, now)) return result('too-fast');
+    var today = dayKey(now);
+    var words = wordsToday(profile, today);
+    var word = wordOf(item);
+    if (words.indexOf(word) !== -1) return result('repeat');
+    var out = record(profile, today, matching);
+    if (out.counted.length) words.push(word);
+    return out;
   }
 
   /**
    * Counts a finished shopping trip (whole list eaten) towards trip achievements.
+   * Only lists with enough items that were on the list for a while count.
    * @param {PetProfile} profile  Changed in place.
+   * @param {Item[]} items  The finished list.
    * @param {Date} now
    * @param {Object[]} achievements
    * @returns {RecordResult}
    */
-  function recordTrip(profile, now, achievements) {
-    return record(profile, now, achievements.filter(function (a) { return a.trips; }));
+  function recordTrip(profile, items, now, achievements) {
+    var matching = achievements.filter(function (a) { return a.trips; });
+    if (!matching.length) return result(null);
+    if (!clockOk(profile, now)) return result('clock');
+    var real = items.filter(function (i) { return isFresh(i, now); }).length;
+    if (real < TRIP_MIN_ITEMS) return result('small-trip');
+    return record(profile, dayKey(now), matching);
   }
 
   /**
+   * @param {?string} blocked
+   * @returns {RecordResult} An empty result.
+   */
+  function result(blocked) { return { counted: [], capped: [], unlocked: [], blocked: blocked }; }
+
+  /**
    * @param {PetProfile} profile
-   * @param {Date} now
+   * @param {string} today  dayKey of now.
    * @param {Object[]} matching  Achievements to bump.
    * @returns {RecordResult}
    */
-  function record(profile, now, matching) {
-    var today = dayKey(now);
-    var out = { counted: [], capped: [], unlocked: [] };
+  function record(profile, today, matching) {
+    var out = result(null);
     matching.forEach(function (ach) {
       var r = bump(profile, ach, today);
       if (r === 'counted') {
@@ -274,14 +367,15 @@
    * Takes back counts when an item is put back on the list the same day, so checking
    * and unchecking cannot be used to farm progress. Finished achievements stay finished.
    * @param {PetProfile} profile  Changed in place.
-   * @param {string[]} ids  Achievement ids the item counted towards.
-   * @param {string} countedDay  dayKey of when it was counted.
+   * @param {Item} item  The item being put back, with the `counted` ids and
+   *   `countedDay` the app stored when it was eaten.
    * @param {Date} now
    * @param {Object[]} achievements
    */
-  function refundEaten(profile, ids, countedDay, now, achievements) {
+  function refundEaten(profile, item, now, achievements) {
     var today = dayKey(now);
-    if (!ids || countedDay !== today) return;
+    var ids = item.counted;
+    if (!ids || !ids.length || item.countedDay !== today) return;
     ids.forEach(function (id) {
       var ach = achievements.filter(function (a) { return a.id === id; })[0];
       var p = profile.achievements[id];
@@ -289,6 +383,10 @@
       p.count--;
       p.today--;
     });
+    if (profile.guard.day === today) {
+      var at = profile.guard.words.indexOf(wordOf(item));
+      if (at !== -1) profile.guard.words.splice(at, 1);
+    }
   }
 
   /**
@@ -340,6 +438,8 @@
   }
 
   root.PetLogic = {
+    FRESH_MS: FRESH_MS,
+    TRIP_MIN_ITEMS: TRIP_MIN_ITEMS,
     dayKey: dayKey,
     countsFor: countsFor,
     recordEaten: recordEaten,
