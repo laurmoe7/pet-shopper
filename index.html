@@ -19,7 +19,7 @@
 <div class="app">
   <header class="scene" id="scene">
     <div class="scene-bar">
-      <h1 class="brand"><span class="pet-name" id="brandName">Nibble</span><span class="brand-sub">'s list</span><span class="brand-jp" lang="ja" title="mogu mogu: munch munch">もぐもぐ</span></h1>
+      <h1 class="brand"><span class="pet-name" id="brandName">Nibble</span><span class="brand-sub">'s list</span></h1>
       <div class="scene-tools">
         <span class="tally" id="tally" aria-live="polite"></span>
         <button class="pill-btn" id="quietBtn" type="button" aria-pressed="false" title="Quiet mode: no sounds or speech bubbles">Quiet</button>
@@ -200,9 +200,12 @@
         <div class="tummy" id="tummy" aria-hidden="true"></div>
       </div>
       <div class="cushion" aria-hidden="true"></div>
+      <div class="goal-toast" id="goalToast" role="status" aria-live="polite" hidden></div>
+      <span class="brand-jp" lang="ja" title="mogu mogu: munch munch">もぐもぐ</span>
       <div class="stage-tools">
         <button type="button" class="pill-btn" id="dressBtn">♡ Dress up</button>
         <button type="button" class="pill-btn" id="editPetBtn" aria-label="Change your pet's name and species">✎ Edit pet</button>
+        <button type="button" class="pill-btn" id="goalsBtn" aria-label="Goals: unlock new pets and hats">★ Goals</button>
       </div>
     </div>
   </header>
@@ -253,6 +256,7 @@
       <legend class="field-label">Species</legend>
       <div class="species-grid" id="speciesGrid"></div>
     </fieldset>
+    <p class="lock-hint" id="speciesHint" aria-live="polite" hidden></p>
     <div class="picker-foot">
       <span></span>
       <button value="done" class="add-btn">Done</button>
@@ -268,6 +272,7 @@
       <legend class="field-label">Hats</legend>
       <div class="hat-strip" id="hatStrip"></div>
     </fieldset>
+    <p class="lock-hint" id="hatHint" aria-live="polite" hidden></p>
     <div class="picker-foot">
       <span class="hint">More outfits coming soon.</span>
       <button value="done" class="add-btn">Done</button>
@@ -275,8 +280,21 @@
   </form>
 </dialog>
 
+<dialog class="picker pet-sheet" id="goalsSheet" aria-labelledby="goalsTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="goalsTitle">Goals</h2>
+    <p class="goals-intro">Feed <span class="pet-name">Nibble</span> to unlock new friends and hats. Only a few count each day, so come back tomorrow for more.</p>
+    <ul class="goal-list" id="goalList"></ul>
+    <div class="picker-foot">
+      <span></span>
+      <button value="done" class="add-btn">Done</button>
+    </div>
+  </form>
+</dialog>
+
 <script src="foods.js"></script>
 <script src="logic.js"></script>
+<script src="achievements.js"></script>
 <script src="wardrobe.js"></script>
 <script src="sounds.js"></script>
 <script src="app.js"></script>

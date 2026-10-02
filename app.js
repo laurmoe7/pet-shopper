@@ -332,8 +332,9 @@
    * Queues the eating animation for a checked item: hop, chomp, reaction and sound.
    * @param {Item} item
    * @param {?DOMRect} fromRect Where the item's emoji was before the list re-rendered.
+   * @param {?Object} [goals] What recordEaten counted, for the progress toast and unlock cheer.
    */
-  function eat(item, fromRect) {
+  function eat(item, fromRect, goals) {
     enqueue(function () {
       var sp = speed();
       var nonfood = item.cat === 'nonfood';
@@ -348,9 +349,12 @@
         }
         sound(L.soundFor(item));
         say(pick(r.lines), 1400);
+        if (goals) goalToast(goals);
         var hold = 750 * sp;
         if (r.then) return wait(hold / 2).then(function () { setFace(r.then); return wait(hold / 2); });
         return wait(hold);
+      }).then(function () {
+        if (goals && goals.unlocked.length) return cheerUnlocks(goals.unlocked);
       }).then(function () {
         if (pending === 1 && baseState() === 'stuffed') return celebrate();
       });
@@ -440,10 +444,26 @@
     if (!item) return;
     state.items = result.items;
     freshIds[item.id] = true;
+    var now = new Date(), goals = null;
+    if (item.done) {
+      goals = L.recordEaten(state.pet, item, now, Achievements);
+      item.counted = goals.counted;
+      item.countedDay = L.dayKey(now);
+      if (L.mood(state.items) === 'stuffed') {
+        var trip = L.recordTrip(state.pet, now, Achievements);
+        goals.counted = goals.counted.concat(trip.counted);
+        goals.unlocked = goals.unlocked.concat(trip.unlocked);
+      }
+    } else {
+      // putting it back takes today's count back, so ticking on and off can't farm goals
+      L.refundEaten(state.pet, item.counted, item.countedDay, now, Achievements);
+      delete item.counted;
+      delete item.countedDay;
+    }
     buzz(12);
     save();
     render();
-    if (item.done) eat(item, fromRect);
+    if (item.done) eat(item, fromRect, goals);
     else spitBack(item);
   }
 
@@ -561,6 +581,8 @@
   speciesGrid.addEventListener('click', function (e) {
     var b = e.target.closest('button');
     if (!b) return;
+    if (!unlocked('species', b.dataset.species)) { lockHint(speciesHint, 'species', b.dataset.species); return; }
+    speciesHint.hidden = true;
     state.pet.species = b.dataset.species;
     save();
     applyPet();
@@ -573,6 +595,7 @@
   });
   $('editPetBtn').addEventListener('click', function () {
     petNameInput.value = state.pet.name;
+    refreshLocks();
     applyPet();
     if (petSheet.showModal) petSheet.showModal(); else petSheet.setAttribute('open', '');
   });
@@ -640,12 +663,15 @@
     copy.querySelectorAll('defs').forEach(function (d) { d.remove(); });
     view.appendChild(copy);
     dressPreview.replaceChildren(view);
+    refreshLocks();
     refreshDressRoom();
     if (dressSheet.showModal) dressSheet.showModal(); else dressSheet.setAttribute('open', '');
   });
   hatStrip.addEventListener('click', function (e) {
     var b = e.target.closest('button');
     if (!b) return;
+    if (!unlocked('hat', b.dataset.hat)) { lockHint(hatHint, 'hat', b.dataset.hat); return; }
+    hatHint.hidden = true;
     state.pet.outfit.hat = b.dataset.hat;
     save();
     refreshDressRoom();
@@ -667,6 +693,161 @@
   });
   dressSheet.addEventListener('click', function (e) { if (e.target === dressSheet) dressSheet.close(); });
 
+  // ---------- goals: achievements that unlock species and hats ----------
+  var goalToastEl = $('goalToast'), goalsSheet = $('goalsSheet'), goalList = $('goalList');
+  var speciesHint = $('speciesHint'), hatHint = $('hatHint');
+  var toastTimer;
+
+  /**
+   * @param {string} id
+   * @returns {?Object} The achievement with this id.
+   */
+  function achievement(id) {
+    for (var i = 0; i < Achievements.length; i++) if (Achievements[i].id === id) return Achievements[i];
+    return null;
+  }
+  /**
+   * @param {'species'|'hat'} kind
+   * @param {string} id
+   * @returns {boolean} Whether that species or hat is unlocked.
+   */
+  function unlocked(kind, id) { return L.isUnlocked(state.pet, kind, id, Achievements, FreeUnlocks); }
+
+  /**
+   * Shows a short line under the pet: progress on a goal, or that today's share is used up.
+   * Only the first matching goal is shown, so the toast stays short.
+   * @param {{counted: string[], capped: string[], unlocked: Object[]}} goals
+   */
+  function goalToast(goals) {
+    var id = goals.counted[0] || goals.capped[0];
+    var ach = id && achievement(id);
+    if (!ach || goals.unlocked.length) return;
+    var p = L.progress(state.pet, ach, new Date());
+    var text = goals.counted.indexOf(id) !== -1
+      ? ach.title + ' ' + p.count + '/' + p.goal + (p.today >= p.perDay ? ' · done for today' : '')
+      : ach.title + ': ' + p.perDay + ' of ' + p.perDay + ' today, more tomorrow';
+    showToast(ach.icon, text, false, 2200);
+  }
+  /**
+   * @param {string} icon Emoji.
+   * @param {string} text
+   * @param {boolean} win Uses the golden "unlocked" look.
+   * @param {number} ms How long it stays.
+   */
+  function showToast(icon, text, win, ms) {
+    var span = document.createElement('span');
+    span.textContent = text;
+    goalToastEl.replaceChildren(emojiImg(icon, ''), span);
+    goalToastEl.classList.toggle('win', win);
+    goalToastEl.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { goalToastEl.hidden = true; }, ms);
+  }
+  /**
+   * The unlock moment: a cheer, a jingle and petals for each newly finished goal.
+   * @param {Object[]} list Achievements that were just finished.
+   * @returns {Promise<void>}
+   */
+  function cheerUnlocks(list) {
+    return list.reduce(function (p, ach) {
+      return p.then(function () {
+        var u = ach.unlocks;
+        setFace(FACES.tada);
+        pulse('hop', 500);
+        sound('party');
+        buzz([20, 60, 20]);
+        showToast(ach.icon, 'Unlocked: ' + u.label + '!', true, 3200);
+        say(u.kind === 'species' ? 'new friend: ' + u.label + '!' : 'new hat: ' + u.label + '!', 2200);
+        if (!reduceMotion) petals(mouthPoint(), 14);
+        refreshLocks();
+        return wait(2200);
+      });
+    }, Promise.resolve());
+  }
+
+  /**
+   * Adds or removes the lock look and progress badge on a species or hat button.
+   * @param {HTMLButtonElement} b
+   * @param {'species'|'hat'} kind
+   * @param {string} id
+   */
+  function markLock(b, kind, id) {
+    var open = unlocked(kind, id);
+    var badge = b.querySelector('.lock-badge');
+    b.classList.toggle('locked', !open);
+    if (open) { if (badge) badge.remove(); b.removeAttribute('aria-description'); return; }
+    var ach = L.gateFor(kind, id, Achievements);
+    var p = L.progress(state.pet, ach, new Date());
+    if (!badge) { badge = document.createElement('span'); badge.className = 'lock-badge'; b.appendChild(badge); }
+    badge.textContent = '🔒 ' + p.count + '/' + p.goal;
+    b.setAttribute('aria-description', 'Locked. ' + ach.text + '.');
+  }
+  /** Brings every lock in the species grid and hat strip up to date. */
+  function refreshLocks() {
+    speciesGrid.querySelectorAll('button').forEach(function (b) { markLock(b, 'species', b.dataset.species); });
+    hatStrip.querySelectorAll('button').forEach(function (b) { markLock(b, 'hat', b.dataset.hat); });
+  }
+  /**
+   * Explains how to unlock a locked species or hat.
+   * @param {HTMLElement} el The hint paragraph in the open sheet.
+   * @param {'species'|'hat'} kind
+   * @param {string} id
+   */
+  function lockHint(el, kind, id) {
+    var ach = L.gateFor(kind, id, Achievements);
+    var p = L.progress(state.pet, ach, new Date());
+    el.textContent = '🔒 ' + ach.unlocks.label + ': ' + ach.text + ' (' + p.count + '/' + p.goal + ', up to ' + p.perDay + ' a day).';
+    el.hidden = false;
+  }
+
+  /** Fills the goals sheet with each achievement and where it stands. */
+  function renderGoals() {
+    var now = new Date();
+    goalList.replaceChildren.apply(goalList, Achievements.map(function (ach) {
+      var p = L.progress(state.pet, ach, now);
+      var li = document.createElement('li');
+      li.className = 'goal' + (p.done ? ' done' : '');
+      var title = document.createElement('div');
+      title.className = 'goal-title';
+      var name = document.createElement('span');
+      name.textContent = ach.title;
+      var reward = document.createElement('span');
+      reward.className = 'goal-reward';
+      reward.textContent = (p.done ? '✓ ' : '🔒 ') + ach.unlocks.label;
+      title.append(name, reward);
+      var text = document.createElement('div');
+      text.className = 'goal-text';
+      text.textContent = ach.text + ', up to ' + ach.perDay + ' a day';
+      var bar = document.createElement('div');
+      bar.className = 'goal-bar';
+      bar.setAttribute('role', 'progressbar');
+      bar.setAttribute('aria-valuemin', '0');
+      bar.setAttribute('aria-valuemax', String(p.goal));
+      bar.setAttribute('aria-valuenow', String(p.count));
+      bar.setAttribute('aria-label', ach.title);
+      var fill = document.createElement('span');
+      fill.style.width = Math.round((p.count / p.goal) * 100) + '%';
+      bar.appendChild(fill);
+      var meta = document.createElement('div');
+      meta.className = 'goal-meta';
+      var count = document.createElement('span');
+      count.textContent = p.count + '/' + p.goal;
+      var today = document.createElement('span');
+      today.textContent = p.done ? 'Unlocked!' : p.today + ' of ' + p.perDay + ' today';
+      meta.append(count, today);
+      li.append(emojiImg(ach.icon, ''), title, text, bar, meta);
+      return li;
+    }));
+  }
+  $('goalsBtn').addEventListener('click', function () {
+    renderGoals();
+    if (goalsSheet.showModal) goalsSheet.showModal(); else goalsSheet.setAttribute('open', '');
+  });
+  goalsSheet.addEventListener('click', function (e) { if (e.target === goalsSheet) goalsSheet.close(); });
+  petSheet.addEventListener('close', function () { speciesHint.hidden = true; });
+  dressSheet.addEventListener('close', function () { hatHint.hidden = true; });
+
+  refreshLocks();
   applyPet();
 
   // ---------- events ----------

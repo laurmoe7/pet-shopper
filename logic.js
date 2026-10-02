@@ -20,6 +20,14 @@
    * @property {string} name
    * @property {string} species  One of the species ids, e.g. "mochi", "pig", "penguin".
    * @property {{hat: string}} outfit  Wardrobe item id per slot; "none" for no hat.
+   * @property {Object<string, Progress>} achievements  Progress per achievement id.
+   */
+
+  /**
+   * @typedef {Object} Progress
+   * @property {number} count  Total counted towards the goal.
+   * @property {string} day    The calendar day (YYYY-MM-DD) of the last count.
+   * @property {number} today  How many were counted on that day.
    */
 
   var SAMPLE = ['Bananas', 'Oat milk', '500g Quark', 'Broccoli', 'Chili flakes', 'Dark chocolate', 'Toilet paper', "Oma's cake"];
@@ -61,7 +69,8 @@
     return {
       name: typeof saved.name === 'string' ? saved.name : 'Nibble',
       species: saved.species || 'mochi',
-      outfit: { hat: (saved.outfit && saved.outfit.hat) || 'none' }
+      outfit: { hat: (saved.outfit && saved.outfit.hat) || 'none' },
+      achievements: saved.achievements && typeof saved.achievements === 'object' ? saved.achievements : {}
     };
   }
 
@@ -169,7 +178,176 @@
     return CAT_SOUNDS[item.cat] || 'chomp';
   }
 
+  // ---------- achievements ----------
+
+  /**
+   * The phone's local calendar day, used to reset the daily limits at midnight.
+   * @param {Date} date
+   * @returns {string} e.g. "2026-10-02"
+   */
+  function dayKey(date) {
+    var m = date.getMonth() + 1, d = date.getDate();
+    return date.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (d < 10 ? '0' : '') + d;
+  }
+
+  /**
+   * @param {Object} ach  An entry from achievements.js.
+   * @param {{emoji: string, cat: string}} item
+   * @returns {boolean} True if eating this item counts towards the achievement.
+   */
+  function countsFor(ach, item) {
+    if (!ach.foods) return false;
+    if (ach.foods.emojis && ach.foods.emojis.indexOf(item.emoji) !== -1) return true;
+    return !!(ach.foods.cats && ach.foods.cats.indexOf(item.cat) !== -1);
+  }
+
+  /**
+   * Adds one to an achievement unless it is finished or today's limit is used up.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {Object} ach
+   * @param {string} today  dayKey of now.
+   * @returns {'counted'|'capped'|'done'}
+   */
+  function bump(profile, ach, today) {
+    var p = profile.achievements[ach.id] || { count: 0, day: today, today: 0 };
+    if (p.count >= ach.goal) return 'done';
+    if (p.day !== today) { p.day = today; p.today = 0; }
+    if (p.today >= ach.perDay) return 'capped';
+    p.count++;
+    p.today++;
+    profile.achievements[ach.id] = p;
+    return 'counted';
+  }
+
+  /**
+   * @typedef {Object} RecordResult
+   * @property {string[]} counted   Achievement ids that went up by one.
+   * @property {string[]} capped    Achievement ids that matched but hit today's limit.
+   * @property {Object[]} unlocked  Achievements finished by this, with their rewards.
+   */
+
+  /**
+   * Counts an eaten item towards every matching achievement, within the daily limits.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {{emoji: string, cat: string}} item
+   * @param {Date} now
+   * @param {Object[]} achievements  The list from achievements.js.
+   * @returns {RecordResult}
+   */
+  function recordEaten(profile, item, now, achievements) {
+    return record(profile, now, achievements.filter(function (a) { return countsFor(a, item); }));
+  }
+
+  /**
+   * Counts a finished shopping trip (whole list eaten) towards trip achievements.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {Date} now
+   * @param {Object[]} achievements
+   * @returns {RecordResult}
+   */
+  function recordTrip(profile, now, achievements) {
+    return record(profile, now, achievements.filter(function (a) { return a.trips; }));
+  }
+
+  /**
+   * @param {PetProfile} profile
+   * @param {Date} now
+   * @param {Object[]} matching  Achievements to bump.
+   * @returns {RecordResult}
+   */
+  function record(profile, now, matching) {
+    var today = dayKey(now);
+    var out = { counted: [], capped: [], unlocked: [] };
+    matching.forEach(function (ach) {
+      var r = bump(profile, ach, today);
+      if (r === 'counted') {
+        out.counted.push(ach.id);
+        if (profile.achievements[ach.id].count >= ach.goal) out.unlocked.push(ach);
+      } else if (r === 'capped') {
+        out.capped.push(ach.id);
+      }
+    });
+    return out;
+  }
+
+  /**
+   * Takes back counts when an item is put back on the list the same day, so checking
+   * and unchecking cannot be used to farm progress. Finished achievements stay finished.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {string[]} ids  Achievement ids the item counted towards.
+   * @param {string} countedDay  dayKey of when it was counted.
+   * @param {Date} now
+   * @param {Object[]} achievements
+   */
+  function refundEaten(profile, ids, countedDay, now, achievements) {
+    var today = dayKey(now);
+    if (!ids || countedDay !== today) return;
+    ids.forEach(function (id) {
+      var ach = achievements.filter(function (a) { return a.id === id; })[0];
+      var p = profile.achievements[id];
+      if (!ach || !p || p.count >= ach.goal || p.day !== today || p.today <= 0) return;
+      p.count--;
+      p.today--;
+    });
+  }
+
+  /**
+   * Where an achievement stands right now.
+   * @param {PetProfile} profile
+   * @param {Object} ach
+   * @param {Date} now
+   * @returns {{count: number, goal: number, today: number, perDay: number, done: boolean}}
+   */
+  function progress(profile, ach, now) {
+    var p = profile.achievements[ach.id] || { count: 0, day: '', today: 0 };
+    var count = Math.min(p.count, ach.goal);
+    return {
+      count: count,
+      goal: ach.goal,
+      today: p.day === dayKey(now) ? p.today : 0,
+      perDay: ach.perDay,
+      done: count >= ach.goal
+    };
+  }
+
+  /**
+   * Whether a species or hat can be used. Free items always can; items that an
+   * achievement unlocks need that achievement finished; anything else is open.
+   * @param {PetProfile} profile
+   * @param {'species'|'hat'} kind
+   * @param {string} id
+   * @param {Object[]} achievements
+   * @param {{species: string[], hat: string[]}} free
+   * @returns {boolean}
+   */
+  function isUnlocked(profile, kind, id, achievements, free) {
+    if (free[kind] && free[kind].indexOf(id) !== -1) return true;
+    var gate = achievements.filter(function (a) { return a.unlocks && a.unlocks.kind === kind && a.unlocks.id === id; })[0];
+    if (!gate) return true;
+    var p = profile.achievements[gate.id];
+    return !!p && p.count >= gate.goal;
+  }
+
+  /**
+   * The achievement that unlocks a species or hat, if any.
+   * @param {'species'|'hat'} kind
+   * @param {string} id
+   * @param {Object[]} achievements
+   * @returns {?Object}
+   */
+  function gateFor(kind, id, achievements) {
+    return achievements.filter(function (a) { return a.unlocks && a.unlocks.kind === kind && a.unlocks.id === id; })[0] || null;
+  }
+
   root.PetLogic = {
+    dayKey: dayKey,
+    countsFor: countsFor,
+    recordEaten: recordEaten,
+    recordTrip: recordTrip,
+    refundEaten: refundEaten,
+    progress: progress,
+    isUnlocked: isUnlocked,
+    gateFor: gateFor,
     emojiFor: emojiFor,
     createItem: createItem,
     petProfile: petProfile,

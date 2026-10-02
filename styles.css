@@ -110,12 +110,15 @@ button { font: inherit; color: inherit; }
   padding: 10px 16px 0;
 }
 .scene-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.brand { font-family: var(--font-display); font-weight: 500; font-size: 1.35rem; margin: 0; display: flex; align-items: center; white-space: nowrap; min-width: 0; }
+.brand { font-family: var(--font-display); font-weight: 500; font-size: 1.35rem; margin: 0; display: flex; align-items: center; white-space: nowrap; min-width: 0; overflow: hidden; }
+.brand .pet-name { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .brand-sub { color: var(--muted); }
 .brand-jp {
-  font-family: var(--font-body); font-weight: 800; font-size: .62rem; letter-spacing: .08em;
+  /* a little sticker on the stage, clear of the header */
+  position: absolute; right: 2px; bottom: 16px; z-index: 2;
+  font-family: var(--font-body); font-weight: 800; font-size: .7rem; letter-spacing: .08em;
   color: var(--accent-ink); background: var(--accent); border: 1.5px solid var(--outline);
-  border-radius: 999px; padding: 1px 7px; margin-left: 8px; transform: rotate(-6deg) translateY(-3px); white-space: nowrap;
+  border-radius: 999px; padding: 2px 9px; transform: rotate(-6deg); white-space: nowrap;
 }
 .scene-tools { display: flex; align-items: center; gap: 8px; flex: none; }
 @media (max-width: 370px) { .brand-sub { display: none; } }
@@ -478,3 +481,43 @@ button { font: inherit; color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* ---------- goals and locks ---------- */
+.goal-toast {
+  /* sits on the cushion under the pet, clear of the buttons and the speech bubble */
+  position: absolute; left: 50%; bottom: 0; z-index: 3; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 6px; width: max-content; max-width: 100%;
+  font-weight: 800; font-size: .78rem; line-height: 1.2; color: var(--ink);
+  background: var(--surface); border: 1.5px solid var(--outline); border-radius: 999px;
+  padding: 4px 10px 4px 6px; box-shadow: 0 2px 0 var(--outline); pointer-events: none;
+}
+.goal-toast img { width: 22px; height: 22px; flex: none; }
+.goal-toast.win { background: var(--butter); }
+.goal-toast:not([hidden]) ~ .brand-jp { opacity: 0; }
+.goal-toast:not([hidden]) { animation: toast-in .35s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes toast-in { from { transform: translateX(-50%) translateY(-8px) scale(.8); opacity: 0; } }
+
+.species-grid button, .hat-strip button { position: relative; }
+.species-grid button.locked, .hat-strip button.locked { background: var(--bg); border-style: dashed; color: var(--muted); }
+.species-grid button.locked .pet.mini, .hat-strip button.locked svg { filter: grayscale(1) brightness(.8); opacity: .45; }
+.lock-badge {
+  position: absolute; top: 4px; right: 4px; font-size: .66rem; font-weight: 800; color: var(--accent-ink);
+  background: var(--accent); border: 1.2px solid var(--outline); border-radius: 999px; padding: 0 5px; line-height: 1.5;
+}
+.lock-hint { margin: 0; font-size: .85rem; font-weight: 700; color: var(--ink); background: var(--butter); border-radius: 14px; padding: 8px 12px; }
+
+.goals-intro { margin: 0; color: var(--muted); font-size: .88rem; }
+.goal-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; min-height: 0; }
+.goal {
+  display: grid; grid-template-columns: 40px 1fr; gap: 4px 10px; align-items: center;
+  border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 18px; padding: 10px 12px;
+}
+.goal > img { width: 40px; height: 40px; grid-row: span 3; }
+.goal-title { font-weight: 800; display: flex; justify-content: space-between; gap: 8px; }
+.goal-reward { font-weight: 700; font-size: .78rem; color: var(--accent-ink); background: var(--stage-top); border-radius: 999px; padding: 0 8px; white-space: nowrap; }
+.goal-text { font-size: .82rem; color: var(--muted); }
+.goal-bar { height: 10px; border-radius: 999px; background: var(--bg); border: 1.2px solid var(--line); overflow: hidden; }
+.goal-bar span { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+.goal-meta { grid-column: 2; display: flex; justify-content: space-between; gap: 8px; font-size: .78rem; font-weight: 700; color: var(--muted); }
+.goal.done { background: var(--stage-top); border-color: var(--outline); }
+.goal.done .goal-bar span { background: var(--mint); }
