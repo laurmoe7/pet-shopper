@@ -217,24 +217,25 @@
   var CRUMB_COLORS = { fruit: '#ffcf3f', veg: '#5bbd5b', sweets: '#8b5a3c', spicy: '#ff5a3c', drink: '#7cc8ff', baked: '#d9a05b', dairy: '#f3e7c9', protein: '#c96b5a', pantry: '#e8b04a', mystery: '#ff8fb8', nonfood: '#b8b8c8' };
 
   // ---------- sound + haptics ----------
-  var audio;
-  function chompSound() {
-    if (state.quiet) return;
-    try {
-      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
-      var t = audio.currentTime;
-      [0, 0.09].forEach(function (off) {
-        var len = 0.06, buf = audio.createBuffer(1, Math.floor(audio.sampleRate * len), audio.sampleRate);
-        var d = buf.getChannelData(0);
-        for (var i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 2);
-        var src = audio.createBufferSource(); src.buffer = buf;
-        var f = audio.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 900 + Math.random() * 400; f.Q.value = 1.2;
-        var g = audio.createGain(); g.gain.value = 0.5;
-        src.connect(f); f.connect(g); g.connect(audio.destination);
-        src.start(t + off);
-      });
-    } catch (e) { /* no audio */ }
+  // Which sound each food makes. Specific emojis first, then the food category.
+  var EMOJI_SOUNDS = {
+    slurp: '🍜🍲🍛🥣🍝🧋🫗🥫',
+    sip: '☕🍵🍼',
+    crunch: '🍎🍏🍐🥕🥒🥦🫑🌽🥬🥗🥨🍪🥜🌰🍟🍿🍘🫓🥖🧅🧄',
+    squish: '🍌🥑🍑🥭🍓🫐🍇🍅🍦🧀🧈🥚🍰🎂🧁🍮🍡🍞🥯🥐🥞🧇🍠🥔🍄🫘'
+  };
+  var CAT_SOUNDS = { fruit: 'squish', veg: 'crunch', sweets: 'sweet', spicy: 'spicy', drink: 'glug', baked: 'squish', dairy: 'squish', protein: 'chomp', pantry: 'chomp', mystery: 'mystery', nonfood: 'huh' };
+  function soundFor(item) {
+    if (item.cat === 'sweets' || item.cat === 'spicy' || item.cat === 'nonfood' || item.cat === 'mystery') return CAT_SOUNDS[item.cat];
+    for (var kind in EMOJI_SOUNDS) if (EMOJI_SOUNDS[kind].indexOf(item.emoji) !== -1) return kind;
+    return CAT_SOUNDS[item.cat] || 'chomp';
   }
+  function sound(kind) { if (!state.quiet) Sounds.play(kind); }
+  // phones only allow audio that starts from a tap, so wake the audio engine on the first one
+  document.addEventListener('pointerdown', function unlockAudio() {
+    Sounds.unlock();
+    document.removeEventListener('pointerdown', unlockAudio, true);
+  }, true);
   function buzz(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* ignore */ } }
 
   // ---------- the eating queue ----------
@@ -264,8 +265,8 @@
         if (!nonfood) {
           pulse('chomp', 300);
           crumbs(mouthPoint(), CRUMB_COLORS[item.cat] || '#e8b04a', 7);
-          chompSound();
         }
+        sound(soundFor(item));
         say(pick(r.lines), 1400);
         var hold = 750 * sp;
         if (r.then) return wait(hold / 2).then(function () { setFace(r.then); return wait(hold / 2); });
@@ -280,6 +281,7 @@
     enqueue(function () {
       setFace(FACES.catching);
       pulse('spit', 360);
+      sound('spit');
       var rect = rowEmojiRect(item.id);
       var btn = rect && document.querySelector('.item[data-id="' + item.id + '"] .emoji-btn');
       if (btn) btn.classList.add('gone');
@@ -297,6 +299,7 @@
     var eaten = state.items.filter(function (i) { return i.done; }).map(function (i) { return i.emoji; });
     setFace(FACES.party);
     pulse('pat', 1700);
+    sound('party');
     say(pick(['so full! thank you!', 'best trip ever!', '*happy belly pat*']), 2200);
     buzz([20, 60, 20]);
     if (!reduceMotion) {
