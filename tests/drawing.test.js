@@ -20,6 +20,15 @@ test('every ear is in a left or right group so it can jiggle', () => {
   assert.match(css, /@keyframes ear-jiggle-r/);
 });
 
-test('the chick has no mouth of its own, only its beak', () => {
-  assert.match(css, /\.pet\[data-species="chick"\]\[data-mouth\] \[data-mouth\] \{ display: none; \}/);
+test('birds have no mouth of their own, only a beak', () => {
+  const { PetLogic } = require('./load');
+  assert.ok(PetLogic.isBird('chick') && PetLogic.isBird('penguin'));
+  assert.ok(!PetLogic.isBird('pig'));
+  for (const b of PetLogic.BIRDS) assert.match(html, new RegExp('data-sp="' + b + '" class="beak"'), b + ' has a beak');
+  assert.match(css, /\.pet\.beaked\[data-mouth\] \[data-mouth\] \{ display: none; \}/);
+});
+
+test('there are dances for every pet', () => {
+  assert.match(css, /@keyframes shuffle/);
+  assert.match(css, /@keyframes boogie/);
 });

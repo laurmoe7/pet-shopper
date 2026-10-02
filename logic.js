@@ -563,6 +563,15 @@
     return name || old || 'Nibble';
   }
 
+  /** Species that are birds: they talk and eat with a beak, so they have no mouth. Add new birds here. */
+  var BIRDS = ['chick', 'penguin'];
+
+  /**
+   * @param {string} species
+   * @returns {boolean}
+   */
+  function isBird(species) { return BIRDS.indexOf(species) !== -1; }
+
   // ---------- how the pet talks ----------
 
   /**
@@ -632,7 +641,9 @@
     var text = list[Math.floor(rnd() * list.length)].replace(/\{(\w+)\}/g, function (m, k) {
       return vars && vars[k] != null ? vars[k] : m;
     });
-    return styleLine(personality, text, rnd, !!(own && own.length));
+    return text.split('\n').map(function (part) {
+      return styleLine(personality, part, rnd, !!(own && own.length));
+    }).join('\n');
   }
 
   // ---------- developer tools ----------
@@ -751,6 +762,8 @@
     cleanName: cleanName,
     voiceLine: voiceLine,
     sleepTalk: sleepTalk,
+    BIRDS: BIRDS,
+    isBird: isBird,
     toggleDecor: toggleDecor,
     moveDecor: moveDecor,
     FRESH_MS: FRESH_MS,

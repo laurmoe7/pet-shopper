@@ -91,7 +91,7 @@ test('every personality has its own voice for every moment', () => {
     for (const k of KEYS) {
       assert.ok(Array.isArray(p.voice[k]) && p.voice[k].length, p.id + ' has ' + k + ' lines');
       for (const line of p.voice[k]) {
-        assert.ok(line.length <= 34, p.id + ' line is short: ' + line);
+        for (const part of line.split('\n')) assert.ok(part.length <= 34, p.id + ' line is short: ' + part);
         assert.ok(!seen.has(line), line + ' is used by both ' + seen.get(line) + ' and ' + p.id);
         seen.set(line, p.id);
       }
@@ -152,4 +152,17 @@ test('each personality has a short description and a name that fits its quirk', 
   assert.equal(byId.nerd.voice.tone, 'nerdy');
   assert.match(byId.chef.label, /Sassy/);
   assert.match(byId.sipper.label, /Sleepy/);
+});
+
+test('the nerd follows its pi joke with a pie joke, in a second bubble', () => {
+  const nerd = Personalities.find((p) => p.id === 'nerd');
+  const line = L.voiceLine(nerd, 'sleepy', ['x'], {}, () => 0);
+  const [first, second] = line.split('\n');
+  assert.match(first, /pi is 3\.14/);
+  assert.match(second, /pie is for my belly/);
+});
+
+test('the diva is earned with drinks only', () => {
+  const diva = Personalities.find((p) => p.id === 'diva');
+  assert.deepEqual(diva.earn.cats, ['drink']);
 });

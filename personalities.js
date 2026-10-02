@@ -10,6 +10,7 @@
  *   prefixes added to the start of a line now and then
  *   lower    all lower case
  *   bang     what '!' turns into (sleepy pets don't shout)
+ * A line with a line break is said in two bubbles, one after the other.
  * Add a new personality here and it shows up in the pet sheet.
  */
 (function (root) {
@@ -149,9 +150,9 @@
     {
       id: 'diva', label: 'Diva', icon: '🥂',
       blurb: 'Dramatic and fabulous. Only the finest.',
-      text: 'Feed it 15 fruit or drinks',
+      text: 'Feed it 15 drinks',
       likes: ['fruit', 'drink', 'sweets'],
-      earn: { cats: ['fruit', 'drink'], count: 15 },
+      earn: { cats: ['drink'], count: 15 },
       suggests: ['Champagne', 'Strawberries', 'Mango', 'Cupcakes', 'Dark chocolate', 'Sparkling water'],
       lines: ['exquisite, darling.', 'simply divine!', 'fit for a star!'],
       voice: {
@@ -185,7 +186,7 @@
         style: { endings: [', technically', '. fun fact!', ' (probably)'], prefixes: ['actually, ', 'um, '], lower: false, bang: '!' },
         hi: ['greetings, human!', 'ah, my lab partner!'],
         tap: ['fun fact: I\'m ticklish.', 'please mind the glasses.', 'hypothesis: you like me.'],
-        sleepy: ['zzz… pi is 3.14…', 'processing dreams…'],
+        sleepy: ['zzz… pi is 3.14…\npie is for my belly…', 'processing dreams…'],
         suggest: ['studies say {x} is great.', 'may I request {x}?', '{x}: 10/10 brain food.'],
         decline: ['noted for later research.', 'data logged. okay.'],
         dream: ['the science of {x}…', '{x}, for my brain…'],

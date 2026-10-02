@@ -227,8 +227,12 @@
    * @returns {string}
    */
   function line(key, fallback, vars) { return L.voiceLine(personality(), key, fallback, vars); }
-  /** Says the personality's line for a moment. */
-  function talk(key, fallback, ms, vars) { say(line(key, fallback, vars), ms, true); }
+  /** Says the personality's line for a moment; a two-part line comes in two bubbles. */
+  function talk(key, fallback, ms, vars) {
+    var parts = line(key, fallback, vars).split('\n');
+    say(parts[0], ms, true);
+    if (parts[1]) setTimeout(function () { say(parts[1], ms, true); }, (ms || 1500) + 150);
+  }
   function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
   /**
    * @param {number} ms
@@ -622,6 +626,7 @@
   function applyPet() {
     var name = petName();
     pet.dataset.species = state.pet.species;
+    pet.classList.toggle('beaked', L.isBird(state.pet.species));
     pet.setAttribute('aria-label', name + ', your pet');
     document.querySelectorAll('.pet-name').forEach(function (el) { el.textContent = name; });
     document.title = name + "'s List";
@@ -638,7 +643,7 @@
     b.type = 'button';
     b.dataset.species = sp.id;
     var mini = document.createElement('div');
-    mini.className = 'pet mini x-cheeks';
+    mini.className = 'pet mini x-cheeks' + (L.isBird(sp.id) ? ' beaked' : '');
     mini.dataset.species = sp.id;
     mini.dataset.eyes = 'open';
     mini.dataset.mouth = 'smile';
@@ -763,7 +768,7 @@
   $('dressBtn').addEventListener('click', function () {
     // a live copy of the pet to try things on
     var view = document.createElement('div');
-    view.className = 'pet preview x-cheeks';
+    view.className = 'pet preview x-cheeks' + (L.isBird(state.pet.species) ? ' beaked' : '');
     view.dataset.species = state.pet.species;
     view.dataset.state = 'curious';
     view.dataset.eyes = 'open';
@@ -1531,6 +1536,9 @@
     { moods: ['happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); } },
     { moods: ['happy'], run: function () { if (!cartEl.hidden) { setFace({ eyes: 'open', mouth: 'open', arms: 'reach', x: [] }); pulse('peek', 1400); say(pick(['what\'s in the cart?', 'so much loot!', 'cart buddy!']), 1300); } } },
     { moods: ['curious'], run: function () { setFace({ eyes: 'open', mouth: 'o', arms: 'scratch', x: ['question'] }); talk('idle', ['what\'s next?', 'shopping time?'], 1300); } },
+    // little dances
+    { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('shuffle', 1500); hum(); } },
+    { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'reach', x: ['sparkles', 'cheeks'] }); pulse('boogie', 1500); hum(); } },
     { moods: ['sleepy', 'stuffed'], run: function () { pulse('wiggle', 900); } },
     { moods: ['stuffed'], run: function () { setFace({ eyes: 'closed', mouth: 'smile', arms: 'pat', x: ['zzz', 'cheeks'] }); } }
   ];
