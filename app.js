@@ -203,7 +203,7 @@
    * @param {number} [ms=1500] How long it stays.
    */
   function say(text, ms) {
-    if (state.quiet || !text) return;
+    if (state.quiet || !state.settings.bubbles || !text) return;
     bubble.hidden = true;
     void bubble.offsetWidth;
     bubble.textContent = text;
@@ -319,7 +319,7 @@
    * Plays an eating sound unless quiet mode is on.
    * @param {string} kind A Sounds.play kind, e.g. "glug".
    */
-  function sound(kind) { if (!state.quiet) Sounds.play(kind); }
+  function sound(kind) { if (!state.quiet && state.settings.sounds) Sounds.play(kind); }
   // phones only allow audio that starts from a tap, so wake the audio engine on the first one
   document.addEventListener('pointerdown', function unlockAudio() {
     Sounds.unlock();
@@ -329,7 +329,7 @@
    * A short vibration on phones that support it.
    * @param {number|number[]} ms
    */
-  function buzz(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* ignore */ } }
+  function buzz(ms) { try { if (state.settings.vibration && navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* ignore */ } }
 
   // ---------- the eating queue ----------
   // Taps update the list at once; Nibble works through what you checked in order.
@@ -385,7 +385,7 @@
           return wait(800 * sp);
         }
       }).then(function () {
-        if (goals && goals.blocked === 'too-fast') {
+        if (goals && goals.blocked === 'too-fast' && state.settings.fairPlayTips) {
           // a playful nudge rather than a telling-off
           setFace(FACES.suspicious);
           say(pick(['did you really buy that?', 'hmm, that was quick…', 'straight from the list?']), 1600);
@@ -472,6 +472,19 @@
   }
 
   /**
+   * The item as the goal rules should see it. With the dev menu's "skip the
+   * 15-minute wait" on, it looks like it has been on the list for ages.
+   * @param {Item} item
+   * @returns {Item}
+   */
+  function rulesItem(item) {
+    if (!state.dev.noWait) return item;
+    var copy = {};
+    Object.keys(item).forEach(function (k) { if (k !== 'added') copy[k] = item[k]; });
+    return copy;
+  }
+
+  /**
    * Checks an item off (the pet eats it) or puts it back (the pet spits it out).
    * @param {string} id
    */
@@ -485,16 +498,16 @@
     var now = new Date(), goals = null;
     if (item.done) {
       var openBefore = Personalities.filter(personalityOpen);
-      goals = L.recordEaten(state.pet, item, now, Achievements);
+      goals = L.recordEaten(state.pet, rulesItem(item), now, Achievements);
       item.counted = goals.counted;
       item.countedDay = L.dayKey(now);
-      item.tasted = L.recordTaste(state.pet, item, now);
+      item.tasted = L.recordTaste(state.pet, rulesItem(item), now);
       // personalities this bite just earned are cheered like other unlocks
       Personalities.filter(personalityOpen).forEach(function (p) {
         if (openBefore.indexOf(p) === -1) goals.unlocked.push({ icon: p.icon, unlocks: { kind: 'personality', id: p.id, label: p.label } });
       });
       if (L.mood(state.items) === 'stuffed') {
-        var trip = L.recordTrip(state.pet, state.items, now, Achievements);
+        var trip = L.recordTrip(state.pet, state.items.map(rulesItem), now, Achievements);
         goals.counted = goals.counted.concat(trip.counted);
         goals.capped = goals.capped.concat(trip.capped);
         goals.unlocked = goals.unlocked.concat(trip.unlocked);
@@ -747,7 +760,7 @@
    * @param {number} ms
    */
   function dressSay(text, ms) {
-    if (state.quiet) return;
+    if (state.quiet || !state.settings.bubbles) return;
     dressBubble.textContent = text;
     dressBubble.hidden = false;
     // restart the pop animation
@@ -943,9 +956,11 @@
    */
   function goalToast(goals) {
     if (goals.blocked && FAIR_PLAY[goals.blocked] && !goals.counted.length) {
-      showToast('🧺', FAIR_PLAY[goals.blocked], false, 3000);
+      // the rules still apply with tips off; they just aren't mentioned
+      if (state.settings.fairPlayTips) showToast('🧺', FAIR_PLAY[goals.blocked], false, 3000);
       return;
     }
+    if (!state.settings.goalToasts) return;
     var id = goals.counted[0] || goals.capped[0];
     var ach = id && achievement(id);
     if (!ach || goals.unlocked.length) return;
@@ -1069,6 +1084,7 @@
   }
   $('goalsBtn').addEventListener('click', function () {
     renderGoals();
+    $('goalsFairPlay').hidden = !state.settings.fairPlayTips;
     if (goalsSheet.showModal) goalsSheet.showModal(); else goalsSheet.setAttribute('open', '');
   });
   goalsSheet.addEventListener('click', function (e) { if (e.target === goalsSheet) goalsSheet.close(); });
@@ -1154,7 +1170,7 @@
     if (busy) return;
     pulse('hop', 460);
     var s = baseState();
-    if (s !== 'stuffed' && Math.random() < 0.5 && offerSuggestion()) return;
+    if (s !== 'stuffed' && Math.random() < 0.12 && offerSuggestion()) return;
     say(s === 'sleepy' || s === 'stuffed' ? 'zzz… snack?' : pick(['hi!', 'hungry!', 'shopping?', 'hehe']), 1200);
   });
 
@@ -1222,11 +1238,14 @@
 
   // ---------- suggestions ----------
   var suggestEl = $('suggest'), suggestBtn = $('suggestBtn'), suggestTimer;
+  var SUGGEST_GAP_MS = 3 * 60 * 1000, lastSuggestion = 0;
   /**
    * The pet asks for one of its favourites that isn't on the list yet.
    * @returns {boolean} False if there is nothing left to suggest.
    */
   function offerSuggestion() {
+    // not too often: at most one ask every few minutes
+    if (!state.settings.suggestions || Date.now() - lastSuggestion < SUGGEST_GAP_MS) return false;
     var text = L.suggestion(personality(), state.items);
     if (!text) return false;
     var e = L.emojiFor(text, state.overrides).emoji;
@@ -1235,6 +1254,7 @@
     suggestBtn.replaceChildren(emojiImg(e, ''), span);
     suggestBtn.dataset.text = text;
     suggestEl.hidden = false;
+    lastSuggestion = Date.now();
     clearTimeout(suggestTimer);
     suggestTimer = setTimeout(function () { suggestEl.hidden = true; }, 15000);
     say(pick(['ooh, how about ' + text.toLowerCase() + '?', 'can we get ' + text.toLowerCase() + '?', text.toLowerCase() + ', please?']), 1800);
@@ -1249,19 +1269,118 @@
     if (!busy) { setFace(FACES.sheepish); say(pick(['ok, maybe next time', 'aww, fine']), 1200); setTimeout(function () { if (!busy) settle(); }, 1000); }
   });
 
+  // ---------- options ----------
+  var optionsSheet = $('optionsSheet'), optionsList = $('optionsList');
+  var OPTIONS = [
+    { key: 'sounds', title: 'Sounds', text: 'Chomps, slurps and squeaks.' },
+    { key: 'bubbles', title: 'Speech bubbles', text: 'What your pet says.' },
+    { key: 'vibration', title: 'Vibration', text: 'A little buzz when you tick things off (on phones that can).' },
+    { key: 'goalToasts', title: 'Goal progress', text: 'A label under your pet after each bite, like "Fish fan 6/20".' },
+    { key: 'fairPlayTips', title: 'Fair-play tips', text: 'Mentions the 15-minute rule and the once-a-day rule. The rules still apply when this is off.' },
+    { key: 'daydreams', title: 'Daydreams', text: 'Thought clouds about things on your list.' },
+    { key: 'suggestions', title: 'Suggestions', text: 'Your pet sometimes asks for something to add.' }
+  ];
+  OPTIONS.forEach(function (o) {
+    var label = document.createElement('label');
+    label.className = 'option';
+    var title = document.createElement('span');
+    title.className = 'option-title';
+    title.textContent = o.title;
+    var text = document.createElement('span');
+    text.className = 'option-text';
+    text.textContent = o.text;
+    var box = document.createElement('input');
+    box.type = 'checkbox';
+    box.setAttribute('role', 'switch');
+    box.dataset.key = o.key;
+    label.append(title, box, text);
+    optionsList.appendChild(label);
+  });
+  optionsList.addEventListener('change', function (e) {
+    var key = e.target.dataset.key;
+    if (!key) return;
+    state.settings[key] = e.target.checked;
+    if (key === 'bubbles' && !e.target.checked) bubble.hidden = true;
+    if (key === 'suggestions' && !e.target.checked) suggestEl.hidden = true;
+    save();
+    if (key === 'sounds' && e.target.checked) sound('ooh');
+  });
+  $('optionsBtn').addEventListener('click', function () {
+    optionsList.querySelectorAll('input').forEach(function (b) { b.checked = state.settings[b.dataset.key]; });
+    if (optionsSheet.showModal) optionsSheet.showModal(); else optionsSheet.setAttribute('open', '');
+  });
+  optionsSheet.addEventListener('click', function (e) { if (e.target === optionsSheet) optionsSheet.close(); });
+
+  // ---------- developer tools ----------
+  var devSheet = $('devSheet'), devStatus = $('devStatus'), devNoWait = $('devNoWait');
+  /** Redraws everything that depends on progress after a dev action. */
+  function refreshAll() {
+    save();
+    render();
+    applyPet();
+    refreshLocks();
+    renderPersonalities();
+    renderRoom();
+  }
+  var DEV_ACTIONS = [
+    { label: 'Unlock everything', run: function () { L.unlockAll(state.pet, Achievements, Personalities); return 'All goals finished and personalities earned.'; } },
+    { label: 'Lock everything again', run: function () { L.lockAll(state.pet, Achievements, FreeUnlocks); return 'Progress wiped. Locked items are locked again.'; } },
+    { label: 'Skip to tomorrow', run: function () { L.skipDays(state, 1); return 'A day has passed: daily limits are fresh.'; } },
+    { label: 'Daydream now', run: function () { devSheet.close(); setTimeout(daydream, 400); return ''; } },
+    { label: 'Suggest something now', run: function () { devSheet.close(); lastSuggestion = 0; setTimeout(offerSuggestion, 400); return ''; } },
+    { label: 'Fill with sample items', run: function () { state.items = state.items.concat(L.parseState(null, newId).items); return 'Sample items added.'; } },
+    { label: 'Clear the list', run: function () { state.items = []; return 'List cleared.'; } },
+    { label: 'Reset all saved data', danger: true, run: function () {
+      if (!confirm('Reset everything? Your list, pet, progress and options will be gone.')) return 'Nothing changed.';
+      try { localStorage.removeItem(STORE_KEY); } catch (e) { /* storage blocked */ }
+      location.reload();
+      return 'Resetting…';
+    } }
+  ];
+  DEV_ACTIONS.forEach(function (a, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.i = i;
+    b.textContent = a.label;
+    if (a.danger) b.className = 'danger';
+    $('devActions').appendChild(b);
+  });
+  $('devActions').addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    devStatus.textContent = DEV_ACTIONS[b.dataset.i].run();
+    refreshAll();
+  });
+  devNoWait.addEventListener('change', function () {
+    state.dev.noWait = devNoWait.checked;
+    save();
+  });
+  $('devBtn').addEventListener('click', function () {
+    optionsSheet.close();
+    devNoWait.checked = state.dev.noWait;
+    devStatus.textContent = '';
+    if (devSheet.showModal) devSheet.showModal(); else devSheet.setAttribute('open', '');
+  });
+  devSheet.addEventListener('click', function (e) { if (e.target === devSheet) devSheet.close(); });
+
   // ---------- daydreams ----------
   // Now and then, while nothing else is going on, the pet daydreams about
   // something on the list and gets excited about its favourites.
   var dreamEl = $('dream'), dreamCloud = $('dreamCloud'), dreamTimer, dreaming = false;
-  /** Waits a little while, then daydreams. */
+  /** Waits a little while, then does something idle: a daydream or a little move. */
   function scheduleDream() {
     clearTimeout(dreamTimer);
-    dreamTimer = setTimeout(daydream, 9000 + Math.random() * 8000);
+    dreamTimer = setTimeout(idle, 7000 + Math.random() * 7000);
+  }
+  /** One idle moment, when nothing else is going on. */
+  function idle() {
+    scheduleDream();
+    if (busy || dreaming || document.hidden || document.querySelector('dialog[open]')) return;
+    if (state.settings.daydreams && Math.random() < 0.4) daydream();
+    else idleMove();
   }
   /** Shows a thought cloud with an item and lets the pet react to it. */
   function daydream() {
-    scheduleDream();
-    if (busy || dreaming || document.hidden || document.querySelector('dialog[open]')) return;
     var mood = baseState();
     if (mood === 'stuffed') return;
     var todo = state.items.filter(function (i) { return !i.done && i.cat !== 'nonfood'; });
@@ -1299,6 +1418,63 @@
       // a dream about something not on the list turns into a suggestion
       if (item.id === 'dream' && mood !== 'sleepy' && suggestEl.hidden) offerSuggestion();
     }, 2600);
+  }
+  /**
+   * Floats a few music notes up from the pet's head while it hums.
+   */
+  function hum() {
+    if (reduceMotion) return;
+    var r = pet.getBoundingClientRect();
+    ['♪', '♫', '♪'].forEach(function (n, i) {
+      var el = document.createElement('span');
+      el.className = 'note';
+      el.textContent = n;
+      document.body.appendChild(el);
+      var x = r.left + r.width * (0.62 + i * 0.08), y = r.top + r.height * 0.2;
+      el.animate([
+        { transform: 'translate(' + x + 'px,' + y + 'px) scale(.6)', opacity: 0 },
+        { transform: 'translate(' + (x + 8) + 'px,' + (y - 20) + 'px) scale(1) rotate(-10deg)', opacity: 1, offset: 0.3 },
+        { transform: 'translate(' + (x + 18) + 'px,' + (y - 50) + 'px) rotate(10deg)', opacity: 0 }
+      ], { duration: 1600, delay: i * 350, easing: 'ease-out', fill: 'both' }).finished.then(el.remove.bind(el), el.remove.bind(el));
+    });
+  }
+  /**
+   * Looks one way, then the other, as if checking the shop.
+   * Skipped while the eyes are following a finger or cursor.
+   */
+  function lookAround() {
+    if (lookAt) return;
+    var steps = [[-3.2, -0.5], [3.2, -0.5], [0, 0]];
+    steps.forEach(function (st, i) {
+      setTimeout(function () {
+        if (lookAt) return;
+        pet.style.setProperty('--look-x', st[0] + 'px');
+        pet.style.setProperty('--look-y', st[1] + 'px');
+        if (i === steps.length - 1) { pet.style.removeProperty('--look-x'); pet.style.removeProperty('--look-y'); }
+      }, i * 700);
+    });
+  }
+  // little things the pet does while it waits; some only fit some moods
+  var IDLE_MOVES = [
+    { moods: ['curious', 'happy'], run: function () { pulse('wiggle', 900); } },
+    { moods: ['curious', 'happy'], run: function () { setFace(FACES.dreamy); pulse('bob', 1400); hum(); say('♪ hm hm hmm ♪', 1400); } },
+    { moods: ['curious', 'happy'], run: function () { lookAround(); } },
+    { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'closed', mouth: 'o', arms: 'cover', x: [] }); pulse('stretch', 1000); } },
+    { moods: ['happy'], run: function () { setFace(FACES.tada); pulse('twirl', 800); } },
+    { moods: ['happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); } },
+    { moods: ['happy'], run: function () { if (!cartEl.hidden) { setFace({ eyes: 'open', mouth: 'open', arms: 'reach', x: [] }); pulse('peek', 1400); say(pick(['what\'s in the cart?', 'so much loot!', 'cart buddy!']), 1300); } } },
+    { moods: ['curious'], run: function () { setFace({ eyes: 'open', mouth: 'o', arms: 'scratch', x: ['question'] }); say(pick(['what\'s next?', 'shopping time?']), 1300); } },
+    { moods: ['sleepy', 'stuffed'], run: function () { pulse('wiggle', 900); } },
+    { moods: ['stuffed'], run: function () { setFace({ eyes: 'closed', mouth: 'smile', arms: 'pat', x: ['zzz', 'cheeks'] }); } }
+  ];
+  /** Plays one idle move that fits the pet's mood, then settles back. */
+  function idleMove() {
+    var mood = baseState();
+    var moves = IDLE_MOVES.filter(function (m) { return m.moods.indexOf(mood) !== -1; });
+    if (!moves.length) return;
+    busy++;
+    pick(moves).run();
+    setTimeout(function () { busy--; if (!busy) settle(); }, 1600);
   }
   scheduleDream();
 

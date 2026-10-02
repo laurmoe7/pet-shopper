@@ -114,7 +114,39 @@
     }
     data.overrides = data.overrides || {};
     data.pet = petProfile(data.pet);
+    data.settings = settings(data.settings);
+    // developer-only switches from the dev menu
+    data.dev = { noWait: !!(data.dev && data.dev.noWait) };
     return data;
+  }
+
+  /**
+   * @typedef {Object} Settings  Options from the gear menu. They belong to this
+   *   phone, not to the pet.
+   * @property {boolean} sounds       Eating sounds and squeaks.
+   * @property {boolean} bubbles      Speech bubbles.
+   * @property {boolean} vibration    A little buzz on taps (phones that support it).
+   * @property {boolean} daydreams    Thought clouds about the list.
+   * @property {boolean} suggestions  The pet now and then asks for something to add.
+   * @property {boolean} fairPlayTips Messages about the fair-play rules, like
+   *   "items count after 15 min". The rules still apply when this is off.
+   * @property {boolean} goalToasts   The progress label under the pet after a bite.
+   */
+
+  /** The settings a new phone starts with: everything on. */
+  var DEFAULT_SETTINGS = { sounds: true, bubbles: true, vibration: true, daydreams: true, suggestions: true, fairPlayTips: true, goalToasts: true };
+
+  /**
+   * Fills in any settings missing from what was saved.
+   * @param {Object} [saved]
+   * @returns {Settings}
+   */
+  function settings(saved) {
+    var out = {};
+    Object.keys(DEFAULT_SETTINGS).forEach(function (k) {
+      out[k] = saved && typeof saved[k] === 'boolean' ? saved[k] : DEFAULT_SETTINGS[k];
+    });
+    return out;
   }
 
   /**
@@ -506,6 +538,71 @@
     return options[Math.floor((random || Math.random)() * options.length)];
   }
 
+  // ---------- developer tools ----------
+  // Shortcuts for testing from the dev menu. Not used in normal play.
+
+  /**
+   * Finishes every goal and earns every personality.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {Object[]} achievements
+   * @param {Object[]} personalities
+   */
+  function unlockAll(profile, achievements, personalities) {
+    achievements.forEach(function (a) {
+      var p = profile.achievements[a.id] || { day: '', today: 0 };
+      profile.achievements[a.id] = { count: a.goal, day: p.day, today: p.today };
+    });
+    personalities.forEach(function (pers) {
+      if (!pers.earn) return;
+      var have = pers.earn.cats.reduce(function (n, c) { return n + (profile.tastes[c] || 0); }, 0);
+      if (have < pers.earn.count) {
+        var c = pers.earn.cats[0];
+        profile.tastes[c] = (profile.tastes[c] || 0) + pers.earn.count - have;
+      }
+    });
+  }
+
+  /**
+   * Wipes all goal progress, tastes and fair-play memory, so everything locked is locked again.
+   * The species, hat and personality in use are kept if free, otherwise go back to the defaults.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {Object[]} achievements
+   * @param {{species: string[], hat: string[]}} free
+   */
+  function lockAll(profile, achievements, free) {
+    profile.achievements = {};
+    profile.tastes = {};
+    profile.guard = { day: '', words: [], lastSeen: 0 };
+    profile.personality = 'foodie';
+    if (!isUnlocked(profile, 'species', profile.species, achievements, free)) profile.species = 'mochi';
+    if (!isUnlocked(profile, 'hat', profile.outfit.hat, achievements, free)) profile.outfit.hat = 'none';
+  }
+
+  /**
+   * Moves saved dates back by some days, as if that much time had passed:
+   * daily limits reset and items have been on the list long enough to count.
+   * @param {{items: Item[], pet: PetProfile}} state  Changed in place.
+   * @param {number} days
+   */
+  function skipDays(state, days) {
+    var ms = days * 24 * 3600 * 1000;
+    var back = function (key) {
+      if (!key) return key;
+      var d = new Date(key + 'T12:00:00');
+      d.setDate(d.getDate() - days);
+      return dayKey(d);
+    };
+    Object.keys(state.pet.achievements).forEach(function (id) {
+      state.pet.achievements[id].day = back(state.pet.achievements[id].day);
+    });
+    state.pet.guard.day = back(state.pet.guard.day);
+    if (state.pet.guard.lastSeen) state.pet.guard.lastSeen -= ms;
+    state.items.forEach(function (i) {
+      if (typeof i.added === 'number') i.added -= ms;
+      if (i.countedDay) i.countedDay = back(i.countedDay);
+    });
+  }
+
   // ---------- room decor ----------
 
   /**
@@ -542,6 +639,10 @@
   }
 
   root.PetLogic = {
+    unlockAll: unlockAll,
+    lockAll: lockAll,
+    skipDays: skipDays,
+    settings: settings,
     recordTaste: recordTaste,
     refundTaste: refundTaste,
     personalityProgress: personalityProgress,

@@ -61,8 +61,9 @@ test('the cow hoodie covers the whole pet and tucks its ears away', () => {
   assert.match(hoodie.svg, /fill-rule="evenodd"/);
 });
 
-test('the room has a window, a beanbag and a cuckoo clock', () => {
-  assert.deepEqual(Decor.map((d) => d.id), ['window', 'beanbag', 'clock']);
+test('the room has a rug, window, beanbag, clock, gaming desk and burger phone', () => {
+  assert.deepEqual(Decor.map((d) => d.id), ['rug', 'window', 'beanbag', 'clock', 'desk', 'burgerphone']);
+  assert.equal(Decor[0].id, 'rug', 'the rug is drawn first, under everything else');
   for (const d of Decor) {
     assert.ok(d.label && d.svg && d.view, d.id);
     assert.ok(d.x >= 0 && d.x <= 1 && d.y >= 0 && d.y <= 1, d.id + ' default spot is in the room');
@@ -88,5 +89,22 @@ test('the room is saved with the pet', () => {
   const s = PetLogic.parseState(null, ids());
   PetLogic.toggleDecor(s.pet.room, Decor[1]);
   const back = PetLogic.parseState(JSON.stringify(s), ids());
-  assert.deepEqual(back.pet.room, { beanbag: { x: Decor[1].x, y: Decor[1].y } });
+  assert.deepEqual(back.pet.room, { [Decor[1].id]: { x: Decor[1].x, y: Decor[1].y } });
+});
+
+test('options start all on and keep what was saved', () => {
+  const fresh = PetLogic.parseState(null, ids()).settings;
+  assert.ok(Object.values(fresh).every((v) => v === true));
+  assert.ok('fairPlayTips' in fresh && 'suggestions' in fresh && 'daydreams' in fresh);
+  const saved = PetLogic.parseState(JSON.stringify({ items: [], settings: { fairPlayTips: false, sounds: 'yes' } }), ids()).settings;
+  assert.equal(saved.fairPlayTips, false);
+  assert.equal(saved.sounds, true, 'a broken value falls back to the default');
+  assert.equal(saved.bubbles, true, 'options added later start on');
+});
+
+test('older saves get the dev switch off', () => {
+  const s = PetLogic.parseState(JSON.stringify({ items: [] }), () => 1);
+  assert.deepEqual(s.dev, { noWait: false });
+  const on = PetLogic.parseState(JSON.stringify({ items: [], dev: { noWait: true } }), () => 1);
+  assert.equal(on.dev.noWait, true);
 });
