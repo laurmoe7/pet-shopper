@@ -15,6 +15,16 @@ python3 -m http.server 8000
 
 On a phone on the same Wi-Fi, open `http://<your computer's IP>:8000`. Offline mode and "Add to Home Screen" need HTTPS, for example GitHub Pages.
 
+## Tests
+
+The rules behind the app (emoji matching, sounds, list order, the pet's mood, saving the pet) are tested with Node's built-in test runner. There is nothing to install. With Node 18 or newer:
+
+```sh
+npm test
+```
+
+The tests live in `tests/` and load the same scripts the browser uses.
+
 ## What's in it
 
 - One list: add, check off, put back, delete.
@@ -32,6 +42,7 @@ Not in it yet: accounts, shared lists, payments, multiple lists.
 
 - `index.html`, `styles.css`, `app.js`: the app. Nibble is an inline SVG animated with CSS.
 - `foods.js`: the keyword dictionary and matching.
+- `logic.js`: the app's rules with no page code (item order, mood, emoji picks, sound choice, saved state), so they can be tested.
 - `wardrobe.js`: the dressing-room items (hats), drawn as SVG on the pet's head.
 - `sounds.js`: the eating sounds, made with the Web Audio API.
 - `emoji/`: the OpenMoji SVGs the app uses. Regenerate with `node tools/copy-emoji.js <openmoji package>/color/svg` after adding emojis to `foods.js`.

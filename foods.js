@@ -161,6 +161,11 @@
   var EXTRA_PICKS = ['🎁', '🍽️', '🥘', '🍲', '🥙', '🍙', '🍘', '🥠', '🦐', '🦞', '🍸', '🍹', '🥂'];
   var EXTRA_CATS = { '🎁': 'mystery', '🍽️': 'pantry', '🥘': 'pantry', '🍲': 'pantry', '🥙': 'pantry', '🍙': 'pantry', '🍘': 'pantry', '🥠': 'sweets', '🦐': 'protein', '🦞': 'protein', '🍸': 'drink', '🍹': 'drink', '🥂': 'drink' };
 
+  /**
+   * Spelling variants for a keyword: itself plus simple English plurals.
+   * @param {string} word
+   * @returns {string[]}
+   */
   function plurals(word) {
     var out = [word];
     var last = word.slice(-1);
@@ -189,7 +194,11 @@
   index.sort(function (a, b) { return b.kw.length - a.kw.length; });
   Object.keys(EXTRA_CATS).forEach(function (e) { if (!emojiCat[e]) emojiCat[e] = EXTRA_CATS[e]; });
 
-  // "2x Bananas (ripe)" -> "bananas ripe"
+  /**
+   * Lower-cases an item and strips quantities and punctuation, e.g. "2x Bananas (ripe)" -> "bananas ripe".
+   * @param {string} text
+   * @returns {string}
+   */
   function normalize(text) {
     return String(text)
       .toLowerCase()
@@ -200,6 +209,11 @@
       .trim();
   }
 
+  /**
+   * Finds the emoji for an item using the longest keyword in it; unknown items become a mystery gift.
+   * @param {string} text
+   * @returns {{emoji: string, cat: string, keyword: ?string}}
+   */
   function match(text) {
     var norm = ' ' + normalize(text) + ' ';
     for (var i = 0; i < index.length; i++) {
@@ -215,7 +229,11 @@
   FOODS.forEach(function (row) { if (ALL.indexOf(row[0]) === -1) ALL.push(row[0]); });
   EXTRA_PICKS.forEach(function (e) { if (ALL.indexOf(e) === -1) ALL.push(e); });
 
-  // OpenMoji file name: code points joined by "-", variation selector dropped.
+  /**
+   * Path of the bundled OpenMoji file for an emoji: code points joined by "-", variation selector dropped.
+   * @param {string} emoji
+   * @returns {string}
+   */
   function emojiFile(emoji) {
     var parts = [];
     for (var ch of emoji) {

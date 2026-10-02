@@ -8,6 +8,10 @@
 
   var ctx = null, master = null, noiseBuf = null;
 
+  /**
+   * Creates the audio engine on first use: a context, a soft compressor and a noise buffer.
+   * @returns {?AudioContext} Null when Web Audio is missing.
+   */
   function init() {
     if (ctx) return ctx;
     var AC = root.AudioContext || root.webkitAudioContext;
@@ -26,6 +30,7 @@
     return ctx;
   }
 
+  /** Wakes audio up from inside a tap, which phones require before any later sound can play. */
   function unlock() {
     try {
       if (!init()) return;
@@ -37,9 +42,21 @@
     } catch (e) { /* no audio */ }
   }
 
+  /**
+   * @param {number} a
+   * @param {number} b
+   * @returns {number} A random number between a and b.
+   */
   function rnd(a, b) { return a + Math.random() * (b - a); }
 
-  // gain envelope: silence -> peak in `a` seconds -> silence over `d` seconds
+  /**
+   * A gain envelope: silence, up to peak in a seconds, back to silence over d seconds.
+   * @param {number} t Start time.
+   * @param {number} a Attack in seconds.
+   * @param {number} d Decay in seconds.
+   * @param {number} peak
+   * @returns {GainNode} Connected to the output.
+   */
   function env(t, a, d, peak) {
     var g = ctx.createGain();
     g.gain.setValueAtTime(0.0001, t);
@@ -48,6 +65,16 @@
     g.connect(master);
     return g;
   }
+  /**
+   * Plays filtered noise into a node.
+   * @param {number} t
+   * @param {number} dur
+   * @param {BiquadFilterType} filterType
+   * @param {number} freq
+   * @param {number} q
+   * @param {AudioNode} out
+   * @returns {BiquadFilterNode} The filter, so callers can sweep it.
+   */
   function noise(t, dur, filterType, freq, q, out) {
     var src = ctx.createBufferSource();
     src.buffer = noiseBuf;
@@ -57,6 +84,16 @@
     src.start(t, Math.random() * 0.5); src.stop(t + dur);
     return f;
   }
+  /**
+   * Plays a tone, optionally sliding to a second pitch.
+   * @param {number} t
+   * @param {number} dur
+   * @param {OscillatorType} type
+   * @param {number} f0 Start frequency.
+   * @param {?number} f1 End frequency, or null to hold.
+   * @param {AudioNode} out
+   * @returns {OscillatorNode}
+   */
   function tone(t, dur, type, f0, f1, out) {
     var o = ctx.createOscillator();
     o.type = type;
@@ -69,14 +106,23 @@
 
   // ---- building blocks ----
 
-  // one juicy bite: a jaw thump plus a wet, mid-range tear
+  /**
+   * One juicy bite: a jaw thump plus a wet, mid-range tear.
+   * @param {number} t
+   * @param {?number} [bright] Centre frequency of the tear.
+   * @param {number} [vol=1]
+   */
   function bite(t, bright, vol) {
     vol = vol || 1;
     tone(t, 0.07, 'sine', rnd(150, 180), 70, env(t, 0.004, 0.07, 0.55 * vol));
     noise(t, 0.12, 'bandpass', bright || rnd(900, 1300), 1.4, env(t, 0.006, 0.09, 0.7 * vol));
     noise(t + 0.01, 0.08, 'lowpass', 500, 0.7, env(t + 0.01, 0.004, 0.06, 0.35 * vol));
   }
-  // a crisp bite: a quick crackle of tiny clicks
+  /**
+   * A crisp bite: a quick crackle of tiny clicks.
+   * @param {number} t
+   * @param {number} vol
+   */
   function crackle(t, vol) {
     tone(t, 0.05, 'sine', 170, 80, env(t, 0.003, 0.05, 0.4 * vol));
     var n = 6 + Math.floor(Math.random() * 4);
@@ -85,20 +131,36 @@
       noise(tt, 0.02, 'highpass', rnd(2200, 4200), 0.8, env(tt, 0.001, 0.015, rnd(0.35, 0.7) * vol));
     }
   }
-  // soft "mmf": low muffled squash with a drooping pitch
+  /**
+   * A soft "mmf": a low muffled squash with a drooping pitch.
+   * @param {number} t
+   * @param {number} vol
+   */
   function squash(t, vol) {
     tone(t, 0.16, 'sine', rnd(260, 300), 110, env(t, 0.01, 0.15, 0.55 * vol));
     var f = noise(t, 0.2, 'lowpass', 900, 0.9, env(t, 0.015, 0.16, 1.0 * vol));
     f.frequency.exponentialRampToValueAtTime(250, t + 0.18);
   }
-  // one gulp: an upward bubble chirp
+  /**
+   * One gulp: an upward bubble chirp.
+   * @param {number} t
+   * @param {number} base Starting pitch.
+   * @param {number} vol
+   */
   function gulp(t, base, vol) {
     var out = env(t, 0.012, 0.11, 0.6 * vol);
     var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1400; lp.connect(out);
     tone(t, 0.09, 'sine', base, base * 2.3, lp);
     noise(t, 0.05, 'bandpass', base * 2, 3, env(t, 0.005, 0.04, 0.12 * vol));
   }
-  // slurp: noise swept upward through a narrow filter, wobbling like bubbles
+  /**
+   * A slurp: noise swept upward through a narrow filter, wobbling like bubbles.
+   * @param {number} t
+   * @param {number} dur
+   * @param {number} from Start frequency.
+   * @param {number} to End frequency.
+   * @param {number} vol
+   */
   function slurpSweep(t, dur, from, to, vol) {
     var g = ctx.createGain();
     g.gain.setValueAtTime(0.0001, t);
@@ -115,6 +177,14 @@
     // a little whistle riding on top
     tone(t, dur, 'sine', from * 1.1, to * 0.7, env(t, 0.05, dur - 0.05, 0.05 * vol));
   }
+  /**
+   * A short run of chime notes.
+   * @param {number} t
+   * @param {number[]} notes Frequencies in Hz.
+   * @param {number} gap Seconds between notes.
+   * @param {number} vol
+   * @param {OscillatorType} [type="triangle"]
+   */
   function chime(t, notes, gap, vol, type) {
     notes.forEach(function (hz, i) {
       tone(t + i * gap, 0.35, type || 'triangle', hz, null, env(t + i * gap, 0.005, 0.33, 0.22 * vol));

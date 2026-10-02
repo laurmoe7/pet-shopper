@@ -2,50 +2,33 @@
   'use strict';
 
   var STORE_KEY = 'nibble.v1';
-  var SAMPLE = ['Bananas', 'Oat milk', '500g Quark', 'Broccoli', 'Chili flakes', 'Dark chocolate', 'Toilet paper', "Oma's cake"];
   var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ---------- state ----------
+  // The rules (matching, moods, list order, sounds) live in logic.js as PetLogic.
+  var L = PetLogic;
   var nextId = Date.now();
+  /** @returns {string} A new unique item id. */
+  function newId() { return String(nextId++); }
   var state = load();
 
+  /** Reads saved state from the phone, or starts fresh with the sample list. */
   function load() {
-    var data = null;
-    try { data = JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) { /* storage blocked */ }
-    if (!data || !Array.isArray(data.items)) {
-      data = { items: [], overrides: {}, quiet: false, lastOpen: 0 };
-      SAMPLE.forEach(function (t) { data.items.push(makeItem(t, data.overrides)); });
-    }
-    data.overrides = data.overrides || {};
-    data.pet = petProfile(data.pet);
-    return data;
+    var raw = null;
+    try { raw = localStorage.getItem(STORE_KEY); } catch (e) { /* storage blocked */ }
+    return L.parseState(raw, newId);
   }
-
-  // Everything about the pet itself lives in one plain object, state.pet, so it can
-  // later be stored online and shared by a household without touching the rest:
-  //   { name: 'Nibble', species: 'mochi', outfit: { hat: 'none' } }
-  // The pet's mood is not stored; it is worked out from the list (see baseState).
-  function petProfile(saved) {
-    saved = saved || {};
-    return {
-      name: typeof saved.name === 'string' ? saved.name : 'Nibble',
-      species: saved.species || 'mochi',
-      outfit: { hat: (saved.outfit && saved.outfit.hat) || 'none' }
-    };
-  }
+  /** Saves the whole state on the phone. Fails quietly if storage is blocked. */
   function save() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* storage blocked */ }
   }
 
-  function makeItem(text, overrides) {
-    var found = emojiFor(text, overrides || state.overrides);
-    return { id: String(nextId++), text: text, emoji: found.emoji, cat: found.cat, done: false };
-  }
-  function emojiFor(text, overrides) {
-    var picked = overrides[Foods.normalize(text)];
-    if (picked) return { emoji: picked, cat: Foods.categoryOf(picked) };
-    return Foods.match(text);
-  }
+  /**
+   * Makes an <img> for an emoji from the bundled OpenMoji set.
+   * @param {string} emoji
+   * @param {string} [alt] Alt text; defaults to the emoji itself.
+   * @returns {HTMLImageElement}
+   */
   function emojiImg(emoji, alt) {
     var img = document.createElement('img');
     img.src = Foods.emojiFile(emoji);
@@ -65,6 +48,7 @@
   // ---------- rendering ----------
   var freshIds = {};
 
+  /** Redraws both lists, the tally and the empty hint from state. */
   function render() {
     var todo = state.items.filter(function (i) { return !i.done; });
     var done = state.items.filter(function (i) { return i.done; });
@@ -79,6 +63,11 @@
     if (!busy) settle();
   }
 
+  /**
+   * Builds one list row: check button, emoji button and text.
+   * @param {Item} item
+   * @returns {HTMLLIElement}
+   */
   function row(item) {
     var li = document.createElement('li');
     li.className = 'item' + (item.done ? ' done' : '') + (freshIds[item.id] ? ' new' : '');
@@ -104,10 +93,19 @@
     return li;
   }
 
+  /**
+   * @param {string} id
+   * @returns {?Item} The list item with this id, or null.
+   */
   function find(id) {
     for (var i = 0; i < state.items.length; i++) if (state.items[i].id === id) return state.items[i];
     return null;
   }
+  /**
+   * Where an item's emoji is on screen, so a flying emoji can start or land there.
+   * @param {string} id
+   * @returns {?DOMRect}
+   */
   function rowEmojiRect(id) {
     var el = document.querySelector('.item[data-id="' + id + '"] .emoji-btn');
     return el ? el.getBoundingClientRect() : null;
@@ -143,14 +141,12 @@
 
   var busy = 0;
 
-  function baseState() {
-    var total = state.items.length;
-    var eaten = state.items.filter(function (i) { return i.done; }).length;
-    if (!total) return 'sleepy';
-    if (eaten === total) return 'stuffed';
-    if (eaten > 0) return 'happy';
-    return 'curious';
-  }
+  /** @returns {string} The pet's resting mood for the current list. */
+  function baseState() { return L.mood(state.items); }
+  /**
+   * Shows a face on the pet: eyes, mouth, arm pose and extras such as hearts or steam.
+   * @param {{eyes: string, mouth: string, arms?: string, x: string[]}} face
+   */
   function setFace(face) {
     pet.dataset.eyes = face.eyes;
     pet.dataset.mouth = face.mouth;
@@ -159,11 +155,17 @@
       pet.classList.toggle('x-' + x, face.x.indexOf(x) !== -1);
     });
   }
+  /** Puts the pet back into its resting mood and face for the current list. */
   function settle() {
     var s = baseState();
     pet.dataset.state = s;
     setFace(FACES[s]);
   }
+  /**
+   * Plays a one-off CSS animation on the pet by adding a class for a while.
+   * @param {string} cls
+   * @param {number} ms How long to keep the class.
+   */
   function pulse(cls, ms) {
     pet.classList.remove(cls);
     void pet.offsetWidth;
@@ -172,6 +174,11 @@
   }
 
   var bubbleTimer;
+  /**
+   * Shows a speech bubble, unless quiet mode is on.
+   * @param {string} text
+   * @param {number} [ms=1500] How long it stays.
+   */
   function say(text, ms) {
     if (state.quiet || !text) return;
     bubble.hidden = true;
@@ -181,20 +188,42 @@
     clearTimeout(bubbleTimer);
     bubbleTimer = setTimeout(function () { bubble.hidden = true; }, ms || 1500);
   }
+  /**
+   * @template T
+   * @param {T[]} list
+   * @returns {T} A random entry.
+   */
   function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
+  /**
+   * @param {number} ms
+   * @returns {Promise<void>} Resolves after ms milliseconds.
+   */
   function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
+  /** @returns {{x: number, y: number}} The pet's mouth in viewport coordinates. */
   function mouthPoint() {
     var r = pet.querySelector('.pet-svg').getBoundingClientRect();
     return { x: r.left + r.width * (80 / 160), y: r.top + r.height * (107 / 150) };
   }
+  /** @returns {{x: number, y: number}} A spot at the pet's side, where non-food gets tucked away. */
   function sidePoint() {
     var r = pet.querySelector('.pet-svg').getBoundingClientRect();
     return { x: r.left + r.width * 0.92, y: r.top + r.height * 0.7 };
   }
+  /**
+   * @param {DOMRect} rect
+   * @returns {{x: number, y: number}} The middle of the rectangle.
+   */
   function center(rect) { return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }; }
 
-  // Fly an emoji along an arc. Resolves when it lands.
+  /**
+   * Flies an emoji along an arc from one point to another.
+   * @param {string} emoji
+   * @param {{x: number, y: number}} from
+   * @param {{x: number, y: number}} to
+   * @param {{duration?: number, lift?: number, scaleFrom?: number, scaleTo?: number, spin?: number}} [opts]
+   * @returns {Promise<void>} Resolves when it lands.
+   */
   function fly(emoji, from, to, opts) {
     opts = opts || {};
     var el = emojiImg(emoji, '');
@@ -215,6 +244,12 @@
     return anim.finished.then(function () { el.remove(); }, function () { el.remove(); });
   }
 
+  /**
+   * Sprinkles a few crumbs around a point after a bite.
+   * @param {{x: number, y: number}} at
+   * @param {string} color
+   * @param {number} n How many crumbs.
+   */
   function crumbs(at, color, n) {
     if (reduceMotion) return;
     for (var i = 0; i < n; i++) {
@@ -235,6 +270,11 @@
 
   // sakura-style petals drifting down for the all-done celebration
   var PETAL_COLORS = ['#ffc1d0', '#ffd9e2', '#ffe9a8', '#c7ead6'];
+  /**
+   * Sends pastel petals up and drifting down, for the all-done celebration.
+   * @param {{x: number, y: number}} at
+   * @param {number} n How many petals.
+   */
   function petals(at, n) {
     for (var i = 0; i < n; i++) {
       var p = document.createElement('span');
@@ -252,31 +292,30 @@
   }
 
   // ---------- sound + haptics ----------
-  // Which sound each food makes. Specific emojis first, then the food category.
-  var EMOJI_SOUNDS = {
-    slurp: '🍜🍲🍛🥣🍝🧋🫗🥫',
-    sip: '☕🍵🍼',
-    crunch: '🍎🍏🍐🥕🥒🥦🫑🌽🥬🥗🥨🍪🥜🌰🍟🍿🍘🫓🥖🧅🧄',
-    squish: '🍌🥑🍑🥭🍓🫐🍇🍅🍦🧀🧈🥚🍰🎂🧁🍮🍡🍞🥯🥐🥞🧇🍠🥔🍄🫘'
-  };
-  var CAT_SOUNDS = { fruit: 'squish', veg: 'crunch', sweets: 'sweet', spicy: 'spicy', drink: 'glug', baked: 'squish', dairy: 'squish', protein: 'chomp', pantry: 'chomp', mystery: 'mystery', nonfood: 'huh' };
-  function soundFor(item) {
-    if (item.cat === 'sweets' || item.cat === 'spicy' || item.cat === 'nonfood' || item.cat === 'mystery') return CAT_SOUNDS[item.cat];
-    for (var kind in EMOJI_SOUNDS) if (EMOJI_SOUNDS[kind].indexOf(item.emoji) !== -1) return kind;
-    return CAT_SOUNDS[item.cat] || 'chomp';
-  }
+  /**
+   * Plays an eating sound unless quiet mode is on.
+   * @param {string} kind A Sounds.play kind, e.g. "glug".
+   */
   function sound(kind) { if (!state.quiet) Sounds.play(kind); }
   // phones only allow audio that starts from a tap, so wake the audio engine on the first one
   document.addEventListener('pointerdown', function unlockAudio() {
     Sounds.unlock();
     document.removeEventListener('pointerdown', unlockAudio, true);
   }, true);
+  /**
+   * A short vibration on phones that support it.
+   * @param {number|number[]} ms
+   */
   function buzz(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* ignore */ } }
 
   // ---------- the eating queue ----------
   // Taps update the list at once; Nibble works through what you checked in order.
   var queue = Promise.resolve();
   var pending = 0;
+  /**
+   * Adds an animation job to the eating queue. Taps update the list at once; the pet works through the jobs in order.
+   * @param {function(): Promise<*>} job
+   */
   function enqueue(job) {
     pending++;
     busy++;
@@ -286,8 +325,14 @@
       if (!busy) settle();
     });
   }
+  /** @returns {number} An animation speed factor; faster when several items are waiting. */
   function speed() { return pending > 4 ? 0.4 : pending > 2 ? 0.6 : 1; }
 
+  /**
+   * Queues the eating animation for a checked item: hop, chomp, reaction and sound.
+   * @param {Item} item
+   * @param {?DOMRect} fromRect Where the item's emoji was before the list re-rendered.
+   */
   function eat(item, fromRect) {
     enqueue(function () {
       var sp = speed();
@@ -301,7 +346,7 @@
           pulse('chomp', 300);
           crumbs(mouthPoint(), CRUMB_COLORS[item.cat] || '#e8b04a', 7);
         }
-        sound(soundFor(item));
+        sound(L.soundFor(item));
         say(pick(r.lines), 1400);
         var hold = 750 * sp;
         if (r.then) return wait(hold / 2).then(function () { setFace(r.then); return wait(hold / 2); });
@@ -312,6 +357,10 @@
     });
   }
 
+  /**
+   * Queues the spit-back animation for an item that was put back on the list.
+   * @param {Item} item
+   */
   function spitBack(item) {
     enqueue(function () {
       setFace(FACES.catching);
@@ -330,6 +379,10 @@
     });
   }
 
+  /**
+   * The all-done moment: belly pat, jingle, emoji confetti and petals.
+   * @returns {Promise<void>}
+   */
   function celebrate() {
     var eaten = state.items.filter(function (i) { return i.done; }).map(function (i) { return i.emoji; });
     setFace(FACES.party);
@@ -356,11 +409,15 @@
   }
 
   // ---------- list actions ----------
+  /**
+   * Adds a typed item to the to-buy list and lets the pet react.
+   * @param {string} text
+   */
   function addItem(text) {
     text = text.trim();
     if (!text) return;
-    var item = makeItem(text);
-    state.items.splice(state.items.filter(function (i) { return !i.done; }).length, 0, item);
+    var item = L.createItem(text, state.overrides, newId());
+    L.addToList(state.items, item);
     freshIds[item.id] = true;
     save();
     render();
@@ -372,15 +429,16 @@
     say(item.cat === 'mystery' ? 'ooh, mystery!' : pick(['ooh!', 'for me?', 'yes please', 'noted!', 'yum?']), 1100);
   }
 
+  /**
+   * Checks an item off (the pet eats it) or puts it back (the pet spits it out).
+   * @param {string} id
+   */
   function toggle(id) {
-    var item = find(id);
-    if (!item) return;
     var fromRect = rowEmojiRect(id);
-    item.done = !item.done;
-    // checked items go to the bottom of the eaten list, put-back items to the bottom of the to-buy list
-    state.items = state.items.filter(function (i) { return i !== item; });
-    if (item.done) state.items.push(item);
-    else state.items.splice(state.items.filter(function (i) { return !i.done; }).length, 0, item);
+    var result = L.toggleDone(state.items, id);
+    var item = result.item;
+    if (!item) return;
+    state.items = result.items;
     freshIds[item.id] = true;
     buzz(12);
     save();
@@ -389,21 +447,23 @@
     else spitBack(item);
   }
 
+  /**
+   * Deletes an item from the list.
+   * @param {string} id
+   */
   function removeItem(id) {
     state.items = state.items.filter(function (i) { return i.id !== id; });
     save();
     render();
   }
 
+  /**
+   * Applies an emoji picked in the picker and remembers it for that word.
+   * @param {string} id
+   * @param {string} emoji
+   */
   function setEmoji(id, emoji) {
-    var item = find(id);
-    if (!item) return;
-    var key = Foods.normalize(item.text);
-    state.overrides[key] = emoji;
-    // remember for this word, and apply to matching items already on the list
-    state.items.forEach(function (i) {
-      if (Foods.normalize(i.text) === key) { i.emoji = emoji; i.cat = Foods.categoryOf(emoji); }
-    });
+    if (!L.pickEmoji(state, id, emoji)) return;
     save();
     render();
     if (!busy) { pulse('hop', 460); say('ooh, ' + 'new look!', 1100); }
@@ -419,6 +479,10 @@
     b.appendChild(emojiImg(e, ''));
     return b;
   }));
+  /**
+   * Opens the emoji picker for one item.
+   * @param {string} id
+   */
   function openPicker(id) {
     var item = find(id);
     if (!item) return;
@@ -429,6 +493,7 @@
     });
     if (picker.showModal) picker.showModal(); else picker.setAttribute('open', '');
   }
+  /** Closes the emoji picker. */
   function closePicker() { if (picker.close) picker.close(); else picker.removeAttribute('open'); pickerFor = null; }
   pickerGrid.addEventListener('click', function (e) {
     var b = e.target.closest('button');
@@ -458,7 +523,9 @@
   ];
   var petSheet = $('petSheet'), petNameInput = $('petNameInput'), speciesGrid = $('speciesGrid');
 
+  /** @returns {string} The pet's name, or "Nibble" if it is blank. */
   function petName() { return (state.pet.name || '').trim() || 'Nibble'; }
+  /** Shows the pet's name, species and outfit everywhere on the page. */
   function applyPet() {
     var name = petName();
     pet.dataset.species = state.pet.species;
@@ -518,11 +585,19 @@
   petSheet.addEventListener('click', function (e) { if (e.target === petSheet) petSheet.close(); });
 
   // ---------- dressing room ----------
-  // Wardrobe items (wardrobe.js) are drawn into the matching slot inside the pet's SVG.
+  /**
+   * @param {string} id
+   * @returns {?Object} The wardrobe item with this id, or null (e.g. for "none").
+   */
   function wardrobeItem(id) {
     for (var i = 0; i < Wardrobe.length; i++) if (Wardrobe[i].id === id) return Wardrobe[i];
     return null;
   }
+  /**
+   * Draws an outfit's hat into a pet drawing.
+   * @param {Element} el A .pet element.
+   * @param {{hat: string}} outfit
+   */
   function dressUp(el, outfit) {
     var slot = el.querySelector('.outfit-hat');
     var item = wardrobeItem(outfit.hat);
@@ -544,6 +619,7 @@
     b.append(icon, label);
     hatStrip.appendChild(b);
   });
+  /** Marks the chosen hat in the dressing room and updates its preview. */
   function refreshDressRoom() {
     hatStrip.querySelectorAll('button').forEach(function (b) {
       b.setAttribute('aria-pressed', b.dataset.hat === state.pet.outfit.hat ? 'true' : 'false');
@@ -604,10 +680,14 @@
   addInput.addEventListener('input', function () {
     var t = addInput.value.trim();
     if (!t) { addPreview.replaceChildren(); lastPreview = ''; return; }
-    var e = emojiFor(t, state.overrides).emoji;
+    var e = L.emojiFor(t, state.overrides).emoji;
     if (e !== lastPreview) { addPreview.replaceChildren(emojiImg(e, '')); lastPreview = e; }
   });
 
+  /**
+   * Handles taps on a list row: the circle checks it off, the emoji opens the picker.
+   * @param {MouseEvent} e
+   */
   function onListClick(e) {
     if (suppressClick) { suppressClick = false; return; }
     var li = e.target.closest('.item');
@@ -620,6 +700,7 @@
 
   // long-press anywhere on a row opens the picker
   var pressTimer = null, pressStart = null, suppressClick = false, pressedRow = null;
+  /** Stops a long-press that has not fired yet. */
   function cancelPress() {
     clearTimeout(pressTimer); pressTimer = null;
     if (pressedRow) pressedRow.classList.remove('pressing');
