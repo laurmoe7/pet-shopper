@@ -41,7 +41,7 @@ test('older saves without pet details get the defaults', () => {
 
 test('wardrobe hats have unique ids and a drawing', () => {
   const hatIds = Wardrobe.map((w) => w.id);
-  assert.deepEqual(hatIds, ['tophat', 'maid', 'sunhat', 'cap', 'hoodie', 'hardhat', 'bandana', 'headphones', 'shades', 'redspecs']);
+  assert.deepEqual(hatIds, ['tophat', 'maid', 'sunhat', 'cap', 'hoodie', 'hardhat', 'bandana', 'headphones', 'mintphones', 'shades', 'redspecs']);
   assert.equal(new Set(hatIds).size, hatIds.length);
   for (const w of Wardrobe) {
     assert.ok(w.slot === 'hat' || w.slot === 'face', w.id);
@@ -136,5 +136,5 @@ test('sunglasses are their own slot, worn alongside a hat', () => {
 
 test('the new hat, bandana, headphones and sunglasses are free', () => {
   const { FreeUnlocks } = require('./load');
-  for (const id of ['hardhat', 'bandana', 'headphones', 'shades', 'redspecs']) assert.ok(FreeUnlocks.hat.includes(id), id);
+  for (const id of ['hardhat', 'bandana', 'headphones', 'mintphones', 'shades', 'redspecs']) assert.ok(FreeUnlocks.hat.includes(id), id);
 });

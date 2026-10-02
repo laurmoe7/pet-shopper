@@ -5,12 +5,37 @@
  * Hats sit on the top of the head (around x 80, y 38) and are drawn a little
  * bigger. Items with `layer: 'body'` (like the hoodie) are drawn at full size
  * over the whole pet instead; `hood: true` tucks the pet's own ears away.
+ * `snug: true` sits close on the head, so the mochi twist and chick tuft tuck under it.
  * Face items are drawn at normal size over the eyes (around y 92).
  * `icon` is the viewBox for the dressing-room button.
  * Add a new item here and it shows up in the dressing room.
  */
 (function (root) {
   'use strict';
+  /**
+   * Over-ear headphones: padded band hugging the head, hinge brackets, round cups
+   * with silver rims and cushions, and a cable from the left cup. `tone` adds a colour class.
+   * @param {string} tone
+   */
+  function phones(tone) {
+    return '<g class="hat-phones' + (tone ? ' ' + tone : '') + '">' +
+      '<path class="phones-cable" d="M23 80 C20 88 27 92 24 100 C22.5 104 21 106 21.5 108.5"/>' +
+      '<rect class="phones-plug" x="19.6" y="107.5" width="4" height="6" rx="1.4"/>' +
+      '<path class="phones-band" d="M26.9 65.1 C34.1 46.1 52.1 30.9 80 30.9 C107.9 30.9 125.9 46.1 133.1 65.1"/>' +
+      '<path class="phones-band-in" d="M26.9 65.1 C34.1 46.1 52.1 30.9 80 30.9 C107.9 30.9 125.9 46.1 133.1 65.1"/>' +
+      '<path class="phones-band-shine" d="M47 39.5 C55 34.5 63 32.6 70 32"/>' +
+      '<rect class="phones-hinge" x="26" y="48.5" width="8" height="10" rx="2.6" transform="rotate(-22 30 53.5)"/>' +
+      '<rect class="phones-hinge" x="126" y="48.5" width="8" height="10" rx="2.6" transform="rotate(22 130 53.5)"/>' +
+      '<ellipse class="phones-cushion" cx="32.5" cy="69" rx="6" ry="12.5"/>' +
+      '<ellipse class="phones-cushion" cx="127.5" cy="69" rx="6" ry="12.5"/>' +
+      '<ellipse class="phones-cup" cx="27" cy="69" rx="9.6" ry="12.8"/>' +
+      '<ellipse class="phones-cup" cx="133" cy="69" rx="9.6" ry="12.8"/>' +
+      '<ellipse class="phones-rim" cx="27" cy="69" rx="6.4" ry="9"/>' +
+      '<ellipse class="phones-rim" cx="133" cy="69" rx="6.4" ry="9"/>' +
+      '<path class="phones-shine" d="M22.5 63 Q23.5 60 26.5 59.2 M128.5 63 Q129.5 60 132.5 59.2"/>' +
+      '</g>';
+  }
+
   root.Wardrobe = [
     {
       id: 'tophat', slot: 'hat', label: 'Top hat',
@@ -111,7 +136,7 @@
         '</g>'
     },
     {
-      id: 'bandana', slot: 'hat', label: 'Bandana',
+      id: 'bandana', slot: 'hat', snug: true, label: 'Bandana',
       lines: ['ready for adventure!', 'so cool, so comfy!', 'tied it myself!'],
       svg: '<g class="hat-bandana">' +
         // hugs the top of the head down to the forehead, with a knot on the side
@@ -126,17 +151,14 @@
         '</g>'
     },
     {
-      id: 'headphones', slot: 'hat', label: 'Head\u00ADphones',
+      id: 'headphones', slot: 'hat', snug: true, label: 'Head\u00ADphones', icon: '14 24 132 60',
       lines: ['my jam!', 'turn it up!', '♪ shopping beats ♪'],
-      svg: '<g class="hat-phones">' +
-        '<path class="phones-band" d="M38 62 C36 18 124 18 122 62"/>' +
-        '<path class="phones-band-in" d="M38 62 C36 18 124 18 122 62"/>' +
-        '<rect class="phones-cup" x="27" y="52" width="17" height="24" rx="8"/>' +
-        '<rect class="phones-cup" x="116" y="52" width="17" height="24" rx="8"/>' +
-        '<rect class="phones-pad" x="31" y="57" width="9" height="14" rx="4.5"/>' +
-        '<rect class="phones-pad" x="120" y="57" width="9" height="14" rx="4.5"/>' +
-        '<path class="phones-note" d="M77 23 v-6 l6 -1.5 v6 M77 23 a1.6 1.4 0 1 1 -.1 0 M83 21.5 a1.6 1.4 0 1 1 -.1 0"/>' +
-        '</g>'
+      svg: phones('')
+    },
+    {
+      id: 'mintphones', slot: 'hat', snug: true, label: 'Mint phones', icon: '14 24 132 60',
+      lines: ['minty fresh beats!', 'la la la ♪', 'one more song!'],
+      svg: phones('phones-mint')
     },
     {
       id: 'shades', slot: 'face', label: 'Heart shades', icon: '28 74 104 36',
