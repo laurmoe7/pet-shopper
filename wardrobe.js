@@ -161,6 +161,34 @@
       svg: phones('phones-mint')
     },
     {
+      id: 'chefhat', slot: 'hat', snug: true, label: 'Chef hat', icon: '40 -4 80 56',
+      lines: ['oui, chef!', 'what are we cooking?', 'taste test time!'],
+      svg: '<g transform="rotate(-5 80 36)" class="hat-chef">' +
+        '<path class="chef-puff" d="M60 31 C47 31 45 13 58 12 C58 1 73 -3 80 5 C87 -3 102 1 102 12 C115 13 113 31 100 31 Z"/>' +
+        '<path class="chef-fold" d="M70 14 C70 20 71 25 72 30 M90 14 C90 20 89 25 88 30"/>' +
+        '<path class="chef-shine" d="M55 18 Q56 13.5 60 12.5"/>' +
+        '<path class="chef-band" d="M57 44 Q80 36 103 44 L101 29 Q80 25.5 59 29 Z"/>' +
+        '<path class="chef-pleat" d="M66 30.5 V40 M73 29.5 V38.6 M80 29 V38 M87 29.5 V38.6 M94 30.5 V40"/>' +
+        '</g>'
+    },
+    {
+      id: 'knight', slot: 'hat', snug: true, label: 'Knight helmet', icon: '24 -2 112 70',
+      lines: ['for the snacks!', 'I shall guard the fridge', 'brave and shiny!'],
+      svg: '<g class="hat-knight">' +
+        '<path class="knight-plume" d="M80 30 C77 15 89 3 104 5 C98 9 95 15 95 22 C93 26 88 29 80 30 Z"/>' +
+        '<path class="knight-plume-line" d="M84 24 C87 17 92 12 99 8.5 M88 26 C91 21 95 16 99 13"/>' +
+        '<path class="knight-dome" d="M30 62 C30 40 52 29 80 29 C108 29 130 40 130 62 Z"/>' +
+        '<path class="knight-ridge" d="M80 29.5 V58"/>' +
+        '<path class="knight-shine" d="M42 47 C46 40 53 35.5 61 33.5"/>' +
+        '<path class="knight-visor" d="M58 40 C64 33.5 96 33.5 102 40 L100 47 C94 42.5 66 42.5 60 47 Z"/>' +
+        '<path class="knight-slit" d="M66 41.5 H74 M86 41.5 H94"/>' +
+        '<path class="knight-band" d="M31 58 Q80 49 129 58 Q132.5 61.6 129.5 65.6 Q80 56.6 30.5 65.6 Q27.5 61.6 31 58 Z"/>' +
+        '<circle class="knight-rivet" cx="39" cy="60" r="1.6"/><circle class="knight-rivet" cx="59" cy="56.6" r="1.6"/>' +
+        '<circle class="knight-rivet" cx="80" cy="55.5" r="1.6"/><circle class="knight-rivet" cx="101" cy="56.6" r="1.6"/>' +
+        '<circle class="knight-rivet" cx="121" cy="60" r="1.6"/>' +
+        '</g>'
+    },
+    {
       id: 'shades', slot: 'face', label: 'Heart shades', icon: '28 74 104 36',
       lines: ['too cool for school!', 'the future is bright!', 'no paparazzi, please!'],
       svg: '<g class="face-shades">' +
@@ -182,6 +210,29 @@
         '<path class="specs-rim" d="M45 93 C45 101 50 104 58 104 C66 104 71 101 71 93 M89 93 C89 101 94 104 102 104 C110 104 115 101 115 93"/>' +
         '<path class="specs-rim" d="M71 94 Q80 89 89 94 M45 93.5 L31 89 M115 93.5 L129 89"/>' +
         '<path class="specs-shine" d="M49 96 Q50 99.5 53 101"/>' +
+        '</g>'
+    },
+    {
+      id: 'eyepatch', slot: 'face', label: 'Eye patch', icon: '18 66 132 40',
+      lines: ['arr, matey!', 'yo ho, snacks ho!', 'I see half the treats!'],
+      svg: '<g class="face-patch">' +
+        '<path class="patch-strap" d="M93 85 C78 74 50 67 19 73 M112.5 90.5 L146 92"/>' +
+        '<path class="patch" d="M91.5 89 C91.5 82 97 80 103 80.5 C110 81 114 85 113.5 91.5 C113 98.5 108 102 101.5 101.5 C95 101 91.5 96 91.5 89 Z"/>' +
+        '<path class="patch-heart" d="M102.5 89 c-1.1 -1.8 -3.8 -.7 -2.7 1.1 l2.7 2.7 l2.7 -2.7 c1.1 -1.8 -1.6 -2.9 -2.7 -1.1z"/>' +
+        '<path class="patch-shine" d="M95.5 86 Q96.5 83.6 99 83"/>' +
+        '</g>'
+    },
+    {
+      id: 'nerdspecs', slot: 'face', label: 'Taped specs', icon: '26 74 108 34',
+      lines: ['well, actually…', 'I read the label!', 'these have seen things.'],
+      svg: '<g class="face-nerd">' +
+        '<path class="nerd-arm" d="M44 88 L30 85 M116 88 L130 85"/>' +
+        '<rect class="nerd-lens" x="44" y="80.5" width="28" height="23" rx="7"/>' +
+        '<rect class="nerd-lens" x="88" y="80.5" width="28" height="23" rx="7"/>' +
+        '<path class="nerd-bridge" d="M72 88.5 Q80 85 88 88.5"/>' +
+        '<rect class="nerd-tape" x="76.2" y="83" width="7.6" height="8.6" rx="1.6" transform="rotate(-8 80 87.3)"/>' +
+        '<path class="nerd-tape-line" d="M78.4 84 L78.9 90.6 M81.4 83.6 L81.9 90.2" transform="rotate(-8 80 87.3)"/>' +
+        '<path class="nerd-shine" d="M48.5 86 Q49 83.6 51.5 83 M92.5 86 Q93 83.6 95.5 83"/>' +
         '</g>'
     }
   ];

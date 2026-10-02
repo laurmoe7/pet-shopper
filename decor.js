@@ -81,16 +81,22 @@
     },
     {
       id: 'burgerphone', label: 'Burger phone', x: 0.9, y: 0.6, w: 54, h: 50, view: '0 0 50 46',
-      // the top bun is the handset; the cord curls off to the side
-      svg: '<path d="M44 31 q5 1 4 5 q-1 4 -4 4 q-3 1 -1 4" fill="none" stroke="#5b4239" stroke-width="1.6" stroke-linecap="round"/>' +
-        '<path d="M5 33 Q5 43 25 43 Q45 43 45 33 Z" fill="#f1c48d" ' + INK + '/>' +
-        '<path d="M3 32.5 q3 -3 6 0 q3 3 6 0 q3 -3 6 0 q3 3 6 0 q3 -3 6 0 q3 3 6 0 q3 -3 6 0" fill="#9ed99a" stroke="#5b4239" stroke-width="1.6" stroke-linejoin="round"/>' +
-        '<rect x="5" y="24" width="40" height="8" rx="4" fill="#8a5a44" ' + INK + '/>' +
-        '<circle cx="17" cy="28" r="1.4" fill="#ffe9c9"/><circle cx="22" cy="28" r="1.4" fill="#ffe9c9"/><circle cx="27" cy="28" r="1.4" fill="#ffe9c9"/><circle cx="32" cy="28" r="1.4" fill="#ffe9c9"/>' +
-        '<path d="M8 24 L14 20.5 L20 24 L28 20.5 L36 24 L42 20.5 L44 24 Z" fill="#ffd65c" stroke="#5b4239" stroke-width="1.4" stroke-linejoin="round"/>' +
-        '<path d="M5 20 Q5 5 25 5 Q45 5 45 20 Q25 23 5 20 Z" fill="#f6c27e" ' + INK + '/>' +
-        '<path d="M12 11 Q16 8 20 8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/>' +
-        '<ellipse cx="18" cy="13" rx="1.6" ry="1" fill="#fffaf4"/><ellipse cx="27" cy="10" rx="1.6" ry="1" fill="#fffaf4"/><ellipse cx="33" cy="14" rx="1.6" ry="1" fill="#fffaf4"/><ellipse cx="24" cy="16" rx="1.6" ry="1" fill="#fffaf4"/>'
+      // the top bun is the handset; the cord curls off to the side and the buttons sit on the bottom bun
+      svg: '<path d="M44.5 32 q5 1 4 5 q-1 4 -4 4 q-3 1 -1 4" fill="none" stroke="#5b4239" stroke-width="1.6" stroke-linecap="round"/>' +
+        '<path d="M5 34 Q5 44 25 44 Q45 44 45 34 Z" fill="#f1c48d" ' + INK + '/>' +
+        '<rect x="15.5" y="38.3" width="5" height="3" rx="1.5" fill="#fffaf4" stroke="#5b4239" stroke-width="1"/>' +
+        '<rect x="22.5" y="38.3" width="5" height="3" rx="1.5" fill="#fffaf4" stroke="#5b4239" stroke-width="1"/>' +
+        '<rect x="29.5" y="38.3" width="5" height="3" rx="1.5" fill="#ff9fb5" stroke="#5b4239" stroke-width="1"/>' +
+        '<rect x="5" y="25" width="40" height="8.5" rx="4.25" fill="#9b6448" ' + INK + '/>' +
+        '<path d="M13 28 l3 2.4 M21 28 l3 2.4 M29 28 l3 2.4 M37 28 l2.4 1.9" fill="none" stroke="#7a4a35" stroke-width="1.3" stroke-linecap="round"/>' +
+        '<path d="M3 33.4 q2.75 -2.4 5.5 0 q2.75 -2.4 5.5 0 q2.75 -2.4 5.5 0 q2.75 -2.4 5.5 0 q2.75 -2.4 5.5 0 q2.75 -2.4 5.5 0 q2.75 -2.4 5.5 0 q2.75 -2.4 5.5 0 L47 35.2 q-2.75 2.2 -5.5 0 q-2.75 2.2 -5.5 0 q-2.75 2.2 -5.5 0 q-2.75 2.2 -5.5 0 q-2.75 2.2 -5.5 0 q-2.75 2.2 -5.5 0 q-2.75 2.2 -5.5 0 q-2.75 2.2 -5.5 0 Z" fill="#9ed99a" stroke="#5b4239" stroke-width="1.5" stroke-linejoin="round"/>' +
+        '<path d="M6 24.5 H44 Q44.5 26.5 42 26.5 Q39.5 26.5 39 28.5 Q38.5 31 36 31 Q33.5 31 33.5 28 Q33 26.5 30 26.5 H19 Q16.5 26.5 16.2 29 Q15.8 31.5 13.5 31.5 Q11 31.5 11 28.5 Q11 26.5 8 26.5 Q5.5 26.5 6 24.5 Z" fill="#ffd65c" stroke="#5b4239" stroke-width="1.3" stroke-linejoin="round"/>' +
+        '<path d="M5 21 Q5 5 25 5 Q45 5 45 21 Q25 24 5 21 Z" fill="#f6c27e" ' + INK + '/>' +
+        '<path d="M11.5 12 Q15.5 8.6 20 8.2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/>' +
+        '<ellipse cx="18" cy="14" rx="1.7" ry=".95" transform="rotate(-20 18 14)" fill="#fffaf4" stroke="#e0a865" stroke-width=".5"/>' +
+        '<ellipse cx="26" cy="10.5" rx="1.7" ry=".95" transform="rotate(15 26 10.5)" fill="#fffaf4" stroke="#e0a865" stroke-width=".5"/>' +
+        '<ellipse cx="33.5" cy="14.5" rx="1.7" ry=".95" transform="rotate(-10 33.5 14.5)" fill="#fffaf4" stroke="#e0a865" stroke-width=".5"/>' +
+        '<ellipse cx="25" cy="17.5" rx="1.7" ry=".95" transform="rotate(25 25 17.5)" fill="#fffaf4" stroke="#e0a865" stroke-width=".5"/>'
     }
   ];
 })(typeof self !== 'undefined' ? self : globalThis);

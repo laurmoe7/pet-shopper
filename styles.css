@@ -627,6 +627,26 @@ button { font: inherit; color: inherit; }
 .phones-cable { fill: none; stroke: var(--pet-ink); stroke-width: 1.4; stroke-linecap: round; }
 .phones-plug { fill: #c9ced6; stroke: var(--pet-ink); stroke-width: 1; }
 .phones-mint { --phones: #9fdcc8; --phones-pad: #ffb3c6; --phones-face: #c4ece0; }
+.chef-puff, .chef-band { fill: #fffdf8; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
+.chef-fold, .chef-pleat { fill: none; stroke: #e6ddd4; stroke-width: 1.6; stroke-linecap: round; }
+.chef-shine { fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; }
+.knight-dome { fill: #cfd5dd; stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
+.knight-ridge { fill: none; stroke: #a9b2bd; stroke-width: 2; stroke-linecap: round; }
+.knight-shine { fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; opacity: .8; }
+.knight-visor { fill: #b4bcc7; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
+.knight-slit { fill: none; stroke: var(--pet-ink); stroke-width: 2; stroke-linecap: round; }
+.knight-band { fill: #aab3be; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
+.knight-rivet { fill: #eef1f5; stroke: var(--pet-ink); stroke-width: .9; }
+.knight-plume { fill: #ff8fab; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
+.knight-plume-line { fill: none; stroke: #e2607f; stroke-width: 1.2; stroke-linecap: round; }
+.patch { fill: #3a3340; stroke: var(--pet-ink); stroke-width: 2; }
+.patch-strap { fill: none; stroke: #3a3340; stroke-width: 2.4; stroke-linecap: round; }
+.patch-heart { fill: #ff8fab; }
+.patch-shine, .nerd-shine { fill: none; stroke: #fff; stroke-width: 1.4; stroke-linecap: round; opacity: .55; }
+.nerd-lens { fill: rgba(255, 255, 255, .18); stroke: #2f2a33; stroke-width: 3.4; }
+.nerd-bridge, .nerd-arm { fill: none; stroke: #2f2a33; stroke-width: 3; stroke-linecap: round; }
+.nerd-tape { fill: #fffdf6; stroke: var(--pet-ink); stroke-width: 1.1; }
+.nerd-tape-line { fill: none; stroke: #d8cfc4; stroke-width: .8; }
 .specs-lens { fill: rgba(255, 255, 255, .35); stroke: none; }
 .specs-top { fill: none; stroke: rgba(200, 60, 60, .35); stroke-width: 1; }
 .specs-rim { fill: none; stroke: #d6334a; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }

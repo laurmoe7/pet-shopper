@@ -64,7 +64,7 @@
    * Opens a sheet as a modal, or plainly where <dialog> isn't supported.
    * @param {HTMLDialogElement} d
    */
-  function openDialog(d) { if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
+  function openDialog(d) { sound('open'); if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
 
   // ---------- pet menu ----------
   // Dress up, Edit pet and Goals sit in one drop-down; it closes when you pick one,
@@ -76,7 +76,7 @@
       btn.setAttribute('aria-expanded', open ? 'true' : 'false');
       if (open && focusFirst) menu.querySelector('.menu-item').focus();
     }
-    btn.addEventListener('click', function (e) { setOpen(menu.hidden, e.detail === 0); });
+    btn.addEventListener('click', function (e) { sound(menu.hidden ? 'tap' : 'close'); setOpen(menu.hidden, e.detail === 0); });
     menu.addEventListener('click', function (e) { if (e.target.closest('.menu-item')) setOpen(false); });
     document.addEventListener('pointerdown', function (e) {
       if (!menu.hidden && !e.target.closest('.stage-tools')) setOpen(false);
@@ -660,12 +660,13 @@
     if (!b || !pickerFor) return;
     var id = pickerFor;
     closePicker();
+    sound('pick');
     setEmoji(id, b.dataset.emoji);
   });
   deleteBtn.addEventListener('click', function () {
     var id = pickerFor;
     closePicker();
-    if (id) removeItem(id);
+    if (id) { sound('remove'); removeItem(id); }
   });
   picker.addEventListener('click', function (e) { if (e.target === picker) closePicker(); });
 
@@ -727,6 +728,7 @@
     if (!b) return;
     if (!unlocked('species', b.dataset.species)) { lockHint(speciesHint, 'species', b.dataset.species); return; }
     speciesHint.hidden = true;
+    sound('pick');
     state.pet.species = b.dataset.species;
     save();
     applyPet();
@@ -859,7 +861,7 @@
     save();
     refreshDressRoom();
     dressUp(pet, state.pet.outfit);
-    if (b.dataset.hat !== 'none') sound('excited');
+    sound(b.dataset.hat !== 'none' ? 'excited' : 'tap');
     var pointed = hoveredHat === b.dataset.hat;
     if (pointed && b.dataset.hat !== 'none') dressSay(line('look', ['how do I look?', 'I love it!', 'kawaii?', 'ta-da!']), 1600, true);
     else dressSay(b.dataset.hat === 'none' ? 'fresh look!' : hatLine(b.dataset.hat), 1600);
@@ -1015,13 +1017,15 @@
     var placed = L.toggleDecor(state.pet.room, decorItem(b.dataset.decor));
     save();
     renderRoom();
-    if (placed && !busy) { sound('ooh'); pulse('hop', 460); talk('room', ['so cosy!', 'home sweet home!', 'I love it here!'], 1500); }
+    sound(placed ? 'place' : 'remove');
+    if (placed && !busy) { pulse('hop', 460); talk('room', ['so cosy!', 'home sweet home!', 'I love it here!'], 1500); }
   });
   // the room panel opens without covering the room: the stage stays visible (and draggable) above it
   var roomSheet = $('roomSheet');
   $('roomBtn').addEventListener('click', function () {
     window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
     renderRoom();
+    sound('open');
     if (roomSheet.show) roomSheet.show(); else roomSheet.setAttribute('open', '');
   });
   roomSheet.addEventListener('keydown', function (e) { if (e.key === 'Escape') roomSheet.close(); });
@@ -1168,6 +1172,7 @@
    * @param {string} id
    */
   function lockHint(el, kind, id) {
+    sound('locked');
     var ach = L.gateFor(kind, id, Achievements);
     var p = L.progress(state.pet, ach, new Date());
     el.textContent = '🔒 ' + ach.unlocks.label + ': ' + ach.text + ' (' + p.count + '/' + p.goal + ', up to ' + p.perDay + ' a day).';
@@ -1224,6 +1229,11 @@
 
   refreshLocks();
   applyPet();
+
+  // closing a sheet makes a soft sound; the emoji picker plays its pick or delete sound instead
+  document.querySelectorAll('dialog:not(#picker)').forEach(function (d) {
+    d.addEventListener('close', function () { sound('close'); });
+  });
 
   // ---------- events ----------
   addForm.addEventListener('submit', function (e) {
@@ -1288,12 +1298,14 @@
 
   quietBtn.addEventListener('click', function () {
     state.quiet = !state.quiet;
+    sound('on');
     if (state.quiet) bubble.hidden = true;
     save();
     render();
   });
   clearBtn.addEventListener('click', function () {
     state.items = state.items.filter(function (i) { return !i.done; });
+    sound('remove');
     save();
     render();
     if (!busy) { pulse('hop', 460); say(state.items.length ? 'fresh start!' : 'nap time…', 1300); }
@@ -1372,6 +1384,7 @@
     var prog = L.personalityProgress(state.pet, p);
     describePersonality(p);
     if (!prog.done) {
+      sound('locked');
       speciesHint.textContent = '🔒 ' + p.label + ': ' + p.text + ' (' + prog.count + '/' + prog.goal + ').';
       speciesHint.hidden = false;
       return;
@@ -1415,6 +1428,7 @@
   });
   $('suggestNo').addEventListener('click', function () {
     suggestEl.hidden = true;
+    sound('off');
     if (!busy) { setFace(FACES.sheepish); talk('decline', ['ok, maybe next time', 'aww, fine'], 1200); setTimeout(function () { if (!busy) settle(); }, 1000); }
   });
 
@@ -1452,7 +1466,7 @@
     if (key === 'bubbles' && !e.target.checked) bubble.hidden = true;
     if (key === 'suggestions' && !e.target.checked) suggestEl.hidden = true;
     save();
-    if (key === 'sounds' && e.target.checked) sound('ooh');
+    sound(e.target.checked ? 'on' : 'off');
   });
   $('optionsBtn').addEventListener('click', function () {
     optionsList.querySelectorAll('input').forEach(function (b) { b.checked = state.settings[b.dataset.key]; });
@@ -1497,6 +1511,7 @@
   $('devActions').addEventListener('click', function (e) {
     var b = e.target.closest('button');
     if (!b) return;
+    sound('tap');
     devStatus.textContent = DEV_ACTIONS[b.dataset.i].run();
     refreshAll();
   });

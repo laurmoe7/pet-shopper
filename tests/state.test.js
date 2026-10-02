@@ -41,7 +41,7 @@ test('older saves without pet details get the defaults', () => {
 
 test('wardrobe hats have unique ids and a drawing', () => {
   const hatIds = Wardrobe.map((w) => w.id);
-  assert.deepEqual(hatIds, ['tophat', 'maid', 'sunhat', 'cap', 'hoodie', 'hardhat', 'bandana', 'headphones', 'mintphones', 'shades', 'redspecs']);
+  assert.deepEqual(hatIds, ['tophat', 'maid', 'sunhat', 'cap', 'hoodie', 'hardhat', 'bandana', 'headphones', 'mintphones', 'chefhat', 'knight', 'shades', 'redspecs', 'eyepatch', 'nerdspecs']);
   assert.equal(new Set(hatIds).size, hatIds.length);
   for (const w of Wardrobe) {
     assert.ok(w.slot === 'hat' || w.slot === 'face', w.id);
@@ -126,7 +126,7 @@ test('a typed name is tidied, and an empty one keeps the old name', () => {
 
 test('sunglasses are their own slot, worn alongside a hat', () => {
   const faces = Wardrobe.filter((w) => w.slot === 'face').map((w) => w.id);
-  assert.deepEqual(faces, ['shades', 'redspecs']);
+  assert.deepEqual(faces, ['shades', 'redspecs', 'eyepatch', 'nerdspecs']);
   const s = PetLogic.parseState(null, ids());
   s.pet.outfit.hat = 'hardhat';
   s.pet.outfit.face = 'shades';
@@ -136,5 +136,5 @@ test('sunglasses are their own slot, worn alongside a hat', () => {
 
 test('the new hat, bandana, headphones and sunglasses are free', () => {
   const { FreeUnlocks } = require('./load');
-  for (const id of ['hardhat', 'bandana', 'headphones', 'mintphones', 'shades', 'redspecs']) assert.ok(FreeUnlocks.hat.includes(id), id);
+  for (const id of ['hardhat', 'bandana', 'headphones', 'mintphones', 'chefhat', 'knight', 'shades', 'redspecs', 'eyepatch', 'nerdspecs']) assert.ok(FreeUnlocks.hat.includes(id), id);
 });
