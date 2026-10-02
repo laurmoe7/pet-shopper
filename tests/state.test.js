@@ -90,3 +90,13 @@ test('the room is saved with the pet', () => {
   const back = PetLogic.parseState(JSON.stringify(s), ids());
   assert.deepEqual(back.pet.room, { beanbag: { x: Decor[1].x, y: Decor[1].y } });
 });
+
+test('options start all on and keep what was saved', () => {
+  const fresh = PetLogic.parseState(null, ids()).settings;
+  assert.ok(Object.values(fresh).every((v) => v === true));
+  assert.ok('fairPlayTips' in fresh && 'suggestions' in fresh && 'daydreams' in fresh);
+  const saved = PetLogic.parseState(JSON.stringify({ items: [], settings: { fairPlayTips: false, sounds: 'yes' } }), ids()).settings;
+  assert.equal(saved.fairPlayTips, false);
+  assert.equal(saved.sounds, true, 'a broken value falls back to the default');
+  assert.equal(saved.bubbles, true, 'options added later start on');
+});

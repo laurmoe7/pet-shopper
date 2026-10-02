@@ -40,8 +40,10 @@ The tests live in `tests/` and load the same scripts the browser uses.
   - A finished list needs 3 or more items to count as a trip.
   - If the phone's clock goes back, counting pauses until it catches up. Goals are a list in `achievements.js`.
 - Once you start ticking things off, your pet brings out a little shopping cart with the last few things it picked up.
-- Now and then it daydreams about something on the list (a thought cloud) and gets excited about its favourites. Tap it and it may suggest something to add; the suggestion shows under the add box.
+- Now and then it daydreams about something on the list (a thought cloud) and gets excited about its favourites. Now and then (at most every few minutes) it suggests something to add; the suggestion shows under the add box.
 - Personalities, picked in "Edit pet", change what your pet loves, daydreams about and asks for. Foodie is there from the start; Sweet tooth, Veggie lover, Little chef and Cosy sipper are earned by what you feed it. Personalities are a list in `personalities.js`.
+- The gear button opens Options: sounds, speech bubbles, vibration, goal progress labels, fair-play tips (hides the 15-minute rule messages; the rule still applies), daydreams and suggestions. Options are saved on the phone, not with the pet.
+- While it waits, the pet does little idle things: wiggles, hums with music notes, looks around, stretches, twirls, pats its tummy and peeks into its cart.
 - Quiet mode turns off the chomp sound and speech bubbles.
 - Everything is saved on the device (`localStorage`). A service worker caches the app for offline use.
 

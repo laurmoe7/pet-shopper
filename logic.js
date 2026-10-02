@@ -114,7 +114,37 @@
     }
     data.overrides = data.overrides || {};
     data.pet = petProfile(data.pet);
+    data.settings = settings(data.settings);
     return data;
+  }
+
+  /**
+   * @typedef {Object} Settings  Options from the gear menu. They belong to this
+   *   phone, not to the pet.
+   * @property {boolean} sounds       Eating sounds and squeaks.
+   * @property {boolean} bubbles      Speech bubbles.
+   * @property {boolean} vibration    A little buzz on taps (phones that support it).
+   * @property {boolean} daydreams    Thought clouds about the list.
+   * @property {boolean} suggestions  The pet now and then asks for something to add.
+   * @property {boolean} fairPlayTips Messages about the fair-play rules, like
+   *   "items count after 15 min". The rules still apply when this is off.
+   * @property {boolean} goalToasts   The progress label under the pet after a bite.
+   */
+
+  /** The settings a new phone starts with: everything on. */
+  var DEFAULT_SETTINGS = { sounds: true, bubbles: true, vibration: true, daydreams: true, suggestions: true, fairPlayTips: true, goalToasts: true };
+
+  /**
+   * Fills in any settings missing from what was saved.
+   * @param {Object} [saved]
+   * @returns {Settings}
+   */
+  function settings(saved) {
+    var out = {};
+    Object.keys(DEFAULT_SETTINGS).forEach(function (k) {
+      out[k] = saved && typeof saved[k] === 'boolean' ? saved[k] : DEFAULT_SETTINGS[k];
+    });
+    return out;
   }
 
   /**
@@ -542,6 +572,7 @@
   }
 
   root.PetLogic = {
+    settings: settings,
     recordTaste: recordTaste,
     refundTaste: refundTaste,
     personalityProgress: personalityProgress,
