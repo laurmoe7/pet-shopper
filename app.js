@@ -434,10 +434,11 @@
   // ---------- your pet: name and species ----------
   var SPECIES = [
     { id: 'mochi', label: 'Mochi' },
+    { id: 'pig', label: 'Pig' },
+    { id: 'kitty', label: 'Cat' },
+    { id: 'puppy', label: 'Dog' },
     { id: 'bunny', label: 'Bunny' },
-    { id: 'kitty', label: 'Kitty' },
-    { id: 'chick', label: 'Chick' },
-    { id: 'puppy', label: 'Puppy' }
+    { id: 'chick', label: 'Chick' }
   ];
   var petSheet = $('petSheet'), petNameInput = $('petNameInput'), speciesGrid = $('speciesGrid');
 

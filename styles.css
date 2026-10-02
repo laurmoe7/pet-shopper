@@ -172,6 +172,8 @@ button { font: inherit; color: inherit; }
 .stripes path { fill: none; stroke: var(--pet-mark); stroke-width: 3; stroke-linecap: round; }
 .whiskers path { stroke-width: 1.6; }
 .spot { fill: var(--pet-mark); opacity: .7; }
+.snout ellipse { fill: #ffb8c6; stroke: var(--pet-ink); stroke-width: 1.8; }
+.snout .nostril { fill: var(--pet-ink); stroke: none; }
 .beak { fill: #ffb259; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
 
 /* species: colours and which parts show */
@@ -179,13 +181,15 @@ button { font: inherit; color: inherit; }
 .pet[data-species="bunny"] { --pet-skin: #fffafb; --pet-skin-shade: #f7e3ea; --pet-ear-in: #ffbfcc; }
 .pet[data-species="kitty"] { --pet-skin: #fdecd8; --pet-skin-shade: #f5d6b8; --pet-ear-in: #ffc4cf; --pet-mark: #f0b98a; }
 .pet[data-species="chick"] { --pet-skin: #fff1b0; --pet-skin-shade: #ffe07f; }
+.pet[data-species="pig"] { --pet-skin: #ffe1e6; --pet-skin-shade: #ffc9d3; --pet-ear-in: #ff9fb2; }
 .pet[data-species="puppy"] { --pet-skin: #fff6ec; --pet-skin-shade: #f2dcc4; --pet-mark: #d9b08c; }
 .pet-svg [data-sp] { display: none; }
 .pet[data-species="mochi"] [data-sp="mochi"],
 .pet[data-species="bunny"] [data-sp="bunny"],
 .pet[data-species="kitty"] [data-sp="kitty"],
 .pet[data-species="chick"] [data-sp="chick"],
-.pet[data-species="puppy"] [data-sp="puppy"] { display: inline; }
+.pet[data-species="puppy"] [data-sp="puppy"],
+.pet[data-species="pig"] [data-sp="pig"] { display: inline; }
 .pet[data-species="puppy"] .ear { fill: var(--pet-mark); }
 .twist { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 .foot { fill: var(--pet-skin-shade); stroke: var(--pet-ink); stroke-width: 2.4; }

@@ -21,7 +21,7 @@ On a phone on the same Wi-Fi, open `http://<your computer's IP>:8000`. Offline m
 - Each item becomes an emoji from an English keyword list (`foods.js`, about 130 rows, plurals handled, longest match wins, quantities like `2x` or `500g` ignored). Unknown items become a mystery gift box.
 - Tap an item's emoji, or long-press the item, to pick a different one. The choice is remembered for that word.
 - Nibble has five states: sleepy, curious, happy, stuffed, plus eating. The emoji hops into its mouth when you check it off, with a reaction per food type (fruit, veg, sweets, spicy, drinks, bread, non-food, mystery). Unchecking makes Nibble spit it back. Finishing the list gets a little celebration and a nap.
-- Tap "Edit pet" to rename your pet and pick a species: mochi, bunny, kitty, chick or puppy. Its little arms join in on every reaction.
+- Tap "Edit pet" to rename your pet and pick a species: mochi, pig, cat, dog, bunny or chick. Its little arms join in on every reaction.
 - Quiet mode turns off the chomp sound and speech bubbles.
 - Everything is saved on the device (`localStorage`). A service worker caches the app for offline use.
 
