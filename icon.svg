@@ -1,11 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160">
-  <rect width="160" height="160" rx="36" fill="#e9f3ea"/>
-  <ellipse cx="80" cy="132" rx="52" ry="8" fill="#c8e2cd"/>
-  <path d="M80 34 C120 34 142 70 142 100 C142 126 116 134 80 134 C44 134 18 126 18 100 C18 70 40 34 80 34 Z" fill="#ffbccb" stroke="#3a2430" stroke-width="5"/>
-  <path d="M46 62 C51 53 58 49 65 47" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".7"/>
-  <ellipse cx="44" cy="102" rx="10" ry="6" fill="#ff7f9e" opacity=".6"/>
-  <ellipse cx="116" cy="102" rx="10" ry="6" fill="#ff7f9e" opacity=".6"/>
-  <circle cx="60" cy="86" r="7.5" fill="#3a2430"/><circle cx="57.5" cy="83" r="2.4" fill="#fff"/>
-  <circle cx="100" cy="86" r="7.5" fill="#3a2430"/><circle cx="97.5" cy="83" r="2.4" fill="#fff"/>
-  <path d="M70 104 Q80 114 90 104" fill="none" stroke="#3a2430" stroke-width="5" stroke-linecap="round"/>
+  <rect width="160" height="160" rx="36" fill="#fde3ea"/>
+  <ellipse cx="80" cy="134" rx="58" ry="12" fill="#ffc7d3" stroke="#6e5045" stroke-width="2.4"/>
+  <path d="M80 40 C124 40 147 72 147 104 C147 131 119 141 80 141 C41 141 13 131 13 104 C13 72 36 40 80 40 Z" fill="#fff8f2" stroke="#5b4239" stroke-width="3.4"/>
+  <path d="M73 42 C74 33 80 29 86 32 C82 34 81 38 84 42" fill="#fff8f2" stroke="#5b4239" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="40" cy="108" rx="12" ry="6.5" fill="#ffaab8" opacity=".9"/>
+  <ellipse cx="120" cy="108" rx="12" ry="6.5" fill="#ffaab8" opacity=".9"/>
+  <path d="M34 110 l4 -6 M40 110 l4 -6 M46 110 l4 -6 M114 110 l4 -6 M120 110 l4 -6 M126 110 l4 -6" stroke="#f27d93" stroke-width="2" stroke-linecap="round"/>
+  <ellipse cx="58" cy="94" rx="5.2" ry="6" fill="#5b4239"/><circle cx="56.4" cy="91.6" r="1.9" fill="#fff"/>
+  <ellipse cx="102" cy="94" rx="5.2" ry="6" fill="#5b4239"/><circle cx="100.4" cy="91.6" r="1.9" fill="#fff"/>
+  <path d="M74 105 Q80 111 86 105" fill="none" stroke="#5b4239" stroke-width="3.2" stroke-linecap="round"/>
 </svg>

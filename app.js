@@ -106,23 +106,23 @@
     happy: { eyes: 'open', mouth: 'smile', x: ['cheeks'] },
     stuffed: { eyes: 'closed', mouth: 'smile', x: ['zzz', 'cheeks'] },
     catching: { eyes: 'open', mouth: 'open', x: [] },
-    sheepish: { eyes: 'closed', mouth: 'wavy', x: ['sweat'] },
-    wake: { eyes: 'happy', mouth: 'open', x: [] },
-    party: { eyes: 'happy', mouth: 'open', x: ['hearts', 'cheeks'] }
+    sheepish: { eyes: 'closed', mouth: 'wavy', x: ['sweat', 'cheeks'] },
+    wake: { eyes: 'happy', mouth: 'open', x: ['sparkles'] },
+    party: { eyes: 'happy', mouth: 'open', x: ['hearts', 'sparkles', 'cheeks'] }
   };
-  var CHEW = { eyes: 'happy', mouth: 'chew', x: [] };
+  var CHEW = { eyes: 'happy', mouth: 'chew', x: ['cheeks'] };
   var REACTIONS = {
-    fruit: { face: { eyes: 'happy', mouth: 'chew', x: ['hearts', 'cheeks'] }, lines: ['ooh, fruity!', 'so juicy!', 'yum yum!', 'vitamins!'] },
-    veg: { face: { eyes: 'squint', mouth: 'wavy', x: [] }, then: CHEW, lines: ['brave face…', 'crunchy. fine!', 'for my health', 'okay… not bad'] },
-    sweets: { face: { eyes: 'sparkle', mouth: 'chew', x: ['cheeks'] }, lines: ['SUGAR!', 'treat time!', 'sparkly!!', 'one more?'] },
-    spicy: { face: { eyes: 'squint', mouth: 'open', x: ['steam', 'redface'] }, lines: ['HOT HOT HOT', 'spicy!!', 'fire! fire!', 'water?!'] },
-    drink: { face: { eyes: 'happy', mouth: 'o', x: [] }, lines: ['sluuurp', 'glug glug', 'refreshing!', 'ahh!'] },
-    baked: { face: { eyes: 'happy', mouth: 'chew', x: ['cheeks'] }, lines: ['happy chew', 'warm & chewy', 'carbs!', 'mmm, bready'] },
-    dairy: { face: CHEW, lines: ['creamy!', 'nom!', 'MORE?', 'smooth'] },
-    protein: { face: CHEW, lines: ['nom nom', 'strong snack!', 'tasty!', 'MORE?'] },
-    pantry: { face: CHEW, lines: ['nom!', 'tiny snack!', 'ooh, yum', 'tasty!'] },
+    fruit: { face: { eyes: 'happy', mouth: 'chew', x: ['hearts', 'cheeks'] }, lines: ['so juicy!', 'fruity ♡', 'yum yum!', 'amai~ (sweet!)'] },
+    veg: { face: { eyes: 'teary', mouth: 'wavy', x: [] }, then: CHEW, lines: ['b-brave face…', 'crunchy. fine!', 'for my health…', 'okay… not bad'] },
+    sweets: { face: { eyes: 'sparkle', mouth: 'chew', x: ['sparkles', 'cheeks'] }, lines: ['kira kira!', 'treat time ♡', 'SUGAR!', 'one more?'] },
+    spicy: { face: { eyes: 'squint', mouth: 'open', x: ['steam', 'redface', 'shock'] }, lines: ['HOT HOT HOT', 'hii~ spicy!', 'fire! fire!', 'water?!'] },
+    drink: { face: { eyes: 'happy', mouth: 'o', x: ['cheeks'] }, lines: ['gokun gokun', 'sluuurp', 'refreshing!', 'puhaa~'] },
+    baked: { face: { eyes: 'happy', mouth: 'chew', x: ['cheeks'] }, lines: ['fuwa fuwa ♡', 'warm & chewy', 'carbs!', 'mmm, bready'] },
+    dairy: { face: CHEW, lines: ['creamy ♡', 'mogu mogu', 'MORE?', 'so smooth'] },
+    protein: { face: CHEW, lines: ['mogu mogu', 'strong snack!', 'tasty!', 'MORE?'] },
+    pantry: { face: CHEW, lines: ['mogu mogu', 'tiny snack!', 'ooh, yum', 'paku!'] },
     nonfood: { face: { eyes: 'confused', mouth: 'wavy', x: ['question'] }, lines: ["that's not food", 'hmm… for later', 'tuck it away'] },
-    mystery: { face: { eyes: 'sparkle', mouth: 'chew', x: ['cheeks'] }, lines: ['a surprise?!', 'mystery snack!', 'what was that?'] }
+    mystery: { face: { eyes: 'sparkle', mouth: 'chew', x: ['sparkles', 'cheeks'] }, lines: ['a surprise?!', 'mystery snack!', 'what was that?'] }
   };
 
   var busy = 0;
@@ -138,7 +138,7 @@
   function setFace(face) {
     pet.dataset.eyes = face.eyes;
     pet.dataset.mouth = face.mouth;
-    ['zzz', 'steam', 'hearts', 'question', 'sweat', 'redface', 'cheeks'].forEach(function (x) {
+    ['zzz', 'steam', 'hearts', 'sparkles', 'question', 'sweat', 'shock', 'redface', 'cheeks'].forEach(function (x) {
       pet.classList.toggle('x-' + x, face.x.indexOf(x) !== -1);
     });
   }
@@ -169,7 +169,7 @@
 
   function mouthPoint() {
     var r = pet.querySelector('.pet-svg').getBoundingClientRect();
-    return { x: r.left + r.width * (80 / 160), y: r.top + r.height * (104 / 150) };
+    return { x: r.left + r.width * (80 / 160), y: r.top + r.height * (107 / 150) };
   }
   function sidePoint() {
     var r = pet.querySelector('.pet-svg').getBoundingClientRect();
@@ -214,7 +214,25 @@
       ], { duration: 520 + Math.random() * 200, easing: 'ease-out' }).finished.then(c.remove.bind(c));
     }
   }
-  var CRUMB_COLORS = { fruit: '#ffcf3f', veg: '#5bbd5b', sweets: '#8b5a3c', spicy: '#ff5a3c', drink: '#7cc8ff', baked: '#d9a05b', dairy: '#f3e7c9', protein: '#c96b5a', pantry: '#e8b04a', mystery: '#ff8fb8', nonfood: '#b8b8c8' };
+  var CRUMB_COLORS = { fruit: '#ffd77a', veg: '#9ed99a', sweets: '#c99a7c', spicy: '#ff8b7a', drink: '#a9dcff', baked: '#f1c48d', dairy: '#fff3d6', protein: '#e7a598', pantry: '#f6cf86', mystery: '#ffb3c6', nonfood: '#d6cde0' };
+
+  // sakura-style petals drifting down for the all-done celebration
+  var PETAL_COLORS = ['#ffc1d0', '#ffd9e2', '#ffe9a8', '#c7ead6'];
+  function petals(at, n) {
+    for (var i = 0; i < n; i++) {
+      var p = document.createElement('span');
+      p.className = 'petal';
+      p.style.background = PETAL_COLORS[i % PETAL_COLORS.length];
+      document.body.appendChild(p);
+      var dx = (Math.random() - 0.5) * 260, up = 40 + Math.random() * 70, fall = 140 + Math.random() * 120;
+      var spin = (Math.random() - 0.5) * 720;
+      p.animate([
+        { transform: 'translate(' + at.x + 'px,' + at.y + 'px) rotate(0) scale(.4)', opacity: 1 },
+        { transform: 'translate(' + (at.x + dx * 0.6) + 'px,' + (at.y - up) + 'px) rotate(' + spin / 2 + 'deg) scale(1)', opacity: 1, offset: 0.35 },
+        { transform: 'translate(' + (at.x + dx) + 'px,' + (at.y - up + fall) + 'px) rotate(' + spin + 'deg) scale(.9)', opacity: 0 }
+      ], { duration: 1800 + Math.random() * 600, easing: 'ease-out' }).finished.then(p.remove.bind(p));
+    }
+  }
 
   // ---------- sound + haptics ----------
   // Which sound each food makes. Specific emojis first, then the food category.
@@ -315,7 +333,7 @@
           { transform: 'translate(' + (from.x - 11 + Math.cos(a) * d * 1.1) + 'px,' + (from.y + Math.sin(a) * d * 0.6 + 120) + 'px) scale(.8)', opacity: 0 }
         ], { duration: 1400, easing: 'ease-out' }).finished.then(el.remove.bind(el));
       });
-      crumbs(from, '#ffcf3f', 10);
+      petals(from, 16);
     }
     return wait(2400);
   }
