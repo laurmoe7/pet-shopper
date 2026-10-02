@@ -138,7 +138,7 @@ button { font: inherit; color: inherit; }
   clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
   animation: twinkle 3.2s ease-in-out infinite;
 }
-.stage::before { left: 18%; top: 40px; }
+.stage::before { left: 34%; top: 30px; }
 .stage::after { right: 22%; top: 112px; width: 10px; height: 10px; background: var(--pet-star); animation-delay: 1.4s; }
 .cushion {
   position: absolute; left: 50%; bottom: 4px; width: 158px; height: 30px; transform: translateX(-50%);
@@ -317,7 +317,8 @@ button { font: inherit; color: inherit; }
 @keyframes pat { from { transform: translate(-14px, 0) rotate(40deg); } to { transform: translate(-18px, 4px) rotate(70deg); } }
 
 /* ---------- pet editor ---------- */
-.edit-pet { position: absolute; right: 0; bottom: 10px; z-index: 2; font-size: .78rem; }
+.stage-tools { position: absolute; left: 0; top: 10px; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.stage-tools .pill-btn { font-size: .78rem; }
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field-label { font-weight: 800; font-size: .85rem; color: var(--muted); padding: 0; }
 .field input {
@@ -335,6 +336,39 @@ button { font: inherit; color: inherit; }
 .species-grid button:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
 .pet.mini { width: 72px; height: 66px; margin: 0; cursor: inherit; pointer-events: none; }
 .pet-sheet .picker-inner { overflow-y: auto; }
+
+/* ---------- hats ---------- */
+.hat-dark { fill: #4d3c43; stroke: var(--pet-ink); stroke-width: 2; }
+.hat-band { fill: #ff9fb5; stroke: var(--pet-ink); stroke-width: 1.6; }
+.hat-shine { stroke: #7d6a72; stroke-width: 2.4; stroke-linecap: round; fill: none; }
+.hat-edge { stroke: var(--pet-ink); stroke-width: 2; fill: none; stroke-linecap: round; }
+.hat-heart { fill: #fff; }
+.hat-maid circle { fill: #fff; stroke: var(--pet-ink); stroke-width: 1.5; }
+.maid-band { fill: none; stroke: #4d3c43; stroke-width: 6; stroke-linecap: round; }
+.hat-maid .maid-bow { fill: #ff9fb5; stroke: var(--pet-ink); stroke-width: 1.4; stroke-linejoin: round; }
+.straw { fill: #f7dca0; stroke: var(--pet-ink); stroke-width: 2; }
+.straw-top { fill: #fae6b5; stroke: var(--pet-ink); stroke-width: 2; }
+.straw-weave { stroke: #d9b56c; stroke-width: 1.6; stroke-linecap: round; fill: none; }
+.sun-ribbon { fill: #ffb3c4; stroke: var(--pet-ink); stroke-width: 1.4; stroke-linejoin: round; }
+.sun-flower circle { fill: #fff; stroke: var(--pet-ink); stroke-width: 1; }
+.sun-flower .sun-flower-mid { fill: #ffd65c; }
+
+/* ---------- dressing room ---------- */
+.dress-stage {
+  display: flex; justify-content: center; padding: 18px 0 8px; border-radius: 22px;
+  background: radial-gradient(ellipse 30% 9% at 50% 90%, var(--cushion) 0 96%, transparent 100%), var(--stage-top);
+  border: 1.5px solid var(--line);
+}
+.pet.preview { width: 150px; height: 140px; margin: 0; pointer-events: none; }
+.hat-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.hat-strip button {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; min-width: 0;
+  border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 18px; cursor: pointer; font-weight: 700; font-size: .78rem; line-height: 1.2; text-align: center;
+}
+.hat-strip button[aria-pressed="true"] { border-color: var(--outline); background: var(--stage-top); box-shadow: 0 2px 0 var(--outline); }
+.hat-strip button:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
+.hat-strip svg { width: 100%; max-width: 64px; height: 40px; overflow: visible; }
+.hat-none { fill: none; stroke: var(--muted); stroke-width: 2.4; stroke-linecap: round; }
 
 /* flying emoji, crumbs and petals live above everything */
 .flyer { position: fixed; left: 0; top: 0; width: 34px; height: 34px; z-index: 50; pointer-events: none; will-change: transform; }

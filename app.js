@@ -18,6 +18,7 @@
     }
     data.overrides = data.overrides || {};
     data.pet = data.pet || { name: 'Nibble', species: 'mochi' };
+    data.pet.outfit = data.pet.outfit || { hat: 'none' };
     return data;
   }
   function save() {
@@ -449,6 +450,7 @@
     pet.setAttribute('aria-label', name + ', your pet');
     document.querySelectorAll('.pet-name').forEach(function (el) { el.textContent = name; });
     document.title = name + "'s List";
+    dressUp(pet, state.pet.outfit);
     speciesGrid.querySelectorAll('button').forEach(function (b) {
       b.setAttribute('aria-pressed', b.dataset.species === state.pet.species ? 'true' : 'false');
     });
@@ -499,6 +501,81 @@
     if (!busy) { pulse('hop', 500); say("I'm " + petName() + '!', 1500); }
   });
   petSheet.addEventListener('click', function (e) { if (e.target === petSheet) petSheet.close(); });
+
+  // ---------- dressing room ----------
+  // Wardrobe items (wardrobe.js) are drawn into the matching slot inside the pet's SVG.
+  function wardrobeItem(id) {
+    for (var i = 0; i < Wardrobe.length; i++) if (Wardrobe[i].id === id) return Wardrobe[i];
+    return null;
+  }
+  function dressUp(el, outfit) {
+    var slot = el.querySelector('.outfit-hat');
+    var item = wardrobeItem(outfit.hat);
+    slot.innerHTML = item ? item.svg : '';
+  }
+
+  var dressSheet = $('dressSheet'), dressPreview = $('dressPreview'), hatStrip = $('hatStrip');
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  [{ id: 'none', label: 'No hat' }].concat(Wardrobe.filter(function (w) { return w.slot === 'hat'; })).forEach(function (item) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.hat = item.id;
+    var icon = document.createElementNS(SVGNS, 'svg');
+    icon.setAttribute('viewBox', item.id === 'none' ? '0 0 40 40' : '32 2 96 60');
+    icon.setAttribute('aria-hidden', 'true');
+    icon.innerHTML = item.svg || '<circle class="hat-none" cx="20" cy="20" r="12"/><path class="hat-none" d="M11.5 28.5 L28.5 11.5"/>';
+    var label = document.createElement('span');
+    label.textContent = item.label;
+    b.append(icon, label);
+    hatStrip.appendChild(b);
+  });
+  function refreshDressRoom() {
+    hatStrip.querySelectorAll('button').forEach(function (b) {
+      b.setAttribute('aria-pressed', b.dataset.hat === state.pet.outfit.hat ? 'true' : 'false');
+    });
+    var view = dressPreview.querySelector('.pet');
+    if (view) dressUp(view, state.pet.outfit);
+  }
+  $('dressBtn').addEventListener('click', function () {
+    // a live copy of the pet to try things on
+    var view = document.createElement('div');
+    view.className = 'pet preview x-cheeks';
+    view.dataset.species = state.pet.species;
+    view.dataset.state = 'curious';
+    view.dataset.eyes = 'open';
+    view.dataset.mouth = 'smile';
+    view.dataset.arms = 'idle';
+    var copy = petSvg.cloneNode(true);
+    copy.querySelectorAll('defs').forEach(function (d) { d.remove(); });
+    view.appendChild(copy);
+    dressPreview.replaceChildren(view);
+    refreshDressRoom();
+    if (dressSheet.showModal) dressSheet.showModal(); else dressSheet.setAttribute('open', '');
+  });
+  hatStrip.addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    state.pet.outfit.hat = b.dataset.hat;
+    save();
+    refreshDressRoom();
+    dressUp(pet, state.pet.outfit);
+    var view = dressPreview.querySelector('.pet');
+    if (view) {
+      view.dataset.eyes = b.dataset.hat === 'none' ? 'open' : 'happy';
+      view.dataset.arms = b.dataset.hat === 'none' ? 'idle' : 'cheer';
+      view.classList.remove('hop'); void view.offsetWidth; view.classList.add('hop');
+    }
+  });
+  dressSheet.addEventListener('close', function () {
+    if (!busy) {
+      setFace(FACES.tada); pulse('hop', 500);
+      var item = wardrobeItem(state.pet.outfit.hat);
+      say(item ? pick(['so fancy!', 'how do I look?', 'kawaii?', 'ta-da!']) : 'fresh look!', 1500);
+      setTimeout(function () { if (!busy) settle(); }, 1000);
+    }
+  });
+  dressSheet.addEventListener('click', function (e) { if (e.target === dressSheet) dressSheet.close(); });
+
   applyPet();
 
   // ---------- events ----------

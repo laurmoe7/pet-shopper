@@ -22,6 +22,7 @@ On a phone on the same Wi-Fi, open `http://<your computer's IP>:8000`. Offline m
 - Tap an item's emoji, or long-press the item, to pick a different one. The choice is remembered for that word.
 - Nibble has five states: sleepy, curious, happy, stuffed, plus eating. The emoji hops into its mouth when you check it off, with a reaction per food type (fruit, veg, sweets, spicy, drinks, bread, non-food, mystery). Unchecking makes Nibble spit it back. Finishing the list gets a little celebration and a nap.
 - Tap "Edit pet" to rename your pet and pick a species: mochi, pig, cat, dog, bunny or chick. Its little arms join in on every reaction.
+- Tap "Dress up" to open the dressing room and try on a hat: top hat, maid's hairband or sun hat. Hats are a list in `wardrobe.js`, so more items can be added there. This is a test of the cosmetics idea; nothing is paid yet.
 - Quiet mode turns off the chomp sound and speech bubbles.
 - Everything is saved on the device (`localStorage`). A service worker caches the app for offline use.
 
@@ -31,6 +32,8 @@ Not in it yet: accounts, shared lists, payments, multiple lists.
 
 - `index.html`, `styles.css`, `app.js`: the app. Nibble is an inline SVG animated with CSS.
 - `foods.js`: the keyword dictionary and matching.
+- `wardrobe.js`: the dressing-room items (hats), drawn as SVG on the pet's head.
+- `sounds.js`: the eating sounds, made with the Web Audio API.
 - `emoji/`: the OpenMoji SVGs the app uses. Regenerate with `node tools/copy-emoji.js <openmoji package>/color/svg` after adding emojis to `foods.js`.
 - `sw.js`, `manifest.webmanifest`, `icon*`: offline support and home-screen install.
 
