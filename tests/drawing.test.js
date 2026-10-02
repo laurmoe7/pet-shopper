@@ -19,3 +19,7 @@ test('every ear is in a left or right group so it can jiggle', () => {
   assert.match(css, /@keyframes ear-jiggle-l/);
   assert.match(css, /@keyframes ear-jiggle-r/);
 });
+
+test('the chick has no mouth of its own, only its beak', () => {
+  assert.match(css, /\.pet\[data-species="chick"\]\[data-mouth\] \[data-mouth\] \{ display: none; \}/);
+});

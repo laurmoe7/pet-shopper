@@ -141,3 +141,15 @@ test('talking in its sleep is quiet, slow and mumbly', () => {
     assert.ok(line.includes('…'), 'trails off: ' + line);
   }
 });
+
+test('each personality has a short description and a name that fits its quirk', () => {
+  for (const p of Personalities) {
+    assert.ok(p.blurb && p.blurb.length <= 44, p.id + ' blurb is short');
+    assert.ok(p.label.length <= 12, p.id + ' name fits a tile');
+  }
+  const byId = Object.fromEntries(Personalities.map((p) => [p.id, p]));
+  assert.equal(byId.diva.voice.tone, 'diva');
+  assert.equal(byId.nerd.voice.tone, 'nerdy');
+  assert.match(byId.chef.label, /Sassy/);
+  assert.match(byId.sipper.label, /Sleepy/);
+});

@@ -47,7 +47,8 @@
       lines: ['beach day?!', 'picnic time!', 'so summery!'],
       svg: '<g transform="rotate(-6 80 40)" class="hat-sun">' +
         '<ellipse class="straw" cx="80" cy="42" rx="44" ry="10"/>' +
-        '<path class="straw-weave" d="M44 45 l5 2 M56 49 l5 1.5 M100 49 l5 -1.5 M112 46 l5 -2 M70 50 l5 .5 M88 50 l5 -.5"/>' +
+        // a stitched line that follows the curve of the brim
+        '<path class="straw-weave" d="M42 42 A38 7 0 0 0 118 42"/>' +
         '<path class="straw-top" d="M57 42 C57 20 103 20 103 42 Q80 48 57 42 Z"/>' +
         // the band wraps around the base of the dome, so both edges curve the way the brim does
         '<path class="sun-ribbon" d="M60.2 33.1 Q80 39 99.8 33.1 C101.5 35 103 38 103 42 Q80 48 57 42 C57 38 58.5 35 60.2 33.1 Z"/>' +

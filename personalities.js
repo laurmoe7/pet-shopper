@@ -3,6 +3,7 @@
  * eating). `earn` says what to feed it, and how many, to unlock it; the first
  * one is there from the start. `suggests` are things it asks for, and `lines`
  * what it says when it eats a favourite. You can swap between unlocked ones.
+ * `blurb` is the short description shown when picking one.
  * `voice` is how it talks: its own lines for each moment (`{x}` is an item,
  * `{name}` the pet's name) and a `style` that gives every other line its tone:
  *   endings  added to the end of a line now and then
@@ -16,7 +17,8 @@
 
   root.Personalities = [
     {
-      id: 'foodie', label: 'Foodie', icon: '🍙',
+      id: 'foodie', label: 'Hyper Foodie', icon: '🍙',
+      blurb: 'Bouncy and loud. Loves every food!',
       text: 'Loves a bit of everything',
       likes: ['fruit', 'veg', 'baked', 'dairy', 'protein', 'pantry', 'sweets', 'drink', 'spicy'],
       earn: null,
@@ -41,7 +43,8 @@
       }
     },
     {
-      id: 'sweet', label: 'Sweet tooth', icon: '🍰',
+      id: 'sweet', label: 'Sweetie Pie', icon: '🍰',
+      blurb: 'Gushy and kind. Dessert first ♡',
       text: 'Feed it 10 sweets or baked treats',
       likes: ['sweets', 'baked'],
       earn: { cats: ['sweets', 'baked'], count: 10 },
@@ -66,7 +69,8 @@
       }
     },
     {
-      id: 'green', label: 'Veggie lover', icon: '🥦',
+      id: 'green', label: 'Zen Sprout', icon: '🥦',
+      blurb: 'Calm and wholesome. Fresh fruit and veg.',
       text: 'Feed it 15 fruit or vegetables',
       likes: ['fruit', 'veg'],
       earn: { cats: ['fruit', 'veg'], count: 15 },
@@ -91,7 +95,8 @@
       }
     },
     {
-      id: 'chef', label: 'Little chef', icon: '🍳',
+      id: 'chef', label: 'Sassy Chef', icon: '🍳',
+      blurb: 'Bossy and cheeky. Serious about cooking.',
       text: 'Feed it 15 proteins, dairy or pantry foods',
       likes: ['protein', 'dairy', 'pantry'],
       earn: { cats: ['protein', 'dairy', 'pantry'], count: 15 },
@@ -99,7 +104,7 @@
       lines: ['chef\'s kiss. obviously.', 'finally, real food!', 'now THAT\'s cooking.'],
       voice: {
         tone: 'sassy',
-        style: { endings: [', obviously', ', duh', '. hmph', ', darling'], prefixes: ['ugh, ', 'excuse me, '], lower: false, bang: '!' },
+        style: { endings: [', obviously', ', duh', '. hmph', ', chop chop'], prefixes: ['ugh, ', 'listen, '], lower: false, bang: '!' },
         hi: ['oh, it\'s you. hi.', 'took you long enough!'],
         tap: ['hands off the chef!', 'do you mind?', 'busy cooking here.'],
         sleepy: ['chef is resting. shh.', 'zzz… more salt…'],
@@ -116,7 +121,8 @@
       }
     },
     {
-      id: 'sipper', label: 'Cosy sipper', icon: '🍵',
+      id: 'sipper', label: 'Sleepy Head', icon: '🍵',
+      blurb: 'Slow and yawny. Lives for cosy drinks.',
       text: 'Feed it 10 drinks',
       likes: ['drink'],
       earn: { cats: ['drink'], count: 10 },
@@ -138,6 +144,58 @@
         quick: ['hm… that was fast…', 'already…?'],
         spit: ['mm… not yet…', 'later…'],
         name: ['i\'m… {name}… zzz', '{name}… yawn…']
+      }
+    },
+    {
+      id: 'diva', label: 'Diva', icon: '🥂',
+      blurb: 'Dramatic and fabulous. Only the finest.',
+      text: 'Feed it 15 fruit or drinks',
+      likes: ['fruit', 'drink', 'sweets'],
+      earn: { cats: ['fruit', 'drink'], count: 15 },
+      suggests: ['Champagne', 'Strawberries', 'Mango', 'Cupcakes', 'Dark chocolate', 'Sparkling water'],
+      lines: ['exquisite, darling.', 'simply divine!', 'fit for a star!'],
+      voice: {
+        tone: 'diva',
+        style: { endings: [', darling', '. iconic', '. slay'], prefixes: ['darling, ', 'excuse me, '], lower: false, bang: '!' },
+        hi: ['the star has arrived!', 'darling, you\'re back!'],
+        tap: ['no touching the talent!', 'careful, I\'m precious.', 'yes, I\'m gorgeous.'],
+        sleepy: ['beauty sleep… shh…', 'zzz… my fans…'],
+        suggest: ['{x}. only the finest.', 'a diva needs {x}, darling.', 'fetch me {x}, please!'],
+        decline: ['how dare you. fine.', '*dramatic sigh*'],
+        dream: ['{x}… on a silver plate.', 'champagne dreams of {x}…'],
+        idle: ['is my close-up ready?', 'the spotlight is on me!', '*strikes a pose*'],
+        look: ['iconic. obviously.', 'serving looks!', 'the paparazzi! quick!'],
+        room: ['my dressing room!', 'fabulous decor, darling.'],
+        full: ['a five-star haul!', 'bravo! encore!'],
+        quick: ['you skipped the shop? scandal!', 'cheating? how tacky.'],
+        spit: ['ew, not that, darling.', 'send it back to the chef!'],
+        name: ['the one, the only {name}!', '{name}. you\'re welcome.']
+      }
+    },
+    {
+      id: 'nerd', label: 'Nerd', icon: '💡',
+      blurb: 'Full of fun facts. Brain food, please!',
+      text: 'Feed it 12 proteins or fruit',
+      likes: ['protein', 'fruit', 'drink'],
+      earn: { cats: ['protein', 'fruit'], count: 12 },
+      suggests: ['Blueberries', 'Walnuts', 'Salmon', 'Green tea', 'Coffee', 'Almonds'],
+      lines: ['brain power +1!', 'optimal snack acquired.', 'nutritionally sound!'],
+      voice: {
+        tone: 'nerdy',
+        style: { endings: [', technically', '. fun fact!', ' (probably)'], prefixes: ['actually, ', 'um, '], lower: false, bang: '!' },
+        hi: ['greetings, human!', 'ah, my lab partner!'],
+        tap: ['fun fact: I\'m ticklish.', 'please mind the glasses.', 'hypothesis: you like me.'],
+        sleepy: ['zzz… pi is 3.14…', 'processing dreams…'],
+        suggest: ['studies say {x} is great.', 'may I request {x}?', '{x}: 10/10 brain food.'],
+        decline: ['noted for later research.', 'data logged. okay.'],
+        dream: ['the science of {x}…', '{x}, for my brain…'],
+        idle: ['calculating snack odds…', 'did you know bananas glow?', '*adjusts glasses*'],
+        look: ['very aerodynamic.', 'smart AND cute.', 'peer-reviewed style.'],
+        room: ['a perfect study nook.', 'optimal room layout!'],
+        full: ['experiment: success!', 'list completed. 100%!'],
+        quick: ['that defies physics…', 'statistically suspicious.'],
+        spit: ['error! returning item.', 'oops, wrong variable.'],
+        name: ['Dr. {name}, at your service.', 'designation: {name}.']
       }
     }
   ];

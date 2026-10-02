@@ -203,6 +203,12 @@ button { font: inherit; color: inherit; }
 /* the cow's mouth sits under its muzzle, like the pig's under its snout */
 .pet[data-species="cow"] [data-mouth] { translate: 0 6.5px; }
 .beak { fill: #ffb259; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
+/* the chick talks and eats with its beak, so it has no separate mouth */
+.pet[data-species="chick"][data-mouth] [data-mouth] { display: none; }
+.pet[data-species="chick"] .beak { transform-box: fill-box; transform-origin: 50% 50%; }
+.pet[data-species="chick"][data-mouth="chew"] .beak { animation: beak-chew .16s ease-in-out infinite alternate; }
+.pet[data-species="chick"][data-mouth="open"] .beak, .pet[data-species="chick"][data-mouth="o"] .beak { transform: scale(1.1, 1.45); }
+@keyframes beak-chew { from { transform: scale(1, 1); } to { transform: scale(1.08, 1.4); } }
 
 /* species: colours and which parts show */
 .pet { --pet-skin: #fff8f2; --pet-skin-shade: #ffe4d8; --pet-ear-in: #ffc4cf; --pet-mark: #f3c9a8; }
@@ -381,6 +387,8 @@ button { font: inherit; color: inherit; }
 .name-show .name-pen { color: var(--muted); font-size: .9rem; }
 .name-show.nudge { animation: name-nudge .35s ease; }
 @keyframes name-nudge { 30% { transform: translateX(-3px); } 60% { transform: translateX(3px); } }
+.mood-info { margin: 2px 0 0; font-size: .9rem; color: var(--ink); min-height: 2.6em; }
+.mood-info b { font-weight: 800; }
 .name-hint { font-size: .78rem; color: var(--muted); font-weight: 700; }
 .field input:focus-visible { box-shadow: 0 0 0 4px var(--stage-top); }
 .species { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
@@ -413,7 +421,7 @@ button { font: inherit; color: inherit; }
 .hat-maid .maid-bow { fill: #ff9fb5; stroke: var(--pet-ink); stroke-width: 1.4; stroke-linejoin: round; }
 .straw { fill: #f7dca0; stroke: var(--pet-ink); stroke-width: 2; }
 .straw-top { fill: #fae6b5; stroke: var(--pet-ink); stroke-width: 2; }
-.straw-weave { stroke: #d9b56c; stroke-width: 1.6; stroke-linecap: round; fill: none; }
+.straw-weave { stroke: #d9b56c; stroke-width: 1.6; stroke-linecap: round; fill: none; stroke-dasharray: 4 3.4; }
 .sun-ribbon { fill: #ffb3c4; stroke: var(--pet-ink); stroke-width: 1.4; stroke-linejoin: round; }
 .sun-flower circle { fill: #fff; stroke: var(--pet-ink); stroke-width: 1; }
 .sun-flower .sun-flower-mid { fill: #ffd65c; }

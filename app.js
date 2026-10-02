@@ -1254,8 +1254,24 @@
     b.append(emojiImg(p.icon, ''), label);
     personalityStrip.appendChild(b);
   });
+  /**
+   * Shows a personality's name and short description under the strip.
+   * @param {Object} p
+   */
+  function describePersonality(p) {
+    var info = $('personalityInfo');
+    var name = document.createElement('b');
+    name.textContent = p.label + ': ';
+    info.replaceChildren(name, document.createTextNode(p.blurb));
+  }
+  personalityStrip.addEventListener('pointerover', function (e) {
+    var b = e.target.closest('button');
+    if (b && e.pointerType === 'mouse') describePersonality(Personalities.filter(function (x) { return x.id === b.dataset.personality; })[0]);
+  });
+  personalityStrip.addEventListener('pointerleave', function () { describePersonality(personality()); });
   /** Marks the current personality and shows locks and progress on the rest. */
   function renderPersonalities() {
+    describePersonality(personality());
     personalityStrip.querySelectorAll('button').forEach(function (b) {
       var p = Personalities.filter(function (x) { return x.id === b.dataset.personality; })[0];
       var prog = L.personalityProgress(state.pet, p);
@@ -1272,6 +1288,7 @@
     if (!b) return;
     var p = Personalities.filter(function (x) { return x.id === b.dataset.personality; })[0];
     var prog = L.personalityProgress(state.pet, p);
+    describePersonality(p);
     if (!prog.done) {
       speciesHint.textContent = '🔒 ' + p.label + ': ' + p.text + ' (' + prog.count + '/' + prog.goal + ').';
       speciesHint.hidden = false;
