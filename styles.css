@@ -263,8 +263,9 @@ button { font: inherit; color: inherit; }
 .pet.x-cheeks .cheek { opacity: .9; }
 
 .squish, .pet-body { transform-box: fill-box; transform-origin: 50% 100%; }
-.pupils { transition: transform .4s; }
-.pet[data-state="curious"] .pupils { transform: translateY(2.5px); }
+.pupils { transition: transform .4s; transform: translate(var(--look-x, 0px), var(--look-y, 0px)); }
+.pet[data-state="curious"] .pupils { transform: translate(var(--look-x, 0px), calc(var(--look-y, 0px) + 2.5px)); }
+.pet.looking .pupils { transition: transform .12s ease-out; }
 .pet[data-eyes="open"] .eyes-open { transform-box: fill-box; transform-origin: 50% 50%; animation: blink 4.5s infinite; }
 .chew { animation: chew .16s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
 
@@ -374,6 +375,14 @@ button { font: inherit; color: inherit; }
   display: flex; justify-content: center; padding: 18px 0 8px; border-radius: 22px;
   background: radial-gradient(ellipse 30% 9% at 50% 90%, var(--cushion) 0 96%, transparent 100%), var(--stage-top);
   border: 1.5px solid var(--line);
+}
+.dress-stage { position: relative; }
+.dress-bubble {
+  position: absolute; left: calc(50% + 58px); top: 10px; max-width: calc(50% - 66px); z-index: 2;
+  background: var(--surface); color: var(--ink); border: 1.8px solid var(--outline);
+  font-family: var(--font-display); font-weight: 500; font-size: .9rem; line-height: 1.25;
+  padding: 5px 10px; border-radius: 16px 16px 16px 6px; text-wrap: balance;
+  box-shadow: 0 2px 0 var(--outline); animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); transform-origin: 0 100%;
 }
 .pet.preview { width: 150px; height: 140px; margin: 0; pointer-events: none; }
 .hat-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
@@ -514,7 +523,7 @@ button { font: inherit; color: inherit; }
 }
 .goal > img { width: 40px; height: 40px; grid-row: span 3; }
 .goal-title { font-weight: 800; display: flex; justify-content: space-between; gap: 8px; }
-.goal-reward { font-weight: 700; font-size: .78rem; color: var(--accent-ink); background: var(--stage-top); border-radius: 999px; padding: 0 8px; white-space: nowrap; }
+.goal-reward { font-weight: 700; font-size: .78rem; color: var(--ink); background: var(--stage-top); border: 1.2px solid var(--line); border-radius: 999px; padding: 0 8px; white-space: nowrap; }
 .goal-text { font-size: .82rem; color: var(--muted); }
 .goal-bar { height: 10px; border-radius: 999px; background: var(--bg); border: 1.2px solid var(--line); overflow: hidden; }
 .goal-bar span { display: block; height: 100%; background: var(--accent); border-radius: 999px; }

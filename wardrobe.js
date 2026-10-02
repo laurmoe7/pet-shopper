@@ -1,5 +1,6 @@
 /* Wardrobe: the items you can dress your pet in.
- * Each item has a slot (only "hat" for now), a label and SVG drawn in the pet's
+ * Each item has a slot (only "hat" for now), a label, `lines` the pet says when
+ * you point at it in the dressing room, and SVG drawn in the pet's
  * 160x150 coordinate space, sitting on the top of the head (around x 80, y 38).
  * Add a new item here and it shows up in the dressing room.
  */
@@ -8,6 +9,7 @@
   root.Wardrobe = [
     {
       id: 'tophat', slot: 'hat', label: 'Top hat',
+      lines: ['ooh, so fancy!', 'very distinguished', 'a hat for tea time?'],
       svg: '<g transform="rotate(-9 84 34)" class="hat-tophat">' +
         '<ellipse class="hat-dark" cx="84" cy="38" rx="25" ry="6"/>' +
         '<path class="hat-dark" d="M71 37 V13 Q71 8 76 8 H92 Q97 8 97 13 V37 Z"/>' +
@@ -19,6 +21,7 @@
     },
     {
       id: 'maid', slot: 'hat', label: "Maid's hairband",
+      lines: ['at your service!', 'so frilly!', 'I\'ll tidy the snacks'],
       svg: '<g class="hat-maid">' +
         '<circle cx="40.7" cy="53.6" r="5.4"/>' +
         '<circle cx="46.2" cy="48.2" r="5.4"/>' +
@@ -37,6 +40,7 @@
     },
     {
       id: 'sunhat', slot: 'hat', label: 'Sun hat',
+      lines: ['beach day?!', 'picnic time!', 'so summery!'],
       svg: '<g transform="rotate(-6 80 40)" class="hat-sun">' +
         '<ellipse class="straw" cx="80" cy="42" rx="44" ry="10"/>' +
         '<path class="straw-weave" d="M44 45 l5 2 M56 49 l5 1.5 M100 49 l5 -1.5 M112 46 l5 -2 M70 50 l5 .5 M88 50 l5 -.5"/>' +

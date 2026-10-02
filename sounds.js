@@ -1,6 +1,7 @@
 /* Nibble's sounds, synthesised with the Web Audio API (no audio files).
  * Sounds.play(kind) where kind is one of:
- *   chomp, crunch, squish, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party
+ *   chomp, crunch, squish, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party,
+ *   ooh (curious, for pointing at an outfit), excited (trying an outfit on)
  * Sounds.unlock() must run inside a tap once, so phones allow audio later.
  */
 (function (root) {
@@ -225,7 +226,19 @@
       noise(t, 0.06, 'bandpass', 1800, 1.5, env(t, 0.002, 0.05, 1.1));
       tone(t + 0.02, 0.14, 'sine', 620, 190, env(t + 0.02, 0.005, 0.13, 0.6));
     },
-    party: function (t) { chime(t, [523, 659, 784, 1047, 1319], 0.09, 1.1); }
+    party: function (t) { chime(t, [523, 659, 784, 1047, 1319], 0.09, 1.1); },
+    ooh: function (t) {
+      // a soft, curious "ooh?" that lifts at the end
+      tone(t, 0.2, 'triangle', rnd(480, 540), 860, env(t, 0.03, 0.18, 0.16));
+      tone(t, 0.2, 'sine', 960, 1700, env(t, 0.03, 0.16, 0.04));
+    },
+    excited: function (t) {
+      // two quick squeaky "kya!"s and a sparkle
+      tone(t, 0.11, 'triangle', 620, 1250, env(t, 0.01, 0.1, 0.26));
+      tone(t + 0.13, 0.15, 'triangle', 720, 1560, env(t + 0.13, 0.01, 0.14, 0.28));
+      tone(t + 0.13, 0.15, 'sine', 1440, 3100, env(t + 0.13, 0.01, 0.12, 0.05));
+      chime(t + 0.3, [1319, 1568, 2093], 0.06, 0.8);
+    }
   };
 
   root.Sounds = {

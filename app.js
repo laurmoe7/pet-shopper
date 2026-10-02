@@ -676,14 +676,70 @@
     save();
     refreshDressRoom();
     dressUp(pet, state.pet.outfit);
+    if (b.dataset.hat !== 'none') sound('excited');
+    var pointed = hoveredHat === b.dataset.hat;
+    dressSay(b.dataset.hat === 'none' ? 'fresh look!' : pointed ? pick(['how do I look?', 'I love it!', 'kawaii?', 'more outfits!', 'ta-da!']) : hatLine(b.dataset.hat), 1600);
     var view = dressPreview.querySelector('.pet');
     if (view) {
+      view.dataset.mouth = 'smile';
       view.dataset.eyes = b.dataset.hat === 'none' ? 'open' : 'happy';
       view.dataset.arms = b.dataset.hat === 'none' ? 'idle' : 'cheer';
       view.classList.remove('hop'); void view.offsetWidth; view.classList.add('hop');
     }
   });
+  // pointing at an unlocked outfit makes the pet react to it
+  var dressBubble = $('dressBubble'), dressBubbleTimer, hoveredHat = null, lastOoh = 0;
+  /**
+   * Shows a line from the pet in the dressing room (skipped in quiet mode).
+   * @param {string} text
+   * @param {number} ms
+   */
+  function dressSay(text, ms) {
+    if (state.quiet) return;
+    dressBubble.textContent = text;
+    dressBubble.hidden = false;
+    // restart the pop animation
+    dressBubble.style.animation = 'none'; void dressBubble.offsetWidth; dressBubble.style.animation = '';
+    clearTimeout(dressBubbleTimer);
+    dressBubbleTimer = setTimeout(function () { dressBubble.hidden = true; }, ms || 1600);
+  }
+  /**
+   * The pet's line for an outfit it is looking at.
+   * @param {string} id Hat id, or "none".
+   * @returns {string}
+   */
+  function hatLine(id) {
+    var item = wardrobeItem(id);
+    if (!item) return pick(['the natural look?', 'just me!', 'hat off?']);
+    return pick(item.lines || ['ooh!']);
+  }
+  /**
+   * Reacts when a finger or cursor lands on an unlocked hat that isn't being worn.
+   * @param {Event} e
+   */
+  function onHatHover(e) {
+    // a finger has no hover: on phones the tap itself gets the outfit's line
+    if (e.pointerType === 'touch') return;
+    var b = e.target.closest && e.target.closest('#hatStrip button');
+    if (!b || b.dataset.hat === hoveredHat) return;
+    hoveredHat = b.dataset.hat;
+    if (!unlocked('hat', b.dataset.hat) || b.dataset.hat === state.pet.outfit.hat) return;
+    dressSay(hatLine(b.dataset.hat), 1600);
+    var view = dressPreview.querySelector('.pet');
+    if (view) { view.dataset.eyes = 'sparkle'; view.dataset.mouth = 'open'; }
+    if (Date.now() - lastOoh > 500) { sound('ooh'); lastOoh = Date.now(); }
+  }
+  hatStrip.addEventListener('pointerover', onHatHover);
+  hatStrip.addEventListener('focusin', onHatHover);
+  hatStrip.addEventListener('pointerleave', function () {
+    hoveredHat = null;
+    var view = dressPreview.querySelector('.pet');
+    if (view && view.dataset.eyes === 'sparkle') { view.dataset.eyes = 'open'; view.dataset.mouth = 'smile'; }
+  });
+
   dressSheet.addEventListener('close', function () {
+    dressBubble.hidden = true;
+    hoveredHat = null;
     if (!busy) {
       setFace(FACES.tada); pulse('hop', 500);
       var item = wardrobeItem(state.pet.outfit.hat);
@@ -928,6 +984,40 @@
     var s = baseState();
     say(s === 'sleepy' || s === 'stuffed' ? 'zzz… snack?' : pick(['hi!', 'hungry!', 'shopping?', 'hehe']), 1200);
   });
+
+  // ---------- eyes follow your finger or cursor ----------
+  var lookAt = null, lookFrame = 0, lookTimer;
+  /** Points each visible pet's pupils towards the last finger or cursor position. */
+  function updateLook() {
+    lookFrame = 0;
+    document.querySelectorAll('.pet:not(.mini)').forEach(function (el) {
+      var eyes = el.querySelector('.pupils');
+      if (!eyes || !lookAt) {
+        el.style.removeProperty('--look-x'); el.style.removeProperty('--look-y'); el.classList.remove('looking');
+        return;
+      }
+      var r = eyes.getBoundingClientRect();
+      if (!r.width) return;
+      var dx = lookAt.x - (r.left + r.width / 2), dy = lookAt.y - (r.top + r.height / 2);
+      var d = Math.hypot(dx, dy) || 1;
+      var reach = Math.min(d / 120, 1);
+      el.style.setProperty('--look-x', (dx / d * 3.4 * reach).toFixed(2) + 'px');
+      el.style.setProperty('--look-y', (dy / d * 2.8 * reach).toFixed(2) + 'px');
+      el.classList.add('looking');
+    });
+  }
+  /**
+   * Remembers where the finger or cursor is and drifts the eyes back after a pause.
+   * @param {PointerEvent} e
+   */
+  function watchPointer(e) {
+    lookAt = { x: e.clientX, y: e.clientY };
+    if (!lookFrame) lookFrame = requestAnimationFrame(updateLook);
+    clearTimeout(lookTimer);
+    lookTimer = setTimeout(function () { lookAt = null; updateLook(); }, e.pointerType === 'mouse' ? 4000 : 1500);
+  }
+  document.addEventListener('pointermove', watchPointer, { passive: true });
+  document.addEventListener('pointerdown', watchPointer, { passive: true });
 
   // ---------- start: Nibble wakes up with a stretch ----------
   render();

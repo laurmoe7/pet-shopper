@@ -45,5 +45,6 @@ test('wardrobe hats have unique ids and a drawing', () => {
   for (const w of Wardrobe) {
     assert.equal(w.slot, 'hat');
     assert.match(w.svg, /^<g[\s\S]*<\/g>$/);
+    assert.ok(Array.isArray(w.lines) && w.lines.length > 0, w.id + ' needs dressing-room lines');
   }
 });
