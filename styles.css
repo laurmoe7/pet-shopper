@@ -184,6 +184,8 @@ button { font: inherit; color: inherit; }
 .muzzle { fill: #ffc9d2; stroke: var(--pet-ink); stroke-width: 1.8; }
 .nostril-dot { fill: var(--pet-ink); }
 .pet[data-species="cow"] .spot { opacity: .85; }
+/* the cow's mouth sits under its muzzle, like the pig's under its snout */
+.pet[data-species="cow"] [data-mouth] { translate: 0 6.5px; }
 .beak { fill: #ffb259; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
 
 /* species: colours and which parts show */
