@@ -37,27 +37,31 @@
         <svg viewBox="0 0 160 150" class="pet-svg" aria-hidden="true">
           <defs>
             <!-- a slight wobble so the lines look drawn by hand -->
-            <filter id="handdrawn" x="-10%" y="-10%" width="120%" height="120%">
-              <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7"/>
-              <feDisplacementMap in="SourceGraphic" scale="2.4"/>
-            </filter>
           </defs>
-          <g class="pet-body" filter="url(#handdrawn)">
+          <g class="pet-body">
             <ellipse class="foot" cx="58" cy="137" rx="11" ry="6"/>
             <ellipse class="foot" cx="102" cy="137" rx="11" ry="6"/>
             <g class="squish">
               <!-- species parts drawn behind the body -->
               <g data-sp="bunny">
-                <path class="ear" d="M58 52 C46 24 47 4 58 5 C69 6 72 28 70 46"/>
-                <path class="ear-in" d="M59 44 C52 26 53 13 58 13 C63 14 65 28 64 42"/>
-                <path class="ear" d="M102 52 C114 24 113 4 102 5 C91 6 88 28 90 46"/>
-                <path class="ear-in" d="M101 44 C108 26 107 13 102 13 C97 14 95 28 96 42"/>
+                <g class="ear-g ear-l">
+                  <path class="ear" d="M58 52 C46 24 47 4 58 5 C69 6 72 28 70 46"/>
+                  <path class="ear-in" d="M59 44 C52 26 53 13 58 13 C63 14 65 28 64 42"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <path class="ear" d="M102 52 C114 24 113 4 102 5 C91 6 88 28 90 46"/>
+                  <path class="ear-in" d="M101 44 C108 26 107 13 102 13 C97 14 95 28 96 42"/>
+                </g>
               </g>
               <g data-sp="kitty">
-                <path class="ear" d="M34 66 L40 28 Q42 22 47 25 L72 42"/>
-                <path class="ear-in" d="M41 52 L44 33 L58 43"/>
-                <path class="ear" d="M126 66 L120 28 Q118 22 113 25 L88 42"/>
-                <path class="ear-in" d="M119 52 L116 33 L102 43"/>
+                <g class="ear-g ear-l">
+                  <path class="ear" d="M34 66 L40 28 Q42 22 47 25 L72 42"/>
+                  <path class="ear-in" d="M41 52 L44 33 L58 43"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <path class="ear" d="M126 66 L120 28 Q118 22 113 25 L88 42"/>
+                  <path class="ear-in" d="M119 52 L116 33 L102 43"/>
+                </g>
               </g>
               <g data-sp="chick" class="tuft">
                 <path d="M74 41 C70 30 76 25 80 28 C78 31 78 35 79 39"/>
@@ -65,16 +69,24 @@
               </g>
 
               <g data-sp="hamster">
-                <circle class="ear" cx="50" cy="48" r="11"/>
-                <circle class="ear-in" cx="50" cy="48" r="6"/>
-                <circle class="ear" cx="110" cy="48" r="11"/>
-                <circle class="ear-in" cx="110" cy="48" r="6"/>
+                <g class="ear-g ear-l">
+                  <circle class="ear" cx="50" cy="48" r="11"/>
+                  <circle class="ear-in" cx="50" cy="48" r="6"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <circle class="ear" cx="110" cy="48" r="11"/>
+                  <circle class="ear-in" cx="110" cy="48" r="6"/>
+                </g>
               </g>
               <g data-sp="cow">
-                <ellipse class="ear" cx="30" cy="62" rx="13" ry="6.5" transform="rotate(-25 30 62)"/>
-                <ellipse class="ear-in" cx="30" cy="62" rx="7" ry="3" transform="rotate(-25 30 62)"/>
-                <ellipse class="ear" cx="130" cy="62" rx="13" ry="6.5" transform="rotate(25 130 62)"/>
-                <ellipse class="ear-in" cx="130" cy="62" rx="7" ry="3" transform="rotate(25 130 62)"/>
+                <g class="ear-g ear-l">
+                  <ellipse class="ear" cx="30" cy="62" rx="13" ry="6.5" transform="rotate(-25 30 62)"/>
+                  <ellipse class="ear-in" cx="30" cy="62" rx="7" ry="3" transform="rotate(-25 30 62)"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <ellipse class="ear" cx="130" cy="62" rx="13" ry="6.5" transform="rotate(25 130 62)"/>
+                  <ellipse class="ear-in" cx="130" cy="62" rx="7" ry="3" transform="rotate(25 130 62)"/>
+                </g>
                 <path class="horn" d="M60 46 C55 35 58 27 64 29 C64 34 66 39 69 42 Z"/>
                 <path class="horn" d="M100 46 C105 35 102 27 96 29 C96 34 94 39 91 42 Z"/>
               </g>
@@ -90,25 +102,33 @@
                 <path d="M22 98 l-10 -2 M22 104 l-10 2 M138 98 l10 -2 M138 104 l10 2"/>
               </g>
               <g data-sp="puppy">
-                <path class="ear" d="M42 52 C24 50 14 74 18 92 C21 102 32 100 36 90 C40 78 44 66 52 58"/>
-                <path class="ear" d="M118 52 C136 50 146 74 142 92 C139 102 128 100 124 90 C120 78 116 66 108 58"/>
+                <g class="ear-g ear-l">
+                  <path class="ear" d="M42 52 C24 50 14 74 18 92 C21 102 32 100 36 90 C40 78 44 66 52 58"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <path class="ear" d="M118 52 C136 50 146 74 142 92 C139 102 128 100 124 90 C120 78 116 66 108 58"/>
+                </g>
                 <ellipse class="spot" cx="102" cy="88" rx="11" ry="10"/>
               </g>
 
               <g data-sp="pig">
-                <path class="ear" d="M44 54 C38 40 42 30 49 33 C57 37 63 43 66 47 C59 50 52 53 44 54Z"/>
-                <path class="ear-in" d="M48 48 C46 41 48 37 51 39 C55 41 58 44 59 46 C55 47 52 48 48 48Z"/>
-                <path class="ear" d="M116 54 C122 40 118 30 111 33 C103 37 97 43 94 47 C101 50 108 53 116 54Z"/>
-                <path class="ear-in" d="M112 48 C114 41 112 37 109 39 C105 41 102 44 101 46 C105 47 108 48 112 48Z"/>
+                <g class="ear-g ear-l">
+                  <path class="ear" d="M44 54 C38 40 42 30 49 33 C57 37 63 43 66 47 C59 50 52 53 44 54Z"/>
+                  <path class="ear-in" d="M48 48 C46 41 48 37 51 39 C55 41 58 44 59 46 C55 47 52 48 48 48Z"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <path class="ear" d="M116 54 C122 40 118 30 111 33 C103 37 97 43 94 47 C101 50 108 53 116 54Z"/>
+                  <path class="ear-in" d="M112 48 C114 41 112 37 109 39 C105 41 102 44 101 46 C105 47 108 48 112 48Z"/>
+                </g>
               </g>
               <ellipse data-sp="hamster" class="belly" cx="80" cy="110" rx="50" ry="28"/>
               <path data-sp="penguin" class="belly" d="M80 58 C104 58 131 78 131 104 C131 126 110 135 80 135 C50 135 29 126 29 104 C29 78 56 58 80 58 Z"/>
               <g data-sp="cow">
                 <path class="spot" d="M30 84 C28 72 40 66 48 72 C55 77 50 90 42 92 C35 94 31 90 30 84 Z"/>
                 <path class="spot" d="M104 50 C110 44 124 48 126 58 C127 66 118 70 110 66 C103 62 100 55 104 50 Z"/>
-                <ellipse class="muzzle" cx="80" cy="105" rx="17" ry="9.5"/>
-                <ellipse class="nostril-dot" cx="73" cy="101" rx="1.6" ry="2"/>
-                <ellipse class="nostril-dot" cx="87" cy="101" rx="1.6" ry="2"/>
+                <ellipse class="muzzle" cx="80" cy="99" rx="14" ry="7.4"/>
+                <ellipse class="nostril-dot" cx="74.5" cy="99" rx="1.6" ry="2"/>
+                <ellipse class="nostril-dot" cx="85.5" cy="99" rx="1.6" ry="2"/>
               </g>
               <path data-sp="penguin" class="beak" d="M74 98 Q80 93 86 98 Q80 103 74 98Z"/>
               <ellipse class="redface" cx="80" cy="100" rx="56" ry="32"/>
@@ -175,6 +195,8 @@
               <!-- hats are drawn at a slightly bigger scale, centred on the top of the head -->
               <!-- full-size outfits such as hoodies cover the whole pet -->
               <g class="outfit-body"></g>
+              <!-- glasses sit over the eyes, alongside any hat -->
+              <g class="outfit-face"></g>
               <g transform="translate(80 45) scale(1.3) translate(-80 -40)"><g class="outfit-hat"></g></g>
               <!-- little nubbly arms -->
               <g class="arm arm-l"><ellipse cx="27" cy="117" rx="7" ry="9"/><ellipse class="arm-hi" cx="25" cy="114" rx="2.4" ry="3"/></g>
@@ -220,9 +242,13 @@
       </div></div>
       <div class="goal-toast" id="goalToast" role="status" aria-live="polite" hidden></div>
       <div class="stage-tools">
-        <button type="button" class="pill-btn" id="dressBtn">♡ Dress up</button>
-        <button type="button" class="pill-btn" id="editPetBtn" aria-label="Change your pet's name and species">✎ Edit pet</button>
-        <button type="button" class="pill-btn" id="goalsBtn" aria-label="Goals: unlock new pets and hats">★ Goals</button>
+        <button type="button" class="pill-btn menu-btn" id="petMenuBtn" aria-haspopup="true" aria-expanded="false" aria-controls="petMenu">✿ Pet <span class="caret" aria-hidden="true">▾</span></button>
+        <div class="pet-menu" id="petMenu" role="menu" hidden>
+          <button type="button" class="menu-item" role="menuitem" id="dressBtn">♡ Dress up</button>
+          <button type="button" class="menu-item" role="menuitem" id="roomBtn">⌂ Room</button>
+          <button type="button" class="menu-item" role="menuitem" id="editPetBtn" aria-label="Change your pet's name and species">✎ Edit pet</button>
+          <button type="button" class="menu-item" role="menuitem" id="goalsBtn" aria-label="Goals: unlock new pets and hats">★ Goals</button>
+        </div>
       </div>
     </div>
   </header>
@@ -270,10 +296,12 @@
 <dialog class="picker pet-sheet" id="petSheet" aria-labelledby="petSheetTitle">
   <form method="dialog" class="picker-inner" id="petForm">
     <h2 id="petSheetTitle">Your pet</h2>
-    <label class="field">
-      <span class="field-label">Name</span>
-      <input id="petNameInput" type="text" maxlength="16" autocomplete="off" enterkeyhint="done" placeholder="Nibble">
-    </label>
+    <div class="field">
+      <span class="field-label" id="petNameLabel">Name</span>
+      <button type="button" class="name-show" id="petNameShow" aria-describedby="petNameHint"><span id="petNameText">Nibble</span><span class="name-pen" aria-hidden="true">✎</span></button>
+      <input id="petNameInput" type="text" maxlength="16" autocomplete="off" enterkeyhint="done" placeholder="Nibble" aria-labelledby="petNameLabel" hidden>
+      <span class="name-hint" id="petNameHint">Double-tap the name to change it</span>
+    </div>
     <fieldset class="species">
       <legend class="field-label">Species</legend>
       <div class="species-grid" id="speciesGrid"></div>
@@ -281,7 +309,8 @@
     <fieldset class="species">
       <legend class="field-label">Personality</legend>
       <div class="hat-strip mood-strip" id="personalityStrip"></div>
-      <p class="decor-hint">Earned by what you feed it. Each one has its own favourite foods to daydream about and ask for.</p>
+      <p class="mood-info" id="personalityInfo" aria-live="polite"></p>
+      <p class="decor-hint">Earned by what you feed it. Each one has its own favourite foods and way of talking. Tap one to read about it.</p>
     </fieldset>
     <p class="lock-hint" id="speciesHint" aria-live="polite" hidden></p>
     <div class="picker-foot">
@@ -291,7 +320,7 @@
   </form>
 </dialog>
 
-<dialog class="picker pet-sheet" id="dressSheet" aria-labelledby="dressTitle">
+<dialog class="picker pet-sheet dress-full" id="dressSheet" aria-labelledby="dressTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="dressTitle">Dressing room</h2>
     <div class="dress-stage"><div class="dress-preview" id="dressPreview"></div><div class="dress-bubble" id="dressBubble" aria-live="polite" hidden></div></div>
@@ -299,14 +328,26 @@
       <legend class="field-label">Outfits</legend>
       <div class="hat-strip" id="hatStrip"></div>
     </fieldset>
-    <p class="lock-hint" id="hatHint" aria-live="polite" hidden></p>
     <fieldset class="species">
-      <legend class="field-label">Room</legend>
-      <div class="hat-strip decor-strip" id="decorStrip"></div>
-      <p class="decor-hint">Placed things sit behind your pet. Drag them around the room to move them.</p>
+      <legend class="field-label">Glasses</legend>
+      <div class="hat-strip" id="faceStrip"></div>
     </fieldset>
+    <p class="lock-hint" id="hatHint" aria-live="polite" hidden></p>
     <div class="picker-foot">
       <span class="hint">More outfits coming soon.</span>
+      <button value="done" class="add-btn">Done</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- furniture: a low panel that leaves the room above it in view, so you can place and drag things while it's open -->
+<dialog class="picker pet-sheet room-sheet" id="roomSheet" aria-labelledby="roomTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="roomTitle">Room</h2>
+    <div class="hat-strip decor-strip" id="decorStrip"></div>
+    <p class="decor-hint">Placed things sit behind your pet. Drag them around the room to move them.</p>
+    <div class="picker-foot">
+      <span class="hint">More furniture coming soon.</span>
       <button value="done" class="add-btn">Done</button>
     </div>
   </form>

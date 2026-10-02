@@ -81,3 +81,88 @@ test('personality and tastes are saved with the pet', () => {
   assert.equal(back.personality, 'chef');
   assert.deepEqual(back.tastes, { dairy: 1 });
 });
+
+const KEYS = ['hi', 'tap', 'sleepy', 'suggest', 'decline', 'dream', 'idle', 'look', 'room', 'full', 'quick', 'spit', 'name', 'health', 'home', 'stuff'];
+
+test('every personality has its own voice for every moment', () => {
+  const seen = new Map();
+  for (const p of Personalities) {
+    assert.ok(p.voice && p.voice.tone && p.voice.style, p.id);
+    for (const k of KEYS) {
+      assert.ok(Array.isArray(p.voice[k]) && p.voice[k].length, p.id + ' has ' + k + ' lines');
+      for (const line of p.voice[k]) {
+        for (const part of line.split('\n')) assert.ok(part.length <= 34, p.id + ' line is short: ' + part);
+        assert.ok(!seen.has(line), line + ' is used by both ' + seen.get(line) + ' and ' + p.id);
+        seen.set(line, p.id);
+      }
+    }
+    assert.ok(p.voice.suggest.every((l) => l.includes('{x}')), p.id + ' suggestions name the item');
+    assert.ok(p.voice.dream.every((l) => l.includes('{x}')), p.id + ' daydreams name the item');
+    assert.ok(p.voice.name.every((l) => l.includes('{name}')), p.id + ' says its name');
+  }
+});
+
+test('the tones Lauren asked for are all there', () => {
+  const tones = Personalities.map((p) => p.voice.tone);
+  for (const t of ['sassy', 'sweet', 'sleepy', 'excited']) assert.ok(tones.includes(t), t);
+  assert.equal(new Set(tones).size, tones.length, 'each personality sounds different');
+});
+
+test('a personality line fills in the item and keeps its own tone', () => {
+  const chef = Personalities.find((p) => p.voice.tone === 'sassy');
+  const first = () => 0;
+  assert.equal(L.voiceLine(chef, 'suggest', ['x'], { x: 'eggs' }, first), chef.voice.suggest[0].replace('{x}', 'eggs'));
+  const plain = { id: 'plain', lines: [] };
+  assert.equal(L.voiceLine(plain, 'tap', ['hi!'], {}, first), 'hi!', 'falls back without a voice');
+});
+
+test('other lines pick up the tone: sleepy is quiet and lower case, sweet adds hearts', () => {
+  const sleepy = Personalities.find((p) => p.voice.tone === 'sleepy');
+  const sweet = Personalities.find((p) => p.voice.tone === 'sweet');
+  const sassy = Personalities.find((p) => p.voice.tone === 'sassy');
+  const always = () => 0;
+  const never = () => 0.99;
+  assert.equal(L.styleLine(sleepy, 'HOT HOT HOT!', never), 'hot hot hot…');
+  assert.equal(L.styleLine(sweet, 'yum yum!', always), 'aww, yum yum' + sweet.voice.style.endings[0]);
+  assert.match(L.styleLine(sassy, 'tasty!', always), /^tasty, obviously$|^ugh, tasty, obviously$/);
+  assert.equal(L.styleLine(sweet, 'is it ok?', never), 'is it ok?', 'questions keep their ending');
+  assert.equal(L.styleLine(sleepy, 'Zzz… tea…', never, true), 'zzz… tea…');
+});
+
+test('talking in its sleep is quiet, slow and mumbly', () => {
+  const at = (r) => () => r;
+  assert.equal(L.sleepTalk('Hi hi hi!', at(0.1)), 'mm… hi… hi hi…');
+  assert.equal(L.sleepTalk("oh, it's you. hi.", at(0.5)), "*mumble* oh, it's you. hi…");
+  assert.equal(L.sleepTalk('Shopping?', at(0.7)), 'shopping… zzz');
+  assert.equal(L.sleepTalk('zzz… snack?', at(0.1)), 'zzz… snack…', 'already sleepy lines stay as they are');
+  for (const r of [0, 0.3, 0.6, 0.9]) {
+    const line = L.sleepTalk('YAY!! More please!', at(r));
+    assert.ok(!/[!A-Z]/.test(line), 'no shouting: ' + line);
+    assert.ok(line.includes('…'), 'trails off: ' + line);
+  }
+});
+
+test('each personality has a short description and a name that fits its quirk', () => {
+  for (const p of Personalities) {
+    assert.ok(p.blurb && p.blurb.length <= 44, p.id + ' blurb is short');
+    assert.ok(p.label.length <= 12, p.id + ' name fits a tile');
+  }
+  const byId = Object.fromEntries(Personalities.map((p) => [p.id, p]));
+  assert.equal(byId.diva.voice.tone, 'diva');
+  assert.equal(byId.nerd.voice.tone, 'nerdy');
+  assert.match(byId.chef.label, /Sassy/);
+  assert.match(byId.sipper.label, /Sleepy/);
+});
+
+test('the nerd follows its pi joke with a pie joke, in a second bubble', () => {
+  const nerd = Personalities.find((p) => p.id === 'nerd');
+  const line = L.voiceLine(nerd, 'sleepy', ['x'], {}, () => 0);
+  const [first, second] = line.split('\n');
+  assert.match(first, /pi is 3\.14/);
+  assert.match(second, /pie is for my belly/);
+});
+
+test('the diva is earned with drinks only', () => {
+  const diva = Personalities.find((p) => p.id === 'diva');
+  assert.deepEqual(diva.earn.cats, ['drink']);
+});

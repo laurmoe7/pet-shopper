@@ -37,6 +37,26 @@
     return img;
   }
 
+  // ---------- pet menu ----------
+  // Dress up, Edit pet and Goals sit in one drop-down; it closes when you pick one,
+  // tap anywhere else or press Escape.
+  (function () {
+    var btn = document.getElementById('petMenuBtn'), menu = document.getElementById('petMenu');
+    function setOpen(open, focusFirst) {
+      menu.hidden = !open;
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open && focusFirst) menu.querySelector('.menu-item').focus();
+    }
+    btn.addEventListener('click', function (e) { setOpen(menu.hidden, e.detail === 0); });
+    menu.addEventListener('click', function (e) { if (e.target.closest('.menu-item')) setOpen(false); });
+    document.addEventListener('pointerdown', function (e) {
+      if (!menu.hidden && !e.target.closest('.stage-tools')) setOpen(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !menu.hidden) { setOpen(false); btn.focus(); }
+    });
+  })();
+
   // ---------- elements ----------
   var $ = function (id) { return document.getElementById(id); };
   var pet = $('pet'), bubble = $('bubble'), todoEl = $('todo'), doneEl = $('done');
@@ -201,12 +221,15 @@
    * Shows a speech bubble, unless quiet mode is on.
    * @param {string} text
    * @param {number} [ms=1500] How long it stays.
+   * @param {boolean} [own] Already in the personality's voice (from `line`), so not restyled.
    */
-  function say(text, ms) {
+  function say(text, ms, own) {
     if (state.quiet || !state.settings.bubbles || !text) return;
     bubble.hidden = true;
     void bubble.offsetWidth;
-    bubble.textContent = text;
+    var line = own ? text : L.styleLine(personality(), text);
+    // talking in its sleep: mumbly and slow
+    bubble.textContent = pet.classList.contains('x-zzz') ? L.sleepTalk(line) : line;
     bubble.hidden = false;
     clearTimeout(bubbleTimer);
     bubbleTimer = setTimeout(function () { bubble.hidden = true; }, ms || 1500);
@@ -216,6 +239,20 @@
    * @param {T[]} list
    * @returns {T} A random entry.
    */
+  /**
+   * The current personality's line for a moment (see `voice` in personalities.js).
+   * @param {string} key
+   * @param {string[]} fallback
+   * @param {Object<string, string>} [vars]
+   * @returns {string}
+   */
+  function line(key, fallback, vars) { return L.voiceLine(personality(), key, fallback, vars); }
+  /** Says the personality's line for a moment; a two-part line comes in two bubbles. */
+  function talk(key, fallback, ms, vars) {
+    var parts = line(key, fallback, vars).split('\n');
+    say(parts[0], ms, true);
+    if (parts[1]) setTimeout(function () { say(parts[1], ms, true); }, (ms || 1500) + 150);
+  }
   function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
   /**
    * @param {number} ms
@@ -371,7 +408,9 @@
           crumbs(mouthPoint(), CRUMB_COLORS[item.cat] || '#e8b04a', 7);
         }
         sound(L.soundFor(item));
-        say(pick(r.lines), 1400);
+        // shop items that aren't food get a comment in the personality's voice
+        if (nonfood) talk(Foods.kindOf(item.emoji), r.lines, 1400);
+        else say(pick(r.lines), 1400);
         if (goals) goalToast(goals);
         var hold = 750 * sp;
         if (r.then) return wait(hold / 2).then(function () { setFace(r.then); return wait(hold / 2); });
@@ -381,14 +420,14 @@
           // its favourite kind of food: hearts and a happy wiggle
           setFace(FACES.love);
           pulse('hop', 460);
-          say(pick(personality().lines), 1300);
+          say(L.styleLine(personality(), pick(personality().lines), null, true), 1300);
           return wait(800 * sp);
         }
       }).then(function () {
         if (goals && goals.blocked === 'too-fast' && state.settings.fairPlayTips) {
           // a playful nudge rather than a telling-off
           setFace(FACES.suspicious);
-          say(pick(['did you really buy that?', 'hmm, that was quick…', 'straight from the list?']), 1600);
+          talk('quick', ['did you really buy that?', 'hmm, that was quick…', 'straight from the list?'], 1600);
           return wait(1100 * sp);
         }
       }).then(function () {
@@ -413,7 +452,7 @@
       if (btn) btn.classList.add('gone');
       var to = rect ? center(rect) : { x: innerWidth / 2, y: innerHeight - 40 };
       var p = fly(item.emoji, mouthPoint(), to, { duration: 520, scaleFrom: 0.5, scaleTo: 1, spin: -160, lift: 40 });
-      setTimeout(function () { setFace(FACES.sheepish); say(pick(['oops, sorry', 'spit! my bad', 'not yet? ok', 'ptoo!']), 1400); }, 200);
+      setTimeout(function () { setFace(FACES.sheepish); talk('spit', ['oops, sorry', 'spit! my bad', 'not yet? ok', 'ptoo!'], 1400); }, 200);
       return p.then(function () {
         if (btn) btn.classList.remove('gone');
         return wait(700);
@@ -430,7 +469,7 @@
     setFace(FACES.party);
     pulse('pat', 1700);
     sound('party');
-    say(pick(['so full! thank you!', 'best trip ever!', '*happy belly pat*']), 2200);
+    talk('full', ['so full! thank you!', 'best trip ever!', '*happy belly pat*'], 2200);
     buzz([20, 60, 20]);
     if (!reduceMotion) {
       var from = mouthPoint();
@@ -609,6 +648,7 @@
   function applyPet() {
     var name = petName();
     pet.dataset.species = state.pet.species;
+    pet.classList.toggle('beaked', L.isBird(state.pet.species));
     pet.setAttribute('aria-label', name + ', your pet');
     document.querySelectorAll('.pet-name').forEach(function (el) { el.textContent = name; });
     document.title = name + "'s List";
@@ -625,7 +665,7 @@
     b.type = 'button';
     b.dataset.species = sp.id;
     var mini = document.createElement('div');
-    mini.className = 'pet mini x-cheeks';
+    mini.className = 'pet mini x-cheeks' + (L.isBird(sp.id) ? ' beaked' : '');
     mini.dataset.species = sp.id;
     mini.dataset.eyes = 'open';
     mini.dataset.mouth = 'smile';
@@ -648,22 +688,57 @@
     applyPet();
     if (!busy) { setFace(FACES.tada); pulse('hop', 500); setTimeout(function () { if (!busy) settle(); }, 900); }
   });
-  petNameInput.addEventListener('input', function () {
-    state.pet.name = petNameInput.value.slice(0, 16);
-    save();
-    applyPet();
+  // The name shows as text; a double-tap (or Enter) turns it into a box to type in,
+  // so opening the sheet doesn't pop up the phone keyboard.
+  var petNameShow = $('petNameShow'), lastNameTap = 0;
+  function showName() {
+    $('petNameText').textContent = petName();
+    petNameInput.hidden = true;
+    petNameShow.hidden = false;
+  }
+  function startRename() {
+    petNameInput.value = state.pet.name || '';
+    petNameShow.hidden = true;
+    petNameInput.hidden = false;
+    petNameInput.focus();
+    petNameInput.select();
+  }
+  function finishRename(keep) {
+    if (petNameInput.hidden) return;
+    if (keep) {
+      state.pet.name = L.cleanName(petNameInput.value, petName());
+      save();
+      applyPet();
+    }
+    showName();
+    petNameShow.focus();
+  }
+  petNameShow.addEventListener('click', function (e) {
+    var now = Date.now();
+    // detail is 0 for keyboard clicks (Enter or Space): rename straight away
+    if (e.detail === 0 || L.isDoubleTap(lastNameTap, now)) { lastNameTap = 0; startRename(); return; }
+    lastNameTap = now;
+    petNameShow.classList.remove('nudge'); void petNameShow.offsetWidth; petNameShow.classList.add('nudge');
   });
+  petNameShow.addEventListener('dblclick', function (e) { e.preventDefault(); if (petNameInput.hidden) startRename(); });
+  petNameInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); finishRename(true); }
+    else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finishRename(false); }
+  });
+  petNameInput.addEventListener('blur', function () { finishRename(true); });
   $('editPetBtn').addEventListener('click', function () {
-    petNameInput.value = state.pet.name;
+    showName();
+    lastNameTap = 0;
     refreshLocks();
     applyPet();
     if (petSheet.showModal) petSheet.showModal(); else petSheet.setAttribute('open', '');
   });
   petSheet.addEventListener('close', function () {
+    finishRename(true);
     state.pet.name = petName();
     save();
     applyPet();
-    if (!busy) { pulse('hop', 500); say("I'm " + petName() + '!', 1500); }
+    if (!busy) { pulse('hop', 500); talk('name', ["I'm {name}!"], 1500, { name: petName() }); }
   });
   petSheet.addEventListener('click', function (e) { if (e.target === petSheet) petSheet.close(); });
 
@@ -684,30 +759,38 @@
   function dressUp(el, outfit) {
     var item = wardrobeItem(outfit.hat);
     var body = !!(item && item.layer === 'body');
+    var face = wardrobeItem(outfit.face);
     el.querySelector('.outfit-hat').innerHTML = item && !body ? item.svg : '';
     el.querySelector('.outfit-body').innerHTML = item && body ? item.svg : '';
+    el.querySelector('.outfit-face').innerHTML = face ? face.svg : '';
     el.classList.toggle('hooded', !!(item && item.hood));
   }
 
-  var dressSheet = $('dressSheet'), dressPreview = $('dressPreview'), hatStrip = $('hatStrip');
+  var dressSheet = $('dressSheet'), dressPreview = $('dressPreview'), hatStrip = $('hatStrip'), faceStrip = $('faceStrip');
   var SVGNS = 'http://www.w3.org/2000/svg';
-  [{ id: 'none', label: 'Nothing' }].concat(Wardrobe.filter(function (w) { return w.slot === 'hat'; })).forEach(function (item) {
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.dataset.hat = item.id;
-    var icon = document.createElementNS(SVGNS, 'svg');
-    icon.setAttribute('viewBox', item.id === 'none' ? '0 0 40 40' : item.icon || '32 2 96 60');
-    icon.setAttribute('aria-hidden', 'true');
-    icon.innerHTML = item.svg || '<circle class="hat-none" cx="20" cy="20" r="12"/><path class="hat-none" d="M11.5 28.5 L28.5 11.5"/>';
-    var label = document.createElement('span');
-    label.textContent = item.label;
-    b.append(icon, label);
-    hatStrip.appendChild(b);
+  // one strip per slot: hats (and hoodies) on the head, glasses on the face
+  [{ slot: 'hat', strip: hatStrip, none: 'Nothing' }, { slot: 'face', strip: faceStrip, none: 'No glasses' }].forEach(function (row) {
+    [{ id: 'none', label: row.none }].concat(Wardrobe.filter(function (w) { return w.slot === row.slot; })).forEach(function (item) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.hat = item.id;
+      b.dataset.slot = row.slot;
+      var icon = document.createElementNS(SVGNS, 'svg');
+      icon.setAttribute('viewBox', item.id === 'none' ? '0 0 40 40' : item.icon || '32 2 96 60');
+      icon.setAttribute('aria-hidden', 'true');
+      icon.innerHTML = item.svg || '<circle class="hat-none" cx="20" cy="20" r="12"/><path class="hat-none" d="M11.5 28.5 L28.5 11.5"/>';
+      var label = document.createElement('span');
+      label.textContent = item.label;
+      b.append(icon, label);
+      row.strip.appendChild(b);
+    });
   });
-  /** Marks the chosen hat in the dressing room and updates its preview. */
+  /** Every wardrobe button, hats and glasses. */
+  function wearButtons() { return dressSheet.querySelectorAll('#hatStrip button, #faceStrip button'); }
+  /** Marks the chosen hat and glasses in the dressing room and updates its preview. */
   function refreshDressRoom() {
-    hatStrip.querySelectorAll('button').forEach(function (b) {
-      b.setAttribute('aria-pressed', b.dataset.hat === state.pet.outfit.hat ? 'true' : 'false');
+    wearButtons().forEach(function (b) {
+      b.setAttribute('aria-pressed', b.dataset.hat === state.pet.outfit[b.dataset.slot] ? 'true' : 'false');
     });
     var view = dressPreview.querySelector('.pet');
     if (view) dressUp(view, state.pet.outfit);
@@ -715,7 +798,7 @@
   $('dressBtn').addEventListener('click', function () {
     // a live copy of the pet to try things on
     var view = document.createElement('div');
-    view.className = 'pet preview x-cheeks';
+    view.className = 'pet preview x-cheeks' + (L.isBird(state.pet.species) ? ' beaked' : '');
     view.dataset.species = state.pet.species;
     view.dataset.state = 'curious';
     view.dataset.eyes = 'open';
@@ -729,18 +812,19 @@
     refreshDressRoom();
     if (dressSheet.showModal) dressSheet.showModal(); else dressSheet.setAttribute('open', '');
   });
-  hatStrip.addEventListener('click', function (e) {
+  function onWearClick(e) {
     var b = e.target.closest('button');
     if (!b) return;
     if (!unlocked('hat', b.dataset.hat)) { lockHint(hatHint, 'hat', b.dataset.hat); return; }
     hatHint.hidden = true;
-    state.pet.outfit.hat = b.dataset.hat;
+    state.pet.outfit[b.dataset.slot] = b.dataset.hat;
     save();
     refreshDressRoom();
     dressUp(pet, state.pet.outfit);
     if (b.dataset.hat !== 'none') sound('excited');
     var pointed = hoveredHat === b.dataset.hat;
-    dressSay(b.dataset.hat === 'none' ? 'fresh look!' : pointed ? pick(['how do I look?', 'I love it!', 'kawaii?', 'more outfits!', 'ta-da!']) : hatLine(b.dataset.hat), 1600);
+    if (pointed && b.dataset.hat !== 'none') dressSay(line('look', ['how do I look?', 'I love it!', 'kawaii?', 'ta-da!']), 1600, true);
+    else dressSay(b.dataset.hat === 'none' ? 'fresh look!' : hatLine(b.dataset.hat), 1600);
     var view = dressPreview.querySelector('.pet');
     if (view) {
       view.dataset.mouth = 'smile';
@@ -751,7 +835,9 @@
       view.dataset.arms = b.dataset.hat === 'none' ? 'idle' : 'cheer';
       view.classList.remove('hop'); void view.offsetWidth; view.classList.add('hop');
     }
-  });
+  }
+  hatStrip.addEventListener('click', onWearClick);
+  faceStrip.addEventListener('click', onWearClick);
   // pointing at an unlocked outfit makes the pet react to it
   var dressBubble = $('dressBubble'), dressBubbleTimer, hoveredHat = null, lastOoh = 0;
   /**
@@ -759,9 +845,9 @@
    * @param {string} text
    * @param {number} ms
    */
-  function dressSay(text, ms) {
+  function dressSay(text, ms, own) {
     if (state.quiet || !state.settings.bubbles) return;
-    dressBubble.textContent = text;
+    dressBubble.textContent = own ? text : L.styleLine(personality(), text);
     dressBubble.hidden = false;
     // restart the pop animation
     dressBubble.style.animation = 'none'; void dressBubble.offsetWidth; dressBubble.style.animation = '';
@@ -775,7 +861,7 @@
    */
   function hatLine(id) {
     var item = wardrobeItem(id);
-    if (!item) return pick(['the natural look?', 'just me!', 'hat off?']);
+    if (!item) return pick(['the natural look?', 'just me!', 'all natural!']);
     return pick(item.lines || ['ooh!']);
   }
   /**
@@ -785,10 +871,10 @@
   function onHatHover(e) {
     // a finger has no hover: on phones the tap itself gets the outfit's line
     if (e.pointerType === 'touch') return;
-    var b = e.target.closest && e.target.closest('#hatStrip button');
+    var b = e.target.closest && e.target.closest('#hatStrip button, #faceStrip button');
     if (!b || b.dataset.hat === hoveredHat) return;
     hoveredHat = b.dataset.hat;
-    if (!unlocked('hat', b.dataset.hat) || b.dataset.hat === state.pet.outfit.hat) return;
+    if (!unlocked('hat', b.dataset.hat) || b.dataset.hat === state.pet.outfit[b.dataset.slot]) return;
     dressSay(hatLine(b.dataset.hat), 1600);
     var view = dressPreview.querySelector('.pet');
     if (view) sparkle(view);
@@ -806,21 +892,24 @@
     clearTimeout(sparkleTimer);
     sparkleTimer = setTimeout(function () { view.dataset.eyes = 'open'; view.dataset.mouth = 'smile'; }, 600);
   }
-  hatStrip.addEventListener('pointerover', onHatHover);
-  hatStrip.addEventListener('focusin', onHatHover);
-  hatStrip.addEventListener('pointerleave', function () {
+  [hatStrip, faceStrip].forEach(function (strip) {
+    strip.addEventListener('pointerover', onHatHover);
+    strip.addEventListener('focusin', onHatHover);
+    strip.addEventListener('pointerleave', onHatLeave);
+  });
+  function onHatLeave() {
     hoveredHat = null;
     var view = dressPreview.querySelector('.pet');
     if (view && view.dataset.eyes === 'sparkle') { view.dataset.eyes = 'open'; view.dataset.mouth = 'smile'; }
-  });
+  }
 
   dressSheet.addEventListener('close', function () {
     dressBubble.hidden = true;
     hoveredHat = null;
     if (!busy) {
       setFace(FACES.tada); pulse('hop', 500);
-      var item = wardrobeItem(state.pet.outfit.hat);
-      say(item ? pick(['so fancy!', 'how do I look?', 'kawaii?', 'ta-da!']) : 'fresh look!', 1500);
+      var item = wardrobeItem(state.pet.outfit.hat) || wardrobeItem(state.pet.outfit.face);
+      if (item) talk('look', ['so fancy!', 'how do I look?', 'kawaii?', 'ta-da!'], 1500); else say('fresh look!', 1500);
       setTimeout(function () { if (!busy) settle(); }, 1000);
     }
   });
@@ -889,8 +978,16 @@
     var placed = L.toggleDecor(state.pet.room, decorItem(b.dataset.decor));
     save();
     renderRoom();
-    if (placed) { sound('ooh'); dressSay(pick(['so cosy!', 'home sweet home!', 'I love it here!']), 1500); }
+    if (placed && !busy) { sound('ooh'); pulse('hop', 460); talk('room', ['so cosy!', 'home sweet home!', 'I love it here!'], 1500); }
   });
+  // the room panel opens without covering the room: the stage stays visible (and draggable) above it
+  var roomSheet = $('roomSheet');
+  $('roomBtn').addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+    renderRoom();
+    if (roomSheet.show) roomSheet.show(); else roomSheet.setAttribute('open', '');
+  });
+  roomSheet.addEventListener('keydown', function (e) { if (e.key === 'Escape') roomSheet.close(); });
 
   // drag placed decor around the room
   var drag = null;
@@ -1028,7 +1125,7 @@
   /** Brings every lock in the species grid and hat strip up to date. */
   function refreshLocks() {
     speciesGrid.querySelectorAll('button').forEach(function (b) { markLock(b, 'species', b.dataset.species); });
-    hatStrip.querySelectorAll('button').forEach(function (b) { markLock(b, 'hat', b.dataset.hat); });
+    wearButtons().forEach(function (b) { markLock(b, 'hat', b.dataset.hat); });
   }
   /**
    * Explains how to unlock a locked species or hat.
@@ -1171,7 +1268,8 @@
     pulse('hop', 460);
     var s = baseState();
     if (s !== 'stuffed' && Math.random() < 0.12 && offerSuggestion()) return;
-    say(s === 'sleepy' || s === 'stuffed' ? 'zzz… snack?' : pick(['hi!', 'hungry!', 'shopping?', 'hehe']), 1200);
+    if (s === 'sleepy' || s === 'stuffed') talk('sleepy', ['zzz… snack?'], 1200);
+    else talk('tap', ['hi!', 'hungry!', 'shopping?', 'hehe'], 1200);
   });
 
   // ---------- personalities ----------
@@ -1204,8 +1302,24 @@
     b.append(emojiImg(p.icon, ''), label);
     personalityStrip.appendChild(b);
   });
+  /**
+   * Shows a personality's name and short description under the strip.
+   * @param {Object} p
+   */
+  function describePersonality(p) {
+    var info = $('personalityInfo');
+    var name = document.createElement('b');
+    name.textContent = p.label + ': ';
+    info.replaceChildren(name, document.createTextNode(p.blurb));
+  }
+  personalityStrip.addEventListener('pointerover', function (e) {
+    var b = e.target.closest('button');
+    if (b && e.pointerType === 'mouse') describePersonality(Personalities.filter(function (x) { return x.id === b.dataset.personality; })[0]);
+  });
+  personalityStrip.addEventListener('pointerleave', function () { describePersonality(personality()); });
   /** Marks the current personality and shows locks and progress on the rest. */
   function renderPersonalities() {
+    describePersonality(personality());
     personalityStrip.querySelectorAll('button').forEach(function (b) {
       var p = Personalities.filter(function (x) { return x.id === b.dataset.personality; })[0];
       var prog = L.personalityProgress(state.pet, p);
@@ -1222,6 +1336,7 @@
     if (!b) return;
     var p = Personalities.filter(function (x) { return x.id === b.dataset.personality; })[0];
     var prog = L.personalityProgress(state.pet, p);
+    describePersonality(p);
     if (!prog.done) {
       speciesHint.textContent = '🔒 ' + p.label + ': ' + p.text + ' (' + prog.count + '/' + prog.goal + ').';
       speciesHint.hidden = false;
@@ -1257,7 +1372,7 @@
     lastSuggestion = Date.now();
     clearTimeout(suggestTimer);
     suggestTimer = setTimeout(function () { suggestEl.hidden = true; }, 15000);
-    say(pick(['ooh, how about ' + text.toLowerCase() + '?', 'can we get ' + text.toLowerCase() + '?', text.toLowerCase() + ', please?']), 1800);
+    talk('suggest', ['ooh, how about {x}?', 'can we get {x}?', '{x}, please?'], 1800, { x: text.toLowerCase() });
     return true;
   }
   suggestBtn.addEventListener('click', function () {
@@ -1266,7 +1381,7 @@
   });
   $('suggestNo').addEventListener('click', function () {
     suggestEl.hidden = true;
-    if (!busy) { setFace(FACES.sheepish); say(pick(['ok, maybe next time', 'aww, fine']), 1200); setTimeout(function () { if (!busy) settle(); }, 1000); }
+    if (!busy) { setFace(FACES.sheepish); talk('decline', ['ok, maybe next time', 'aww, fine'], 1200); setTimeout(function () { if (!busy) settle(); }, 1000); }
   });
 
   // ---------- options ----------
@@ -1375,7 +1490,7 @@
   /** One idle moment, when nothing else is going on. */
   function idle() {
     scheduleDream();
-    if (busy || dreaming || document.hidden || document.querySelector('dialog[open]')) return;
+    if (busy || dreaming || document.hidden || document.querySelector('dialog[open]:not(#roomSheet)')) return;
     if (state.settings.daydreams && Math.random() < 0.4) daydream();
     else idleMove();
   }
@@ -1406,7 +1521,7 @@
       setFace(FACES.love);
       pulse('hop', 460);
       sound('ooh');
-      say(pick(['ooh, ' + item.text.toLowerCase() + '!', 'can\'t wait!', 'my favourite!']), 1600);
+      talk('dream', ['ooh, {x}!', 'can\'t wait!', 'my favourite!'], 1600, { x: item.text.toLowerCase() });
     } else {
       setFace(FACES.dreamy);
     }
@@ -1463,7 +1578,10 @@
     { moods: ['happy'], run: function () { setFace(FACES.tada); pulse('twirl', 800); } },
     { moods: ['happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); } },
     { moods: ['happy'], run: function () { if (!cartEl.hidden) { setFace({ eyes: 'open', mouth: 'open', arms: 'reach', x: [] }); pulse('peek', 1400); say(pick(['what\'s in the cart?', 'so much loot!', 'cart buddy!']), 1300); } } },
-    { moods: ['curious'], run: function () { setFace({ eyes: 'open', mouth: 'o', arms: 'scratch', x: ['question'] }); say(pick(['what\'s next?', 'shopping time?']), 1300); } },
+    { moods: ['curious'], run: function () { setFace({ eyes: 'open', mouth: 'o', arms: 'scratch', x: ['question'] }); talk('idle', ['what\'s next?', 'shopping time?'], 1300); } },
+    // little dances
+    { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('shuffle', 1500); hum(); } },
+    { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'reach', x: ['sparkles', 'cheeks'] }); pulse('boogie', 1500); hum(); } },
     { moods: ['sleepy', 'stuffed'], run: function () { pulse('wiggle', 900); } },
     { moods: ['stuffed'], run: function () { setFace({ eyes: 'closed', mouth: 'smile', arms: 'pat', x: ['zzz', 'cheeks'] }); } }
   ];
@@ -1523,7 +1641,7 @@
       setFace(FACES.wake);
       pulse('stretch', 1000);
       var away = Date.now() - (state.lastOpen || 0);
-      say(away > 6 * 3600 * 1000 ? '*yaaawn* hi!' : 'oh, hi!', 1400);
+      if (away > 6 * 3600 * 1000) say('*yaaawn* hi!', 1400); else talk('hi', ['oh, hi!'], 1400);
       setTimeout(function () { busy--; if (!busy) settle(); }, 1000);
     }, 700);
   }
