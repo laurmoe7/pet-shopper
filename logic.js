@@ -13,6 +13,7 @@
    * @property {string} emoji  The emoji shown for it.
    * @property {string} cat    Food category, e.g. "fruit", "drink", "nonfood", "mystery".
    * @property {boolean} done  True once checked off (eaten).
+   * @property {number} [added]  When it was put on the list (ms since 1970). Older saves have none.
    */
 
   /**
@@ -20,6 +21,26 @@
    * @property {string} name
    * @property {string} species  One of the species ids, e.g. "mochi", "pig", "penguin".
    * @property {{hat: string}} outfit  Wardrobe item id per slot; "none" for no hat.
+   * @property {Object<string, Progress>} achievements  Progress per achievement id.
+   * @property {Guard} guard  What the anti-cheat rules remember.
+   * @property {string} personality  Id from personalities.js; "foodie" to start.
+   * @property {Object<string, number>} tastes  How many of each food category it has eaten.
+   * @property {Object<string, {x: number, y: number}>} room  Placed decor by id, with its
+   *   spot in the room (0 to 1 across and down).
+   */
+
+  /**
+   * @typedef {Object} Guard
+   * @property {string} day       The calendar day the words list is for.
+   * @property {string[]} words   Item words that already counted that day.
+   * @property {number} lastSeen  The latest clock time seen when counting (ms).
+   */
+
+  /**
+   * @typedef {Object} Progress
+   * @property {number} count  Total counted towards the goal.
+   * @property {string} day    The calendar day (YYYY-MM-DD) of the last count.
+   * @property {number} today  How many were counted on that day.
    */
 
   var SAMPLE = ['Bananas', 'Oat milk', '500g Quark', 'Broccoli', 'Chili flakes', 'Dark chocolate', 'Toilet paper', "Oma's cake"];
@@ -42,11 +63,14 @@
    * @param {string} text
    * @param {Object<string, string>} overrides
    * @param {string} id
+   * @param {number} [added]  When it was put on the list (ms); counts towards goals only after a while.
    * @returns {Item}
    */
-  function createItem(text, overrides, id) {
+  function createItem(text, overrides, id, added) {
     var found = emojiFor(text, overrides);
-    return { id: id, text: text, emoji: found.emoji, cat: found.cat, done: false };
+    var item = { id: id, text: text, emoji: found.emoji, cat: found.cat, done: false };
+    if (typeof added === 'number') item.added = added;
+    return item;
   }
 
   /**
@@ -61,7 +85,16 @@
     return {
       name: typeof saved.name === 'string' ? saved.name : 'Nibble',
       species: saved.species || 'mochi',
-      outfit: { hat: (saved.outfit && saved.outfit.hat) || 'none' }
+      outfit: { hat: (saved.outfit && saved.outfit.hat) || 'none' },
+      achievements: saved.achievements && typeof saved.achievements === 'object' ? saved.achievements : {},
+      room: saved.room && typeof saved.room === 'object' ? saved.room : {},
+      personality: saved.personality || 'foodie',
+      tastes: saved.tastes && typeof saved.tastes === 'object' ? saved.tastes : {},
+      guard: {
+        day: (saved.guard && saved.guard.day) || '',
+        words: (saved.guard && Array.isArray(saved.guard.words)) ? saved.guard.words : [],
+        lastSeen: (saved.guard && saved.guard.lastSeen) || 0
+      }
     };
   }
 
@@ -169,7 +202,363 @@
     return CAT_SOUNDS[item.cat] || 'chomp';
   }
 
+  // ---------- achievements ----------
+
+  /**
+   * The phone's local calendar day, used to reset the daily limits at midnight.
+   * @param {Date} date
+   * @returns {string} e.g. "2026-10-02"
+   */
+  function dayKey(date) {
+    var m = date.getMonth() + 1, d = date.getDate();
+    return date.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (d < 10 ? '0' : '') + d;
+  }
+
+  /**
+   * @param {Object} ach  An entry from achievements.js.
+   * @param {{emoji: string, cat: string}} item
+   * @returns {boolean} True if eating this item counts towards the achievement.
+   */
+  function countsFor(ach, item) {
+    if (!ach.foods) return false;
+    if (ach.foods.emojis && ach.foods.emojis.indexOf(item.emoji) !== -1) return true;
+    return !!(ach.foods.cats && ach.foods.cats.indexOf(item.cat) !== -1);
+  }
+
+  /**
+   * Adds one to an achievement unless it is finished or today's limit is used up.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {Object} ach
+   * @param {string} today  dayKey of now.
+   * @returns {'counted'|'capped'|'done'}
+   */
+  function bump(profile, ach, today) {
+    var p = profile.achievements[ach.id] || { count: 0, day: today, today: 0 };
+    if (p.count >= ach.goal) return 'done';
+    if (p.day !== today) { p.day = today; p.today = 0; }
+    if (p.today >= ach.perDay) return 'capped';
+    p.count++;
+    p.today++;
+    profile.achievements[ach.id] = p;
+    return 'counted';
+  }
+
+  // ---------- fair play ----------
+  // Goals should reward real shopping, so a few rules stop the quick tricks.
+
+  /** An item has to sit on the list this long before eating it counts (15 minutes). */
+  var FRESH_MS = 15 * 60 * 1000;
+  /** How far the clock may slip backwards (e.g. a network time fix) before counting pauses. */
+  var CLOCK_SLACK_MS = 10 * 60 * 1000;
+  /** A finished list counts as a shopping trip only with at least this many items. */
+  var TRIP_MIN_ITEMS = 3;
+
+  /**
+   * @param {Item} item
+   * @returns {string} The word that identifies the item for the once-a-day rule.
+   */
+  function wordOf(item) { return item.text ? Foods.normalize(item.text) : item.emoji; }
+
+  /**
+   * @param {Item} item
+   * @param {Date} now
+   * @returns {boolean} True if the item was on the list long enough to count.
+   *   Items from older saves, with no time, count.
+   */
+  function isFresh(item, now) {
+    return typeof item.added !== 'number' || now.getTime() - item.added >= FRESH_MS;
+  }
+
+  /**
+   * Checks the phone's clock against the latest time seen. If it went back,
+   * counting pauses until real time catches up, so changing the date doesn't help.
+   * @param {PetProfile} profile  Changed in place: remembers the latest time.
+   * @param {Date} now
+   * @returns {boolean} True if the clock looks fine.
+   */
+  function clockOk(profile, now) {
+    var t = now.getTime();
+    if (t < profile.guard.lastSeen - CLOCK_SLACK_MS) return false;
+    if (t > profile.guard.lastSeen) profile.guard.lastSeen = t;
+    return true;
+  }
+
+  /**
+   * @param {PetProfile} profile
+   * @param {string} today  dayKey of now.
+   * @returns {string[]} The words that already counted today (reset on a new day).
+   */
+  function wordsToday(profile, today) {
+    if (profile.guard.day !== today) { profile.guard.day = today; profile.guard.words = []; }
+    return profile.guard.words;
+  }
+
+  /**
+   * @typedef {Object} RecordResult
+   * @property {string[]} counted   Achievement ids that went up by one.
+   * @property {string[]} capped    Achievement ids that matched but hit today's limit.
+   * @property {Object[]} unlocked  Achievements finished by this, with their rewards.
+   * @property {?string} blocked    Why nothing counted: 'too-fast' (just added),
+   *   'repeat' (same word already counted today), 'clock' (clock went back),
+   *   'small-trip' (list too short), or null.
+   */
+
+  /**
+   * Counts an eaten item towards every matching achievement, within the daily
+   * limits and the fair-play rules.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {Item} item
+   * @param {Date} now
+   * @param {Object[]} achievements  The list from achievements.js.
+   * @returns {RecordResult}
+   */
+  function recordEaten(profile, item, now, achievements) {
+    var matching = achievements.filter(function (a) { return countsFor(a, item); });
+    if (!matching.length) return result(null);
+    if (!clockOk(profile, now)) return result('clock');
+    if (!isFresh(item, now)) return result('too-fast');
+    var today = dayKey(now);
+    var words = wordsToday(profile, today);
+    var word = wordOf(item);
+    if (words.indexOf(word) !== -1) return result('repeat');
+    var out = record(profile, today, matching);
+    if (out.counted.length) words.push(word);
+    return out;
+  }
+
+  /**
+   * Counts a finished shopping trip (whole list eaten) towards trip achievements.
+   * Only lists with enough items that were on the list for a while count.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {Item[]} items  The finished list.
+   * @param {Date} now
+   * @param {Object[]} achievements
+   * @returns {RecordResult}
+   */
+  function recordTrip(profile, items, now, achievements) {
+    var matching = achievements.filter(function (a) { return a.trips; });
+    if (!matching.length) return result(null);
+    if (!clockOk(profile, now)) return result('clock');
+    var real = items.filter(function (i) { return isFresh(i, now); }).length;
+    if (real < TRIP_MIN_ITEMS) return result('small-trip');
+    return record(profile, dayKey(now), matching);
+  }
+
+  /**
+   * @param {?string} blocked
+   * @returns {RecordResult} An empty result.
+   */
+  function result(blocked) { return { counted: [], capped: [], unlocked: [], blocked: blocked }; }
+
+  /**
+   * @param {PetProfile} profile
+   * @param {string} today  dayKey of now.
+   * @param {Object[]} matching  Achievements to bump.
+   * @returns {RecordResult}
+   */
+  function record(profile, today, matching) {
+    var out = result(null);
+    matching.forEach(function (ach) {
+      var r = bump(profile, ach, today);
+      if (r === 'counted') {
+        out.counted.push(ach.id);
+        if (profile.achievements[ach.id].count >= ach.goal) out.unlocked.push(ach);
+      } else if (r === 'capped') {
+        out.capped.push(ach.id);
+      }
+    });
+    return out;
+  }
+
+  /**
+   * Takes back counts when an item is put back on the list the same day, so checking
+   * and unchecking cannot be used to farm progress. Finished achievements stay finished.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {Item} item  The item being put back, with the `counted` ids and
+   *   `countedDay` the app stored when it was eaten.
+   * @param {Date} now
+   * @param {Object[]} achievements
+   */
+  function refundEaten(profile, item, now, achievements) {
+    var today = dayKey(now);
+    var ids = item.counted;
+    if (!ids || !ids.length || item.countedDay !== today) return;
+    ids.forEach(function (id) {
+      var ach = achievements.filter(function (a) { return a.id === id; })[0];
+      var p = profile.achievements[id];
+      if (!ach || !p || p.count >= ach.goal || p.day !== today || p.today <= 0) return;
+      p.count--;
+      p.today--;
+    });
+    if (profile.guard.day === today) {
+      var at = profile.guard.words.indexOf(wordOf(item));
+      if (at !== -1) profile.guard.words.splice(at, 1);
+    }
+  }
+
+  /**
+   * Where an achievement stands right now.
+   * @param {PetProfile} profile
+   * @param {Object} ach
+   * @param {Date} now
+   * @returns {{count: number, goal: number, today: number, perDay: number, done: boolean}}
+   */
+  function progress(profile, ach, now) {
+    var p = profile.achievements[ach.id] || { count: 0, day: '', today: 0 };
+    var count = Math.min(p.count, ach.goal);
+    return {
+      count: count,
+      goal: ach.goal,
+      today: p.day === dayKey(now) ? p.today : 0,
+      perDay: ach.perDay,
+      done: count >= ach.goal
+    };
+  }
+
+  /**
+   * Whether a species or hat can be used. Free items always can; items that an
+   * achievement unlocks need that achievement finished; anything else is open.
+   * @param {PetProfile} profile
+   * @param {'species'|'hat'} kind
+   * @param {string} id
+   * @param {Object[]} achievements
+   * @param {{species: string[], hat: string[]}} free
+   * @returns {boolean}
+   */
+  function isUnlocked(profile, kind, id, achievements, free) {
+    if (free[kind] && free[kind].indexOf(id) !== -1) return true;
+    var gate = achievements.filter(function (a) { return a.unlocks && a.unlocks.kind === kind && a.unlocks.id === id; })[0];
+    if (!gate) return true;
+    var p = profile.achievements[gate.id];
+    return !!p && p.count >= gate.goal;
+  }
+
+  /**
+   * The achievement that unlocks a species or hat, if any.
+   * @param {'species'|'hat'} kind
+   * @param {string} id
+   * @param {Object[]} achievements
+   * @returns {?Object}
+   */
+  function gateFor(kind, id, achievements) {
+    return achievements.filter(function (a) { return a.unlocks && a.unlocks.kind === kind && a.unlocks.id === id; })[0] || null;
+  }
+
+  // ---------- personalities ----------
+
+  /**
+   * Counts an eaten food towards the personalities. Like goals, it only counts
+   * once the item has been on the list for a while.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {Item} item
+   * @param {Date} now
+   * @returns {boolean} True if it counted (the app keeps this to undo it).
+   */
+  function recordTaste(profile, item, now) {
+    if (item.cat === 'nonfood' || item.cat === 'mystery' || !isFresh(item, now)) return false;
+    profile.tastes[item.cat] = (profile.tastes[item.cat] || 0) + 1;
+    return true;
+  }
+
+  /**
+   * Takes a taste back when an eaten item is put back on the list.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {Item} item
+   */
+  function refundTaste(profile, item) {
+    if (profile.tastes[item.cat] > 0) profile.tastes[item.cat]--;
+  }
+
+  /**
+   * How close a personality is to unlocking.
+   * @param {PetProfile} profile
+   * @param {Object} personality  An entry from personalities.js.
+   * @returns {{count: number, goal: number, done: boolean}}
+   */
+  function personalityProgress(profile, personality) {
+    if (!personality.earn) return { count: 0, goal: 0, done: true };
+    var count = personality.earn.cats.reduce(function (n, c) { return n + (profile.tastes[c] || 0); }, 0);
+    var goal = personality.earn.count;
+    return { count: Math.min(count, goal), goal: goal, done: count >= goal };
+  }
+
+  /**
+   * @param {Object} personality
+   * @param {{cat: string}} item
+   * @returns {boolean} True if this personality gets excited about the item.
+   */
+  function likes(personality, item) {
+    return !!personality && personality.likes.indexOf(item.cat) !== -1;
+  }
+
+  /**
+   * Picks something for the pet to ask for: one of its personality's favourites
+   * that isn't already on the list.
+   * @param {Object} personality
+   * @param {Item[]} items  The current list.
+   * @param {function(): number} [random]  Defaults to Math.random.
+   * @returns {?string} The item text, or null if everything is already on the list.
+   */
+  function suggestion(personality, items, random) {
+    var have = items.filter(function (i) { return !i.done; }).map(function (i) { return Foods.normalize(i.text); });
+    var options = personality.suggests.filter(function (t) { return have.indexOf(Foods.normalize(t)) === -1; });
+    if (!options.length) return null;
+    return options[Math.floor((random || Math.random)() * options.length)];
+  }
+
+  // ---------- room decor ----------
+
+  /**
+   * Keeps a spot inside the room.
+   * @param {number} n
+   * @returns {number} Between 0 and 1.
+   */
+  function clamp01(n) { return Math.max(0, Math.min(1, Number(n) || 0)); }
+
+  /**
+   * Puts a decor item in the room at its default spot, or takes it out if it is there.
+   * @param {Object<string, {x: number, y: number}>} room  Changed in place.
+   * @param {{id: string, x: number, y: number}} item  An entry from decor.js.
+   * @returns {boolean} True if the item is now in the room.
+   */
+  function toggleDecor(room, item) {
+    if (room[item.id]) { delete room[item.id]; return false; }
+    room[item.id] = { x: clamp01(item.x), y: clamp01(item.y) };
+    return true;
+  }
+
+  /**
+   * Moves a placed decor item to a new spot, kept inside the room.
+   * @param {Object<string, {x: number, y: number}>} room  Changed in place.
+   * @param {string} id
+   * @param {number} x  0 (left) to 1 (right).
+   * @param {number} y  0 (top) to 1 (bottom).
+   * @returns {boolean} False if the item is not in the room.
+   */
+  function moveDecor(room, id, x, y) {
+    if (!room[id]) return false;
+    room[id] = { x: clamp01(x), y: clamp01(y) };
+    return true;
+  }
+
   root.PetLogic = {
+    recordTaste: recordTaste,
+    refundTaste: refundTaste,
+    personalityProgress: personalityProgress,
+    likes: likes,
+    suggestion: suggestion,
+    toggleDecor: toggleDecor,
+    moveDecor: moveDecor,
+    FRESH_MS: FRESH_MS,
+    TRIP_MIN_ITEMS: TRIP_MIN_ITEMS,
+    dayKey: dayKey,
+    countsFor: countsFor,
+    recordEaten: recordEaten,
+    recordTrip: recordTrip,
+    refundEaten: refundEaten,
+    progress: progress,
+    isUnlocked: isUnlocked,
+    gateFor: gateFor,
     emojiFor: emojiFor,
     createItem: createItem,
     petProfile: petProfile,

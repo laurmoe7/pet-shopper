@@ -31,3 +31,8 @@ test('every food maps to a sound the sound kit can play', () => {
     assert.ok(Sounds.kinds.includes(kind), `${e} -> ${kind}`);
   }
 });
+
+test('the dressing room sounds exist', () => {
+  assert.ok(Sounds.kinds.includes('ooh'));
+  assert.ok(Sounds.kinds.includes('excited'));
+});

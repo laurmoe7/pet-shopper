@@ -19,7 +19,7 @@
 <div class="app">
   <header class="scene" id="scene">
     <div class="scene-bar">
-      <h1 class="brand"><span class="pet-name" id="brandName">Nibble</span><span class="brand-sub">'s list</span><span class="brand-jp" lang="ja" title="mogu mogu: munch munch">もぐもぐ</span></h1>
+      <h1 class="brand"><span class="pet-name" id="brandName">Nibble</span><span class="brand-sub">'s list</span></h1>
       <div class="scene-tools">
         <span class="tally" id="tally" aria-live="polite"></span>
         <button class="pill-btn" id="quietBtn" type="button" aria-pressed="false" title="Quiet mode: no sounds or speech bubbles">Quiet</button>
@@ -27,7 +27,11 @@
     </div>
 
     <div class="stage">
+      <!-- the room behind the pet: decor you place from the dressing room -->
+      <div class="room" id="room"></div>
       <div class="bubble" id="bubble" role="status" aria-live="polite" hidden></div>
+      <!-- a daydream: a thought cloud with something from the list -->
+      <div class="dream" id="dream" aria-hidden="true" hidden><span class="dream-dot d1"></span><span class="dream-dot d2"></span><span class="dream-cloud" id="dreamCloud"></span></div>
       <div class="pet" id="pet" data-state="sleepy" data-species="mochi" data-arms="rest" aria-label="Nibble, your pet">
         <svg viewBox="0 0 160 150" class="pet-svg" aria-hidden="true">
           <defs>
@@ -168,6 +172,8 @@
               </g>
               <path data-sp="chick" class="beak" d="M75 99 Q80 95 85 99 Q80 103 75 99Z"/>
               <!-- hats are drawn at a slightly bigger scale, centred on the top of the head -->
+              <!-- full-size outfits such as hoodies cover the whole pet -->
+              <g class="outfit-body"></g>
               <g transform="translate(80 45) scale(1.3) translate(-80 -40)"><g class="outfit-hat"></g></g>
               <!-- little nubbly arms -->
               <g class="arm arm-l"><ellipse cx="27" cy="117" rx="7" ry="9"/><ellipse class="arm-hi" cx="25" cy="114" rx="2.4" ry="3"/></g>
@@ -200,9 +206,22 @@
         <div class="tummy" id="tummy" aria-hidden="true"></div>
       </div>
       <div class="cushion" aria-hidden="true"></div>
+      <!-- the pet's little shopping cart, out once you start ticking things off -->
+      <div class="cart" id="cart" aria-hidden="true" hidden>
+        <div class="cart-load" id="cartLoad"></div>
+        <svg viewBox="0 0 64 52" class="cart-svg">
+          <path class="cart-handle" d="M4 8 H12 L16 14"/>
+          <path class="cart-basket" d="M14 14 H60 L55 36 Q54 39 51 39 H22 Q19 39 18 36 Z"/>
+          <path class="cart-grid" d="M25 15 L27 38 M36 15 V38 M47 15 L45 38 M16 22 H58 M18 30 H56"/>
+          <circle class="cart-wheel" cx="24" cy="46" r="4.5"/><circle class="cart-wheel" cx="50" cy="46" r="4.5"/>
+          <path class="cart-heart" d="M37 27 c-1.2 -2 -4.4 -.8 -3 1.4 l3 3 l3 -3 c1.4 -2.2 -1.8 -3.4 -3 -1.4z"/>
+        </svg>
+      </div>
+      <div class="goal-toast" id="goalToast" role="status" aria-live="polite" hidden></div>
       <div class="stage-tools">
         <button type="button" class="pill-btn" id="dressBtn">♡ Dress up</button>
         <button type="button" class="pill-btn" id="editPetBtn" aria-label="Change your pet's name and species">✎ Edit pet</button>
+        <button type="button" class="pill-btn" id="goalsBtn" aria-label="Goals: unlock new pets and hats">★ Goals</button>
       </div>
     </div>
   </header>
@@ -214,6 +233,11 @@
       <span class="add-preview" id="addPreview" aria-hidden="true"></span>
       <button type="submit" class="add-btn" aria-label="Add item">Add</button>
     </form>
+    <div class="suggest" id="suggest" hidden>
+      <span class="suggest-label"><span class="pet-name">Nibble</span> suggests</span>
+      <button type="button" class="suggest-btn" id="suggestBtn"></button>
+      <button type="button" class="text-btn suggest-no" id="suggestNo" aria-label="No thanks">✕</button>
+    </div>
 
     <ul class="items" id="todo" aria-label="To buy"></ul>
     <p class="empty" id="emptyHint"><span class="pet-name">Nibble</span> is napping. Add something to the list to wake it up.</p>
@@ -253,6 +277,12 @@
       <legend class="field-label">Species</legend>
       <div class="species-grid" id="speciesGrid"></div>
     </fieldset>
+    <fieldset class="species">
+      <legend class="field-label">Personality</legend>
+      <div class="hat-strip mood-strip" id="personalityStrip"></div>
+      <p class="decor-hint">Earned by what you feed it. Each one has its own favourite foods to daydream about and ask for.</p>
+    </fieldset>
+    <p class="lock-hint" id="speciesHint" aria-live="polite" hidden></p>
     <div class="picker-foot">
       <span></span>
       <button value="done" class="add-btn">Done</button>
@@ -263,10 +293,16 @@
 <dialog class="picker pet-sheet" id="dressSheet" aria-labelledby="dressTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="dressTitle">Dressing room</h2>
-    <div class="dress-stage"><div class="dress-preview" id="dressPreview"></div></div>
+    <div class="dress-stage"><div class="dress-preview" id="dressPreview"></div><div class="dress-bubble" id="dressBubble" aria-live="polite" hidden></div></div>
     <fieldset class="species">
-      <legend class="field-label">Hats</legend>
+      <legend class="field-label">Outfits</legend>
       <div class="hat-strip" id="hatStrip"></div>
+    </fieldset>
+    <p class="lock-hint" id="hatHint" aria-live="polite" hidden></p>
+    <fieldset class="species">
+      <legend class="field-label">Room</legend>
+      <div class="hat-strip decor-strip" id="decorStrip"></div>
+      <p class="decor-hint">Placed things sit behind your pet. Drag them around the room to move them.</p>
     </fieldset>
     <div class="picker-foot">
       <span class="hint">More outfits coming soon.</span>
@@ -275,9 +311,24 @@
   </form>
 </dialog>
 
+<dialog class="picker pet-sheet" id="goalsSheet" aria-labelledby="goalsTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="goalsTitle">Goals</h2>
+    <p class="goals-intro">Feed <span class="pet-name">Nibble</span> to unlock new friends and hats. Only a few count each day, so come back tomorrow for more. Items count once they've been on your list for 15 minutes, and each item once a day.</p>
+    <ul class="goal-list" id="goalList"></ul>
+    <div class="picker-foot">
+      <span></span>
+      <button value="done" class="add-btn">Done</button>
+    </div>
+  </form>
+</dialog>
+
 <script src="foods.js"></script>
 <script src="logic.js"></script>
+<script src="achievements.js"></script>
 <script src="wardrobe.js"></script>
+<script src="decor.js"></script>
+<script src="personalities.js"></script>
 <script src="sounds.js"></script>
 <script src="app.js"></script>
 </body>
