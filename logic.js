@@ -23,6 +23,8 @@
    * @property {{hat: string}} outfit  Wardrobe item id per slot; "none" for no hat.
    * @property {Object<string, Progress>} achievements  Progress per achievement id.
    * @property {Guard} guard  What the anti-cheat rules remember.
+   * @property {Object<string, {x: number, y: number}>} room  Placed decor by id, with its
+   *   spot in the room (0 to 1 across and down).
    */
 
   /**
@@ -83,6 +85,7 @@
       species: saved.species || 'mochi',
       outfit: { hat: (saved.outfit && saved.outfit.hat) || 'none' },
       achievements: saved.achievements && typeof saved.achievements === 'object' ? saved.achievements : {},
+      room: saved.room && typeof saved.room === 'object' ? saved.room : {},
       guard: {
         day: (saved.guard && saved.guard.day) || '',
         words: (saved.guard && Array.isArray(saved.guard.words)) ? saved.guard.words : [],
@@ -437,7 +440,44 @@
     return achievements.filter(function (a) { return a.unlocks && a.unlocks.kind === kind && a.unlocks.id === id; })[0] || null;
   }
 
+  // ---------- room decor ----------
+
+  /**
+   * Keeps a spot inside the room.
+   * @param {number} n
+   * @returns {number} Between 0 and 1.
+   */
+  function clamp01(n) { return Math.max(0, Math.min(1, Number(n) || 0)); }
+
+  /**
+   * Puts a decor item in the room at its default spot, or takes it out if it is there.
+   * @param {Object<string, {x: number, y: number}>} room  Changed in place.
+   * @param {{id: string, x: number, y: number}} item  An entry from decor.js.
+   * @returns {boolean} True if the item is now in the room.
+   */
+  function toggleDecor(room, item) {
+    if (room[item.id]) { delete room[item.id]; return false; }
+    room[item.id] = { x: clamp01(item.x), y: clamp01(item.y) };
+    return true;
+  }
+
+  /**
+   * Moves a placed decor item to a new spot, kept inside the room.
+   * @param {Object<string, {x: number, y: number}>} room  Changed in place.
+   * @param {string} id
+   * @param {number} x  0 (left) to 1 (right).
+   * @param {number} y  0 (top) to 1 (bottom).
+   * @returns {boolean} False if the item is not in the room.
+   */
+  function moveDecor(room, id, x, y) {
+    if (!room[id]) return false;
+    room[id] = { x: clamp01(x), y: clamp01(y) };
+    return true;
+  }
+
   root.PetLogic = {
+    toggleDecor: toggleDecor,
+    moveDecor: moveDecor,
     FRESH_MS: FRESH_MS,
     TRIP_MIN_ITEMS: TRIP_MIN_ITEMS,
     dayKey: dayKey,

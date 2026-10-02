@@ -58,16 +58,17 @@
     },
     {
       id: 'cap', slot: 'hat', label: 'Boy cap',
-      lines: ['ready for an adventure!', 'off to the market!', 'cap on, let\'s go!'],
-      // a two-tone sporty cap, worn a little sideways
-      svg: '<g transform="rotate(-8 80 38)" class="hat-cap">' +
-        '<path class="cap-brim" d="M94 37 C104 33 118 34 124 39 C121 43 108 44 95 42 Z"/>' +
-        '<path class="cap-crown" d="M57 41 C56 23 67 15 80 15 C93 15 104 23 103 41 Q80 46 57 41 Z"/>' +
-        '<path class="cap-panel" d="M80 15 C93 15 104 23 103 41 Q92 43.6 80 43.8 Z"/>' +
-        '<path class="cap-seam" d="M80 16 V43 M68 18 C64 26 63 34 64 42"/>' +
-        '<path class="cap-band" d="M57 41 Q80 46 103 41"/>' +
-        '<circle class="cap-button" cx="80" cy="15.5" r="3"/>' +
-        '<path class="cap-star" d="M70 30 l1.2 2.6 2.8 .3 -2.1 1.9 .6 2.8 -2.5 -1.4 -2.5 1.4 .6 -2.8 -2.1 -1.9 2.8 -.3 z"/>' +
+      lines: ['very proper!', 'off to the market!', 'class is in session!'],
+      // a peaked student cap: flat top, gold cord and buttons, short dark visor
+      svg: '<g transform="rotate(-7 80 36)" class="hat-cap">' +
+        '<path class="cap-crown" d="M60 41 C55 37 49 31 50 27.5 Q80 19 110 27.5 C111 31 105 37 100 41 Q80 45 60 41 Z"/>' +
+        '<ellipse class="cap-top" cx="80" cy="26.5" rx="30" ry="7"/>' +
+        '<path class="cap-shine" d="M58 25.5 Q66 22.5 76 22"/>' +
+        '<path class="cap-band" d="M59.5 37.5 Q80 42 100.5 37.5 L100 42.5 Q80 47 60 42.5 Z"/>' +
+        '<path class="cap-cord" d="M61 40 Q80 44.5 99 40"/>' +
+        '<path class="cap-visor" d="M60 42 Q80 47.5 100 42 Q103 49 95 53 Q80 57.5 65 53 Q57 49 60 42 Z"/>' +
+        '<path class="cap-visor-shine" d="M66 51 Q74 54 83 53.6"/>' +
+        '<circle class="cap-button" cx="61.5" cy="40.5" r="2.4"/><circle class="cap-button" cx="98.5" cy="40.5" r="2.4"/>' +
         '</g>'
     },
     {
@@ -85,6 +86,11 @@
         '<path class="hood-spot" d="M104 46 C112 43 124 49 126 58 C127 65 118 67 113 63 C108 60 103 54 104 46 Z"/>' +
         '<path class="hood-spot" d="M137 104 C142 102 146 108 145 115 C144 121 138 124 136 118 C134 112 134 106 137 104 Z"/>' +
         '<path class="hood-spot" d="M20 86 C24 83 27 90 26 98 C25 104 19 104 17 99 C15 93 17 88 20 86 Z"/>' +
+        // the hood's own cow face, above the opening
+        '<g class="hood-face"><ellipse class="hood-eye" cx="66.5" cy="49.5" rx="4" ry="4.8"/><ellipse class="hood-eye" cx="93.5" cy="49.5" rx="4" ry="4.8"/>' +
+        '<circle class="hood-glint" cx="65.3" cy="47.8" r="1.4"/><circle class="hood-glint" cx="92.3" cy="47.8" r="1.4"/>' +
+        '<ellipse class="hood-muzzle" cx="80" cy="59" rx="12.5" ry="6"/>' +
+        '<ellipse class="hood-nostril" cx="75.5" cy="58.6" rx="1.5" ry="2"/><ellipse class="hood-nostril" cx="84.5" cy="58.6" rx="1.5" ry="2"/></g>' +
         '<ellipse class="hood-rim" cx="80" cy="99.5" rx="56.5" ry="33.5"/>' +
         '<path class="hood-string" d="M68 131 C67 134 66 136 66 139 M92 131 C93 134 94 136 94 139"/>' +
         '<circle class="hood-toggle" cx="66" cy="140" r="2.4"/><circle class="hood-toggle" cx="94" cy="140" r="2.4"/>' +

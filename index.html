@@ -27,6 +27,8 @@
     </div>
 
     <div class="stage">
+      <!-- the room behind the pet: decor you place from the dressing room -->
+      <div class="room" id="room"></div>
       <div class="bubble" id="bubble" role="status" aria-live="polite" hidden></div>
       <div class="pet" id="pet" data-state="sleepy" data-species="mochi" data-arms="rest" aria-label="Nibble, your pet">
         <svg viewBox="0 0 160 150" class="pet-svg" aria-hidden="true">
@@ -203,7 +205,6 @@
       </div>
       <div class="cushion" aria-hidden="true"></div>
       <div class="goal-toast" id="goalToast" role="status" aria-live="polite" hidden></div>
-      <span class="brand-jp" lang="ja" title="mogu mogu: munch munch">もぐもぐ</span>
       <div class="stage-tools">
         <button type="button" class="pill-btn" id="dressBtn">♡ Dress up</button>
         <button type="button" class="pill-btn" id="editPetBtn" aria-label="Change your pet's name and species">✎ Edit pet</button>
@@ -275,6 +276,11 @@
       <div class="hat-strip" id="hatStrip"></div>
     </fieldset>
     <p class="lock-hint" id="hatHint" aria-live="polite" hidden></p>
+    <fieldset class="species">
+      <legend class="field-label">Room</legend>
+      <div class="hat-strip decor-strip" id="decorStrip"></div>
+      <p class="decor-hint">Placed things sit behind your pet. Drag them around the room to move them.</p>
+    </fieldset>
     <div class="picker-foot">
       <span class="hint">More outfits coming soon.</span>
       <button value="done" class="add-btn">Done</button>
@@ -298,6 +304,7 @@
 <script src="logic.js"></script>
 <script src="achievements.js"></script>
 <script src="wardrobe.js"></script>
+<script src="decor.js"></script>
 <script src="sounds.js"></script>
 <script src="app.js"></script>
 </body>

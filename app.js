@@ -694,6 +694,9 @@
     if (view) {
       view.dataset.mouth = 'smile';
       view.dataset.eyes = b.dataset.hat === 'none' ? 'open' : 'happy';
+      // back to open eyes soon, so they can follow your finger again
+      clearTimeout(sparkleTimer);
+      sparkleTimer = setTimeout(function () { view.dataset.eyes = 'open'; view.dataset.arms = 'idle'; }, 900);
       view.dataset.arms = b.dataset.hat === 'none' ? 'idle' : 'cheer';
       view.classList.remove('hop'); void view.offsetWidth; view.classList.add('hop');
     }
@@ -737,8 +740,20 @@
     if (!unlocked('hat', b.dataset.hat) || b.dataset.hat === state.pet.outfit.hat) return;
     dressSay(hatLine(b.dataset.hat), 1600);
     var view = dressPreview.querySelector('.pet');
-    if (view) { view.dataset.eyes = 'sparkle'; view.dataset.mouth = 'open'; }
+    if (view) sparkle(view);
     if (Date.now() - lastOoh > 500) { sound('ooh'); lastOoh = Date.now(); }
+  }
+  var sparkleTimer;
+  /**
+   * A quick sparkle-eyed "ooh" from the dressing-room pet, then its eyes go
+   * back to following your finger or cursor.
+   * @param {Element} view The preview pet.
+   */
+  function sparkle(view) {
+    view.dataset.eyes = 'sparkle';
+    view.dataset.mouth = 'open';
+    clearTimeout(sparkleTimer);
+    sparkleTimer = setTimeout(function () { view.dataset.eyes = 'open'; view.dataset.mouth = 'smile'; }, 600);
   }
   hatStrip.addEventListener('pointerover', onHatHover);
   hatStrip.addEventListener('focusin', onHatHover);
@@ -759,6 +774,103 @@
     }
   });
   dressSheet.addEventListener('click', function (e) { if (e.target === dressSheet) dressSheet.close(); });
+
+  // ---------- room decor behind the pet ----------
+  var roomEl = $('room'), decorStrip = $('decorStrip'), stageEl = document.querySelector('.stage');
+
+  /**
+   * @param {string} id
+   * @returns {?Object} The decor item with this id.
+   */
+  function decorItem(id) {
+    for (var i = 0; i < Decor.length; i++) if (Decor[i].id === id) return Decor[i];
+    return null;
+  }
+  /** Draws every placed decor item in the room, in the order decor.js lists them. */
+  function renderRoom() {
+    roomEl.replaceChildren.apply(roomEl, Decor.filter(function (d) { return state.pet.room[d.id]; }).map(function (d) {
+      var spot = state.pet.room[d.id];
+      var el = document.createElement('div');
+      el.className = 'decor decor-' + d.id;
+      el.dataset.decor = d.id;
+      el.setAttribute('role', 'img');
+      el.setAttribute('aria-label', d.label);
+      el.style.width = d.w + 'px';
+      el.style.height = d.h + 'px';
+      el.style.left = (spot.x * 100) + '%';
+      el.style.top = (spot.y * 100) + '%';
+      var svg = document.createElementNS(SVGNS, 'svg');
+      svg.setAttribute('viewBox', d.view);
+      svg.setAttribute('aria-hidden', 'true');
+      svg.innerHTML = d.svg;
+      el.appendChild(svg);
+      return el;
+    }));
+    tickClocks();
+    decorStrip.querySelectorAll('button').forEach(function (b) {
+      b.setAttribute('aria-pressed', state.pet.room[b.dataset.decor] ? 'true' : 'false');
+    });
+  }
+  /** Sets every cuckoo clock's hands to the real time. */
+  function tickClocks() {
+    var now = new Date(), h = now.getHours() % 12, m = now.getMinutes();
+    document.querySelectorAll('.clock-hour').forEach(function (el) { el.setAttribute('transform', 'rotate(' + (h * 30 + m / 2) + ' 22 32)'); });
+    document.querySelectorAll('.clock-minute').forEach(function (el) { el.setAttribute('transform', 'rotate(' + (m * 6) + ' 22 32)'); });
+  }
+  setInterval(tickClocks, 30000);
+
+  Decor.forEach(function (d) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.decor = d.id;
+    var icon = document.createElementNS(SVGNS, 'svg');
+    icon.setAttribute('viewBox', d.view);
+    icon.setAttribute('aria-hidden', 'true');
+    icon.innerHTML = d.svg;
+    var label = document.createElement('span');
+    label.textContent = d.label;
+    b.append(icon, label);
+    decorStrip.appendChild(b);
+  });
+  decorStrip.addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    var placed = L.toggleDecor(state.pet.room, decorItem(b.dataset.decor));
+    save();
+    renderRoom();
+    if (placed) { sound('ooh'); dressSay(pick(['so cosy!', 'home sweet home!', 'I love it here!']), 1500); }
+  });
+
+  // drag placed decor around the room
+  var drag = null;
+  roomEl.addEventListener('pointerdown', function (e) {
+    var el = e.target.closest('.decor');
+    if (!el || e.button > 0) return;
+    e.preventDefault();
+    var r = el.getBoundingClientRect();
+    drag = { el: el, id: el.dataset.decor, dx: e.clientX - (r.left + r.width / 2), dy: e.clientY - (r.top + r.height / 2) };
+    el.classList.add('dragging');
+    try { el.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+  });
+  roomEl.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    var s = stageEl.getBoundingClientRect();
+    var x = (e.clientX - drag.dx - s.left) / s.width, y = (e.clientY - drag.dy - s.top) / s.height;
+    L.moveDecor(state.pet.room, drag.id, x, y);
+    var spot = state.pet.room[drag.id];
+    drag.el.style.left = (spot.x * 100) + '%';
+    drag.el.style.top = (spot.y * 100) + '%';
+  });
+  /** Ends a decor drag and saves where it landed. */
+  function endDrag() {
+    if (!drag) return;
+    drag.el.classList.remove('dragging');
+    drag = null;
+    save();
+  }
+  roomEl.addEventListener('pointerup', endDrag);
+  roomEl.addEventListener('pointercancel', endDrag);
+  renderRoom();
 
   // ---------- goals: achievements that unlock species and hats ----------
   var goalToastEl = $('goalToast'), goalsSheet = $('goalsSheet'), goalList = $('goalList');

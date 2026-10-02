@@ -113,13 +113,6 @@ button { font: inherit; color: inherit; }
 .brand { font-family: var(--font-display); font-weight: 500; font-size: 1.35rem; margin: 0; display: flex; align-items: center; white-space: nowrap; min-width: 0; overflow: hidden; }
 .brand .pet-name { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .brand-sub { color: var(--muted); }
-.brand-jp {
-  /* a little sticker on the stage, clear of the header */
-  position: absolute; right: 2px; bottom: 16px; z-index: 2;
-  font-family: var(--font-body); font-weight: 800; font-size: .7rem; letter-spacing: .08em;
-  color: var(--accent-ink); background: var(--accent); border: 1.5px solid var(--outline);
-  border-radius: 999px; padding: 2px 9px; transform: rotate(-6deg); white-space: nowrap;
-}
 .scene-tools { display: flex; align-items: center; gap: 8px; flex: none; }
 @media (max-width: 370px) { .brand-sub { display: none; } }
 .tally { white-space: nowrap; font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; font-weight: 700; }
@@ -370,18 +363,24 @@ button { font: inherit; color: inherit; }
 .sun-flower circle { fill: #fff; stroke: var(--pet-ink); stroke-width: 1; }
 .sun-flower .sun-flower-mid { fill: #ffd65c; }
 
-/* boy cap */
-.cap-crown { fill: #fdf6ec; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
-.cap-panel, .cap-brim { fill: #8db6ea; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
-.cap-seam { fill: none; stroke: var(--pet-ink); stroke-width: 1.2; stroke-linecap: round; opacity: .55; }
-.cap-band { fill: none; stroke: var(--pet-ink); stroke-width: 2; stroke-linecap: round; }
-.cap-button { fill: #8db6ea; stroke: var(--pet-ink); stroke-width: 1.6; }
-.cap-star { fill: #ffd65c; stroke: var(--pet-ink); stroke-width: 1; stroke-linejoin: round; }
+/* boy cap: a peaked student cap */
+.cap-crown { fill: #75625f; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
+.cap-top { fill: #8a7673; stroke: var(--pet-ink); stroke-width: 2; }
+.cap-shine { fill: none; stroke: #a8948f; stroke-width: 2.4; stroke-linecap: round; }
+.cap-band { fill: #4d3c43; stroke: var(--pet-ink); stroke-width: 1.6; stroke-linejoin: round; }
+.cap-cord { fill: none; stroke: #f0c04a; stroke-width: 2.2; stroke-linecap: round; }
+.cap-visor { fill: #5e4845; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
+.cap-visor-shine { fill: none; stroke: #8a706b; stroke-width: 1.8; stroke-linecap: round; }
+.cap-button { fill: #f6cf5a; stroke: var(--pet-ink); stroke-width: 1.2; }
 
 /* cow hoodie: a hood with a face opening, so it fits every species */
 .hood { fill: #fffdf9; stroke: var(--pet-ink); stroke-width: 2.6; stroke-linejoin: round; }
 .hood-rim { fill: none; stroke: #f3e6df; stroke-width: 5; }
-.hood-spot { fill: #4d3c43; opacity: .9; }
+.hood-spot { fill: #9d9498; }
+.hood-eye { fill: var(--pet-ink); }
+.hood-glint { fill: #fff; }
+.hood-muzzle { fill: #ffc9d4; stroke: var(--pet-ink); stroke-width: 1.8; }
+.hood-nostril { fill: #c97b8d; }
 .hood-ear { fill: #fffdf9; stroke: var(--pet-ink); stroke-width: 2.4; }
 .hood-ear-in { fill: #ffc1cf; }
 .hood-horn { fill: #fff3cf; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
@@ -391,6 +390,13 @@ button { font: inherit; color: inherit; }
 .pet.hooded .squish > [data-sp]:not(.skin ~ *),
 .pet.hooded [data-sp="puppy"] .ear, .pet.hooded .twist { display: none; }
 .pet.hooded .arm ellipse:not(.arm-hi) { fill: #fffdf9; }
+
+/* ---------- room decor, behind the pet ---------- */
+.room { position: absolute; inset: 0; z-index: 0; }
+.decor { position: absolute; transform: translate(-50%, -50%); touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+.decor svg { width: 100%; height: 100%; display: block; overflow: visible; pointer-events: none; }
+.decor.dragging { cursor: grabbing; filter: drop-shadow(0 4px 0 rgba(91, 66, 57, .25)); z-index: 1; }
+.decor-hint { margin: 0; font-size: .8rem; color: var(--muted); }
 
 /* ---------- dressing room ---------- */
 .dress-stage {
@@ -524,7 +530,6 @@ button { font: inherit; color: inherit; }
 }
 .goal-toast img { width: 22px; height: 22px; flex: none; }
 .goal-toast.win { background: var(--butter); }
-.goal-toast:not([hidden]) ~ .brand-jp { opacity: 0; }
 .goal-toast:not([hidden]) { animation: toast-in .35s cubic-bezier(.3, 1.4, .5, 1); }
 @keyframes toast-in { from { transform: translateX(-50%) translateY(-8px) scale(.8); opacity: 0; } }
 
