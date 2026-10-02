@@ -594,6 +594,29 @@
   }
 
   /**
+   * Turns a line into sleep-talk: quiet, slow and mumbly, for when the pet talks with its eyes shut.
+   * @param {string} text
+   * @param {function(): number} [random]
+   * @returns {string}
+   */
+  function sleepTalk(text, random) {
+    var rnd = random || Math.random;
+    var out = String(text || '').toLowerCase().trim();
+    if (!out) return out;
+    out = out.replace(/[!?.~♡…\s]+$/, '').replace(/!+/g, '…');
+    var words = out.split(' ');
+    // drift off in the middle of a longer line
+    if (words.length > 2 && rnd() < 0.5) words[0] = words[0].replace(/[,.;:]+$/, '') + '…';
+    out = words.join(' ') + '…';
+    var r = rnd();
+    if (/^(zzz|\*|mm)/.test(out)) return out;
+    if (r < 0.35) return 'mm… ' + out;
+    if (r < 0.6) return '*mumble* ' + out;
+    if (r < 0.85) return out + ' zzz';
+    return out;
+  }
+
+  /**
    * Picks the personality's own line for a moment, or one of the fallbacks.
    * @param {Object} personality
    * @param {string} key  e.g. 'tap', 'suggest', 'dream'.
@@ -727,6 +750,7 @@
     isDoubleTap: isDoubleTap,
     cleanName: cleanName,
     voiceLine: voiceLine,
+    sleepTalk: sleepTalk,
     toggleDecor: toggleDecor,
     moveDecor: moveDecor,
     FRESH_MS: FRESH_MS,

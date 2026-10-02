@@ -171,6 +171,22 @@ button { font: inherit; color: inherit; }
 .shine { fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; opacity: .8; }
 .ear { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
 .ear-in { fill: var(--pet-ear-in); stroke: none; }
+/* ears jiggle along with the pet: each pivots where it joins the head */
+.ear-g { transform-box: fill-box; transform-origin: 50% 100%; }
+.pet[data-species="cow"] .ear-l { transform-origin: 100% 50%; }
+.pet[data-species="cow"] .ear-r { transform-origin: 0% 50%; }
+.pet[data-species="puppy"] .ear-g { transform-origin: 70% 0%; }
+.pet[data-species="puppy"] .ear-r { transform-origin: 30% 0%; }
+.pet[data-state="happy"] .ear-l { animation: ear-flick-l 2.2s ease-in-out infinite; }
+.pet[data-state="happy"] .ear-r { animation: ear-flick-r 2.2s ease-in-out .3s infinite; }
+.pet[data-state="sleepy"] .ear-l, .pet[data-state="stuffed"] .ear-l { transform: rotate(-6deg); }
+.pet[data-state="sleepy"] .ear-r, .pet[data-state="stuffed"] .ear-r { transform: rotate(6deg); }
+.pet:is(.hop, .chomp, .wiggle, .twirl, .bob, .peek, .stretch, .pat, .spit) .ear-l { animation: ear-jiggle-l .7s ease-out; }
+.pet:is(.hop, .chomp, .wiggle, .twirl, .bob, .peek, .stretch, .pat, .spit) .ear-r { animation: ear-jiggle-r .7s ease-out .04s; }
+@keyframes ear-jiggle-l { 0%, 100% { transform: rotate(0); } 18% { transform: rotate(-16deg); } 38% { transform: rotate(11deg); } 58% { transform: rotate(-6deg); } 78% { transform: rotate(3deg); } }
+@keyframes ear-jiggle-r { 0%, 100% { transform: rotate(0); } 18% { transform: rotate(16deg); } 38% { transform: rotate(-11deg); } 58% { transform: rotate(6deg); } 78% { transform: rotate(-3deg); } }
+@keyframes ear-flick-l { 0%, 70%, 100% { transform: rotate(0); } 78% { transform: rotate(-9deg); } 86% { transform: rotate(4deg); } }
+@keyframes ear-flick-r { 0%, 70%, 100% { transform: rotate(0); } 78% { transform: rotate(9deg); } 86% { transform: rotate(-4deg); } }
 .tuft path { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
 .stripes path { fill: none; stroke: var(--pet-mark); stroke-width: 3; stroke-linecap: round; }
 .whiskers path { stroke-width: 1.6; }
@@ -380,6 +396,10 @@ button { font: inherit; color: inherit; }
 /* one scroll area per sheet: lists inside it grow instead of scrolling on their own,
    and the Done row stays pinned to the bottom */
 .pet-sheet .options, .pet-sheet .goal-list { overflow: visible; }
+/* sheets lay out as one plain column that scrolls as a whole, so the sticky Done row
+   always ends up after the last option instead of on top of it */
+.pet-sheet .picker-inner { display: block; }
+.pet-sheet .picker-inner > * + * { margin-top: 12px; }
 .pet-sheet .picker-foot { position: sticky; bottom: calc(-12px - env(safe-area-inset-bottom, 0px)); background: var(--surface); margin: 0 -16px; padding: 8px 16px calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 2; }
 
 /* ---------- hats ---------- */

@@ -207,7 +207,9 @@
     if (state.quiet || !state.settings.bubbles || !text) return;
     bubble.hidden = true;
     void bubble.offsetWidth;
-    bubble.textContent = own ? text : L.styleLine(personality(), text);
+    var line = own ? text : L.styleLine(personality(), text);
+    // talking in its sleep: mumbly and slow
+    bubble.textContent = pet.classList.contains('x-zzz') ? L.sleepTalk(line) : line;
     bubble.hidden = false;
     clearTimeout(bubbleTimer);
     bubbleTimer = setTimeout(function () { bubble.hidden = true; }, ms || 1500);

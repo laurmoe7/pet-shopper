@@ -128,3 +128,16 @@ test('other lines pick up the tone: sleepy is quiet and lower case, sweet adds h
   assert.equal(L.styleLine(sweet, 'is it ok?', never), 'is it ok?', 'questions keep their ending');
   assert.equal(L.styleLine(sleepy, 'Zzz… tea…', never, true), 'zzz… tea…');
 });
+
+test('talking in its sleep is quiet, slow and mumbly', () => {
+  const at = (r) => () => r;
+  assert.equal(L.sleepTalk('Hi hi hi!', at(0.1)), 'mm… hi… hi hi…');
+  assert.equal(L.sleepTalk("oh, it's you. hi.", at(0.5)), "*mumble* oh, it's you. hi…");
+  assert.equal(L.sleepTalk('Shopping?', at(0.7)), 'shopping… zzz');
+  assert.equal(L.sleepTalk('zzz… snack?', at(0.1)), 'zzz… snack…', 'already sleepy lines stay as they are');
+  for (const r of [0, 0.3, 0.6, 0.9]) {
+    const line = L.sleepTalk('YAY!! More please!', at(r));
+    assert.ok(!/[!A-Z]/.test(line), 'no shouting: ' + line);
+    assert.ok(line.includes('…'), 'trails off: ' + line);
+  }
+});
