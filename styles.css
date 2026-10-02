@@ -593,6 +593,14 @@ button { font: inherit; color: inherit; }
   box-shadow: 0 2px 0 var(--outline); animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); transform-origin: 0 100%;
 }
 .pet.preview { width: 150px; height: 140px; margin: 0; pointer-events: none; }
+/* the dressing room fills the whole page, and the pet stays pinned at the top while you scroll the outfits */
+.picker.dress-full { max-width: none; width: 100%; height: 100%; max-height: none; margin: 0; border: 0; border-radius: 0; }
+.picker.dress-full .picker-inner { max-height: 100%; height: 100%; box-sizing: border-box; padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+.picker.dress-full .dress-stage { position: sticky; top: calc(-12px - env(safe-area-inset-top, 0px)); z-index: 3; margin-left: -16px; margin-right: -16px; border-radius: 0 0 22px 22px; border-width: 0 0 1.5px; }
+.picker.dress-full .pet.preview { width: 180px; height: 168px; }
+/* the room panel stays low and has no dimmed backdrop, so the room is always in view */
+.picker.room-sheet { position: fixed; inset: auto 0 0 0; max-height: 42vh; z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
+.picker.room-sheet .picker-inner { max-height: calc(42vh - 2px); }
 .hat-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .hat-strip button {
   display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; min-width: 0;

@@ -978,8 +978,16 @@
     var placed = L.toggleDecor(state.pet.room, decorItem(b.dataset.decor));
     save();
     renderRoom();
-    if (placed) { sound('ooh'); dressSay(line('room', ['so cosy!', 'home sweet home!', 'I love it here!']), 1500, true); }
+    if (placed && !busy) { sound('ooh'); pulse('hop', 460); talk('room', ['so cosy!', 'home sweet home!', 'I love it here!'], 1500); }
   });
+  // the room panel opens without covering the room: the stage stays visible (and draggable) above it
+  var roomSheet = $('roomSheet');
+  $('roomBtn').addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+    renderRoom();
+    if (roomSheet.show) roomSheet.show(); else roomSheet.setAttribute('open', '');
+  });
+  roomSheet.addEventListener('keydown', function (e) { if (e.key === 'Escape') roomSheet.close(); });
 
   // drag placed decor around the room
   var drag = null;
@@ -1482,7 +1490,7 @@
   /** One idle moment, when nothing else is going on. */
   function idle() {
     scheduleDream();
-    if (busy || dreaming || document.hidden || document.querySelector('dialog[open]')) return;
+    if (busy || dreaming || document.hidden || document.querySelector('dialog[open]:not(#roomSheet)')) return;
     if (state.settings.daydreams && Math.random() < 0.4) daydream();
     else idleMove();
   }

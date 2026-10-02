@@ -43,3 +43,12 @@ test('glasses have their own place on the pet, over the eyes', () => {
   assert.match(html, /<g class="outfit-face"><\/g>/);
   assert.match(html, /id="faceStrip"/);
 });
+
+test('furniture has its own panel, outside the full-page dressing room', () => {
+  const dress = html.match(/<dialog[^>]*id="dressSheet"[\s\S]*?<\/dialog>/)[0];
+  const room = html.match(/<dialog[^>]*id="roomSheet"[\s\S]*?<\/dialog>/)[0];
+  assert.match(dress, /dress-full/);
+  assert.doesNotMatch(dress, /decorStrip/);
+  assert.match(room, /id="decorStrip"/);
+  assert.match(html, /id="roomBtn"/);
+});

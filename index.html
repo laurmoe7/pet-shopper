@@ -245,6 +245,7 @@
         <button type="button" class="pill-btn menu-btn" id="petMenuBtn" aria-haspopup="true" aria-expanded="false" aria-controls="petMenu">✿ Pet <span class="caret" aria-hidden="true">▾</span></button>
         <div class="pet-menu" id="petMenu" role="menu" hidden>
           <button type="button" class="menu-item" role="menuitem" id="dressBtn">♡ Dress up</button>
+          <button type="button" class="menu-item" role="menuitem" id="roomBtn">⌂ Room</button>
           <button type="button" class="menu-item" role="menuitem" id="editPetBtn" aria-label="Change your pet's name and species">✎ Edit pet</button>
           <button type="button" class="menu-item" role="menuitem" id="goalsBtn" aria-label="Goals: unlock new pets and hats">★ Goals</button>
         </div>
@@ -319,7 +320,7 @@
   </form>
 </dialog>
 
-<dialog class="picker pet-sheet" id="dressSheet" aria-labelledby="dressTitle">
+<dialog class="picker pet-sheet dress-full" id="dressSheet" aria-labelledby="dressTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="dressTitle">Dressing room</h2>
     <div class="dress-stage"><div class="dress-preview" id="dressPreview"></div><div class="dress-bubble" id="dressBubble" aria-live="polite" hidden></div></div>
@@ -332,13 +333,21 @@
       <div class="hat-strip" id="faceStrip"></div>
     </fieldset>
     <p class="lock-hint" id="hatHint" aria-live="polite" hidden></p>
-    <fieldset class="species">
-      <legend class="field-label">Room</legend>
-      <div class="hat-strip decor-strip" id="decorStrip"></div>
-      <p class="decor-hint">Placed things sit behind your pet. Drag them around the room to move them.</p>
-    </fieldset>
     <div class="picker-foot">
       <span class="hint">More outfits coming soon.</span>
+      <button value="done" class="add-btn">Done</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- furniture: a low panel that leaves the room above it in view, so you can place and drag things while it's open -->
+<dialog class="picker pet-sheet room-sheet" id="roomSheet" aria-labelledby="roomTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="roomTitle">Room</h2>
+    <div class="hat-strip decor-strip" id="decorStrip"></div>
+    <p class="decor-hint">Placed things sit behind your pet. Drag them around the room to move them.</p>
+    <div class="picker-foot">
+      <span class="hint">More furniture coming soon.</span>
       <button value="done" class="add-btn">Done</button>
     </div>
   </form>
