@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nibble's List</title>
+<meta name="description" content="A grocery list with a little pet who eats what you check off.">
+<meta name="theme-color" content="#e9f3ea">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@500;700;800&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <header class="scene" id="scene">
+    <div class="scene-bar">
+      <h1 class="brand">Nibble<span class="brand-sub">'s list</span></h1>
+      <div class="scene-tools">
+        <span class="tally" id="tally" aria-live="polite"></span>
+        <button class="pill-btn" id="quietBtn" type="button" aria-pressed="false" title="Quiet mode: no sound or speech bubbles">Quiet</button>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="bubble" id="bubble" role="status" aria-live="polite" hidden></div>
+      <div class="pet" id="pet" data-state="sleepy" aria-label="Nibble, your pet">
+        <svg viewBox="0 0 160 150" class="pet-svg" aria-hidden="true">
+          <g class="pet-body">
+            <ellipse class="foot" cx="56" cy="138" rx="15" ry="8"/>
+            <ellipse class="foot" cx="104" cy="138" rx="15" ry="8"/>
+            <g class="squish">
+              <ellipse class="arm arm-l" cx="19" cy="102" rx="8" ry="12"/>
+              <ellipse class="arm arm-r" cx="141" cy="102" rx="8" ry="12"/>
+              <path class="skin" d="M80 22 C122 22 146 62 146 98 C146 128 118 139 80 139 C42 139 14 128 14 98 C14 62 38 22 80 22 Z"/>
+              <path class="shine" d="M44 52 C50 42 58 37 66 35"/>
+              <ellipse class="redface" cx="80" cy="90" rx="58" ry="40"/>
+              <ellipse class="cheek" cx="42" cy="98" rx="11" ry="6"/>
+              <ellipse class="cheek" cx="118" cy="98" rx="11" ry="6"/>
+
+              <g data-eyes="open" class="eyes-open">
+                <g class="pupils">
+                  <circle cx="58" cy="80" r="7.5" class="ink"/>
+                  <circle cx="102" cy="80" r="7.5" class="ink"/>
+                  <circle cx="55.5" cy="77" r="2.4" class="glint"/>
+                  <circle cx="99.5" cy="77" r="2.4" class="glint"/>
+                </g>
+              </g>
+              <g data-eyes="closed" class="line">
+                <path d="M49 79 Q58 87 67 79"/>
+                <path d="M93 79 Q102 87 111 79"/>
+              </g>
+              <g data-eyes="happy" class="line">
+                <path d="M49 84 Q58 72 67 84"/>
+                <path d="M93 84 Q102 72 111 84"/>
+              </g>
+              <g data-eyes="sparkle" class="star">
+                <path d="M58 68 L61 76 L69 80 L61 83 L58 92 L55 83 L47 80 L55 76Z"/>
+                <path d="M102 68 L105 76 L113 80 L105 83 L102 92 L99 83 L91 80 L99 76Z"/>
+              </g>
+              <g data-eyes="squint" class="line">
+                <path d="M50 73 L64 80 L50 87"/>
+                <path d="M110 73 L96 80 L110 87"/>
+              </g>
+              <g data-eyes="confused">
+                <circle cx="58" cy="80" r="7.5" class="ink"/>
+                <circle cx="55.5" cy="77" r="2.4" class="glint"/>
+                <path class="line" d="M94 80 L110 80"/>
+              </g>
+
+              <path data-mouth="smile" class="line" d="M70 99 Q80 109 90 99"/>
+              <g data-mouth="open">
+                <ellipse cx="80" cy="104" rx="11" ry="12" class="mouth-in"/>
+                <ellipse cx="80" cy="110" rx="6" ry="4" class="tongue"/>
+              </g>
+              <path data-mouth="chew" class="line chew" d="M69 102 Q74.5 97 80 102 Q85.5 107 91 102"/>
+              <path data-mouth="wavy" class="line" d="M67 104 Q73.5 98 80 104 Q86.5 110 93 104"/>
+              <ellipse data-mouth="o" cx="80" cy="103" rx="4.5" ry="5" class="mouth-in"/>
+            </g>
+          </g>
+
+          <g data-extra="zzz" class="zzz">
+            <text x="120" y="44">z</text><text x="131" y="30" class="z2">z</text><text x="141" y="18" class="z3">z</text>
+          </g>
+          <g data-extra="steam" class="steam">
+            <path d="M58 18 q-6 -6 0 -12 q6 -6 0 -12"/>
+            <path d="M80 12 q-6 -6 0 -12 q6 -6 0 -12"/>
+            <path d="M102 18 q-6 -6 0 -12 q6 -6 0 -12"/>
+          </g>
+          <g data-extra="hearts" class="hearts">
+            <path d="M24 40 c-4 -6 -12 -2 -8 4 l8 8 l8 -8 c4 -6 -4 -10 -8 -4z"/>
+            <path d="M136 34 c-3 -5 -10 -2 -7 3 l7 7 l7 -7 c3 -5 -4 -8 -7 -3z"/>
+          </g>
+          <g data-extra="question" class="question"><text x="126" y="48">?</text></g>
+          <g data-extra="sweat" class="sweat"><path d="M130 52 q-6 10 0 14 q6 -4 0 -14z"/></g>
+        </svg>
+        <div class="tummy" id="tummy" aria-hidden="true"></div>
+      </div>
+      <div class="floor" aria-hidden="true"></div>
+    </div>
+  </header>
+
+  <main class="list-area">
+    <form class="add" id="addForm" autocomplete="off">
+      <label class="visually-hidden" for="addInput">Add an item</label>
+      <input id="addInput" name="item" type="text" placeholder="Add an item, like bananas" enterkeyhint="done" maxlength="80">
+      <span class="add-preview" id="addPreview" aria-hidden="true"></span>
+      <button type="submit" class="add-btn" aria-label="Add item">Add</button>
+    </form>
+
+    <ul class="items" id="todo" aria-label="To buy"></ul>
+    <p class="empty" id="emptyHint">Nibble is napping. Add something to the list and it will wake up.</p>
+
+    <section class="eaten" id="eatenSection" hidden>
+      <div class="eaten-head">
+        <h2>Eaten <span id="eatenCount" class="count"></span></h2>
+        <button type="button" class="text-btn" id="clearBtn">Clear eaten</button>
+      </div>
+      <ul class="items" id="done" aria-label="Eaten"></ul>
+    </section>
+
+    <p class="hint">Tap an item's emoji, or long-press the item, to pick a different one.</p>
+    <p class="credit">Emoji by <a href="https://openmoji.org/" target="_blank" rel="noopener">OpenMoji</a>, CC BY-SA 4.0</p>
+  </main>
+</div>
+
+<dialog class="picker" id="picker" aria-labelledby="pickerTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="pickerTitle">Pick an emoji for <span id="pickerName"></span></h2>
+    <div class="picker-grid" id="pickerGrid"></div>
+    <div class="picker-foot">
+      <button type="button" class="text-btn danger" id="deleteBtn">Delete item</button>
+      <button value="cancel" class="text-btn">Close</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="foods.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
