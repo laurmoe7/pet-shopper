@@ -6,7 +6,8 @@
  * bigger. Items with `layer: 'body'` (like the hoodie) are drawn at full size
  * over the whole pet instead; `hood: true` tucks the pet's own ears away.
  * `snug: true` sits close on the head, so the mochi twist and chick tuft tuck under it.
- * Face items are drawn at normal size over the eyes (around y 92).
+ * Face items are drawn at normal size over the eyes (around y 92); neck items across
+ * the bottom of the body under the face (around y 118); feet items over the feet (y 137).
  * `icon` is the viewBox for the dressing-room button.
  * Add a new item here and it shows up in the dressing room.
  */
@@ -34,6 +35,26 @@
       '<ellipse class="phones-rim" cx="133" cy="69" rx="6.4" ry="9"/>' +
       '<path class="phones-shine" d="M22.5 63 Q23.5 60 26.5 59.2 M128.5 63 Q129.5 60 132.5 59.2"/>' +
       '</g>';
+  }
+
+  /**
+   * A fluffy feather boa: puffs along the bottom of the body with an end hanging down one side.
+   * @returns {string} SVG markup.
+   */
+  function boa() {
+    var out = '';
+    // puffs along a gentle curve from one side of the body to the other
+    for (var i = 0; i <= 12; i++) {
+      var t = i / 12, x = 18 + 124 * t, y = 112 + 22 * t * (1 - t) + (i % 2 ? 1.2 : -1.2);
+      out += '<circle class="boa-puff" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (i % 3 ? 6.2 : 7) + '"/>';
+    }
+    // the end that hangs down the right side
+    [[138, 122], [140, 130], [139, 138]].forEach(function (p, i) {
+      out += '<circle class="boa-puff" cx="' + p[0] + '" cy="' + p[1] + '" r="' + (6 - i * 0.6) + '"/>';
+    });
+    // little feather wisps on top
+    out += '<path class="boa-wisp" d="M28 111 q2 -4 5 -4 M60 116 q2 -4 5 -4 M95 116 q2 -4 5 -4 M128 111 q2 -4 5 -4"/>';
+    return out;
   }
 
   root.Wardrobe = [
@@ -187,6 +208,63 @@
         '<circle class="knight-rivet" cx="80" cy="55.5" r="1.6"/><circle class="knight-rivet" cx="101" cy="56.6" r="1.6"/>' +
         '<circle class="knight-rivet" cx="121" cy="60" r="1.6"/>' +
         '</g>'
+    },
+    {
+      id: 'scarf', slot: 'neck', label: 'Winter scarf', icon: '10 104 140 46',
+      lines: ['so toasty!', 'snow day?', 'cosy cosy cosy'],
+      svg: '<g class="neck-scarf">' +
+        '<path class="scarf-tail" d="M103 118.3 C105 129.3 103 138.3 106 148.3 L119 145.3 C116 136.3 117 127.3 115 117.3 Z"/>' +
+        '<path class="scarf-stripe" d="M104.8 131.3 L116.6 129.3 M105.4 139.3 L117.4 137.3"/>' +
+        '<path class="scarf-fringe" d="M107.5 148.3 v3.4 M110.5 147.6 v3.4 M113.5 146.9 v3.4 M116.5 146.2 v3.4"/>' +
+        '<path class="scarf-band" d="M17 108 Q80 124 143 108 Q147 114 145 121 Q80 140 15 121 Q13 114 17 108 Z"/>' +
+        '<path class="scarf-stripe" d="M36 112.9 Q35 119.1 36 125.3 M56 115.6 Q55 122.0 56 128.4 M104 115.6 Q105 122.0 104 128.4 M124 112.9 Q125 119.1 124 125.3"/>' +
+        '<path class="scarf-knit" d="M24 116.3 l3 2 l3 -2 M44 119.9 l3 2 l3 -2 M64 121.9 l3 2 l3 -2 M86 122.1 l3 2 l3 -2 M108 120.2 l3 2 l3 -2 M128 116.7 l3 2 l3 -2"/>' +
+        '<path class="scarf-knot" d="M100 114.3 C102 109.3 116 109.3 118 114.3 C120 120.3 116 126.3 109 126.3 C102 126.3 98 120.3 100 114.3 Z"/>' +
+        '</g>'
+    },
+    {
+      id: 'hanky', slot: 'neck', label: 'Neck hanky', icon: '44 104 72 34',
+      lines: ['très chic!', 'tea and biscuits?', 'quite dapper, no?'],
+      svg: '<g class="neck-hanky">' +
+        '<path class="hanky-cloth" d="M62 112 Q80 118 98 112 L82.5 132 Q80 135 77.5 132 Z"/>' +
+        '<path class="hanky-trim" d="M66 115.2 Q80 120 94 115.2"/>' +
+        '<circle class="hanky-dot" cx="73" cy="121" r="1.4"/><circle class="hanky-dot" cx="87" cy="121" r="1.4"/><circle class="hanky-dot" cx="80" cy="127" r="1.4"/>' +
+        '<path class="hanky-cloth" d="M76 111.5 C70 106 64 108 66 113.5 C68 117 74 116 76 113.5 Z M84 111.5 C90 106 96 108 94 113.5 C92 117 86 116 84 113.5 Z"/>' +
+        '<ellipse class="hanky-knot" cx="80" cy="113" rx="4.2" ry="3.6"/>' +
+        '<circle class="hanky-pin" cx="80" cy="113" r="1.4"/>' +
+        '</g>'
+    },
+    {
+      id: 'boa', slot: 'neck', label: 'Feather boa', icon: '8 104 144 46',
+      lines: ['dahling!', 'fabulous, simply fabulous', 'strike a pose!'],
+      svg: '<g class="neck-boa">' + boa() + '</g>'
+    },
+    {
+      id: 'boots', slot: 'feet', label: 'Boots', icon: '38 116 84 34',
+      lines: ['puddle time!', 'stomp stomp!', 'ready for a walk!'],
+      svg: '<g class="feet-boots">' + [58, 102].map(function (x) {
+        return '<g transform="translate(' + (x - 58) + ' 0)">' +
+          '<path class="boot" d="M48 124 H68 V135 C72 136 73 139 72 141.5 H44.5 C43.5 139 45 136 48 135 Z"/>' +
+          '<path class="boot-sole" d="M44 141 H72.5 Q73 144.5 70 145 H46.5 Q43.5 144.5 44 141 Z"/>' +
+          '<path class="boot-cuff" d="M46.5 125 C46.5 120.5 69.5 120.5 69.5 125 C69.5 129 46.5 129 46.5 125 Z"/>' +
+          '<path class="boot-shine" d="M51.5 130 V135"/>' +
+          '</g>';
+      }).join('') + '</g>'
+    },
+    {
+      id: 'heels', slot: 'feet', label: 'High heels', icon: '38 116 84 34',
+      lines: ['so tall!', 'click clack click', 'catwalk ready!'],
+      svg: '<g class="feet-heels">' + [58, 102].map(function (x) {
+        // the outer foot has its heel on the outside
+        var flip = x === 58 ? '' : ' transform="translate(160 0) scale(-1 1)"';
+        return '<g' + flip + '>' +
+          '<path class="heel-spike" d="M46 136 L50.5 136.5 L49.2 148.5 L46.8 148.5 Z"/>' +
+          '<path class="heel-shoe" d="M45 134 C45 130 50 129.5 55 131.5 C61 133.5 67 135.5 71 139 C73.5 141.5 71.5 145 67.5 145 C61 145 55.5 142.5 50.5 140.5 C46.5 139 45 137 45 134 Z"/>' +
+          '<path class="heel-shine" d="M55 135.4 Q60 136.6 64 138.6"/>' +
+          '<path class="heel-bow" d="M64 137.2 L60.6 135 L60.6 139.4 Z M64 137.2 L67.4 135 L67.4 139.4 Z"/>' +
+          '<circle class="heel-bow" cx="64" cy="137.2" r="1.3"/>' +
+          '</g>';
+      }).join('') + '</g>'
     },
     {
       id: 'shades', slot: 'face', label: 'Heart shades', icon: '28 74 104 36',

@@ -134,6 +134,8 @@
                 <ellipse class="nostril-dot" cx="85.5" cy="99" rx="1.6" ry="2"/>
               </g>
               <path data-sp="penguin" class="beak" d="M74 98 Q80 93 86 98 Q80 103 74 98Z"/>
+              <!-- scarves and the like sit under the face, across the bottom of the body -->
+              <g class="outfit-neck"></g>
               <ellipse class="redface" cx="80" cy="100" rx="56" ry="32"/>
               <g class="cheeks">
                 <ellipse class="cheek" cx="40" cy="106" rx="11" ry="6"/>
@@ -205,6 +207,8 @@
               <g class="arm arm-l"><ellipse cx="27" cy="117" rx="7" ry="9"/><ellipse class="arm-hi" cx="25" cy="114" rx="2.4" ry="3"/></g>
               <g class="arm arm-r"><ellipse cx="133" cy="117" rx="7" ry="9"/><ellipse class="arm-hi" cx="131" cy="114" rx="2.4" ry="3"/></g>
             </g>
+            <!-- shoes go on the feet, in front of the bottom of the body -->
+            <g class="outfit-feet"></g>
           </g>
 
           <g data-extra="zzz" class="zzz">
@@ -334,6 +338,14 @@
     <fieldset class="species">
       <legend class="field-label">Glasses</legend>
       <div class="hat-strip" id="faceStrip"></div>
+    </fieldset>
+    <fieldset class="species">
+      <legend class="field-label">Neck</legend>
+      <div class="hat-strip" id="neckStrip"></div>
+    </fieldset>
+    <fieldset class="species">
+      <legend class="field-label">Feet</legend>
+      <div class="hat-strip" id="feetStrip"></div>
     </fieldset>
     <p class="lock-hint" id="hatHint" aria-live="polite" hidden></p>
     <div class="picker-foot">

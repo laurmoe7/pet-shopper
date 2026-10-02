@@ -397,7 +397,18 @@
    * Plays an eating sound unless quiet mode is on.
    * @param {string} kind A Sounds.play kind, e.g. "glug".
    */
-  function sound(kind) { if (!state.quiet && state.settings.sounds) Sounds.play(kind); }
+  function sound(kind) { clickSounded = true; if (!state.quiet && state.settings.sounds) Sounds.play(kind); }
+  // every button and menu item makes a sound: handlers that play their own mark the click,
+  // and any click left silent gets a soft tap (switches play on/off from their change event)
+  var clickSounded = false;
+  document.addEventListener('click', function () { clickSounded = false; }, true);
+  document.addEventListener('click', function (e) {
+    if (clickSounded) return;
+    var b = e.target.closest('button, .menu-item');
+    // a sheet's Done button closes it, and closing plays its own sound
+    if (!b || b.disabled || e.target.closest('label') || (b.form && b.form.method === 'dialog')) return;
+    sound('tap');
+  });
   // phones only allow audio that starts from a tap, so wake the audio engine on the first one
   document.addEventListener('pointerdown', function unlockAudio() {
     Sounds.unlock();
@@ -795,24 +806,33 @@
    */
   function wardrobeItem(id) { return byId(Wardrobe, id); }
   /**
-   * Draws an outfit into a pet drawing: hats on the head, body items (hoodies) over the whole pet.
+   * Draws an outfit into a pet drawing: hats on the head, body items (hoodies) over the whole pet,
+   * and glasses, neckwear and shoes in their own places.
    * @param {Element} el A .pet element.
-   * @param {{hat: string}} outfit
+   * @param {{hat: string, face: string, neck: string, feet: string}} outfit
    */
   function dressUp(el, outfit) {
     var item = wardrobeItem(outfit.hat);
     var body = !!(item && item.layer === 'body');
-    var face = wardrobeItem(outfit.face);
     el.querySelector('.outfit-hat').innerHTML = item && !body ? item.svg : '';
     el.querySelector('.outfit-body').innerHTML = item && body ? item.svg : '';
-    el.querySelector('.outfit-face').innerHTML = face ? face.svg : '';
+    ['face', 'neck', 'feet'].forEach(function (slot) {
+      var w = wardrobeItem(outfit[slot]);
+      el.querySelector('.outfit-' + slot).innerHTML = w ? w.svg : '';
+    });
     el.classList.toggle('hooded', !!(item && item.hood));
     el.classList.toggle('snug', !!(item && item.snug));
   }
 
-  var dressSheet = $('dressSheet'), dressPreview = $('dressPreview'), hatStrip = $('hatStrip'), faceStrip = $('faceStrip');
-  // one strip per slot: hats (and hoodies) on the head, glasses on the face
-  [{ slot: 'hat', strip: hatStrip, none: 'Nothing' }, { slot: 'face', strip: faceStrip, none: 'No glasses' }].forEach(function (row) {
+  var dressSheet = $('dressSheet'), dressPreview = $('dressPreview');
+  // one strip per slot: hats (and hoodies) on the head, glasses, neckwear and shoes
+  var WEAR_ROWS = [
+    { slot: 'hat', strip: $('hatStrip'), none: 'Nothing' },
+    { slot: 'face', strip: $('faceStrip'), none: 'No glasses' },
+    { slot: 'neck', strip: $('neckStrip'), none: 'Bare neck' },
+    { slot: 'feet', strip: $('feetStrip'), none: 'Bare feet' }
+  ];
+  WEAR_ROWS.forEach(function (row) {
     [{ id: 'none', label: row.none }].concat(Wardrobe.filter(function (w) { return w.slot === row.slot; })).forEach(function (item) {
       var b = document.createElement('button');
       b.type = 'button';
@@ -827,9 +847,9 @@
       row.strip.appendChild(b);
     });
   });
-  /** Every wardrobe button, hats and glasses. */
-  function wearButtons() { return dressSheet.querySelectorAll('#hatStrip button, #faceStrip button'); }
-  /** Marks the chosen hat and glasses in the dressing room and updates its preview. */
+  /** Every wardrobe button, in every slot. */
+  function wearButtons() { return dressSheet.querySelectorAll('.hat-strip button'); }
+  /** Marks what is worn in each slot in the dressing room and updates its preview. */
   function refreshDressRoom() {
     wearButtons().forEach(function (b) {
       b.setAttribute('aria-pressed', b.dataset.hat === state.pet.outfit[b.dataset.slot] ? 'true' : 'false');
@@ -876,8 +896,7 @@
       view.classList.remove('hop'); void view.offsetWidth; view.classList.add('hop');
     }
   }
-  hatStrip.addEventListener('click', onWearClick);
-  faceStrip.addEventListener('click', onWearClick);
+  WEAR_ROWS.forEach(function (row) { row.strip.addEventListener('click', onWearClick); });
   // pointing at an unlocked outfit makes the pet react to it
   var dressBubble = $('dressBubble'), dressBubbleTimer, hoveredHat = null, lastOoh = 0;
   /**
@@ -911,7 +930,7 @@
   function onHatHover(e) {
     // a finger has no hover: on phones the tap itself gets the outfit's line
     if (e.pointerType === 'touch') return;
-    var b = e.target.closest && e.target.closest('#hatStrip button, #faceStrip button');
+    var b = e.target.closest && e.target.closest('.hat-strip button');
     if (!b || b.dataset.hat === hoveredHat) return;
     hoveredHat = b.dataset.hat;
     if (!unlocked('hat', b.dataset.hat) || b.dataset.hat === state.pet.outfit[b.dataset.slot]) return;
@@ -932,7 +951,8 @@
     clearTimeout(sparkleTimer);
     sparkleTimer = setTimeout(function () { view.dataset.eyes = 'open'; view.dataset.mouth = 'smile'; }, 600);
   }
-  [hatStrip, faceStrip].forEach(function (strip) {
+  WEAR_ROWS.forEach(function (row) {
+    var strip = row.strip;
     strip.addEventListener('pointerover', onHatHover);
     strip.addEventListener('focusin', onHatHover);
     strip.addEventListener('pointerleave', onHatLeave);
@@ -948,7 +968,7 @@
     hoveredHat = null;
     if (!busy) {
       setFace(FACES.tada); pulse('hop', 500);
-      var item = wardrobeItem(state.pet.outfit.hat) || wardrobeItem(state.pet.outfit.face);
+      var item = L.OUTFIT_SLOTS.some(function (slot) { return wardrobeItem(state.pet.outfit[slot]); });
       if (item) talk('look', ['so fancy!', 'how do I look?', 'kawaii?', 'ta-da!'], 1500); else say('fresh look!', 1500);
       setTimeout(function () { if (!busy) settle(); }, 1000);
     }
@@ -1517,6 +1537,7 @@
   });
   devNoWait.addEventListener('change', function () {
     state.dev.noWait = devNoWait.checked;
+    sound(devNoWait.checked ? 'on' : 'off');
     save();
   });
   $('devBtn').addEventListener('click', function () {

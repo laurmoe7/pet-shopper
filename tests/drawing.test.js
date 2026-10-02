@@ -86,3 +86,12 @@ test('the headphones are over-ear: padded band, hinges, round cups with rims and
   }
   assert.match(Wardrobe.find((w) => w.id === 'mintphones').svg, /phones-mint/);
 });
+
+test('the pet has places for neckwear (under the face) and shoes (over the feet)', () => {
+  const neck = html.indexOf('<g class="outfit-neck">'), face = html.indexOf('<g class="outfit-face">');
+  const feet = html.indexOf('<g class="outfit-feet">'), arms = html.indexOf('<g class="arm arm-r">');
+  assert.ok(neck > 0 && neck < html.indexOf('class="redface"') && neck < face);
+  assert.ok(feet > arms, 'shoes are drawn in front of the body');
+  assert.match(html, /id="neckStrip"/);
+  assert.match(html, /id="feetStrip"/);
+});
