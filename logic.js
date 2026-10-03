@@ -28,6 +28,15 @@
    * @property {Object<string, number>} tastes  How many of each food category it has eaten.
    * @property {Object<string, {x: number, y: number}>} room  Placed decor by id, with its
    *   spot in the room (0 to 1 across and down).
+   * @property {Object<string, Favourite>} favourites  What has been bought most, by word.
+   */
+
+  /**
+   * @typedef {Object} Favourite
+   * @property {string} label  The item's word, without quantities, ready to show.
+   * @property {string} emoji
+   * @property {number} count  Days it was bought on.
+   * @property {string} day    The last day it counted (dayKey).
    */
 
   /**
@@ -93,6 +102,7 @@
       room: saved.room && typeof saved.room === 'object' ? saved.room : {},
       personality: saved.personality || 'foodie',
       tastes: saved.tastes && typeof saved.tastes === 'object' ? saved.tastes : {},
+      favourites: saved.favourites && typeof saved.favourites === 'object' ? saved.favourites : {},
       guard: {
         day: (saved.guard && saved.guard.day) || '',
         words: (saved.guard && Array.isArray(saved.guard.words)) ? saved.guard.words : [],
@@ -708,11 +718,91 @@
       state.pet.achievements[id].day = back(state.pet.achievements[id].day);
     });
     state.pet.guard.day = back(state.pet.guard.day);
+    Object.keys(state.pet.favourites).forEach(function (k) {
+      state.pet.favourites[k].day = back(state.pet.favourites[k].day);
+    });
     if (state.pet.guard.lastSeen) state.pet.guard.lastSeen -= ms;
     state.items.forEach(function (i) {
       if (typeof i.added === 'number') i.added -= ms;
       if (i.countedDay) i.countedDay = back(i.countedDay);
+      if (i.fav) { i.fav.day = back(i.fav.day); i.fav.prev = back(i.fav.prev); }
     });
+  }
+
+  // ---------- favourites: what you buy most ----------
+  // Uses the same fair-play rules as goals: an item counts after 15 minutes on the list,
+  // once a day per word, and putting it back the same day takes the count back.
+
+  /** The most favourites kept; the least bought are dropped past this. */
+  var MAX_FAVOURITES = 300;
+
+  /**
+   * Counts an eaten item as bought today.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {Item} item
+   * @param {Date} now
+   * @returns {?{key: string, day: string, prev: string}} What to remember on the item so
+   *   putting it back can undo this, or null if it did not count.
+   */
+  function recordFavourite(profile, item, now) {
+    if (!clockOk(profile, now) || !isFresh(item, now)) return null;
+    var key = wordOf(item);
+    if (!key) return null;
+    var today = dayKey(now);
+    var fav = profile.favourites[key];
+    if (fav && fav.day === today) return null;
+    var prev = fav ? fav.day : '';
+    if (!fav) fav = profile.favourites[key] = { label: '', emoji: item.emoji, count: 0, day: '' };
+    fav.count++;
+    fav.day = today;
+    fav.emoji = item.emoji;
+    // shown without quantities, so "500g quark" and "quark" are one favourite
+    fav.label = (key.charAt(0).toUpperCase() + key.slice(1)).slice(0, 40);
+    pruneFavourites(profile);
+    return { key: key, day: today, prev: prev };
+  }
+
+  /**
+   * Takes back a favourite count when the item is put back the same day.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {{key: string, day: string, prev: string}} mark  What recordFavourite returned.
+   * @param {Date} now
+   */
+  function refundFavourite(profile, mark, now) {
+    var fav = mark && profile.favourites[mark.key];
+    if (!fav || mark.day !== dayKey(now) || fav.day !== mark.day) return;
+    fav.count--;
+    fav.day = mark.prev;
+    if (fav.count <= 0) delete profile.favourites[mark.key];
+  }
+
+  /**
+   * @param {PetProfile} profile  Changed in place.
+   */
+  function pruneFavourites(profile) {
+    var keys = Object.keys(profile.favourites);
+    if (keys.length <= MAX_FAVOURITES) return;
+    keys.sort(function (a, b) { return rankFavourites(profile.favourites[b], profile.favourites[a]); })
+      .slice(MAX_FAVOURITES).forEach(function (k) { delete profile.favourites[k]; });
+  }
+
+  /** Orders two favourites: more bought first, then the more recent. */
+  function rankFavourites(a, b) {
+    return (b.count - a.count) || (b.day < a.day ? -1 : b.day > a.day ? 1 : 0) || (a.label < b.label ? -1 : a.label > b.label ? 1 : 0);
+  }
+
+  /**
+   * @param {PetProfile} profile
+   * @param {number} [n]  How many to return; 10 by default.
+   * @returns {Array<{key: string, label: string, emoji: string, count: number}>} The most bought first.
+   */
+  function topFavourites(profile, n) {
+    var favs = profile.favourites;
+    return Object.keys(favs)
+      .filter(function (k) { return favs[k].count > 0 && favs[k].label; })
+      .sort(function (a, b) { return rankFavourites(favs[a], favs[b]); })
+      .slice(0, n || 10)
+      .map(function (k) { return { key: k, label: favs[k].label, emoji: favs[k].emoji, count: favs[k].count }; });
   }
 
   // ---------- room decor ----------
@@ -778,6 +868,9 @@
     recordEaten: recordEaten,
     recordTrip: recordTrip,
     refundEaten: refundEaten,
+    recordFavourite: recordFavourite,
+    refundFavourite: refundFavourite,
+    topFavourites: topFavourites,
     progress: progress,
     isUnlocked: isUnlocked,
     gateFor: gateFor,

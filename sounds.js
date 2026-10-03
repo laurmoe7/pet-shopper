@@ -222,6 +222,14 @@
       chime(t + 0.2, [1047, 1319], 0.08, 0.7, 'sine');
       bite(t + 0.38, null, 0.8);
     },
+    purr: function (t) {
+      // a low rumble that trembles, then a soft two-note chime
+      for (var i = 0; i < 12; i++) {
+        var tt = t + i * 0.07;
+        tone(tt, 0.06, 'triangle', 95 + (i % 2) * 14, 88, env(tt, 0.01, 0.055, 0.22));
+      }
+      chime(t + 0.55, [1319, 1760], 0.07, 0.5, 'sine');
+    },
     huh: function (t) {
       // a questioning "hm?" then a pocket pop
       tone(t, 0.22, 'triangle', 300, 430, env(t, 0.03, 0.2, 0.25));

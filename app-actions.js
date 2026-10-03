@@ -203,6 +203,7 @@ function toggle(id) {
     item.counted = goals.counted;
     item.countedDay = L.dayKey(now);
     item.tasted = L.recordTaste(state.pet, rulesItem(item), now);
+    item.fav = L.recordFavourite(state.pet, rulesItem(item), now) || undefined;
     // personalities this bite just earned are cheered like other unlocks
     Personalities.filter(personalityOpen).forEach(function (p) {
       if (openBefore.indexOf(p) === -1) goals.unlocked.push({ icon: p.icon, unlocks: { kind: 'personality', id: p.id, label: p.label } });
@@ -218,6 +219,8 @@ function toggle(id) {
     L.refundEaten(state.pet, item, now, Achievements);
     if (item.tasted) L.refundTaste(state.pet, item);
     delete item.tasted;
+    if (item.fav) L.refundFavourite(state.pet, item.fav, now);
+    delete item.fav;
     delete item.counted;
     delete item.countedDay;
   }

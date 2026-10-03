@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 49 (3 Oct)
+- New: Top 10 in the Pet menu, ranking what you buy most, with + to add one back to the list.
+- New: stroke Nibble for a purr and hearts.
+
 ## Build 48 (3 Oct)
 - No visible change. The app code is split into smaller files so it is quicker to work on.
 

@@ -256,6 +256,7 @@
           <button type="button" class="menu-item" role="menuitem" id="roomBtn">⌂ Room</button>
           <button type="button" class="menu-item" role="menuitem" id="editPetBtn" aria-label="Change your pet's name and species">✎ Edit pet</button>
           <button type="button" class="menu-item" role="menuitem" id="goalsBtn" aria-label="Goals: unlock new pets and hats">★ Goals</button>
+          <button type="button" class="menu-item" role="menuitem" id="favBtn" aria-label="Top 10: what you buy most">♛ Top 10</button>
         </div>
       </div>
     </div>
@@ -381,6 +382,19 @@
   </form>
 </dialog>
 
+<dialog class="picker pet-sheet" id="favSheet" aria-labelledby="favTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="favTitle">Top 10</h2>
+    <p class="goals-intro">What you buy most. Each item counts once a day, after it has been on your list for a while. Tap + to put one back on the list.</p>
+    <ol class="fav-list" id="favList"></ol>
+    <p class="fav-empty" id="favEmpty" hidden><span class="pet-name">Nibble</span> hasn't seen you buy anything yet. Tick things off and your favourites show up here.</p>
+    <div class="picker-foot">
+      <span></span>
+      <button value="done" class="add-btn">Done</button>
+    </div>
+  </form>
+</dialog>
+
 <dialog class="picker pet-sheet" id="optionsSheet" aria-labelledby="optionsTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="optionsTitle">Options</h2>
@@ -427,6 +441,8 @@
 <script src="app-goals.js"></script>
 <script src="app-events.js"></script>
 <script src="app-personality.js"></script>
+<script src="app-favourites.js"></script>
+<script src="app-petting.js"></script>
 <script src="app-options.js"></script>
 <script src="app-idle.js"></script>
 <script src="app-start.js"></script>

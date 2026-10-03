@@ -148,7 +148,7 @@ button { font: inherit; color: inherit; }
 .cushion::after {
   content: ""; position: absolute; inset: 5px 14px; border: 1.5px dashed var(--cushion-stitch); border-radius: 50%;
 }
-.pet { position: relative; width: 150px; height: 140px; z-index: 1; margin-bottom: 10px; cursor: pointer; }
+.pet { position: relative; width: 150px; height: 140px; z-index: 1; margin-bottom: 10px; cursor: pointer; touch-action: none; }
 .pet-svg { width: 100%; height: 100%; overflow: visible; display: block; }
 
 /* speech bubble */
@@ -895,3 +895,23 @@ button { font: inherit; color: inherit; }
 .clog-sole { fill: #a8703c; stroke: var(--pet-ink); stroke-width: 1.5; stroke-linejoin: round; }
 .clog-grain { fill: none; stroke: #c48848; stroke-width: 1; stroke-linecap: round; }
 .clog-heart { fill: #ee4f6c; }
+
+/* Top 10 */
+.fav-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; min-height: 0; }
+.pet-sheet .fav-list { overflow: visible; }
+.fav {
+  display: grid; grid-template-columns: 1.6rem 34px 1fr auto auto; align-items: center; gap: 10px;
+  background: var(--surface); border: 1.8px solid var(--line); border-radius: 14px; padding: 8px 10px;
+}
+.fav > img { width: 34px; height: 34px; }
+.fav-rank { font-weight: 800; color: var(--muted); text-align: center; }
+.fav.first { background: var(--stage-top); border-color: var(--outline); }
+.fav.first .fav-rank { color: var(--accent); }
+.fav-name { font-weight: 800; min-width: 0; overflow-wrap: anywhere; }
+.fav-count { font-weight: 800; font-size: .85rem; color: var(--muted); }
+.fav-add {
+  width: 34px; height: 34px; border-radius: 50%; border: 1.8px solid var(--outline); background: var(--surface);
+  color: var(--ink); font-size: 1.1rem; font-weight: 800; cursor: pointer; touch-action: manipulation;
+}
+.fav-add:disabled { opacity: .5; cursor: default; }
+.fav-empty { margin: 0; color: var(--muted); font-size: .9rem; }
