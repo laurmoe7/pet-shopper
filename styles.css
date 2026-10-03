@@ -292,7 +292,9 @@ button { font: inherit; color: inherit; }
 .pet.x-cheeks .hatch { opacity: 1; }
 .pet.x-cheeks .cheek { opacity: .9; }
 
-.squish, .pet-body { transform-box: fill-box; transform-origin: 50% 100%; }
+/* The squash and stretch moves the whole drawing as one flat layer. Scaling the curved shapes inside the SVG
+   made the phone redraw them at fractional sizes every frame, which left a hairline across the face. */
+.squash { width: 100%; height: 100%; transform-origin: 50% 93%; will-change: transform; }
 .pupils { transition: transform .4s; transform: translate(var(--look-x, 0px), var(--look-y, 0px)); }
 .pet[data-state="curious"] .pupils { transform: translate(var(--look-x, 0px), calc(var(--look-y, 0px) + 2.5px)); }
 .pet.looking .pupils { transition: transform .12s ease-out; }
@@ -300,17 +302,17 @@ button { font: inherit; color: inherit; }
 .chew { animation: chew .16s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
 
 /* idle: a soft jelly wobble */
-.pet[data-state="sleepy"] .squish { animation: breathe 3.8s ease-in-out infinite; }
-.pet[data-state="curious"] .squish { animation: jelly 2.6s ease-in-out infinite; }
+.pet[data-state="sleepy"] .squash { animation: breathe 3.8s ease-in-out infinite; }
+.pet[data-state="curious"] .squash { animation: jelly 2.6s ease-in-out infinite; }
 .pet[data-state="happy"] .pet-svg { animation: bounce 1s ease-in-out infinite; }
-.pet[data-state="happy"] .squish { animation: jelly 1s ease-in-out infinite; }
-.pet[data-state="stuffed"] .squish { animation: breathe 3.2s ease-in-out infinite; }
+.pet[data-state="happy"] .squash { animation: jelly 1s ease-in-out infinite; }
+.pet[data-state="stuffed"] .squash { animation: breathe 3.2s ease-in-out infinite; }
 
 .pet.hop .pet-svg { animation: hop .5s cubic-bezier(.3, 1.4, .5, 1); }
-.pet.chomp .squish { animation: chomp .32s ease-out; }
-.pet.stretch .squish { animation: stretch 1s ease-in-out; }
-.pet.pat .squish { animation: wobble 1.6s ease-in-out; }
-.pet.spit .squish { animation: spit .35s ease-out; }
+.pet.chomp .squash { animation: chomp .32s ease-out; }
+.pet.stretch .squash { animation: stretch 1s ease-in-out; }
+.pet.pat .squash { animation: wobble 1.6s ease-in-out; }
+.pet.spit .squash { animation: spit .35s ease-out; }
 
 /* idle moves, played now and then while the pet waits */
 .pet.wiggle .pet-svg { animation: wiggle .9s ease-in-out; }
@@ -848,7 +850,7 @@ button { font: inherit; color: inherit; }
 
 /* drawing tests (Developer tools): switches to find what causes a hairline on some phones */
 .dev-sub { margin: 14px 0 4px; font-size: .95rem; }
-.seam-noanim .pet-svg, .seam-noanim .squish, .seam-noanim .pet-body, .seam-noanim .eyes-open, .seam-noanim .ear-g { animation: none !important; }
+.seam-noanim .pet-svg, .seam-noanim .squash, .seam-noanim .pet-body, .seam-noanim .eyes-open, .seam-noanim .ear-g { animation: none !important; }
 .seam-layer .pet { will-change: transform; transform: translateZ(0); }
 .seam-nounder .skin-under { display: none; }
 .seam-nosparkle .stage::before, .seam-nosparkle .stage::after { display: none; }
