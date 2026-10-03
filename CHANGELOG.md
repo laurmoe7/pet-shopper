@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 60 (3 Oct)
+- Bottom bar: Dress-up has a hat, Room a filled house, Treats a filled heart. Room and Goals stickers have a peeling corner.
+- Cardboard look has a dark mode (follows your phone).
+- Cardboard look has no Done button: close a sheet with the grab bar at its top (tap or swipe down), the bar button again, or a tap on the list.
+
 ## Build 59 (3 Oct)
 - New "Cardboard look": kraft-board background, paper labels held on with tape, sticker buttons. Switch it off in Options for the classic pink look.
 - List rows are shorter, so more items fit on the screen.

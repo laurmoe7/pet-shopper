@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '59';
+var BUILD = '60';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -91,6 +91,22 @@ document.addEventListener('keydown', function (e) {
   if (e.key !== 'Escape') return;
   var open = document.querySelectorAll('dialog[open]:not(#picker)');
   if (open.length) open[open.length - 1].close();
+});
+// the cardboard look has no Done button: a grab bar closes a sheet with a tap or a swipe down, and so does a tap on the list
+document.querySelectorAll('dialog.pet-sheet').forEach(function (d) {
+  var grab = document.createElement('button');
+  grab.type = 'button'; grab.className = 'sheet-grab'; grab.setAttribute('aria-label', 'Close');
+  var startY = null;
+  grab.addEventListener('pointerdown', function (e) { startY = e.clientY; grab.setPointerCapture(e.pointerId); });
+  grab.addEventListener('pointerup', function (e) {
+    if (startY !== null && (Math.abs(e.clientY - startY) < 8 || e.clientY - startY > 30)) d.close();
+    startY = null;
+  });
+  d.prepend(grab);
+});
+document.addEventListener('click', function (e) {
+  if (document.documentElement.dataset.look !== 'cardboard' || !e.target.closest('.list-area, .scene-bar')) return;
+  document.querySelectorAll('dialog[open]:not(#picker):not(#roomSheet)').forEach(function (d) { d.close(); });
 });
 // sheets sit just above the bottom bar, wherever the phone puts its home bar
 (function () {
