@@ -166,6 +166,7 @@ button { font: inherit; color: inherit; }
 @keyframes twinkle { 0%, 100% { transform: scale(.6) rotate(0); opacity: .25; } 50% { transform: scale(1) rotate(20deg); opacity: .8; } }
 
 /* ---------- Nibble ---------- */
+.skin-under { fill: var(--pet-skin); }
 .skin { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.6; stroke-linejoin: round; }
 .shine { fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; opacity: .8; }
 .ear { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
