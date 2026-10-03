@@ -40,7 +40,7 @@ The tests live in `tests/` and load the same scripts the browser uses.
   - Only a few count per day, so nothing unlocks in one day.
   - Putting an item back the same day takes its count back.
 - **Little extras.** A shopping cart, daydreams, suggestions and idle moves.
-- **Looks.** A cardboard look with paper labels and sticker buttons (Options switch), or the classic pink look.
+- **Look.** Cardboard with paper labels and sticker buttons, in light and dark (follows your phone).
 - **Options.** Sounds, vibration, quiet mode and more. Developer tools sit at the bottom for testing.
 - **Saved on the device.** Works offline once loaded.
 

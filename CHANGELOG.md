@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 62 (3 Oct)
+- The cardboard look is now the only look (light and dark follow your phone); the Options switch is gone.
+- Poison dart frog: side spots removed. Toad: fewer warts, plus some bumps along the edge of its body.
+- Strawberry: real seed shapes in rows. Chocolate: fewer, square chunks.
+
 ## Build 61 (3 Oct)
 - No more Done buttons: close a sheet with the grab bar at its top (tap or swipe down), the bar button again, or a tap on the list. Removed the "more coming soon" texts.
 - Fixed the Options (gear) button not opening.
