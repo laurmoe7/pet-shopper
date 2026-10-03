@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 56 (3 Oct)
+- New species: Frog (eyes on top of its head) and Hedgehog (spiky cap).
+- Pomeranian and long-haired Syrian: the side fur now blends into the body edge as one fluffy outline, with a single layer of fluff.
+- Floppy-eared bunny has no pink in its ears. Strawberry seeds are scattered at random.
+
 ## Build 55 (3 Oct)
 - Sheets now run down behind the bottom bar instead of ending in a square corner above it. The fade above Done is gone.
 - Skin fixes: chocolate mochi has dark chocolate chips, taro speckles are scattered, dirty piggy has mud splotches, the tabby is grey with a cream muzzle, calico patches stay inside the body, the golden retriever has no face spot.

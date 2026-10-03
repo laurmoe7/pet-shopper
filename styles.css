@@ -1073,6 +1073,22 @@ button { font: inherit; color: inherit; }
 .hl-fringe path { fill: #b95f26; stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
 .boar-mane path { fill: #5e4334; stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
 .tusks path { fill: #fff8e8; stroke: var(--pet-ink); stroke-width: 1.6; stroke-linejoin: round; }
-.fur path { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
+.fur path { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 4.4; stroke-linejoin: round; }
+.fur-blend path { fill: var(--pet-skin); stroke: none; }
 .pom-muzzle { fill: #ffe0b4; }
 .pom-chest { fill: #ffe0b4; stroke: var(--pet-ink); stroke-width: 1.6; stroke-linejoin: round; }
+
+/* floppy bunny ears have no pink */
+.pet[data-skin="floppybunny"] .ear-in { display: none; }
+
+/* ---------- frog and hedgehog ---------- */
+.pet[data-species="frog"] { --pet-skin: #a9e6a2; --pet-skin-shade: #7bce88; --pet-mark: #7bce88; }
+.pet[data-species="hedgehog"] { --pet-skin: #f6dcc0; --pet-skin-shade: #e6c19a; --pet-ear-in: #ffc4cf; --pet-mark: #8d6b52; }
+.pet[data-species="frog"] [data-sp="frog"], .pet[data-species="hedgehog"] [data-sp="hedgehog"] { display: inline; }
+.frog-dome { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.4; }
+.frog-eyes circle { fill: #fff; stroke: var(--pet-ink); stroke-width: 2.2; }
+.frog-belly { fill: #f6fbd2; }
+/* the frog's eyes sit up on its domes */
+.pet[data-species="frog"] .eye-set { transform: translateY(-42px); }
+.hog-spines path { fill: #8d6b52; stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
+.hog-cap path { fill: #8d6b52; stroke: var(--pet-ink); stroke-width: 2.4; stroke-linejoin: round; }
