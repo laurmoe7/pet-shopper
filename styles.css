@@ -679,8 +679,10 @@ button { font: inherit; color: inherit; }
 .peel-spot { fill: #8a6a3d; opacity: .7; }
 .lid-top { fill: #b7bfc9; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
 .lid-rim { fill: #9aa3af; stroke: var(--pet-ink); stroke-width: 1.8; }
-.lid-handle { fill: none; stroke: var(--pet-ink); stroke-width: 5.4; stroke-linecap: round; }
-.lid-line { fill: none; stroke: #8d96a2; stroke-width: 1.2; stroke-linecap: round; }
+.lid-handle { fill: none; stroke: var(--pet-ink); stroke-width: 6; stroke-linecap: round; }
+.lid-handle-in { fill: none; stroke: #c9d0d9; stroke-width: 2.6; stroke-linecap: round; }
+.lid-ring { fill: none; stroke: #6f7886; stroke-width: 1.7; stroke-linecap: round; }
+.lid-rib { fill: none; stroke: #6f7886; stroke-width: 2; stroke-linecap: round; }
 .lid-shine { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; opacity: .7; }
 .lid-dent { fill: none; stroke: #8d96a2; stroke-width: 1.2; stroke-linecap: round; }
 .specs-lens { fill: rgba(255, 255, 255, .35); stroke: none; }

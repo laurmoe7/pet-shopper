@@ -236,7 +236,7 @@
     {
       id: 'bananapeel', slot: 'hat', snug: true, label: 'Banana peel', icon: '20 0 120 66',
       lines: ['slippery when worn!', 'a-peeling, right?', 'going bananas!'],
-      svg: '<g class="hat-banana">' +
+      svg: '<g class="hat-banana" transform="translate(24 4) translate(80 40) rotate(34) scale(.6) translate(-80 -40)">' +
         '<path class="peel" d="M76 42 C62 28 40 32 32 54 C44 56 60 51 72 47 Z"/>' +
         '<path class="peel" d="M84 42 C98 28 120 32 128 54 C116 56 100 51 88 47 Z"/>' +
         '<path class="peel" d="M71 44 C67 26 74 14 80 8 C86 14 93 26 89 44 C85 47 75 47 71 44 Z"/>' +
@@ -248,13 +248,14 @@
     {
       id: 'trashlid', slot: 'hat', snug: true, label: 'Trash can lid', icon: '20 14 120 52',
       lines: ['one man\'s trash!', 'clang clang!', 'raccoon approved'],
-      svg: '<g class="hat-lid" transform="rotate(-6 80 44)">' +
-        '<path class="lid-handle" d="M68 35 C68 24 92 24 92 35"/>' +
-        '<path class="lid-top" d="M34 50 C40 37 60 33 80 33 C100 33 120 37 126 50 Z"/>' +
-        '<ellipse class="lid-rim" cx="80" cy="50" rx="46" ry="6.5"/>' +
-        '<path class="lid-line" d="M52 44 Q80 39 108 44"/>' +
-        '<path class="lid-shine" d="M44 45 C47 40 53 37 60 36"/>' +
-        '<path class="lid-dent" d="M96 41.5 l5 1.2 M100 46 l4 .8"/>' +
+      svg: '<g class="hat-lid" transform="rotate(-5 80 44)">' +
+        '<ellipse class="lid-rim" cx="80" cy="47" rx="47" ry="6.4"/>' +
+        '<path class="lid-top" d="M36 46 C37 36 56 30 80 30 C104 30 123 36 124 46 C110 50 50 50 36 46 Z"/>' +
+        '<path class="lid-ring" d="M46 43.6 C50 38.6 64 36 80 36 C96 36 110 38.6 114 43.6"/>' +
+        '<path class="lid-ring" d="M58 41.6 C62 39 71 38.2 80 38.2 C89 38.2 98 39 102 41.6"/>' +
+        '<path class="lid-rib" d="M42 45 L46 40 M52 46.6 L55 39 M66 47.6 L67 39 M94 47.6 L93 39 M108 46.6 L105 39 M118 45 L114 40"/>' +
+        '<path class="lid-shine" d="M42 40.6 C46 35.6 53 33.2 61 32.4"/>' +
+        '<path class="lid-handle" d="M67 34 C67 21 93 21 93 34"/><path class="lid-handle-in" d="M67 34 C67 21 93 21 93 34"/>' +
         '</g>'
     },
     {
@@ -307,12 +308,12 @@
       id: 'heels', slot: 'feet', label: 'High heels', icon: '40 126 80 26',
       lines: ['so tall!', 'click clack click', 'catwalk ready!'],
       svg: '<g class="feet-heels">' + [58, 102].map(function (x) {
-        // a tiny round shoe on a tiny heel, with a bow on the toe
-        return '<path class="heel-spike" d="M' + (x - 1.8) + ' 142.4 L' + (x - 0.9) + ' 147 H' + (x + 0.9) + ' L' + (x + 1.8) + ' 142.4 Z"/>' +
-          '<ellipse class="heel-shoe" cx="' + x + '" cy="140" rx="7.6" ry="3.8"/>' +
-          '<ellipse class="heel-foot" cx="' + x + '" cy="138.4" rx="4.8" ry="1.5"/>' +
-          '<path class="heel-bow" d="M' + x + ' 141 l-2.6 -1.6 v3.2 Z M' + x + ' 141 l2.6 -1.6 v3.2 Z"/>' +
-          '<circle class="heel-bow" cx="' + x + '" cy="141" r="1"/>';
+        // a round pump that covers the whole foot, on a small heel, with a bow on the toe
+        return '<path class="heel-spike" d="M' + (x - 3.4) + ' 142.6 L' + (x - 1.6) + ' 148.6 H' + (x + 1.6) + ' L' + (x + 3.4) + ' 142.6 Z"/>' +
+          '<ellipse class="heel-shoe" cx="' + x + '" cy="138.4" rx="12" ry="6.2"/>' +
+          '<path class="heel-shine" d="M' + (x - 8.6) + ' 139.6 Q' + (x - 7.4) + ' 142.6 ' + (x - 3.6) + ' 143.6"/>' +
+          '<path class="heel-bow" d="M' + x + ' 140.6 l-3.4 -2.2 v4.4 Z M' + x + ' 140.6 l3.4 -2.2 v4.4 Z"/>' +
+          '<circle class="heel-bow" cx="' + x + '" cy="140.6" r="1.2"/>';
       }).join('') + '</g>'
     },
     {
