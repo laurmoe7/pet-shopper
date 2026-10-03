@@ -31,7 +31,7 @@ Plain web app, no build step, no dependencies. `npm test` runs Node's built-in t
   - `app-actions.js`: sound and haptics, the eating queue, list actions, emoji picker.
   - `app-petsheet.js`: edit pet. `app-dress.js`: dressing room. `app-room.js`: room furniture. `app-goals.js`: goals and unlocks.
   - `app-events.js`: adding items, taps and long-presses. `app-personality.js`: personalities and suggestions.
-  - `app-favourites.js`: the Top 10 sheet. `app-petting.js`: stroking Nibble for a purr and hearts. `app-treats.js`: the Treat button (3 a day, cosmetic only).
+  - `app-favourites.js`: the Top 10 sheet (medals, #1 pedestal). `app-petting.js`: stroking Nibble for a purr and hearts. `app-treats.js`: the Treats sheet (pick 3 free snacks a day; they count for goals and tastes but never the Top 10).
   - `app-options.js`: Options and Developer tools. `app-idle.js`: daydreams, idle moves, eye following. `app-start.js`: startup, loads last.
   - A new `app-*.js` file must be added to `index.html`, `SHELL` in `sw.js` and `SCRIPTS` in `tools/build-preview.js`. Top-level code runs as the file loads, so it can only use things from files loaded before it.
 - `logic.js` (`PetLogic`): rules with no page code (item order, mood, saved state, achievement counting, unlocks, favourites tally (`pet.favourites`, same fair-play rules as goals), voice lines, `OUTFIT_SLOTS`, `BIRDS`, dev helpers like `unlockAll`/`skipDays`). Keep logic here so it is testable.

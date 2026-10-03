@@ -195,6 +195,26 @@ function rulesItem(item) {
 }
 
 /**
+ * Counts an eaten item towards goals and tastes (the Top 10 is counted separately).
+ * Shared by ticking an item off and by feeding a treat.
+ * @param {Item} item  Gets `counted`, `countedDay` and `tasted` so putting it back can undo them.
+ * @param {Date} now
+ * @returns {Object} What recordEaten counted, plus any personalities this bite earned.
+ */
+function creditEaten(item, now) {
+  var openBefore = Personalities.filter(personalityOpen);
+  var goals = L.recordEaten(state.pet, rulesItem(item), now, Achievements);
+  item.counted = goals.counted;
+  item.countedDay = L.dayKey(now);
+  item.tasted = L.recordTaste(state.pet, rulesItem(item), now);
+  // personalities this bite just earned are cheered like other unlocks
+  Personalities.filter(personalityOpen).forEach(function (p) {
+    if (openBefore.indexOf(p) === -1) goals.unlocked.push({ icon: p.icon, unlocks: { kind: 'personality', id: p.id, label: p.label } });
+  });
+  return goals;
+}
+
+/**
  * Checks an item off (the pet eats it) or puts it back (the pet spits it out).
  * @param {string} id
  */
@@ -207,16 +227,8 @@ function toggle(id) {
   freshIds[item.id] = true;
   var now = new Date(), goals = null;
   if (item.done) {
-    var openBefore = Personalities.filter(personalityOpen);
-    goals = L.recordEaten(state.pet, rulesItem(item), now, Achievements);
-    item.counted = goals.counted;
-    item.countedDay = L.dayKey(now);
-    item.tasted = L.recordTaste(state.pet, rulesItem(item), now);
+    goals = creditEaten(item, now);
     item.fav = L.recordFavourite(state.pet, rulesItem(item), now) || undefined;
-    // personalities this bite just earned are cheered like other unlocks
-    Personalities.filter(personalityOpen).forEach(function (p) {
-      if (openBefore.indexOf(p) === -1) goals.unlocked.push({ icon: p.icon, unlocks: { kind: 'personality', id: p.id, label: p.label } });
-    });
     if (L.mood(state.items) === 'stuffed') {
       var trip = L.recordTrip(state.pet, state.items.map(rulesItem), now, Achievements);
       goals.counted = goals.counted.concat(trip.counted);

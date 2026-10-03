@@ -30,8 +30,8 @@ The tests live in `tests/` and load the same scripts the browser uses.
 - **The list.** Add items, tick them off, put them back, delete them. Each item gets a food emoji, and you can pick a different one.
 - **Nibble.** Eats each item you tick off, reacts to the type of food, and celebrates when the list is done. Pick a species and a personality, and rename it with a double-tap.
 - **Dress up.** Hats, glasses, scarves and shoes, including a clown nose and clown shoes. Each has its own line when you point at it.
-- **Top 10.** Counts what you buy most (once per item per day, same fair-play rules as goals) and ranks it in the Pet menu. Tap + to put a favourite back on the list.
-- **Petting and treats.** Stroke Nibble with a finger for a purr and hearts. The Pet menu's Treat button gives it a snack that isn't on your list (three a day). Both are only for fun and don't count for goals.
+- **Top 10.** Counts what you buy most (once per item per day, same fair-play rules as goals) and ranks it in the Pet menu, with medals for the top 3 and a pedestal for #1. Tap + to put a favourite back on the list.
+- **Petting and treats.** Stroke Nibble with a finger for a purr and hearts. The Pet menu's Treats sheet lets you pick 3 free snacks a day (each once a day). They count for goals and personalities like shopping does, with the same daily limits, but not for the Top 10.
 - **Memory.** Nibble remarks when you add something you buy a lot, using your Top 10.
 - **Room.** Place furniture behind Nibble and drag it around.
 - **Goals.** Feeding Nibble unlocks new species, personalities and hats. Fair-play rules keep it about real shopping:

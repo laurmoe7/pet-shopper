@@ -130,11 +130,14 @@
    * @param {number} vol
    */
   function crackle(t, vol) {
-    tone(t, 0.05, 'sine', 170, 80, env(t, 0.003, 0.05, 0.4 * vol));
-    var n = 6 + Math.floor(Math.random() * 4);
+    // a soft, crumbly crunch: a quiet thump and a few muffled clicks, with nothing bright or sharp
+    tone(t, 0.07, 'sine', 140, 70, env(t, 0.006, 0.07, 0.22 * vol));
+    var n = 4 + Math.floor(Math.random() * 3);
     for (var i = 0; i < n; i++) {
-      var tt = t + i * rnd(0.006, 0.014);
-      noise(tt, 0.02, 'highpass', rnd(2200, 4200), 0.8, env(tt, 0.001, 0.015, rnd(0.35, 0.7) * vol));
+      var tt = t + 0.004 + i * rnd(0.012, 0.024);
+      var out = env(tt, 0.004, 0.03, rnd(0.14, 0.26) * vol);
+      var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2600; lp.connect(out);
+      noise(tt, 0.04, 'bandpass', rnd(900, 1700), 0.9, lp);
     }
   }
   /**
@@ -223,12 +226,13 @@
       bite(t + 0.38, null, 0.8);
     },
     purr: function (t) {
-      // a low rumble that trembles, then a soft two-note chime
-      for (var i = 0; i < 12; i++) {
-        var tt = t + i * 0.07;
-        tone(tt, 0.06, 'triangle', 95 + (i % 2) * 14, 88, env(tt, 0.01, 0.055, 0.22));
+      // a very quiet, smooth purr under two tiny rising "mrrp" chirps
+      for (var i = 0; i < 14; i++) {
+        var tt = t + i * 0.065;
+        tone(tt, 0.09, 'sine', 150 + (i % 2) * 8, 140, env(tt, 0.025, 0.07, 0.07));
       }
-      chime(t + 0.55, [1319, 1760], 0.07, 0.5, 'sine');
+      tone(t + 0.05, 0.16, 'sine', 420, 600, env(t + 0.05, 0.03, 0.13, 0.1));
+      tone(t + 0.3, 0.16, 'sine', 470, 700, env(t + 0.3, 0.03, 0.13, 0.09));
     },
     huh: function (t) {
       // a questioning "hm?" then a pocket pop

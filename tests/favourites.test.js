@@ -105,16 +105,30 @@ test('Nibble remembers what you buy often: only after three times, and the top o
   assert.equal(L.memoryLine(p, 'bread'), null);
 });
 
-test('treats: three a day, then Nibble is full until tomorrow, and they never count for goals', () => {
+test('treats: three different ones a day, each once, and a new day starts fresh', () => {
   const p = pet();
   const day = at('2026-10-01T09:00');
-  const first = L.giveTreat(p, day, () => 0);
-  assert.equal(first.left, 2);
-  assert.ok(first.emoji && first.cat);
-  assert.equal(L.giveTreat(p, day).left, 1);
-  assert.equal(L.giveTreat(p, day).left, 0);
-  assert.equal(L.giveTreat(p, day), null);
-  assert.equal(L.giveTreat(p, at('2026-10-02T09:00')).left, 2, 'a new day');
+  assert.deepEqual(L.giveTreat(p, 'apple', day), { ok: true, left: 2 });
+  assert.deepEqual(L.giveTreat(p, 'apple', day), { ok: false, why: 'used' });
+  assert.equal(L.giveTreat(p, 'carrot', day).left, 1);
+  assert.equal(L.giveTreat(p, 'fish', day).left, 0);
+  assert.deepEqual(L.giveTreat(p, 'bread', day), { ok: false, why: 'full' });
+  assert.deepEqual(L.giveTreat(p, 'pizza', day), { ok: false, why: 'unknown' });
+  assert.equal(L.giveTreat(p, 'apple', at('2026-10-02T09:00')).left, 2, 'a new day');
+});
+
+test('every treat is a real food with an emoji, so it can count for goals', () => {
+  for (const word of L.TREAT_WORDS) {
+    const item = L.createItem(word, {}, 'x');
+    assert.notEqual(item.cat, 'mystery', word);
+  }
+});
+
+test('treats count for goals but never for the Top 10', () => {
+  const p = pet();
+  const { Achievements } = require('./load');
+  const item = L.createItem('carrot', {}, 'x');   // no added time, so it counts straight away
+  const out = L.recordEaten(p, item, at('2026-10-01T09:00'), Achievements);
+  assert.deepEqual(out.counted, ['veggie-hero']);
   assert.deepEqual(L.topFavourites(p), []);
-  assert.deepEqual(p.achievements, {});
 });

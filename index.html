@@ -256,7 +256,7 @@
           <button type="button" class="menu-item" role="menuitem" id="roomBtn">⌂ Room</button>
           <button type="button" class="menu-item" role="menuitem" id="editPetBtn" aria-label="Change your pet's name and species">✎ Edit pet</button>
           <button type="button" class="menu-item" role="menuitem" id="goalsBtn" aria-label="Goals: unlock new pets and hats">★ Goals</button>
-          <button type="button" class="menu-item" role="menuitem" id="treatBtn" aria-label="Give Nibble a treat">✦ Treat</button>
+          <button type="button" class="menu-item" role="menuitem" id="treatBtn" aria-label="Treats: feed Nibble a free snack">✦ Treats</button>
           <button type="button" class="menu-item" role="menuitem" id="favBtn" aria-label="Top 10: what you buy most">♛ Top 10</button>
         </div>
       </div>
@@ -389,6 +389,19 @@
     <p class="goals-intro">What you buy most. Each item counts once a day, after it has been on your list for a while. Tap + to put one back on the list.</p>
     <ol class="fav-list" id="favList"></ol>
     <p class="fav-empty" id="favEmpty" hidden><span class="pet-name">Nibble</span> hasn't seen you buy anything yet. Tick things off and your favourites show up here.</p>
+    <div class="picker-foot">
+      <span></span>
+      <button value="done" class="add-btn">Done</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="picker pet-sheet" id="treatSheet" aria-labelledby="treatTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="treatTitle">Treats</h2>
+    <p class="goals-intro">Pick up to 3 free snacks a day for <span class="pet-name">Nibble</span>. They count towards goals like shopping does, with the same daily limits, but not towards your Top 10.</p>
+    <div class="treat-grid" id="treatGrid"></div>
+    <p class="treat-left" id="treatLeft" aria-live="polite"></p>
     <div class="picker-foot">
       <span></span>
       <button value="done" class="add-btn">Done</button>

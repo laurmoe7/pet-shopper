@@ -29,7 +29,7 @@
    * @property {Object<string, {x: number, y: number}>} room  Placed decor by id, with its
    *   spot in the room (0 to 1 across and down).
    * @property {Object<string, Favourite>} favourites  What has been bought most, by word.
-   * @property {{day: string, n: number}} treats  Treats given today.
+   * @property {{day: string, used: string[]}} treats  Which free treats were fed today.
    */
 
   /**
@@ -104,7 +104,7 @@
       personality: saved.personality || 'foodie',
       tastes: saved.tastes && typeof saved.tastes === 'object' ? saved.tastes : {},
       favourites: saved.favourites && typeof saved.favourites === 'object' ? saved.favourites : {},
-      treats: { day: (saved.treats && saved.treats.day) || '', n: (saved.treats && Number(saved.treats.n)) || 0 },
+      treats: { day: (saved.treats && saved.treats.day) || '', used: (saved.treats && Array.isArray(saved.treats.used)) ? saved.treats.used : [] },
       guard: {
         day: (saved.guard && saved.guard.day) || '',
         words: (saved.guard && Array.isArray(saved.guard.words)) ? saved.guard.words : [],
@@ -826,31 +826,39 @@
   }
 
   // ---------- treats ----------
-  // A treat is only a cute reaction: it never counts for goals, favourites or tastes.
+  // Free snacks Nibble can be given without shopping. They count for goals and tastes
+  // under the same daily limits as shopping, but never for the Top 10.
 
   /** How many treats Nibble takes a day. */
   var TREATS_PER_DAY = 3;
-  /** What can be a treat, with the food kind that sets its reaction and sound. */
-  var TREATS = [
-    { emoji: '\uD83C\uDF6A', cat: 'sweets' }, { emoji: '\uD83C\uDF6C', cat: 'sweets' }, { emoji: '\uD83C\uDF6D', cat: 'sweets' },
-    { emoji: '\uD83C\uDF69', cat: 'sweets' }, { emoji: '\uD83E\uDDC1', cat: 'sweets' }, { emoji: '\uD83C\uDF53', cat: 'fruit' },
-    { emoji: '\uD83C\uDF4E', cat: 'fruit' }
-  ];
+  /** The treats you can pick from, as item words (each maps to a food emoji and kind). */
+  var TREAT_WORDS = ['apple', 'strawberry', 'carrot', 'broccoli', 'bread', 'cheese', 'peanuts', 'fish', 'cookie'];
 
   /**
-   * Gives Nibble a treat, if it has room for one today.
-   * @param {PetProfile} profile  Changed in place.
+   * @param {PetProfile} profile  Changed in place: a new day starts a fresh list.
    * @param {Date} now
-   * @param {function(): number} [random]
-   * @returns {?{emoji: string, cat: string, left: number}} The treat and how many are left today, or null if it is full.
+   * @returns {string[]} The treats already fed today.
    */
-  function giveTreat(profile, now, random) {
+  function treatsToday(profile, now) {
     var today = dayKey(now);
-    if (profile.treats.day !== today) profile.treats = { day: today, n: 0 };
-    if (profile.treats.n >= TREATS_PER_DAY) return null;
-    profile.treats.n++;
-    var t = TREATS[Math.floor((random || Math.random)() * TREATS.length)];
-    return { emoji: t.emoji, cat: t.cat, left: TREATS_PER_DAY - profile.treats.n };
+    if (profile.treats.day !== today) profile.treats = { day: today, used: [] };
+    return profile.treats.used;
+  }
+
+  /**
+   * Feeds Nibble a treat if there is room: three a day, each one once a day.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {string} word  One of TREAT_WORDS.
+   * @param {Date} now
+   * @returns {{ok: boolean, why?: string, left?: number}} why is 'full', 'used' or 'unknown'.
+   */
+  function giveTreat(profile, word, now) {
+    if (TREAT_WORDS.indexOf(word) === -1) return { ok: false, why: 'unknown' };
+    var used = treatsToday(profile, now);
+    if (used.length >= TREATS_PER_DAY) return { ok: false, why: 'full' };
+    if (used.indexOf(word) !== -1) return { ok: false, why: 'used' };
+    used.push(word);
+    return { ok: true, left: TREATS_PER_DAY - used.length };
   }
 
   // ---------- room decor ----------
@@ -921,7 +929,9 @@
     topFavourites: topFavourites,
     memoryLine: memoryLine,
     giveTreat: giveTreat,
+    treatsToday: treatsToday,
     TREATS_PER_DAY: TREATS_PER_DAY,
+    TREAT_WORDS: TREAT_WORDS,
     progress: progress,
     isUnlocked: isUnlocked,
     gateFor: gateFor,

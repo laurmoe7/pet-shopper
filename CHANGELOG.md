@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 51 (3 Oct)
+- Treats are now 3 free snacks a day that you pick. They count for goals and personalities, not for the Top 10.
+- Top 10: gold, silver and bronze medals, and a crown and pedestal for #1.
+- Softer, cuter purr and a softer crunch (broccoli, apples and so on).
+
 ## Build 50 (3 Oct)
 - New: Treat button in the Pet menu (three a day, just for fun).
 - New: Nibble remembers what you buy a lot and says so when you add it.

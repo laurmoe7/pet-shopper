@@ -905,8 +905,6 @@ button { font: inherit; color: inherit; }
 }
 .fav > img { width: 34px; height: 34px; }
 .fav-rank { font-weight: 800; color: var(--muted); text-align: center; }
-.fav.first { background: var(--stage-top); border-color: var(--outline); }
-.fav.first .fav-rank { color: var(--accent); }
 .fav-name { font-weight: 800; min-width: 0; overflow-wrap: anywhere; }
 .fav-count { font-weight: 800; font-size: .85rem; color: var(--muted); }
 .fav-add {
@@ -924,3 +922,55 @@ button { font: inherit; color: inherit; }
 .clown-pom { fill: #4fa3e8; stroke: var(--pet-ink); stroke-width: 1.2; }
 .cnose { fill: #ee3a4c; stroke: var(--pet-ink); stroke-width: 1.4; }
 .cnose-shine { fill: #fff; opacity: .85; }
+
+/* treats */
+.treat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.treat-grid button {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px;
+  background: var(--surface); border: 1.8px solid var(--line); border-radius: 14px; color: var(--ink);
+  font: inherit; font-weight: 800; font-size: .82rem; cursor: pointer; touch-action: manipulation;
+}
+.treat-grid button img { width: 36px; height: 36px; }
+.treat-grid button:disabled { opacity: .45; cursor: default; }
+.treat-left { margin: 0; text-align: center; font-weight: 800; font-size: .85rem; color: var(--muted); }
+
+/* medals and the #1 pedestal in the Top 10 */
+.fav-rank .medal { width: 22px; height: 28px; display: block; margin: 0 auto; }
+.medal-gold { --medal: #f6c445; --medal-edge: #b8860b; --medal-ribbon: #ee5b6f; }
+.medal-silver { --medal: #dfe3ec; --medal-edge: #7f889c; --medal-ribbon: #6fa8e8; }
+.medal-bronze { --medal: #e0a46c; --medal-edge: #8f5527; --medal-ribbon: #6cc9a0; }
+.medal-ribbon { fill: var(--medal-ribbon); stroke: var(--medal-edge); stroke-width: 1; stroke-linejoin: round; }
+.medal-disc { fill: var(--medal); stroke: var(--medal-edge); stroke-width: 1.6; }
+.medal-ring { fill: none; stroke: var(--medal-edge); stroke-width: 1; opacity: .55; }
+.medal-star { fill: var(--medal-edge); opacity: .8; }
+
+.fav-podium {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 12px 12px 0; margin-bottom: 4px; border-radius: 20px; overflow: hidden;
+  /* gold card: its own colours, so it reads the same in light and dark */
+  color: #5b4239; border: 2.4px solid #d9a21b;
+  background: radial-gradient(circle at 50% 34%, #fffbe8 0%, #ffeba8 60%, #f8d468 100%);
+  box-shadow: 0 6px 16px rgba(217, 162, 27, .35), inset 0 0 0 3px rgba(255, 255, 255, .55);
+}
+.pod-crown { width: 44px; height: 28px; margin-bottom: -2px; }
+.crown { fill: #f6c445; stroke: #b8860b; stroke-width: 1.6; stroke-linejoin: round; }
+.crown-band { fill: #e8a91f; stroke: #b8860b; stroke-width: 1.2; }
+.crown-gem { fill: #ee5b6f; stroke: #b8860b; stroke-width: 1; }
+.pod-emoji { width: 68px; height: 68px; }
+.pod-name { font-weight: 800; font-size: 1.2rem; overflow-wrap: anywhere; text-align: center; }
+.pod-count { font-size: .8rem; font-weight: 800; color: #8a6a2a; }
+.pod-add { position: absolute; top: 10px; right: 10px; background: #fffbe8; border-color: #d9a21b; color: #5b4239; }
+.pedestal { width: 78%; max-width: 230px; margin-top: 8px; }
+.pedestal-top { height: 11px; margin: 0 -9px; border-radius: 7px 7px 0 0; background: linear-gradient(#fff3bd, #f3c23c); border: 1.8px solid #b8860b; border-bottom: 0; }
+.pedestal-body {
+  height: 48px; display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: linear-gradient(90deg, #e3ae2a, #ffe27f 45%, #e3ae2a); border: 1.8px solid #b8860b; border-bottom: 0;
+  font-weight: 800; font-size: 1.6rem; color: #8a5a00;
+}
+.pedestal-body .medal { width: 26px; height: 33px; }
+.pod-sparkle { position: absolute; color: #f0b323; font-size: 1rem; animation: pod-twinkle 2.4s ease-in-out infinite; pointer-events: none; }
+.pod-sparkle.s1 { top: 18px; left: 18%; }
+.pod-sparkle.s2 { top: 52px; right: 16%; font-size: .8rem; animation-delay: .8s; }
+.pod-sparkle.s3 { top: 74px; left: 12%; font-size: .75rem; animation-delay: 1.5s; }
+@keyframes pod-twinkle { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .pod-sparkle { animation: none; opacity: .8; } }
