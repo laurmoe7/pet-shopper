@@ -845,3 +845,10 @@ button { font: inherit; color: inherit; }
 .round-lens { fill: rgba(86, 60, 96, .72); stroke: #2f2a33; stroke-width: 2.6; }
 .round-bridge, .round-arm { fill: none; stroke: #2f2a33; stroke-width: 2.4; stroke-linecap: round; }
 .round-shine { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; opacity: .7; }
+
+/* drawing tests (Developer tools): switches to find what causes a hairline on some phones */
+.dev-sub { margin: 14px 0 4px; font-size: .95rem; }
+.seam-noanim .pet-svg, .seam-noanim .squish, .seam-noanim .pet-body, .seam-noanim .eyes-open, .seam-noanim .ear-g { animation: none !important; }
+.seam-layer .pet { will-change: transform; transform: translateZ(0); }
+.seam-nounder .skin-under { display: none; }
+.seam-nosparkle .stage::before, .seam-nosparkle .stage::after { display: none; }
