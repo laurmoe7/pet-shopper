@@ -118,11 +118,8 @@ button { font: inherit; color: inherit; }
   .brand-sub { display: none; }
   .scene-bar { gap: 6px; }
   .scene-tools { gap: 5px; }
-  .tally { font-size: .72rem; }
   .gear-btn { padding: 4px 6px; }
-  #quietBtn { padding-left: 10px; padding-right: 10px; }
 }
-.tally { white-space: nowrap; font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; font-weight: 700; }
 .pill-btn {
   border: 1.5px solid var(--outline); background: var(--surface); border-radius: 999px;
   padding: 3px 12px; font-size: .82rem; font-weight: 800; cursor: pointer; color: var(--ink);
@@ -163,6 +160,8 @@ button { font: inherit; color: inherit; }
   box-shadow: 0 2px 0 var(--outline);
   animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); transform-origin: 0 100%;
 }
+/* in an open menu the bubble hangs at the top of the screen so it still shows over the sheet */
+.bubble.in-sheet { position: fixed; left: auto; right: 12px; top: calc(env(safe-area-inset-top, 0px) + 10px); max-width: min(68vw, 300px); z-index: 100; transform-origin: 100% 100%; }
 @keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes twinkle { 0%, 100% { transform: scale(.6) rotate(0); opacity: .25; } 50% { transform: scale(1) rotate(20deg); opacity: .8; } }
 
@@ -234,9 +233,10 @@ button { font: inherit; color: inherit; }
 .pet[data-species="hamster"] [data-sp="hamster"],
 .pet[data-species="penguin"] [data-sp="penguin"] { display: inline; }
 .pet[data-species="puppy"] .ear { fill: var(--pet-mark); }
-/* the twist's fill dips over the head outline and its line stops on it, so it grows out of the head with no seam */
-.twist-fill { fill: var(--pet-skin); }
-.twist-line { fill: none; stroke: var(--pet-ink); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+/* the mochi's head and twist are one outline; headwear that tucks the twist away swaps back to the plain head */
+.pet[data-species="mochi"] .skin:not(.skin-twist) { display: none; }
+.pet[data-species="mochi"].snug .skin:not(.skin-twist), .pet[data-species="mochi"].hooded .skin:not(.skin-twist) { display: inline; }
+.pet.snug .skin-twist, .pet.hooded .skin-twist { display: none; }
 .foot { fill: var(--pet-skin-shade); stroke: var(--pet-ink); stroke-width: 2.4; }
 .arm ellipse { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.2; }
 .arm .arm-hi { fill: #fff; stroke: none; opacity: .7; }
@@ -489,9 +489,9 @@ button { font: inherit; color: inherit; }
 .hood-toggle { fill: #ffc1cf; stroke: var(--pet-ink); stroke-width: 1.2; }
 /* the hood tucks the pet's own ears, horns and tufts away; sleeves match the hoodie */
 .pet.hooded .squish > [data-sp]:not(.skin ~ *),
-.pet.hooded [data-sp="puppy"] .ear, .pet.hooded .twist { display: none; }
+.pet.hooded [data-sp="puppy"] .ear { display: none; }
 /* snug headwear (bandana, headphones) tucks the mochi twist and chick tuft under it */
-.pet.snug .twist, .pet.snug .tuft { display: none; }
+.pet.snug .tuft { display: none; }
 .pet.hooded .arm ellipse:not(.arm-hi) { fill: #fffdf9; }
 
 /* ---------- options ---------- */
