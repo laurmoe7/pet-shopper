@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 53 (3 Oct)
+- The bottom bar stays visible when a screen such as Goals is open. Tap a bar button again to close its screen, or tap another to switch.
+- Skins: the chick is now the Birdie, which can wear a skin. Penguin (earned with the Fish fan goal) and a new Parrot (free for now) are skins. Existing chicks and penguins carry over.
+
 ## Build 52 (3 Oct)
 - The Pet drop-down is gone. Dress, Room, Treats, Top 10, Goals and Pet are buttons in a bar at the bottom of the screen.
 - The Treats panel is low so you can watch Nibble eat, and stays open until Done.

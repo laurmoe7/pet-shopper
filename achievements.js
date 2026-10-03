@@ -1,4 +1,4 @@
-/* Achievements: goals that unlock species and hats.
+/* Achievements: goals that unlock species, skins and hats.
  * Each one counts eaten items that match `foods` (food categories and/or specific
  * emojis), or finished shopping trips when `trips` is true. Only `perDay` count
  * per calendar day, so nothing can be unlocked in a single day.
@@ -13,7 +13,7 @@
       id: 'fish-fan', title: 'Fish fan', icon: '🐟',
       text: 'Feed your pet 20 fish or seafood',
       foods: { emojis: '🐟🍣🍤🦐🦀🦑🦪🦞' }, goal: 20, perDay: 2,
-      unlocks: { kind: 'species', id: 'penguin', label: 'Penguin' }
+      unlocks: { kind: 'skin', id: 'penguin', base: 'birdie', label: 'Penguin skin' }
     },
     {
       id: 'veggie-hero', title: 'Veggie hero', icon: '🥕',
@@ -25,7 +25,7 @@
       id: 'bakery-buddy', title: 'Bakery buddy', icon: '🍞',
       text: 'Feed your pet 10 breads or pastries',
       foods: { cats: ['baked'] }, goal: 10, perDay: 2,
-      unlocks: { kind: 'species', id: 'chick', label: 'Chick' }
+      unlocks: { kind: 'species', id: 'birdie', label: 'Birdie' }
     },
     {
       id: 'dairy-day', title: 'Milk & cheese', icon: '🧀',
@@ -54,5 +54,5 @@
   ];
 
   // Available from the start, no achievement needed.
-  root.FreeUnlocks = { species: ['mochi', 'pig', 'kitty', 'puppy'], hat: ['none', 'tophat', 'cap', 'hoodie', 'hardhat', 'bandana', 'headphones', 'mintphones', 'chefhat', 'knight', 'shades', 'redspecs', 'eyepatch', 'nerdspecs', 'scarf', 'silkscarf', 'boa', 'toast', 'boots', 'heels', 'bunnyslippers', 'bananapeel', 'trashlid', 'beret', 'roundshades', 'necktie', 'mustache', 'clownwig', 'jestercap', 'cowboyhat', 'sidecap', 'cowboyboots', 'clogs', 'clownshoes', 'clownnose'] };
+  root.FreeUnlocks = { skin: ['parrot'], species: ['mochi', 'pig', 'kitty', 'puppy'], hat: ['none', 'tophat', 'cap', 'hoodie', 'hardhat', 'bandana', 'headphones', 'mintphones', 'chefhat', 'knight', 'shades', 'redspecs', 'eyepatch', 'nerdspecs', 'scarf', 'silkscarf', 'boa', 'toast', 'boots', 'heels', 'bunnyslippers', 'bananapeel', 'trashlid', 'beret', 'roundshades', 'necktie', 'mustache', 'clownwig', 'jestercap', 'cowboyhat', 'sidecap', 'cowboyboots', 'clogs', 'clownshoes', 'clownnose'] };
 })(typeof self !== 'undefined' ? self : globalThis);

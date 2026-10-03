@@ -28,7 +28,7 @@ The tests live in `tests/` and load the same scripts the browser uses.
 ## What's in it
 
 - **The list.** Add items, tick them off, put them back, delete them. Each item gets a food emoji, and you can pick a different one.
-- **Nibble.** Eats each item you tick off, reacts to the type of food, and celebrates when the list is done. Pick a species and a personality, and rename it with a double-tap.
+- **Nibble.** Eats each item you tick off, reacts to the type of food, and celebrates when the list is done. Pick a species (and a skin for it, such as the birdie's penguin and parrot looks) and a personality, and rename it with a double-tap.
 - **Bottom bar.** Dress, Room, Treats, Top 10, Goals and Pet (rename, species, personality) are always one tap away at the bottom of the screen.
 - **Dress up.** Hats, glasses, scarves and shoes, including a clown nose and clown shoes. Each has its own line when you point at it.
 - **Top 10.** Counts what you buy most (once per item per day, same fair-play rules as goals) and ranks it on its own screen (bottom bar), with medals for the top 3 and a pedestal for #1. Tap + to put a favourite back on the list.
@@ -51,6 +51,7 @@ Not in it yet: accounts, shared lists, payments, multiple lists. See `CHANGELOG.
 - `foods.js`: the keyword dictionary and matching.
 - `logic.js`: the app's rules with no page code (item order, mood, emoji picks, sound choice, saved state, achievement counting and unlocks), so they can be tested.
 - `achievements.js`: the goals, what counts for each, the daily limit and what they unlock.
+- `skins.js`: skins that change how a species looks.
 - `personalities.js`: personalities, what they like and suggest, how they talk (`voice`), and how to earn them.
 - `decor.js`: furniture and decor for the room behind the pet.
 - `wardrobe.js`: the dressing-room items (hats), drawn as SVG on the pet's head.

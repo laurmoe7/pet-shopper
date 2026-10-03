@@ -19,7 +19,8 @@
   /**
    * @typedef {Object} PetProfile
    * @property {string} name
-   * @property {string} species  One of the species ids, e.g. "mochi", "pig", "penguin".
+   * @property {string} species  One of the species ids, e.g. "mochi", "pig", "birdie".
+   * @property {string} skin  The skin worn on the species (from skins.js), or "" for its original look.
    * @property {{hat: string, face: string, neck: string, feet: string}} outfit  Wardrobe item id per slot
    *   (hat, glasses, neck, feet; see OUTFIT_SLOTS); "none" for nothing.
    * @property {Object<string, Progress>} achievements  Progress per achievement id.
@@ -95,9 +96,15 @@
    */
   function petProfile(saved) {
     saved = saved || {};
+    // the chick and penguin became one species, the birdie, with the penguin as a skin
+    var species = saved.species || 'mochi';
+    var skin = typeof saved.skin === 'string' ? saved.skin : '';
+    if (species === 'chick') species = 'birdie';
+    else if (species === 'penguin') { species = 'birdie'; skin = 'penguin'; }
     return {
       name: typeof saved.name === 'string' ? saved.name : 'Nibble',
-      species: saved.species || 'mochi',
+      species: species,
+      skin: skin,
       outfit: OUTFIT_SLOTS.reduce(function (o, slot) { o[slot] = (saved.outfit && saved.outfit[slot]) || 'none'; return o; }, {}),
       achievements: saved.achievements && typeof saved.achievements === 'object' ? saved.achievements : {},
       room: saved.room && typeof saved.room === 'object' ? saved.room : {},
@@ -465,14 +472,19 @@
    * Whether a species or hat can be used. Free items always can; items that an
    * achievement unlocks need that achievement finished; anything else is open.
    * @param {PetProfile} profile
-   * @param {'species'|'hat'} kind
+   * @param {'species'|'skin'|'hat'} kind
    * @param {string} id
    * @param {Object[]} achievements
-   * @param {{species: string[], hat: string[]}} free
+   * @param {{species: string[], skin: string[], hat: string[]}} free
    * @returns {boolean}
    */
   function isUnlocked(profile, kind, id, achievements, free) {
     if (free[kind] && free[kind].indexOf(id) !== -1) return true;
+    // a species is also usable once one of its skins has been earned
+    if (kind === 'species' && achievements.some(function (a) {
+      var p = profile.achievements[a.id];
+      return a.unlocks && a.unlocks.kind === 'skin' && a.unlocks.base === id && !!p && p.count >= a.goal;
+    })) return true;
     var gate = achievements.filter(function (a) { return a.unlocks && a.unlocks.kind === kind && a.unlocks.id === id; })[0];
     if (!gate) return true;
     var p = profile.achievements[gate.id];
@@ -578,7 +590,7 @@
   }
 
   /** Species that are birds: they talk and eat with a beak, so they have no mouth. Add new birds here. */
-  var BIRDS = ['chick', 'penguin'];
+  var BIRDS = ['birdie'];
 
   /**
    * @param {string} species
@@ -696,7 +708,8 @@
     profile.tastes = {};
     profile.guard = { day: '', words: [], lastSeen: 0 };
     profile.personality = 'foodie';
-    if (!isUnlocked(profile, 'species', profile.species, achievements, free)) profile.species = 'mochi';
+    if (!isUnlocked(profile, 'species', profile.species, achievements, free)) { profile.species = 'mochi'; profile.skin = ''; }
+    else if (profile.skin && !isUnlocked(profile, 'skin', profile.skin, achievements, free)) profile.skin = '';
     OUTFIT_SLOTS.forEach(function (slot) {
       if (!isUnlocked(profile, 'hat', profile.outfit[slot], achievements, free)) profile.outfit[slot] = 'none';
     });

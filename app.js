@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '52';
+var BUILD = '53';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -69,7 +69,36 @@ function svgIcon(view, inner) {
  * Opens a sheet as a modal, or plainly where <dialog> isn't supported.
  * @param {HTMLDialogElement} d
  */
-function openDialog(d) { sound('open'); if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
+function openDialog(d) {
+  if (d.id === 'picker') {          // the emoji picker covers everything, like before
+    sound('open');
+    if (d.showModal) d.showModal(); else d.setAttribute('open', '');
+    return;
+  }
+  // the other sheets are panels above the bottom bar, so the bar stays usable: tapping a bar
+  // button again closes its sheet, and tapping another one swaps sheets
+  if (d.open) { d.close(); return; }
+  closeSheets();
+  sound('open');
+  if (d.show) d.show(); else d.setAttribute('open', '');
+}
+/** Closes every open sheet except the emoji picker. */
+function closeSheets() {
+  document.querySelectorAll('dialog[open]:not(#picker)').forEach(function (d) { d.close(); });
+}
+// Escape closes the sheet that is open
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Escape') return;
+  var open = document.querySelectorAll('dialog[open]:not(#picker)');
+  if (open.length) open[open.length - 1].close();
+});
+// sheets sit just above the bottom bar, wherever the phone puts its home bar
+(function () {
+  var dock = document.querySelector('.dock');
+  function measure() { document.documentElement.style.setProperty('--dock-h', dock.offsetHeight + 'px'); }
+  measure();
+  addEventListener('resize', measure);
+})();
 
 // ---------- elements ----------
 var $ = function (id) { return document.getElementById(id); };

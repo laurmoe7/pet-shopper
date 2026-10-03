@@ -9,10 +9,9 @@ var SPECIES = [
   { id: 'kitty', label: 'Cat' },
   { id: 'puppy', label: 'Dog' },
   { id: 'bunny', label: 'Bunny' },
-  { id: 'chick', label: 'Chick' },
+  { id: 'birdie', label: 'Birdie' },
   { id: 'cow', label: 'Cow' },
-  { id: 'hamster', label: 'Hamster' },
-  { id: 'penguin', label: 'Penguin' }
+  { id: 'hamster', label: 'Hamster' }
 ];
 var petSheet = $('petSheet'), petNameInput = $('petNameInput'), speciesGrid = $('speciesGrid');
 
@@ -22,6 +21,7 @@ function petName() { return (state.pet.name || '').trim() || 'Nibble'; }
 function applyPet() {
   var name = petName();
   pet.dataset.species = state.pet.species;
+  pet.dataset.skin = state.pet.skin || '';
   pet.classList.toggle('beaked', L.isBird(state.pet.species));
   pet.setAttribute('aria-label', name + ', your pet');
   document.querySelectorAll('.pet-name').forEach(function (el) { el.textContent = name; });
@@ -30,6 +30,7 @@ function applyPet() {
   speciesGrid.querySelectorAll('button').forEach(function (b) {
     b.setAttribute('aria-pressed', b.dataset.species === state.pet.species ? 'true' : 'false');
   });
+  renderSkins();
 }
 
 /** @returns {SVGSVGElement} A copy of the pet drawing for a button or the dressing room. */
@@ -55,12 +56,53 @@ SPECIES.forEach(function (sp) {
   b.append(mini, label);
   speciesGrid.appendChild(b);
 });
+
+// ---------- skins: a species can wear a skin that changes how it looks ----------
+var skinGrid = $('skinGrid'), skinField = $('skinField');
+/** Shows the skin choices for the current species (an "original" look plus its skins), or hides them if it has none. */
+function renderSkins() {
+  var mine = Skins.filter(function (s) { return s.base === state.pet.species; });
+  skinField.hidden = mine.length === 0;
+  var options = [{ id: '', label: 'Original' }].concat(mine);
+  skinGrid.replaceChildren.apply(skinGrid, options.map(function (sk) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.skin = sk.id;
+    b.setAttribute('aria-pressed', sk.id === (state.pet.skin || '') ? 'true' : 'false');
+    var mini = document.createElement('div');
+    mini.className = 'pet mini x-cheeks' + (L.isBird(state.pet.species) ? ' beaked' : '');
+    mini.dataset.species = state.pet.species;
+    mini.dataset.skin = sk.id;
+    mini.dataset.eyes = 'open';
+    mini.dataset.mouth = 'smile';
+    mini.dataset.arms = 'rest';
+    mini.appendChild(petCopy());
+    var label = document.createElement('span');
+    label.textContent = sk.label;
+    b.append(mini, label);
+    return b;
+  }));
+  refreshLocks();
+}
+skinGrid.addEventListener('click', function (e) {
+  var b = e.target.closest('button');
+  if (!b) return;
+  if (!unlocked('skin', b.dataset.skin)) { lockHint(speciesHint, 'skin', b.dataset.skin); return; }
+  speciesHint.hidden = true;
+  sound('pick');
+  state.pet.skin = b.dataset.skin;
+  save();
+  applyPet();
+  if (!busy) { setFace(FACES.tada); pulse('hop', 500); setTimeout(function () { if (!busy) settle(); }, 900); }
+});
+
 speciesGrid.addEventListener('click', function (e) {
   var b = e.target.closest('button');
   if (!b) return;
   if (!unlocked('species', b.dataset.species)) { lockHint(speciesHint, 'species', b.dataset.species); return; }
   speciesHint.hidden = true;
   sound('pick');
+  if (state.pet.species !== b.dataset.species) state.pet.skin = '';   // skins belong to one species
   state.pet.species = b.dataset.species;
   save();
   applyPet();

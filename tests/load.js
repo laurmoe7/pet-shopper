@@ -6,7 +6,8 @@ require('../sounds.js');
 require('../wardrobe.js');
 require('../decor.js');
 require('../personalities.js');
+require('../skins.js');
 
 module.exports = { Foods: globalThis.Foods, PetLogic: globalThis.PetLogic, Sounds: globalThis.Sounds, Wardrobe: globalThis.Wardrobe,
   Achievements: globalThis.Achievements, FreeUnlocks: globalThis.FreeUnlocks, Decor: globalThis.Decor,
-  Personalities: globalThis.Personalities };
+  Personalities: globalThis.Personalities, Skins: globalThis.Skins };

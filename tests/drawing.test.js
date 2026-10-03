@@ -22,7 +22,7 @@ test('every ear is in a left or right group so it can jiggle', () => {
 
 test('birds have no mouth of their own, only a beak', () => {
   const { PetLogic } = require('./load');
-  assert.ok(PetLogic.isBird('chick') && PetLogic.isBird('penguin'));
+  assert.ok(PetLogic.isBird('birdie'));
   assert.ok(!PetLogic.isBird('pig'));
   for (const b of PetLogic.BIRDS) assert.match(html, new RegExp('data-sp="' + b + '" class="beak"'), b + ' has a beak');
   assert.match(css, /\.pet\.beaked\[data-mouth\] \[data-mouth\] \{ display: none; \}/);
@@ -105,9 +105,9 @@ test('the build number shown in Options matches the service worker cache, so a s
   assert.match(sw, /fetch\(e\.request, \{ cache: 'no-cache' \}\)/, 'the app files come from the network first');
 });
 
-test('plain ellipses sit under the head and the penguin belly, so a GPU hairline crack inside a big path shows skin, not the background', () => {
+test('plain ellipses sit under the head and the penguin skin belly, so a GPU hairline crack inside a big path shows skin, not the background', () => {
   assert.match(html, /<ellipse class="skin-under"[^>]*\/>\s*<path class="skin" /);
-  assert.match(html, /<ellipse data-sp="penguin" class="belly belly-under"/);
+  assert.match(html, /<ellipse data-sk="penguin" class="belly belly-under"/);
   assert.match(css, /\.skin-under \{ fill: var\(--pet-skin\); \}/);
 });
 

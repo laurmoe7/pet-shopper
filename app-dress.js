@@ -68,6 +68,7 @@ $('dressBtn').addEventListener('click', function () {
   var view = document.createElement('div');
   view.className = 'pet preview x-cheeks' + (L.isBird(state.pet.species) ? ' beaked' : '');
   view.dataset.species = state.pet.species;
+  view.dataset.skin = state.pet.skin || '';
   view.dataset.state = 'curious';
   view.dataset.eyes = 'open';
   view.dataset.mouth = 'smile';

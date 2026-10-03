@@ -41,7 +41,8 @@ Plain web app, no build step, no dependencies. `npm test` runs Node's built-in t
 - `decor.js`: room furniture (draggable, stored in `pet.room`). The rug is drawn first.
 - `foods.js`: keyword to emoji dictionary. After adding emoji, regenerate with `node tools/copy-emoji.js <openmoji package>/color/svg` (openmoji@17).
 - `sounds.js`: Web Audio sounds with random pitch and variants.
-- Birds (chick, penguin) get `.beaked` and no mouth; treat future birds the same. Ears live in `.ear-l`/`.ear-r` groups.
+- Birds (the birdie, `PetLogic.BIRDS`) get `.beaked` and no mouth; treat future birds the same. Ears live in `.ear-l`/`.ear-r` groups.
+- Species and skins: a species is a body (`pet.species`); a skin (`pet.skin`, list in `skins.js`) changes colours and parts on that body. The birdie is the first with skins: original (the yellow chick look), penguin (earned by the Fish fan goal) and parrot (free for now). A skin is drawn with `data-skin` rules and `data-sk` parts in `styles.css`/`index.html`; a species' own parts use `data-sp`. Earning any skin also opens its species. Old saves load with chick -> birdie and penguin -> birdie + penguin skin. Prefer a skin over a new species when the new look is mostly colour on an existing body.
 - Options (gear) are saved in `state.settings`, separate from the pet. Developer tools sheet lives in Options.
 
 ### Service worker and builds

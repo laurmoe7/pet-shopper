@@ -72,10 +72,8 @@ var roomSheet = $('roomSheet');
 $('roomBtn').addEventListener('click', function () {
   window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
   renderRoom();
-  sound('open');
-  if (roomSheet.show) roomSheet.show(); else roomSheet.setAttribute('open', '');
+  openDialog(roomSheet);
 });
-roomSheet.addEventListener('keydown', function (e) { if (e.key === 'Escape') roomSheet.close(); });
 
 // drag placed decor around the room
 var drag = null;

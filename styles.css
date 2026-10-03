@@ -196,8 +196,9 @@ button { font: inherit; color: inherit; }
 .snout ellipse { fill: #ffb8c6; stroke: var(--pet-ink); stroke-width: 1.8; }
 .snout .nostril { fill: var(--pet-ink); stroke: none; }
 .belly { fill: #fffaf2; stroke: none; }
-.pet[data-species="penguin"] .belly { fill: #fbfcff; }
-.pet[data-species="penguin"] .shine { opacity: .35; }
+.pet[data-skin="penguin"] .belly { fill: #fbfcff; }
+.pet[data-skin="penguin"] .shine { opacity: .35; }
+.pet[data-skin="parrot"] .parrot-belly { fill: #fff3a6; }
 .horn { fill: #fff3cf; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
 .muzzle { fill: #ffc9d2; stroke: var(--pet-ink); stroke-width: 1.8; }
 .nostril-dot { fill: var(--pet-ink); }
@@ -217,22 +218,35 @@ button { font: inherit; color: inherit; }
 .pet { --pet-skin: #fff8f2; --pet-skin-shade: #ffe4d8; --pet-ear-in: #ffc4cf; --pet-mark: #f3c9a8; }
 .pet[data-species="bunny"] { --pet-skin: #fffafb; --pet-skin-shade: #f7e3ea; --pet-ear-in: #ffbfcc; }
 .pet[data-species="kitty"] { --pet-skin: #fdecd8; --pet-skin-shade: #f5d6b8; --pet-ear-in: #ffc4cf; --pet-mark: #f0b98a; }
-.pet[data-species="chick"] { --pet-skin: #fff1b0; --pet-skin-shade: #ffe07f; }
+.pet[data-species="birdie"] { --pet-skin: #fff1b0; --pet-skin-shade: #ffe07f; }
 .pet[data-species="pig"] { --pet-skin: #ffe1e6; --pet-skin-shade: #ffc9d3; --pet-ear-in: #ff9fb2; }
 .pet[data-species="cow"] { --pet-skin: #fffdf9; --pet-skin-shade: #e9ddd6; --pet-ear-in: #ffc4cf; --pet-mark: #6f5850; }
 .pet[data-species="hamster"] { --pet-skin: #f8cf9f; --pet-skin-shade: #f1b97d; --pet-ear-in: #ffb8c4; }
-.pet[data-species="penguin"] { --pet-skin: #6b7890; --pet-skin-shade: #ffb259; }
+/* skins change the colours (and some parts) of a species */
+.pet[data-skin="penguin"] { --pet-skin: #6b7890; --pet-skin-shade: #ffb259; }
+.pet[data-skin="parrot"] { --pet-skin: #a6e7a0; --pet-skin-shade: #ffd25a; }
 .pet[data-species="puppy"] { --pet-skin: #fff6ec; --pet-skin-shade: #f2dcc4; --pet-mark: #d9b08c; }
 .pet-svg [data-sp] { display: none; }
 .pet[data-species="mochi"] [data-sp="mochi"],
 .pet[data-species="bunny"] [data-sp="bunny"],
 .pet[data-species="kitty"] [data-sp="kitty"],
-.pet[data-species="chick"] [data-sp="chick"],
+.pet[data-species="birdie"] [data-sp="birdie"],
 .pet[data-species="puppy"] [data-sp="puppy"],
 .pet[data-species="pig"] [data-sp="pig"],
 .pet[data-species="cow"] [data-sp="cow"],
-.pet[data-species="hamster"] [data-sp="hamster"],
-.pet[data-species="penguin"] [data-sp="penguin"] { display: inline; }
+.pet[data-species="hamster"] [data-sp="hamster"] { display: inline; }
+.pet-svg [data-sk] { display: none; }
+.pet[data-skin="penguin"] [data-sk="penguin"],
+.pet[data-skin="parrot"] [data-sk="parrot"] { display: inline; }
+/* a skin brings its own tuft and beak, so the base species' plain ones step aside */
+.pet[data-skin="penguin"] [data-sp="birdie"],
+.pet[data-skin="parrot"] [data-sp="birdie"] { display: none; }
+.crest path { stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
+.crest-red { fill: #ee5b6f; }
+.crest-yellow { fill: #ffd84a; }
+.crest-blue { fill: #5fb4f0; }
+.parrot-beak { fill: #ffd25a; }
+.pet[data-skin="parrot"] .arm ellipse { fill: #6ec1f2; }
 .pet[data-species="puppy"] .ear { fill: var(--pet-mark); }
 /* the mochi's head and twist are one outline; headwear that tucks the twist away swaps back to the plain head */
 .pet[data-species="mochi"] .skin:not(.skin-twist) { display: none; }
@@ -432,7 +446,7 @@ button { font: inherit; color: inherit; }
    always ends up after the last option instead of on top of it */
 .pet-sheet .picker-inner { display: block; overflow-y: auto; }
 .pet-sheet .picker-inner > * + * { margin-top: 12px; }
-.pet-sheet .picker-foot { position: sticky; bottom: calc(-12px - env(safe-area-inset-bottom, 0px)); background: var(--surface); margin: 0 -16px; padding: 8px 16px calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 2; }
+.pet-sheet .picker-foot { position: sticky; bottom: -12px; background: var(--surface); margin: 0 -16px; padding: 8px 16px 12px; z-index: 2; }
 
 /* ---------- hats ---------- */
 .hat-dark { fill: #4d3c43; stroke: var(--pet-ink); stroke-width: 2; }
@@ -583,12 +597,12 @@ button { font: inherit; color: inherit; }
 }
 .pet.preview { width: 150px; height: 140px; margin: 0; pointer-events: none; }
 /* the dressing room fills the whole page, and the pet stays pinned at the top while you scroll the outfits */
-.picker.dress-full { max-width: none; width: 100%; height: 100%; max-height: none; margin: 0; border: 0; border-radius: 0; }
+.picker.pet-sheet.dress-full { max-width: none; width: 100%; max-height: none; margin: 0; border: 0; border-radius: 0; inset: 0 0 var(--dock-h, 64px) 0; height: auto; }
 .picker.dress-full .picker-inner { max-height: 100%; height: 100%; box-sizing: border-box; padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
 .picker.dress-full .dress-stage { position: sticky; top: calc(-12px - env(safe-area-inset-top, 0px)); z-index: 3; margin-left: -16px; margin-right: -16px; border-radius: 0 0 22px 22px; border-width: 0 0 1.5px; }
 .picker.dress-full .pet.preview { width: 180px; height: 168px; }
 /* the room panel stays low and has no dimmed backdrop, so the room is always in view */
-.picker.room-sheet { position: fixed; inset: auto 0 0 0; max-height: 42vh; z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
+.picker.room-sheet { position: fixed; inset: auto 0 var(--dock-h, 64px) 0; max-height: 42vh; z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
 .picker.room-sheet .picker-inner { max-height: calc(42vh - 2px); }
 .hat-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .hat-strip button { gap: 4px; padding: 8px 4px; min-width: 0; font-size: .78rem; line-height: 1.2; text-align: center; }
@@ -744,6 +758,9 @@ button { font: inherit; color: inherit; }
   overflow: hidden;
 }
 .picker::backdrop { background: rgba(60, 35, 40, .4); }
+/* the sheets are panels above the bottom bar (not modal), so the bar stays usable */
+.picker.pet-sheet { position: fixed; inset: auto 0 var(--dock-h, 64px) 0; margin: 0 auto; z-index: 20; border-bottom: 1.8px solid var(--outline); box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
+.picker.pet-sheet .picker-inner { padding-bottom: 12px; }
 .picker[open] { animation: sheet .3s cubic-bezier(.3, 1.3, .5, 1); }
 @keyframes sheet { from { transform: translateY(60px); opacity: .5; } to { transform: none; opacity: 1; } }
 .picker-inner { padding: 18px 16px calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; max-height: calc(75vh - 2px); }
@@ -960,7 +977,7 @@ button { font: inherit; color: inherit; }
 @media (prefers-reduced-motion: reduce) { .pod-sparkle { animation: none; opacity: .8; } }
 
 /* the Top 10 fills the screen so all ten fit without scrolling; rows share the height that is left */
-.picker.fav-full { max-width: none; width: 100%; height: 100%; max-height: none; margin: 0; border: 0; border-radius: 0; }
+.picker.pet-sheet.fav-full { max-width: none; width: 100%; max-height: none; margin: 0; border: 0; border-radius: 0; inset: 0 0 var(--dock-h, 64px) 0; height: auto; }
 .picker.fav-full .picker-inner {
   display: flex; flex-direction: column; gap: 8px; height: 100%; max-height: 100%; box-sizing: border-box; overflow: hidden;
   padding-top: calc(12px + env(safe-area-inset-top, 0px));
@@ -968,11 +985,11 @@ button { font: inherit; color: inherit; }
 .picker.fav-full .picker-inner > * + * { margin-top: 0; }
 .picker.fav-full .fav-list { flex: 1 1 auto; min-height: 0; gap: 5px; overflow-y: auto; }
 .picker.fav-full .fav { flex: 1 1 0; min-height: 34px; max-height: 52px; }
-.picker.fav-full .picker-foot { position: static; margin: 0; padding: 0; flex: none; }
+.picker.fav-full .picker-foot { position: static; margin: auto 0 0; padding: 0; flex: none; }
 .fav-intro { margin: 0; color: var(--muted); font-size: .8rem; }
 
 /* treats: a low panel that leaves Nibble in view */
-.picker.treat-sheet { position: fixed; inset: auto 0 0 0; max-height: 62vh; z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
+.picker.treat-sheet { position: fixed; inset: auto 0 var(--dock-h, 64px) 0; max-height: 62vh; z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
 .picker.treat-sheet .picker-inner { max-height: calc(62vh - 2px); }
 .treat-grid button { padding: 6px 4px; }
 .treat-grid button img { width: 30px; height: 30px; }

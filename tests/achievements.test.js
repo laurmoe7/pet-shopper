@@ -20,7 +20,7 @@ test('the achievement list is valid data', () => {
     assert.ok(a.title && a.text && a.icon, a.id);
     assert.ok(a.goal > a.perDay && a.perDay >= 1, a.id + ' must take more than one day');
     assert.ok(a.trips || (a.foods && (a.foods.cats || a.foods.emojis)), a.id + ' counts nothing');
-    assert.ok(['species', 'hat'].includes(a.unlocks.kind), a.id);
+    assert.ok(['species', 'skin', 'hat'].includes(a.unlocks.kind), a.id);
   }
 });
 
@@ -66,9 +66,9 @@ test('today shows 0 again on a new day before anything is eaten', () => {
   assert.equal(L.progress(pet, fishFan, day(2)).count, 1);
 });
 
-test('the penguin unlocks on the tenth day of feeding fish, not before', () => {
+test('the penguin skin unlocks on the tenth day of feeding fish, not before', () => {
   const pet = fresh();
-  assert.equal(L.isUnlocked(pet, 'species', 'penguin', Achievements, FreeUnlocks), false);
+  assert.equal(L.isUnlocked(pet, 'skin', 'penguin', Achievements, FreeUnlocks), false);
   let unlockedOn = null;
   for (let d = 1; d <= 15 && !unlockedOn; d++) {
     for (let i = 0; i < 5; i++) {
@@ -77,7 +77,8 @@ test('the penguin unlocks on the tenth day of feeding fish, not before', () => {
     }
   }
   assert.equal(unlockedOn, 10);
-  assert.equal(L.isUnlocked(pet, 'species', 'penguin', Achievements, FreeUnlocks), true);
+  assert.equal(L.isUnlocked(pet, 'skin', 'penguin', Achievements, FreeUnlocks), true);
+  assert.equal(L.isUnlocked(pet, 'species', 'birdie', Achievements, FreeUnlocks), true, 'earning a skin opens its species too');
   assert.equal(L.progress(pet, fishFan, day(10)).done, true);
 });
 
@@ -131,7 +132,7 @@ test('putting back the item that finished a goal keeps it unlocked', () => {
   const r = L.recordEaten(pet, item, day(5), Achievements);
   assert.equal(r.unlocked.length, 1);
   L.refundEaten(pet, { ...item, counted: r.counted, countedDay: L.dayKey(day(5)) }, day(5), Achievements);
-  assert.equal(L.isUnlocked(pet, 'species', 'penguin', Achievements, FreeUnlocks), true);
+  assert.equal(L.isUnlocked(pet, 'skin', 'penguin', Achievements, FreeUnlocks), true);
 });
 
 test('a finished shopping trip counts once a day', () => {
@@ -147,7 +148,9 @@ test('Mochi, Cat, Dog, Pig, the top hat, boy cap and cow hoodie are free; the re
   const pet = fresh();
   const open = (k, id) => L.isUnlocked(pet, k, id, Achievements, FreeUnlocks);
   for (const id of ['mochi', 'pig', 'kitty', 'puppy']) assert.ok(open('species', id), id);
-  for (const id of ['bunny', 'chick', 'cow', 'hamster', 'penguin']) assert.ok(!open('species', id), id);
+  for (const id of ['bunny', 'birdie', 'cow', 'hamster']) assert.ok(!open('species', id), id);
+  assert.ok(!open('skin', 'penguin'), 'the penguin skin is earned');
+  assert.ok(open('skin', 'parrot'), 'the parrot skin is free for now');
   assert.ok(open('hat', 'none'));
   assert.ok(open('hat', 'tophat'));
   assert.ok(open('hat', 'cap'));
@@ -157,7 +160,7 @@ test('Mochi, Cat, Dog, Pig, the top hat, boy cap and cow hoodie are free; the re
 });
 
 test('each locked item has exactly one goal that opens it', () => {
-  for (const [kind, id] of [['species', 'penguin'], ['species', 'bunny'], ['hat', 'maid'], ['hat', 'sunhat']]) {
+  for (const [kind, id] of [['skin', 'penguin'], ['species', 'bunny'], ['hat', 'maid'], ['hat', 'sunhat']]) {
     assert.equal(Achievements.filter((a) => a.unlocks.kind === kind && a.unlocks.id === id).length, 1);
     assert.equal(L.gateFor(kind, id, Achievements).unlocks.id, id);
   }
@@ -252,4 +255,17 @@ test('the fair-play memory is saved with the pet', () => {
   const back = L.parseState(JSON.stringify({ items: [], pet }), () => 'x').pet;
   assert.deepEqual(back.guard.words, ['salmon']);
   assert.equal(back.guard.lastSeen, day(1).getTime());
+});
+
+test('every skin belongs to a species that exists, and has its look drawn', () => {
+  const { Skins } = require('./load');
+  const fs = require('fs'), path = require('path');
+  const css = fs.readFileSync(path.join(__dirname, '..', 'styles.css'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  assert.equal(new Set(Skins.map((s) => s.id)).size, Skins.length);
+  for (const s of Skins) {
+    assert.ok(L.isBird(s.base), s.id + ' is on a bird');
+    assert.match(css, new RegExp('data-skin="' + s.id + '"\\] \\{ --pet-skin'), s.id + ' has colours');
+    assert.match(html, new RegExp('data-sk="' + s.id + '"'), s.id + ' has parts drawn');
+  }
 });

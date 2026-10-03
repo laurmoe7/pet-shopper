@@ -41,7 +41,5 @@ treatGrid.addEventListener('click', function (e) {
 // a low panel that leaves Nibble in view, so you can watch it eat; only Done (or Escape) closes it
 $('treatBtn').addEventListener('click', function () {
   renderTreats();
-  sound('open');
-  if (treatSheet.show) treatSheet.show(); else treatSheet.setAttribute('open', '');
+  openDialog(treatSheet);
 });
-treatSheet.addEventListener('keydown', function (e) { if (e.key === 'Escape') treatSheet.close(); });

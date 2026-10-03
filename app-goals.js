@@ -19,7 +19,7 @@ var FAIR_PLAY = {
  */
 function achievement(id) { return byId(Achievements, id); }
 /**
- * @param {'species'|'hat'} kind
+ * @param {'species'|'skin'|'hat'} kind
  * @param {string} id
  * @returns {boolean} Whether that species or hat is unlocked.
  */
@@ -75,7 +75,7 @@ function cheerUnlocks(list) {
       sound('party');
       buzz([20, 60, 20]);
       showToast(ach.icon, 'Unlocked: ' + u.label + '!', true, 3200);
-      say(u.kind === 'species' ? 'new friend: ' + u.label + '!' : u.kind === 'personality' ? 'I feel… ' + u.label.toLowerCase() + '!' : 'new hat: ' + u.label + '!', 2200);
+      say(u.kind === 'species' ? 'new friend: ' + u.label + '!' : u.kind === 'skin' ? 'new skin: ' + u.label.replace(/ skin$/, '') + '!' : u.kind === 'personality' ? 'I feel… ' + u.label.toLowerCase() + '!' : 'new hat: ' + u.label + '!', 2200);
       if (!reduceMotion) petals(mouthPoint(), 14);
       refreshLocks();
       renderPersonalities();
@@ -87,7 +87,7 @@ function cheerUnlocks(list) {
 /**
  * Adds or removes the lock look and progress badge on a species or hat button.
  * @param {HTMLButtonElement} b
- * @param {'species'|'hat'} kind
+ * @param {'species'|'skin'|'hat'} kind
  * @param {string} id
  */
 function markLock(b, kind, id) {
@@ -104,12 +104,13 @@ function markLock(b, kind, id) {
 /** Brings every lock in the species grid and hat strip up to date. */
 function refreshLocks() {
   speciesGrid.querySelectorAll('button').forEach(function (b) { markLock(b, 'species', b.dataset.species); });
+  skinGrid.querySelectorAll('button').forEach(function (b) { markLock(b, 'skin', b.dataset.skin); });
   wearButtons().forEach(function (b) { markLock(b, 'hat', b.dataset.hat); });
 }
 /**
  * Explains how to unlock a locked species or hat.
  * @param {HTMLElement} el The hint paragraph in the open sheet.
- * @param {'species'|'hat'} kind
+ * @param {'species'|'skin'|'hat'} kind
  * @param {string} id
  */
 function lockHint(el, kind, id) {
