@@ -236,13 +236,14 @@
     {
       id: 'beret', slot: 'hat', snug: true, label: 'Strawberry beret', icon: '24 8 112 58',
       lines: ['berry chic!', 'très sweet!', 'ooh la la!'],
-      svg: '<g class="hat-beret" transform="rotate(-9 80 44)">' +
+      svg: '<g class="hat-beret"><g transform="rotate(-4 80 44)">' +
         '<path class="beret-top" d="M32 48 C30 30 54 25 80 26 C108 27 130 34 128 49 C112 55 50 56 32 48 Z"/>' +
-        '<path class="beret-band" d="M36 49.4 Q80 58 124 49.4 L123.6 54.6 Q80 62.6 36.4 54.6 Z"/>' +
         '<path class="beret-shine" d="M44 38 C50 32 60 29.6 70 29"/>' +
         '<path class="beret-seed" d="M52 40 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M70 46 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M92 41 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M110 45 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M80 38 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M100 34 l1.6 3.4 l-1.6 .6 l-1.6 -.6 Z M62 34 l1.6 3.4 l-1.6 .6 l-1.6 -.6 Z"/>' +
         '<path class="beret-leaf" d="M82 27 C76 24 70 25 69 29 C74 30 78 29.6 82 27.8 C80 22 85 19 89 22 C88 25 86 27 84 28 C90 26 95 28 95 32 C91 33 86 31 83.4 29 Z"/>' +
         '<path class="beret-stem" d="M83 28 C83.4 24 84 22 85.4 20"/>' +
+        '</g>' +
+        '<path class="beret-band" d="M40.2 51.5 Q80 60 119.8 51.5 Q122.6 54.4 124.3 57.7 Q80 67 35.7 57.7 Q37.4 54.4 40.2 51.5 Z"/>' +
         '</g>'
     },
     {
@@ -271,51 +272,76 @@
         '</g>'
     },
     {
-      id: 'clownwig', slot: 'hat', snug: true, label: 'Clown wig', icon: '14 12 132 62',
+      id: 'clownwig', slot: 'hat', snug: true, label: 'Clown wig', icon: '8 8 144 80',
       lines: ['honk honk!', 'send in the clowns!', 'big top energy!'],
       svg: '<g class="hat-wig">' +
-        '<g class="wig-out"><circle cx="28" cy="48" r="13"/><circle cx="26" cy="64" r="11"/><circle cx="34" cy="34" r="11"/><circle cx="132" cy="48" r="13"/><circle cx="134" cy="64" r="11"/><circle cx="126" cy="34" r="11"/><circle cx="80" cy="24" r="11"/><circle cx="62" cy="27" r="10"/><circle cx="98" cy="27" r="10"/></g>' +
-        '<path class="wig-cap-out" d="M40 52 C40 30 120 30 120 52 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 Z"/>' +
-        '<g class="wig-fill"><circle cx="28" cy="48" r="13"/><circle cx="26" cy="64" r="11"/><circle cx="34" cy="34" r="11"/><circle cx="132" cy="48" r="13"/><circle cx="134" cy="64" r="11"/><circle cx="126" cy="34" r="11"/><circle cx="80" cy="24" r="11"/><circle cx="62" cy="27" r="10"/><circle cx="98" cy="27" r="10"/></g>' +
-        '<path class="wig-cap" d="M40 52 C40 30 120 30 120 52 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 Z"/>' +
-        '<path class="wig-curl" d="M22 44 q5 -6 9 -1 q3 5 -3 7 M24 62 q4 -5 8 -1 q2 4 -2 5 M32 31 q4 -5 8 -1 q2 4 -3 5 M138 44 q-5 -6 -9 -1 q-3 5 3 7 M136 62 q-4 -5 -8 -1 q-2 4 2 5 M128 31 q-4 -5 -8 -1 q-2 4 3 5 M76 21 q4 -5 8 0 q2 4 -3 5 M58 25 q4 -4 7 0 q1 3 -3 4 M95 25 q4 -4 7 0 q1 3 -3 4 M54 42 q4 -4 8 0 q2 3 -3 4 M76 40 q4 -4 8 0 q2 3 -3 4 M98 42 q4 -4 8 0 q2 3 -3 4"/>' +
+        '<g class="wig-out"><circle cx="27.1" cy="83.6" r="13"/><circle cx="25.1" cy="69.6" r="13"/><circle cx="29.2" cy="55.9" r="13"/><circle cx="39" cy="44" r="13"/><circle cx="53.4" cy="35.2" r="13"/><circle cx="70.8" cy="30.6" r="13"/><circle cx="89.2" cy="30.6" r="13"/><circle cx="106.6" cy="35.2" r="13"/><circle cx="121" cy="44" r="13"/><circle cx="130.8" cy="55.9" r="13"/><circle cx="134.9" cy="69.6" r="13"/><circle cx="132.9" cy="83.6" r="13"/><circle cx="34.3" cy="75.7" r="9.5"/><circle cx="35.2" cy="64.6" r="9.5"/><circle cx="41.1" cy="54.4" r="9.5"/><circle cx="51.3" cy="46.2" r="9.5"/><circle cx="64.8" cy="40.8" r="9.5"/><circle cx="80" cy="39" r="9.5"/><circle cx="95.2" cy="40.8" r="9.5"/><circle cx="108.7" cy="46.2" r="9.5"/><circle cx="118.9" cy="54.4" r="9.5"/><circle cx="124.8" cy="64.6" r="9.5"/><circle cx="125.7" cy="75.7" r="9.5"/></g>' +
+        '<circle class="wig-r" cx="27.1" cy="83.6" r="13"/><circle class="wig-r" cx="25.1" cy="69.6" r="13"/><circle class="wig-o" cx="29.2" cy="55.9" r="13"/><circle class="wig-o" cx="39" cy="44" r="13"/><circle class="wig-y" cx="53.4" cy="35.2" r="13"/><circle class="wig-y" cx="70.8" cy="30.6" r="13"/><circle class="wig-g" cx="89.2" cy="30.6" r="13"/><circle class="wig-g" cx="106.6" cy="35.2" r="13"/><circle class="wig-b" cx="121" cy="44" r="13"/><circle class="wig-b" cx="130.8" cy="55.9" r="13"/><circle class="wig-p" cx="134.9" cy="69.6" r="13"/><circle class="wig-p" cx="132.9" cy="83.6" r="13"/><circle class="wig-r" cx="34.3" cy="75.7" r="9.5"/><circle class="wig-r" cx="35.2" cy="64.6" r="9.5"/><circle class="wig-o" cx="41.1" cy="54.4" r="9.5"/><circle class="wig-o" cx="51.3" cy="46.2" r="9.5"/><circle class="wig-y" cx="64.8" cy="40.8" r="9.5"/><circle class="wig-y" cx="80" cy="39" r="9.5"/><circle class="wig-g" cx="95.2" cy="40.8" r="9.5"/><circle class="wig-g" cx="108.7" cy="46.2" r="9.5"/><circle class="wig-b" cx="118.9" cy="54.4" r="9.5"/><circle class="wig-b" cx="124.8" cy="64.6" r="9.5"/><circle class="wig-p" cx="125.7" cy="75.7" r="9.5"/>' +
         '</g>'
     },
     {
-      id: 'jestercap', slot: 'hat', snug: true, label: 'Mini jester cap', icon: '30 8 100 48',
+      id: 'jestercap', slot: 'hat', snug: true, label: 'Mini jester cap', icon: '18 2 124 58',
       lines: ['jingle jingle!', 'the royal fool!', 'jest for you!'],
-      svg: '<g class="hat-jester" transform="rotate(-6 80 44)">' +
-        '<path class="jester-red" d="M56 44 C50 38 46 31 40 27 C48 26 58 32 66 41.5 Z"/>' +
-        '<path class="jester-blue" d="M104 44 C110 38 114 31 120 27 C112 26 102 32 94 41.5 Z"/>' +
-        '<path class="jester-green" d="M70 42 C71 32 76 26 80 20 C84 26 89 32 90 42 Z"/>' +
-        '<path class="jester-band" d="M52 46.4 C66 40 94 40 108 46.4 L106.6 51.6 C94 45.6 66 45.6 53.4 51.6 Z"/>' +
-        '<path class="jester-diamond" d="M66 46.6 l2.4 -2 l2.4 2 l-2.4 2 Z M78 45.6 l2.4 -2 l2.4 2 l-2.4 2 Z M90 46.6 l2.4 -2 l2.4 2 l-2.4 2 Z"/>' +
-        '<circle class="jester-bell" cx="39" cy="26" r="3.3"/><circle class="jester-bell" cx="121" cy="26" r="3.3"/><circle class="jester-bell" cx="80" cy="18.6" r="3.3"/>' +
+      svg: '<g class="hat-jester">' +
+        '<path class="jester-purple" d="M80 45 C80 30 90 20 102 20 C112 20 120 32 125.4 46 C120.6 43 116.4 43 113 46 Z"/>' +
+        '<path class="jester-red" d="M66 45 C66 34 66 22 58 21 C50 20 44 28 40 33 C36 37 31 41 27 44 C34 44.4 42 45 48 46 Z"/>' +
+        '<path class="jester-gold" d="M63 45 C61 30 66 12 78 9 C88 7 96 9 100.6 14 C94.6 13 90.4 14.4 88.4 18.4 C86.4 24 86.4 34 86.6 45 Z"/>' +
+        '<path class="jester-brim" d="M45 44 Q80 37.6 115 44 L114 52.6 Q80 46.4 46 52.6 Z"/>' +
+        '<path class="jester-brim-hi" d="M48 45.6 Q80 40.4 112 45.6"/>' +
+        '<circle class="jester-pom" cx="26.4" cy="44.4" r="4"/><circle class="jester-pom" cx="101.6" cy="14.6" r="4"/><circle class="jester-pom" cx="126.2" cy="47.4" r="4"/>' +
         '</g>'
     },
     {
-      id: 'scarf', slot: 'neck', label: 'Winter scarf', icon: '10 104 140 46',
+      id: 'cowboyhat', slot: 'hat', snug: true, label: 'Cowboy hat', icon: '14 10 132 50',
+      lines: ['yeehaw!', 'howdy, partner!', 'giddy up!'],
+      svg: '<g class="hat-cowboy">' +
+        '<path class="cowboy-crown" d="M52 46 C50 31 54 18 64 18 C70 18 74 22.4 80 22.4 C86 22.4 90 18 96 18 C106 18 110 31 108 46 C96 48 64 48 52 46 Z"/>' +
+        '<path class="cowboy-band" d="M51.6 38 C64 40.6 96 40.6 108.4 38 L108.2 45 C96 47.6 64 47.6 51.8 45 Z"/>' +
+        '<path class="cowboy-crease" d="M80 23.4 V33 M66 21 C64 26 63.6 31 64 35"/>' +
+        '<path class="cowboy-brim" d="M21 44 C30 54 130 54 139 44 C143 39.6 141 35.6 135.6 37.6 C122 46 38 46 24.4 37.6 C19 35.6 17 39.6 21 44 Z"/>' +
+        '<path class="cowboy-stitch" d="M30 46.4 C50 51.4 110 51.4 130 46.4"/>' +
+        '</g>'
+    },
+    {
+      id: 'sidecap', slot: 'hat', snug: true, label: 'Sideways cap', icon: '40 12 106 42',
+      lines: ['totally rad!', 'skate time!', 'yo yo yo!'],
+      svg: '<g class="hat-sidecap">' +
+        '<path class="side-bill" d="M106 40 C118 37 134 38.6 142 45 C135 50 118 50.4 104 47.6 Z"/>' +
+        '<path class="side-bill-line" d="M110 42 C121 41 132 42 138 45"/>' +
+        '<path class="side-dome" d="M48 47 C47 28 62 17 80 17 C98 17 113 28 112 47 C96 50 64 50 48 47 Z"/>' +
+        '<path class="side-seam" d="M80 17.6 C72 26 68 36 67 48.6 M80 17.6 C88 26 92 36 93 48.6"/>' +
+        '<path class="side-band" d="M48.4 43 C64 46.4 96 46.4 111.6 43 L112 47 C96 50 64 50 48 47 Z"/>' +
+        '<circle class="side-button" cx="80" cy="17.6" r="2.6"/>' +
+        '<path class="side-star" d="M58 30 l1.5 3.2 l3.5 .4 l-2.6 2.4 l.7 3.4 l-3.1 -1.7 l-3.1 1.7 l.7 -3.4 l-2.6 -2.4 l3.5 -.4 Z"/>' +
+        '</g>'
+    },
+    {
+      id: 'scarf', slot: 'neck', label: 'Winter scarf', icon: '10 104 140 56',
       lines: ['so toasty!', 'snow day?', 'cosy cosy cosy'],
       svg: '<g class="neck-scarf">' +
-        '<path class="scarf-tail" d="M103 118.3 C105 129.3 103 138.3 106 148.3 L119 145.3 C116 136.3 117 127.3 115 117.3 Z"/>' +
-        '<path class="scarf-stripe" d="M104.8 131.3 L116.6 129.3 M105.4 139.3 L117.4 137.3"/>' +
-        '<path class="scarf-fringe" d="M107.5 148.3 v3.4 M110.5 147.6 v3.4 M113.5 146.9 v3.4 M116.5 146.2 v3.4"/>' +
         '<path class="scarf-band" d="M17 108 Q80 124 143 108 Q147 114 145 121 Q80 140 15 121 Q13 114 17 108 Z"/>' +
-        '<path class="scarf-stripe" d="M36 112.9 Q35 119.1 36 125.3 M56 115.6 Q55 122.0 56 128.4 M104 115.6 Q105 122.0 104 128.4 M124 112.9 Q125 119.1 124 125.3"/>' +
-        '<path class="scarf-knit" d="M24 116.3 l3 2 l3 -2 M44 119.9 l3 2 l3 -2 M64 121.9 l3 2 l3 -2 M86 122.1 l3 2 l3 -2 M108 120.2 l3 2 l3 -2 M128 116.7 l3 2 l3 -2"/>' +
-        '<path class="scarf-knot" d="M100 114.3 C102 109.3 116 109.3 118 114.3 C120 120.3 116 126.3 109 126.3 C102 126.3 98 120.3 100 114.3 Z"/>' +
+        '<path class="scarf-orange" d="M32.8 111.5 L38 112.4 L43.2 113.3 L48.5 114 L47.5 128.1 L42.1 127.3 L36.7 126.3 L31.2 125.2 Z M64.2 115.5 L69.5 115.8 L74.8 115.9 L80 116 L80 130.5 L74.6 130.4 L69.2 130.2 L63.8 129.9 Z M95.8 115.5 L101 115.1 L106.3 114.6 L111.5 114 L112.5 128.1 L107.1 128.9 L101.7 129.4 L96.2 129.9 Z M127.2 111.5 L132.5 110.4 L137.8 109.3 L143 108 L145 121 L139.6 122.5 L134.2 123.9 L128.8 125.2 Z "/>' +
+        '<path class="scarf-outline" d="M17 108 Q80 124 143 108 Q147 114 145 121 Q80 140 15 121 Q13 114 17 108 Z"/>' +
+        '<path class="scarf-band" d="M94 120 Q104 114 116 119 L119 146 Q105 151 92 146 Z"/>' +
+        '<path class="scarf-orange" d="M93.4 130 L117.6 130.4 L118.3 139 L92.6 138.8 Z M94.4 146 L118.8 146 L119 146 Q105 151 92 146 Z"/>' +
+        '<path class="scarf-outline" d="M94 120 Q104 114 116 119 L119 146 Q105 151 92 146 Z"/>' +
+        '<path class="scarf-fringe-o" d="M95 147.0 v5.4 M100 148.1 v5.4 M105 148.5 v5.4 M110 148.1 v5.4 M115 147.0 v5.4 "/><path class="scarf-fringe" d="M95 147.0 v5.4 M100 148.1 v5.4 M105 148.5 v5.4 M110 148.1 v5.4 M115 147.0 v5.4 "/>' +
+        '<path class="scarf-knit" d="M25 117 l2 1.6 l2 -1.6 M60 122 l2 1.6 l2 -1.6 M96 124 l2 1.6 l2 -1.6 M130 117 l2 1.6 l2 -1.6"/>' +
         '</g>'
     },
     {
-      id: 'silkscarf', slot: 'neck', label: 'Silk scarf', icon: '14 102 120 46',
+      id: 'silkscarf', slot: 'neck', label: 'Silk scarf', icon: '6 100 148 60',
       lines: ['très chic!', 'pas mal, non?', 'quite dapper, no?'],
       svg: '<g class="neck-silk">' +
-        '<path class="silk-cloth" d="M18 108 Q80 124 142 108 Q146 114 142 119 Q80 135 18 119 Q14 114 18 108 Z"/>' +
-        '<path class="silk-cloth" d="M56 115 L33 119 Q27 127 36 131.5 L58 125 Z"/>' +
-        '<path class="silk-cloth" d="M52 117 L72 119 L62.6 143 Q60.5 145.5 58.5 143 Z"/>' +
-        '<path class="silk-fold" d="M62 123 L60.6 138"/>' +
-        '<ellipse class="silk-knot" cx="56" cy="116.5" rx="6.4" ry="5"/>' +
-        '<path class="silk-fold" d="M52 114.5 Q56 117 60 114.5"/>' +
+        '<path class="silk-tail" d="M106 118 L138 124 Q140 136 128 148 Q122 156 118 160 L100 134 Z"/>' +
+        '<path class="silk-leaf" d="M112 128 C122 128 131 133 132 145 C121 144 113 139 112 128 Z"/>' +
+        '<path class="silk-print" d="M123 125 l3.4 1.6 v3.4 l-3.4 1.6 l-3.4 -1.6 v-3.4 Z M106.6 138 l3 1.4 v3 l-3 1.4 l-3 -1.4 v-3 Z M118 148 l2.8 1.4 v2.8 l-2.8 1.4 l-2.8 -1.4 v-2.8 Z"/>' +
+        '<path class="silk-trim" d="M106 118 L138 124 Q140 136 128 148 Q122 156 118 160"/>' +
+        '<path class="silk-band" d="M14 106 Q80 126 146 106 L149 116 Q80 139 11 116 Z"/>' +
+        '<path class="silk-stripes" d="M23.3 110.5 L20.2 117.4 M32.1 112.6 L29.4 119.8 M40.9 114.4 L38.6 121.9 M49.7 115.8 L47.8 123.5 M58.5 116.9 L57.0 124.7 M67.3 117.6 L66.2 125.5 M76.1 118.0 L75.4 125.9 M84.9 118.0 L84.6 125.9 M93.7 117.6 L93.8 125.5 M102.5 116.9 L103.0 124.7 M111.3 115.8 L112.2 123.5 M120.1 114.4 L121.4 121.9 M128.9 112.6 L130.6 119.8 M137.7 110.5 L139.8 117.4 "/>' +
+        '<path class="silk-yellow" d="M14 106 Q80 126 146 106 L146.6 109.6 Q80 130 13.4 109.6 Z"/>' +
+        '<ellipse class="silk-knot" cx="110" cy="117" rx="8" ry="6"/>' +
+        '<path class="silk-fold" d="M104 114.6 Q110 118 116 114.6"/>' +
         '</g>'
     },
     {
@@ -373,7 +399,9 @@
       lines: ['so tall!', 'click clack click', 'catwalk ready!'],
       svg: '<g class="feet-heels">' + [58, 102].map(function (x) {
         // a round pump that covers the whole foot, on a small heel, with a bow on the toe
-        return '<path class="heel-spike" d="M' + (x - 3.4) + ' 142.6 L' + (x - 1.6) + ' 148.6 H' + (x + 1.6) + ' L' + (x + 3.4) + ' 142.6 Z"/>' +
+        // the heel sits at the back of the shoe, which reads as the outer side from the front
+        var h = x + (x < 80 ? -8 : 8);
+        return '<path class="heel-spike" d="M' + (h - 3) + ' 141.6 L' + (h - 1.4) + ' 148.4 H' + (h + 1.4) + ' L' + (h + 3) + ' 141.6 Z"/>' +
           '<ellipse class="heel-shoe" cx="' + x + '" cy="138.4" rx="12" ry="6.2"/>' +
           '<path class="heel-shine" d="M' + (x - 8.6) + ' 139.6 Q' + (x - 7.4) + ' 142.6 ' + (x - 3.6) + ' 143.6"/>' +
           '<path class="heel-bow" d="M' + x + ' 140.6 l-3.4 -2.2 v4.4 Z M' + x + ' 140.6 l3.4 -2.2 v4.4 Z"/>' +
@@ -402,6 +430,16 @@
           '<circle class="bunny-eye" cx="' + (x - 3) + '" cy="140" r="0.9"/><circle class="bunny-eye" cx="' + (x + 3) + '" cy="140" r="0.9"/>' +
           '<ellipse class="bunny-nose" cx="' + x + '" cy="141.6" rx="1.3" ry="0.9"/>';
       }).join('') + '</g>'
+    },
+    {
+      id: 'cowboyboots', slot: 'feet', label: 'Cowboy boots', icon: '38 120 84 28',
+      lines: ['boot scootin!', 'yeehaw!', 'line dance time!'],
+      svg: '<g class="feet-cowboy"><path class="cb-heel" d="M66.6 141.4 L66.2 144 H62 L61.6 142.4 Z"/><path class="cb-shaft" d="M50.4 133.4 Q58 135.4 65.6 133.4 L65 137.4 H51 Z"/><path class="cb-foot" d="M67 139.6 C67 135.6 53 135.2 46 140.2 C53 143.2 67 143.4 67 139.6 Z"/><path class="cb-stitch" d="M56.4 134.8 q1.6 1.6 3.2 0"/><path class="cb-heel" d="M93.4 141.4 L93.8 144 H98 L98.4 142.4 Z"/><path class="cb-shaft" d="M94.4 133.4 Q102 135.4 109.6 133.4 L109 137.4 H95 Z"/><path class="cb-foot" d="M93 139.6 C93 135.6 107 135.2 114 140.2 C107 143.2 93 143.4 93 139.6 Z"/><path class="cb-stitch" d="M100.4 134.8 q1.6 1.6 3.2 0"/></g>'
+    },
+    {
+      id: 'clogs', slot: 'feet', label: 'Wooden clogs', icon: '40 124 80 26',
+      lines: ['clip clop!', 'very dutch!', 'tulip time!'],
+      svg: '<g class="feet-clogs"><path class="clog-sole" d="M48 140.4 C51 143.4 65 143.4 68 140.4 L67.6 142.6 C64.4 145.4 51.6 145.4 48.4 142.6 Z"/><path class="clog" d="M48 140.4 C47.4 134.6 52.6 132 58 132 C63.4 132 68.6 134.6 68 140.4 C65 143.4 51 143.4 48 140.4 Z"/><path class="clog-grain" d="M51.4 135.2 q2.6 -1.2 5.2 0 M59.4 139 q2.4 -1.1 4.8 0"/><path class="clog-heart" d="M58 137.4 c-.6 -1 -2.2 -.4 -1.5 .7 l1.5 1.5 l1.5 -1.5 c.7 -1.1 -.9 -1.7 -1.5 -.7z"/><path class="clog-sole" d="M92 140.4 C95 143.4 109 143.4 112 140.4 L111.6 142.6 C108.4 145.4 95.6 145.4 92.4 142.6 Z"/><path class="clog" d="M92 140.4 C91.4 134.6 96.6 132 102 132 C107.4 132 112.6 134.6 112 140.4 C109 143.4 95 143.4 92 140.4 Z"/><path class="clog-grain" d="M95.4 135.2 q2.6 -1.2 5.2 0 M103.4 139 q2.4 -1.1 4.8 0"/><path class="clog-heart" d="M102 137.4 c-.6 -1 -2.2 -.4 -1.5 .7 l1.5 1.5 l1.5 -1.5 c.7 -1.1 -.9 -1.7 -1.5 -.7z"/></g>'
     },
     {
       id: 'shades', slot: 'face', label: 'Heart shades', icon: '28 74 104 36',
