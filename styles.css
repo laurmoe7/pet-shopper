@@ -1162,11 +1162,10 @@ button { font: inherit; color: inherit; }
 .pet[data-species="axolotl"][data-mouth="smile"] path[data-mouth="smile"]:not(.axo-smile) { display: none; }
 .pet[data-species="axolotl"][data-mouth="smile"] .axo-smile { display: inline; }
 
-/* hand-drawn art (a test on the bunny only): thin, slightly wobbly outline, flat colour with no gloss, and small
-   eyes set wide apart and low on the face. Add a species to these selectors to give it the same style.
+/* hand-drawn art (a test on the bunny only): thin outline, flat colour with no gloss, and small
+   eyes set wide apart and low on the face. No wobble filter: it brought back a seam on the face on her phone. Add a species to these selectors to give it the same style.
    Each eye part is moved on its own (no transform on the eye groups, the blink animation owns those). */
 .pet[data-species="bunny"] { --pet-ink: #705b57; }
-.pet[data-species="bunny"] .pet-svg { filter: url(#wobbleArt); }
 .pet[data-species="bunny"] :is(.skin, .skin-under, .ear, .foot, .arm ellipse) { stroke-width: 1.7; }
 .pet[data-species="bunny"] :is(.shine, .arm-hi) { opacity: 0; }
 .pet[data-species="bunny"] .ink { fill: #4a3a38; }

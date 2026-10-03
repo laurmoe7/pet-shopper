@@ -6,11 +6,10 @@ const path = require('node:path');
 const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 const css = fs.readFileSync(path.join(__dirname, '..', 'styles.css'), 'utf8');
 
-test('the pet outline is drawn smooth, except the bunny hand-drawn art test (wobbleArt)', () => {
-  // the only displacement filter is the opt-in one used by the hand-drawn art style
-  assert.equal((html.match(/feDisplacementMap/g) || []).length, 1);
-  assert.match(html, /<filter id="wobbleArt"/);
+test('the pet outline is drawn smooth, without the wobbly displacement filter', () => {
+  assert.doesNotMatch(html, /feDisplacementMap/);
   assert.doesNotMatch(html, /class="pet-body"[^>]*filter=/);
+  assert.doesNotMatch(css, /\.pet-svg \{[^}]*filter: url/, 'no species draws its outline through a filter (it caused a seam on her phone)');
 });
 
 test('every ear is in a left or right group so it can jiggle', () => {

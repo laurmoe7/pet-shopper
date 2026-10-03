@@ -17,13 +17,6 @@
 <link rel="stylesheet" href="look-cardboard.css">
 </head>
 <body>
-<!-- the "hand-drawn" art style (bunny only for now): a tiny wobble on the edges (see styles.css, "hand-drawn art") -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-  <filter id="wobbleArt" x="-10%" y="-10%" width="120%" height="120%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="6" result="n"/>
-    <feDisplacementMap in="SourceGraphic" in2="n" scale="2" xChannelSelector="R" yChannelSelector="G"/>
-  </filter>
-</defs></svg>
 <div class="app">
   <header class="scene" id="scene">
     <div class="scene-bar">

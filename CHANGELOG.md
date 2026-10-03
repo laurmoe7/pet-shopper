@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 67 (3 Oct)
+- Bunny test look: removed the wobble filter (it brought back a seam on the face). It keeps the thin outline, no gloss and small wide-set eyes.
+
 ## Build 66 (3 Oct)
 - Test: the bunny has a Chiikawa-style hand-drawn look (thin wobbly outline, no gloss, small low-set eyes). The cat sticker test is removed. Other pets are unchanged.
 
