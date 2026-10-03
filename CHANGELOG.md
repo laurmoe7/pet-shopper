@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 55 (3 Oct)
+- Sheets now run down behind the bottom bar instead of ending in a square corner above it. The fade above Done is gone.
+- Skin fixes: chocolate mochi has dark chocolate chips, taro speckles are scattered, dirty piggy has mud splotches, the tabby is grey with a cream muzzle, calico patches stay inside the body, the golden retriever has no face spot.
+- Pomeranian: round ears, fluffy cloud-like cheeks and a cream chest. The long-haired Syrian hamster gets the same fluffy cheeks.
+
 ## Build 54 (3 Oct)
 - 15 new skins: mochi (strawberry, chocolate, taro), cat (tabby, black cat, calico), dog (chihuahua, Pomeranian, golden retriever), cow (chocolate milk, Highland cattle), pig (dirty piggy, boar), bunny (floppy ears), hamster (white, long-haired Syrian).
 - Everything is unlocked for now: no locks on species, skins, hats or personalities. Goals still count progress.

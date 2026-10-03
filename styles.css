@@ -446,7 +446,7 @@ button { font: inherit; color: inherit; }
    always ends up after the last option instead of on top of it */
 .pet-sheet .picker-inner { display: block; overflow-y: auto; }
 .pet-sheet .picker-inner > * + * { margin-top: 12px; }
-.pet-sheet .picker-foot { position: sticky; bottom: -12px; background: var(--surface); margin: 0 -16px; padding: 8px 16px 12px; z-index: 2; }
+.pet-sheet .picker-foot { position: sticky; bottom: -16px; background: var(--surface); margin: 0 -16px; padding: 8px 16px 12px; z-index: 2; }
 
 /* ---------- hats ---------- */
 .hat-dark { fill: #4d3c43; stroke: var(--pet-ink); stroke-width: 2; }
@@ -597,13 +597,13 @@ button { font: inherit; color: inherit; }
 }
 .pet.preview { width: 150px; height: 140px; margin: 0; pointer-events: none; }
 /* the dressing room fills the whole page, and the pet stays pinned at the top while you scroll the outfits */
-.picker.pet-sheet.dress-full { max-width: none; width: 100%; max-height: none; margin: 0; border: 0; border-radius: 0; inset: 0 0 var(--dock-h, 64px) 0; height: auto; }
-.picker.dress-full .picker-inner { max-height: 100%; height: 100%; box-sizing: border-box; padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+.picker.pet-sheet.dress-full { max-width: none; width: 100%; max-height: none; margin: 0; border: 0; border-radius: 0; inset: 0; height: auto; }
+.picker.pet-sheet.dress-full .picker-inner { max-height: 100%; height: 100%; box-sizing: border-box; padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
 .picker.dress-full .dress-stage { position: sticky; top: calc(-12px - env(safe-area-inset-top, 0px)); z-index: 3; margin-left: -16px; margin-right: -16px; border-radius: 0 0 22px 22px; border-width: 0 0 1.5px; }
 .picker.dress-full .pet.preview { width: 180px; height: 168px; }
 /* the room panel stays low and has no dimmed backdrop, so the room is always in view */
-.picker.room-sheet { position: fixed; inset: auto 0 var(--dock-h, 64px) 0; max-height: 42vh; z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
-.picker.room-sheet .picker-inner { max-height: calc(42vh - 14px) !important; }
+.picker.room-sheet { position: fixed; inset: auto 0 0 0; max-height: calc(42vh + var(--dock-h, 64px)); z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
+.picker.room-sheet .picker-inner { max-height: calc(42vh + var(--dock-h, 64px) - 14px) !important; }
 .hat-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .hat-strip button { gap: 4px; padding: 8px 4px; min-width: 0; font-size: .78rem; line-height: 1.2; text-align: center; }
 .hat-strip svg { width: 100%; max-width: 64px; height: 40px; overflow: visible; }
@@ -759,12 +759,10 @@ button { font: inherit; color: inherit; }
 }
 .picker::backdrop { background: rgba(60, 35, 40, .4); }
 /* the sheets are panels above the bottom bar (not modal), so the bar stays usable */
-.picker.pet-sheet { position: fixed; inset: auto 0 var(--dock-h, 64px) 0; margin: 0 auto; z-index: 20; border-bottom: 1.8px solid var(--outline); box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
-.picker.pet-sheet .picker-inner { padding-bottom: 12px; }
+.picker.pet-sheet { position: fixed; inset: auto 0 0 0; margin: 0 auto; z-index: 20; max-height: calc(75vh + var(--dock-h, 64px)); border-bottom: 1.8px solid var(--outline); box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
+.picker.pet-sheet .picker-inner { padding-bottom: calc(12px + var(--dock-h, 64px)); max-height: calc(75vh + var(--dock-h, 64px) - 2px); }
 /* the scroll bar starts below the rounded corners instead of being clipped by them */
-.picker.pet-sheet:not(.dress-full):not(.fav-full) .picker-inner { margin-top: 12px; padding-top: 6px; max-height: calc(75vh - 14px); scrollbar-width: thin; }
-/* content fades out above the Done row instead of being cut off in a hard line */
-.pet-sheet .picker-foot::before { content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: 26px; background: linear-gradient(to bottom, transparent, var(--surface)); pointer-events: none; }
+.picker.pet-sheet:not(.dress-full):not(.fav-full) .picker-inner { margin-top: 12px; padding-top: 6px; max-height: calc(75vh + var(--dock-h, 64px) - 14px); scrollbar-width: thin; }
 .picker[open] { animation: sheet .3s cubic-bezier(.3, 1.3, .5, 1); }
 @keyframes sheet { from { transform: translateY(60px); opacity: .5; } to { transform: none; opacity: 1; } }
 .picker-inner { padding: 18px 16px calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; max-height: calc(75vh - 2px); }
@@ -981,26 +979,26 @@ button { font: inherit; color: inherit; }
 @media (prefers-reduced-motion: reduce) { .pod-sparkle { animation: none; opacity: .8; } }
 
 /* the Top 10 fills the screen so all ten fit without scrolling; rows share the height that is left */
-.picker.pet-sheet.fav-full { max-width: none; width: 100%; max-height: none; margin: 0; border: 0; border-radius: 0; inset: 0 0 var(--dock-h, 64px) 0; height: auto; }
-.picker.fav-full .picker-inner {
+.picker.pet-sheet.fav-full { max-width: none; width: 100%; max-height: none; margin: 0; border: 0; border-radius: 0; inset: 0; height: auto; }
+.picker.pet-sheet.fav-full .picker-inner {
   display: flex; flex-direction: column; gap: 8px; height: 100%; max-height: 100%; box-sizing: border-box; overflow: hidden;
   padding-top: calc(12px + env(safe-area-inset-top, 0px));
 }
-.picker.fav-full .picker-inner > * + * { margin-top: 0; }
+.picker.pet-sheet.fav-full .picker-inner > * + * { margin-top: 0; }
 .picker.fav-full .fav-list { flex: 1 1 auto; min-height: 0; gap: 5px; overflow-y: auto; }
-.picker.fav-full .fav { flex: 1 1 0; min-height: 34px; max-height: 52px; }
+.picker.fav-full .fav { flex: 1 1 0; min-height: 26px; max-height: 52px; }
 .picker.fav-full .picker-foot { position: static; margin: auto 0 0; padding: 0; flex: none; }
 .fav-intro { margin: 0; color: var(--muted); font-size: .8rem; }
 
 /* treats: a low panel that leaves Nibble in view */
-.picker.treat-sheet { position: fixed; inset: auto 0 var(--dock-h, 64px) 0; max-height: 62vh; z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
-.picker.treat-sheet .picker-inner { max-height: calc(62vh - 14px) !important; }
+.picker.treat-sheet { position: fixed; inset: auto 0 0 0; max-height: calc(62vh + var(--dock-h, 64px)); z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
+.picker.treat-sheet .picker-inner { max-height: calc(62vh + var(--dock-h, 64px) - 14px) !important; }
 .treat-grid button { padding: 6px 4px; }
 .treat-grid button img { width: 30px; height: 30px; }
 
 /* the main pet buttons, always at the bottom of the screen */
 .dock {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; max-width: 560px; margin: 0 auto;
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; max-width: 560px; margin: 0 auto;
   display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px;
   padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
   background: var(--surface); border-top: 1.8px solid var(--outline); border-radius: 18px 18px 0 0;
@@ -1022,11 +1020,11 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="strawberry"] { --pet-skin: #ffc9d8; --pet-skin-shade: #ffa7c0; }
 .pet[data-skin="chocolate"] { --pet-skin: #c99d7e; --pet-skin-shade: #a97b5c; }
 .pet[data-skin="taro"] { --pet-skin: #d6c5f3; --pet-skin-shade: #b8a1e4; }
-.pet[data-skin="tabby"] { --pet-skin: #f3b673; --pet-skin-shade: #df9650; --pet-mark: #b8682a; }
+.pet[data-skin="tabby"] { --pet-skin: #aea8a1; --pet-skin-shade: #96908a; --pet-ear-in: #f2a9ab; --pet-mark: #6e6862; }
 .pet[data-skin="blackcat"] { --pet-skin: #656073; --pet-skin-shade: #504b5f; --pet-ear-in: #e29aad; --pet-mark: #7d788d; }
 .pet[data-skin="calico"] { --pet-skin: #fffaf3; --pet-skin-shade: #f4e6d6; }
 .pet[data-skin="chihuahua"] { --pet-skin: #f1d3ae; --pet-skin-shade: #e0b98d; --pet-ear-in: #ffb8c6; --pet-mark: #d2a672; }
-.pet[data-skin="pomeranian"] { --pet-skin: #f7b97b; --pet-skin-shade: #e6a05a; --pet-ear-in: #ffc4cf; --pet-mark: #e29a52; }
+.pet[data-skin="pomeranian"] { --pet-skin: #ee9b5c; --pet-skin-shade: #d8823f; --pet-ear-in: #f9cfa6; --pet-mark: #d8823f; }
 .pet[data-skin="golden"] { --pet-skin: #f6d08f; --pet-skin-shade: #e6b567; --pet-mark: #d79c47; }
 .pet[data-skin="chocolatemilk"] { --pet-skin: #bb8962; --pet-skin-shade: #9d6c48; --pet-mark: #f6e4cf; }
 .pet[data-skin="highland"] { --pet-skin: #d98a4c; --pet-skin-shade: #bf6c31; --pet-ear-in: #ffc4cf; }
@@ -1051,7 +1049,7 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="floppybunny"] [data-sp="bunny"],
 .pet[data-skin="chihuahua"] [data-sp="puppy"],
 .pet[data-skin="pomeranian"] [data-sp="puppy"] { display: none; }
-.pet[data-skin="highland"] .horn, .pet[data-skin="highland"] .spot { display: none; }
+.pet[data-skin="highland"] .horn, .pet[data-skin="highland"] .spot, .pet[data-skin="golden"] .spot { display: none; }
 .pet[data-skin="chihuahua"] .ear, .pet[data-skin="pomeranian"] .ear, .pet[data-skin="floppybunny"] .ear { fill: var(--pet-skin); }
 .pet[data-skin="calico"] .stripes path { stroke: #e3d4c2; }
 .pet[data-skin="calico"] .ear-l .ear { fill: #f3a95d; }
@@ -1062,9 +1060,10 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="blackcat"] g[data-eyes] path.line, .pet[data-skin="blackcat"] g[data-eyes].line path { stroke: #ffe9b0; }
 .sb-leaf { fill: #7ed67e; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
 .sb-seeds ellipse { fill: #fff0a0; }
-.choc-drizzle { fill: none; stroke: #fff1dc; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; }
-.taro circle { fill: #a78ed8; opacity: .8; }
+.choc ellipse { fill: #4a2d22; stroke: #2f1b14; stroke-width: .8; }
+.taro circle { fill: #a78ed8; opacity: .85; }
 .tabby path { fill: none; stroke: var(--pet-mark); stroke-width: 3; stroke-linecap: round; }
+.tabby-muzzle { fill: #f4e8d8; }
 .calico-orange { fill: #f3a95d; }
 .calico-black { fill: #5b566a; }
 .skin-outline { fill: none; stroke: var(--pet-ink); stroke-width: 2.6; stroke-linejoin: round; }
@@ -1074,6 +1073,6 @@ button { font: inherit; color: inherit; }
 .hl-fringe path { fill: #b95f26; stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
 .boar-mane path { fill: #5e4334; stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
 .tusks path { fill: #fff8e8; stroke: var(--pet-ink); stroke-width: 1.6; stroke-linejoin: round; }
-.ruff-edge circle { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 3.6; }
-.ruff-fill circle { fill: var(--pet-skin); }
-.syrian-wisps path { fill: none; stroke: var(--pet-ink); stroke-width: 2.2; stroke-linecap: round; }
+.fur path { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
+.pom-muzzle { fill: #ffe0b4; }
+.pom-chest { fill: #ffe0b4; stroke: var(--pet-ink); stroke-width: 1.6; stroke-linejoin: round; }
