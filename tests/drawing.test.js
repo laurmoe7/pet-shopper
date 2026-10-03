@@ -121,7 +121,8 @@ test('neckwear held in the mouth (toast, mustache) is drawn in front of the face
 });
 
 test('speech bubbles are always on: quiet mode and no option can hide them', () => {
-  const app = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
+  const app = fs.readdirSync(path.join(__dirname, '..')).filter((f) => /^app.*\.js$/.test(f))
+    .map((f) => fs.readFileSync(path.join(__dirname, '..', f), 'utf8')).join('\n');
   assert.doesNotMatch(app, /settings\.bubbles/);
   assert.doesNotMatch(app, /key: 'bubbles'/);
   assert.match(app, /function say\(text, ms, own\) \{\s+if \(!text\) return;/);

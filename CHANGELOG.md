@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 48 (3 Oct)
+- No visible change. The app code is split into smaller files so it is quicker to work on.
+
 ## Build 47 (3 Oct)
 - Redrawn hats and scarves.
 - New: cowboy hat, cowboy boots, clogs, sideways cap.

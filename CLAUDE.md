@@ -22,7 +22,15 @@ A grocery list with a tamagotchi-like pet that "eats" items as you check them of
 
 Plain web app, no build step, no dependencies. `npm test` runs Node's built-in test runner on `tests/`, which load the same scripts the browser uses.
 
-- `app.js`, `index.html`, `styles.css`: UI. Nibble is an inline SVG animated with CSS.
+- `index.html`, `styles.css`: UI. Nibble is an inline SVG animated with CSS.
+- `app*.js`: the UI code, split by topic. They are plain scripts sharing one scope (no modules), loaded in the order in `index.html`. Read only the file you need:
+  - `app.js` (comes first): `BUILD`, saved state, helpers, page elements, list rendering.
+  - `app-pet.js`: Nibble's faces, speech, flying food, crumbs.
+  - `app-actions.js`: sound and haptics, the eating queue, list actions, emoji picker.
+  - `app-petsheet.js`: edit pet. `app-dress.js`: dressing room. `app-room.js`: room furniture. `app-goals.js`: goals and unlocks.
+  - `app-events.js`: adding items, taps and long-presses. `app-personality.js`: personalities and suggestions.
+  - `app-options.js`: Options and Developer tools. `app-idle.js`: daydreams, idle moves, eye following. `app-start.js`: startup, loads last.
+  - A new `app-*.js` file must be added to `index.html`, `SHELL` in `sw.js` and `SCRIPTS` in `tools/build-preview.js`. Top-level code runs as the file loads, so it can only use things from files loaded before it.
 - `logic.js` (`PetLogic`): rules with no page code (item order, mood, saved state, achievement counting, unlocks, voice lines, `OUTFIT_SLOTS`, `BIRDS`, dev helpers like `unlockAll`/`skipDays`). Keep logic here so it is testable.
 - `wardrobe.js`: dressing-room items drawn as SVG. Outfit slots are `hat`, `face`, `neck`, `feet` (`PetLogic.OUTFIT_SLOTS`); each has its own layer (`.outfit-neck` under face, `.outfit-feet` in front of body). Each item has hover `lines`; a `snug` flag hides the hair twist/tuft (bandana, headphones, helmet). Add cosmetics here.
 - `achievements.js`: goals, daily caps per calendar day, what each unlocks. Add goals here.

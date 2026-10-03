@@ -43,7 +43,7 @@ Not in it yet: accounts, shared lists, payments, multiple lists. See `CHANGELOG.
 
 ## Files
 
-- `index.html`, `styles.css`, `app.js`: the app. Nibble is an inline SVG animated with CSS.
+- `index.html`, `styles.css`, `app*.js`: the app. Nibble is an inline SVG animated with CSS. The code is split by topic (`app-dress.js` is the dressing room, `app-goals.js` is goals, and so on); the list is in `CLAUDE.md`.
 - `foods.js`: the keyword dictionary and matching.
 - `logic.js`: the app's rules with no page code (item order, mood, emoji picks, sound choice, saved state, achievement counting and unlocks), so they can be tested.
 - `achievements.js`: the goals, what counts for each, the daily limit and what they unlock.
