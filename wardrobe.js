@@ -5,12 +5,82 @@
  * Hats sit on the top of the head (around x 80, y 38) and are drawn a little
  * bigger. Items with `layer: 'body'` (like the hoodie) are drawn at full size
  * over the whole pet instead; `hood: true` tucks the pet's own ears away.
- * Face items are drawn at normal size over the eyes (around y 92).
+ * `snug: true` sits close on the head, so the mochi twist and chick tuft tuck under it.
+ * Face items are drawn at normal size over the eyes (around y 92); neck items across
+ * the bottom of the body under the face (around y 118); feet items over the feet (y 137).
  * `icon` is the viewBox for the dressing-room button.
  * Add a new item here and it shows up in the dressing room.
  */
 (function (root) {
   'use strict';
+  /**
+   * Over-ear headphones: padded band hugging the head, hinge brackets, round cups
+   * with silver rims and cushions, and a cable from the left cup. `tone` adds a colour class.
+   * @param {string} tone
+   */
+  function phones(tone) {
+    return '<g class="hat-phones' + (tone ? ' ' + tone : '') + '">' +
+      '<path class="phones-cable" d="M23 80 C20 88 27 92 24 100 C22.5 104 21 106 21.5 108.5"/>' +
+      '<rect class="phones-plug" x="19.6" y="107.5" width="4" height="6" rx="1.4"/>' +
+      '<path class="phones-band" d="M26.9 65.1 C34.1 46.1 52.1 30.9 80 30.9 C107.9 30.9 125.9 46.1 133.1 65.1"/>' +
+      '<path class="phones-band-in" d="M26.9 65.1 C34.1 46.1 52.1 30.9 80 30.9 C107.9 30.9 125.9 46.1 133.1 65.1"/>' +
+      '<path class="phones-band-shine" d="M47 39.5 C55 34.5 63 32.6 70 32"/>' +
+      '<rect class="phones-hinge" x="26" y="48.5" width="8" height="10" rx="2.6" transform="rotate(-22 30 53.5)"/>' +
+      '<rect class="phones-hinge" x="126" y="48.5" width="8" height="10" rx="2.6" transform="rotate(22 130 53.5)"/>' +
+      '<ellipse class="phones-cushion" cx="32.5" cy="69" rx="6" ry="12.5"/>' +
+      '<ellipse class="phones-cushion" cx="127.5" cy="69" rx="6" ry="12.5"/>' +
+      '<ellipse class="phones-cup" cx="27" cy="69" rx="9.6" ry="12.8"/>' +
+      '<ellipse class="phones-cup" cx="133" cy="69" rx="9.6" ry="12.8"/>' +
+      '<ellipse class="phones-rim" cx="27" cy="69" rx="6.4" ry="9"/>' +
+      '<ellipse class="phones-rim" cx="133" cy="69" rx="6.4" ry="9"/>' +
+      '<path class="phones-shine" d="M22.5 63 Q23.5 60 26.5 59.2 M128.5 63 Q129.5 60 132.5 59.2"/>' +
+      '</g>';
+  }
+
+  /**
+   * A fluffy feather boa: lots of overlapping puffs draped along the bottom of the body,
+   * with one end hanging down. The puffs are drawn twice, outlined underneath and filled
+   * on top, so they merge into one soft, bumpy shape.
+   * @returns {string} SVG markup.
+   */
+  function boa() {
+    var puffs = [];
+    // a fixed wobble (not random) so the boa looks the same every time
+    function wob(i, k) { return Math.sin(i * 12.9898 + k * 78.233) * 0.5; }
+    // across the body, sagging in the middle
+    for (var i = 0; i <= 26; i++) {
+      var t = i / 26, x = 17 + 126 * t, y = 115 + 22 * t * (1 - t);
+      puffs.push([x + wob(i, 1) * 2, y + wob(i, 2) * 4, 6.4 + wob(i, 3) * 2]);
+      // a second, offset row of puffs for volume
+      if (i % 2) puffs.push([x + 2, y + 3.5 + wob(i, 6) * 2, 5 + wob(i, 7) * 1.4]);
+    }
+    // the end that drapes down the right side, getting thinner
+    for (var j = 1; j <= 8; j++) {
+      puffs.push([137 + Math.sin(j * 0.9) * 2.6 + wob(j, 4), 117 + j * 3.6, 6.2 - j * 0.4 + wob(j, 5) * 0.8]);
+    }
+    function circles(cls) {
+      return puffs.map(function (p) {
+        return '<circle class="' + cls + '" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="' + p[2].toFixed(1) + '"/>';
+      }).join('');
+    }
+    // feathery wisps fanning out of every puff, up, down and outwards
+    var wisps = '';
+    puffs.forEach(function (q, k) {
+      [-1, 1].forEach(function (side) {
+        var ang = (side < 0 ? -Math.PI / 2 : Math.PI / 2) + wob(k, side + 8) * 1.6;
+        var x0 = q[0] + Math.cos(ang) * (q[2] - 1), y0 = q[1] + Math.sin(ang) * (q[2] - 1);
+        var x1 = q[0] + Math.cos(ang) * (q[2] + 3.4), y1 = q[1] + Math.sin(ang) * (q[2] + 3.4);
+        wisps += 'M' + x0.toFixed(1) + ' ' + y0.toFixed(1) + ' Q' + (x0 + 2).toFixed(1) + ' ' + ((y0 + y1) / 2).toFixed(1) + ' ' + x1.toFixed(1) + ' ' + y1.toFixed(1) + ' ';
+      });
+    });
+    var shine = puffs.filter(function (_, n) { return n % 4 === 1; }).map(function (p) {
+      return 'M' + (p[0] - 2).toFixed(1) + ' ' + (p[1] - 1).toFixed(1) + ' q1.4 -1.8 3.2 -1.6';
+    }).join(' ');
+    return '<path class="boa-wisp" d="' + wisps + '"/>' + circles('boa-edge') + circles('boa-puff') +
+      '<path class="boa-wisp-in" d="' + wisps + '"/>' +
+      '<path class="boa-shine" d="' + shine + '"/>';
+  }
+
   root.Wardrobe = [
     {
       id: 'tophat', slot: 'hat', label: 'Top hat',
@@ -111,7 +181,7 @@
         '</g>'
     },
     {
-      id: 'bandana', slot: 'hat', label: 'Bandana',
+      id: 'bandana', slot: 'hat', snug: true, label: 'Bandana',
       lines: ['ready for adventure!', 'so cool, so comfy!', 'tied it myself!'],
       svg: '<g class="hat-bandana">' +
         // hugs the top of the head down to the forehead, with a knot on the side
@@ -126,17 +196,148 @@
         '</g>'
     },
     {
-      id: 'headphones', slot: 'hat', label: 'Head\u00ADphones',
+      id: 'headphones', slot: 'hat', snug: true, label: 'Head\u00ADphones', icon: '14 24 132 60',
       lines: ['my jam!', 'turn it up!', '♪ shopping beats ♪'],
-      svg: '<g class="hat-phones">' +
-        '<path class="phones-band" d="M38 62 C36 18 124 18 122 62"/>' +
-        '<path class="phones-band-in" d="M38 62 C36 18 124 18 122 62"/>' +
-        '<rect class="phones-cup" x="27" y="52" width="17" height="24" rx="8"/>' +
-        '<rect class="phones-cup" x="116" y="52" width="17" height="24" rx="8"/>' +
-        '<rect class="phones-pad" x="31" y="57" width="9" height="14" rx="4.5"/>' +
-        '<rect class="phones-pad" x="120" y="57" width="9" height="14" rx="4.5"/>' +
-        '<path class="phones-note" d="M77 23 v-6 l6 -1.5 v6 M77 23 a1.6 1.4 0 1 1 -.1 0 M83 21.5 a1.6 1.4 0 1 1 -.1 0"/>' +
+      svg: phones('')
+    },
+    {
+      id: 'mintphones', slot: 'hat', snug: true, label: 'Mint phones', icon: '14 24 132 60',
+      lines: ['minty fresh beats!', 'la la la ♪', 'one more song!'],
+      svg: phones('phones-mint')
+    },
+    {
+      id: 'chefhat', slot: 'hat', snug: true, label: 'Chef hat', icon: '40 -4 80 56',
+      lines: ['oui, chef!', 'what are we cooking?', 'taste test time!'],
+      svg: '<g transform="rotate(-5 80 36)" class="hat-chef">' +
+        '<path class="chef-puff" d="M60 31 C47 31 45 13 58 12 C58 1 73 -3 80 5 C87 -3 102 1 102 12 C115 13 113 31 100 31 Z"/>' +
+        '<path class="chef-fold" d="M70 14 C70 20 71 25 72 30 M90 14 C90 20 89 25 88 30"/>' +
+        '<path class="chef-shine" d="M55 18 Q56 13.5 60 12.5"/>' +
+        '<path class="chef-band" d="M57 44 Q80 36 103 44 L101 29 Q80 25.5 59 29 Z"/>' +
+        '<path class="chef-pleat" d="M66 30.5 V40 M73 29.5 V38.6 M80 29 V38 M87 29.5 V38.6 M94 30.5 V40"/>' +
         '</g>'
+    },
+    {
+      id: 'knight', slot: 'hat', snug: true, label: 'Knight helmet', icon: '24 -2 112 70',
+      lines: ['for the snacks!', 'I shall guard the fridge', 'brave and shiny!'],
+      svg: '<g class="hat-knight">' +
+        '<path class="knight-plume" d="M80 30 C77 15 89 3 104 5 C98 9 95 15 95 22 C93 26 88 29 80 30 Z"/>' +
+        '<path class="knight-plume-line" d="M84 24 C87 17 92 12 99 8.5 M88 26 C91 21 95 16 99 13"/>' +
+        '<path class="knight-dome" d="M30 62 C30 40 52 29 80 29 C108 29 130 40 130 62 Z"/>' +
+        '<path class="knight-ridge" d="M80 29.5 V58"/>' +
+        '<path class="knight-shine" d="M42 47 C46 40 53 35.5 61 33.5"/>' +
+        '<path class="knight-visor" d="M58 40 C64 33.5 96 33.5 102 40 L100 47 C94 42.5 66 42.5 60 47 Z"/>' +
+        '<path class="knight-slit" d="M66 41.5 H74 M86 41.5 H94"/>' +
+        '<path class="knight-band" d="M31 58 Q80 49 129 58 Q132.5 61.6 129.5 65.6 Q80 56.6 30.5 65.6 Q27.5 61.6 31 58 Z"/>' +
+        '<circle class="knight-rivet" cx="39" cy="60" r="1.6"/><circle class="knight-rivet" cx="59" cy="56.6" r="1.6"/>' +
+        '<circle class="knight-rivet" cx="80" cy="55.5" r="1.6"/><circle class="knight-rivet" cx="101" cy="56.6" r="1.6"/>' +
+        '<circle class="knight-rivet" cx="121" cy="60" r="1.6"/>' +
+        '</g>'
+    },
+    {
+      id: 'bananapeel', slot: 'hat', snug: true, label: 'Banana peel', icon: '20 0 120 66',
+      lines: ['slippery when worn!', 'a-peeling, right?', 'going bananas!'],
+      svg: '<g class="hat-banana" transform="translate(24 4) translate(80 40) rotate(34) scale(.6) translate(-80 -40)">' +
+        '<path class="peel" d="M76 42 C62 28 40 32 32 54 C44 56 60 51 72 47 Z"/>' +
+        '<path class="peel" d="M84 42 C98 28 120 32 128 54 C116 56 100 51 88 47 Z"/>' +
+        '<path class="peel" d="M71 44 C67 26 74 14 80 8 C86 14 93 26 89 44 C85 47 75 47 71 44 Z"/>' +
+        '<path class="peel-line" d="M80 14 V40 M66 36 C58 36 48 41 40 50 M94 36 C102 36 112 41 120 50"/>' +
+        '<path class="peel-tip" d="M77.4 12 C77.6 8 78.6 6 80 5 C81.4 6 82.4 8 82.6 12 Z"/>' +
+        '<circle class="peel-spot" cx="45" cy="47" r="1.2"/><circle class="peel-spot" cx="115" cy="47" r="1.2"/><circle class="peel-spot" cx="76" cy="28" r="1.1"/>' +
+        '</g>'
+    },
+    {
+      id: 'trashlid', slot: 'hat', snug: true, label: 'Trash can lid', icon: '20 14 120 52',
+      lines: ['one man\'s trash!', 'clang clang!', 'raccoon approved'],
+      svg: '<g class="hat-lid" transform="rotate(-5 80 44)">' +
+        '<ellipse class="lid-rim" cx="80" cy="47" rx="47" ry="6.4"/>' +
+        '<path class="lid-top" d="M36 46 C37 36 56 30 80 30 C104 30 123 36 124 46 C110 50 50 50 36 46 Z"/>' +
+        '<path class="lid-ring" d="M46 43.6 C50 38.6 64 36 80 36 C96 36 110 38.6 114 43.6"/>' +
+        '<path class="lid-ring" d="M58 41.6 C62 39 71 38.2 80 38.2 C89 38.2 98 39 102 41.6"/>' +
+        '<path class="lid-rib" d="M42 45 L46 40 M52 46.6 L55 39 M66 47.6 L67 39 M94 47.6 L93 39 M108 46.6 L105 39 M118 45 L114 40"/>' +
+        '<path class="lid-shine" d="M42 40.6 C46 35.6 53 33.2 61 32.4"/>' +
+        '<path class="lid-handle" d="M67 34 C67 21 93 21 93 34"/><path class="lid-handle-in" d="M67 34 C67 21 93 21 93 34"/>' +
+        '</g>'
+    },
+    {
+      id: 'scarf', slot: 'neck', label: 'Winter scarf', icon: '10 104 140 46',
+      lines: ['so toasty!', 'snow day?', 'cosy cosy cosy'],
+      svg: '<g class="neck-scarf">' +
+        '<path class="scarf-tail" d="M103 118.3 C105 129.3 103 138.3 106 148.3 L119 145.3 C116 136.3 117 127.3 115 117.3 Z"/>' +
+        '<path class="scarf-stripe" d="M104.8 131.3 L116.6 129.3 M105.4 139.3 L117.4 137.3"/>' +
+        '<path class="scarf-fringe" d="M107.5 148.3 v3.4 M110.5 147.6 v3.4 M113.5 146.9 v3.4 M116.5 146.2 v3.4"/>' +
+        '<path class="scarf-band" d="M17 108 Q80 124 143 108 Q147 114 145 121 Q80 140 15 121 Q13 114 17 108 Z"/>' +
+        '<path class="scarf-stripe" d="M36 112.9 Q35 119.1 36 125.3 M56 115.6 Q55 122.0 56 128.4 M104 115.6 Q105 122.0 104 128.4 M124 112.9 Q125 119.1 124 125.3"/>' +
+        '<path class="scarf-knit" d="M24 116.3 l3 2 l3 -2 M44 119.9 l3 2 l3 -2 M64 121.9 l3 2 l3 -2 M86 122.1 l3 2 l3 -2 M108 120.2 l3 2 l3 -2 M128 116.7 l3 2 l3 -2"/>' +
+        '<path class="scarf-knot" d="M100 114.3 C102 109.3 116 109.3 118 114.3 C120 120.3 116 126.3 109 126.3 C102 126.3 98 120.3 100 114.3 Z"/>' +
+        '</g>'
+    },
+    {
+      id: 'silkscarf', slot: 'neck', label: 'Silk scarf', icon: '14 102 120 46',
+      lines: ['très chic!', 'pas mal, non?', 'quite dapper, no?'],
+      svg: '<g class="neck-silk">' +
+        '<path class="silk-cloth" d="M18 108 Q80 124 142 108 Q146 114 142 119 Q80 135 18 119 Q14 114 18 108 Z"/>' +
+        '<path class="silk-cloth" d="M56 115 L33 119 Q27 127 36 131.5 L58 125 Z"/>' +
+        '<path class="silk-cloth" d="M52 117 L72 119 L62.6 143 Q60.5 145.5 58.5 143 Z"/>' +
+        '<path class="silk-fold" d="M62 123 L60.6 138"/>' +
+        '<ellipse class="silk-knot" cx="56" cy="116.5" rx="6.4" ry="5"/>' +
+        '<path class="silk-fold" d="M52 114.5 Q56 117 60 114.5"/>' +
+        '</g>'
+    },
+    {
+      id: 'boa', slot: 'neck', label: 'Feather boa', icon: '8 104 144 46',
+      lines: ['dahling!', 'fabulous, simply fabulous', 'strike a pose!'],
+      svg: '<g class="neck-boa">' + boa() + '</g>'
+    },
+    {
+      id: 'boots', slot: 'feet', label: 'Boots', icon: '40 126 80 24',
+      lines: ['puddle time!', 'stomp stomp!', 'ready for a walk!'],
+      svg: '<g class="feet-boots">' + [58, 102].map(function (x) {
+        // a round little booty with a fluffy cloud cuff
+        var l = x - 10, cuff = 'M' + l + ' 133.6';
+        for (var i = 0; i < 5; i++) cuff += ' a2.2 2.2 0 0 1 4 0';
+        cuff += ' a2.2 2.2 0 0 1 0 4.2';
+        for (var j = 0; j < 5; j++) cuff += ' a2.2 2.2 0 0 1 -4 0';
+        cuff += ' a2.2 2.2 0 0 1 0 -4.2 Z';
+        return '<path class="boot" d="M' + (x - 9) + ' 135 H' + (x + 9) + ' V140.6 C' + (x + 9.4) + ' 145.6 ' + (x + 5) + ' 146.6 ' + x + ' 146.6 C' + (x - 5) + ' 146.6 ' + (x - 9.4) + ' 145.6 ' + (x - 9) + ' 140.6 Z"/>' +
+          '<path class="boot-sole" d="M' + (x - 8.6) + ' 143.4 Q' + x + ' 146.2 ' + (x + 8.6) + ' 143.4"/>' +
+          '<path class="boot-shine" d="M' + (x - 5.4) + ' 139.6 V141.6"/>' +
+          '<path class="boot-cuff" d="' + cuff + '"/>';
+      }).join('') + '</g>'
+    },
+    {
+      id: 'heels', slot: 'feet', label: 'High heels', icon: '40 126 80 26',
+      lines: ['so tall!', 'click clack click', 'catwalk ready!'],
+      svg: '<g class="feet-heels">' + [58, 102].map(function (x) {
+        // a round pump that covers the whole foot, on a small heel, with a bow on the toe
+        return '<path class="heel-spike" d="M' + (x - 3.4) + ' 142.6 L' + (x - 1.6) + ' 148.6 H' + (x + 1.6) + ' L' + (x + 3.4) + ' 142.6 Z"/>' +
+          '<ellipse class="heel-shoe" cx="' + x + '" cy="138.4" rx="12" ry="6.2"/>' +
+          '<path class="heel-shine" d="M' + (x - 8.6) + ' 139.6 Q' + (x - 7.4) + ' 142.6 ' + (x - 3.6) + ' 143.6"/>' +
+          '<path class="heel-bow" d="M' + x + ' 140.6 l-3.4 -2.2 v4.4 Z M' + x + ' 140.6 l3.4 -2.2 v4.4 Z"/>' +
+          '<circle class="heel-bow" cx="' + x + '" cy="140.6" r="1.2"/>';
+      }).join('') + '</g>'
+    },
+    {
+      id: 'bunnyslippers', slot: 'feet', label: 'Bunny slippers', icon: '40 124 80 26',
+      lines: ['so fuzzy!', 'cosy toes!', 'hop hop hop!'],
+      svg: '<g class="feet-bunny">' + [58, 102].map(function (x) {
+        // a fluffy slipper with two floppy ears and a tiny face
+        var fluff = '';
+        for (var i = 0; i < 9; i++) {
+          var a = Math.PI + i * Math.PI / 8;
+          fluff += '<circle cx="' + (x + Math.cos(a) * 8.6).toFixed(1) + '" cy="' + (140.6 + Math.sin(a) * 4.4).toFixed(1) + '" r="2.5"/>';
+        }
+        for (var j = 0; j < 7; j++) {
+          var b = j * Math.PI / 6;
+          fluff += '<circle cx="' + (x + Math.cos(b) * 8.6).toFixed(1) + '" cy="' + (140.6 + Math.sin(b) * 4.2).toFixed(1) + '" r="2.5"/>';
+        }
+        return '<path class="bunny-ear" d="M' + (x - 6.4) + ' 137 C' + (x - 9.4) + ' 130 ' + (x - 5.4) + ' 127.5 ' + (x - 3.6) + ' 130 C' + (x - 2.6) + ' 132 ' + (x - 2.4) + ' 135 ' + (x - 2.4) + ' 137 Z"/>' +
+          '<path class="bunny-ear" d="M' + (x + 6.4) + ' 137 C' + (x + 9.4) + ' 130 ' + (x + 5.4) + ' 127.5 ' + (x + 3.6) + ' 130 C' + (x + 2.6) + ' 132 ' + (x + 2.4) + ' 135 ' + (x + 2.4) + ' 137 Z"/>' +
+          '<g class="bunny-fluff-edge">' + fluff + '</g>' +
+          '<ellipse class="bunny-fluff" cx="' + x + '" cy="140.6" rx="8.6" ry="4.4"/>' +
+          '<g class="bunny-fluff">' + fluff + '</g>' +
+          '<circle class="bunny-eye" cx="' + (x - 3) + '" cy="140" r="0.9"/><circle class="bunny-eye" cx="' + (x + 3) + '" cy="140" r="0.9"/>' +
+          '<ellipse class="bunny-nose" cx="' + x + '" cy="141.6" rx="1.3" ry="0.9"/>';
+      }).join('') + '</g>'
     },
     {
       id: 'shades', slot: 'face', label: 'Heart shades', icon: '28 74 104 36',
@@ -160,6 +361,29 @@
         '<path class="specs-rim" d="M45 93 C45 101 50 104 58 104 C66 104 71 101 71 93 M89 93 C89 101 94 104 102 104 C110 104 115 101 115 93"/>' +
         '<path class="specs-rim" d="M71 94 Q80 89 89 94 M45 93.5 L31 89 M115 93.5 L129 89"/>' +
         '<path class="specs-shine" d="M49 96 Q50 99.5 53 101"/>' +
+        '</g>'
+    },
+    {
+      id: 'eyepatch', slot: 'face', label: 'Eye patch', icon: '18 66 132 40',
+      lines: ['arr, matey!', 'yo ho, snacks ho!', 'I see half the treats!'],
+      svg: '<g class="face-patch">' +
+        '<path class="patch-strap" d="M93 85 C78 74 50 67 19 73 M112.5 90.5 L146 92"/>' +
+        '<path class="patch" d="M91.5 89 C91.5 82 97 80 103 80.5 C110 81 114 85 113.5 91.5 C113 98.5 108 102 101.5 101.5 C95 101 91.5 96 91.5 89 Z"/>' +
+        '<path class="patch-heart" d="M102.5 89 c-1.1 -1.8 -3.8 -.7 -2.7 1.1 l2.7 2.7 l2.7 -2.7 c1.1 -1.8 -1.6 -2.9 -2.7 -1.1z"/>' +
+        '<path class="patch-shine" d="M95.5 86 Q96.5 83.6 99 83"/>' +
+        '</g>'
+    },
+    {
+      id: 'nerdspecs', slot: 'face', label: 'Taped specs', icon: '26 74 108 34',
+      lines: ['well, actually…', 'I read the label!', 'these have seen things.'],
+      svg: '<g class="face-nerd">' +
+        '<path class="nerd-arm" d="M44 88 L30 85 M116 88 L130 85"/>' +
+        '<rect class="nerd-lens" x="44" y="80.5" width="28" height="23" rx="7"/>' +
+        '<rect class="nerd-lens" x="88" y="80.5" width="28" height="23" rx="7"/>' +
+        '<path class="nerd-bridge" d="M72 88.5 Q80 85 88 88.5"/>' +
+        '<rect class="nerd-tape" x="76.2" y="83" width="7.6" height="8.6" rx="1.6" transform="rotate(-8 80 87.3)"/>' +
+        '<path class="nerd-tape-line" d="M78.4 84 L78.9 90.6 M81.4 83.6 L81.9 90.2" transform="rotate(-8 80 87.3)"/>' +
+        '<path class="nerd-shine" d="M48.5 86 Q49 83.6 51.5 83 M92.5 86 Q93 83.6 95.5 83"/>' +
         '</g>'
     }
   ];

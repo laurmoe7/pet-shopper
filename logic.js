@@ -20,7 +20,8 @@
    * @typedef {Object} PetProfile
    * @property {string} name
    * @property {string} species  One of the species ids, e.g. "mochi", "pig", "penguin".
-   * @property {{hat: string, face: string}} outfit  Wardrobe item id per slot (hat, glasses); "none" for nothing.
+   * @property {{hat: string, face: string, neck: string, feet: string}} outfit  Wardrobe item id per slot
+   *   (hat, glasses, neck, feet; see OUTFIT_SLOTS); "none" for nothing.
    * @property {Object<string, Progress>} achievements  Progress per achievement id.
    * @property {Guard} guard  What the anti-cheat rules remember.
    * @property {string} personality  Id from personalities.js; "foodie" to start.
@@ -43,6 +44,8 @@
    * @property {number} today  How many were counted on that day.
    */
 
+  /** Places on the pet where it can wear something, one item each: head, eyes, neck and feet. */
+  var OUTFIT_SLOTS = ['hat', 'face', 'neck', 'feet'];
   var SAMPLE = ['Bananas', 'Oat milk', '500g Quark', 'Broccoli', 'Chili flakes', 'Dark chocolate', 'Toilet paper', "Oma's cake"];
 
   /**
@@ -85,7 +88,7 @@
     return {
       name: typeof saved.name === 'string' ? saved.name : 'Nibble',
       species: saved.species || 'mochi',
-      outfit: { hat: (saved.outfit && saved.outfit.hat) || 'none', face: (saved.outfit && saved.outfit.face) || 'none' },
+      outfit: OUTFIT_SLOTS.reduce(function (o, slot) { o[slot] = (saved.outfit && saved.outfit[slot]) || 'none'; return o; }, {}),
       achievements: saved.achievements && typeof saved.achievements === 'object' ? saved.achievements : {},
       room: saved.room && typeof saved.room === 'object' ? saved.room : {},
       personality: saved.personality || 'foodie',
@@ -683,8 +686,9 @@
     profile.guard = { day: '', words: [], lastSeen: 0 };
     profile.personality = 'foodie';
     if (!isUnlocked(profile, 'species', profile.species, achievements, free)) profile.species = 'mochi';
-    if (!isUnlocked(profile, 'hat', profile.outfit.hat, achievements, free)) profile.outfit.hat = 'none';
-    if (!isUnlocked(profile, 'hat', profile.outfit.face, achievements, free)) profile.outfit.face = 'none';
+    OUTFIT_SLOTS.forEach(function (slot) {
+      if (!isUnlocked(profile, 'hat', profile.outfit[slot], achievements, free)) profile.outfit[slot] = 'none';
+    });
   }
 
   /**
@@ -764,6 +768,7 @@
     voiceLine: voiceLine,
     sleepTalk: sleepTalk,
     BIRDS: BIRDS,
+    OUTFIT_SLOTS: OUTFIT_SLOTS,
     isBird: isBird,
     toggleDecor: toggleDecor,
     moveDecor: moveDecor,

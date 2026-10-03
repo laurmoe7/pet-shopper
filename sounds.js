@@ -1,13 +1,18 @@
 /* Nibble's sounds, synthesised with the Web Audio API (no audio files).
  * Sounds.play(kind) where kind is one of:
  *   chomp, crunch, squish, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party,
- *   ooh (curious, for pointing at an outfit), excited (trying an outfit on)
+ *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
+ *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
+ * Every play is pitch-shifted a little, and kinds with several variants pick a
+ * different one each time, so nothing sounds exactly the same twice in a row.
  * Sounds.unlock() must run inside a tap once, so phones allow audio later.
  */
 (function (root) {
   'use strict';
 
   var ctx = null, master = null, noiseBuf = null;
+  // the random pitch for the sound playing now; tone() and noise() scale by it
+  var pitch = 1;
 
   /**
    * Creates the audio engine on first use: a context, a soft compressor and a noise buffer.
@@ -80,7 +85,7 @@
     var src = ctx.createBufferSource();
     src.buffer = noiseBuf;
     var f = ctx.createBiquadFilter();
-    f.type = filterType; f.frequency.setValueAtTime(freq, t); f.Q.value = q || 1;
+    f.type = filterType; f.frequency.setValueAtTime(freq * pitch, t); f.Q.value = q || 1;
     src.connect(f); f.connect(out);
     src.start(t, Math.random() * 0.5); src.stop(t + dur);
     return f;
@@ -98,8 +103,8 @@
   function tone(t, dur, type, f0, f1, out) {
     var o = ctx.createOscillator();
     o.type = type;
-    o.frequency.setValueAtTime(f0, t);
-    if (f1) o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    o.frequency.setValueAtTime(f0 * pitch, t);
+    if (f1) o.frequency.exponentialRampToValueAtTime(f1 * pitch, t + dur);
     o.connect(out);
     o.start(t); o.stop(t + dur + 0.02);
     return o;
@@ -140,7 +145,7 @@
   function squash(t, vol) {
     tone(t, 0.16, 'sine', rnd(260, 300), 110, env(t, 0.01, 0.15, 0.55 * vol));
     var f = noise(t, 0.2, 'lowpass', 900, 0.9, env(t, 0.015, 0.16, 1.0 * vol));
-    f.frequency.exponentialRampToValueAtTime(250, t + 0.18);
+    f.frequency.exponentialRampToValueAtTime(250 * pitch, t + 0.18);
   }
   /**
    * One gulp: an upward bubble chirp.
@@ -174,7 +179,7 @@
     lfo.connect(lfoAmt); lfoAmt.connect(wob.gain); lfo.start(t); lfo.stop(t + dur);
     g.connect(master);
     var f = noise(t, dur, 'bandpass', from, 7, wob);
-    f.frequency.exponentialRampToValueAtTime(to, t + dur);
+    f.frequency.exponentialRampToValueAtTime(to * pitch, t + dur);
     // a little whistle riding on top
     tone(t, dur, 'sine', from * 1.1, to * 0.7, env(t, 0.05, dur - 0.05, 0.05 * vol));
   }
@@ -232,6 +237,54 @@
       tone(t, 0.2, 'triangle', rnd(480, 540), 860, env(t, 0.03, 0.18, 0.16));
       tone(t, 0.2, 'sine', 960, 1700, env(t, 0.03, 0.16, 0.04));
     },
+    // ---- menu sounds: each is a list of variants ----
+    tap: [
+      function (t) { tone(t, 0.06, 'sine', rnd(650, 760), 1150, env(t, 0.003, 0.06, 0.22)); },
+      function (t) { tone(t, 0.08, 'triangle', 560, 380, env(t, 0.004, 0.08, 0.2)); },
+      function (t) { noise(t, 0.02, 'highpass', 3000, 0.8, env(t, 0.001, 0.02, 0.25)); tone(t, 0.05, 'sine', 1500, 1300, env(t, 0.002, 0.05, 0.1)); },
+      function (t) { tone(t, 0.05, 'sine', 900, 600, env(t, 0.002, 0.05, 0.2)); tone(t + 0.05, 0.05, 'sine', 1200, 900, env(t + 0.05, 0.002, 0.05, 0.12)); }
+    ],
+    pick: [
+      function (t) { chime(t, [784, 1047], 0.06, 0.7); },
+      function (t) { chime(t, [659, 988], 0.05, 0.7); },
+      function (t) { chime(t, [880, 1175, 1397], 0.045, 0.6, 'sine'); },
+      function (t) { tone(t, 0.1, 'triangle', 600, 1300, env(t, 0.005, 0.1, 0.2)); chime(t + 0.08, [1568], 0.05, 0.5, 'sine'); }
+    ],
+    open: [
+      function (t) { tone(t, 0.14, 'sine', 380, 900, env(t, 0.01, 0.13, 0.2)); chime(t + 0.1, [1319], 0.05, 0.4, 'sine'); },
+      function (t) { var f = noise(t, 0.16, 'bandpass', 600, 2.5, env(t, 0.03, 0.12, 0.35)); f.frequency.exponentialRampToValueAtTime(2400 * pitch, t + 0.16); tone(t + 0.06, 0.1, 'triangle', 700, 1050, env(t + 0.06, 0.01, 0.1, 0.14)); },
+      function (t) { chime(t, [523, 784, 1047], 0.05, 0.55); }
+    ],
+    close: [
+      function (t) { tone(t, 0.13, 'sine', 900, 420, env(t, 0.008, 0.12, 0.18)); },
+      function (t) { var f = noise(t, 0.14, 'bandpass', 2200, 2.5, env(t, 0.02, 0.11, 0.3)); f.frequency.exponentialRampToValueAtTime(500 * pitch, t + 0.14); },
+      function (t) { chime(t, [1047, 784], 0.05, 0.5, 'sine'); }
+    ],
+    on: [
+      function (t) { chime(t, [659, 988], 0.06, 0.7, 'sine'); },
+      function (t) { tone(t, 0.09, 'triangle', 500, 1000, env(t, 0.005, 0.09, 0.2)); }
+    ],
+    off: [
+      function (t) { chime(t, [988, 659], 0.06, 0.6, 'sine'); },
+      function (t) { tone(t, 0.1, 'triangle', 800, 420, env(t, 0.005, 0.1, 0.18)); }
+    ],
+    locked: [
+      function (t) {
+        // a soft "bonk" and a little rattle, like a tiny padlock
+        var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; lp.connect(env(t, 0.004, 0.14, 0.35));
+        tone(t, 0.12, 'square', 230, 150, lp);
+        for (var i = 0; i < 3; i++) noise(t + 0.08 + i * 0.03, 0.02, 'bandpass', 3200, 3, env(t + 0.08 + i * 0.03, 0.001, 0.02, 0.15));
+      },
+      function (t) { tone(t, 0.09, 'triangle', 330, 250, env(t, 0.004, 0.09, 0.25)); tone(t + 0.11, 0.12, 'triangle', 300, 210, env(t + 0.11, 0.004, 0.12, 0.22)); }
+    ],
+    place: [
+      function (t) { tone(t, 0.1, 'sine', 170, 85, env(t, 0.003, 0.1, 0.5)); noise(t, 0.06, 'lowpass', 700, 0.8, env(t, 0.002, 0.05, 0.4)); chime(t + 0.08, [1175, 1568], 0.05, 0.45, 'sine'); },
+      function (t) { tone(t, 0.08, 'sine', 200, 100, env(t, 0.003, 0.08, 0.45)); squash(t + 0.02, 0.4); chime(t + 0.1, [988, 1319], 0.05, 0.4); }
+    ],
+    remove: [
+      function (t) { var f = noise(t, 0.2, 'bandpass', 2600, 3, env(t, 0.02, 0.17, 0.35)); f.frequency.exponentialRampToValueAtTime(400 * pitch, t + 0.2); },
+      function (t) { tone(t, 0.12, 'sine', 700, 260, env(t, 0.005, 0.12, 0.2)); tone(t + 0.04, 0.05, 'sine', 1400, 900, env(t + 0.04, 0.002, 0.05, 0.08)); }
+    ],
     excited: function (t) {
       // two quick squeaky "kya!"s and a sparkle
       tone(t, 0.11, 'triangle', 620, 1250, env(t, 0.01, 0.1, 0.26));
@@ -241,15 +294,34 @@
     }
   };
 
+  var lastVariant = {};
+  /**
+   * The function for a sound: one fixed sound, or a variant other than the one played last time.
+   * @param {string} kind
+   * @returns {function(number)}
+   */
+  function variant(kind) {
+    var v = KINDS[kind];
+    if (typeof v === 'function') return v;
+    var i = Math.floor(Math.random() * v.length);
+    if (v.length > 1 && i === lastVariant[kind]) i = (i + 1 + Math.floor(Math.random() * (v.length - 1))) % v.length;
+    lastVariant[kind] = i;
+    return v[i];
+  }
+
   root.Sounds = {
     unlock: unlock,
     kinds: Object.keys(KINDS),
+    variant: variant,
     play: function (kind) {
       try {
         if (!init()) return;
         if (ctx.state === 'suspended') ctx.resume().catch(function () {});
-        (KINDS[kind] || KINDS.chomp)(ctx.currentTime + 0.01);
-      } catch (e) { /* no audio */ }
+        var k = KINDS[kind] ? kind : 'chomp';
+        // a slightly different pitch every time
+        pitch = rnd(0.9, 1.12);
+        variant(k)(ctx.currentTime + 0.01);
+      } catch (e) { /* no audio */ } finally { pitch = 1; }
     }
   };
 })(typeof self !== 'undefined' ? self : globalThis);

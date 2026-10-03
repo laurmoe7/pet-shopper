@@ -36,3 +36,15 @@ test('the dressing room sounds exist', () => {
   assert.ok(Sounds.kinds.includes('ooh'));
   assert.ok(Sounds.kinds.includes('excited'));
 });
+
+test('menu sounds exist and never play the same variant twice in a row', () => {
+  for (const kind of ['tap', 'pick', 'open', 'close', 'on', 'off', 'locked', 'place', 'remove']) {
+    assert.ok(Sounds.kinds.includes(kind), kind);
+    let last = Sounds.variant(kind);
+    for (let i = 0; i < 40; i++) {
+      const next = Sounds.variant(kind);
+      assert.notEqual(next, last, kind);
+      last = next;
+    }
+  }
+});

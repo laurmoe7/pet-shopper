@@ -167,7 +167,7 @@ button { font: inherit; color: inherit; }
 @keyframes twinkle { 0%, 100% { transform: scale(.6) rotate(0); opacity: .25; } 50% { transform: scale(1) rotate(20deg); opacity: .8; } }
 
 /* ---------- Nibble ---------- */
-.skin { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.6; }
+.skin { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.6; stroke-linejoin: round; }
 .shine { fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; opacity: .8; }
 .ear { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
 .ear-in { fill: var(--pet-ear-in); stroke: none; }
@@ -202,7 +202,8 @@ button { font: inherit; color: inherit; }
 .muzzle { fill: #ffc9d2; stroke: var(--pet-ink); stroke-width: 1.8; }
 .nostril-dot { fill: var(--pet-ink); }
 .pet[data-species="cow"] .spot { opacity: .85; }
-/* the cow's mouth sits under its muzzle, like the pig's under its snout */
+/* the pig's and cow's mouths sit just under the snout and muzzle, never tucked behind them */
+.pet[data-species="pig"] [data-mouth] { translate: 0 2.5px; }
 .pet[data-species="cow"] [data-mouth] { translate: 0 6.5px; }
 .beak { fill: #ffb259; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
 /* birds (PetLogic.isBird) talk and eat with their beak, so they have no separate mouth */
@@ -233,7 +234,9 @@ button { font: inherit; color: inherit; }
 .pet[data-species="hamster"] [data-sp="hamster"],
 .pet[data-species="penguin"] [data-sp="penguin"] { display: inline; }
 .pet[data-species="puppy"] .ear { fill: var(--pet-mark); }
-.twist { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+/* the twist's fill dips over the head outline and its line stops on it, so it grows out of the head with no seam */
+.twist-fill { fill: var(--pet-skin); }
+.twist-line { fill: none; stroke: var(--pet-ink); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
 .foot { fill: var(--pet-skin-shade); stroke: var(--pet-ink); stroke-width: 2.4; }
 .arm ellipse { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.2; }
 .arm .arm-hi { fill: #fff; stroke: none; opacity: .7; }
@@ -428,20 +431,20 @@ button { font: inherit; color: inherit; }
 .field input:focus-visible { box-shadow: 0 0 0 4px var(--stage-top); }
 .species { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .species-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
-.species-grid button {
-  display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px 6px;
-  border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 18px; cursor: pointer; font-weight: 700; font-size: .85rem;
+/* species, hat and glasses buttons: a soft tile with the drawing over its label */
+.species-grid button, .hat-strip button {
+  position: relative; display: flex; flex-direction: column; align-items: center;
+  border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 18px; cursor: pointer; font-weight: 700;
 }
-.species-grid button[aria-pressed="true"] { border-color: var(--outline); background: var(--stage-top); box-shadow: 0 2px 0 var(--outline); }
-.species-grid button:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
+.species-grid button { gap: 2px; padding: 8px 4px 6px; font-size: .85rem; }
+.species-grid button:focus-visible, .hat-strip button:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
 .pet.mini { width: 72px; height: 66px; margin: 0; cursor: inherit; pointer-events: none; }
-.pet-sheet .picker-inner { overflow-y: auto; }
 /* one scroll area per sheet: lists inside it grow instead of scrolling on their own,
    and the Done row stays pinned to the bottom */
 .pet-sheet .options, .pet-sheet .goal-list { overflow: visible; }
 /* sheets lay out as one plain column that scrolls as a whole, so the sticky Done row
    always ends up after the last option instead of on top of it */
-.pet-sheet .picker-inner { display: block; }
+.pet-sheet .picker-inner { display: block; overflow-y: auto; }
 .pet-sheet .picker-inner > * + * { margin-top: 12px; }
 .pet-sheet .picker-foot { position: sticky; bottom: calc(-12px - env(safe-area-inset-bottom, 0px)); background: var(--surface); margin: 0 -16px; padding: 8px 16px calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 2; }
 
@@ -487,6 +490,8 @@ button { font: inherit; color: inherit; }
 /* the hood tucks the pet's own ears, horns and tufts away; sleeves match the hoodie */
 .pet.hooded .squish > [data-sp]:not(.skin ~ *),
 .pet.hooded [data-sp="puppy"] .ear, .pet.hooded .twist { display: none; }
+/* snug headwear (bandana, headphones) tucks the mochi twist and chick tuft under it */
+.pet.snug .twist, .pet.snug .tuft { display: none; }
 .pet.hooded .arm ellipse:not(.arm-hi) { fill: #fffdf9; }
 
 /* ---------- options ---------- */
@@ -582,9 +587,8 @@ button { font: inherit; color: inherit; }
 .dress-stage {
   display: flex; justify-content: center; padding: 18px 0 8px; border-radius: 22px;
   background: radial-gradient(ellipse 30% 9% at 50% 90%, var(--cushion) 0 96%, transparent 100%), var(--stage-top);
-  border: 1.5px solid var(--line);
+  border: 1.5px solid var(--line); position: relative;
 }
-.dress-stage { position: relative; }
 .dress-bubble {
   position: absolute; left: calc(50% + 58px); top: 10px; max-width: calc(50% - 66px); z-index: 2;
   background: var(--surface); color: var(--ink); border: 1.8px solid var(--outline);
@@ -602,12 +606,7 @@ button { font: inherit; color: inherit; }
 .picker.room-sheet { position: fixed; inset: auto 0 0 0; max-height: 42vh; z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
 .picker.room-sheet .picker-inner { max-height: calc(42vh - 2px); }
 .hat-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-.hat-strip button {
-  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; min-width: 0;
-  border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 18px; cursor: pointer; font-weight: 700; font-size: .78rem; line-height: 1.2; text-align: center;
-}
-.hat-strip button[aria-pressed="true"] { border-color: var(--outline); background: var(--stage-top); box-shadow: 0 2px 0 var(--outline); }
-.hat-strip button:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
+.hat-strip button { gap: 4px; padding: 8px 4px; min-width: 0; font-size: .78rem; line-height: 1.2; text-align: center; }
 .hat-strip svg { width: 100%; max-width: 64px; height: 40px; overflow: visible; }
 .hard-dome { fill: #ffd34d; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
 .hard-ridge { fill: #ffe486; stroke: var(--pet-ink); stroke-width: 1.6; stroke-linejoin: round; }
@@ -618,11 +617,74 @@ button { font: inherit; color: inherit; }
 .bandana-cloth { fill: #ff7f9e; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
 .bandana-edge { fill: none; stroke: #e2607f; stroke-width: 1.4; stroke-dasharray: 3 2.4; }
 .bandana-dot { fill: #fff; }
-.phones-band { fill: none; stroke: var(--pet-ink); stroke-width: 8; stroke-linecap: round; }
-.phones-band-in { fill: none; stroke: #9fdcc8; stroke-width: 4.4; stroke-linecap: round; }
-.phones-cup { fill: #ffb3c6; stroke: var(--pet-ink); stroke-width: 2; }
-.phones-pad { fill: #9fdcc8; stroke: var(--pet-ink); stroke-width: 1.2; }
-.phones-note { fill: none; stroke: #e2607f; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.phones-band { fill: none; stroke: var(--pet-ink); stroke-width: 10; stroke-linecap: round; }
+.phones-band-in { fill: none; stroke: var(--phones, #2f2a33); stroke-width: 7; stroke-linecap: round; }
+.phones-band-shine, .phones-shine { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; opacity: .35; }
+.phones-hinge { fill: #d9dde3; stroke: var(--pet-ink); stroke-width: 1.6; }
+.phones-cushion { fill: var(--phones-pad, #4a4450); stroke: var(--pet-ink); stroke-width: 1.8; }
+.phones-cup { fill: var(--phones, #2f2a33); stroke: var(--pet-ink); stroke-width: 2; }
+.phones-rim { fill: var(--phones-face, #3d3742); stroke: #c9ced6; stroke-width: 2.2; }
+.phones-cable { fill: none; stroke: var(--pet-ink); stroke-width: 1.4; stroke-linecap: round; }
+.phones-plug { fill: #c9ced6; stroke: var(--pet-ink); stroke-width: 1; }
+.phones-mint { --phones: #9fdcc8; --phones-pad: #ffb3c6; --phones-face: #c4ece0; }
+.chef-puff, .chef-band { fill: #fffdf8; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
+.chef-fold, .chef-pleat { fill: none; stroke: #e6ddd4; stroke-width: 1.6; stroke-linecap: round; }
+.chef-shine { fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; }
+.knight-dome { fill: #cfd5dd; stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
+.knight-ridge { fill: none; stroke: #a9b2bd; stroke-width: 2; stroke-linecap: round; }
+.knight-shine { fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; opacity: .8; }
+.knight-visor { fill: #b4bcc7; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
+.knight-slit { fill: none; stroke: var(--pet-ink); stroke-width: 2; stroke-linecap: round; }
+.knight-band { fill: #aab3be; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
+.knight-rivet { fill: #eef1f5; stroke: var(--pet-ink); stroke-width: .9; }
+.knight-plume { fill: #ff8fab; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
+.knight-plume-line { fill: none; stroke: #e2607f; stroke-width: 1.2; stroke-linecap: round; }
+.patch { fill: #3a3340; stroke: var(--pet-ink); stroke-width: 2; }
+.patch-strap { fill: none; stroke: #3a3340; stroke-width: 2.4; stroke-linecap: round; }
+.patch-heart { fill: #ff8fab; }
+.patch-shine, .nerd-shine { fill: none; stroke: #fff; stroke-width: 1.4; stroke-linecap: round; opacity: .55; }
+.nerd-lens { fill: rgba(255, 255, 255, .18); stroke: #2f2a33; stroke-width: 3.4; }
+.nerd-bridge, .nerd-arm { fill: none; stroke: #2f2a33; stroke-width: 3; stroke-linecap: round; }
+.nerd-tape { fill: #fffdf6; stroke: var(--pet-ink); stroke-width: 1.1; }
+.nerd-tape-line { fill: none; stroke: #d8cfc4; stroke-width: .8; }
+.scarf-band, .scarf-tail, .scarf-knot { fill: #e8686f; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
+.scarf-stripe { fill: none; stroke: #fff3e6; stroke-width: 3; stroke-linecap: round; }
+.scarf-knit { fill: none; stroke: #c94f5a; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }
+.scarf-fringe { fill: none; stroke: #e8686f; stroke-width: 2; stroke-linecap: round; }
+.silk-cloth { fill: #fffdf8; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
+.silk-knot { fill: #f1ece2; stroke: var(--pet-ink); stroke-width: 1.6; }
+.silk-fold { fill: none; stroke: #d9d1c3; stroke-width: 1.1; stroke-linecap: round; }
+.boa-edge { fill: #e66a8c; stroke: #e66a8c; stroke-width: 2.8; }
+.boa-puff { fill: #ffaecb; }
+.boa-wisp { fill: none; stroke: #e66a8c; stroke-width: 2.6; stroke-linecap: round; }
+.boa-wisp-in { fill: none; stroke: #ffaecb; stroke-width: 1.2; stroke-linecap: round; }
+.boa-shine { fill: none; stroke: #ffe3ec; stroke-width: 1.2; stroke-linecap: round; }
+.boot { fill: #c08a62; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
+.boot-sole { fill: none; stroke: #8a5f47; stroke-width: 2; stroke-linecap: round; }
+.boot-cuff { fill: #fff6ea; stroke: var(--pet-ink); stroke-width: 1.4; stroke-linejoin: round; }
+.boot-shine { fill: none; stroke: #e6bb98; stroke-width: 1.8; stroke-linecap: round; }
+.heel-shoe { fill: #ef5d78; stroke: var(--pet-ink); stroke-width: 1.5; }
+.heel-spike { fill: #c9405c; stroke: var(--pet-ink); stroke-width: 1.2; stroke-linejoin: round; }
+.heel-foot { fill: var(--pet-skin-shade); stroke: var(--pet-ink); stroke-width: 1; }
+.heel-shine { fill: none; stroke: #fff; stroke-width: 1.2; stroke-linecap: round; opacity: .6; }
+.heel-bow { fill: #ffd3e1; stroke: var(--pet-ink); stroke-width: .7; stroke-linejoin: round; }
+.bunny-ear { fill: #fff4f7; stroke: var(--pet-ink); stroke-width: 1.4; stroke-linejoin: round; }
+.bunny-fluff-edge { fill: var(--pet-ink); stroke: var(--pet-ink); stroke-width: 1.8; }
+.bunny-fluff { fill: #fff4f7; }
+.bunny-eye { fill: var(--pet-ink); }
+.bunny-nose { fill: #ff8fab; }
+.peel { fill: #ffe066; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
+.peel-line { fill: none; stroke: #e0b83a; stroke-width: 1.3; stroke-linecap: round; }
+.peel-tip { fill: #8a6a3d; stroke: var(--pet-ink); stroke-width: 1.4; stroke-linejoin: round; }
+.peel-spot { fill: #8a6a3d; opacity: .7; }
+.lid-top { fill: #b7bfc9; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
+.lid-rim { fill: #9aa3af; stroke: var(--pet-ink); stroke-width: 1.8; }
+.lid-handle { fill: none; stroke: var(--pet-ink); stroke-width: 6; stroke-linecap: round; }
+.lid-handle-in { fill: none; stroke: #c9d0d9; stroke-width: 2.6; stroke-linecap: round; }
+.lid-ring { fill: none; stroke: #6f7886; stroke-width: 1.7; stroke-linecap: round; }
+.lid-rib { fill: none; stroke: #6f7886; stroke-width: 2; stroke-linecap: round; }
+.lid-shine { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; opacity: .7; }
+.lid-dent { fill: none; stroke: #8d96a2; stroke-width: 1.2; stroke-linecap: round; }
 .specs-lens { fill: rgba(255, 255, 255, .35); stroke: none; }
 .specs-top { fill: none; stroke: rgba(200, 60, 60, .35); stroke-width: 1; }
 .specs-rim { fill: none; stroke: #d6334a; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
@@ -722,7 +784,7 @@ button { font: inherit; color: inherit; }
 .picker h2 { font-family: var(--font-display); font-weight: 500; font-size: 1.1rem; margin: 0; text-wrap: balance; }
 .picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 6px; overflow-y: auto; min-height: 0; padding: 2px; }
 .picker-grid button { border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 16px; aspect-ratio: 1; padding: 6px; cursor: pointer; max-width: 100%; }
-.picker-grid button[aria-pressed="true"] { border-color: var(--outline); background: var(--stage-top); box-shadow: 0 2px 0 var(--outline); }
+.picker-grid button[aria-pressed="true"], .species-grid button[aria-pressed="true"], .hat-strip button[aria-pressed="true"] { border-color: var(--outline); background: var(--stage-top); box-shadow: 0 2px 0 var(--outline); }
 .picker-grid img { width: 100%; height: 100%; display: block; }
 .picker-foot { display: flex; justify-content: space-between; gap: 8px; }
 
@@ -744,7 +806,6 @@ button { font: inherit; color: inherit; }
 .goal-toast:not([hidden]) { animation: toast-in .35s cubic-bezier(.3, 1.4, .5, 1); }
 @keyframes toast-in { from { transform: translateX(-50%) translateY(-8px) scale(.8); opacity: 0; } }
 
-.species-grid button, .hat-strip button { position: relative; }
 .species-grid button.locked, .hat-strip button.locked { background: var(--bg); border-style: dashed; color: var(--muted); }
 .species-grid button.locked .pet.mini, .hat-strip button.locked svg { filter: grayscale(1) brightness(.8); opacity: .45; }
 .lock-badge {

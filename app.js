@@ -36,6 +36,35 @@
     img.draggable = false;
     return img;
   }
+  /**
+   * @template T
+   * @param {T[]} list Things with an `id`.
+   * @param {string} id
+   * @returns {?T} The entry with this id, or null.
+   */
+  function byId(list, id) {
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+    return null;
+  }
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  /**
+   * A small inline drawing for a button or the room.
+   * @param {string} view The viewBox.
+   * @param {string} inner SVG markup.
+   * @returns {SVGSVGElement}
+   */
+  function svgIcon(view, inner) {
+    var svg = document.createElementNS(SVGNS, 'svg');
+    svg.setAttribute('viewBox', view);
+    svg.setAttribute('aria-hidden', 'true');
+    svg.innerHTML = inner;
+    return svg;
+  }
+  /**
+   * Opens a sheet as a modal, or plainly where <dialog> isn't supported.
+   * @param {HTMLDialogElement} d
+   */
+  function openDialog(d) { sound('open'); if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
 
   // ---------- pet menu ----------
   // Dress up, Edit pet and Goals sit in one drop-down; it closes when you pick one,
@@ -47,7 +76,7 @@
       btn.setAttribute('aria-expanded', open ? 'true' : 'false');
       if (open && focusFirst) menu.querySelector('.menu-item').focus();
     }
-    btn.addEventListener('click', function (e) { setOpen(menu.hidden, e.detail === 0); });
+    btn.addEventListener('click', function (e) { sound(menu.hidden ? 'tap' : 'close'); setOpen(menu.hidden, e.detail === 0); });
     menu.addEventListener('click', function (e) { if (e.target.closest('.menu-item')) setOpen(false); });
     document.addEventListener('pointerdown', function (e) {
       if (!menu.hidden && !e.target.closest('.stage-tools')) setOpen(false);
@@ -59,7 +88,7 @@
 
   // ---------- elements ----------
   var $ = function (id) { return document.getElementById(id); };
-  var pet = $('pet'), bubble = $('bubble'), todoEl = $('todo'), doneEl = $('done');
+  var pet = $('pet'), petSvg = pet.querySelector('.pet-svg'), bubble = $('bubble'), todoEl = $('todo'), doneEl = $('done');
   var addForm = $('addForm'), addInput = $('addInput'), addPreview = $('addPreview');
   var eatenSection = $('eatenSection'), eatenCount = $('eatenCount'), emptyHint = $('emptyHint');
   var tally = $('tally'), quietBtn = $('quietBtn'), clearBtn = $('clearBtn');
@@ -67,13 +96,25 @@
 
   // ---------- rendering ----------
   var freshIds = {};
+  // rows that haven't changed are kept between renders, so ticking one thing off
+  // doesn't rebuild every row and reload every emoji
+  var rows = {};
 
   /** Redraws both lists, the tally and the empty hint from state. */
   function render() {
     var todo = state.items.filter(function (i) { return !i.done; });
     var done = state.items.filter(function (i) { return i.done; });
-    todoEl.replaceChildren.apply(todoEl, todo.map(row));
-    doneEl.replaceChildren.apply(doneEl, done.map(row));
+    var kept = {};
+    function rowFor(item) {
+      var key = (item.done ? 1 : 0) + item.emoji + '|' + item.text;
+      var old = rows[item.id];
+      var li = old && old.key === key && !freshIds[item.id] ? old.li : row(item);
+      kept[item.id] = { key: key, li: li };
+      return li;
+    }
+    todoEl.replaceChildren.apply(todoEl, todo.map(rowFor));
+    doneEl.replaceChildren.apply(doneEl, done.map(rowFor));
+    rows = kept;
     eatenSection.hidden = done.length === 0;
     eatenCount.textContent = '(' + done.length + ')';
     emptyHint.hidden = state.items.length > 0;
@@ -235,11 +276,6 @@
     bubbleTimer = setTimeout(function () { bubble.hidden = true; }, ms || 1500);
   }
   /**
-   * @template T
-   * @param {T[]} list
-   * @returns {T} A random entry.
-   */
-  /**
    * The current personality's line for a moment (see `voice` in personalities.js).
    * @param {string} key
    * @param {string[]} fallback
@@ -253,6 +289,11 @@
     say(parts[0], ms, true);
     if (parts[1]) setTimeout(function () { say(parts[1], ms, true); }, (ms || 1500) + 150);
   }
+  /**
+   * @template T
+   * @param {T[]} list
+   * @returns {T} A random entry.
+   */
   function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
   /**
    * @param {number} ms
@@ -262,12 +303,12 @@
 
   /** @returns {{x: number, y: number}} The pet's mouth in viewport coordinates. */
   function mouthPoint() {
-    var r = pet.querySelector('.pet-svg').getBoundingClientRect();
+    var r = petSvg.getBoundingClientRect();
     return { x: r.left + r.width * (80 / 160), y: r.top + r.height * (107 / 150) };
   }
   /** @returns {{x: number, y: number}} A spot at the pet's side, where non-food gets tucked away. */
   function sidePoint() {
-    var r = pet.querySelector('.pet-svg').getBoundingClientRect();
+    var r = petSvg.getBoundingClientRect();
     return { x: r.left + r.width * 0.92, y: r.top + r.height * 0.7 };
   }
   /**
@@ -356,7 +397,18 @@
    * Plays an eating sound unless quiet mode is on.
    * @param {string} kind A Sounds.play kind, e.g. "glug".
    */
-  function sound(kind) { if (!state.quiet && state.settings.sounds) Sounds.play(kind); }
+  function sound(kind) { clickSounded = true; if (!state.quiet && state.settings.sounds) Sounds.play(kind); }
+  // every button and menu item makes a sound: handlers that play their own mark the click,
+  // and any click left silent gets a soft tap (switches play on/off from their change event)
+  var clickSounded = false;
+  document.addEventListener('click', function () { clickSounded = false; }, true);
+  document.addEventListener('click', function (e) {
+    if (clickSounded) return;
+    var b = e.target.closest('button, .menu-item');
+    // a sheet's Done button closes it, and closing plays its own sound
+    if (!b || b.disabled || e.target.closest('label') || (b.form && b.form.method === 'dialog')) return;
+    sound('tap');
+  });
   // phones only allow audio that starts from a tap, so wake the audio engine on the first one
   document.addEventListener('pointerdown', function unlockAudio() {
     Sounds.unlock();
@@ -585,7 +637,7 @@
     if (!L.pickEmoji(state, id, emoji)) return;
     save();
     render();
-    if (!busy) { pulse('hop', 460); say('ooh, ' + 'new look!', 1100); }
+    if (!busy) { pulse('hop', 460); say('ooh, new look!', 1100); }
   }
 
   // ---------- picker ----------
@@ -610,7 +662,7 @@
     pickerGrid.querySelectorAll('button').forEach(function (b) {
       b.setAttribute('aria-pressed', b.dataset.emoji === item.emoji ? 'true' : 'false');
     });
-    if (picker.showModal) picker.showModal(); else picker.setAttribute('open', '');
+    openDialog(picker);
   }
   /** Closes the emoji picker. */
   function closePicker() { if (picker.close) picker.close(); else picker.removeAttribute('open'); pickerFor = null; }
@@ -619,12 +671,13 @@
     if (!b || !pickerFor) return;
     var id = pickerFor;
     closePicker();
+    sound('pick');
     setEmoji(id, b.dataset.emoji);
   });
   deleteBtn.addEventListener('click', function () {
     var id = pickerFor;
     closePicker();
-    if (id) removeItem(id);
+    if (id) { sound('remove'); removeItem(id); }
   });
   picker.addEventListener('click', function (e) { if (e.target === picker) closePicker(); });
 
@@ -658,8 +711,13 @@
     });
   }
 
+  /** @returns {SVGSVGElement} A copy of the pet drawing for a button or the dressing room. */
+  function petCopy() {
+    var copy = petSvg.cloneNode(true);
+    copy.querySelectorAll('defs').forEach(function (d) { d.remove(); });
+    return copy;
+  }
   // species buttons show a small static copy of the pet
-  var petSvg = pet.querySelector('.pet-svg');
   SPECIES.forEach(function (sp) {
     var b = document.createElement('button');
     b.type = 'button';
@@ -670,9 +728,7 @@
     mini.dataset.eyes = 'open';
     mini.dataset.mouth = 'smile';
     mini.dataset.arms = 'rest';
-    var copy = petSvg.cloneNode(true);
-    copy.querySelectorAll('defs').forEach(function (d) { d.remove(); });
-    mini.appendChild(copy);
+    mini.appendChild(petCopy());
     var label = document.createElement('span');
     label.textContent = sp.label;
     b.append(mini, label);
@@ -683,6 +739,7 @@
     if (!b) return;
     if (!unlocked('species', b.dataset.species)) { lockHint(speciesHint, 'species', b.dataset.species); return; }
     speciesHint.hidden = true;
+    sound('pick');
     state.pet.species = b.dataset.species;
     save();
     applyPet();
@@ -731,7 +788,7 @@
     lastNameTap = 0;
     refreshLocks();
     applyPet();
-    if (petSheet.showModal) petSheet.showModal(); else petSheet.setAttribute('open', '');
+    openDialog(petSheet);
   });
   petSheet.addEventListener('close', function () {
     finishRename(true);
@@ -747,47 +804,52 @@
    * @param {string} id
    * @returns {?Object} The wardrobe item with this id, or null (e.g. for "none").
    */
-  function wardrobeItem(id) {
-    for (var i = 0; i < Wardrobe.length; i++) if (Wardrobe[i].id === id) return Wardrobe[i];
-    return null;
-  }
+  function wardrobeItem(id) { return byId(Wardrobe, id); }
   /**
-   * Draws an outfit into a pet drawing: hats on the head, body items (hoodies) over the whole pet.
+   * Draws an outfit into a pet drawing: hats on the head, body items (hoodies) over the whole pet,
+   * and glasses, neckwear and shoes in their own places.
    * @param {Element} el A .pet element.
-   * @param {{hat: string}} outfit
+   * @param {{hat: string, face: string, neck: string, feet: string}} outfit
    */
   function dressUp(el, outfit) {
     var item = wardrobeItem(outfit.hat);
     var body = !!(item && item.layer === 'body');
-    var face = wardrobeItem(outfit.face);
     el.querySelector('.outfit-hat').innerHTML = item && !body ? item.svg : '';
     el.querySelector('.outfit-body').innerHTML = item && body ? item.svg : '';
-    el.querySelector('.outfit-face').innerHTML = face ? face.svg : '';
+    ['face', 'neck', 'feet'].forEach(function (slot) {
+      var w = wardrobeItem(outfit[slot]);
+      el.querySelector('.outfit-' + slot).innerHTML = w ? w.svg : '';
+    });
     el.classList.toggle('hooded', !!(item && item.hood));
+    el.classList.toggle('snug', !!(item && item.snug));
   }
 
-  var dressSheet = $('dressSheet'), dressPreview = $('dressPreview'), hatStrip = $('hatStrip'), faceStrip = $('faceStrip');
-  var SVGNS = 'http://www.w3.org/2000/svg';
-  // one strip per slot: hats (and hoodies) on the head, glasses on the face
-  [{ slot: 'hat', strip: hatStrip, none: 'Nothing' }, { slot: 'face', strip: faceStrip, none: 'No glasses' }].forEach(function (row) {
+  var dressSheet = $('dressSheet'), dressPreview = $('dressPreview');
+  // one strip per slot: hats (and hoodies) on the head, glasses, neckwear and shoes
+  var WEAR_ROWS = [
+    { slot: 'hat', strip: $('hatStrip'), none: 'Nothing' },
+    { slot: 'face', strip: $('faceStrip'), none: 'No glasses' },
+    { slot: 'neck', strip: $('neckStrip'), none: 'Bare neck' },
+    { slot: 'feet', strip: $('feetStrip'), none: 'Bare feet' }
+  ];
+  WEAR_ROWS.forEach(function (row) {
     [{ id: 'none', label: row.none }].concat(Wardrobe.filter(function (w) { return w.slot === row.slot; })).forEach(function (item) {
       var b = document.createElement('button');
       b.type = 'button';
       b.dataset.hat = item.id;
       b.dataset.slot = row.slot;
-      var icon = document.createElementNS(SVGNS, 'svg');
-      icon.setAttribute('viewBox', item.id === 'none' ? '0 0 40 40' : item.icon || '32 2 96 60');
-      icon.setAttribute('aria-hidden', 'true');
-      icon.innerHTML = item.svg || '<circle class="hat-none" cx="20" cy="20" r="12"/><path class="hat-none" d="M11.5 28.5 L28.5 11.5"/>';
+      var icon = item.id === 'none'
+        ? svgIcon('0 0 40 40', '<circle class="hat-none" cx="20" cy="20" r="12"/><path class="hat-none" d="M11.5 28.5 L28.5 11.5"/>')
+        : svgIcon(item.icon || '32 2 96 60', item.svg);
       var label = document.createElement('span');
       label.textContent = item.label;
       b.append(icon, label);
       row.strip.appendChild(b);
     });
   });
-  /** Every wardrobe button, hats and glasses. */
-  function wearButtons() { return dressSheet.querySelectorAll('#hatStrip button, #faceStrip button'); }
-  /** Marks the chosen hat and glasses in the dressing room and updates its preview. */
+  /** Every wardrobe button, in every slot. */
+  function wearButtons() { return dressSheet.querySelectorAll('.hat-strip button'); }
+  /** Marks what is worn in each slot in the dressing room and updates its preview. */
   function refreshDressRoom() {
     wearButtons().forEach(function (b) {
       b.setAttribute('aria-pressed', b.dataset.hat === state.pet.outfit[b.dataset.slot] ? 'true' : 'false');
@@ -804,13 +866,11 @@
     view.dataset.eyes = 'open';
     view.dataset.mouth = 'smile';
     view.dataset.arms = 'idle';
-    var copy = petSvg.cloneNode(true);
-    copy.querySelectorAll('defs').forEach(function (d) { d.remove(); });
-    view.appendChild(copy);
+    view.appendChild(petCopy());
     dressPreview.replaceChildren(view);
     refreshLocks();
     refreshDressRoom();
-    if (dressSheet.showModal) dressSheet.showModal(); else dressSheet.setAttribute('open', '');
+    openDialog(dressSheet);
   });
   function onWearClick(e) {
     var b = e.target.closest('button');
@@ -821,7 +881,7 @@
     save();
     refreshDressRoom();
     dressUp(pet, state.pet.outfit);
-    if (b.dataset.hat !== 'none') sound('excited');
+    sound(b.dataset.hat !== 'none' ? 'excited' : 'tap');
     var pointed = hoveredHat === b.dataset.hat;
     if (pointed && b.dataset.hat !== 'none') dressSay(line('look', ['how do I look?', 'I love it!', 'kawaii?', 'ta-da!']), 1600, true);
     else dressSay(b.dataset.hat === 'none' ? 'fresh look!' : hatLine(b.dataset.hat), 1600);
@@ -836,8 +896,7 @@
       view.classList.remove('hop'); void view.offsetWidth; view.classList.add('hop');
     }
   }
-  hatStrip.addEventListener('click', onWearClick);
-  faceStrip.addEventListener('click', onWearClick);
+  WEAR_ROWS.forEach(function (row) { row.strip.addEventListener('click', onWearClick); });
   // pointing at an unlocked outfit makes the pet react to it
   var dressBubble = $('dressBubble'), dressBubbleTimer, hoveredHat = null, lastOoh = 0;
   /**
@@ -871,7 +930,7 @@
   function onHatHover(e) {
     // a finger has no hover: on phones the tap itself gets the outfit's line
     if (e.pointerType === 'touch') return;
-    var b = e.target.closest && e.target.closest('#hatStrip button, #faceStrip button');
+    var b = e.target.closest && e.target.closest('.hat-strip button');
     if (!b || b.dataset.hat === hoveredHat) return;
     hoveredHat = b.dataset.hat;
     if (!unlocked('hat', b.dataset.hat) || b.dataset.hat === state.pet.outfit[b.dataset.slot]) return;
@@ -892,7 +951,8 @@
     clearTimeout(sparkleTimer);
     sparkleTimer = setTimeout(function () { view.dataset.eyes = 'open'; view.dataset.mouth = 'smile'; }, 600);
   }
-  [hatStrip, faceStrip].forEach(function (strip) {
+  WEAR_ROWS.forEach(function (row) {
+    var strip = row.strip;
     strip.addEventListener('pointerover', onHatHover);
     strip.addEventListener('focusin', onHatHover);
     strip.addEventListener('pointerleave', onHatLeave);
@@ -908,7 +968,7 @@
     hoveredHat = null;
     if (!busy) {
       setFace(FACES.tada); pulse('hop', 500);
-      var item = wardrobeItem(state.pet.outfit.hat) || wardrobeItem(state.pet.outfit.face);
+      var item = L.OUTFIT_SLOTS.some(function (slot) { return wardrobeItem(state.pet.outfit[slot]); });
       if (item) talk('look', ['so fancy!', 'how do I look?', 'kawaii?', 'ta-da!'], 1500); else say('fresh look!', 1500);
       setTimeout(function () { if (!busy) settle(); }, 1000);
     }
@@ -922,10 +982,7 @@
    * @param {string} id
    * @returns {?Object} The decor item with this id.
    */
-  function decorItem(id) {
-    for (var i = 0; i < Decor.length; i++) if (Decor[i].id === id) return Decor[i];
-    return null;
-  }
+  function decorItem(id) { return byId(Decor, id); }
   /** Draws every placed decor item in the room, in the order decor.js lists them. */
   function renderRoom() {
     roomEl.replaceChildren.apply(roomEl, Decor.filter(function (d) { return state.pet.room[d.id]; }).map(function (d) {
@@ -939,14 +996,11 @@
       el.style.height = d.h + 'px';
       el.style.left = (spot.x * 100) + '%';
       el.style.top = (spot.y * 100) + '%';
-      var svg = document.createElementNS(SVGNS, 'svg');
-      svg.setAttribute('viewBox', d.view);
-      svg.setAttribute('aria-hidden', 'true');
-      svg.innerHTML = d.svg;
-      el.appendChild(svg);
+      el.appendChild(svgIcon(d.view, d.svg));
       return el;
     }));
     tickClocks();
+    runClocks();
     decorStrip.querySelectorAll('button').forEach(function (b) {
       b.setAttribute('aria-pressed', state.pet.room[b.dataset.decor] ? 'true' : 'false');
     });
@@ -957,16 +1011,21 @@
     document.querySelectorAll('.clock-hour').forEach(function (el) { el.setAttribute('transform', 'rotate(' + (h * 30 + m / 2) + ' 22 32)'); });
     document.querySelectorAll('.clock-minute').forEach(function (el) { el.setAttribute('transform', 'rotate(' + (m * 6) + ' 22 32)'); });
   }
-  setInterval(tickClocks, 30000);
+  // the hands only need moving while a clock is in the room and the page is in view
+  var clockTimer = 0;
+  /** Starts or stops the clock tick to match the room and whether the page is showing. */
+  function runClocks() {
+    var on = !!state.pet.room.clock && !document.hidden;
+    if (on && !clockTimer) { tickClocks(); clockTimer = setInterval(tickClocks, 30000); }
+    else if (!on && clockTimer) { clearInterval(clockTimer); clockTimer = 0; }
+  }
+  document.addEventListener('visibilitychange', runClocks);
 
   Decor.forEach(function (d) {
     var b = document.createElement('button');
     b.type = 'button';
     b.dataset.decor = d.id;
-    var icon = document.createElementNS(SVGNS, 'svg');
-    icon.setAttribute('viewBox', d.view);
-    icon.setAttribute('aria-hidden', 'true');
-    icon.innerHTML = d.svg;
+    var icon = svgIcon(d.view, d.svg);
     var label = document.createElement('span');
     label.textContent = d.label;
     b.append(icon, label);
@@ -978,13 +1037,15 @@
     var placed = L.toggleDecor(state.pet.room, decorItem(b.dataset.decor));
     save();
     renderRoom();
-    if (placed && !busy) { sound('ooh'); pulse('hop', 460); talk('room', ['so cosy!', 'home sweet home!', 'I love it here!'], 1500); }
+    sound(placed ? 'place' : 'remove');
+    if (placed && !busy) { pulse('hop', 460); talk('room', ['so cosy!', 'home sweet home!', 'I love it here!'], 1500); }
   });
   // the room panel opens without covering the room: the stage stays visible (and draggable) above it
   var roomSheet = $('roomSheet');
   $('roomBtn').addEventListener('click', function () {
     window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
     renderRoom();
+    sound('open');
     if (roomSheet.show) roomSheet.show(); else roomSheet.setAttribute('open', '');
   });
   roomSheet.addEventListener('keydown', function (e) { if (e.key === 'Escape') roomSheet.close(); });
@@ -1035,10 +1096,7 @@
    * @param {string} id
    * @returns {?Object} The achievement with this id.
    */
-  function achievement(id) {
-    for (var i = 0; i < Achievements.length; i++) if (Achievements[i].id === id) return Achievements[i];
-    return null;
-  }
+  function achievement(id) { return byId(Achievements, id); }
   /**
    * @param {'species'|'hat'} kind
    * @param {string} id
@@ -1134,6 +1192,7 @@
    * @param {string} id
    */
   function lockHint(el, kind, id) {
+    sound('locked');
     var ach = L.gateFor(kind, id, Achievements);
     var p = L.progress(state.pet, ach, new Date());
     el.textContent = '🔒 ' + ach.unlocks.label + ': ' + ach.text + ' (' + p.count + '/' + p.goal + ', up to ' + p.perDay + ' a day).';
@@ -1182,7 +1241,7 @@
   $('goalsBtn').addEventListener('click', function () {
     renderGoals();
     $('goalsFairPlay').hidden = !state.settings.fairPlayTips;
-    if (goalsSheet.showModal) goalsSheet.showModal(); else goalsSheet.setAttribute('open', '');
+    openDialog(goalsSheet);
   });
   goalsSheet.addEventListener('click', function (e) { if (e.target === goalsSheet) goalsSheet.close(); });
   petSheet.addEventListener('close', function () { speciesHint.hidden = true; });
@@ -1190,6 +1249,11 @@
 
   refreshLocks();
   applyPet();
+
+  // closing a sheet makes a soft sound; the emoji picker plays its pick or delete sound instead
+  document.querySelectorAll('dialog:not(#picker)').forEach(function (d) {
+    d.addEventListener('close', function () { sound('close'); });
+  });
 
   // ---------- events ----------
   addForm.addEventListener('submit', function (e) {
@@ -1224,6 +1288,7 @@
   var pressTimer = null, pressStart = null, suppressClick = false, pressedRow = null;
   /** Stops a long-press that has not fired yet. */
   function cancelPress() {
+    if (pressTimer) document.removeEventListener('pointermove', onPressMove);
     clearTimeout(pressTimer); pressTimer = null;
     if (pressedRow) pressedRow.classList.remove('pressing');
     pressedRow = null;
@@ -1234,6 +1299,7 @@
     pressStart = { x: e.clientX, y: e.clientY };
     pressedRow = li;
     li.classList.add('pressing');
+    document.addEventListener('pointermove', onPressMove, { passive: true });
     pressTimer = setTimeout(function () {
       buzz(18);
       suppressClick = true;
@@ -1243,20 +1309,23 @@
       openPicker(id);
     }, 500);
   });
-  document.addEventListener('pointermove', function (e) {
-    if (pressTimer && pressStart && Math.hypot(e.clientX - pressStart.x, e.clientY - pressStart.y) > 10) cancelPress();
-  });
-  ['pointerup', 'pointercancel', 'scroll'].forEach(function (ev) { document.addEventListener(ev, cancelPress, true); });
+  /** A finger that slides more than a little is scrolling, not long-pressing. */
+  function onPressMove(e) {
+    if (pressStart && Math.hypot(e.clientX - pressStart.x, e.clientY - pressStart.y) > 10) cancelPress();
+  }
+  ['pointerup', 'pointercancel', 'scroll'].forEach(function (ev) { document.addEventListener(ev, cancelPress, { capture: true, passive: true }); });
   document.querySelector('.list-area').addEventListener('contextmenu', function (e) { if (e.target.closest('.item')) e.preventDefault(); });
 
   quietBtn.addEventListener('click', function () {
     state.quiet = !state.quiet;
+    sound('on');
     if (state.quiet) bubble.hidden = true;
     save();
     render();
   });
   clearBtn.addEventListener('click', function () {
     state.items = state.items.filter(function (i) { return !i.done; });
+    sound('remove');
     save();
     render();
     if (!busy) { pulse('hop', 460); say(state.items.length ? 'fresh start!' : 'nap time…', 1300); }
@@ -1275,10 +1344,7 @@
   // ---------- personalities ----------
   var personalityStrip = $('personalityStrip');
   /** @returns {Object} The pet's current personality from personalities.js. */
-  function personality() {
-    for (var i = 0; i < Personalities.length; i++) if (Personalities[i].id === state.pet.personality) return Personalities[i];
-    return Personalities[0];
-  }
+  function personality() { return byId(Personalities, state.pet.personality) || Personalities[0]; }
   /**
    * @param {Object} p A personality.
    * @returns {boolean} True if it has been earned.
@@ -1314,14 +1380,14 @@
   }
   personalityStrip.addEventListener('pointerover', function (e) {
     var b = e.target.closest('button');
-    if (b && e.pointerType === 'mouse') describePersonality(Personalities.filter(function (x) { return x.id === b.dataset.personality; })[0]);
+    if (b && e.pointerType === 'mouse') describePersonality(byId(Personalities, b.dataset.personality));
   });
   personalityStrip.addEventListener('pointerleave', function () { describePersonality(personality()); });
   /** Marks the current personality and shows locks and progress on the rest. */
   function renderPersonalities() {
     describePersonality(personality());
     personalityStrip.querySelectorAll('button').forEach(function (b) {
-      var p = Personalities.filter(function (x) { return x.id === b.dataset.personality; })[0];
+      var p = byId(Personalities, b.dataset.personality);
       var prog = L.personalityProgress(state.pet, p);
       b.setAttribute('aria-pressed', p.id === personality().id ? 'true' : 'false');
       b.classList.toggle('locked', !prog.done);
@@ -1334,10 +1400,11 @@
   personalityStrip.addEventListener('click', function (e) {
     var b = e.target.closest('button');
     if (!b) return;
-    var p = Personalities.filter(function (x) { return x.id === b.dataset.personality; })[0];
+    var p = byId(Personalities, b.dataset.personality);
     var prog = L.personalityProgress(state.pet, p);
     describePersonality(p);
     if (!prog.done) {
+      sound('locked');
       speciesHint.textContent = '🔒 ' + p.label + ': ' + p.text + ' (' + prog.count + '/' + prog.goal + ').';
       speciesHint.hidden = false;
       return;
@@ -1381,6 +1448,7 @@
   });
   $('suggestNo').addEventListener('click', function () {
     suggestEl.hidden = true;
+    sound('off');
     if (!busy) { setFace(FACES.sheepish); talk('decline', ['ok, maybe next time', 'aww, fine'], 1200); setTimeout(function () { if (!busy) settle(); }, 1000); }
   });
 
@@ -1418,11 +1486,11 @@
     if (key === 'bubbles' && !e.target.checked) bubble.hidden = true;
     if (key === 'suggestions' && !e.target.checked) suggestEl.hidden = true;
     save();
-    if (key === 'sounds' && e.target.checked) sound('ooh');
+    sound(e.target.checked ? 'on' : 'off');
   });
   $('optionsBtn').addEventListener('click', function () {
     optionsList.querySelectorAll('input').forEach(function (b) { b.checked = state.settings[b.dataset.key]; });
-    if (optionsSheet.showModal) optionsSheet.showModal(); else optionsSheet.setAttribute('open', '');
+    openDialog(optionsSheet);
   });
   optionsSheet.addEventListener('click', function (e) { if (e.target === optionsSheet) optionsSheet.close(); });
 
@@ -1463,18 +1531,20 @@
   $('devActions').addEventListener('click', function (e) {
     var b = e.target.closest('button');
     if (!b) return;
+    sound('tap');
     devStatus.textContent = DEV_ACTIONS[b.dataset.i].run();
     refreshAll();
   });
   devNoWait.addEventListener('change', function () {
     state.dev.noWait = devNoWait.checked;
+    sound(devNoWait.checked ? 'on' : 'off');
     save();
   });
   $('devBtn').addEventListener('click', function () {
     optionsSheet.close();
     devNoWait.checked = state.dev.noWait;
     devStatus.textContent = '';
-    if (devSheet.showModal) devSheet.showModal(); else devSheet.setAttribute('open', '');
+    openDialog(devSheet);
   });
   devSheet.addEventListener('click', function (e) { if (e.target === devSheet) devSheet.close(); });
 
@@ -1601,7 +1671,9 @@
   /** Points each visible pet's pupils towards the last finger or cursor position. */
   function updateLook() {
     lookFrame = 0;
-    document.querySelectorAll('.pet:not(.mini)').forEach(function (el) {
+    // just the pet and its dressing-room copy; the species buttons stay still
+    [pet, dressPreview.querySelector('.pet')].forEach(function (el) {
+      if (!el) return;
       var eyes = el.querySelector('.pupils');
       if (!eyes || !lookAt) {
         el.style.removeProperty('--look-x'); el.style.removeProperty('--look-y'); el.classList.remove('looking');
