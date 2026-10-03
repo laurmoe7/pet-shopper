@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 64 (3 Oct)
+- New species: Axolotl (pink, with frilly gills and a wide smile).
+- Strawberry redone: deeper pink, seeds sitting in little dimples, a leafier top.
+- Toad: warts and glands now uneven, in clusters.
+- Options: removed Sounds, Daydreams and Suggestions (always on; Quiet mode still mutes sound) and the extra line under Quiet mode.
+
 ## Build 63 (3 Oct)
 - Options: choose Auto, Light or Dark.
 - Fixed the grab bar at the top of sheets (it was unstyled in builds 61 and 62).

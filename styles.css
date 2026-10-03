@@ -1019,7 +1019,7 @@ button { font: inherit; color: inherit; }
 .dock-label { font-size: .68rem; font-weight: 800; white-space: nowrap; }
 
 /* ---------- skins: colours, and which extra parts show ---------- */
-.pet[data-skin="strawberry"] { --pet-skin: #ffc9d8; --pet-skin-shade: #ffa7c0; }
+.pet[data-skin="strawberry"] { --pet-skin: #ffa6bb; --pet-skin-shade: #ff86a3; }
 .pet[data-skin="chocolate"] { --pet-skin: #c99d7e; --pet-skin-shade: #a97b5c; }
 .pet[data-skin="taro"] { --pet-skin: #d6c5f3; --pet-skin-shade: #b8a1e4; }
 .pet[data-skin="tabby"] { --pet-skin: #aea8a1; --pet-skin-shade: #96908a; --pet-ear-in: #f2a9ab; --pet-mark: #6e6862; }
@@ -1069,7 +1069,8 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="blackcat"] g[data-eyes] path.line, .pet[data-skin="blackcat"] g[data-eyes].line path,
 .pet[data-skin="longhair"] g[data-eyes] path.line, .pet[data-skin="longhair"] g[data-eyes].line path { stroke: #ffe9b0; }
 .sb-leaf { fill: #7ed67e; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
-.sb-seeds path { fill: #f0b53c; stroke: #a8651b; stroke-width: .7; }
+.sb-pits ellipse { fill: #f0708f; opacity: .55; }
+.sb-seeds path { fill: #ffeaa0; stroke: #d89a45; stroke-width: .55; }
 .choc rect { fill: #5b3524; stroke: #2f1b14; stroke-width: .9; stroke-linejoin: round; }
 .choc .chunk-hi { fill: #7a4a33; stroke: none; }
 .taro circle { fill: #a78ed8; opacity: .85; }
@@ -1095,7 +1096,7 @@ button { font: inherit; color: inherit; }
 /* ---------- frog and hedgehog ---------- */
 .pet[data-species="frog"] { --pet-skin: #a9e6a2; --pet-skin-shade: #7bce88; --pet-mark: #7bce88; }
 .pet[data-species="hedgehog"] { --pet-skin: #f6dcc0; --pet-skin-shade: #e6c19a; --pet-ear-in: #ffc4cf; --pet-mark: #8d6b52; }
-.pet[data-species="frog"] [data-sp="frog"], .pet[data-species="hedgehog"] [data-sp="hedgehog"] { display: inline; }
+.pet[data-species="frog"] [data-sp="frog"], .pet[data-species="hedgehog"] [data-sp="hedgehog"], .pet[data-species="axolotl"] [data-sp="axolotl"] { display: inline; }
 .frog-dome { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.4; }
 .frog-spots ellipse { fill: #7fcf88; }
 .frog-belly { fill: #f6fbd2; }
@@ -1149,3 +1150,14 @@ button { font: inherit; color: inherit; }
 }
 .sheet-grab::after { content: ""; position: absolute; left: 50%; top: 8px; width: 44px; height: 5px; margin-left: -22px; border-radius: 3px; background: var(--line); }
 .picker-foot:empty { display: none; }
+
+/* axolotl: frilly gills, a wide smile and a pale belly */
+.pet[data-species="axolotl"] { --pet-skin: #ffd3df; --pet-skin-shade: #ffb4c9; --pet-ear-in: #ff9fb8; --pet-mark: #ffb4c9; }
+.gill-line path { fill: none; stroke: var(--pet-ink); stroke-width: 10.4; stroke-linecap: round; }
+.gill-line circle { fill: var(--pet-ink); r: 5.6px; }
+.gill-fill path { fill: none; stroke: #ff86ab; stroke-width: 6.4; stroke-linecap: round; }
+.gill-fill circle { fill: #ff86ab; r: 3.9px; }
+.axo-belly { fill: #fff0f4; }
+.axo-smile { display: none; }
+.pet[data-species="axolotl"][data-mouth="smile"] path[data-mouth="smile"]:not(.axo-smile) { display: none; }
+.pet[data-species="axolotl"][data-mouth="smile"] .axo-smile { display: inline; }

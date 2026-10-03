@@ -169,6 +169,8 @@
     Object.keys(DEFAULT_SETTINGS).forEach(function (k) {
       out[k] = saved && typeof saved[k] === 'boolean' ? saved[k] : DEFAULT_SETTINGS[k];
     });
+    // sounds, daydreams and suggestions are always on now (there is no switch for them; quiet mode mutes sound)
+    out.sounds = out.daydreams = out.suggestions = true;
     return out;
   }
 

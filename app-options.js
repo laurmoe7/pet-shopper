@@ -18,13 +18,10 @@ try { savedTheme = localStorage.getItem('nibble-theme') || 'auto'; } catch (e) {
 applyTheme(savedTheme);
 var optionsSheet = $('optionsSheet'), optionsList = $('optionsList');
 var OPTIONS = [
-  { key: 'quiet', title: 'Quiet mode', text: 'Mutes all sounds. Your pet still talks.' },
-  { key: 'sounds', title: 'Sounds', text: 'Chomps, slurps and squeaks.' },
+  { key: 'quiet', title: 'Quiet mode', text: '' },
   { key: 'vibration', title: 'Vibration', text: 'A little buzz when you tick things off (on phones that can).' },
   { key: 'goalToasts', title: 'Goal progress', text: 'A label under your pet after each bite, like "Fish fan 6/20".' },
-  { key: 'fairPlayTips', title: 'Fair-play tips', text: 'Mentions the 15-minute rule and the once-a-day rule. The rules still apply when this is off.' },
-  { key: 'daydreams', title: 'Daydreams', text: 'Thought clouds about things on your list.' },
-  { key: 'suggestions', title: 'Suggestions', text: 'Your pet sometimes asks for something to add.' }
+  { key: 'fairPlayTips', title: 'Fair-play tips', text: 'Mentions the 15-minute rule and the once-a-day rule. The rules still apply when this is off.' }
 ];
 var themeRow = document.createElement('div');
 themeRow.className = 'option option-theme';
@@ -58,14 +55,13 @@ OPTIONS.forEach(function (o) {
   box.type = 'checkbox';
   box.setAttribute('role', 'switch');
   box.dataset.key = o.key;
-  label.append(title, box, text);
+  if (o.text) label.append(title, box, text); else label.append(title, box);
   optionsList.appendChild(label);
 });
 optionsList.addEventListener('change', function (e) {
   var key = e.target.dataset.key;
   if (!key) return;
   if (key === 'quiet') state.quiet = e.target.checked; else state.settings[key] = e.target.checked;
-  if (key === 'suggestions' && !e.target.checked) suggestEl.hidden = true;
   save();
   if (!state.quiet) sound(e.target.checked ? 'on' : 'off');
 });
