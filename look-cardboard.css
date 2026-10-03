@@ -34,58 +34,58 @@
 /* dark mode: the same box at night, with the sticker colours kept bright */
 @media (prefers-color-scheme: dark) {
   :root[data-look="cardboard"][data-look]:not([data-theme="light"]) {
-  --bg: #4a392c;
+  --bg: #3a2c22;
   --grid: rgba(0, 0, 0, .16);
-  --surface: #3c2f27;
-  --surface-2: #33281f;
-  --ink: #f6e8d6;
+  --surface: #5a483b;
+  --surface-2: #4b3b30;
+  --ink: #fbefdc;
   --muted: #c9b199;
-  --line: #5f4a3a;
+  --line: #7a6350;
   --outline: #d9bf9d;
   --accent: #ff8fab;
   --accent-ink: #3a2226;
   --mint: #8ac7a6;
   --butter: #e6cd78;
-  --stage-top: #5a4535;
+  --stage-top: #4a392d;
   --cushion: #c9677f;
   --cushion-stitch: #e58aa3;
   --shadow: rgba(0, 0, 0, .35);
   --danger: #ff98a5;
   --cb-edge: rgba(255, 228, 190, .22);
   --cb-edge-strong: rgba(255, 228, 190, .5);
-  --cb-fade: rgba(90, 69, 53, 0);
-  --cb-done: rgba(60, 47, 39, .6);
-  --cb-dock-a: #5e4837;
-  --cb-dock-b: #4c3b2d;
+  --cb-fade: rgba(74, 57, 45, 0);
+  --cb-done: rgba(90, 72, 59, .5);
+  --cb-dock-a: #6b5342;
+  --cb-dock-b: #57453a;
   --cb-shine: rgba(255, 255, 255, .12);
   --cb-back: #e9dcc6;
   color-scheme: dark;
   }
 }
 :root[data-look="cardboard"][data-look][data-theme="dark"] {
-  --bg: #4a392c;
+  --bg: #3a2c22;
   --grid: rgba(0, 0, 0, .16);
-  --surface: #3c2f27;
-  --surface-2: #33281f;
-  --ink: #f6e8d6;
+  --surface: #5a483b;
+  --surface-2: #4b3b30;
+  --ink: #fbefdc;
   --muted: #c9b199;
-  --line: #5f4a3a;
+  --line: #7a6350;
   --outline: #d9bf9d;
   --accent: #ff8fab;
   --accent-ink: #3a2226;
   --mint: #8ac7a6;
   --butter: #e6cd78;
-  --stage-top: #5a4535;
+  --stage-top: #4a392d;
   --cushion: #c9677f;
   --cushion-stitch: #e58aa3;
   --shadow: rgba(0, 0, 0, .35);
   --danger: #ff98a5;
   --cb-edge: rgba(255, 228, 190, .22);
   --cb-edge-strong: rgba(255, 228, 190, .5);
-  --cb-fade: rgba(90, 69, 53, 0);
-  --cb-done: rgba(60, 47, 39, .6);
-  --cb-dock-a: #5e4837;
-  --cb-dock-b: #4c3b2d;
+  --cb-fade: rgba(74, 57, 45, 0);
+  --cb-done: rgba(90, 72, 59, .5);
+  --cb-dock-a: #6b5342;
+  --cb-dock-b: #57453a;
   --cb-shine: rgba(255, 255, 255, .12);
   --cb-back: #e9dcc6;
   color-scheme: dark;
@@ -195,29 +195,27 @@ html[data-look="cardboard"] .picker-grid button { background: var(--surface-2); 
 html[data-look="cardboard"] .option { border-bottom-color: var(--line); }
 html[data-look="cardboard"] .eaten h2 { color: var(--muted); }
 
-/* two stickers have a corner peeling up (the folded back is cream, the gap shows the board) */
+/* two stickers have a corner peeling up, in different corners and sizes (the folded back is cream, the gap shows the board) */
 html[data-look="cardboard"] .dock button:nth-child(2) .dock-icon::before,
-html[data-look="cardboard"] .dock button:nth-child(5) .dock-icon::before {
-  content: ""; position: absolute; bottom: -3px; width: 15px; height: 15px; z-index: 2; pointer-events: none;
+html[data-look="cardboard"] .dock button:nth-child(4) .dock-icon::before {
+  content: ""; position: absolute; z-index: 2; pointer-events: none;
   filter: drop-shadow(0 1px 1px rgba(60, 35, 15, .35));
 }
 html[data-look="cardboard"] .dock button:nth-child(2) .dock-icon::before {
-  right: -3px; border-radius: 0 0 5px 0;
+  right: -3px; bottom: -3px; width: 12px; height: 12px; border-radius: 0 0 4px 0;
   background: linear-gradient(135deg, var(--cb-back) 0 38%, #e7d3ae 49%, var(--cb-dock-b) 50%);
 }
-html[data-look="cardboard"] .dock button:nth-child(5) .dock-icon::before {
-  left: -3px; border-radius: 0 0 0 5px;
-  background: linear-gradient(225deg, var(--cb-back) 0 38%, #e7d3ae 49%, var(--cb-dock-b) 50%);
+html[data-look="cardboard"] .dock button:nth-child(4) .dock-icon::before {
+  left: -3px; top: -3px; width: 17px; height: 17px; border-radius: 5px 0 0 0;
+  background: linear-gradient(315deg, var(--cb-back) 0 34%, #e2cca4 47%, var(--cb-dock-b) 50%);
 }
 
-/* sheets close with the grab bar (tap or swipe down), the bar button again, or a tap on the list: no Done button */
-.sheet-grab { display: none; }
-html[data-look="cardboard"] .sheet-grab {
-  display: block; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 110px; height: 26px; z-index: 6;
-  border: 0; background: none; padding: 0; cursor: pointer; touch-action: none;
+/* the Add button is a die-cut sticker too */
+html[data-look="cardboard"] .add-btn {
+  position: relative; border: 4px solid #fff; padding: 6px 18px; transform: rotate(-3deg);
+  box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 3px 3px var(--shadow); overflow: visible;
 }
-html[data-look="cardboard"] .sheet-grab::after {
-  content: ""; position: absolute; left: 50%; top: 8px; width: 44px; height: 5px; margin-left: -22px; border-radius: 3px; background: var(--cb-edge-strong);
+html[data-look="cardboard"] .add-btn::after {
+  content: ""; position: absolute; left: 10px; top: 3px; width: 16px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, .7); transform: rotate(-8deg);
 }
-html[data-look="cardboard"] .picker-foot .add-btn[value="done"] { display: none; }
-html[data-look="cardboard"] .picker-foot:not(:has(*:not([value="done"]):not(span:empty))) { display: none; }
+html[data-look="cardboard"] .add-btn:active { transform: rotate(-3deg) scale(.94); }

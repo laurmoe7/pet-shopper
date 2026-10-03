@@ -1037,7 +1037,8 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="longhair"] { --pet-skin: #57525f; --pet-skin-shade: #403b49; --pet-ear-in: #e7a3b0; }
 .pet[data-skin="kiwi"] { --pet-skin: #b68f63; --pet-skin-shade: #dcaa5c; --pet-mark: #7a5a38; }
 .pet[data-skin="dutch"] { --pet-skin: #fffafb; --pet-skin-shade: #f0e0e4; --pet-ear-in: #ffbfcc; --pet-mark: #8e8a99; }
-.pet[data-species="frog"][data-skin="dartfrog"] { --pet-skin: #5fb4ee; --pet-skin-shade: #3f95d6; --pet-mark: #3f95d6; }
+.pet[data-species="frog"][data-skin="dartfrog"] { --pet-skin: #3f86ea; --pet-skin-shade: #2c68c8; --pet-mark: #2c68c8; }
+.pet[data-species="hedgehog"][data-skin="fasthedgehog"] { --pet-skin: #f6dcc0; --pet-skin-shade: #e6c19a; --pet-ear-in: #ffc4cf; --pet-mark: #8d6b52; }
 .pet[data-species="frog"][data-skin="toad"] { --pet-skin: #c9a878; --pet-skin-shade: #a98a5c; --pet-mark: #a98a5c; }
 .pet[data-skin="strawberry"] [data-sk~="strawberry"],
 .pet[data-skin="chocolate"] [data-sk~="chocolate"],
@@ -1051,7 +1052,7 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="chihuahua"] [data-sk~="chihuahua"],
 .pet[data-skin="pomeranian"] [data-sk~="pomeranian"],
 .pet[data-skin="longhair"] [data-sk~="longhair"] { display: inline; }
-.pet[data-skin="kiwi"] [data-sk~="kiwi"], .pet[data-skin="dutch"] [data-sk~="dutch"],
+.pet[data-skin="kiwi"] [data-sk~="kiwi"], .pet[data-skin="dutch"] [data-sk~="dutch"], .pet[data-skin="fasthedgehog"] [data-sk~="fasthedgehog"],
 .pet[data-skin="dartfrog"] [data-sk~="dartfrog"], .pet[data-skin="toad"] [data-sk~="toad"] { display: inline; }
 /* a skin's own ears and horns replace the species' ones */
 .pet[data-skin="floppybunny"] [data-sp="bunny"],
@@ -1121,9 +1122,16 @@ button { font: inherit; color: inherit; }
 /* hedgehog ears are half moons */
 .pet[data-species="hedgehog"] .ear { stroke-linejoin: round; }
 /* frog skins */
-.dart-spots ellipse { fill: #1f2a44; }
-.pet[data-skin="dartfrog"] .frog-spots ellipse { fill: #1f2a44; }
-.pet[data-skin="dartfrog"] .frog-belly { fill: #bfe3fa; }
-.toad-warts circle { fill: #86693f; }
-.pet[data-skin="toad"] .frog-spots ellipse { fill: #86693f; }
+.dart-red { fill: #e83b4b; }
+.dart-lime { fill: #cde87a; }
+.dart-black ellipse { fill: #1b1f33; }
+.pet[data-skin="dartfrog"] .frog-spots { display: none; }
+.pet[data-skin="dartfrog"] .frog-belly { fill: #a9e0ee; }
+.toad-gland { fill: #8c6f45; opacity: .55; }
+.wart { fill: #8a6b40; }
+.wart-hi { fill: #d8bd8c; }
+.pet[data-skin="toad"] .frog-spots { display: none; }
 .pet[data-skin="toad"] .frog-belly { fill: #efe2c2; }
+/* fast hedgehog: blue spines and ears */
+.pet[data-skin="fasthedgehog"] .hog-spines path, .pet[data-skin="fasthedgehog"] .hog-blend path, .pet[data-skin="fasthedgehog"] .hog-fill { fill: #3d78e6; }
+.pet[data-skin="fasthedgehog"] [data-sp="hedgehog"] .ear { fill: #3d78e6; }

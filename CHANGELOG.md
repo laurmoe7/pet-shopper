@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 61 (3 Oct)
+- No more Done buttons: close a sheet with the grab bar at its top (tap or swipe down), the bar button again, or a tap on the list. Removed the "more coming soon" texts.
+- Fixed the Options (gear) button not opening.
+- Cardboard look: the Add button is a sticker, the two peeling stickers peel from different corners, and dark mode has lighter paper labels.
+- Poison dart frog now has a red back with black spots, blue body and lime flank patches. Toad has warts and glands. New skin: Fast hedgehog (blue).
+
 ## Build 60 (3 Oct)
 - Bottom bar: Dress-up has a hat, Room a filled house, Treats a filled heart. Room and Goals stickers have a peeling corner.
 - Cardboard look has a dark mode (follows your phone).

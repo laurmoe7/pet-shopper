@@ -28,6 +28,7 @@
     { id: 'dutch', base: 'bunny', label: 'Dutch' },
     { id: 'dartfrog', base: 'frog', label: 'Poison dart frog' },
     { id: 'toad', base: 'frog', label: 'Toad' },
+    { id: 'fasthedgehog', base: 'hedgehog', label: 'Fast hedgehog' },
     { id: 'whitehamster', base: 'hamster', label: 'White hamster' },
     { id: 'longhair', base: 'hamster', label: 'Long-haired' }
   ];
