@@ -234,6 +234,30 @@
         '</g>'
     },
     {
+      id: 'bananapeel', slot: 'hat', snug: true, label: 'Banana peel', icon: '20 0 120 66',
+      lines: ['slippery when worn!', 'a-peeling, right?', 'going bananas!'],
+      svg: '<g class="hat-banana">' +
+        '<path class="peel" d="M76 42 C62 28 40 32 32 54 C44 56 60 51 72 47 Z"/>' +
+        '<path class="peel" d="M84 42 C98 28 120 32 128 54 C116 56 100 51 88 47 Z"/>' +
+        '<path class="peel" d="M71 44 C67 26 74 14 80 8 C86 14 93 26 89 44 C85 47 75 47 71 44 Z"/>' +
+        '<path class="peel-line" d="M80 14 V40 M66 36 C58 36 48 41 40 50 M94 36 C102 36 112 41 120 50"/>' +
+        '<path class="peel-tip" d="M77.4 12 C77.6 8 78.6 6 80 5 C81.4 6 82.4 8 82.6 12 Z"/>' +
+        '<circle class="peel-spot" cx="45" cy="47" r="1.2"/><circle class="peel-spot" cx="115" cy="47" r="1.2"/><circle class="peel-spot" cx="76" cy="28" r="1.1"/>' +
+        '</g>'
+    },
+    {
+      id: 'trashlid', slot: 'hat', snug: true, label: 'Trash can lid', icon: '20 14 120 52',
+      lines: ['one man\'s trash!', 'clang clang!', 'raccoon approved'],
+      svg: '<g class="hat-lid" transform="rotate(-6 80 44)">' +
+        '<path class="lid-handle" d="M68 35 C68 24 92 24 92 35"/>' +
+        '<path class="lid-top" d="M34 50 C40 37 60 33 80 33 C100 33 120 37 126 50 Z"/>' +
+        '<ellipse class="lid-rim" cx="80" cy="50" rx="46" ry="6.5"/>' +
+        '<path class="lid-line" d="M52 44 Q80 39 108 44"/>' +
+        '<path class="lid-shine" d="M44 45 C47 40 53 37 60 36"/>' +
+        '<path class="lid-dent" d="M96 41.5 l5 1.2 M100 46 l4 .8"/>' +
+        '</g>'
+    },
+    {
       id: 'scarf', slot: 'neck', label: 'Winter scarf', icon: '10 104 140 46',
       lines: ['so toasty!', 'snow day?', 'cosy cosy cosy'],
       svg: '<g class="neck-scarf">' +
@@ -247,15 +271,15 @@
         '</g>'
     },
     {
-      id: 'hanky', slot: 'neck', label: 'Neck hanky', icon: '44 104 72 34',
-      lines: ['très chic!', 'tea and biscuits?', 'quite dapper, no?'],
-      svg: '<g class="neck-hanky">' +
-        '<path class="hanky-cloth" d="M62 112 Q80 118 98 112 L82.5 132 Q80 135 77.5 132 Z"/>' +
-        '<path class="hanky-trim" d="M66 115.2 Q80 120 94 115.2"/>' +
-        '<circle class="hanky-dot" cx="73" cy="121" r="1.4"/><circle class="hanky-dot" cx="87" cy="121" r="1.4"/><circle class="hanky-dot" cx="80" cy="127" r="1.4"/>' +
-        '<path class="hanky-cloth" d="M76 111.5 C70 106 64 108 66 113.5 C68 117 74 116 76 113.5 Z M84 111.5 C90 106 96 108 94 113.5 C92 117 86 116 84 113.5 Z"/>' +
-        '<ellipse class="hanky-knot" cx="80" cy="113" rx="4.2" ry="3.6"/>' +
-        '<circle class="hanky-pin" cx="80" cy="113" r="1.4"/>' +
+      id: 'silkscarf', slot: 'neck', label: 'Silk scarf', icon: '14 102 120 46',
+      lines: ['très chic!', 'pas mal, non?', 'quite dapper, no?'],
+      svg: '<g class="neck-silk">' +
+        '<path class="silk-cloth" d="M18 108 Q80 124 142 108 Q146 114 142 119 Q80 135 18 119 Q14 114 18 108 Z"/>' +
+        '<path class="silk-cloth" d="M56 115 L33 119 Q27 127 36 131.5 L58 125 Z"/>' +
+        '<path class="silk-cloth" d="M52 117 L72 119 L62.6 143 Q60.5 145.5 58.5 143 Z"/>' +
+        '<path class="silk-fold" d="M62 123 L60.6 138"/>' +
+        '<ellipse class="silk-knot" cx="56" cy="116.5" rx="6.4" ry="5"/>' +
+        '<path class="silk-fold" d="M52 114.5 Q56 117 60 114.5"/>' +
         '</g>'
     },
     {
@@ -283,13 +307,35 @@
       id: 'heels', slot: 'feet', label: 'High heels', icon: '40 126 80 26',
       lines: ['so tall!', 'click clack click', 'catwalk ready!'],
       svg: '<g class="feet-heels">' + [58, 102].map(function (x) {
-        // a round little shoe on a tiny heel, with a bow on the toe
-        return '<path class="heel-spike" d="M' + (x - 2.4) + ' 143 L' + (x - 1.1) + ' 149.6 H' + (x + 1.1) + ' L' + (x + 2.4) + ' 143 Z"/>' +
-          '<ellipse class="heel-shoe" cx="' + x + '" cy="140.4" rx="10" ry="4.8"/>' +
-          '<ellipse class="heel-foot" cx="' + x + '" cy="138.2" rx="6.4" ry="2.1"/>' +
-          '<path class="heel-shine" d="M' + (x - 7.4) + ' 141 Q' + (x - 6.4) + ' 143 ' + (x - 3.8) + ' 143.6"/>' +
-          '<path class="heel-bow" d="M' + x + ' 141.8 l-3.6 -2.2 v4.4 Z M' + x + ' 141.8 l3.6 -2.2 v4.4 Z"/>' +
-          '<circle class="heel-bow" cx="' + x + '" cy="141.8" r="1.3"/>';
+        // a tiny round shoe on a tiny heel, with a bow on the toe
+        return '<path class="heel-spike" d="M' + (x - 1.8) + ' 142.4 L' + (x - 0.9) + ' 147 H' + (x + 0.9) + ' L' + (x + 1.8) + ' 142.4 Z"/>' +
+          '<ellipse class="heel-shoe" cx="' + x + '" cy="140" rx="7.6" ry="3.8"/>' +
+          '<ellipse class="heel-foot" cx="' + x + '" cy="138.4" rx="4.8" ry="1.5"/>' +
+          '<path class="heel-bow" d="M' + x + ' 141 l-2.6 -1.6 v3.2 Z M' + x + ' 141 l2.6 -1.6 v3.2 Z"/>' +
+          '<circle class="heel-bow" cx="' + x + '" cy="141" r="1"/>';
+      }).join('') + '</g>'
+    },
+    {
+      id: 'bunnyslippers', slot: 'feet', label: 'Bunny slippers', icon: '40 124 80 26',
+      lines: ['so fuzzy!', 'cosy toes!', 'hop hop hop!'],
+      svg: '<g class="feet-bunny">' + [58, 102].map(function (x) {
+        // a fluffy slipper with two floppy ears and a tiny face
+        var fluff = '';
+        for (var i = 0; i < 9; i++) {
+          var a = Math.PI + i * Math.PI / 8;
+          fluff += '<circle cx="' + (x + Math.cos(a) * 8.6).toFixed(1) + '" cy="' + (140.6 + Math.sin(a) * 4.4).toFixed(1) + '" r="2.5"/>';
+        }
+        for (var j = 0; j < 7; j++) {
+          var b = j * Math.PI / 6;
+          fluff += '<circle cx="' + (x + Math.cos(b) * 8.6).toFixed(1) + '" cy="' + (140.6 + Math.sin(b) * 4.2).toFixed(1) + '" r="2.5"/>';
+        }
+        return '<path class="bunny-ear" d="M' + (x - 6.4) + ' 137 C' + (x - 9.4) + ' 130 ' + (x - 5.4) + ' 127.5 ' + (x - 3.6) + ' 130 C' + (x - 2.6) + ' 132 ' + (x - 2.4) + ' 135 ' + (x - 2.4) + ' 137 Z"/>' +
+          '<path class="bunny-ear" d="M' + (x + 6.4) + ' 137 C' + (x + 9.4) + ' 130 ' + (x + 5.4) + ' 127.5 ' + (x + 3.6) + ' 130 C' + (x + 2.6) + ' 132 ' + (x + 2.4) + ' 135 ' + (x + 2.4) + ' 137 Z"/>' +
+          '<g class="bunny-fluff-edge">' + fluff + '</g>' +
+          '<ellipse class="bunny-fluff" cx="' + x + '" cy="140.6" rx="8.6" ry="4.4"/>' +
+          '<g class="bunny-fluff">' + fluff + '</g>' +
+          '<circle class="bunny-eye" cx="' + (x - 3) + '" cy="140" r="0.9"/><circle class="bunny-eye" cx="' + (x + 3) + '" cy="140" r="0.9"/>' +
+          '<ellipse class="bunny-nose" cx="' + x + '" cy="141.6" rx="1.3" ry="0.9"/>';
       }).join('') + '</g>'
     },
     {

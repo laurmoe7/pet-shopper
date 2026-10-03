@@ -41,7 +41,7 @@ test('older saves without pet details get the defaults', () => {
 
 test('wardrobe hats have unique ids and a drawing', () => {
   const hatIds = Wardrobe.map((w) => w.id);
-  assert.deepEqual(hatIds, ['tophat', 'maid', 'sunhat', 'cap', 'hoodie', 'hardhat', 'bandana', 'headphones', 'mintphones', 'chefhat', 'knight', 'scarf', 'hanky', 'boa', 'boots', 'heels', 'shades', 'redspecs', 'eyepatch', 'nerdspecs']);
+  assert.deepEqual(hatIds, ['tophat', 'maid', 'sunhat', 'cap', 'hoodie', 'hardhat', 'bandana', 'headphones', 'mintphones', 'chefhat', 'knight', 'bananapeel', 'trashlid', 'scarf', 'silkscarf', 'boa', 'boots', 'heels', 'bunnyslippers', 'shades', 'redspecs', 'eyepatch', 'nerdspecs']);
   assert.equal(new Set(hatIds).size, hatIds.length);
   for (const w of Wardrobe) {
     assert.ok(PetLogic.OUTFIT_SLOTS.includes(w.slot), w.id);
@@ -142,12 +142,12 @@ test('the new hat, bandana, headphones and sunglasses are free', () => {
 test('neck and feet are their own slots, worn alongside a hat and glasses', () => {
   assert.deepEqual(PetLogic.OUTFIT_SLOTS, ['hat', 'face', 'neck', 'feet']);
   const bySlot = (slot) => Wardrobe.filter((w) => w.slot === slot).map((w) => w.id);
-  assert.deepEqual(bySlot('neck'), ['scarf', 'hanky', 'boa']);
-  assert.deepEqual(bySlot('feet'), ['boots', 'heels']);
+  assert.deepEqual(bySlot('neck'), ['scarf', 'silkscarf', 'boa']);
+  assert.deepEqual(bySlot('feet'), ['boots', 'heels', 'bunnyslippers']);
   const s = PetLogic.parseState(null, ids());
   Object.assign(s.pet.outfit, { hat: 'chefhat', face: 'nerdspecs', neck: 'boa', feet: 'heels' });
   const back = PetLogic.parseState(JSON.stringify(s), ids());
   assert.deepEqual(back.pet.outfit, { hat: 'chefhat', face: 'nerdspecs', neck: 'boa', feet: 'heels' });
   const { FreeUnlocks } = require('./load');
-  for (const id of ['scarf', 'hanky', 'boa', 'boots', 'heels']) assert.ok(FreeUnlocks.hat.includes(id), id);
+  for (const id of ['scarf', 'silkscarf', 'boa', 'boots', 'heels', 'bunnyslippers', 'bananapeel', 'trashlid']) assert.ok(FreeUnlocks.hat.includes(id), id);
 });
