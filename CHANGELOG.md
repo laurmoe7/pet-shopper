@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 63 (3 Oct)
+- Options: choose Auto, Light or Dark.
+- Fixed the grab bar at the top of sheets (it was unstyled in builds 61 and 62).
+- Strawberry seeds are darker and scattered more randomly; chocolate chunks and the toad's warts are less symmetrical.
+
 ## Build 62 (3 Oct)
 - The cardboard look is now the only look (light and dark follow your phone); the Options switch is gone.
 - Poison dart frog: side spots removed. Toad: fewer warts, plus some bumps along the edge of its body.

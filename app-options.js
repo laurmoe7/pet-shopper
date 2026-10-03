@@ -7,6 +7,15 @@ $('buildLabel').textContent = 'Build ' + BUILD;
 /* The cardboard look is the only look for now (it follows the phone's dark mode). The classic look is still in
    styles.css: to offer both again, set data-look only when state.settings.cardboard is true and bring back the Options switch. */
 document.documentElement.dataset.look = 'cardboard';
+/* Light or dark: Auto follows the phone. Kept on this device only (not in the pet's saved data). */
+var THEMES = [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']];
+function applyTheme(t) {
+  if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+  else delete document.documentElement.dataset.theme;
+}
+var savedTheme = 'auto';
+try { savedTheme = localStorage.getItem('nibble-theme') || 'auto'; } catch (e) { /* storage not available */ }
+applyTheme(savedTheme);
 var optionsSheet = $('optionsSheet'), optionsList = $('optionsList');
 var OPTIONS = [
   { key: 'quiet', title: 'Quiet mode', text: 'Mutes all sounds. Your pet still talks.' },
@@ -17,6 +26,25 @@ var OPTIONS = [
   { key: 'daydreams', title: 'Daydreams', text: 'Thought clouds about things on your list.' },
   { key: 'suggestions', title: 'Suggestions', text: 'Your pet sometimes asks for something to add.' }
 ];
+var themeRow = document.createElement('div');
+themeRow.className = 'option option-theme';
+themeRow.innerHTML = '<span class="option-title">Light or dark</span><span class="option-text">Auto follows your phone.</span>';
+var themeBtns = document.createElement('span');
+themeBtns.className = 'theme-btns';
+THEMES.forEach(function (t) {
+  var b = document.createElement('button');
+  b.type = 'button'; b.className = 'pill-btn'; b.dataset.theme = t[0]; b.textContent = t[1];
+  b.setAttribute('aria-pressed', String(t[0] === savedTheme));
+  b.addEventListener('click', function () {
+    applyTheme(t[0]);
+    try { localStorage.setItem('nibble-theme', t[0]); } catch (e) { /* storage not available */ }
+    themeBtns.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    sound('pick');
+  });
+  themeBtns.appendChild(b);
+});
+themeRow.appendChild(themeBtns);
+optionsList.appendChild(themeRow);
 OPTIONS.forEach(function (o) {
   var label = document.createElement('label');
   label.className = 'option';

@@ -1069,7 +1069,7 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="blackcat"] g[data-eyes] path.line, .pet[data-skin="blackcat"] g[data-eyes].line path,
 .pet[data-skin="longhair"] g[data-eyes] path.line, .pet[data-skin="longhair"] g[data-eyes].line path { stroke: #ffe9b0; }
 .sb-leaf { fill: #7ed67e; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
-.sb-seeds path { fill: #fff0a0; stroke: #e3a64e; stroke-width: .7; }
+.sb-seeds path { fill: #f0b53c; stroke: #a8651b; stroke-width: .7; }
 .choc rect { fill: #5b3524; stroke: #2f1b14; stroke-width: .9; stroke-linejoin: round; }
 .choc .chunk-hi { fill: #7a4a33; stroke: none; }
 .taro circle { fill: #a78ed8; opacity: .85; }
@@ -1137,3 +1137,15 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="fasthedgehog"] [data-sp="hedgehog"] .ear { fill: #3d78e6; }
 .toad-bumps circle { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.4; }
 .toad-bumps-fill circle { fill: var(--pet-skin); stroke: none; }
+
+/* the light / dark choice in Options */
+.option-theme { grid-template-columns: 1fr; cursor: default; }
+.theme-btns { display: flex; gap: 8px; margin-top: 6px; }
+
+/* sheets have no Done button: the grab bar closes them (tap or swipe down), and so does the bar button again */
+.sheet-grab {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 110px; height: 26px; z-index: 6;
+  border: 0; background: none; padding: 0; cursor: pointer; touch-action: none;
+}
+.sheet-grab::after { content: ""; position: absolute; left: 50%; top: 8px; width: 44px; height: 5px; margin-left: -22px; border-radius: 3px; background: var(--line); }
+.picker-foot:empty { display: none; }

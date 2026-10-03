@@ -219,3 +219,4 @@ html[data-look="cardboard"] .add-btn::after {
   content: ""; position: absolute; left: 10px; top: 3px; width: 16px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, .7); transform: rotate(-8deg);
 }
 html[data-look="cardboard"] .add-btn:active { transform: rotate(-3deg) scale(.94); }
+html[data-look="cardboard"] .pill-btn[aria-pressed="true"] { background: var(--mint); color: #3a2a1d; }
