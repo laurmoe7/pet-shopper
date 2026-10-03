@@ -128,8 +128,7 @@ function updateLook() {
   // just the pet and its dressing-room copy; the species buttons stay still
   [pet, dressPreview.querySelector('.pet')].forEach(function (el) {
     if (!el) return;
-    // a species may draw its own eye set (the bunny), so use the one that is showing
-    var eyes = [].slice.call(el.querySelectorAll('.pupils')).filter(function (p) { return p.getBoundingClientRect().width; })[0];
+    var eyes = el.querySelector('.pupils');
     if (!eyes || !lookAt) {
       el.style.removeProperty('--look-x'); el.style.removeProperty('--look-y'); el.classList.remove('looking');
       return;

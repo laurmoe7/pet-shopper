@@ -1161,25 +1161,3 @@ button { font: inherit; color: inherit; }
 .axo-smile { display: none; }
 .pet[data-species="axolotl"][data-mouth="smile"] path[data-mouth="smile"]:not(.axo-smile) { display: none; }
 .pet[data-species="axolotl"][data-mouth="smile"] .axo-smile { display: inline; }
-
-/* hand-drawn art (a test on the bunny only): thin outline, flat colour with no gloss, and small
-   eyes set wide apart and low on the face. No wobble filter: it brought back a seam on the face on her phone. Add a species to these selectors to give it the same style.
-   The eyes and smile are drawn in their own places in index.html (CSS transforms on them left a seam on her phone). */
-.pet[data-species="bunny"] { --pet-ink: #705b57; }
-.pet[data-species="bunny"] :is(.skin, .skin-under, .ear, .foot, .arm ellipse) { stroke-width: 1.7; }
-.pet[data-species="bunny"] :is(.shine, .arm-hi) { opacity: 0; }
-.pet[data-species="bunny"] .ink { fill: #4a3a38; }
-.pet[data-species="bunny"] .cheek { opacity: .75; }
-/* the bunny draws its own eye set and smile (smaller eyes, wider apart and lower); the normal ones are hidden for it */
-.eye-set-wide, .bunny-smile { display: none; }
-.pet[data-species="bunny"] .eye-set:not(.eye-set-wide) { display: none; }
-.pet[data-species="bunny"] .eye-set-wide { display: inline; }
-.pet[data-species="bunny"][data-mouth="smile"] path[data-mouth="smile"] { display: none; }
-.pet[data-species="bunny"][data-mouth="smile"] .bunny-smile { display: inline; }
-/* Developer tools "Seam hunt" switches: stop one family of pet animation to find what causes a seam on her phone */
-html.bn-noears .ear-g { animation: none !important; }
-html.bn-notilt .pet-svg { animation: none !important; }
-html.bn-nosquash .squash { animation: none !important; }
-html.bn-noarms .arm { animation: none !important; }
-html.bn-noeyes .eyes-open, html.bn-noeyes .chew { animation: none !important; }
-html.bn-noanim .pet, html.bn-noanim .pet * { animation: none !important; }

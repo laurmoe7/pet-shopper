@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 71 (3 Oct)
+- Bunny is back to its original look (thick outline, gloss, original eyes). The restyle test and the seam-hunt switches are removed.
+
 ## Build 70 (3 Oct)
 - Developer tools: "Seam hunt" switches that stop one kind of pet animation (tilting, squashing, arms, ears, blinking, or all) to find what causes the seam. They reset when the app reloads.
 

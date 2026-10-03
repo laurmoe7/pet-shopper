@@ -82,20 +82,7 @@ function refreshAll() {
   renderPersonalities();
   renderRoom();
 }
-/** A Developer tools switch that flips a class on the page (used to hunt a drawing seam on the bunny). */
-function seamSwitch(label, cls, what) {
-  return { label: 'Seam hunt: ' + label, run: function () {
-    var on = document.documentElement.classList.toggle(cls);
-    return what + (on ? ' (switched)' : ' (back to normal)');
-  } };
-}
 var DEV_ACTIONS = [
-  seamSwitch('no tilting and hopping', 'bn-notilt', 'The whole pet stops tilting, hopping, twirling and bouncing'),
-  seamSwitch('no squashing', 'bn-nosquash', 'The pet stops squashing, stretching, wobbling and breathing'),
-  seamSwitch('still arms', 'bn-noarms', 'Arms stop moving'),
-  seamSwitch('still ears', 'bn-noears', 'Ears stop wiggling'),
-  seamSwitch('no blinking or chewing', 'bn-noeyes', 'Eyes stop blinking and the mouth stops chewing'),
-  seamSwitch('no animation', 'bn-noanim', 'All pet animation stops'),
   { label: 'Unlock everything', run: function () { L.unlockAll(state.pet, Achievements, Personalities); return 'All goals finished and personalities earned.'; } },
   { label: 'Lock everything again', run: function () { L.lockAll(state.pet, Achievements, FreeUnlocks); return 'Progress wiped. Locked items are locked again.'; } },
   { label: 'Skip to tomorrow', run: function () { L.skipDays(state, 1); return 'A day has passed: daily limits are fresh.'; } },
