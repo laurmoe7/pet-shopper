@@ -1162,7 +1162,24 @@ button { font: inherit; color: inherit; }
 .pet[data-species="axolotl"][data-mouth="smile"] path[data-mouth="smile"]:not(.axo-smile) { display: none; }
 .pet[data-species="axolotl"][data-mouth="smile"] .axo-smile { display: inline; }
 
-/* sticker art (a test on the cat only): no brown outline on the body, a white die-cut border around everything
-   the pet wears, and a soft shadow. Add a species to these selectors to give it the same style. */
-.pet[data-species="kitty"] .pet-svg { filter: url(#stickerArt); }
-.pet[data-species="kitty"] :is(.skin, .skin-under, .ear, .foot, .arm ellipse) { stroke: none; }
+/* hand-drawn art (a test on the bunny only): thin, slightly wobbly outline, flat colour with no gloss, and small
+   eyes set wide apart and low on the face. Add a species to these selectors to give it the same style.
+   Each eye part is moved on its own (no transform on the eye groups, the blink animation owns those). */
+.pet[data-species="bunny"] { --pet-ink: #705b57; }
+.pet[data-species="bunny"] .pet-svg { filter: url(#wobbleArt); }
+.pet[data-species="bunny"] :is(.skin, .skin-under, .ear, .foot, .arm ellipse) { stroke-width: 1.7; }
+.pet[data-species="bunny"] :is(.shine, .arm-hi) { opacity: 0; }
+.pet[data-species="bunny"] .ink { fill: #4a3a38; }
+.pet[data-species="bunny"] .cheek { opacity: .75; }
+.pet[data-species="bunny"] path[data-mouth="smile"] { transform: translateY(3px); }
+.pet[data-species="bunny"] :is(.pupils ellipse, .pupils .glint, [data-eyes]:not(.eyes-open) > *) { transform-box: fill-box; transform-origin: 50% 50%; }
+/* eyes open: smaller, and each moved out and down */
+.pet[data-species="bunny"] .pupils ellipse:nth-of-type(1) { transform: translate(-8px, 7px) scale(.86); }
+.pet[data-species="bunny"] .pupils ellipse:nth-of-type(2) { transform: translate(8px, 7px) scale(.86); }
+.pet[data-species="bunny"] .pupils .glint:nth-of-type(1) { transform: translate(-7.4px, 7.6px) scale(.8); }
+.pet[data-species="bunny"] .pupils .glint:nth-of-type(2) { transform: translate(8.6px, 7.6px) scale(.8); }
+/* the other eye faces move the same way: left parts out and down, right parts out and down */
+.pet[data-species="bunny"] :is([data-eyes="closed"], [data-eyes="happy"], [data-eyes="sparkle"], [data-eyes="squint"], [data-eyes="teary"]) > :nth-child(odd) { transform: translate(-8px, 7px); }
+.pet[data-species="bunny"] :is([data-eyes="closed"], [data-eyes="happy"], [data-eyes="sparkle"], [data-eyes="squint"], [data-eyes="teary"]) > :nth-child(even) { transform: translate(8px, 7px); }
+.pet[data-species="bunny"] [data-eyes="confused"] > :nth-child(-n+2) { transform: translate(-8px, 7px); }
+.pet[data-species="bunny"] [data-eyes="confused"] > :nth-child(3) { transform: translate(8px, 7px); }

@@ -2,8 +2,8 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
-## Build 65 (3 Oct)
-- Test: the cat has the sticker art style (no brown outline, white die-cut border and soft shadow), hats and all. Other pets are unchanged.
+## Build 66 (3 Oct)
+- Test: the bunny has a Chiikawa-style hand-drawn look (thin wobbly outline, no gloss, small low-set eyes). The cat sticker test is removed. Other pets are unchanged.
 
 ## Build 64 (3 Oct)
 - New species: Axolotl (pink, with frilly gills and a wide smile).
