@@ -83,6 +83,10 @@ function refreshAll() {
   renderRoom();
 }
 var DEV_ACTIONS = [
+  { label: 'Squish while still (experiment)', run: function () {
+    var on = document.documentElement.classList.toggle('bn-squish');
+    return on ? 'Squish is ON: chomps squash the pet, with its arms and ears held still. Tell me if the seam comes back.' : 'Squish is OFF: chomps slide the pet.';
+  } },
   { label: 'Unlock everything', run: function () { L.unlockAll(state.pet, Achievements, Personalities); return 'All goals finished and personalities earned.'; } },
   { label: 'Lock everything again', run: function () { L.lockAll(state.pet, Achievements, FreeUnlocks); return 'Progress wiped. Locked items are locked again.'; } },
   { label: 'Skip to tomorrow', run: function () { L.skipDays(state, 1); return 'A day has passed: daily limits are fresh.'; } },

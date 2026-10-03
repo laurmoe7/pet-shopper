@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 74 (3 Oct)
+- Experiment in Developer tools: "Squish while still" brings back the real squash for chomp, spit and stretch, holding the arms and ears still while it plays. Off by default; resets when the app reloads.
+
 ## Build 73 (3 Oct)
 - Fixed the hairline across the pet's face after feeding: the chomp, spit, stretch and tilt moves now slide the pet instead of squashing or rotating it. The seam-hunt switches are removed.
 
