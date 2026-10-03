@@ -442,6 +442,21 @@
       svg: '<g class="feet-clogs"><path class="clog-sole" d="M48 140.4 C51 143.4 65 143.4 68 140.4 L67.6 142.6 C64.4 145.4 51.6 145.4 48.4 142.6 Z"/><path class="clog" d="M48 140.4 C47.4 134.6 52.6 132 58 132 C63.4 132 68.6 134.6 68 140.4 C65 143.4 51 143.4 48 140.4 Z"/><path class="clog-grain" d="M51.4 135.2 q2.6 -1.2 5.2 0 M59.4 139 q2.4 -1.1 4.8 0"/><path class="clog-heart" d="M58 137.4 c-.6 -1 -2.2 -.4 -1.5 .7 l1.5 1.5 l1.5 -1.5 c.7 -1.1 -.9 -1.7 -1.5 -.7z"/><path class="clog-sole" d="M92 140.4 C95 143.4 109 143.4 112 140.4 L111.6 142.6 C108.4 145.4 95.6 145.4 92.4 142.6 Z"/><path class="clog" d="M92 140.4 C91.4 134.6 96.6 132 102 132 C107.4 132 112.6 134.6 112 140.4 C109 143.4 95 143.4 92 140.4 Z"/><path class="clog-grain" d="M95.4 135.2 q2.6 -1.2 5.2 0 M103.4 139 q2.4 -1.1 4.8 0"/><path class="clog-heart" d="M102 137.4 c-.6 -1 -2.2 -.4 -1.5 .7 l1.5 1.5 l1.5 -1.5 c.7 -1.1 -.9 -1.7 -1.5 -.7z"/></g>'
     },
     {
+      id: 'clownshoes', slot: 'feet', label: 'Clown shoes', icon: '36 126 88 24',
+      lines: ['flap flap flap!', 'honk honk!', 'tripping on purpose!'],
+      svg: '<g class="feet-clown">' + [58, 102].map(function (x) {
+        // a long round shoe with the toe pointing out, a pale sole, big dots and a pom on top
+        var c = x + (x < 80 ? -4 : 4), out = x < 80 ? -1 : 1;
+        return '<ellipse class="clown-sole" cx="' + c + '" cy="140.4" rx="15" ry="6"/>' +
+          '<ellipse class="clown-shoe" cx="' + c + '" cy="138.6" rx="15" ry="6.2"/>' +
+          '<circle class="clown-dot" cx="' + (c + out * 7) + '" cy="138.4" r="1.9"/>' +
+          '<circle class="clown-dot" cx="' + c + '" cy="140.4" r="1.6"/>' +
+          '<circle class="clown-dot" cx="' + (c - out * 8) + '" cy="137.6" r="1.5"/>' +
+          '<path class="clown-shine" d="M' + (c - 9) + ' 135.8 Q' + (c - 4) + ' 133.8 ' + (c + 2) + ' 134.4"/>' +
+          '<circle class="clown-pom" cx="' + (c - out * 2) + '" cy="133" r="2.5"/>';
+      }).join('') + '</g>'
+    },
+    {
       id: 'shades', slot: 'face', label: 'Heart shades', icon: '28 74 104 36',
       lines: ['too cool for school!', 'the future is bright!', 'no paparazzi, please!'],
       svg: '<g class="face-shades">' +
@@ -498,6 +513,14 @@
         '<path class="round-bridge" d="M70.4 90 Q80 85.6 89.6 90"/>' +
         '<path class="round-shine" d="M49.6 87.4 Q51.4 83.6 55.4 82.6 M93.6 87.4 Q95.4 83.6 99.4 82.6"/>' +
         '<path class="round-shine" d="M52.4 99 Q55 101.6 58.8 101.8 M96.4 99 Q99 101.6 102.8 101.8" style="opacity:.35"/>' +
+        '</g>'
+    },
+    {
+      id: 'clownnose', slot: 'face', label: 'Clown nose', icon: '66 86 28 26',
+      lines: ['honk honk!', 'squeeze my nose!', 'send in the clown!'],
+      svg: '<g class="face-clownnose">' +
+        '<circle class="cnose" cx="80" cy="98.4" r="5.4"/>' +
+        '<ellipse class="cnose-shine" cx="78" cy="96.2" rx="1.7" ry="1.2"/>' +
         '</g>'
     }
   ];

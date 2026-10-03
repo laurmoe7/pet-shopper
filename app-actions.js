@@ -95,7 +95,7 @@ function eat(item, fromRect, goals) {
     }).then(function () {
       if (goals && goals.unlocked.length) return cheerUnlocks(goals.unlocked);
     }).then(function () {
-      if (pending === 1 && baseState() === 'stuffed') return celebrate();
+      if (!item.treat && pending === 1 && baseState() === 'stuffed') return celebrate();
     });
   });
 }
@@ -169,8 +169,17 @@ function addItem(text) {
     var face = item.cat === 'nonfood' ? null : FACES.catching;
     if (face) { setFace(face); setTimeout(function () { if (!busy) settle(); }, 500); }
   }
-  say(item.cat === 'mystery' ? 'ooh, mystery!' : pick(['ooh!', 'for me?', 'yes please', 'noted!', 'yum?']), 1100);
+  // something you buy a lot gets a remark from its history; the rest get a quick cheer
+  var memory = L.memoryLine(state.pet, text);
+  if (memory) talk(memory.key, MEMORY_LINES[memory.key], 1900, memory.vars);
+  else say(item.cat === 'mystery' ? 'ooh, mystery!' : pick(['ooh!', 'for me?', 'yes please', 'noted!', 'yum?']), 1100);
 }
+// what Nibble says about things you buy often ({item}, {n} times, #{rank} in the Top 10)
+var MEMORY_LINES = {
+  memoryTop: ['{item} again? your #1!', 'ah, {item}, my favourite to see', '{item}! {n} times now'],
+  memoryFav: ['{item} is #{rank} in the Top 10!', 'we do love {item}', '{item} again, {n} times now'],
+  memoryRegular: ['{item}, a regular!', 'oh, {item} again']
+};
 
 /**
  * The item as the goal rules should see it. With the dev menu's "skip the

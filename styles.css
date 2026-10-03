@@ -915,3 +915,12 @@ button { font: inherit; color: inherit; }
 }
 .fav-add:disabled { opacity: .5; cursor: default; }
 .fav-empty { margin: 0; color: var(--muted); font-size: .9rem; }
+
+/* clown shoes and nose */
+.clown-shoe { fill: #ee4f6c; stroke: var(--pet-ink); stroke-width: 1.7; }
+.clown-sole { fill: #fff3dc; stroke: var(--pet-ink); stroke-width: 1.5; }
+.clown-dot { fill: #ffd84a; }
+.clown-shine { fill: none; stroke: #ff9bb0; stroke-width: 1.2; stroke-linecap: round; }
+.clown-pom { fill: #4fa3e8; stroke: var(--pet-ink); stroke-width: 1.2; }
+.cnose { fill: #ee3a4c; stroke: var(--pet-ink); stroke-width: 1.4; }
+.cnose-shine { fill: #fff; opacity: .85; }

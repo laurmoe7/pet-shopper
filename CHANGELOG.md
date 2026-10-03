@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 50 (3 Oct)
+- New: Treat button in the Pet menu (three a day, just for fun).
+- New: Nibble remembers what you buy a lot and says so when you add it.
+- New: clown nose (Glasses row) and clown shoes (Feet row).
+
 ## Build 49 (3 Oct)
 - New: Top 10 in the Pet menu, ranking what you buy most, with + to add one back to the list.
 - New: stroke Nibble for a purr and hearts.

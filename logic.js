@@ -29,6 +29,7 @@
    * @property {Object<string, {x: number, y: number}>} room  Placed decor by id, with its
    *   spot in the room (0 to 1 across and down).
    * @property {Object<string, Favourite>} favourites  What has been bought most, by word.
+   * @property {{day: string, n: number}} treats  Treats given today.
    */
 
   /**
@@ -103,6 +104,7 @@
       personality: saved.personality || 'foodie',
       tastes: saved.tastes && typeof saved.tastes === 'object' ? saved.tastes : {},
       favourites: saved.favourites && typeof saved.favourites === 'object' ? saved.favourites : {},
+      treats: { day: (saved.treats && saved.treats.day) || '', n: (saved.treats && Number(saved.treats.n)) || 0 },
       guard: {
         day: (saved.guard && saved.guard.day) || '',
         words: (saved.guard && Array.isArray(saved.guard.words)) ? saved.guard.words : [],
@@ -718,6 +720,7 @@
       state.pet.achievements[id].day = back(state.pet.achievements[id].day);
     });
     state.pet.guard.day = back(state.pet.guard.day);
+    state.pet.treats.day = back(state.pet.treats.day);
     Object.keys(state.pet.favourites).forEach(function (k) {
       state.pet.favourites[k].day = back(state.pet.favourites[k].day);
     });
@@ -805,6 +808,51 @@
       .map(function (k) { return { key: k, label: favs[k].label, emoji: favs[k].emoji, count: favs[k].count }; });
   }
 
+  /**
+   * What Nibble says when you add something you often buy.
+   * @param {PetProfile} profile
+   * @param {string} text  The item as typed.
+   * @returns {?{key: string, vars: {item: string, n: number, rank: number}}} A voice key
+   *   ('memoryTop', 'memoryFav' or 'memoryRegular') and the values for its lines, or null
+   *   if it is not a regular buy yet (under 3 times).
+   */
+  function memoryLine(profile, text) {
+    var word = Foods.normalize(text || '');
+    var fav = word && profile.favourites[word];
+    if (!fav || fav.count < 3) return null;
+    var rank = topFavourites(profile, 10).map(function (f) { return f.key; }).indexOf(word) + 1;
+    var vars = { item: fav.label.toLowerCase(), n: fav.count, rank: rank };
+    return { key: rank === 1 ? 'memoryTop' : rank ? 'memoryFav' : 'memoryRegular', vars: vars };
+  }
+
+  // ---------- treats ----------
+  // A treat is only a cute reaction: it never counts for goals, favourites or tastes.
+
+  /** How many treats Nibble takes a day. */
+  var TREATS_PER_DAY = 3;
+  /** What can be a treat, with the food kind that sets its reaction and sound. */
+  var TREATS = [
+    { emoji: '\uD83C\uDF6A', cat: 'sweets' }, { emoji: '\uD83C\uDF6C', cat: 'sweets' }, { emoji: '\uD83C\uDF6D', cat: 'sweets' },
+    { emoji: '\uD83C\uDF69', cat: 'sweets' }, { emoji: '\uD83E\uDDC1', cat: 'sweets' }, { emoji: '\uD83C\uDF53', cat: 'fruit' },
+    { emoji: '\uD83C\uDF4E', cat: 'fruit' }
+  ];
+
+  /**
+   * Gives Nibble a treat, if it has room for one today.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {Date} now
+   * @param {function(): number} [random]
+   * @returns {?{emoji: string, cat: string, left: number}} The treat and how many are left today, or null if it is full.
+   */
+  function giveTreat(profile, now, random) {
+    var today = dayKey(now);
+    if (profile.treats.day !== today) profile.treats = { day: today, n: 0 };
+    if (profile.treats.n >= TREATS_PER_DAY) return null;
+    profile.treats.n++;
+    var t = TREATS[Math.floor((random || Math.random)() * TREATS.length)];
+    return { emoji: t.emoji, cat: t.cat, left: TREATS_PER_DAY - profile.treats.n };
+  }
+
   // ---------- room decor ----------
 
   /**
@@ -871,6 +919,9 @@
     recordFavourite: recordFavourite,
     refundFavourite: refundFavourite,
     topFavourites: topFavourites,
+    memoryLine: memoryLine,
+    giveTreat: giveTreat,
+    TREATS_PER_DAY: TREATS_PER_DAY,
     progress: progress,
     isUnlocked: isUnlocked,
     gateFor: gateFor,

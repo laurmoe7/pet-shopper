@@ -91,3 +91,30 @@ test('skipping days moves favourites back, so the next day counts', () => {
   L.skipDays(state, 1);
   assert.ok(L.recordFavourite(state.pet, { text: 'milk', emoji: '🥛', cat: 'dairy', added: 0 }, now));
 });
+
+test('Nibble remembers what you buy often: only after three times, and the top one is special', () => {
+  const p = pet();
+  const buy = (text, day) => L.recordFavourite(p, item(text, `2026-10-0${day}T08:00`), at(`2026-10-0${day}T09:00`));
+  buy('milk', 1); buy('eggs', 1); buy('milk', 2); buy('eggs', 2);
+  assert.equal(L.memoryLine(p, 'milk'), null, 'only twice so far');
+  buy('milk', 3); buy('eggs', 3); buy('eggs', 4);
+  assert.equal(L.memoryLine(p, 'Milk').key, 'memoryFav');
+  assert.equal(L.memoryLine(p, 'Milk').vars.rank, 2);
+  assert.equal(L.memoryLine(p, '2x eggs').key, 'memoryTop');
+  assert.equal(L.memoryLine(p, 'eggs').vars.n, 4);
+  assert.equal(L.memoryLine(p, 'bread'), null);
+});
+
+test('treats: three a day, then Nibble is full until tomorrow, and they never count for goals', () => {
+  const p = pet();
+  const day = at('2026-10-01T09:00');
+  const first = L.giveTreat(p, day, () => 0);
+  assert.equal(first.left, 2);
+  assert.ok(first.emoji && first.cat);
+  assert.equal(L.giveTreat(p, day).left, 1);
+  assert.equal(L.giveTreat(p, day).left, 0);
+  assert.equal(L.giveTreat(p, day), null);
+  assert.equal(L.giveTreat(p, at('2026-10-02T09:00')).left, 2, 'a new day');
+  assert.deepEqual(L.topFavourites(p), []);
+  assert.deepEqual(p.achievements, {});
+});
