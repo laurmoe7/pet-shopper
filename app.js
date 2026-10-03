@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '51';
+var BUILD = '52';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -70,26 +70,6 @@ function svgIcon(view, inner) {
  * @param {HTMLDialogElement} d
  */
 function openDialog(d) { sound('open'); if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
-
-// ---------- pet menu ----------
-// Dress up, Edit pet and Goals sit in one drop-down; it closes when you pick one,
-// tap anywhere else or press Escape.
-(function () {
-  var btn = document.getElementById('petMenuBtn'), menu = document.getElementById('petMenu');
-  function setOpen(open, focusFirst) {
-    menu.hidden = !open;
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    if (open && focusFirst) menu.querySelector('.menu-item').focus();
-  }
-  btn.addEventListener('click', function (e) { sound(menu.hidden ? 'tap' : 'close'); setOpen(menu.hidden, e.detail === 0); });
-  menu.addEventListener('click', function (e) { if (e.target.closest('.menu-item')) setOpen(false); });
-  document.addEventListener('pointerdown', function (e) {
-    if (!menu.hidden && !e.target.closest('.stage-tools')) setOpen(false);
-  });
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && !menu.hidden) { setOpen(false); btn.focus(); }
-  });
-})();
 
 // ---------- elements ----------
 var $ = function (id) { return document.getElementById(id); };

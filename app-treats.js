@@ -34,12 +34,14 @@ treatGrid.addEventListener('click', function (e) {
   item.treat = true;
   var goals = creditEaten(item, now);
   save();
-  treatSheet.close();
+  renderTreats();    // the sheet stays open until Done, so you can pick the next one
   eat(item, from, goals);
 });
 
+// a low panel that leaves Nibble in view, so you can watch it eat; only Done (or Escape) closes it
 $('treatBtn').addEventListener('click', function () {
   renderTreats();
-  openDialog(treatSheet);
+  sound('open');
+  if (treatSheet.show) treatSheet.show(); else treatSheet.setAttribute('open', '');
 });
-treatSheet.addEventListener('click', function (e) { if (e.target === treatSheet) treatSheet.close(); });
+treatSheet.addEventListener('keydown', function (e) { if (e.key === 'Escape') treatSheet.close(); });

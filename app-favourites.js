@@ -40,7 +40,7 @@ function favAddButton(fav) {
   return add;
 }
 
-/** The #1 favourite: a crown, sparkles and a gold pedestal. */
+/** The #1 favourite: a crown, sparkles and a gold pedestal, with the name beside it. */
 function podium(fav) {
   var li = document.createElement('li');
   li.className = 'fav-podium';
@@ -53,14 +53,6 @@ function podium(fav) {
   });
   var crown = svgIcon('0 0 40 26', '<path class="crown" d="M3 22 L6 6 L14 13 L20 3 L26 13 L34 6 L37 22 Z"/><path class="crown-band" d="M3.6 19 H36.4 V23 H3.6 Z"/><circle class="crown-gem" cx="6" cy="5" r="2.2"/><circle class="crown-gem" cx="20" cy="2.4" r="2.2"/><circle class="crown-gem" cx="34" cy="5" r="2.2"/>');
   crown.setAttribute('class', 'pod-crown');
-  var name = document.createElement('div');
-  name.className = 'pod-name';
-  name.textContent = fav.label;
-  var count = document.createElement('div');
-  count.className = 'pod-count';
-  count.textContent = 'bought ' + fav.count + (fav.count === 1 ? ' time' : ' times');
-  var add = favAddButton(fav);
-  add.classList.add('pod-add');
   var emoji = emojiImg(fav.emoji, '');
   emoji.className = 'pod-emoji';
   var pedestal = document.createElement('div');
@@ -73,7 +65,21 @@ function podium(fav) {
   one.textContent = '1';
   body.append(medal(1), one);
   pedestal.append(top, body);
-  li.append(add, crown, emoji, name, count, pedestal);
+  var stand = document.createElement('div');
+  stand.className = 'pod-stand';
+  stand.append(crown, emoji, pedestal);
+  var name = document.createElement('div');
+  name.className = 'pod-name';
+  name.textContent = fav.label;
+  var count = document.createElement('div');
+  count.className = 'pod-count';
+  count.textContent = 'bought ' + fav.count + (fav.count === 1 ? ' time' : ' times');
+  var add = favAddButton(fav);
+  add.classList.add('pod-add');
+  var info = document.createElement('div');
+  info.className = 'pod-info';
+  info.append(name, count, add);
+  li.append(stand, info);
   return li;
 }
 
@@ -105,4 +111,4 @@ $('favBtn').addEventListener('click', function () {
   renderFavourites();
   openDialog(favSheet);
 });
-favSheet.addEventListener('click', function (e) { if (e.target === favSheet) favSheet.close(); });
+

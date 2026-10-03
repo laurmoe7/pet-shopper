@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 52 (3 Oct)
+- The Pet drop-down is gone. Dress, Room, Treats, Top 10, Goals and Pet are buttons in a bar at the bottom of the screen.
+- The Treats panel is low so you can watch Nibble eat, and stays open until Done.
+- The Top 10 fills the screen so all ten fit without scrolling.
+
 ## Build 51 (3 Oct)
 - Treats are now 3 free snacks a day that you pick. They count for goals and personalities, not for the Top 10.
 - Top 10: gold, silver and bronze medals, and a crown and pedestal for #1.

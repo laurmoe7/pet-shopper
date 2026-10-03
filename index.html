@@ -249,17 +249,6 @@
         </svg>
       </div></div>
       <div class="goal-toast" id="goalToast" role="status" aria-live="polite" hidden></div>
-      <div class="stage-tools">
-        <button type="button" class="pill-btn menu-btn" id="petMenuBtn" aria-haspopup="true" aria-expanded="false" aria-controls="petMenu">✿ Pet <span class="caret" aria-hidden="true">▾</span></button>
-        <div class="pet-menu" id="petMenu" role="menu" hidden>
-          <button type="button" class="menu-item" role="menuitem" id="dressBtn">♡ Dress up</button>
-          <button type="button" class="menu-item" role="menuitem" id="roomBtn">⌂ Room</button>
-          <button type="button" class="menu-item" role="menuitem" id="editPetBtn" aria-label="Change your pet's name and species">✎ Edit pet</button>
-          <button type="button" class="menu-item" role="menuitem" id="goalsBtn" aria-label="Goals: unlock new pets and hats">★ Goals</button>
-          <button type="button" class="menu-item" role="menuitem" id="treatBtn" aria-label="Treats: feed Nibble a free snack">✦ Treats</button>
-          <button type="button" class="menu-item" role="menuitem" id="favBtn" aria-label="Top 10: what you buy most">♛ Top 10</button>
-        </div>
-      </div>
     </div>
   </header>
 
@@ -290,7 +279,18 @@
     <p class="hint">Tap an item's emoji, or long-press the item, to pick a different one.</p>
     <p class="credit">Emoji by <a href="https://openmoji.org/" target="_blank" rel="noopener">OpenMoji</a>, CC BY-SA 4.0</p>
   </main>
+
+  <!-- the main pet buttons stay at the bottom of the screen -->
+  <nav class="dock" aria-label="Pet">
+    <button type="button" id="dressBtn" aria-label="Dress up"><span class="dock-icon" aria-hidden="true">♡</span><span class="dock-label">Dress</span></button>
+    <button type="button" id="roomBtn" aria-label="Room"><span class="dock-icon" aria-hidden="true">⌂</span><span class="dock-label">Room</span></button>
+    <button type="button" id="treatBtn" aria-label="Treats: feed Nibble a free snack"><span class="dock-icon" aria-hidden="true">✦</span><span class="dock-label">Treats</span></button>
+    <button type="button" id="favBtn" aria-label="Top 10: what you buy most"><span class="dock-icon" aria-hidden="true">♛</span><span class="dock-label">Top 10</span></button>
+    <button type="button" id="goalsBtn" aria-label="Goals: unlock new pets and hats"><span class="dock-icon" aria-hidden="true">★</span><span class="dock-label">Goals</span></button>
+    <button type="button" id="editPetBtn" aria-label="Change your pet's name and species"><span class="dock-icon" aria-hidden="true">✎</span><span class="dock-label">Pet</span></button>
+  </nav>
 </div>
+
 
 <dialog class="picker" id="picker" aria-labelledby="pickerTitle">
   <form method="dialog" class="picker-inner">
@@ -383,10 +383,10 @@
   </form>
 </dialog>
 
-<dialog class="picker pet-sheet" id="favSheet" aria-labelledby="favTitle">
+<dialog class="picker pet-sheet fav-full" id="favSheet" aria-labelledby="favTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="favTitle">Top 10</h2>
-    <p class="goals-intro">What you buy most. Each item counts once a day, after it has been on your list for a while. Tap + to put one back on the list.</p>
+    <p class="fav-intro">What you buy most. Counts once a day per item. Tap + to add one back to your list.</p>
     <ol class="fav-list" id="favList"></ol>
     <p class="fav-empty" id="favEmpty" hidden><span class="pet-name">Nibble</span> hasn't seen you buy anything yet. Tick things off and your favourites show up here.</p>
     <div class="picker-foot">
@@ -396,10 +396,10 @@
   </form>
 </dialog>
 
-<dialog class="picker pet-sheet" id="treatSheet" aria-labelledby="treatTitle">
+<dialog class="picker pet-sheet treat-sheet" id="treatSheet" aria-labelledby="treatTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="treatTitle">Treats</h2>
-    <p class="goals-intro">Pick up to 3 free snacks a day for <span class="pet-name">Nibble</span>. They count towards goals like shopping does, with the same daily limits, but not towards your Top 10.</p>
+    <p class="goals-intro">Pick up to 3 free snacks a day for <span class="pet-name">Nibble</span>. They count towards goals, but not your Top 10.</p>
     <div class="treat-grid" id="treatGrid"></div>
     <p class="treat-left" id="treatLeft" aria-live="polite"></p>
     <div class="picker-foot">
