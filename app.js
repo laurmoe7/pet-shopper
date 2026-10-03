@@ -1455,6 +1455,9 @@
   });
 
   // ---------- options ----------
+  // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
+  var BUILD = '31';
+  $('buildLabel').textContent = 'Build ' + BUILD;
   var optionsSheet = $('optionsSheet'), optionsList = $('optionsList');
   var OPTIONS = [
     { key: 'quiet', title: 'Quiet mode', text: 'No sounds and no speech bubbles at all.' },
@@ -1724,6 +1727,13 @@
   save();
 
   if ('serviceWorker' in navigator && location.protocol === 'https:') {
-    navigator.serviceWorker.register('sw.js').catch(function () { /* not available here */ });
+    // a new build takes over as soon as it is installed; reload once so the page runs the new code too
+    var hadWorker = !!navigator.serviceWorker.controller, reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!hadWorker || reloaded) { hadWorker = true; return; }
+      reloaded = true;
+      location.reload();
+    });
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () { /* not available here */ });
   }
 })();

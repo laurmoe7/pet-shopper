@@ -96,3 +96,11 @@ test('the pet has places for neckwear (under the face) and shoes (over the feet)
   assert.match(html, /id="neckStrip"/);
   assert.match(html, /id="feetStrip"/);
 });
+
+test('the build number shown in Options matches the service worker cache, so a stale copy is easy to spot', () => {
+  const sw = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
+  const app = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
+  assert.equal(sw.match(/CACHE = 'nibble-v(\d+)'/)[1], app.match(/var BUILD = '(\d+)'/)[1]);
+  assert.match(html, /id="buildLabel"/);
+  assert.match(sw, /fetch\(e\.request, \{ cache: 'no-cache' \}\)/, 'the app files come from the network first');
+});
