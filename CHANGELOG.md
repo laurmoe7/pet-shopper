@@ -2,8 +2,8 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
-## Build 69 (3 Oct)
-- Developer tools: five "Seam hunt" switches (thick outline, gloss, normal eyes, still ears, no animation) to find what causes the seam on the bunny. They reset when the app reloads.
+## Build 70 (3 Oct)
+- Developer tools: "Seam hunt" switches that stop one kind of pet animation (tilting, squashing, arms, ears, blinking, or all) to find what causes the seam. They reset when the app reloads.
 
 ## Build 68 (3 Oct)
 - Bunny test look: the small wide-set eyes and lower smile are now drawn in place instead of moved with CSS (a try at the seam on the face). Same look.

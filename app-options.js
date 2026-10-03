@@ -90,10 +90,11 @@ function seamSwitch(label, cls, what) {
   } };
 }
 var DEV_ACTIONS = [
-  seamSwitch('thick outline', 'bn-thick', 'Bunny outline is thick like the other pets'),
-  seamSwitch('gloss back', 'bn-gloss', 'Bunny shows its gloss highlight'),
-  seamSwitch('normal eyes', 'bn-stockeyes', 'Bunny uses the normal eyes and smile'),
+  seamSwitch('no tilting and hopping', 'bn-notilt', 'The whole pet stops tilting, hopping, twirling and bouncing'),
+  seamSwitch('no squashing', 'bn-nosquash', 'The pet stops squashing, stretching, wobbling and breathing'),
+  seamSwitch('still arms', 'bn-noarms', 'Arms stop moving'),
   seamSwitch('still ears', 'bn-noears', 'Ears stop wiggling'),
+  seamSwitch('no blinking or chewing', 'bn-noeyes', 'Eyes stop blinking and the mouth stops chewing'),
   seamSwitch('no animation', 'bn-noanim', 'All pet animation stops'),
   { label: 'Unlock everything', run: function () { L.unlockAll(state.pet, Achievements, Personalities); return 'All goals finished and personalities earned.'; } },
   { label: 'Lock everything again', run: function () { L.lockAll(state.pet, Achievements, FreeUnlocks); return 'Progress wiped. Locked items are locked again.'; } },
