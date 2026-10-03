@@ -234,6 +234,18 @@
         '</g>'
     },
     {
+      id: 'beret', slot: 'hat', snug: true, label: 'Strawberry beret', icon: '24 8 112 58',
+      lines: ['berry chic!', 'très sweet!', 'ooh la la!'],
+      svg: '<g class="hat-beret" transform="rotate(-9 80 44)">' +
+        '<path class="beret-top" d="M32 48 C30 30 54 25 80 26 C108 27 130 34 128 49 C112 55 50 56 32 48 Z"/>' +
+        '<path class="beret-band" d="M36 49.4 Q80 58 124 49.4 L123.6 54.6 Q80 62.6 36.4 54.6 Z"/>' +
+        '<path class="beret-shine" d="M44 38 C50 32 60 29.6 70 29"/>' +
+        '<path class="beret-seed" d="M52 40 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M70 46 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M92 41 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M110 45 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M80 38 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M100 34 l1.6 3.4 l-1.6 .6 l-1.6 -.6 Z M62 34 l1.6 3.4 l-1.6 .6 l-1.6 -.6 Z"/>' +
+        '<path class="beret-leaf" d="M82 27 C76 24 70 25 69 29 C74 30 78 29.6 82 27.8 C80 22 85 19 89 22 C88 25 86 27 84 28 C90 26 95 28 95 32 C91 33 86 31 83.4 29 Z"/>' +
+        '<path class="beret-stem" d="M83 28 C83.4 24 84 22 85.4 20"/>' +
+        '</g>'
+    },
+    {
       id: 'bananapeel', slot: 'hat', snug: true, label: 'Banana peel', icon: '62 -2 84 58',
       lines: ['slippery when worn!', 'a-peeling, right?', 'going bananas!'],
       svg: '<g class="hat-banana" transform="translate(24 4) translate(80 40) rotate(34) scale(.6) translate(-80 -40)">' +
@@ -256,6 +268,29 @@
         '<path class="lid-rib" d="M42 45 L46 40 M52 46.6 L55 39 M66 47.6 L67 39 M94 47.6 L93 39 M108 46.6 L105 39 M118 45 L114 40"/>' +
         '<path class="lid-shine" d="M42 40.6 C46 35.6 53 33.2 61 32.4"/>' +
         '<path class="lid-handle" d="M67 34 C67 21 93 21 93 34"/><path class="lid-handle-in" d="M67 34 C67 21 93 21 93 34"/>' +
+        '</g>'
+    },
+    {
+      id: 'clownwig', slot: 'hat', snug: true, label: 'Clown wig', icon: '14 12 132 62',
+      lines: ['honk honk!', 'send in the clowns!', 'big top energy!'],
+      svg: '<g class="hat-wig">' +
+        '<g class="wig-out"><circle cx="28" cy="48" r="13"/><circle cx="26" cy="64" r="11"/><circle cx="34" cy="34" r="11"/><circle cx="132" cy="48" r="13"/><circle cx="134" cy="64" r="11"/><circle cx="126" cy="34" r="11"/><circle cx="80" cy="24" r="11"/><circle cx="62" cy="27" r="10"/><circle cx="98" cy="27" r="10"/></g>' +
+        '<path class="wig-cap-out" d="M40 52 C40 30 120 30 120 52 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 Z"/>' +
+        '<g class="wig-fill"><circle cx="28" cy="48" r="13"/><circle cx="26" cy="64" r="11"/><circle cx="34" cy="34" r="11"/><circle cx="132" cy="48" r="13"/><circle cx="134" cy="64" r="11"/><circle cx="126" cy="34" r="11"/><circle cx="80" cy="24" r="11"/><circle cx="62" cy="27" r="10"/><circle cx="98" cy="27" r="10"/></g>' +
+        '<path class="wig-cap" d="M40 52 C40 30 120 30 120 52 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 Z"/>' +
+        '<path class="wig-curl" d="M22 44 q5 -6 9 -1 q3 5 -3 7 M24 62 q4 -5 8 -1 q2 4 -2 5 M32 31 q4 -5 8 -1 q2 4 -3 5 M138 44 q-5 -6 -9 -1 q-3 5 3 7 M136 62 q-4 -5 -8 -1 q-2 4 2 5 M128 31 q-4 -5 -8 -1 q-2 4 3 5 M76 21 q4 -5 8 0 q2 4 -3 5 M58 25 q4 -4 7 0 q1 3 -3 4 M95 25 q4 -4 7 0 q1 3 -3 4 M54 42 q4 -4 8 0 q2 3 -3 4 M76 40 q4 -4 8 0 q2 3 -3 4 M98 42 q4 -4 8 0 q2 3 -3 4"/>' +
+        '</g>'
+    },
+    {
+      id: 'jestercap', slot: 'hat', snug: true, label: 'Mini jester cap', icon: '30 8 100 48',
+      lines: ['jingle jingle!', 'the royal fool!', 'jest for you!'],
+      svg: '<g class="hat-jester" transform="rotate(-6 80 44)">' +
+        '<path class="jester-red" d="M56 44 C50 38 46 31 40 27 C48 26 58 32 66 41.5 Z"/>' +
+        '<path class="jester-blue" d="M104 44 C110 38 114 31 120 27 C112 26 102 32 94 41.5 Z"/>' +
+        '<path class="jester-green" d="M70 42 C71 32 76 26 80 20 C84 26 89 32 90 42 Z"/>' +
+        '<path class="jester-band" d="M52 46.4 C66 40 94 40 108 46.4 L106.6 51.6 C94 45.6 66 45.6 53.4 51.6 Z"/>' +
+        '<path class="jester-diamond" d="M66 46.6 l2.4 -2 l2.4 2 l-2.4 2 Z M78 45.6 l2.4 -2 l2.4 2 l-2.4 2 Z M90 46.6 l2.4 -2 l2.4 2 l-2.4 2 Z"/>' +
+        '<circle class="jester-bell" cx="39" cy="26" r="3.3"/><circle class="jester-bell" cx="121" cy="26" r="3.3"/><circle class="jester-bell" cx="80" cy="18.6" r="3.3"/>' +
         '</g>'
     },
     {
@@ -287,6 +322,35 @@
       id: 'boa', slot: 'neck', label: 'Feather boa', icon: '8 104 144 46',
       lines: ['dahling!', 'fabulous, simply fabulous', 'strike a pose!'],
       svg: '<g class="neck-boa">' + boa() + '</g>'
+    },
+    {
+      id: 'toast', slot: 'neck', front: true, label: 'Toast in mouth', icon: '60 88 56 34',
+      lines: ['mmf mmf!', 'late for the shop!', 'buttery!'],
+      svg: '<g class="neck-toast" transform="translate(78 109) rotate(86) translate(-10 -17) scale(1.12)">' +
+        '<path class="toast-crust" d="M2 20 V10 C-1.5 9 -1.5 3 2.5 2 C4 -2 9 -3 10.5 0 C12 -2.5 17 -2 18 2 a2.6 2.6 0 0 0 -.5 4 a2.6 2.6 0 0 0 1 4 L20 10 V20 Z"/>' +
+        '<path class="toast-crumb" transform="translate(10 10.5) scale(.76) translate(-10 -10.5)" d="M2 20 V10 C-1.5 9 -1.5 3 2.5 2 C4 -2 9 -3 10.5 0 C12 -2.5 17 -2 18 2 a2.6 2.6 0 0 0 -.5 4 a2.6 2.6 0 0 0 1 4 L20 10 V20 Z"/>' +
+        '<rect class="toast-butter" x="6.2" y="7.4" width="6.4" height="5" rx="1.3" transform="rotate(-8 9.4 10)"/>' +
+        '<path class="toast-dots" d="M6 15.6 h.1 M12.4 15 h.1 M14.6 11.6 h.1"/>' +
+        '</g>'
+    },
+    {
+      id: 'necktie', slot: 'neck', label: 'Necktie', icon: '40 108 80 42',
+      lines: ['dressed for success!', 'meeting at nine!', 'very businesslike'],
+      svg: '<g class="neck-tie">' +
+        '<path class="tie-collar" d="M44 110 Q80 128 116 110 L112 118 Q80 134 48 118 Z"/>' +
+        '<path class="tie-cloth" d="M73 124 L87 124 L90 143 Q80 148 70 143 Z"/>' +
+        '<path class="tie-stripe" d="M72.4 133 L87.6 130 M71.6 139 L88.4 136"/>' +
+        '<path class="tie-cloth" d="M72 117 H88 L86 125 H74 Z"/>' +
+        '<path class="tie-fold" d="M76 118.6 Q80 121 84 118.6"/>' +
+        '</g>'
+    },
+    {
+      id: 'mustache', slot: 'neck', front: true, label: 'Fake mustache', icon: '44 90 72 26',
+      lines: ['ahem, good day!', 'very distinguished', 'is it on straight?'],
+      svg: '<g class="neck-mustache">' +
+        '<path class="stache" d="M80 102.4 C86 100.4 95 100 101 102 C106 103.6 109.6 101 112.4 96.8 C113.6 102.4 111.6 108.6 104.6 110 C97.4 111.4 88.6 109.6 80 109.6 C71.4 109.6 62.6 111.4 55.4 110 C48.4 108.6 46.4 102.4 47.6 96.8 C50.4 101 54 103.6 59 102 C65 100 74 100.4 80 102.4 Z"/>' +
+        '<path class="stache-line" d="M80 103.4 V108.4 M72 104 Q66 106 60 107.4 M88 104 Q94 106 100 107.4 M64 102.4 Q57 104.6 52 104.2 M96 102.4 Q103 104.6 108 104.2"/>' +
+        '</g>'
     },
     {
       id: 'boots', slot: 'feet', label: 'Boots', icon: '40 126 80 24',
@@ -384,6 +448,18 @@
         '<rect class="nerd-tape" x="76.2" y="83" width="7.6" height="8.6" rx="1.6" transform="rotate(-8 80 87.3)"/>' +
         '<path class="nerd-tape-line" d="M78.4 84 L78.9 90.6 M81.4 83.6 L81.9 90.2" transform="rotate(-8 80 87.3)"/>' +
         '<path class="nerd-shine" d="M48.5 86 Q49 83.6 51.5 83 M92.5 86 Q93 83.6 95.5 83"/>' +
+        '</g>'
+    },
+    {
+      id: 'roundshades', slot: 'face', label: 'Round tints', icon: '28 74 104 36',
+      lines: ['rose-tinted world!', 'very mysterious', 'groovy, baby!'],
+      svg: '<g class="face-round">' +
+        '<path class="round-arm" d="M46.5 88 L31 85 M113.5 88 L129 85"/>' +
+        '<circle class="round-lens" cx="58" cy="92" r="12.6"/>' +
+        '<circle class="round-lens" cx="102" cy="92" r="12.6"/>' +
+        '<path class="round-bridge" d="M70.4 90 Q80 85.6 89.6 90"/>' +
+        '<path class="round-shine" d="M49.6 87.4 Q51.4 83.6 55.4 82.6 M93.6 87.4 Q95.4 83.6 99.4 82.6"/>' +
+        '<path class="round-shine" d="M52.4 99 Q55 101.6 58.8 101.8 M96.4 99 Q99 101.6 102.8 101.8" style="opacity:.35"/>' +
         '</g>'
     }
   ];

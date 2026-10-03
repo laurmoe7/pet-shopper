@@ -262,19 +262,21 @@
     if (bubble.parentNode !== bubbleHome) bubbleHome.insertBefore(bubble, bubbleNext);
   }
   /**
-   * Shows a speech bubble, unless quiet mode is on.
+   * Shows a speech bubble (always on; Quiet mode only mutes sounds).
    * @param {string} text
    * @param {number} [ms=1500] How long it stays.
    * @param {boolean} [own] Already in the personality's voice (from `line`), so not restyled.
    */
   function say(text, ms, own) {
-    if (state.quiet || !state.settings.bubbles || !text) return;
+    if (!text) return;
     bubble.hidden = true;
     void bubble.offsetWidth;
     var line = own ? text : L.styleLine(personality(), text);
     var menu = document.querySelector('dialog[open]:not(#roomSheet)');
     if (menu && menu.id === 'dressSheet') { dressSay(line, ms, true); return; }
-    if (menu) { menu.appendChild(bubble); bubble.classList.add('in-sheet'); } else bubbleToStage();
+    try {
+      if (menu) { menu.appendChild(bubble); bubble.classList.add('in-sheet'); } else bubbleToStage();
+    } catch (err) { /* if the bubble cannot move, it still shows where it is */ }
     // talking in its sleep: mumbly and slow
     bubble.textContent = pet.classList.contains('x-zzz') ? L.sleepTalk(line) : line;
     bubble.hidden = false;
@@ -824,7 +826,10 @@
     el.querySelector('.outfit-body').innerHTML = item && body ? item.svg : '';
     ['face', 'neck', 'feet'].forEach(function (slot) {
       var w = wardrobeItem(outfit[slot]);
-      el.querySelector('.outfit-' + slot).innerHTML = w ? w.svg : '';
+      // neckwear held in the mouth is drawn in front of the face
+      var front = slot === 'neck' && w && w.front;
+      el.querySelector('.outfit-' + slot).innerHTML = w && !front ? w.svg : '';
+      if (slot === 'neck') el.querySelector('.outfit-mouth').innerHTML = front ? w.svg : '';
     });
     el.classList.toggle('hooded', !!(item && item.hood));
     el.classList.toggle('snug', !!(item && item.snug));
@@ -906,12 +911,11 @@
   // pointing at an unlocked outfit makes the pet react to it
   var dressBubble = $('dressBubble'), dressBubbleTimer, hoveredHat = null, lastOoh = 0;
   /**
-   * Shows a line from the pet in the dressing room (skipped in quiet mode).
+   * Shows a line from the pet in the dressing room .
    * @param {string} text
    * @param {number} ms
    */
   function dressSay(text, ms, own) {
-    if (state.quiet || !state.settings.bubbles) return;
     dressBubble.textContent = own ? text : L.styleLine(personality(), text);
     dressBubble.hidden = false;
     // restart the pop animation
@@ -1455,11 +1459,13 @@
   });
 
   // ---------- options ----------
+  // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
+  var BUILD = '42';
+  $('buildLabel').textContent = 'Build ' + BUILD;
   var optionsSheet = $('optionsSheet'), optionsList = $('optionsList');
   var OPTIONS = [
-    { key: 'quiet', title: 'Quiet mode', text: 'No sounds and no speech bubbles at all.' },
+    { key: 'quiet', title: 'Quiet mode', text: 'Mutes all sounds. Your pet still talks.' },
     { key: 'sounds', title: 'Sounds', text: 'Chomps, slurps and squeaks.' },
-    { key: 'bubbles', title: 'Speech bubbles', text: 'What your pet says.' },
     { key: 'vibration', title: 'Vibration', text: 'A little buzz when you tick things off (on phones that can).' },
     { key: 'goalToasts', title: 'Goal progress', text: 'A label under your pet after each bite, like "Fish fan 6/20".' },
     { key: 'fairPlayTips', title: 'Fair-play tips', text: 'Mentions the 15-minute rule and the once-a-day rule. The rules still apply when this is off.' },
@@ -1485,8 +1491,7 @@
   optionsList.addEventListener('change', function (e) {
     var key = e.target.dataset.key;
     if (!key) return;
-    if (key === 'quiet') { state.quiet = e.target.checked; if (state.quiet) bubble.hidden = true; } else state.settings[key] = e.target.checked;
-    if (key === 'bubbles' && !e.target.checked) bubble.hidden = true;
+    if (key === 'quiet') state.quiet = e.target.checked; else state.settings[key] = e.target.checked;
     if (key === 'suggestions' && !e.target.checked) suggestEl.hidden = true;
     save();
     if (!state.quiet) sound(e.target.checked ? 'on' : 'off');
@@ -1724,6 +1729,13 @@
   save();
 
   if ('serviceWorker' in navigator && location.protocol === 'https:') {
-    navigator.serviceWorker.register('sw.js').catch(function () { /* not available here */ });
+    // a new build takes over as soon as it is installed; reload once so the page runs the new code too
+    var hadWorker = !!navigator.serviceWorker.controller, reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!hadWorker || reloaded) { hadWorker = true; return; }
+      reloaded = true;
+      location.reload();
+    });
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () { /* not available here */ });
   }
 })();

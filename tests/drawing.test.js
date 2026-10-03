@@ -96,3 +96,33 @@ test('the pet has places for neckwear (under the face) and shoes (over the feet)
   assert.match(html, /id="neckStrip"/);
   assert.match(html, /id="feetStrip"/);
 });
+
+test('the build number shown in Options matches the service worker cache, so a stale copy is easy to spot', () => {
+  const sw = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
+  const app = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
+  assert.equal(sw.match(/CACHE = 'nibble-v(\d+)'/)[1], app.match(/var BUILD = '(\d+)'/)[1]);
+  assert.match(html, /id="buildLabel"/);
+  assert.match(sw, /fetch\(e\.request, \{ cache: 'no-cache' \}\)/, 'the app files come from the network first');
+});
+
+test('plain ellipses sit under the head and the penguin belly, so a GPU hairline crack inside a big path shows skin, not the background', () => {
+  assert.match(html, /<ellipse class="skin-under"[^>]*\/>\s*<path class="skin" /);
+  assert.match(html, /<ellipse data-sp="penguin" class="belly belly-under"/);
+  assert.match(css, /\.skin-under \{ fill: var\(--pet-skin\); \}/);
+});
+
+test('neckwear held in the mouth (toast, mustache) is drawn in front of the face, other neckwear under it', () => {
+  const { Wardrobe } = require('./load');
+  const mouth = html.indexOf('<g class="outfit-mouth">');
+  assert.ok(mouth > html.indexOf('<g class="outfit-face">') && mouth < html.indexOf('<g class="arm arm-r">'));
+  assert.equal(Wardrobe.find((w) => w.id === 'toast').front, true);
+  assert.equal(Wardrobe.find((w) => w.id === 'mustache').front, true);
+  assert.ok(!Wardrobe.some((w) => w.slot === 'neck' && !['toast', 'mustache'].includes(w.id) && w.front));
+});
+
+test('speech bubbles are always on: quiet mode and no option can hide them', () => {
+  const app = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
+  assert.doesNotMatch(app, /settings\.bubbles/);
+  assert.doesNotMatch(app, /key: 'bubbles'/);
+  assert.match(app, /function say\(text, ms, own\) \{\s+if \(!text\) return;/);
+});
