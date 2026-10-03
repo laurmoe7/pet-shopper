@@ -1460,7 +1460,7 @@
 
   // ---------- options ----------
   // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-  var BUILD = '38';
+  var BUILD = '39';
   $('buildLabel').textContent = 'Build ' + BUILD;
   var optionsSheet = $('optionsSheet'), optionsList = $('optionsList');
   var OPTIONS = [
@@ -1513,38 +1513,6 @@
     renderPersonalities();
     renderRoom();
   }
-  // drawing tests: each switch changes how the pet is drawn, to find out what causes a hairline on some phones
-  var SEAM_TESTS = [
-    { cls: 'seam-noanim', title: 'Pause the pet\'s movement', text: 'No squish, bounce or blink.' },
-    { cls: 'seam-layer', title: 'Pet on its own layer', text: 'Asks the phone to draw the pet separately.' },
-    { cls: 'seam-nounder', title: 'Hide the extra head fill', text: 'The plain ellipse under the head.' },
-    { cls: 'seam-nosparkle', title: 'Hide the sparkles', text: 'The little stars around the pet.' },
-    { cls: 'seam-nosquash', title: 'Pause only the squish', text: 'The jelly wobble and breathing.' },
-    { cls: 'seam-nohop', title: 'Pause only bounce and hop', text: 'Moving up and down, tilting, dancing.' },
-    { cls: 'seam-noblink', title: 'Pause only blinking', text: 'The eyes stay open.' },
-    { cls: 'seam-nolook', title: 'Pause only eye following', text: 'The pupils stay still.' },
-    { cls: 'seam-noarms', title: 'Pause only arms and ears', text: 'No swaying or flicking.' },
-    { cls: 'seam-nonose', title: 'Pause only sleep bubbles', text: 'The nose bubble and the z letters.' },
-    { cls: 'seam-nowill', title: 'No separate layer for squish', text: 'Turns off the layer trick from Build 36.' }
-  ];
-  var seamSaved = {};
-  try { seamSaved = JSON.parse(localStorage.getItem('nibble.seamtest') || '{}') || {}; } catch (err) { seamSaved = {}; }
-  SEAM_TESTS.forEach(function (t) {
-    document.documentElement.classList.toggle(t.cls, !!seamSaved[t.cls]);
-    var label = document.createElement('label');
-    label.className = 'option';
-    var title = document.createElement('span'); title.className = 'option-title'; title.textContent = t.title;
-    var text = document.createElement('span'); text.className = 'option-text'; text.textContent = t.text;
-    var box = document.createElement('input'); box.type = 'checkbox'; box.setAttribute('role', 'switch'); box.checked = !!seamSaved[t.cls];
-    box.addEventListener('change', function () {
-      seamSaved[t.cls] = box.checked;
-      document.documentElement.classList.toggle(t.cls, box.checked);
-      try { localStorage.setItem('nibble.seamtest', JSON.stringify(seamSaved)); } catch (err) { /* storage blocked */ }
-      sound(box.checked ? 'on' : 'off');
-    });
-    label.append(title, box, text);
-    $('seamTests').appendChild(label);
-  });
   var DEV_ACTIONS = [
     { label: 'Unlock everything', run: function () { L.unlockAll(state.pet, Achievements, Personalities); return 'All goals finished and personalities earned.'; } },
     { label: 'Lock everything again', run: function () { L.lockAll(state.pet, Achievements, FreeUnlocks); return 'Progress wiped. Locked items are locked again.'; } },
