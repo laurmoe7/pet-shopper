@@ -304,8 +304,52 @@
               </g>
 
               </g>
+              <!-- the same eyes, smaller and set wider and lower, for the bunny (moved in the drawing, not with CSS transforms, which left a seam on her phone) -->
+              <g class="eye-set eye-set-wide">
+              <g data-eyes="open" class="eyes-open">
+                <g class="pupils">
+                  <ellipse cx="50" cy="99" rx="3.96" ry="4.47" class="ink"/>
+                  <ellipse cx="110" cy="99" rx="3.96" ry="4.47" class="ink"/>
+                  <circle cx="48.8" cy="97.3" r="1.28" class="glint"/>
+                  <circle cx="108.8" cy="97.3" r="1.28" class="glint"/>
+                </g>
+              </g>
+              <g data-eyes="closed" class="line">
+                <path d="M44 99Q50 104 56 99"/>
+                <path d="M104 99Q110 104 116 99"/>
+              </g>
+              <g data-eyes="happy" class="line">
+                <path d="M44 102Q50 94 56 102"/>
+                <path d="M104 102Q110 94 116 102"/>
+              </g>
+              <g data-eyes="sparkle" class="star">
+                <path d="M50 90L52 96.5L58 99L52 101.5L50 108L48 101.5L42 99L48 96.5Z"/>
+                <path d="M110 90L112 96.5L118 99L112 101.5L110 108L108 101.5L102 99L108 96.5Z"/>
+              </g>
+              <g data-eyes="squint" class="line">
+                <path d="M45 94L55 99L45 104"/>
+                <path d="M115 94L105 99L115 104"/>
+              </g>
+              <g data-eyes="teary">
+                <ellipse cx="50" cy="99" rx="4.64" ry="5.16" class="ink"/>
+                <ellipse cx="110" cy="99" rx="4.64" ry="5.16" class="ink"/>
+                <circle cx="48.3" cy="96.8" r="1.92" class="glint"/>
+                <circle cx="108.3" cy="96.8" r="1.92" class="glint"/>
+                <circle cx="51.7" cy="101.2" r="0.88" class="glint"/>
+                <circle cx="111.7" cy="101.2" r="0.88" class="glint"/>
+                <path class="tear" d="M44 106q-3 6 0 8q3 -2 0 -8z"/>
+                <path class="tear" d="M116 106q-3 6 0 8q3 -2 0 -8z"/>
+              </g>
+              <g data-eyes="confused">
+                <ellipse cx="50" cy="99" rx="3.96" ry="4.47" class="ink"/>
+                <circle cx="48.8" cy="97.3" r="1.28" class="glint"/>
+                <path class="line" d="M104 99L116 99"/>
+              </g>
+
+              </g>
 
               <path data-mouth="smile" class="line" d="M75 103 Q80 108 85 103"/>
+              <path data-sp="bunny" class="line bunny-smile" d="M75 106 Q80 111 85 106"/>
               <path data-mouth="smile" class="line frog-smile" d="M57 101 Q80 116 103 101"/>
               <path data-sp="axolotl" class="line axo-smile" d="M64 101 Q80 112 96 101"/>
               <g data-mouth="open">

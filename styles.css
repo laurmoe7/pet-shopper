@@ -1164,21 +1164,15 @@ button { font: inherit; color: inherit; }
 
 /* hand-drawn art (a test on the bunny only): thin outline, flat colour with no gloss, and small
    eyes set wide apart and low on the face. No wobble filter: it brought back a seam on the face on her phone. Add a species to these selectors to give it the same style.
-   Each eye part is moved on its own (no transform on the eye groups, the blink animation owns those). */
+   The eyes and smile are drawn in their own places in index.html (CSS transforms on them left a seam on her phone). */
 .pet[data-species="bunny"] { --pet-ink: #705b57; }
 .pet[data-species="bunny"] :is(.skin, .skin-under, .ear, .foot, .arm ellipse) { stroke-width: 1.7; }
 .pet[data-species="bunny"] :is(.shine, .arm-hi) { opacity: 0; }
 .pet[data-species="bunny"] .ink { fill: #4a3a38; }
 .pet[data-species="bunny"] .cheek { opacity: .75; }
-.pet[data-species="bunny"] path[data-mouth="smile"] { transform: translateY(3px); }
-.pet[data-species="bunny"] :is(.pupils ellipse, .pupils .glint, [data-eyes]:not(.eyes-open) > *) { transform-box: fill-box; transform-origin: 50% 50%; }
-/* eyes open: smaller, and each moved out and down */
-.pet[data-species="bunny"] .pupils ellipse:nth-of-type(1) { transform: translate(-8px, 7px) scale(.86); }
-.pet[data-species="bunny"] .pupils ellipse:nth-of-type(2) { transform: translate(8px, 7px) scale(.86); }
-.pet[data-species="bunny"] .pupils .glint:nth-of-type(1) { transform: translate(-7.4px, 7.6px) scale(.8); }
-.pet[data-species="bunny"] .pupils .glint:nth-of-type(2) { transform: translate(8.6px, 7.6px) scale(.8); }
-/* the other eye faces move the same way: left parts out and down, right parts out and down */
-.pet[data-species="bunny"] :is([data-eyes="closed"], [data-eyes="happy"], [data-eyes="sparkle"], [data-eyes="squint"], [data-eyes="teary"]) > :nth-child(odd) { transform: translate(-8px, 7px); }
-.pet[data-species="bunny"] :is([data-eyes="closed"], [data-eyes="happy"], [data-eyes="sparkle"], [data-eyes="squint"], [data-eyes="teary"]) > :nth-child(even) { transform: translate(8px, 7px); }
-.pet[data-species="bunny"] [data-eyes="confused"] > :nth-child(-n+2) { transform: translate(-8px, 7px); }
-.pet[data-species="bunny"] [data-eyes="confused"] > :nth-child(3) { transform: translate(8px, 7px); }
+/* the bunny draws its own eye set and smile (smaller eyes, wider apart and lower); the normal ones are hidden for it */
+.eye-set-wide, .bunny-smile { display: none; }
+.pet[data-species="bunny"] .eye-set:not(.eye-set-wide) { display: none; }
+.pet[data-species="bunny"] .eye-set-wide { display: inline; }
+.pet[data-species="bunny"][data-mouth="smile"] path[data-mouth="smile"] { display: none; }
+.pet[data-species="bunny"][data-mouth="smile"] .bunny-smile { display: inline; }

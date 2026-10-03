@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 68 (3 Oct)
+- Bunny test look: the small wide-set eyes and lower smile are now drawn in place instead of moved with CSS (a try at the seam on the face). Same look.
+
 ## Build 67 (3 Oct)
 - Bunny test look: removed the wobble filter (it brought back a seam on the face). It keeps the thin outline, no gloss and small wide-set eyes.
 
