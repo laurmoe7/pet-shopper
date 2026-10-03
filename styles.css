@@ -846,3 +846,21 @@ button { font: inherit; color: inherit; }
 .round-lens { fill: rgba(86, 60, 96, .72); stroke: #2f2a33; stroke-width: 2.6; }
 .round-bridge, .round-arm { fill: none; stroke: #2f2a33; stroke-width: 2.4; stroke-linecap: round; }
 .round-shine { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; opacity: .7; }
+
+.wig-a, .wig-b, .wig-c, .wig-d, .wig-e, .wig-f, .wig-g { stroke: var(--pet-ink); stroke-width: 1.8; }
+.wig-a { fill: #ff7a8a; } .wig-b { fill: #ffd24d; } .wig-c { fill: #7bd68d; } .wig-d { fill: #6cc4f0; }
+.wig-e { fill: #b58cf0; } .wig-f { fill: #ff9f5a; } .wig-g { fill: #6cc4f0; }
+.wig-fringe { fill: #ff7a8a; stroke: var(--pet-ink); stroke-width: 1.7; stroke-linejoin: round; }
+.wig-shine { fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; opacity: .7; }
+.jester-red { fill: #ee4f6c; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
+.jester-blue { fill: #5fb3ee; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
+.jester-band { fill: #ffd84d; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
+.jester-diamond { fill: #ee4f6c; stroke: none; }
+.jester-bell { fill: #ffe27a; stroke: var(--pet-ink); stroke-width: 1.5; }
+.jester-bell-line { fill: none; stroke: var(--pet-ink); stroke-width: 1; stroke-linecap: round; }
+.tie-collar { fill: #fffdf8; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
+.tie-cloth { fill: #ee4f6c; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
+.tie-stripe { fill: none; stroke: #ffd0d8; stroke-width: 1.6; stroke-linecap: round; }
+.tie-fold { fill: none; stroke: #b52f4b; stroke-width: 1.2; stroke-linecap: round; }
+.stache { fill: #5b4239; stroke: var(--pet-ink); stroke-width: 1.2; stroke-linejoin: round; }
+.stache-line { fill: none; stroke: #8a6a5c; stroke-width: 1; stroke-linecap: round; }

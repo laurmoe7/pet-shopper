@@ -111,12 +111,13 @@ test('plain ellipses sit under the head and the penguin belly, so a GPU hairline
   assert.match(css, /\.skin-under \{ fill: var\(--pet-skin\); \}/);
 });
 
-test('neckwear held in the mouth (toast) is drawn in front of the face, other neckwear under it', () => {
+test('neckwear held in the mouth (toast, mustache) is drawn in front of the face, other neckwear under it', () => {
   const { Wardrobe } = require('./load');
   const mouth = html.indexOf('<g class="outfit-mouth">');
   assert.ok(mouth > html.indexOf('<g class="outfit-face">') && mouth < html.indexOf('<g class="arm arm-r">'));
   assert.equal(Wardrobe.find((w) => w.id === 'toast').front, true);
-  assert.ok(!Wardrobe.some((w) => w.slot === 'neck' && w.id !== 'toast' && w.front));
+  assert.equal(Wardrobe.find((w) => w.id === 'mustache').front, true);
+  assert.ok(!Wardrobe.some((w) => w.slot === 'neck' && !['toast', 'mustache'].includes(w.id) && w.front));
 });
 
 test('speech bubbles are always on: quiet mode and no option can hide them', () => {

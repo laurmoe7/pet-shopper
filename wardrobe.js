@@ -271,6 +271,31 @@
         '</g>'
     },
     {
+      id: 'clownwig', slot: 'hat', snug: true, label: 'Clown wig', icon: '14 14 132 66',
+      lines: ['honk honk!', 'send in the clowns!', 'big top energy!'],
+      svg: '<g class="hat-wig">' +
+        '<circle class="wig-a" cx="31" cy="70" r="10"/><circle class="wig-b" cx="129" cy="70" r="10"/>' +
+        '<circle class="wig-c" cx="27" cy="52" r="12"/><circle class="wig-d" cx="133" cy="52" r="12"/>' +
+        '<circle class="wig-e" cx="38" cy="34" r="13"/><circle class="wig-f" cx="122" cy="34" r="13"/>' +
+        '<circle class="wig-g" cx="58" cy="26" r="13"/><circle class="wig-a" cx="102" cy="26" r="13"/>' +
+        '<circle class="wig-b" cx="80" cy="22" r="14"/>' +
+        '<path class="wig-fringe" d="M48 46 C56 40 68 44 80 40 C92 44 104 40 112 46 C106 54 94 50 80 52 C66 50 54 54 48 46 Z"/>' +
+        '<path class="wig-shine" d="M72 17 C76 15 82 15 86 17 M52 22 C54 20 57 19 60 19"/>' +
+        '</g>'
+    },
+    {
+      id: 'jestercap', slot: 'hat', snug: true, label: 'Mini jester cap', icon: '18 8 124 52',
+      lines: ['jingle jingle!', 'the royal fool!', 'jest for you!'],
+      svg: '<g class="hat-jester" transform="rotate(-8 80 44)">' +
+        '<path class="jester-red" d="M50 46 C40 38 34 28 24 22 C36 20 52 28 66 40 Z"/>' +
+        '<path class="jester-blue" d="M110 46 C120 38 126 28 136 22 C124 20 108 28 94 40 Z"/>' +
+        '<path class="jester-band" d="M42 47 C60 38 100 38 118 47 L116 54 C100 46 60 46 44 54 Z"/>' +
+        '<path class="jester-diamond" d="M62 46 l3 -2.4 l3 2.4 l-3 2.4 Z M77 45 l3 -2.4 l3 2.4 l-3 2.4 Z M92 46 l3 -2.4 l3 2.4 l-3 2.4 Z"/>' +
+        '<circle class="jester-bell" cx="23" cy="21" r="4.2"/><circle class="jester-bell" cx="137" cy="21" r="4.2"/>' +
+        '<path class="jester-bell-line" d="M21.4 20 Q23 22.4 24.6 20 M135.4 20 Q137 22.4 138.6 20"/>' +
+        '</g>'
+    },
+    {
       id: 'scarf', slot: 'neck', label: 'Winter scarf', icon: '10 104 140 46',
       lines: ['so toasty!', 'snow day?', 'cosy cosy cosy'],
       svg: '<g class="neck-scarf">' +
@@ -308,6 +333,25 @@
         '<path class="toast-crumb" transform="translate(10 10.5) scale(.76) translate(-10 -10.5)" d="M2 20 V10 C-1.5 9 -1.5 3 2.5 2 C4 -2 9 -3 10.5 0 C12 -2.5 17 -2 18 2 a2.6 2.6 0 0 0 -.5 4 a2.6 2.6 0 0 0 1 4 L20 10 V20 Z"/>' +
         '<rect class="toast-butter" x="6.2" y="7.4" width="6.4" height="5" rx="1.3" transform="rotate(-8 9.4 10)"/>' +
         '<path class="toast-dots" d="M6 15.6 h.1 M12.4 15 h.1 M14.6 11.6 h.1"/>' +
+        '</g>'
+    },
+    {
+      id: 'necktie', slot: 'neck', label: 'Necktie', icon: '40 108 80 42',
+      lines: ['dressed for success!', 'meeting at nine!', 'very businesslike'],
+      svg: '<g class="neck-tie">' +
+        '<path class="tie-collar" d="M44 110 Q80 128 116 110 L112 118 Q80 134 48 118 Z"/>' +
+        '<path class="tie-cloth" d="M73 124 L87 124 L90 143 Q80 148 70 143 Z"/>' +
+        '<path class="tie-stripe" d="M72.4 133 L87.6 130 M71.6 139 L88.4 136"/>' +
+        '<path class="tie-cloth" d="M72 117 H88 L86 125 H74 Z"/>' +
+        '<path class="tie-fold" d="M76 118.6 Q80 121 84 118.6"/>' +
+        '</g>'
+    },
+    {
+      id: 'mustache', slot: 'neck', front: true, label: 'Fake mustache', icon: '48 88 64 30',
+      lines: ['ahem, good day!', 'very distinguished', 'is it on straight?'],
+      svg: '<g class="neck-mustache">' +
+        '<path class="stache" d="M80 98.4 C74 94 64 93.6 58.6 97 C55.6 98.8 55.6 102 58.4 102.4 C63 103.4 66 100.6 71 100.8 C75 101 77 102 80 102 C83 102 85 101 89 100.8 C94 100.6 97 103.4 101.6 102.4 C104.4 102 104.4 98.8 101.4 97 C96 93.6 86 94 80 98.4 Z"/>' +
+        '<path class="stache-line" d="M80 100 V102 M66 97.6 Q62 98.6 60.4 100.2 M94 97.6 Q98 98.6 99.6 100.2"/>' +
         '</g>'
     },
     {
