@@ -1032,7 +1032,7 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="boar"] { --pet-skin: #8f6c57; --pet-skin-shade: #70503f; --pet-ear-in: #e0a0a8; }
 .pet[data-skin="floppybunny"] { --pet-skin: #fffafb; --pet-skin-shade: #f7e3ea; }
 .pet[data-skin="whitehamster"] { --pet-skin: #fffaf6; --pet-skin-shade: #efe3da; --pet-ear-in: #ffc4cf; }
-.pet[data-skin="syrian"] { --pet-skin: #f2cb92; --pet-skin-shade: #e0ae6c; --pet-ear-in: #ffb8c4; }
+.pet[data-skin="syrian"] { --pet-skin: #d19a60; --pet-skin-shade: #b97f45; --pet-ear-in: #ffb8c4; }
 .pet[data-skin="strawberry"] [data-sk~="strawberry"],
 .pet[data-skin="chocolate"] [data-sk~="chocolate"],
 .pet[data-skin="taro"] [data-sk~="taro"],
@@ -1086,9 +1086,9 @@ button { font: inherit; color: inherit; }
 .pet[data-species="hedgehog"] { --pet-skin: #f6dcc0; --pet-skin-shade: #e6c19a; --pet-ear-in: #ffc4cf; --pet-mark: #8d6b52; }
 .pet[data-species="frog"] [data-sp="frog"], .pet[data-species="hedgehog"] [data-sp="hedgehog"] { display: inline; }
 .frog-dome { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.4; }
-.frog-eyes circle { fill: #fff; stroke: var(--pet-ink); stroke-width: 2.2; }
+.frog-spots ellipse { fill: #7fcf88; }
 .frog-belly { fill: #f6fbd2; }
-/* the frog's eyes sit up on its domes */
-.pet[data-species="frog"] .eye-set { transform: translateY(-42px); }
-.hog-spines path { fill: #8d6b52; stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
-.hog-cap path { fill: #8d6b52; stroke: var(--pet-ink); stroke-width: 2.4; stroke-linejoin: round; }
+.hog-spines path { fill: #8d6b52; stroke: var(--pet-ink); stroke-width: 4.4; stroke-linejoin: round; }
+.hog-fill { fill: #8d6b52; stroke: none; }
+.hog-blend path { fill: #8d6b52; stroke: none; }
+.hog-edge { fill: none; stroke: var(--pet-ink); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }

@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 57 (3 Oct)
+- Hedgehog: no outline between the spines and its cap, only around the outside.
+- Frog: eyes are back in the middle of the face. It keeps two small bumps on its head and gets darker green spots.
+- Long-haired Syrian hamster is now golden brown, so it no longer looks like the default hamster.
+
 ## Build 56 (3 Oct)
 - New species: Frog (eyes on top of its head) and Hedgehog (spiky cap).
 - Pomeranian and long-haired Syrian: the side fur now blends into the body edge as one fluffy outline, with a single layer of fluff.
