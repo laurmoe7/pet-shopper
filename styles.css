@@ -1161,3 +1161,10 @@ button { font: inherit; color: inherit; }
 .axo-smile { display: none; }
 .pet[data-species="axolotl"][data-mouth="smile"] path[data-mouth="smile"]:not(.axo-smile) { display: none; }
 .pet[data-species="axolotl"][data-mouth="smile"] .axo-smile { display: inline; }
+
+/* Developer tools "Seam hunt" switches: turn off one thing at a time to find what makes a hairline appear on her phone */
+html.bn-noemojifx .emoji-btn img { filter: none !important; }
+html.bn-notilt .pet-svg { animation: none !important; }
+html.bn-nosquash .squash { animation: none !important; }
+html.bn-noarms .arm { animation: none !important; }
+html.bn-noanim .pet, html.bn-noanim .pet * { animation: none !important; }
