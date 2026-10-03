@@ -1460,7 +1460,7 @@
 
   // ---------- options ----------
   // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-  var BUILD = '42';
+  var BUILD = '43';
   $('buildLabel').textContent = 'Build ' + BUILD;
   var optionsSheet = $('optionsSheet'), optionsList = $('optionsList');
   var OPTIONS = [
