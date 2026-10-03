@@ -236,13 +236,14 @@
     {
       id: 'beret', slot: 'hat', snug: true, label: 'Strawberry beret', icon: '24 8 112 58',
       lines: ['berry chic!', 'très sweet!', 'ooh la la!'],
-      svg: '<g class="hat-beret" transform="rotate(-9 80 44)">' +
+      svg: '<g class="hat-beret"><g transform="rotate(-4 80 44)">' +
         '<path class="beret-top" d="M32 48 C30 30 54 25 80 26 C108 27 130 34 128 49 C112 55 50 56 32 48 Z"/>' +
         '<path class="beret-shine" d="M44 38 C50 32 60 29.6 70 29"/>' +
         '<path class="beret-seed" d="M52 40 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M70 46 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M92 41 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M110 45 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M80 38 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M100 34 l1.6 3.4 l-1.6 .6 l-1.6 -.6 Z M62 34 l1.6 3.4 l-1.6 .6 l-1.6 -.6 Z"/>' +
         '<path class="beret-leaf" d="M82 27 C76 24 70 25 69 29 C74 30 78 29.6 82 27.8 C80 22 85 19 89 22 C88 25 86 27 84 28 C90 26 95 28 95 32 C91 33 86 31 83.4 29 Z"/>' +
         '<path class="beret-stem" d="M83 28 C83.4 24 84 22 85.4 20"/>' +
-        '<path class="beret-band" d="M42 50.4 Q80 58.6 118 50.4 L117.4 55.6 Q80 63.6 42.6 55.6 Z"/>' +
+        '</g>' +
+        '<path class="beret-band" d="M40.2 51.5 Q80 60 119.8 51.5 Q122.6 54.4 124.3 57.7 Q80 67 35.7 57.7 Q37.4 54.4 40.2 51.5 Z"/>' +
         '</g>'
     },
     {
@@ -279,15 +280,16 @@
         '</g>'
     },
     {
-      id: 'jestercap', slot: 'hat', snug: true, label: 'Mini jester cap', icon: '18 10 124 50',
+      id: 'jestercap', slot: 'hat', snug: true, label: 'Mini jester cap', icon: '18 0 124 60',
       lines: ['jingle jingle!', 'the royal fool!', 'jest for you!'],
       svg: '<g class="hat-jester">' +
         '<path class="jester-red" d="M60 34 C48 26 34 30 27 42 C37 37 48 39 58 44 Z"/>' +
+        '<path class="jester-gold" d="M66 24 C65 8 90 2 103 12 C92 10 85 15 88 22 Z"/>' +
         '<path class="jester-purple" d="M50 46 C48 28 62 18 82 18 C104 18 120 28 128 45 C121 40 114 40 110 46 Z"/>' +
         '<path class="jester-fold" d="M88 22.6 C99 26 107 32 112 40 M64 26 C60 31 58 37 58 42"/>' +
         '<path class="jester-brim" d="M45 44 Q80 37.6 115 44 L114 52.6 Q80 46.4 46 52.6 Z"/>' +
         '<path class="jester-brim-hi" d="M48 45.6 Q80 40.4 112 45.6"/>' +
-        '<circle class="jester-pom" cx="26.4" cy="43.4" r="4"/><circle class="jester-pom" cx="129" cy="47" r="4"/>' +
+        '<circle class="jester-pom" cx="26.4" cy="43.4" r="4"/><circle class="jester-pom" cx="129" cy="47" r="4"/><circle class="jester-pom" cx="104" cy="12.8" r="4"/>' +
         '</g>'
     },
     {
@@ -431,12 +433,12 @@
     {
       id: 'cowboyboots', slot: 'feet', label: 'Cowboy boots', icon: '38 120 84 28',
       lines: ['boot scootin!', 'yeehaw!', 'line dance time!'],
-      svg: '<g class="feet-cowboy"><g transform="translate(58 140) scale(1.25) translate(-58 -140)"><path class="cb-heel" d="M67.6 141.6 L67 145 H62.4 L62 142.6 Z"/><path class="cb-shaft" d="M50 123.6 Q58 127 66 123.6 L64.6 135.4 H51.4 Z"/><path class="cb-foot" d="M68 139 C68 134 52 133.4 43.4 139.6 C52 143.4 68 143.6 68 139 Z"/><path class="cb-stitch" d="M55.5 128.6 q2.4 3 5 0 M56 132 q2 2 4 0"/></g><g transform="translate(102 140) scale(1.25) translate(-102 -140)"><path class="cb-heel" d="M92.4 141.6 L93 145 H97.6 L98 142.6 Z"/><path class="cb-shaft" d="M94 123.6 Q102 127 110 123.6 L108.6 135.4 H95.4 Z"/><path class="cb-foot" d="M92 139 C92 134 108 133.4 116.6 139.6 C108 143.4 92 143.6 92 139 Z"/><path class="cb-stitch" d="M99.5 128.6 q2.4 3 5 0 M100 132 q2 2 4 0"/></g></g>'
+      svg: '<g class="feet-cowboy"><path class="cb-heel" d="M66.6 141.4 L66.2 144 H62 L61.6 142.4 Z"/><path class="cb-shaft" d="M50 130 Q58 132.4 66 130 L65 137 H51 Z"/><path class="cb-foot" d="M67 139.6 C67 135.6 53 135.2 46 140.2 C53 143.2 67 143.4 67 139.6 Z"/><path class="cb-stitch" d="M56 132.6 q2 2.4 4 0"/><path class="cb-heel" d="M93.4 141.4 L93.8 144 H98 L98.4 142.4 Z"/><path class="cb-shaft" d="M94 130 Q102 132.4 110 130 L109 137 H95 Z"/><path class="cb-foot" d="M93 139.6 C93 135.6 107 135.2 114 140.2 C107 143.2 93 143.4 93 139.6 Z"/><path class="cb-stitch" d="M100 132.6 q2 2.4 4 0"/></g>'
     },
     {
       id: 'clogs', slot: 'feet', label: 'Wooden clogs', icon: '40 124 80 26',
       lines: ['clip clop!', 'very dutch!', 'tulip time!'],
-      svg: '<g class="feet-clogs"><path class="clog-sole" d="M47 140 C50 143.6 66 143.6 69 140 L68.6 142.8 C65 146 51 146 47.4 142.8 Z"/><path class="clog" d="M47 140 C46 132 52 128.6 58 128.6 C64 128.6 70 132 69 140 C66 143.6 50 143.6 47 140 Z"/><ellipse class="clog-hole" cx="58" cy="131.4" rx="5.6" ry="2.2"/><path class="clog-grain" d="M50.4 135.4 q3 -1.4 6 0 M59.6 138.6 q2.6 -1.2 5.2 0"/><path class="clog-heart" d="M58 136.6 c-.6 -1 -2.2 -.4 -1.5 .7 l1.5 1.5 l1.5 -1.5 c.7 -1.1 -.9 -1.7 -1.5 -.7z"/><path class="clog-sole" d="M91 140 C94 143.6 110 143.6 113 140 L112.6 142.8 C109 146 95 146 91.4 142.8 Z"/><path class="clog" d="M91 140 C90 132 96 128.6 102 128.6 C108 128.6 114 132 113 140 C110 143.6 94 143.6 91 140 Z"/><ellipse class="clog-hole" cx="102" cy="131.4" rx="5.6" ry="2.2"/><path class="clog-grain" d="M94.4 135.4 q3 -1.4 6 0 M103.6 138.6 q2.6 -1.2 5.2 0"/><path class="clog-heart" d="M102 136.6 c-.6 -1 -2.2 -.4 -1.5 .7 l1.5 1.5 l1.5 -1.5 c.7 -1.1 -.9 -1.7 -1.5 -.7z"/></g>'
+      svg: '<g class="feet-clogs"><path class="clog-sole" d="M48 140.4 C51 143.4 65 143.4 68 140.4 L67.6 142.6 C64.4 145.4 51.6 145.4 48.4 142.6 Z"/><path class="clog" d="M48 140.4 C47.4 134.6 52.6 132 58 132 C63.4 132 68.6 134.6 68 140.4 C65 143.4 51 143.4 48 140.4 Z"/><path class="clog-grain" d="M51.4 135.2 q2.6 -1.2 5.2 0 M59.4 139 q2.4 -1.1 4.8 0"/><path class="clog-heart" d="M58 137.4 c-.6 -1 -2.2 -.4 -1.5 .7 l1.5 1.5 l1.5 -1.5 c.7 -1.1 -.9 -1.7 -1.5 -.7z"/><path class="clog-sole" d="M92 140.4 C95 143.4 109 143.4 112 140.4 L111.6 142.6 C108.4 145.4 95.6 145.4 92.4 142.6 Z"/><path class="clog" d="M92 140.4 C91.4 134.6 96.6 132 102 132 C107.4 132 112.6 134.6 112 140.4 C109 143.4 95 143.4 92 140.4 Z"/><path class="clog-grain" d="M95.4 135.2 q2.6 -1.2 5.2 0 M103.4 139 q2.4 -1.1 4.8 0"/><path class="clog-heart" d="M102 137.4 c-.6 -1 -2.2 -.4 -1.5 .7 l1.5 1.5 l1.5 -1.5 c.7 -1.1 -.9 -1.7 -1.5 -.7z"/></g>'
     },
     {
       id: 'shades', slot: 'face', label: 'Heart shades', icon: '28 74 104 36',

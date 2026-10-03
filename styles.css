@@ -870,6 +870,7 @@ button { font: inherit; color: inherit; }
 .silk-fold { fill: none; stroke: #d9d1c3; stroke-width: 1.1; stroke-linecap: round; }
 
 .jester-red { fill: #e86a7a; stroke: var(--pet-ink); stroke-width: 1.9; stroke-linejoin: round; }
+.jester-gold { fill: #f2c84b; stroke: var(--pet-ink); stroke-width: 1.9; stroke-linejoin: round; }
 .jester-purple { fill: #9b98d6; stroke: var(--pet-ink); stroke-width: 1.9; stroke-linejoin: round; }
 .jester-fold { fill: none; stroke: #7774b8; stroke-width: 1.5; stroke-linecap: round; }
 .jester-brim { fill: #f3dcb4; stroke: var(--pet-ink); stroke-width: 1.9; stroke-linejoin: round; }
@@ -893,6 +894,5 @@ button { font: inherit; color: inherit; }
 .cb-stitch { fill: none; stroke: #f3d3a0; stroke-width: 1.1; stroke-linecap: round; }
 .clog { fill: #e3ab6b; stroke: var(--pet-ink); stroke-width: 1.7; stroke-linejoin: round; }
 .clog-sole { fill: #a8703c; stroke: var(--pet-ink); stroke-width: 1.5; stroke-linejoin: round; }
-.clog-hole { fill: #6b4630; stroke: var(--pet-ink); stroke-width: 1.2; }
 .clog-grain { fill: none; stroke: #c48848; stroke-width: 1; stroke-linecap: round; }
 .clog-heart { fill: #ee4f6c; }
