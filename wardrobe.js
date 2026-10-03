@@ -271,28 +271,26 @@
         '</g>'
     },
     {
-      id: 'clownwig', slot: 'hat', snug: true, label: 'Clown wig', icon: '14 14 132 66',
+      id: 'clownwig', slot: 'hat', snug: true, label: 'Clown wig', icon: '14 12 132 62',
       lines: ['honk honk!', 'send in the clowns!', 'big top energy!'],
       svg: '<g class="hat-wig">' +
-        '<circle class="wig-a" cx="31" cy="70" r="10"/><circle class="wig-b" cx="129" cy="70" r="10"/>' +
-        '<circle class="wig-c" cx="27" cy="52" r="12"/><circle class="wig-d" cx="133" cy="52" r="12"/>' +
-        '<circle class="wig-e" cx="38" cy="34" r="13"/><circle class="wig-f" cx="122" cy="34" r="13"/>' +
-        '<circle class="wig-g" cx="58" cy="26" r="13"/><circle class="wig-a" cx="102" cy="26" r="13"/>' +
-        '<circle class="wig-b" cx="80" cy="22" r="14"/>' +
-        '<path class="wig-fringe" d="M48 46 C56 40 68 44 80 40 C92 44 104 40 112 46 C106 54 94 50 80 52 C66 50 54 54 48 46 Z"/>' +
-        '<path class="wig-shine" d="M72 17 C76 15 82 15 86 17 M52 22 C54 20 57 19 60 19"/>' +
+        '<g class="wig-out"><circle cx="28" cy="48" r="13"/><circle cx="26" cy="64" r="11"/><circle cx="34" cy="34" r="11"/><circle cx="132" cy="48" r="13"/><circle cx="134" cy="64" r="11"/><circle cx="126" cy="34" r="11"/><circle cx="80" cy="24" r="11"/><circle cx="62" cy="27" r="10"/><circle cx="98" cy="27" r="10"/></g>' +
+        '<path class="wig-cap-out" d="M40 52 C40 30 120 30 120 52 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 Z"/>' +
+        '<g class="wig-fill"><circle cx="28" cy="48" r="13"/><circle cx="26" cy="64" r="11"/><circle cx="34" cy="34" r="11"/><circle cx="132" cy="48" r="13"/><circle cx="134" cy="64" r="11"/><circle cx="126" cy="34" r="11"/><circle cx="80" cy="24" r="11"/><circle cx="62" cy="27" r="10"/><circle cx="98" cy="27" r="10"/></g>' +
+        '<path class="wig-cap" d="M40 52 C40 30 120 30 120 52 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 a5.71 5 0 0 1 -11.43 0 Z"/>' +
+        '<path class="wig-curl" d="M22 44 q5 -6 9 -1 q3 5 -3 7 M24 62 q4 -5 8 -1 q2 4 -2 5 M32 31 q4 -5 8 -1 q2 4 -3 5 M138 44 q-5 -6 -9 -1 q-3 5 3 7 M136 62 q-4 -5 -8 -1 q-2 4 2 5 M128 31 q-4 -5 -8 -1 q-2 4 3 5 M76 21 q4 -5 8 0 q2 4 -3 5 M58 25 q4 -4 7 0 q1 3 -3 4 M95 25 q4 -4 7 0 q1 3 -3 4 M54 42 q4 -4 8 0 q2 3 -3 4 M76 40 q4 -4 8 0 q2 3 -3 4 M98 42 q4 -4 8 0 q2 3 -3 4"/>' +
         '</g>'
     },
     {
-      id: 'jestercap', slot: 'hat', snug: true, label: 'Mini jester cap', icon: '18 8 124 52',
+      id: 'jestercap', slot: 'hat', snug: true, label: 'Mini jester cap', icon: '30 8 100 48',
       lines: ['jingle jingle!', 'the royal fool!', 'jest for you!'],
-      svg: '<g class="hat-jester" transform="rotate(-8 80 44)">' +
-        '<path class="jester-red" d="M50 46 C40 38 34 28 24 22 C36 20 52 28 66 40 Z"/>' +
-        '<path class="jester-blue" d="M110 46 C120 38 126 28 136 22 C124 20 108 28 94 40 Z"/>' +
-        '<path class="jester-band" d="M42 47 C60 38 100 38 118 47 L116 54 C100 46 60 46 44 54 Z"/>' +
-        '<path class="jester-diamond" d="M62 46 l3 -2.4 l3 2.4 l-3 2.4 Z M77 45 l3 -2.4 l3 2.4 l-3 2.4 Z M92 46 l3 -2.4 l3 2.4 l-3 2.4 Z"/>' +
-        '<circle class="jester-bell" cx="23" cy="21" r="4.2"/><circle class="jester-bell" cx="137" cy="21" r="4.2"/>' +
-        '<path class="jester-bell-line" d="M21.4 20 Q23 22.4 24.6 20 M135.4 20 Q137 22.4 138.6 20"/>' +
+      svg: '<g class="hat-jester" transform="rotate(-6 80 44)">' +
+        '<path class="jester-red" d="M56 44 C50 38 46 31 40 27 C48 26 58 32 66 41.5 Z"/>' +
+        '<path class="jester-blue" d="M104 44 C110 38 114 31 120 27 C112 26 102 32 94 41.5 Z"/>' +
+        '<path class="jester-green" d="M70 42 C71 32 76 26 80 20 C84 26 89 32 90 42 Z"/>' +
+        '<path class="jester-band" d="M52 46.4 C66 40 94 40 108 46.4 L106.6 51.6 C94 45.6 66 45.6 53.4 51.6 Z"/>' +
+        '<path class="jester-diamond" d="M66 46.6 l2.4 -2 l2.4 2 l-2.4 2 Z M78 45.6 l2.4 -2 l2.4 2 l-2.4 2 Z M90 46.6 l2.4 -2 l2.4 2 l-2.4 2 Z"/>' +
+        '<circle class="jester-bell" cx="39" cy="26" r="3.3"/><circle class="jester-bell" cx="121" cy="26" r="3.3"/><circle class="jester-bell" cx="80" cy="18.6" r="3.3"/>' +
         '</g>'
     },
     {
@@ -347,11 +345,11 @@
         '</g>'
     },
     {
-      id: 'mustache', slot: 'neck', front: true, label: 'Fake mustache', icon: '48 88 64 30',
+      id: 'mustache', slot: 'neck', front: true, label: 'Fake mustache', icon: '44 90 72 26',
       lines: ['ahem, good day!', 'very distinguished', 'is it on straight?'],
       svg: '<g class="neck-mustache">' +
-        '<path class="stache" d="M80 98.4 C74 94 64 93.6 58.6 97 C55.6 98.8 55.6 102 58.4 102.4 C63 103.4 66 100.6 71 100.8 C75 101 77 102 80 102 C83 102 85 101 89 100.8 C94 100.6 97 103.4 101.6 102.4 C104.4 102 104.4 98.8 101.4 97 C96 93.6 86 94 80 98.4 Z"/>' +
-        '<path class="stache-line" d="M80 100 V102 M66 97.6 Q62 98.6 60.4 100.2 M94 97.6 Q98 98.6 99.6 100.2"/>' +
+        '<path class="stache" d="M80 102.4 C86 100.4 95 100 101 102 C106 103.6 109.6 101 112.4 96.8 C113.6 102.4 111.6 108.6 104.6 110 C97.4 111.4 88.6 109.6 80 109.6 C71.4 109.6 62.6 111.4 55.4 110 C48.4 108.6 46.4 102.4 47.6 96.8 C50.4 101 54 103.6 59 102 C65 100 74 100.4 80 102.4 Z"/>' +
+        '<path class="stache-line" d="M80 103.4 V108.4 M72 104 Q66 106 60 107.4 M88 104 Q94 106 100 107.4 M64 102.4 Q57 104.6 52 104.2 M96 102.4 Q103 104.6 108 104.2"/>' +
         '</g>'
     },
     {
