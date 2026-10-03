@@ -1166,13 +1166,16 @@ button { font: inherit; color: inherit; }
    eyes set wide apart and low on the face. No wobble filter: it brought back a seam on the face on her phone. Add a species to these selectors to give it the same style.
    The eyes and smile are drawn in their own places in index.html (CSS transforms on them left a seam on her phone). */
 .pet[data-species="bunny"] { --pet-ink: #705b57; }
-.pet[data-species="bunny"] :is(.skin, .skin-under, .ear, .foot, .arm ellipse) { stroke-width: 1.7; }
-.pet[data-species="bunny"] :is(.shine, .arm-hi) { opacity: 0; }
+html:not(.bn-thick) .pet[data-species="bunny"] :is(.skin, .skin-under, .ear, .foot, .arm ellipse) { stroke-width: 1.7; }
+html:not(.bn-gloss) .pet[data-species="bunny"] :is(.shine, .arm-hi) { opacity: 0; }
 .pet[data-species="bunny"] .ink { fill: #4a3a38; }
 .pet[data-species="bunny"] .cheek { opacity: .75; }
 /* the bunny draws its own eye set and smile (smaller eyes, wider apart and lower); the normal ones are hidden for it */
 .eye-set-wide, .bunny-smile { display: none; }
-.pet[data-species="bunny"] .eye-set:not(.eye-set-wide) { display: none; }
-.pet[data-species="bunny"] .eye-set-wide { display: inline; }
-.pet[data-species="bunny"][data-mouth="smile"] path[data-mouth="smile"] { display: none; }
-.pet[data-species="bunny"][data-mouth="smile"] .bunny-smile { display: inline; }
+html:not(.bn-stockeyes) .pet[data-species="bunny"] .eye-set:not(.eye-set-wide) { display: none; }
+html:not(.bn-stockeyes) .pet[data-species="bunny"] .eye-set-wide { display: inline; }
+html:not(.bn-stockeyes) .pet[data-species="bunny"][data-mouth="smile"] path[data-mouth="smile"] { display: none; }
+html:not(.bn-stockeyes) .pet[data-species="bunny"][data-mouth="smile"] .bunny-smile { display: inline; }
+/* Developer tools "Seam hunt" switches (bunny look): put one part back, or stop animations, to find what causes the seam */
+html.bn-noears .ear-g { animation: none !important; }
+html.bn-noanim .pet, html.bn-noanim .pet * { animation: none !important; }
