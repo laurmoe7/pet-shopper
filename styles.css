@@ -341,8 +341,9 @@ button { font: inherit; color: inherit; }
 }
 @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 .note { position: fixed; left: 0; top: 0; z-index: 40; pointer-events: none; font-weight: 800; color: var(--accent); font-size: 1.15rem; text-shadow: 0 1px 0 var(--outline); }
-@keyframes breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.03, .96); } }
-@keyframes jelly { 0%, 100% { transform: scale(1, 1); } 30% { transform: scale(1.04, .95); } 55% { transform: scale(.98, 1.03); } 75% { transform: scale(1.01, .99); } }
+/* breathing and jelly only nudge the pet up and down: stretching a curved shape on a phone can leave a hairline */
+@keyframes breathe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(1.5px); } }
+@keyframes jelly { 0%, 100% { transform: translateY(0); } 30% { transform: translateY(1.5px); } 55% { transform: translateY(-1px); } 75% { transform: translateY(.5px); } }
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } 55% { transform: translateY(-10px); } }
 @keyframes hop { 0% { transform: translateY(0); } 40% { transform: translateY(-18px); } 100% { transform: translateY(0); } }
 @keyframes chomp { 0% { transform: scale(1, 1); } 30% { transform: scale(1.14, .84); } 60% { transform: scale(.94, 1.08); } 80% { transform: scale(1.03, .97); } 100% { transform: scale(1, 1); } }
