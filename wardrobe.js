@@ -238,11 +238,11 @@
       lines: ['berry chic!', 'très sweet!', 'ooh la la!'],
       svg: '<g class="hat-beret" transform="rotate(-9 80 44)">' +
         '<path class="beret-top" d="M32 48 C30 30 54 25 80 26 C108 27 130 34 128 49 C112 55 50 56 32 48 Z"/>' +
-        '<path class="beret-band" d="M36 49.4 Q80 58 124 49.4 L123.6 54.6 Q80 62.6 36.4 54.6 Z"/>' +
         '<path class="beret-shine" d="M44 38 C50 32 60 29.6 70 29"/>' +
         '<path class="beret-seed" d="M52 40 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M70 46 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M92 41 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M110 45 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M80 38 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M100 34 l1.6 3.4 l-1.6 .6 l-1.6 -.6 Z M62 34 l1.6 3.4 l-1.6 .6 l-1.6 -.6 Z"/>' +
         '<path class="beret-leaf" d="M82 27 C76 24 70 25 69 29 C74 30 78 29.6 82 27.8 C80 22 85 19 89 22 C88 25 86 27 84 28 C90 26 95 28 95 32 C91 33 86 31 83.4 29 Z"/>' +
         '<path class="beret-stem" d="M83 28 C83.4 24 84 22 85.4 20"/>' +
+        '<path class="beret-band" d="M42 50.4 Q80 58.6 118 50.4 L117.4 55.6 Q80 63.6 42.6 55.6 Z"/>' +
         '</g>'
     },
     {
@@ -279,15 +279,39 @@
         '</g>'
     },
     {
-      id: 'jestercap', slot: 'hat', snug: true, label: 'Mini jester cap', icon: '8 0 144 66',
+      id: 'jestercap', slot: 'hat', snug: true, label: 'Mini jester cap', icon: '18 10 124 50',
       lines: ['jingle jingle!', 'the royal fool!', 'jest for you!'],
       svg: '<g class="hat-jester">' +
-        '<path class="jx-o" d="M60 42 C50 22 36 14 29 25"/><path class="jx jx-g" d="M60 42 C50 22 36 14 29 25"/>' +
-        '<path class="jx-o" d="M72 40 C70 14 88 6 97 18"/><path class="jx jx-y" d="M72 40 C70 14 88 6 97 18"/>' +
-        '<path class="jx-o" d="M94 42 C112 30 124 22 132 34"/><path class="jx jx-r" d="M94 42 C112 30 124 22 132 34"/>' +
-        '<path class="jx-o" d="M56 46 C40 38 26 42 21 57"/><path class="jx jx-b" d="M56 46 C40 38 26 42 21 57"/>' +
-        '<path class="jx-o jx-bandline" d="M46 46 C66 40 94 40 114 46"/><path class="jx jx-band" d="M46 46 C66 40 94 40 114 46"/>' +
-        '<circle class="jester-bell" cx="29" cy="27" r="4.6"/><path class="jester-bell-line" d="M27.3 27 H30.7"/><circle class="jester-bell" cx="97" cy="20" r="4.6"/><path class="jester-bell-line" d="M95.3 20 H98.7"/><circle class="jester-bell" cx="132" cy="36" r="4.6"/><path class="jester-bell-line" d="M130.3 36 H133.7"/><circle class="jester-bell" cx="21" cy="59" r="4.6"/><path class="jester-bell-line" d="M19.3 59 H22.7"/>' +
+        '<path class="jester-red" d="M60 34 C48 26 34 30 27 42 C37 37 48 39 58 44 Z"/>' +
+        '<path class="jester-purple" d="M50 46 C48 28 62 18 82 18 C104 18 120 28 128 45 C121 40 114 40 110 46 Z"/>' +
+        '<path class="jester-fold" d="M88 22.6 C99 26 107 32 112 40 M64 26 C60 31 58 37 58 42"/>' +
+        '<path class="jester-brim" d="M45 44 Q80 37.6 115 44 L114 52.6 Q80 46.4 46 52.6 Z"/>' +
+        '<path class="jester-brim-hi" d="M48 45.6 Q80 40.4 112 45.6"/>' +
+        '<circle class="jester-pom" cx="26.4" cy="43.4" r="4"/><circle class="jester-pom" cx="129" cy="47" r="4"/>' +
+        '</g>'
+    },
+    {
+      id: 'cowboyhat', slot: 'hat', snug: true, label: 'Cowboy hat', icon: '14 10 132 50',
+      lines: ['yeehaw!', 'howdy, partner!', 'giddy up!'],
+      svg: '<g class="hat-cowboy">' +
+        '<path class="cowboy-crown" d="M52 46 C50 31 54 18 64 18 C70 18 74 22.4 80 22.4 C86 22.4 90 18 96 18 C106 18 110 31 108 46 C96 48 64 48 52 46 Z"/>' +
+        '<path class="cowboy-band" d="M51.6 38 C64 40.6 96 40.6 108.4 38 L108.2 45 C96 47.6 64 47.6 51.8 45 Z"/>' +
+        '<path class="cowboy-crease" d="M80 23.4 V33 M66 21 C64 26 63.6 31 64 35"/>' +
+        '<path class="cowboy-brim" d="M21 44 C30 54 130 54 139 44 C143 39.6 141 35.6 135.6 37.6 C122 46 38 46 24.4 37.6 C19 35.6 17 39.6 21 44 Z"/>' +
+        '<path class="cowboy-stitch" d="M30 46.4 C50 51.4 110 51.4 130 46.4"/>' +
+        '</g>'
+    },
+    {
+      id: 'sidecap', slot: 'hat', snug: true, label: 'Sideways cap', icon: '40 12 106 42',
+      lines: ['totally rad!', 'skate time!', 'yo yo yo!'],
+      svg: '<g class="hat-sidecap">' +
+        '<path class="side-bill" d="M106 40 C118 37 134 38.6 142 45 C135 50 118 50.4 104 47.6 Z"/>' +
+        '<path class="side-bill-line" d="M110 42 C121 41 132 42 138 45"/>' +
+        '<path class="side-dome" d="M48 47 C47 28 62 17 80 17 C98 17 113 28 112 47 C96 50 64 50 48 47 Z"/>' +
+        '<path class="side-seam" d="M80 17.6 C72 26 68 36 67 48.6 M80 17.6 C88 26 92 36 93 48.6"/>' +
+        '<path class="side-band" d="M48.4 43 C64 46.4 96 46.4 111.6 43 L112 47 C96 50 64 50 48 47 Z"/>' +
+        '<circle class="side-button" cx="80" cy="17.6" r="2.6"/>' +
+        '<path class="side-star" d="M58 30 l1.5 3.2 l3.5 .4 l-2.6 2.4 l.7 3.4 l-3.1 -1.7 l-3.1 1.7 l.7 -3.4 l-2.6 -2.4 l3.5 -.4 Z"/>' +
         '</g>'
     },
     {
@@ -403,6 +427,16 @@
           '<circle class="bunny-eye" cx="' + (x - 3) + '" cy="140" r="0.9"/><circle class="bunny-eye" cx="' + (x + 3) + '" cy="140" r="0.9"/>' +
           '<ellipse class="bunny-nose" cx="' + x + '" cy="141.6" rx="1.3" ry="0.9"/>';
       }).join('') + '</g>'
+    },
+    {
+      id: 'cowboyboots', slot: 'feet', label: 'Cowboy boots', icon: '38 120 84 28',
+      lines: ['boot scootin!', 'yeehaw!', 'line dance time!'],
+      svg: '<g class="feet-cowboy"><g transform="translate(58 140) scale(1.25) translate(-58 -140)"><path class="cb-heel" d="M67.6 141.6 L67 145 H62.4 L62 142.6 Z"/><path class="cb-shaft" d="M50 123.6 Q58 127 66 123.6 L64.6 135.4 H51.4 Z"/><path class="cb-foot" d="M68 139 C68 134 52 133.4 43.4 139.6 C52 143.4 68 143.6 68 139 Z"/><path class="cb-stitch" d="M55.5 128.6 q2.4 3 5 0 M56 132 q2 2 4 0"/></g><g transform="translate(102 140) scale(1.25) translate(-102 -140)"><path class="cb-heel" d="M92.4 141.6 L93 145 H97.6 L98 142.6 Z"/><path class="cb-shaft" d="M94 123.6 Q102 127 110 123.6 L108.6 135.4 H95.4 Z"/><path class="cb-foot" d="M92 139 C92 134 108 133.4 116.6 139.6 C108 143.4 92 143.6 92 139 Z"/><path class="cb-stitch" d="M99.5 128.6 q2.4 3 5 0 M100 132 q2 2 4 0"/></g></g>'
+    },
+    {
+      id: 'clogs', slot: 'feet', label: 'Wooden clogs', icon: '40 124 80 26',
+      lines: ['clip clop!', 'very dutch!', 'tulip time!'],
+      svg: '<g class="feet-clogs"><path class="clog-sole" d="M47 140 C50 143.6 66 143.6 69 140 L68.6 142.8 C65 146 51 146 47.4 142.8 Z"/><path class="clog" d="M47 140 C46 132 52 128.6 58 128.6 C64 128.6 70 132 69 140 C66 143.6 50 143.6 47 140 Z"/><ellipse class="clog-hole" cx="58" cy="131.4" rx="5.6" ry="2.2"/><path class="clog-grain" d="M50.4 135.4 q3 -1.4 6 0 M59.6 138.6 q2.6 -1.2 5.2 0"/><path class="clog-heart" d="M58 136.6 c-.6 -1 -2.2 -.4 -1.5 .7 l1.5 1.5 l1.5 -1.5 c.7 -1.1 -.9 -1.7 -1.5 -.7z"/><path class="clog-sole" d="M91 140 C94 143.6 110 143.6 113 140 L112.6 142.8 C109 146 95 146 91.4 142.8 Z"/><path class="clog" d="M91 140 C90 132 96 128.6 102 128.6 C108 128.6 114 132 113 140 C110 143.6 94 143.6 91 140 Z"/><ellipse class="clog-hole" cx="102" cy="131.4" rx="5.6" ry="2.2"/><path class="clog-grain" d="M94.4 135.4 q3 -1.4 6 0 M103.6 138.6 q2.6 -1.2 5.2 0"/><path class="clog-heart" d="M102 136.6 c-.6 -1 -2.2 -.4 -1.5 .7 l1.5 1.5 l1.5 -1.5 c.7 -1.1 -.9 -1.7 -1.5 -.7z"/></g>'
     },
     {
       id: 'shades', slot: 'face', label: 'Heart shades', icon: '28 74 104 36',
