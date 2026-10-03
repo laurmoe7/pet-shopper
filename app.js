@@ -1460,7 +1460,7 @@
 
   // ---------- options ----------
   // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-  var BUILD = '36';
+  var BUILD = '37';
   $('buildLabel').textContent = 'Build ' + BUILD;
   var optionsSheet = $('optionsSheet'), optionsList = $('optionsList');
   var OPTIONS = [
@@ -1518,7 +1518,14 @@
     { cls: 'seam-noanim', title: 'Pause the pet\'s movement', text: 'No squish, bounce or blink.' },
     { cls: 'seam-layer', title: 'Pet on its own layer', text: 'Asks the phone to draw the pet separately.' },
     { cls: 'seam-nounder', title: 'Hide the extra head fill', text: 'The plain ellipse under the head.' },
-    { cls: 'seam-nosparkle', title: 'Hide the sparkles', text: 'The little stars around the pet.' }
+    { cls: 'seam-nosparkle', title: 'Hide the sparkles', text: 'The little stars around the pet.' },
+    { cls: 'seam-nosquash', title: 'Pause only the squish', text: 'The jelly wobble and breathing.' },
+    { cls: 'seam-nohop', title: 'Pause only bounce and hop', text: 'Moving up and down, tilting, dancing.' },
+    { cls: 'seam-noblink', title: 'Pause only blinking', text: 'The eyes stay open.' },
+    { cls: 'seam-nolook', title: 'Pause only eye following', text: 'The pupils stay still.' },
+    { cls: 'seam-noarms', title: 'Pause only arms and ears', text: 'No swaying or flicking.' },
+    { cls: 'seam-nonose', title: 'Pause only sleep bubbles', text: 'The nose bubble and the z letters.' },
+    { cls: 'seam-nowill', title: 'No separate layer for squish', text: 'Turns off the layer trick from Build 36.' }
   ];
   var seamSaved = {};
   try { seamSaved = JSON.parse(localStorage.getItem('nibble.seamtest') || '{}') || {}; } catch (err) { seamSaved = {}; }

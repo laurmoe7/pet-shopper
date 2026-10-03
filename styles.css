@@ -854,3 +854,11 @@ button { font: inherit; color: inherit; }
 .seam-layer .pet { will-change: transform; transform: translateZ(0); }
 .seam-nounder .skin-under { display: none; }
 .seam-nosparkle .stage::before, .seam-nosparkle .stage::after { display: none; }
+
+.seam-nosquash .squash { animation: none !important; }
+.seam-nohop .pet-svg { animation: none !important; }
+.seam-noblink .eyes-open { animation: none !important; }
+.seam-nolook .pupils { transform: none !important; transition: none !important; }
+.seam-noarms .arm, .seam-noarms .ear-g { animation: none !important; }
+.seam-nonose .nose-bubble circle, .seam-nonose .zzz text { animation: none !important; }
+.seam-nowill .squash { will-change: auto; }
