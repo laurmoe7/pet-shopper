@@ -11,6 +11,8 @@ A grocery list with a tamagotchi-like pet that "eats" items as you check them of
 - Add a short line to `CHANGELOG.md` for each build you ship.
 - She wants people to use the list legitimately, not game it for unlocks (hence the fair-play rules).
 
+- Keep files small. Don't keep adding to one file until it is huge. Put new code in the `app-*.js` file for its topic, and start a new file when a topic needs one. When a file passes about 300 lines, split it by topic the same way (smaller files are cheaper to read and edit). A split must not change behavior: run `npm test`, bump the build and check the preview.
+
 ## Product decisions
 
 - Free, usable, no ads. Monetization later via paid pet customization. The dressing room is currently a test of that idea; no payments yet.
