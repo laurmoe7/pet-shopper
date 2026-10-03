@@ -153,10 +153,11 @@
    * @property {boolean} fairPlayTips Messages about the fair-play rules, like
    *   "items count after 15 min". The rules still apply when this is off.
    * @property {boolean} goalToasts   The progress label under the pet after a bite.
+   * @property {boolean} cardboard    The cardboard-and-stickers look (off = the classic pink look).
    */
 
   /** The settings a new phone starts with: everything on. */
-  var DEFAULT_SETTINGS = { sounds: true, vibration: true, daydreams: true, suggestions: true, fairPlayTips: true, goalToasts: true };
+  var DEFAULT_SETTINGS = { sounds: true, vibration: true, daydreams: true, suggestions: true, fairPlayTips: true, goalToasts: true, cardboard: true };
 
   /**
    * Fills in any settings missing from what was saved.

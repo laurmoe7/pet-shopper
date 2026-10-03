@@ -682,7 +682,7 @@ button { font: inherit; color: inherit; }
 .petal { position: fixed; left: 0; top: 0; width: 11px; height: 11px; z-index: 49; pointer-events: none; border-radius: 11px 0 11px 0; }
 
 /* ---------- list ---------- */
-.list-area { padding: 8px 16px calc(var(--dock-h, 72px) + 16px); display: flex; flex-direction: column; gap: 14px; }
+.list-area { padding: 8px 16px calc(var(--dock-h, 72px) + 16px); display: flex; flex-direction: column; gap: 10px; }
 
 .add {
   position: relative; display: flex; align-items: center; gap: 8px;
@@ -702,11 +702,11 @@ button { font: inherit; color: inherit; }
 }
 .add-btn:active { transform: scale(.94); }
 
-.items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
 .item {
   display: flex; align-items: center; gap: 8px;
   background: var(--surface); border: 1.6px solid var(--outline); border-radius: var(--r);
-  padding: 5px 14px 5px 6px; min-height: 58px; box-shadow: 0 3px 0 var(--shadow);
+  padding: 2px 14px 2px 4px; min-height: 48px; box-shadow: 0 3px 0 var(--shadow);
   user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
   touch-action: manipulation;
 }
@@ -717,7 +717,7 @@ button { font: inherit; color: inherit; }
 @keyframes slide-in { from { opacity: 0; transform: translateY(-8px) scale(.96); } to { opacity: 1; transform: none; } }
 
 .check {
-  flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; background: transparent;
+  flex: none; width: 42px; height: 42px; border-radius: 50%; border: 0; background: transparent;
   display: grid; place-items: center; cursor: pointer; padding: 0;
 }
 .check::before {
@@ -729,7 +729,7 @@ button { font: inherit; color: inherit; }
 .item.done .check::before {
   background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 19s-7-4.3-7-9a3.8 3.8 0 0 1 7-2 3.8 3.8 0 0 1 7 2c0 4.7-7 9-7 9z' fill='white'/%3E%3C/svg%3E") center/15px no-repeat;
 }
-.emoji-btn { flex: none; width: 44px; height: 44px; border: 0; background: transparent; padding: 4px; cursor: pointer; border-radius: 14px; }
+.emoji-btn { flex: none; width: 42px; height: 42px; border: 0; background: transparent; padding: 4px; cursor: pointer; border-radius: 14px; }
 .emoji-btn img { width: 100%; height: 100%; display: block; }
 .emoji-btn.gone img { visibility: hidden; }
 .item-text { flex: 1; min-width: 0; overflow-wrap: anywhere; font-weight: 700; }
@@ -1035,7 +1035,9 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="whitehamster"] { --pet-skin: #fffaf6; --pet-skin-shade: #efe3da; --pet-ear-in: #ffc4cf; }
 .pet[data-skin="longhair"] { --pet-skin: #57525f; --pet-skin-shade: #403b49; --pet-ear-in: #e7a3b0; }
 .pet[data-skin="kiwi"] { --pet-skin: #b68f63; --pet-skin-shade: #dcaa5c; --pet-mark: #7a5a38; }
-.pet[data-skin="dutch"] { --pet-skin: #fffafb; --pet-skin-shade: #f0e0e4; --pet-ear-in: #ffbfcc; --pet-mark: #b8845f; }
+.pet[data-skin="dutch"] { --pet-skin: #fffafb; --pet-skin-shade: #f0e0e4; --pet-ear-in: #ffbfcc; --pet-mark: #8e8a99; }
+.pet[data-species="frog"][data-skin="dartfrog"] { --pet-skin: #5fb4ee; --pet-skin-shade: #3f95d6; --pet-mark: #3f95d6; }
+.pet[data-species="frog"][data-skin="toad"] { --pet-skin: #c9a878; --pet-skin-shade: #a98a5c; --pet-mark: #a98a5c; }
 .pet[data-skin="strawberry"] [data-sk~="strawberry"],
 .pet[data-skin="chocolate"] [data-sk~="chocolate"],
 .pet[data-skin="taro"] [data-sk~="taro"],
@@ -1048,7 +1050,8 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="chihuahua"] [data-sk~="chihuahua"],
 .pet[data-skin="pomeranian"] [data-sk~="pomeranian"],
 .pet[data-skin="longhair"] [data-sk~="longhair"] { display: inline; }
-.pet[data-skin="kiwi"] [data-sk~="kiwi"], .pet[data-skin="dutch"] [data-sk~="dutch"] { display: inline; }
+.pet[data-skin="kiwi"] [data-sk~="kiwi"], .pet[data-skin="dutch"] [data-sk~="dutch"],
+.pet[data-skin="dartfrog"] [data-sk~="dartfrog"], .pet[data-skin="toad"] [data-sk~="toad"] { display: inline; }
 /* a skin's own ears and horns replace the species' ones */
 .pet[data-skin="floppybunny"] [data-sp="bunny"],
 .pet[data-skin="chihuahua"] [data-sp="puppy"],
@@ -1103,11 +1106,23 @@ button { font: inherit; color: inherit; }
 .kiwi-fuzz path { fill: none; stroke: #8a6a45; stroke-width: 1.7; stroke-linecap: round; }
 .kiwi-beak { fill: #f3dca8; }
 .pet[data-skin="kiwi"] .beak { animation: none !important; transform: none !important; }
-.dutch path { fill: #b8845f; }
-.pet[data-skin="dutch"] [data-sp="bunny"] .ear { fill: #b8845f; }
+.dutch path { fill: #8e8a99; }
+.pet[data-skin="dutch"] [data-sp="bunny"] .ear { fill: #8e8a99; }
 /* frog: webbed hands and feet, and a wide smile instead of the small one */
 .frog-web { fill: var(--pet-skin-shade); stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
 .frog-smile { display: none; }
 .pet:not([data-species="frog"]) .frog-smile { display: none; }
 .pet[data-species="frog"][data-mouth="smile"] path[data-mouth="smile"]:not(.frog-smile) { display: none; }
 .pet[data-species="frog"][data-mouth="smile"] .frog-smile { display: inline; }
+/* frog webbing melts into the foot and hand: no line between them */
+.pet[data-species="frog"] .foot { stroke: none; }
+.frog-web-hand { fill: var(--pet-skin); stroke-linecap: round; }
+/* hedgehog ears are half moons */
+.pet[data-species="hedgehog"] .ear { stroke-linejoin: round; }
+/* frog skins */
+.dart-spots ellipse { fill: #1f2a44; }
+.pet[data-skin="dartfrog"] .frog-spots ellipse { fill: #1f2a44; }
+.pet[data-skin="dartfrog"] .frog-belly { fill: #bfe3fa; }
+.toad-warts circle { fill: #86693f; }
+.pet[data-skin="toad"] .frog-spots ellipse { fill: #86693f; }
+.pet[data-skin="toad"] .frog-belly { fill: #efe2c2; }

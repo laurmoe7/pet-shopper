@@ -30,6 +30,7 @@ const page = [
   "<title>Nibble's List</title>",
   '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@500&family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap">',
   '<style>' + inline(read('styles.css'), 'style') + '</style>',
+  '<style>' + inline(read('look-cardboard.css'), 'style') + '</style>',
   body,
   ...SCRIPTS.map((n) => '<script>' + inline(read(n + '.js'), 'script') + '</script>'),
   ''

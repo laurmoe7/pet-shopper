@@ -1,0 +1,128 @@
+/* The "Cardboard" look: a kraft-cardboard box with paper labels held on by tape and sticker icons.
+   It only applies when <html data-look="cardboard"> (the Options switch "Cardboard look"), and only
+   changes colours and decoration. Turn the switch off, or delete this file and its links, to get the
+   classic look back. Nibble keeps their own colours. */
+:root[data-look="cardboard"][data-look] {
+  --bg: #dcb987;
+  --grid: rgba(125, 82, 40, .09);
+  --surface: #fffaf0;
+  --surface-2: #f4e6cb;
+  --ink: #523a2b;
+  --muted: #8a6f55;
+  --line: #d4b68a;
+  --outline: #7b5a3d;
+  --accent: #ff8fab;
+  --accent-ink: #4a2a2a;
+  --mint: #bfe6cf;
+  --butter: #ffe9a3;
+  --stage-top: #ecd1a2;
+  --cushion: #ffbfd0;
+  --cushion-stitch: #f08aa5;
+  --shadow: rgba(110, 72, 36, .28);
+  --danger: #c4505f;
+  color-scheme: light;
+}
+
+/* corrugated board with a little speckle */
+html[data-look="cardboard"] body {
+  background-color: var(--bg);
+  background-image:
+    repeating-linear-gradient(90deg, var(--grid) 0 2px, transparent 2px 8px),
+    radial-gradient(rgba(110, 72, 36, .12) 1px, transparent 1.4px),
+    radial-gradient(rgba(255, 255, 255, .14) 1px, transparent 1.4px);
+  background-size: auto, 13px 13px, 17px 17px;
+  background-position: 0 0, 3px 5px, 9px 2px;
+}
+
+/* the top flap */
+html[data-look="cardboard"] .scene {
+  background: linear-gradient(var(--stage-top) 78%, rgba(236, 209, 162, 0));
+  border-bottom: 0;
+}
+html[data-look="cardboard"] .scene::after {
+  content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 0;
+  border-bottom: 2px dashed rgba(123, 90, 61, .35);
+}
+html[data-look="cardboard"] .brand { color: var(--ink); letter-spacing: .01em; }
+html[data-look="cardboard"] .pill-btn { background: var(--surface); box-shadow: 0 2px 0 var(--outline); }
+html[data-look="cardboard"] .cushion { box-shadow: inset 0 -5px 0 var(--cushion-stitch), 0 3px 0 var(--shadow); }
+html[data-look="cardboard"] .bubble { border-radius: 14px 14px 14px 4px; box-shadow: 0 2px 0 var(--shadow); }
+
+/* add bar: a paper label with a cut line */
+html[data-look="cardboard"] .add {
+  border: 0; border-radius: 12px; background: var(--surface);
+  box-shadow: 0 3px 0 var(--shadow), 0 0 0 1.5px rgba(123, 90, 61, .45);
+  outline: 1.5px dashed rgba(123, 90, 61, .4); outline-offset: -5px;
+}
+html[data-look="cardboard"] .add-btn {
+  border: 3px solid #fff; border-radius: 999px; background: var(--accent);
+  box-shadow: 0 0 0 1.5px rgba(123, 90, 61, .55), 0 3px 3px var(--shadow);
+}
+
+/* list: paper labels, each held on by a strip of tape */
+html[data-look="cardboard"] .item {
+  position: relative; border: 0; border-radius: 10px; background: var(--surface);
+  box-shadow: 0 3px 0 var(--shadow), 0 0 0 1.5px rgba(123, 90, 61, .35);
+  outline: 1.5px dashed rgba(123, 90, 61, .3); outline-offset: -5px;
+  transform: rotate(-.35deg);
+}
+html[data-look="cardboard"] .item:nth-child(even) { transform: rotate(.3deg); }
+html[data-look="cardboard"] .item::before {
+  content: ""; position: absolute; top: -7px; left: 22px; width: 34px; height: 13px; z-index: 1;
+  background: var(--tab, var(--stage-top)); opacity: .9; transform: rotate(-4deg); pointer-events: none;
+  clip-path: polygon(0 12%, 6% 0, 12% 14%, 18% 0, 24% 14%, 30% 0, 100% 0, 100% 100%, 30% 100%, 24% 86%, 18% 100%, 12% 86%, 6% 100%, 0 88%);
+}
+html[data-look="cardboard"] .item:nth-child(even)::before { left: auto; right: 22px; transform: rotate(3deg); }
+html[data-look="cardboard"] .item.new { animation: slide-in .35s cubic-bezier(.3, 1.5, .5, 1); }
+html[data-look="cardboard"] .item.pressing { transform: scale(.97); }
+html[data-look="cardboard"] .item.done {
+  background: rgba(255, 250, 240, .55); box-shadow: none; outline-color: rgba(123, 90, 61, .25);
+}
+html[data-look="cardboard"] .item.done::before { opacity: .45; }
+html[data-look="cardboard"] .check::before {
+  border: 2.5px solid #fff; background: var(--tab, var(--stage-top));
+  box-shadow: 0 0 0 1.5px rgba(123, 90, 61, .6), 0 2px 2px var(--shadow);
+}
+html[data-look="cardboard"] .item.done .check::before { background-color: var(--accent); }
+/* food emoji as die-cut stickers */
+html[data-look="cardboard"] .emoji-btn img {
+  filter: drop-shadow(1.6px 0 0 #fff) drop-shadow(-1.6px 0 0 #fff) drop-shadow(0 1.6px 0 #fff) drop-shadow(0 -1.6px 0 #fff) drop-shadow(0 2px 1.5px rgba(90, 60, 30, .35));
+}
+html[data-look="cardboard"] .item.done .emoji-btn img {
+  filter: grayscale(.5) drop-shadow(1.6px 0 0 #fff) drop-shadow(-1.6px 0 0 #fff) drop-shadow(0 1.6px 0 #fff) drop-shadow(0 -1.6px 0 #fff);
+}
+
+/* the bottom bar: a strip of board with sticker buttons */
+html[data-look="cardboard"] .dock {
+  background: linear-gradient(#f0d9ae, #e6c791); border-top: 0; border-radius: 16px 16px 0 0;
+  box-shadow: 0 -3px 0 rgba(123, 90, 61, .3), inset 0 2px 0 rgba(255, 255, 255, .5);
+}
+html[data-look="cardboard"] .dock::before {
+  content: ""; position: absolute; left: 14px; right: 14px; top: 4px; border-top: 1.5px dashed rgba(123, 90, 61, .4);
+}
+html[data-look="cardboard"] .dock button:active, html[data-look="cardboard"] .dock button:focus-visible { background: rgba(255, 255, 255, .3); }
+html[data-look="cardboard"] .dock-icon {
+  width: 40px; height: 40px; border: 3px solid #fff; font-size: 1.2rem; background: var(--sticker, #ffd3dd); color: var(--sticker-ink, #e0587c);
+  box-shadow: 0 0 0 1.5px rgba(123, 90, 61, .55), 0 3px 3px rgba(90, 60, 30, .3);
+  transform: rotate(var(--tilt, -4deg)); position: relative;
+}
+html[data-look="cardboard"] .dock-icon::after {
+  content: ""; position: absolute; left: 7px; top: 5px; width: 9px; height: 5px; border-radius: 50%; background: rgba(255, 255, 255, .75); transform: rotate(-30deg);
+}
+html[data-look="cardboard"] .dock button:active .dock-icon { transform: rotate(var(--tilt, -4deg)) translateY(2px); box-shadow: 0 0 0 1.5px rgba(123, 90, 61, .55); }
+html[data-look="cardboard"] .dock button:nth-child(1) { --tilt: -5deg; --sticker: #ffd3dd; --sticker-ink: #e0587c; }
+html[data-look="cardboard"] .dock button:nth-child(2) { --tilt: 4deg; --sticker: #c9ecd8; --sticker-ink: #3f9a6c; }
+html[data-look="cardboard"] .dock button:nth-child(3) { --tilt: -3deg; --sticker: #ffe9a3; --sticker-ink: #d28a0f; }
+html[data-look="cardboard"] .dock button:nth-child(4) { --tilt: 5deg; --sticker: #ffdcb8; --sticker-ink: #d9792a; }
+html[data-look="cardboard"] .dock button:nth-child(5) { --tilt: -4deg; --sticker: #d9ccf5; --sticker-ink: #7d5fcf; }
+html[data-look="cardboard"] .dock button:nth-child(6) { --tilt: 3deg; --sticker: #c8e3f7; --sticker-ink: #3f86c0; }
+
+/* sheets: a card tucked into the box */
+html[data-look="cardboard"] .picker {
+  background: var(--surface); border-color: var(--outline); border-radius: 18px 18px 0 0;
+  box-shadow: 0 -4px 0 rgba(110, 72, 36, .22);
+}
+html[data-look="cardboard"] .picker h2 { color: var(--ink); }
+html[data-look="cardboard"] .picker-grid button { background: var(--surface-2); border: 1.5px dashed var(--line); border-radius: 14px; }
+html[data-look="cardboard"] .option { border-bottom-color: var(--line); }
+html[data-look="cardboard"] .eaten h2 { color: var(--muted); }

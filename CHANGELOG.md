@@ -2,6 +2,14 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 59 (3 Oct)
+- New "Cardboard look": kraft-board background, paper labels held on with tape, sticker buttons. Switch it off in Options for the classic pink look.
+- List rows are shorter, so more items fit on the screen.
+- Frog: the webbing melts into the hands and feet, no harsh line.
+- Hedgehog ears are half moons.
+- New skins: Poison dart frog and Toad.
+- Dutch bunny: grey colour runs up the whole face to the ears, with a white blaze.
+
 ## Build 58 (3 Oct)
 - Frog: the circles on top of its head are gone, it has a wide smile and webbed hands and feet.
 - Hedgehog: the ears are in front, so you can see them.

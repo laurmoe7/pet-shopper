@@ -4,8 +4,15 @@
 
 // ---------- options ----------
 $('buildLabel').textContent = 'Build ' + BUILD;
+/** Switches the page between the classic and the cardboard look. */
+function applyLook() {
+  if (state.settings.cardboard) document.documentElement.dataset.look = 'cardboard';
+  else delete document.documentElement.dataset.look;
+}
+applyLook();
 var optionsSheet = $('optionsSheet'), optionsList = $('optionsList');
 var OPTIONS = [
+  { key: 'cardboard', title: 'Cardboard look', text: 'Kraft-board background with paper labels and sticker buttons. Turn off for the classic pink look.' },
   { key: 'quiet', title: 'Quiet mode', text: 'Mutes all sounds. Your pet still talks.' },
   { key: 'sounds', title: 'Sounds', text: 'Chomps, slurps and squeaks.' },
   { key: 'vibration', title: 'Vibration', text: 'A little buzz when you tick things off (on phones that can).' },
@@ -35,6 +42,7 @@ optionsList.addEventListener('change', function (e) {
   if (!key) return;
   if (key === 'quiet') state.quiet = e.target.checked; else state.settings[key] = e.target.checked;
   if (key === 'suggestions' && !e.target.checked) suggestEl.hidden = true;
+  if (key === 'cardboard') applyLook();
   save();
   if (!state.quiet) sound(e.target.checked ? 'on' : 'off');
 });

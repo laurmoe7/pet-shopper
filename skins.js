@@ -26,6 +26,8 @@
     { id: 'boar', base: 'pig', label: 'Boar' },
     { id: 'floppybunny', base: 'bunny', label: 'Floppy ears' },
     { id: 'dutch', base: 'bunny', label: 'Dutch' },
+    { id: 'dartfrog', base: 'frog', label: 'Poison dart frog' },
+    { id: 'toad', base: 'frog', label: 'Toad' },
     { id: 'whitehamster', base: 'hamster', label: 'White hamster' },
     { id: 'longhair', base: 'hamster', label: 'Long-haired' }
   ];

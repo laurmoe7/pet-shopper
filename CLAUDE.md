@@ -25,7 +25,7 @@ A grocery list with a tamagotchi-like pet that "eats" items as you check them of
 
 Plain web app, no build step, no dependencies. `npm test` runs Node's built-in test runner on `tests/`, which load the same scripts the browser uses.
 
-- `index.html`, `styles.css`: UI. Nibble is an inline SVG animated with CSS. The main pet buttons live in the `.dock` bottom bar (ids `dressBtn`, `roomBtn`, `treatBtn`, `favBtn`, `goalsBtn`, `editPetBtn`).
+- `index.html`, `styles.css`: UI. `look-cardboard.css`: the optional "Cardboard look" (kraft board, taped paper labels, sticker buttons), applied by `html[data-look="cardboard"]` from the Options switch (`state.settings.cardboard`, default on); it only restyles, so switching it off or deleting the file restores the classic look. New UI should work in both. Nibble is an inline SVG animated with CSS. The main pet buttons live in the `.dock` bottom bar (ids `dressBtn`, `roomBtn`, `treatBtn`, `favBtn`, `goalsBtn`, `editPetBtn`).
 - `app*.js`: the UI code, split by topic. They are plain scripts sharing one scope (no modules), loaded in the order in `index.html`. Read only the file you need:
   - `app.js` (comes first): `BUILD`, saved state, helpers, page elements, list rendering.
   - `app-pet.js`: Nibble's faces, speech, flying food, crumbs.
@@ -44,7 +44,7 @@ Plain web app, no build step, no dependencies. `npm test` runs Node's built-in t
 - `sounds.js`: Web Audio sounds with random pitch and variants.
 - Birds (the birdie, `PetLogic.BIRDS`) get `.beaked` and no mouth; treat future birds the same. Ears live in `.ear-l`/`.ear-r` groups.
 - Species: mochi, pig, cat, dog, bunny, birdie, cow, hamster, frog, hedgehog (list in `app-petsheet.js`, parts drawn in `index.html` with `data-sp`). All eye states live in `.eye-set`, so a species can move the eyes as one. Don't put `transform` on the eye groups themselves: the blink animation overrides it.
-- Species and skins: a species is a body (`pet.species`); a skin (`pet.skin`, list in `skins.js`) changes colours and parts on that body. Skins so far: birdie (original, penguin, parrot, kiwi), mochi (strawberry, chocolate, taro), cat (tabby, black cat, calico), dog (chihuahua, Pomeranian, golden retriever), cow (chocolate milk, Highland cattle), pig (dirty piggy, boar), bunny (floppy ears, Dutch), hamster (white, long-haired black). A skin is drawn with `data-skin` rules and `data-sk` parts in `styles.css`/`index.html`; a species' own parts use `data-sp`. Old saves load with chick -> birdie and penguin -> birdie + penguin skin. Prefer a skin over a new species when the new look is mostly colour on an existing body.
+- Species and skins: a species is a body (`pet.species`); a skin (`pet.skin`, list in `skins.js`) changes colours and parts on that body. Skins so far: birdie (original, penguin, parrot, kiwi), mochi (strawberry, chocolate, taro), cat (tabby, black cat, calico), dog (chihuahua, Pomeranian, golden retriever), frog (poison dart frog, toad), cow (chocolate milk, Highland cattle), pig (dirty piggy, boar), bunny (floppy ears, Dutch), hamster (white, long-haired black). A skin is drawn with `data-skin` rules and `data-sk` parts in `styles.css`/`index.html`; a species' own parts use `data-sp`. Old saves load with chick -> birdie and penguin -> birdie + penguin skin. Prefer a skin over a new species when the new look is mostly colour on an existing body.
 - Options (gear) are saved in `state.settings`, separate from the pet. Developer tools sheet lives in Options.
 
 ### Service worker and builds
