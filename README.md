@@ -46,7 +46,7 @@ The tests live in `tests/` and load the same scripts the browser uses.
 - The gear button opens Options: sounds, speech bubbles, vibration, goal progress labels, fair-play tips (hides the 15-minute rule messages; the rule still applies), daydreams and suggestions. Options are saved on the phone, not with the pet.
 - For testing, Options has a "Developer tools" link at the bottom: unlock or re-lock every goal and personality, skip to tomorrow (daily limits reset), skip the 15-minute wait, trigger a daydream or suggestion, fill or clear the list, or reset all saved data. These change progress straight away, so they are only for trying things out.
 - While it waits, the pet does little idle things: wiggles, hums with music notes, looks around, stretches, twirls, pats its tummy and peeks into its cart.
-- Quiet mode turns off the chomp sound and speech bubbles.
+- Quiet mode (in Options, the gear) turns off the chomp sound and speech bubbles.
 - Everything is saved on the device (`localStorage`). A service worker caches the app for offline use.
 
 Not in it yet: accounts, shared lists, payments, multiple lists.

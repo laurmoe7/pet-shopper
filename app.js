@@ -91,7 +91,7 @@
   var pet = $('pet'), petSvg = pet.querySelector('.pet-svg'), bubble = $('bubble'), todoEl = $('todo'), doneEl = $('done');
   var addForm = $('addForm'), addInput = $('addInput'), addPreview = $('addPreview');
   var eatenSection = $('eatenSection'), eatenCount = $('eatenCount'), emptyHint = $('emptyHint');
-  var tally = $('tally'), quietBtn = $('quietBtn'), clearBtn = $('clearBtn');
+  var clearBtn = $('clearBtn');
   var picker = $('picker'), pickerGrid = $('pickerGrid'), pickerName = $('pickerName'), deleteBtn = $('deleteBtn');
 
   // ---------- rendering ----------
@@ -100,7 +100,7 @@
   // doesn't rebuild every row and reload every emoji
   var rows = {};
 
-  /** Redraws both lists, the tally and the empty hint from state. */
+  /** Redraws both lists and the empty hint from state. */
   function render() {
     var todo = state.items.filter(function (i) { return !i.done; });
     var done = state.items.filter(function (i) { return i.done; });
@@ -118,8 +118,6 @@
     eatenSection.hidden = done.length === 0;
     eatenCount.textContent = '(' + done.length + ')';
     emptyHint.hidden = state.items.length > 0;
-    tally.textContent = state.items.length ? done.length + ' of ' + state.items.length + ' eaten' : '';
-    quietBtn.setAttribute('aria-pressed', state.quiet ? 'true' : 'false');
     renderCart(done);
     freshIds = {};
     if (!busy) settle();
@@ -257,7 +255,12 @@
     setTimeout(function () { pet.classList.remove(cls); }, ms);
   }
 
-  var bubbleTimer;
+  var bubbleTimer, bubbleHome = bubble.parentNode, bubbleNext = bubble.nextSibling;
+  /** Puts the bubble back on the stage (it moves into an open menu so the pet can still talk there). */
+  function bubbleToStage() {
+    bubble.classList.remove('in-sheet');
+    if (bubble.parentNode !== bubbleHome) bubbleHome.insertBefore(bubble, bubbleNext);
+  }
   /**
    * Shows a speech bubble, unless quiet mode is on.
    * @param {string} text
@@ -269,6 +272,9 @@
     bubble.hidden = true;
     void bubble.offsetWidth;
     var line = own ? text : L.styleLine(personality(), text);
+    var menu = document.querySelector('dialog[open]:not(#roomSheet)');
+    if (menu && menu.id === 'dressSheet') { dressSay(line, ms, true); return; }
+    if (menu) { menu.appendChild(bubble); bubble.classList.add('in-sheet'); } else bubbleToStage();
     // talking in its sleep: mumbly and slow
     bubble.textContent = pet.classList.contains('x-zzz') ? L.sleepTalk(line) : line;
     bubble.hidden = false;
@@ -1254,6 +1260,9 @@
   document.querySelectorAll('dialog:not(#picker)').forEach(function (d) {
     d.addEventListener('close', function () { sound('close'); });
   });
+  document.querySelectorAll('dialog').forEach(function (d) {
+    d.addEventListener('close', function () { if (bubble.parentNode === d) { bubble.hidden = true; bubbleToStage(); } });
+  });
 
   // ---------- events ----------
   addForm.addEventListener('submit', function (e) {
@@ -1316,13 +1325,6 @@
   ['pointerup', 'pointercancel', 'scroll'].forEach(function (ev) { document.addEventListener(ev, cancelPress, { capture: true, passive: true }); });
   document.querySelector('.list-area').addEventListener('contextmenu', function (e) { if (e.target.closest('.item')) e.preventDefault(); });
 
-  quietBtn.addEventListener('click', function () {
-    state.quiet = !state.quiet;
-    sound('on');
-    if (state.quiet) bubble.hidden = true;
-    save();
-    render();
-  });
   clearBtn.addEventListener('click', function () {
     state.items = state.items.filter(function (i) { return !i.done; });
     sound('remove');
@@ -1455,6 +1457,7 @@
   // ---------- options ----------
   var optionsSheet = $('optionsSheet'), optionsList = $('optionsList');
   var OPTIONS = [
+    { key: 'quiet', title: 'Quiet mode', text: 'No sounds and no speech bubbles at all.' },
     { key: 'sounds', title: 'Sounds', text: 'Chomps, slurps and squeaks.' },
     { key: 'bubbles', title: 'Speech bubbles', text: 'What your pet says.' },
     { key: 'vibration', title: 'Vibration', text: 'A little buzz when you tick things off (on phones that can).' },
@@ -1482,14 +1485,14 @@
   optionsList.addEventListener('change', function (e) {
     var key = e.target.dataset.key;
     if (!key) return;
-    state.settings[key] = e.target.checked;
+    if (key === 'quiet') { state.quiet = e.target.checked; if (state.quiet) bubble.hidden = true; } else state.settings[key] = e.target.checked;
     if (key === 'bubbles' && !e.target.checked) bubble.hidden = true;
     if (key === 'suggestions' && !e.target.checked) suggestEl.hidden = true;
     save();
-    sound(e.target.checked ? 'on' : 'off');
+    if (!state.quiet) sound(e.target.checked ? 'on' : 'off');
   });
   $('optionsBtn').addEventListener('click', function () {
-    optionsList.querySelectorAll('input').forEach(function (b) { b.checked = state.settings[b.dataset.key]; });
+    optionsList.querySelectorAll('input').forEach(function (b) { b.checked = b.dataset.key === 'quiet' ? state.quiet : state.settings[b.dataset.key]; });
     openDialog(optionsSheet);
   });
   optionsSheet.addEventListener('click', function (e) { if (e.target === optionsSheet) optionsSheet.close(); });

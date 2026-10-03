@@ -234,7 +234,7 @@
         '</g>'
     },
     {
-      id: 'bananapeel', slot: 'hat', snug: true, label: 'Banana peel', icon: '20 0 120 66',
+      id: 'bananapeel', slot: 'hat', snug: true, label: 'Banana peel', icon: '62 -2 84 58',
       lines: ['slippery when worn!', 'a-peeling, right?', 'going bananas!'],
       svg: '<g class="hat-banana" transform="translate(24 4) translate(80 40) rotate(34) scale(.6) translate(-80 -40)">' +
         '<path class="peel" d="M76 42 C62 28 40 32 32 54 C44 56 60 51 72 47 Z"/>' +

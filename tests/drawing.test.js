@@ -59,20 +59,21 @@ test('the head outline starts at the bottom, so no join shows on top of the head
   assert.match(css, /\.skin \{[^}]*stroke-linejoin: round/);
 });
 
-test('the mochi twist grows out of the head: its line stops on the outline and its fill covers it', () => {
-  const twist = html.match(/<g data-sp="mochi" class="twist">([\s\S]*?)<\/g>/)[1];
-  const fill = twist.match(/class="twist-fill" d="([^"]+)"/)[1];
-  const line = twist.match(/class="twist-line" d="([^"]+)"/)[1];
-  assert.ok(fill.startsWith(line), 'the fill follows the line');
-  // the fill reaches below the outline (y 38, 2.6 wide) and the line's ends sit on it
-  assert.ok(Math.max(...fill.match(/[\d.]+/g).filter((_, i) => i % 2).map(Number)) > 39.3);
-  for (const y of [line.match(/^M[\d.]+ ([\d.]+)/)[1], line.match(/([\d.]+)$/)[1]]) assert.ok(Math.abs(Number(y) - 38) < 1.3, y);
+test('the mochi head and twist are one outline, so no cut or overlap can show a seam', () => {
+  const plain = html.match(/<path class="skin" d="([^"]+)"/)[1];
+  const mochi = html.match(/<path data-sp="mochi" class="skin skin-twist" d="([^"]+)"/)[1];
+  assert.match(mochi, /^M80 139 /);
+  assert.equal((mochi.match(/M/g) || []).length, 1, 'one path, one outline');
+  assert.ok(mochi.includes('C74 31 80 27 86 30'), 'the twist is part of the outline');
+  assert.notEqual(mochi, plain);
+  assert.doesNotMatch(html, /twist-fill|twist-line/);
 });
 
 test('snug headwear tucks the mochi twist and chick tuft under it', () => {
   const { Wardrobe } = require('./load');
   for (const id of ['bandana', 'headphones', 'mintphones']) assert.equal(Wardrobe.find((w) => w.id === id).snug, true, id);
-  assert.match(css, /\.pet\.snug \.twist, \.pet\.snug \.tuft \{ display: none; \}/);
+  assert.match(css, /\.pet\.snug \.skin-twist, \.pet\.hooded \.skin-twist \{ display: none; \}/);
+  assert.match(css, /\.pet\.snug \.tuft \{ display: none; \}/);
 });
 
 test('the headphones are over-ear: padded band, hinges, round cups with rims and cushions, and a cable', () => {
