@@ -17,6 +17,16 @@
 <link rel="stylesheet" href="look-cardboard.css">
 </head>
 <body>
+<!-- the "sticker" art style: a white die-cut border and a soft shadow around the pet (see styles.css, "sticker art") -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="stickerArt" x="-20%" y="-20%" width="140%" height="140%">
+    <feMorphology in="SourceAlpha" operator="dilate" radius="3.2" result="d"/>
+    <feFlood flood-color="#fff"/><feComposite in2="d" operator="in" result="w"/>
+    <feGaussianBlur in="d" stdDeviation="1.8" result="sb"/><feOffset in="sb" dy="2.6" result="so"/>
+    <feFlood flood-color="#7a5236" flood-opacity=".35"/><feComposite in2="so" operator="in" result="sh"/>
+    <feMerge><feMergeNode in="sh"/><feMergeNode in="w"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs></svg>
 <div class="app">
   <header class="scene" id="scene">
     <div class="scene-bar">

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 65 (3 Oct)
+- Test: the cat has the sticker art style (no brown outline, white die-cut border and soft shadow), hats and all. Other pets are unchanged.
+
 ## Build 64 (3 Oct)
 - New species: Axolotl (pink, with frilly gills and a wide smile).
 - Strawberry redone: deeper pink, seeds sitting in little dimples, a leafier top.

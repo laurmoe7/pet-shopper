@@ -1161,3 +1161,8 @@ button { font: inherit; color: inherit; }
 .axo-smile { display: none; }
 .pet[data-species="axolotl"][data-mouth="smile"] path[data-mouth="smile"]:not(.axo-smile) { display: none; }
 .pet[data-species="axolotl"][data-mouth="smile"] .axo-smile { display: inline; }
+
+/* sticker art (a test on the cat only): no brown outline on the body, a white die-cut border around everything
+   the pet wears, and a soft shadow. Add a species to these selectors to give it the same style. */
+.pet[data-species="kitty"] .pet-svg { filter: url(#stickerArt); }
+.pet[data-species="kitty"] :is(.skin, .skin-under, .ear, .foot, .arm ellipse) { stroke: none; }
