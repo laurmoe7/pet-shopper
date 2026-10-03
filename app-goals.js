@@ -134,7 +134,7 @@ function renderGoals() {
     name.textContent = ach.title;
     var reward = document.createElement('span');
     reward.className = 'goal-reward';
-    reward.textContent = (p.done ? '✓ ' : '🔒 ') + ach.unlocks.label;
+    reward.textContent = (p.done ? '✓ ' : FreeUnlocks.all ? '★ ' : '🔒 ') + ach.unlocks.label;
     title.append(name, reward);
     var text = document.createElement('div');
     text.className = 'goal-text';
@@ -162,7 +162,9 @@ function renderGoals() {
 }
 $('goalsBtn').addEventListener('click', function () {
   renderGoals();
-  $('goalsFairPlay').hidden = !state.settings.fairPlayTips;
+  $('goalsFairPlay').hidden = !state.settings.fairPlayTips || !!FreeUnlocks.all;
+  $('goalsIntroText').textContent = FreeUnlocks.all ? 'Everything is unlocked for now. Your progress still counts, so rewards can come back later. Only a few count each day.' : ' to unlock new friends and hats. Only a few count each day, so come back tomorrow for more.';
+  $('goalsFeed').hidden = !!FreeUnlocks.all;
   openDialog(goalsSheet);
 });
 goalsSheet.addEventListener('click', function (e) { if (e.target === goalsSheet) goalsSheet.close(); });

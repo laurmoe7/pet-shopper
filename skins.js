@@ -9,6 +9,22 @@
   'use strict';
   root.Skins = [
     { id: 'penguin', base: 'birdie', label: 'Penguin' },
-    { id: 'parrot', base: 'birdie', label: 'Parrot' }
+    { id: 'parrot', base: 'birdie', label: 'Parrot' },
+    { id: 'strawberry', base: 'mochi', label: 'Strawberry' },
+    { id: 'chocolate', base: 'mochi', label: 'Chocolate' },
+    { id: 'taro', base: 'mochi', label: 'Taro' },
+    { id: 'tabby', base: 'kitty', label: 'Tabby' },
+    { id: 'blackcat', base: 'kitty', label: 'Black cat' },
+    { id: 'calico', base: 'kitty', label: 'Calico' },
+    { id: 'chihuahua', base: 'puppy', label: 'Chihuahua' },
+    { id: 'pomeranian', base: 'puppy', label: 'Pomeranian' },
+    { id: 'golden', base: 'puppy', label: 'Golden retriever' },
+    { id: 'chocolatemilk', base: 'cow', label: 'Chocolate milk' },
+    { id: 'highland', base: 'cow', label: 'Highland cattle' },
+    { id: 'dirty', base: 'pig', label: 'Dirty piggy' },
+    { id: 'boar', base: 'pig', label: 'Boar' },
+    { id: 'floppybunny', base: 'bunny', label: 'Floppy ears' },
+    { id: 'whitehamster', base: 'hamster', label: 'White hamster' },
+    { id: 'syrian', base: 'hamster', label: 'Long-haired Syrian' }
   ];
 })(typeof self !== 'undefined' ? self : globalThis);

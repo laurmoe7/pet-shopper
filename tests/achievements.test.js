@@ -1,6 +1,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { PetLogic: L, Foods, Wardrobe, Achievements, FreeUnlocks } = require('./load');
+const { PetLogic: L, Foods, Wardrobe, Achievements, FreeUnlocks: Free } = require('./load');
+// the rules are tested with unlocking switched on; the game currently ships with everything open (Free.all)
+const FreeUnlocks = { ...Free, all: false };
 
 let n = 0;
 // a different fish each time, added long ago, so only the rule under test applies
@@ -257,15 +259,14 @@ test('the fair-play memory is saved with the pet', () => {
   assert.equal(back.guard.lastSeen, day(1).getTime());
 });
 
-test('every skin belongs to a species that exists, and has its look drawn', () => {
+test('every skin belongs to a species that is drawn, and has its colours', () => {
   const { Skins } = require('./load');
   const fs = require('fs'), path = require('path');
   const css = fs.readFileSync(path.join(__dirname, '..', 'styles.css'), 'utf8');
   const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
   assert.equal(new Set(Skins.map((s) => s.id)).size, Skins.length);
   for (const s of Skins) {
-    assert.ok(L.isBird(s.base), s.id + ' is on a bird');
+    assert.match(html, new RegExp('data-sp="' + s.base + '"'), s.id + ' is on a species that exists');
     assert.match(css, new RegExp('data-skin="' + s.id + '"\\] \\{ --pet-skin'), s.id + ' has colours');
-    assert.match(html, new RegExp('data-sk="' + s.id + '"'), s.id + ' has parts drawn');
   }
 });

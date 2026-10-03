@@ -475,10 +475,11 @@
    * @param {'species'|'skin'|'hat'} kind
    * @param {string} id
    * @param {Object[]} achievements
-   * @param {{species: string[], skin: string[], hat: string[]}} free
+   * @param {{all?: boolean, species: string[], skin: string[], hat: string[]}} free  With `all`, everything is open.
    * @returns {boolean}
    */
   function isUnlocked(profile, kind, id, achievements, free) {
+    if (free && free.all) return true;
     if (free[kind] && free[kind].indexOf(id) !== -1) return true;
     // a species is also usable once one of its skins has been earned
     if (kind === 'species' && achievements.some(function (a) {

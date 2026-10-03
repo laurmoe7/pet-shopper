@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { PetLogic: L, Achievements, FreeUnlocks, Personalities } = require('./load');
+const { PetLogic: L, Achievements, FreeUnlocks: Free, Personalities } = require('./load');
+const FreeUnlocks = { ...Free, all: false };   // the rules are tested with unlocking switched on
 
 const noon = new Date(2026, 9, 2, 12, 0, 0);
 const fish = (t, added) => ({ text: t, emoji: '🐟', cat: 'protein', added });

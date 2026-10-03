@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 54 (3 Oct)
+- 15 new skins: mochi (strawberry, chocolate, taro), cat (tabby, black cat, calico), dog (chihuahua, Pomeranian, golden retriever), cow (chocolate milk, Highland cattle), pig (dirty piggy, boar), bunny (floppy ears), hamster (white, long-haired Syrian).
+- Everything is unlocked for now: no locks on species, skins, hats or personalities. Goals still count progress.
+- Sheets fade out above the Done button instead of cutting off, and their scroll bar is no longer clipped at the top.
+- The bottom bar icons sit in circles so they look more tappable.
+
 ## Build 53 (3 Oct)
 - The bottom bar stays visible when a screen such as Goals is open. Tap a bar button again to close its screen, or tap another to switch.
 - Skins: the chick is now the Birdie, which can wear a skin. Penguin (earned with the Fish fan goal) and a new Parrot (free for now) are skins. Existing chicks and penguins carry over.

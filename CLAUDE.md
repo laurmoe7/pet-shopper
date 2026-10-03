@@ -11,6 +11,7 @@ A grocery list with a tamagotchi-like pet that "eats" items as you check them of
 - Add a short line to `CHANGELOG.md` for each build you ship.
 - She wants people to use the list legitimately, not game it for unlocks (hence the fair-play rules).
 
+- Nothing requires an unlock for now: `FreeUnlocks.all` in `achievements.js` opens every species, skin, hat and personality. New things should not need unlocks either; goals still count progress and set `all` to false to bring unlocking back (the unlock rules and tests are kept). Skin parts that are shared between skins use `data-sk="skin1 skin2"` (matched with `~=`).
 - Keep files focused. Put new code in the `app-*.js` file for its topic, and start a new file when a topic needs one. Only split an existing file when I would have to read through unrelated code to change one thing, as with the old single `app.js`. Size alone is not a reason: a plain list like `wardrobe.js`, or a file with clear sections like `logic.js`, is fine long because it can be searched and read in parts. A split must not change behavior: run `npm test`, bump the build and check the preview.
 
 ## Product decisions
@@ -42,7 +43,7 @@ Plain web app, no build step, no dependencies. `npm test` runs Node's built-in t
 - `foods.js`: keyword to emoji dictionary. After adding emoji, regenerate with `node tools/copy-emoji.js <openmoji package>/color/svg` (openmoji@17).
 - `sounds.js`: Web Audio sounds with random pitch and variants.
 - Birds (the birdie, `PetLogic.BIRDS`) get `.beaked` and no mouth; treat future birds the same. Ears live in `.ear-l`/`.ear-r` groups.
-- Species and skins: a species is a body (`pet.species`); a skin (`pet.skin`, list in `skins.js`) changes colours and parts on that body. The birdie is the first with skins: original (the yellow chick look), penguin (earned by the Fish fan goal) and parrot (free for now). A skin is drawn with `data-skin` rules and `data-sk` parts in `styles.css`/`index.html`; a species' own parts use `data-sp`. Earning any skin also opens its species. Old saves load with chick -> birdie and penguin -> birdie + penguin skin. Prefer a skin over a new species when the new look is mostly colour on an existing body.
+- Species and skins: a species is a body (`pet.species`); a skin (`pet.skin`, list in `skins.js`) changes colours and parts on that body. Skins so far: birdie (original, penguin, parrot), mochi (strawberry, chocolate, taro), cat (tabby, black cat, calico), dog (chihuahua, Pomeranian, golden retriever), cow (chocolate milk, Highland cattle), pig (dirty piggy, boar), bunny (floppy ears), hamster (white, long-haired Syrian). A skin is drawn with `data-skin` rules and `data-sk` parts in `styles.css`/`index.html`; a species' own parts use `data-sp`. Old saves load with chick -> birdie and penguin -> birdie + penguin skin. Prefer a skin over a new species when the new look is mostly colour on an existing body.
 - Options (gear) are saved in `state.settings`, separate from the pet. Developer tools sheet lives in Options.
 
 ### Service worker and builds

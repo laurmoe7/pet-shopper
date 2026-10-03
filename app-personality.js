@@ -10,7 +10,7 @@ function personality() { return byId(Personalities, state.pet.personality) || Pe
  * @param {Object} p A personality.
  * @returns {boolean} True if it has been earned.
  */
-function personalityOpen(p) { return L.personalityProgress(state.pet, p).done; }
+function personalityOpen(p) { return !!FreeUnlocks.all || L.personalityProgress(state.pet, p).done; }
 /**
  * @param {Item} item
  * @returns {boolean} True if the pet gets excited about it. Foodies like
@@ -51,9 +51,10 @@ function renderPersonalities() {
     var p = byId(Personalities, b.dataset.personality);
     var prog = L.personalityProgress(state.pet, p);
     b.setAttribute('aria-pressed', p.id === personality().id ? 'true' : 'false');
-    b.classList.toggle('locked', !prog.done);
+    var open = personalityOpen(p);
+    b.classList.toggle('locked', !open);
     var badge = b.querySelector('.lock-badge');
-    if (prog.done) { if (badge) badge.remove(); return; }
+    if (open) { if (badge) badge.remove(); return; }
     if (!badge) { badge = document.createElement('span'); badge.className = 'lock-badge'; b.appendChild(badge); }
     badge.textContent = '🔒 ' + prog.count + '/' + prog.goal;
   });
@@ -64,7 +65,7 @@ personalityStrip.addEventListener('click', function (e) {
   var p = byId(Personalities, b.dataset.personality);
   var prog = L.personalityProgress(state.pet, p);
   describePersonality(p);
-  if (!prog.done) {
+  if (!personalityOpen(p)) {
     sound('locked');
     speciesHint.textContent = '🔒 ' + p.label + ': ' + p.text + ' (' + prog.count + '/' + prog.goal + ').';
     speciesHint.hidden = false;

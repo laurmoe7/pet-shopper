@@ -28,14 +28,14 @@ The tests live in `tests/` and load the same scripts the browser uses.
 ## What's in it
 
 - **The list.** Add items, tick them off, put them back, delete them. Each item gets a food emoji, and you can pick a different one.
-- **Nibble.** Eats each item you tick off, reacts to the type of food, and celebrates when the list is done. Pick a species (and a skin for it, such as the birdie's penguin and parrot looks) and a personality, and rename it with a double-tap.
+- **Nibble.** Eats each item you tick off, reacts to the type of food, and celebrates when the list is done. Pick a species (and a skin for it: strawberry, chocolate or taro mochi, tabby, black or calico cat, chihuahua, Pomeranian or golden retriever, chocolate milk or Highland cow, dirty piggy or boar, floppy-eared bunny, white or long-haired Syrian hamster, penguin or parrot birdie) and a personality, and rename it with a double-tap.
 - **Bottom bar.** Dress, Room, Treats, Top 10, Goals and Pet (rename, species, personality) are always one tap away at the bottom of the screen.
 - **Dress up.** Hats, glasses, scarves and shoes, including a clown nose and clown shoes. Each has its own line when you point at it.
 - **Top 10.** Counts what you buy most (once per item per day, same fair-play rules as goals) and ranks it on its own screen (bottom bar), with medals for the top 3 and a pedestal for #1. Tap + to put a favourite back on the list.
 - **Petting and treats.** Stroke Nibble with a finger for a purr and hearts. The Treats button in the bottom bar lets you pick 3 free snacks a day (each once a day). They count for goals and personalities like shopping does, with the same daily limits, but not for the Top 10.
 - **Memory.** Nibble remarks when you add something you buy a lot, using your Top 10.
 - **Room.** Place furniture behind Nibble and drag it around.
-- **Goals.** Feeding Nibble unlocks new species, personalities and hats. Fair-play rules keep it about real shopping:
+- **Goals.** Feeding Nibble counts progress towards goals. Everything is unlocked for now (`FreeUnlocks.all`), so goals don't unlock anything yet. Fair-play rules keep it about real shopping:
   - Items count after 15 minutes on the list, and once a day each.
   - Only a few count per day, so nothing unlocks in one day.
   - Putting an item back the same day takes its count back.
