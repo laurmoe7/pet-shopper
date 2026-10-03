@@ -274,7 +274,9 @@
     var line = own ? text : L.styleLine(personality(), text);
     var menu = document.querySelector('dialog[open]:not(#roomSheet)');
     if (menu && menu.id === 'dressSheet') { dressSay(line, ms, true); return; }
-    if (menu) { menu.appendChild(bubble); bubble.classList.add('in-sheet'); } else bubbleToStage();
+    try {
+      if (menu) { menu.appendChild(bubble); bubble.classList.add('in-sheet'); } else bubbleToStage();
+    } catch (err) { /* if the bubble cannot move, it still shows where it is */ }
     // talking in its sleep: mumbly and slow
     bubble.textContent = pet.classList.contains('x-zzz') ? L.sleepTalk(line) : line;
     bubble.hidden = false;
@@ -1456,7 +1458,7 @@
 
   // ---------- options ----------
   // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-  var BUILD = '32';
+  var BUILD = '33';
   $('buildLabel').textContent = 'Build ' + BUILD;
   var optionsSheet = $('optionsSheet'), optionsList = $('optionsList');
   var OPTIONS = [
@@ -1512,6 +1514,17 @@
     renderRoom();
   }
   var DEV_ACTIONS = [
+    { label: 'Say something now', run: function () {
+      var why = [];
+      if (state.quiet) why.push('Quiet mode is on');
+      if (!state.settings.bubbles) why.push('Speech bubbles are off');
+      if (!why.length) say('hi from Nibble! (build ' + BUILD + ')', 3500, true);
+      return why.length ? 'No bubble because: ' + why.join(' and ') + '. Use "Turn sound and speech on" below.' : 'A bubble should show at the top of the screen. If you see it, speech works.';
+    } },
+    { label: 'Turn sound and speech on', run: function () {
+      state.quiet = false; state.settings.sounds = true; state.settings.bubbles = true;
+      return 'Quiet mode is off, sounds and speech bubbles are on.';
+    } },
     { label: 'Unlock everything', run: function () { L.unlockAll(state.pet, Achievements, Personalities); return 'All goals finished and personalities earned.'; } },
     { label: 'Lock everything again', run: function () { L.lockAll(state.pet, Achievements, FreeUnlocks); return 'Progress wiped. Locked items are locked again.'; } },
     { label: 'Skip to tomorrow', run: function () { L.skipDays(state, 1); return 'A day has passed: daily limits are fresh.'; } },
