@@ -2,8 +2,8 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
-## Build 72 (3 Oct)
-- Developer tools: "Seam hunt" switches (plain food emoji, classic look, no tilting, no squashing, still arms, no animation) to find why a hairline shows on the pet. They reset when the app reloads.
+## Build 73 (3 Oct)
+- Fixed the hairline across the pet's face after feeding: the chomp, spit, stretch and tilt moves now slide the pet instead of squashing or rotating it. The seam-hunt switches are removed.
 
 ## Build 71 (3 Oct)
 - Bunny is back to its original look (thick outline, gloss, original eyes). The restyle test and the seam-hunt switches are removed.

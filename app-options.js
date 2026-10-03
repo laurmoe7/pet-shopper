@@ -82,24 +82,7 @@ function refreshAll() {
   renderPersonalities();
   renderRoom();
 }
-/** A Developer tools switch that flips a class on the page (used to hunt a drawing seam). */
-function seamSwitch(label, cls, what) {
-  return { label: 'Seam hunt: ' + label, run: function () {
-    var on = document.documentElement.classList.toggle(cls);
-    return what + (on ? ' (switched)' : ' (back to normal)');
-  } };
-}
 var DEV_ACTIONS = [
-  seamSwitch('plain food emoji', 'bn-noemojifx', 'The white sticker edges around the list emoji are off'),
-  { label: 'Seam hunt: classic look', run: function () {
-    var on = document.documentElement.dataset.look === 'cardboard';
-    if (on) delete document.documentElement.dataset.look; else document.documentElement.dataset.look = 'cardboard';
-    return on ? 'Classic pink look (switched)' : 'Cardboard look (back to normal)';
-  } },
-  seamSwitch('no tilting and hopping', 'bn-notilt', 'The whole pet stops tilting, hopping and bouncing'),
-  seamSwitch('no squashing', 'bn-nosquash', 'The pet stops squashing, wobbling and breathing'),
-  seamSwitch('still arms', 'bn-noarms', 'Arms stop moving'),
-  seamSwitch('no animation', 'bn-noanim', 'All pet animation stops'),
   { label: 'Unlock everything', run: function () { L.unlockAll(state.pet, Achievements, Personalities); return 'All goals finished and personalities earned.'; } },
   { label: 'Lock everything again', run: function () { L.lockAll(state.pet, Achievements, FreeUnlocks); return 'Progress wiped. Locked items are locked again.'; } },
   { label: 'Skip to tomorrow', run: function () { L.skipDays(state, 1); return 'A day has passed: daily limits are fresh.'; } },

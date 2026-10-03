@@ -57,7 +57,7 @@ Lauren previews on her phone via a single-file build (styles and scripts inlined
 
 ## Lessons learned
 
-- Avoid scaling or rotating curved SVG shapes in animations; it caused visible seams and trails on her phone. Animate with translation or opacity, or redraw the shape.
+- The whole-pet moves on `.squash` (chomp, spit, stretch, wobble) only slide with translate: scaling or rotating the pet while its arms moved left a hairline across the face on her phone (found with Developer-tools switches in build 72). Avoid scaling or rotating curved SVG shapes in animations; it caused visible seams and trails on her phone. Animate with translation or opacity, or redraw the shape.
 - Keep shoes about the size of the original boots; the first oversized shoes looked awkward to her.
 - The mochi hair twist: fill covers the outline and the line ends on it, with the skin path starting at the bottom, so there is no seam.
 - Test on a phone-sized viewport; she reports visual glitches that desktop hides.

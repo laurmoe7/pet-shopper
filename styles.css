@@ -361,10 +361,11 @@ button { font: inherit; color: inherit; }
 @keyframes jelly { 0%, 100% { transform: translateY(0); } 30% { transform: translateY(1.5px); } 55% { transform: translateY(-1px); } 75% { transform: translateY(.5px); } }
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } 55% { transform: translateY(-10px); } }
 @keyframes hop { 0% { transform: translateY(0); } 40% { transform: translateY(-18px); } 100% { transform: translateY(0); } }
-@keyframes chomp { 0% { transform: scale(1, 1); } 30% { transform: scale(1.14, .84); } 60% { transform: scale(.94, 1.08); } 80% { transform: scale(1.03, .97); } 100% { transform: scale(1, 1); } }
-@keyframes spit { 0% { transform: scale(1); } 40% { transform: scale(.9, 1.1) translateY(-4px); } 100% { transform: scale(1); } }
-@keyframes stretch { 0%, 100% { transform: scale(1, 1); } 45% { transform: scale(.88, 1.14); } 70% { transform: scale(1.06, .95); } }
-@keyframes wobble { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
+/* the whole-pet moves (chomp, spit, stretch, wobble) only slide: scaling or rotating the pet while its arms move left a hairline across the face on her phone */
+@keyframes chomp { 0% { transform: translateY(0); } 30% { transform: translateY(4px); } 60% { transform: translateY(-2.5px); } 80% { transform: translateY(1px); } 100% { transform: translateY(0); } }
+@keyframes spit { 0% { transform: translateY(0); } 40% { transform: translateY(-5px); } 100% { transform: translateY(0); } }
+@keyframes stretch { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-6px); } 70% { transform: translateY(2px); } }
+@keyframes wobble { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 @keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
 @keyframes chew { from { transform: scaleX(1) translateY(0); } to { transform: scaleX(.75) translateY(1.5px); } }
 @keyframes zfloat { 0%, 100% { transform: translateY(0); opacity: .9; } 50% { transform: translateY(-4px); opacity: .5; } }
@@ -1161,10 +1162,3 @@ button { font: inherit; color: inherit; }
 .axo-smile { display: none; }
 .pet[data-species="axolotl"][data-mouth="smile"] path[data-mouth="smile"]:not(.axo-smile) { display: none; }
 .pet[data-species="axolotl"][data-mouth="smile"] .axo-smile { display: inline; }
-
-/* Developer tools "Seam hunt" switches: turn off one thing at a time to find what makes a hairline appear on her phone */
-html.bn-noemojifx .emoji-btn img { filter: none !important; }
-html.bn-notilt .pet-svg { animation: none !important; }
-html.bn-nosquash .squash { animation: none !important; }
-html.bn-noarms .arm { animation: none !important; }
-html.bn-noanim .pet, html.bn-noanim .pet * { animation: none !important; }
