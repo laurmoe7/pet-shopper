@@ -234,6 +234,18 @@
         '</g>'
     },
     {
+      id: 'beret', slot: 'hat', snug: true, label: 'Strawberry beret', icon: '24 8 112 58',
+      lines: ['berry chic!', 'très sweet!', 'ooh la la!'],
+      svg: '<g class="hat-beret" transform="rotate(-9 80 44)">' +
+        '<path class="beret-top" d="M32 48 C30 30 54 25 80 26 C108 27 130 34 128 49 C112 55 50 56 32 48 Z"/>' +
+        '<path class="beret-band" d="M36 49.4 Q80 58 124 49.4 L123.6 54.6 Q80 62.6 36.4 54.6 Z"/>' +
+        '<path class="beret-shine" d="M44 38 C50 32 60 29.6 70 29"/>' +
+        '<path class="beret-seed" d="M52 40 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M70 46 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M92 41 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M110 45 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M80 38 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M100 34 l1.6 3.4 l-1.6 .6 l-1.6 -.6 Z M62 34 l1.6 3.4 l-1.6 .6 l-1.6 -.6 Z"/>' +
+        '<path class="beret-leaf" d="M82 27 C76 24 70 25 69 29 C74 30 78 29.6 82 27.8 C80 22 85 19 89 22 C88 25 86 27 84 28 C90 26 95 28 95 32 C91 33 86 31 83.4 29 Z"/>' +
+        '<path class="beret-stem" d="M83 28 C83.4 24 84 22 85.4 20"/>' +
+        '</g>'
+    },
+    {
       id: 'bananapeel', slot: 'hat', snug: true, label: 'Banana peel', icon: '62 -2 84 58',
       lines: ['slippery when worn!', 'a-peeling, right?', 'going bananas!'],
       svg: '<g class="hat-banana" transform="translate(24 4) translate(80 40) rotate(34) scale(.6) translate(-80 -40)">' +
@@ -287,6 +299,16 @@
       id: 'boa', slot: 'neck', label: 'Feather boa', icon: '8 104 144 46',
       lines: ['dahling!', 'fabulous, simply fabulous', 'strike a pose!'],
       svg: '<g class="neck-boa">' + boa() + '</g>'
+    },
+    {
+      id: 'toast', slot: 'neck', front: true, label: 'Toast in mouth', icon: '60 88 56 34',
+      lines: ['mmf mmf!', 'late for the shop!', 'buttery!'],
+      svg: '<g class="neck-toast" transform="translate(78 109) rotate(86) translate(-10 -17) scale(1.12)">' +
+        '<path class="toast-crust" d="M2 20 V10 C-1.5 9 -1.5 3 2.5 2 C4 -2 9 -3 10.5 0 C12 -2.5 17 -2 18 2 a2.6 2.6 0 0 0 -.5 4 a2.6 2.6 0 0 0 1 4 L20 10 V20 Z"/>' +
+        '<path class="toast-crumb" transform="translate(10 10.5) scale(.76) translate(-10 -10.5)" d="M2 20 V10 C-1.5 9 -1.5 3 2.5 2 C4 -2 9 -3 10.5 0 C12 -2.5 17 -2 18 2 a2.6 2.6 0 0 0 -.5 4 a2.6 2.6 0 0 0 1 4 L20 10 V20 Z"/>' +
+        '<rect class="toast-butter" x="6.2" y="7.4" width="6.4" height="5" rx="1.3" transform="rotate(-8 9.4 10)"/>' +
+        '<path class="toast-dots" d="M6 15.6 h.1 M12.4 15 h.1 M14.6 11.6 h.1"/>' +
+        '</g>'
     },
     {
       id: 'boots', slot: 'feet', label: 'Boots', icon: '40 126 80 24',
@@ -384,6 +406,18 @@
         '<rect class="nerd-tape" x="76.2" y="83" width="7.6" height="8.6" rx="1.6" transform="rotate(-8 80 87.3)"/>' +
         '<path class="nerd-tape-line" d="M78.4 84 L78.9 90.6 M81.4 83.6 L81.9 90.2" transform="rotate(-8 80 87.3)"/>' +
         '<path class="nerd-shine" d="M48.5 86 Q49 83.6 51.5 83 M92.5 86 Q93 83.6 95.5 83"/>' +
+        '</g>'
+    },
+    {
+      id: 'roundshades', slot: 'face', label: 'Round tints', icon: '28 74 104 36',
+      lines: ['rose-tinted world!', 'very mysterious', 'groovy, baby!'],
+      svg: '<g class="face-round">' +
+        '<path class="round-arm" d="M46.5 88 L31 85 M113.5 88 L129 85"/>' +
+        '<circle class="round-lens" cx="58" cy="92" r="12.6"/>' +
+        '<circle class="round-lens" cx="102" cy="92" r="12.6"/>' +
+        '<path class="round-bridge" d="M70.4 90 Q80 85.6 89.6 90"/>' +
+        '<path class="round-shine" d="M49.6 87.4 Q51.4 83.6 55.4 82.6 M93.6 87.4 Q95.4 83.6 99.4 82.6"/>' +
+        '<path class="round-shine" d="M52.4 99 Q55 101.6 58.8 101.8 M96.4 99 Q99 101.6 102.8 101.8" style="opacity:.35"/>' +
         '</g>'
     }
   ];

@@ -127,7 +127,6 @@
    * @typedef {Object} Settings  Options from the gear menu. They belong to this
    *   phone, not to the pet.
    * @property {boolean} sounds       Eating sounds and squeaks.
-   * @property {boolean} bubbles      Speech bubbles.
    * @property {boolean} vibration    A little buzz on taps (phones that support it).
    * @property {boolean} daydreams    Thought clouds about the list.
    * @property {boolean} suggestions  The pet now and then asks for something to add.
@@ -137,7 +136,7 @@
    */
 
   /** The settings a new phone starts with: everything on. */
-  var DEFAULT_SETTINGS = { sounds: true, bubbles: true, vibration: true, daydreams: true, suggestions: true, fairPlayTips: true, goalToasts: true };
+  var DEFAULT_SETTINGS = { sounds: true, vibration: true, daydreams: true, suggestions: true, fairPlayTips: true, goalToasts: true };
 
   /**
    * Fills in any settings missing from what was saved.
