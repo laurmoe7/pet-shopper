@@ -872,7 +872,6 @@ button { font: inherit; color: inherit; }
 .jester-red { fill: #e86a7a; stroke: var(--pet-ink); stroke-width: 1.9; stroke-linejoin: round; }
 .jester-gold { fill: #f2c84b; stroke: var(--pet-ink); stroke-width: 1.9; stroke-linejoin: round; }
 .jester-purple { fill: #9b98d6; stroke: var(--pet-ink); stroke-width: 1.9; stroke-linejoin: round; }
-.jester-fold { fill: none; stroke: #7774b8; stroke-width: 1.5; stroke-linecap: round; }
 .jester-brim { fill: #f3dcb4; stroke: var(--pet-ink); stroke-width: 1.9; stroke-linejoin: round; }
 .jester-brim-hi { fill: none; stroke: #fff4df; stroke-width: 1.8; stroke-linecap: round; }
 .jester-pom { fill: #fff; stroke: var(--pet-ink); stroke-width: 1.6; }

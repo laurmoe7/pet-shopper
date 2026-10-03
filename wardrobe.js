@@ -280,16 +280,15 @@
         '</g>'
     },
     {
-      id: 'jestercap', slot: 'hat', snug: true, label: 'Mini jester cap', icon: '18 0 124 60',
+      id: 'jestercap', slot: 'hat', snug: true, label: 'Mini jester cap', icon: '18 2 124 58',
       lines: ['jingle jingle!', 'the royal fool!', 'jest for you!'],
       svg: '<g class="hat-jester">' +
-        '<path class="jester-red" d="M60 34 C48 26 34 30 27 42 C37 37 48 39 58 44 Z"/>' +
-        '<path class="jester-gold" d="M66 24 C65 8 90 2 103 12 C92 10 85 15 88 22 Z"/>' +
-        '<path class="jester-purple" d="M50 46 C48 28 62 18 82 18 C104 18 120 28 128 45 C121 40 114 40 110 46 Z"/>' +
-        '<path class="jester-fold" d="M88 22.6 C99 26 107 32 112 40 M64 26 C60 31 58 37 58 42"/>' +
+        '<path class="jester-purple" d="M80 45 C80 30 90 20 102 20 C112 20 120 32 125.4 46 C120.6 43 116.4 43 113 46 Z"/>' +
+        '<path class="jester-red" d="M66 45 C66 34 66 22 58 21 C50 20 44 28 40 33 C36 37 31 41 27 44 C34 44.4 42 45 48 46 Z"/>' +
+        '<path class="jester-gold" d="M63 45 C61 30 66 12 78 9 C88 7 96 9 100.6 14 C94.6 13 90.4 14.4 88.4 18.4 C86.4 24 86.4 34 86.6 45 Z"/>' +
         '<path class="jester-brim" d="M45 44 Q80 37.6 115 44 L114 52.6 Q80 46.4 46 52.6 Z"/>' +
         '<path class="jester-brim-hi" d="M48 45.6 Q80 40.4 112 45.6"/>' +
-        '<circle class="jester-pom" cx="26.4" cy="43.4" r="4"/><circle class="jester-pom" cx="129" cy="47" r="4"/><circle class="jester-pom" cx="104" cy="12.8" r="4"/>' +
+        '<circle class="jester-pom" cx="26.4" cy="44.4" r="4"/><circle class="jester-pom" cx="101.6" cy="14.6" r="4"/><circle class="jester-pom" cx="126.2" cy="47.4" r="4"/>' +
         '</g>'
     },
     {
@@ -400,7 +399,9 @@
       lines: ['so tall!', 'click clack click', 'catwalk ready!'],
       svg: '<g class="feet-heels">' + [58, 102].map(function (x) {
         // a round pump that covers the whole foot, on a small heel, with a bow on the toe
-        return '<path class="heel-spike" d="M' + (x - 3.4) + ' 142.6 L' + (x - 1.6) + ' 148.6 H' + (x + 1.6) + ' L' + (x + 3.4) + ' 142.6 Z"/>' +
+        // the heel sits at the back of the shoe, which reads as the outer side from the front
+        var h = x + (x < 80 ? -8 : 8);
+        return '<path class="heel-spike" d="M' + (h - 3) + ' 141.6 L' + (h - 1.4) + ' 148.4 H' + (h + 1.4) + ' L' + (h + 3) + ' 141.6 Z"/>' +
           '<ellipse class="heel-shoe" cx="' + x + '" cy="138.4" rx="12" ry="6.2"/>' +
           '<path class="heel-shine" d="M' + (x - 8.6) + ' 139.6 Q' + (x - 7.4) + ' 142.6 ' + (x - 3.6) + ' 143.6"/>' +
           '<path class="heel-bow" d="M' + x + ' 140.6 l-3.4 -2.2 v4.4 Z M' + x + ' 140.6 l3.4 -2.2 v4.4 Z"/>' +
@@ -433,7 +434,7 @@
     {
       id: 'cowboyboots', slot: 'feet', label: 'Cowboy boots', icon: '38 120 84 28',
       lines: ['boot scootin!', 'yeehaw!', 'line dance time!'],
-      svg: '<g class="feet-cowboy"><path class="cb-heel" d="M66.6 141.4 L66.2 144 H62 L61.6 142.4 Z"/><path class="cb-shaft" d="M50 130 Q58 132.4 66 130 L65 137 H51 Z"/><path class="cb-foot" d="M67 139.6 C67 135.6 53 135.2 46 140.2 C53 143.2 67 143.4 67 139.6 Z"/><path class="cb-stitch" d="M56 132.6 q2 2.4 4 0"/><path class="cb-heel" d="M93.4 141.4 L93.8 144 H98 L98.4 142.4 Z"/><path class="cb-shaft" d="M94 130 Q102 132.4 110 130 L109 137 H95 Z"/><path class="cb-foot" d="M93 139.6 C93 135.6 107 135.2 114 140.2 C107 143.2 93 143.4 93 139.6 Z"/><path class="cb-stitch" d="M100 132.6 q2 2.4 4 0"/></g>'
+      svg: '<g class="feet-cowboy"><path class="cb-heel" d="M66.6 141.4 L66.2 144 H62 L61.6 142.4 Z"/><path class="cb-shaft" d="M50.4 133.4 Q58 135.4 65.6 133.4 L65 137.4 H51 Z"/><path class="cb-foot" d="M67 139.6 C67 135.6 53 135.2 46 140.2 C53 143.2 67 143.4 67 139.6 Z"/><path class="cb-stitch" d="M56.4 134.8 q1.6 1.6 3.2 0"/><path class="cb-heel" d="M93.4 141.4 L93.8 144 H98 L98.4 142.4 Z"/><path class="cb-shaft" d="M94.4 133.4 Q102 135.4 109.6 133.4 L109 137.4 H95 Z"/><path class="cb-foot" d="M93 139.6 C93 135.6 107 135.2 114 140.2 C107 143.2 93 143.4 93 139.6 Z"/><path class="cb-stitch" d="M100.4 134.8 q1.6 1.6 3.2 0"/></g>'
     },
     {
       id: 'clogs', slot: 'feet', label: 'Wooden clogs', icon: '40 124 80 26',
