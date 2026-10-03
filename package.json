@@ -3,6 +3,8 @@
   "private": true,
   "description": "A grocery list with a little pet who eats what you check off.",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "preview": "node tools/build-preview.js",
+    "preview:bump": "node tools/build-preview.js --bump"
   }
 }
