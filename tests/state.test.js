@@ -163,3 +163,8 @@ test('saves from before skins: the chick becomes a birdie, the penguin a birdie 
   assert.equal(load('pig').species, 'pig');
   assert.equal(load('pig').skin, '');
 });
+
+test('a saved Syrian hamster skin is now the long-haired skin', () => {
+  const s = PetLogic.parseState(JSON.stringify({ items: [], pet: { species: 'hamster', skin: 'syrian' } }), ids());
+  assert.equal(s.pet.skin, 'longhair');
+});

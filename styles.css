@@ -240,7 +240,8 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="parrot"] [data-sk="parrot"] { display: inline; }
 /* a skin brings its own tuft and beak, so the base species' plain ones step aside */
 .pet[data-skin="penguin"] [data-sp="birdie"],
-.pet[data-skin="parrot"] [data-sp="birdie"] { display: none; }
+.pet[data-skin="parrot"] [data-sp="birdie"],
+.pet[data-skin="kiwi"] [data-sp="birdie"] { display: none; }
 .crest path { stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
 .crest-red { fill: #ee5b6f; }
 .crest-yellow { fill: #ffd84a; }
@@ -1032,7 +1033,9 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="boar"] { --pet-skin: #8f6c57; --pet-skin-shade: #70503f; --pet-ear-in: #e0a0a8; }
 .pet[data-skin="floppybunny"] { --pet-skin: #fffafb; --pet-skin-shade: #f7e3ea; }
 .pet[data-skin="whitehamster"] { --pet-skin: #fffaf6; --pet-skin-shade: #efe3da; --pet-ear-in: #ffc4cf; }
-.pet[data-skin="syrian"] { --pet-skin: #d19a60; --pet-skin-shade: #b97f45; --pet-ear-in: #ffb8c4; }
+.pet[data-skin="longhair"] { --pet-skin: #57525f; --pet-skin-shade: #403b49; --pet-ear-in: #e7a3b0; }
+.pet[data-skin="kiwi"] { --pet-skin: #b68f63; --pet-skin-shade: #dcaa5c; --pet-mark: #7a5a38; }
+.pet[data-skin="dutch"] { --pet-skin: #fffafb; --pet-skin-shade: #f0e0e4; --pet-ear-in: #ffbfcc; --pet-mark: #b8845f; }
 .pet[data-skin="strawberry"] [data-sk~="strawberry"],
 .pet[data-skin="chocolate"] [data-sk~="chocolate"],
 .pet[data-skin="taro"] [data-sk~="taro"],
@@ -1044,7 +1047,8 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="boar"] [data-sk~="boar"],
 .pet[data-skin="chihuahua"] [data-sk~="chihuahua"],
 .pet[data-skin="pomeranian"] [data-sk~="pomeranian"],
-.pet[data-skin="syrian"] [data-sk~="syrian"] { display: inline; }
+.pet[data-skin="longhair"] [data-sk~="longhair"] { display: inline; }
+.pet[data-skin="kiwi"] [data-sk~="kiwi"], .pet[data-skin="dutch"] [data-sk~="dutch"] { display: inline; }
 /* a skin's own ears and horns replace the species' ones */
 .pet[data-skin="floppybunny"] [data-sp="bunny"],
 .pet[data-skin="chihuahua"] [data-sp="puppy"],
@@ -1056,8 +1060,9 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="calico"] .ear-r .ear { fill: #5b566a; }
 .pet[data-skin="blackcat"] .stripes path { stroke: #7d788d; }
 /* the black cat's eyes show up as light on dark */
-.pet[data-skin="blackcat"] .eyes-open .ink { fill: #ffd84a; }
-.pet[data-skin="blackcat"] g[data-eyes] path.line, .pet[data-skin="blackcat"] g[data-eyes].line path { stroke: #ffe9b0; }
+.pet[data-skin="blackcat"] .eyes-open .ink, .pet[data-skin="longhair"] .eyes-open .ink { fill: #ffd84a; }
+.pet[data-skin="blackcat"] g[data-eyes] path.line, .pet[data-skin="blackcat"] g[data-eyes].line path,
+.pet[data-skin="longhair"] g[data-eyes] path.line, .pet[data-skin="longhair"] g[data-eyes].line path { stroke: #ffe9b0; }
 .sb-leaf { fill: #7ed67e; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
 .sb-seeds ellipse { fill: #fff0a0; }
 .choc ellipse { fill: #4a2d22; stroke: #2f1b14; stroke-width: .8; }
@@ -1092,3 +1097,17 @@ button { font: inherit; color: inherit; }
 .hog-fill { fill: #8d6b52; stroke: none; }
 .hog-blend path { fill: #8d6b52; stroke: none; }
 .hog-edge { fill: none; stroke: var(--pet-ink); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+
+.pet[data-skin="longhair"] .belly { fill: #625d6c; }
+.lh-muzzle { fill: #dcb88a; }
+.kiwi-fuzz path { fill: none; stroke: #8a6a45; stroke-width: 1.7; stroke-linecap: round; }
+.kiwi-beak { fill: #f3dca8; }
+.pet[data-skin="kiwi"] .beak { animation: none !important; transform: none !important; }
+.dutch path { fill: #b8845f; }
+.pet[data-skin="dutch"] [data-sp="bunny"] .ear { fill: #b8845f; }
+/* frog: webbed hands and feet, and a wide smile instead of the small one */
+.frog-web { fill: var(--pet-skin-shade); stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
+.frog-smile { display: none; }
+.pet:not([data-species="frog"]) .frog-smile { display: none; }
+.pet[data-species="frog"][data-mouth="smile"] path[data-mouth="smile"]:not(.frog-smile) { display: none; }
+.pet[data-species="frog"][data-mouth="smile"] .frog-smile { display: inline; }

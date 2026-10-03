@@ -99,6 +99,7 @@
     // the chick and penguin became one species, the birdie, with the penguin as a skin
     var species = saved.species || 'mochi';
     var skin = typeof saved.skin === 'string' ? saved.skin : '';
+    if (skin === 'syrian') skin = 'longhair';
     if (species === 'chick') species = 'birdie';
     else if (species === 'penguin') { species = 'birdie'; skin = 'penguin'; }
     return {

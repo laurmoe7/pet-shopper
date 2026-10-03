@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 58 (3 Oct)
+- Frog: the circles on top of its head are gone, it has a wide smile and webbed hands and feet.
+- Hedgehog: the ears are in front, so you can see them.
+- The long-haired hamster is now black with a tan muzzle (no longer "Syrian").
+- New skins: Kiwi (birdie) and Dutch (bunny, white with chestnut cheeks and ears).
+
 ## Build 57 (3 Oct)
 - Hedgehog: no outline between the spines and its cap, only around the outside.
 - Frog: eyes are back in the middle of the face. It keeps two small bumps on its head and gets darker green spots.

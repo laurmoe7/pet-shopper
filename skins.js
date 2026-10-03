@@ -10,6 +10,7 @@
   root.Skins = [
     { id: 'penguin', base: 'birdie', label: 'Penguin' },
     { id: 'parrot', base: 'birdie', label: 'Parrot' },
+    { id: 'kiwi', base: 'birdie', label: 'Kiwi' },
     { id: 'strawberry', base: 'mochi', label: 'Strawberry' },
     { id: 'chocolate', base: 'mochi', label: 'Chocolate' },
     { id: 'taro', base: 'mochi', label: 'Taro' },
@@ -24,7 +25,8 @@
     { id: 'dirty', base: 'pig', label: 'Dirty piggy' },
     { id: 'boar', base: 'pig', label: 'Boar' },
     { id: 'floppybunny', base: 'bunny', label: 'Floppy ears' },
+    { id: 'dutch', base: 'bunny', label: 'Dutch' },
     { id: 'whitehamster', base: 'hamster', label: 'White hamster' },
-    { id: 'syrian', base: 'hamster', label: 'Long-haired Syrian' }
+    { id: 'longhair', base: 'hamster', label: 'Long-haired' }
   ];
 })(typeof self !== 'undefined' ? self : globalThis);
