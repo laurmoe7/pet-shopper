@@ -125,7 +125,7 @@ clearBtn.addEventListener('click', function () {
   sound('remove');
   save();
   render();
-  if (!busy) { pulse('hop', 460); say(state.items.length ? 'fresh start!' : 'nap time…', 1300); }
+  if (!busy) { pulse('hop', 460); say(state.items.length ? 'fresh start!' : (L.isNight(petNow()) ? 'bedtime…' : 'all tidy!'), 1300); }
 });
 
 // tap Nibble for a little reaction

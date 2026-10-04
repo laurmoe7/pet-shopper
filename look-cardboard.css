@@ -312,3 +312,7 @@ html[data-look="cardboard"] .cart-heart { fill: #ff8fab; stroke: var(--cart-line
 html[data-look="cardboard"] .pet-sheet .picker-foot { background: var(--cb-dock-b); border-top: 1.5px dashed var(--cb-edge); }
 html[data-look="cardboard"] .bag-handle { stroke: var(--cart-line); stroke-width: 2.8; }
 html[data-look="cardboard"] .bag-body { fill: #e9c58c; stroke: var(--cart-line); stroke-width: 2.6; }
+/* the tape on every third list label (and its tick circle) is lilac instead of plain board brown */
+html[data-look="cardboard"] .item:nth-child(3n+1) { --tab: #d9ccf5; }
+@media (prefers-color-scheme: dark) { html[data-look="cardboard"]:not([data-theme="light"]) .item:nth-child(3n+1) { --tab: #b4a4e0; } }
+html[data-look="cardboard"][data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }

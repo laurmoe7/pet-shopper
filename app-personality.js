@@ -82,13 +82,13 @@ renderPersonalities();
 
 // ---------- suggestions ----------
 var suggestEl = $('suggest'), suggestBtn = $('suggestBtn'), suggestTimer;
-var SUGGEST_GAP_MS = 60 * 1000, lastSuggestion = 0; // at most one ask a minute
+var SUGGEST_GAP_MS = 3 * 60 * 1000, lastSuggestion = 0; // at most one ask every three minutes
 /**
  * The pet asks for one of its favourites that isn't on the list yet.
  * @returns {boolean} False if there is nothing left to suggest.
  */
 function offerSuggestion() {
-  // not too often: at most one ask a minute
+  // not too often: at most one ask every three minutes
   if (!state.settings.suggestions || Date.now() - lastSuggestion < SUGGEST_GAP_MS) return false;
   var text = L.suggestion(personality(), state.items);
   if (!text) return false;

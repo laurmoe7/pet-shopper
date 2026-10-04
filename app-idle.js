@@ -15,7 +15,7 @@ function scheduleDream() {
 function idle() {
   scheduleDream();
   if (busy || dreaming || document.hidden || document.querySelector('dialog[open]:not(#roomSheet)')) return;
-  // while it's awake it asks for something now and then (offerSuggestion keeps that to once a minute at most)
+  // while it's awake it asks for something now and then (offerSuggestion keeps that to once every three minutes at most)
   if (baseState() !== 'sleepy' && Math.random() < 0.2 && offerSuggestion()) return;
   if (state.settings.daydreams && Math.random() < 0.3) daydream();
   else idleMove();

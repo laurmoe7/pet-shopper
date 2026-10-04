@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 101 (4 Oct)
+- The plain brown tape (and tick circle) on every third list label is lilac now.
+- "Eaten" is now "Bought" and "Clear eaten" is "Clear bought", since the pet doesn't eat everything.
+- No more nap talk in the daytime: clearing the list says "all tidy!" (or "bedtime…" at night), and the Sleepy Head's after-shopping lines are cosy instead of sleepy.
+- The empty-list line says the pet "is ready when you are" in the day.
+- The pet asks for something at most every three minutes again.
+
 ## Build 100 (4 Oct)
 - The empty-list line uses the pet's name: "… is wide awake" in the day, "… is sleeping" at night.
 - Developer tools: Day / night switch (real clock, day, night).

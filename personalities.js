@@ -154,7 +154,7 @@
         idle: ['*yawn*', 'is it nap time…?', 'so sleepy…'],
         look: ['comfy… I like it…', 'cosy look…', 'mm… nice…'],
         room: ['perfect nap spot…', 'so snug…'],
-        full: ['full… time for a nap…', 'thank you… zzz'],
+        full: ['full… so cosy now…', 'thank you… mm, warm tummy'],
         quick: ['hm… that was fast…', 'already…?'],
         spit: ['mm… not yet…', 'later…'],
         health: ['get some rest… like me…', 'mm… self-care… nap…'],
