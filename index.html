@@ -282,6 +282,11 @@
               <g data-eyes="sparkle" class="star">
                 <path d="M58 83 L60 89.5 L66 92 L60 94.5 L58 101 L56 94.5 L50 92 L56 89.5Z"/>
                 <path d="M102 83 L104 89.5 L110 92 L104 94.5 L102 101 L100 94.5 L94 92 L100 89.5Z"/>
+                <!-- glints that blink around the stars, so the eyes glitter -->
+                <path class="glint g1" d="M65 83 l.8 2.2 l2.2 .8 l-2.2 .8 l-.8 2.2 l-.8 -2.2 l-2.2 -.8 l2.2 -.8 Z"/>
+                <path class="glint g2" d="M51 98 l.6 1.6 l1.6 .6 l-1.6 .6 l-.6 1.6 l-.6 -1.6 l-1.6 -.6 l1.6 -.6 Z"/>
+                <path class="glint g3" d="M109 84 l.6 1.6 l1.6 .6 l-1.6 .6 l-.6 1.6 l-.6 -1.6 l-1.6 -.6 l1.6 -.6 Z"/>
+                <path class="glint g4" d="M95 97 l.8 2.2 l2.2 .8 l-2.2 .8 l-.8 2.2 l-.8 -2.2 l-2.2 -.8 l2.2 -.8 Z"/>
               </g>
               <g data-eyes="squint" class="line">
                 <path d="M53 87 L63 92 L53 97"/>
@@ -466,8 +471,12 @@
     <h2 id="dressTitle">Dressing room</h2>
     <div class="dress-stage"><div class="dress-preview" id="dressPreview"></div><div class="dress-bubble" id="dressBubble" aria-live="polite" hidden></div></div>
     <fieldset class="species">
-      <legend class="field-label">Outfits</legend>
+      <legend class="field-label">Hats</legend>
       <div class="hat-strip" id="hatStrip"></div>
+    </fieldset>
+    <fieldset class="species">
+      <legend class="field-label">Clothes</legend>
+      <div class="hat-strip" id="bodyStrip"></div>
     </fieldset>
     <fieldset class="species">
       <legend class="field-label">Glasses</legend>

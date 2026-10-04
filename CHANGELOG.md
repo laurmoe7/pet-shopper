@@ -2,6 +2,14 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 88 (4 Oct)
+- Trash can lid looks like a galvanised bin lid: stepped rings, a flat strap handle with riveted tabs, lighter metal.
+- Fixed the dressing-room pet getting stuck with its arms waving after picking an outfit and then touching another one.
+- Sparkle eyes glitter: the stars flash and little glints blink around them.
+- Spurs moved to the outer side of the cowboy boots.
+- New Clothes row in the dressing room (the hat row is now called Hats). The cow hoodie moved there; a hood and a hat take each other off.
+- The cow hoodie's face sits higher, clear of the shading round the opening. New Pig hoodie.
+
 ## Build 87 (4 Oct)
 - Sheets restyled to match the cardboard look: kraft board with a stitched edge, a taped paper title, and paper-label cards. No more focus box on the grab bar.
 - The shopping cart is a little cardboard box on pink wheels, cut out like the food stickers.

@@ -44,17 +44,17 @@
    * @returns {string} SVG markup.
    */
   /**
- * A cowboy boot spur: a short arm out of the back of the heel and a star-shaped wheel.
- * @param {number} x Back of the heel.
- * @param {number} dir 1 when the back of the boot faces right, -1 when it faces left.
+ * A cowboy boot spur: a short arm out of the side of the boot at the ankle and a star-shaped wheel.
+ * @param {number} x Outer side of the boot shaft.
+ * @param {number} dir -1 for the left boot (spur points left), 1 for the right boot.
  */
 function spur(x, dir) {
-  var cx = x + dir * 5.6, cy = 140, star = '';
+  var cx = x + dir * 5.6, cy = 135, star = '';
   for (var i = 0; i < 10; i++) {
     var a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 1.5 : 3.6;
     star += (i ? ' L' : 'M') + (cx + Math.cos(a) * r).toFixed(2) + ' ' + (cy + Math.sin(a) * r).toFixed(2);
   }
-  return '<path class="spur-arm" d="M' + (x - dir * .4) + ' 140.6 L' + (cx - dir * 1.4) + ' ' + cy + '"/>' +
+  return '<path class="spur-arm" d="M' + (x - dir * .4) + ' 136 L' + (cx - dir * 1.4) + ' ' + cy + '"/>' +
     '<path class="spur-star" d="' + star + ' Z"/><circle class="spur-pin" cx="' + cx + '" cy="' + cy + '" r=".7"/>';
 }
 function boa() {
@@ -158,7 +158,7 @@ function boa() {
         '</g>'
     },
     {
-      id: 'hoodie', slot: 'hat', label: 'Cow hoodie', layer: 'body', hood: true, icon: '4 14 152 130',
+      id: 'hoodie', slot: 'body', label: 'Cow hoodie', layer: 'body', hood: true, icon: '4 14 152 130',
       lines: ['moo! so cosy!', 'a cow? me?!', 'so soft and fluffy!'],
       // a white hoodie whose hood is a little cow: horns, floppy ears and spots,
       // with an opening for the face so every species shows through
@@ -173,10 +173,29 @@ function boa() {
         '<path class="hood-spot" d="M137 104 C142 102 146 108 145 115 C144 121 138 124 136 118 C134 112 134 106 137 104 Z"/>' +
         '<path class="hood-spot" d="M20 86 C24 83 27 90 26 98 C25 104 19 104 17 99 C15 93 17 88 20 86 Z"/>' +
         // the hood's own cow face, above the opening
-        '<g class="hood-face"><ellipse class="hood-eye" cx="66.5" cy="49.5" rx="4" ry="4.8"/><ellipse class="hood-eye" cx="93.5" cy="49.5" rx="4" ry="4.8"/>' +
+        '<g class="hood-face" transform="translate(0 -4.5)"><ellipse class="hood-eye" cx="66.5" cy="49.5" rx="4" ry="4.8"/><ellipse class="hood-eye" cx="93.5" cy="49.5" rx="4" ry="4.8"/>' +
         '<circle class="hood-glint" cx="65.3" cy="47.8" r="1.4"/><circle class="hood-glint" cx="92.3" cy="47.8" r="1.4"/>' +
         '<ellipse class="hood-muzzle" cx="80" cy="59" rx="12.5" ry="6"/>' +
         '<ellipse class="hood-nostril" cx="75.5" cy="58.6" rx="1.5" ry="2"/><ellipse class="hood-nostril" cx="84.5" cy="58.6" rx="1.5" ry="2"/></g>' +
+        '<ellipse class="hood-rim" cx="80" cy="99.5" rx="56.5" ry="33.5"/>' +
+        '<path class="hood-string" d="M68 131 C67 134 66 136 66 139 M92 131 C93 134 94 136 94 139"/>' +
+        '<circle class="hood-toggle" cx="66" cy="140" r="2.4"/><circle class="hood-toggle" cx="94" cy="140" r="2.4"/>' +
+        '</g>'
+    },
+    {
+      id: 'pighoodie', slot: 'body', label: 'Pig hoodie', layer: 'body', hood: true, icon: '4 14 152 130',
+      lines: ['oink oink!', 'in the pink!', 'snout cute!'],
+      // the cow hoodie's shape in pink, with pig ears folding forward and a snout above the face opening
+      svg: '<g class="hoodie hoodie-pig">' +
+        '<path class="pig-hood-ear" d="M40 52 C30 40 30 26 38 20 C46 26 56 36 60 44 Z"/>' +
+        '<path class="pig-hood-ear-in" d="M42 46 C37 38 37 30 40 26 C45 31 50 37 53 42 Z"/>' +
+        '<path class="pig-hood-ear" d="M120 52 C130 40 130 26 122 20 C114 26 104 36 100 44 Z"/>' +
+        '<path class="pig-hood-ear-in" d="M118 46 C123 38 123 30 120 26 C115 31 110 37 107 42 Z"/>' +
+        '<path class="hood" fill-rule="evenodd" d="M80 34 C126 34 149 69 149 102 C149 130 120 140 80 140 C40 140 11 130 11 102 C11 69 34 34 80 34 Z M80 69 C51 69 27 82 27 99 C27 117 51 130 80 130 C109 130 133 117 133 99 C133 82 109 69 80 69 Z"/>' +
+        '<g class="hood-face" transform="translate(0 -4.5)"><ellipse class="hood-eye" cx="64" cy="49" rx="3.6" ry="4.4"/><ellipse class="hood-eye" cx="96" cy="49" rx="3.6" ry="4.4"/>' +
+        '<circle class="hood-glint" cx="62.9" cy="47.4" r="1.3"/><circle class="hood-glint" cx="94.9" cy="47.4" r="1.3"/>' +
+        '<ellipse class="pig-hood-snout" cx="80" cy="57.6" rx="10.5" ry="7"/>' +
+        '<ellipse class="pig-hood-nostril" cx="76" cy="57.6" rx="1.8" ry="2.6"/><ellipse class="pig-hood-nostril" cx="84" cy="57.6" rx="1.8" ry="2.6"/></g>' +
         '<ellipse class="hood-rim" cx="80" cy="99.5" rx="56.5" ry="33.5"/>' +
         '<path class="hood-string" d="M68 131 C67 134 66 136 66 139 M92 131 C93 134 94 136 94 139"/>' +
         '<circle class="hood-toggle" cx="66" cy="140" r="2.4"/><circle class="hood-toggle" cx="94" cy="140" r="2.4"/>' +
@@ -278,11 +297,14 @@ function boa() {
       svg: '<g class="hat-lid" transform="rotate(-5 80 44)">' +
         '<ellipse class="lid-rim" cx="80" cy="47" rx="47" ry="6.4"/>' +
         '<path class="lid-top" d="M36 46 C37 36 56 30 80 30 C104 30 123 36 124 46 C110 50 50 50 36 46 Z"/>' +
-        // metal lid: ribs pressed in from the handle out to the rim, and a raised ring round the handle
-        '<path class="lid-rib" d="M94.3 39.4 Q106.6 40.8 119.0 46.7 M91.1 40.5 Q100.8 42.0 110.5 47.9 M86.1 41.3 Q91.4 42.8 96.7 48.7 M80.0 41.6 Q80.0 43.1 80.0 49.0 M73.9 41.3 Q68.6 42.8 63.3 48.7 M68.9 40.5 Q59.2 42.0 49.5 47.9 M65.7 39.4 Q53.4 40.8 41.0 46.7"/>' +
-        '<ellipse class="lid-ring" cx="80" cy="37.6" rx="15" ry="3.4"/>' +
-        '<path class="lid-shine" d="M42 40.6 C46 35.6 53 33.2 61 32.4"/>' +
-        '<path class="lid-handle" d="M67 34 C67 21 93 21 93 34"/><path class="lid-handle-in" d="M67 34 C67 21 93 21 93 34"/>' +
+        // a galvanised lid like a real metal bin: stepped rings round the dome (a dark groove with a bright edge under it)
+        // and a flat strap handle riveted on with two tabs
+        '<path class="lid-ring" d="M39.6 44.2 C54 48.6 106 48.6 120.4 44.2 M49 39.6 C61 43.6 99 43.6 111 39.6 M60 35.4 C68 38.2 92 38.2 100 35.4"/>' +
+        '<path class="lid-ring-hi" d="M40.6 45.8 C55 50 105 50 119.4 45.8 M50 41.2 C62 45 98 45 110 41.2 M61 37 C69 39.6 91 39.6 99 37"/>' +
+        '<path class="lid-shine" d="M44 39.4 C48 35 55 32.6 63 31.8"/>' +
+        '<path class="lid-handle" d="M68 35 C68 28 69.6 25.6 74.6 25.6 H85.4 C90.4 25.6 92 28 92 35"/><path class="lid-handle-in" d="M68 35 C68 28 69.6 25.6 74.6 25.6 H85.4 C90.4 25.6 92 28 92 35"/>' +
+        '<rect class="lid-tab" x="63.4" y="33.4" width="8.4" height="3.6" rx="1.2"/><rect class="lid-tab" x="88.2" y="33.4" width="8.4" height="3.6" rx="1.2"/>' +
+        '<circle class="lid-rivet" cx="65.6" cy="35.2" r=".8"/><circle class="lid-rivet" cx="94.4" cy="35.2" r=".8"/>' +
         '</g>'
     },
     {
@@ -457,8 +479,8 @@ function boa() {
       id: 'cowboyboots', slot: 'feet', label: 'Cowboy boots', icon: '38 120 84 28',
       lines: ['boot scootin!', 'yeehaw!', 'line dance time!'],
       svg: '<g class="feet-cowboy"><path class="cb-heel" d="M66.6 141.4 L66.2 144 H62 L61.6 142.4 Z"/><path class="cb-shaft" d="M50.4 133.4 Q58 135.4 65.6 133.4 L65 137.4 H51 Z"/><path class="cb-foot" d="M67 139.6 C67 135.6 53 135.2 46 140.2 C53 143.2 67 143.4 67 139.6 Z"/><path class="cb-stitch" d="M56.4 134.8 q1.6 1.6 3.2 0"/><path class="cb-heel" d="M93.4 141.4 L93.8 144 H98 L98.4 142.4 Z"/><path class="cb-shaft" d="M94.4 133.4 Q102 135.4 109.6 133.4 L109 137.4 H95 Z"/><path class="cb-foot" d="M93 139.6 C93 135.6 107 135.2 114 140.2 C107 143.2 93 143.4 93 139.6 Z"/><path class="cb-stitch" d="M100.4 134.8 q1.6 1.6 3.2 0"/>' +
-        // spurs: a strap round the heel and a little star wheel sticking out the back
-        spur(66.6, 1) + spur(93.4, -1) + '</g>'
+        // spurs on the outer side of each boot, at the ankle
+        spur(50.6, -1) + spur(109.4, 1) + '</g>'
     },
     {
       id: 'clogs', slot: 'feet', label: 'Wooden clogs', icon: '40 124 80 26',

@@ -9,29 +9,33 @@
  */
 function wardrobeItem(id) { return byId(Wardrobe, id); }
 /**
- * Draws an outfit into a pet drawing: hats on the head, body items (hoodies) over the whole pet,
- * and glasses, neckwear and shoes in their own places.
+ * Draws an outfit into a pet drawing: hats on the head, clothes (hoodies) over the whole pet,
+ * and glasses, mouth things, neckwear and shoes in their own places.
  * @param {Element} el A .pet element.
- * @param {{hat: string, face: string, mouth: string, neck: string, feet: string}} outfit
+ * @param {{hat: string, body: string, face: string, mouth: string, neck: string, feet: string}} outfit
  */
 function dressUp(el, outfit) {
-  var item = wardrobeItem(outfit.hat);
-  var body = !!(item && item.layer === 'body');
-  el.querySelector('.outfit-hat').innerHTML = item && !body ? item.svg : '';
-  el.querySelector('.outfit-body').innerHTML = item && body ? item.svg : '';
+  var clothes = wardrobeItem(outfit.body);
+  var hood = !!(clothes && clothes.hood);
+  // a hood covers the head, so no hat goes on top of it
+  var item = hood ? null : wardrobeItem(outfit.hat);
+  el.querySelector('.outfit-hat').innerHTML = item ? item.svg : '';
+  el.querySelector('.outfit-body').innerHTML = clothes ? clothes.svg : '';
+  if (hood) el.dataset.hood = clothes.id; else delete el.dataset.hood;
   // mouth things (toast, mustache) are drawn in front of the face, so they can be worn with neckwear
   ['face', 'mouth', 'neck', 'feet'].forEach(function (slot) {
     var w = wardrobeItem(outfit[slot]);
     el.querySelector('.outfit-' + slot).innerHTML = w ? w.svg : '';
   });
-  el.classList.toggle('hooded', !!(item && item.hood));
+  el.classList.toggle('hooded', hood);
   el.classList.toggle('snug', !!(item && item.snug));
 }
 
 var dressSheet = $('dressSheet'), dressPreview = $('dressPreview');
-// one strip per slot: hats (and hoodies) on the head, glasses, neckwear and shoes
+// one strip per slot: hats, clothes (hoodies), glasses, mouth things, neckwear and shoes
 var WEAR_ROWS = [
   { slot: 'hat', strip: $('hatStrip'), none: 'Nothing' },
+  { slot: 'body', strip: $('bodyStrip'), none: 'Nothing' },
   { slot: 'face', strip: $('faceStrip'), none: 'No glasses' },
   { slot: 'mouth', strip: $('mouthStrip'), none: 'Nothing' },
   { slot: 'neck', strip: $('neckStrip'), none: 'Bare neck' },
@@ -84,6 +88,11 @@ function onWearClick(e) {
   if (!unlocked('hat', b.dataset.hat)) { lockHint(hatHint, 'hat', b.dataset.hat); return; }
   hatHint.hidden = true;
   state.pet.outfit[b.dataset.slot] = b.dataset.hat;
+  // a hood and a hat don't go together: putting one on takes the other off
+  var picked = wardrobeItem(b.dataset.hat);
+  if (b.dataset.slot === 'body' && picked && picked.hood) state.pet.outfit.hat = 'none';
+  var worn = wardrobeItem(state.pet.outfit.body);
+  if (b.dataset.slot === 'hat' && picked && worn && worn.hood) state.pet.outfit.body = 'none';
   save();
   refreshDressRoom();
   dressUp(pet, state.pet.outfit);
@@ -97,8 +106,12 @@ function onWearClick(e) {
     view.dataset.eyes = b.dataset.hat === 'none' ? 'open' : 'happy';
     // back to open eyes soon, so they can follow your finger again
     clearTimeout(sparkleTimer);
-    sparkleTimer = setTimeout(function () { view.dataset.eyes = 'open'; view.dataset.arms = 'idle'; }, 900);
+    sparkleTimer = setTimeout(function () { view.dataset.eyes = 'open'; }, 900);
+    // the cheer has its own timer: tapping the next outfit starts a sparkle, which clears sparkleTimer,
+    // and that used to leave the arms waving in the air for good
     view.dataset.arms = b.dataset.hat === 'none' ? 'idle' : 'cheer';
+    clearTimeout(cheerTimer);
+    cheerTimer = setTimeout(function () { view.dataset.arms = 'idle'; }, 900);
     view.classList.remove('hop'); void view.offsetWidth; view.classList.add('hop');
   }
 }
@@ -144,7 +157,7 @@ function onHatHover(e) {
   if (view) sparkle(view);
   if (Date.now() - lastOoh > 500) { sound('ooh'); lastOoh = Date.now(); }
 }
-var sparkleTimer;
+var sparkleTimer, cheerTimer;
 /**
  * A quick sparkle-eyed "ooh" from the dressing-room pet, then its eyes go
  * back to following your finger or cursor.

@@ -22,7 +22,7 @@
    * @property {string} species  One of the species ids, e.g. "mochi", "pig", "birdie".
    * @property {string} skin  The skin worn on the species (from skins.js), or "" for its original look.
    * @property {{hat: string, face: string, neck: string, feet: string}} outfit  Wardrobe item id per slot
-   *   (hat, glasses, mouth, neck, feet; see OUTFIT_SLOTS); "none" for nothing.
+   *   (hat, clothes, glasses, mouth, neck, feet; see OUTFIT_SLOTS); "none" for nothing.
    * @property {Object<string, Progress>} achievements  Progress per achievement id.
    * @property {Guard} guard  What the anti-cheat rules remember.
    * @property {string} personality  Id from personalities.js; "foodie" to start.
@@ -56,15 +56,16 @@
    */
 
   /** Places on the pet where it can wear something, one item each: head, eyes, neck and feet. */
-  var OUTFIT_SLOTS = ['hat', 'face', 'mouth', 'neck', 'feet'];
+  var OUTFIT_SLOTS = ['hat', 'body', 'face', 'mouth', 'neck', 'feet'];
 
   /**
    * Reads a saved outfit, updating items that were renamed, moved or removed.
    * @param {Object} saved
-   * @returns {{hat: string, face: string, mouth: string, neck: string, feet: string}}
+   * @returns {{hat: string, body: string, face: string, mouth: string, neck: string, feet: string}}
    */
   function parseOutfit(saved) {
     var o = OUTFIT_SLOTS.reduce(function (out, slot) { out[slot] = saved[slot] || 'none'; return out; }, {});
+    if (o.hat === 'hoodie') { o.body = 'hoodie'; o.hat = 'none'; }    // the hoodie moved from hats to clothes
     if (o.feet === 'heels') o.feet = 'featherslides';                  // heels became feather slides
     if (o.neck === 'silkscarf') o.neck = 'none';                      // the silk scarf was removed
     if (o.neck === 'toast' || o.neck === 'mustache') {               // these moved from neck to mouth
