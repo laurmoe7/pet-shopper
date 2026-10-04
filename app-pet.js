@@ -37,10 +37,13 @@ var REACTIONS = {
   cold: { face: { eyes: 'squint', mouth: 'o', arms: 'clench', x: ['sweat'] }, then: { eyes: 'sparkle', mouth: 'chew', arms: 'cheer', x: ['cheeks'] }, move: ['wiggle', 900], lines: ['brrr! brain freeze!', 'so cold!', 'hiyaa~ cold!'] },
   coffee: { face: { eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['sparkles', 'shock'] }, move: ['hophop', 1500], lines: ['ZOOM!', 'I can see sounds!', 'wide awake!!'] },
   grownup: { face: { eyes: 'confused', mouth: 'wavy', arms: 'cover', x: ['sweat'] }, bag: true, lines: ['for the grown-ups!', 'not for me!', 'into the bag~'] },
+  nochoc: { face: { eyes: 'teary', mouth: 'wavy', arms: 'cover', x: ['sweat'] }, bag: true, lines: ['no chocolate for pets!', 'chocolate makes us sick… for you!', 'into the bag, sadly~', 'smells good, but no!'] },
   petfood: { face: { eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['hearts', 'sparkles'] }, bag: true, move: ['hop', 460], lines: ['is this… for ME?!', 'treats?! for me?!', 'saving it for later!'] }
 };
 // which items get one of the reactions above: by emoji, or by words in the item
 var REACTION_RULES = [
+  // real animals shouldn't eat chocolate (only the mochi can): it goes in the bag with a comment
+  ['nochoc', ['🍫'], /choc|cocoa|cacao|nutella|brownie|mocha|tiramisu|oreo/, function () { return state.pet.species !== 'mochi'; }],
   ['grownup', ['🍷', '🍺', '🍻', '🥂', '🍸', '🍹', '🍾', '🥃'], /\b(wine|beer|cider|prosecco|champagne|vodka|gin|rum|whisk(e)?y|liqueur)\b/],
   ['petfood', [], /\b(dog|cat|pet|bird|fish) (food|treats?|biscuits?)\b|\bkibble\b/],
   ['coffee', ['☕'], /\b(coffee|espresso|cappuccino|latte)\b/],
@@ -56,7 +59,7 @@ function reactionOf(item) {
   var text = (item.text || '').toLowerCase();
   for (var i = 0; i < REACTION_RULES.length; i++) {
     var r = REACTION_RULES[i];
-    if (r[1].indexOf(item.emoji) !== -1 || r[2].test(text)) return r[0];
+    if ((r[1].indexOf(item.emoji) !== -1 || r[2].test(text)) && (!r[3] || r[3]())) return r[0];
   }
   return item.cat;
 }

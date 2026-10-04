@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 105 (4 Oct)
+- Animal pets refuse chocolate and bag it.
+- More foot moves.
+- Test: little noses on the bunny and cat.
+
 ## Build 104 (4 Oct)
 - "Cosy" is now "cozy".
 - Feet step, tuck, tap, stomp, shiver and stick out.

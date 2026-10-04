@@ -1555,6 +1555,9 @@ html:root .item:nth-child(3n+1) { --tab: #d9ccf5; }
 @media (prefers-color-scheme: dark) { html:root:not([data-theme="light"]) .item:nth-child(3n+1) { --tab: #b4a4e0; } }
 html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 
+/* test: little noses on the bunny and the cat */
+.cute-nose { fill: #ff9fb5; stroke: var(--pet-ink); stroke-width: 1.2; stroke-linejoin: round; }
+
 /* ---------- feet ----------
    Each foot (.foot-l / .foot-r, and the shoes' .shoe-l / .shoe-r) moves on its own: little steps when walking,
    tucking up on hops, tapping when happy, stomping when it's too hot, shivering when it's cold or sour,
@@ -1584,3 +1587,20 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 .pet.sit :is(.foot-l, .shoe-l) { animation: sit-l 2.6s ease-in-out; }
 .pet.sit :is(.foot-r, .shoe-r) { animation: sit-r 2.6s ease-in-out; }
 @media (prefers-reduced-motion: reduce) { .foot-side, .shoe-l, .shoe-r { animation: none !important; } }
+/* more foot moves: shifting weight while rocking, tiptoes while sniffing and stretching, a wiggle,
+   an impatient tap while thinking, and little dream twitches while asleep */
+@keyframes rock-l { 0%, 16%, 56%, 100% { transform: translate(0, 0); } 36% { transform: translate(0, -2.2px); } 76% { transform: translate(0, -.8px); } }
+@keyframes rock-r { 0%, 36%, 76%, 100% { transform: translate(0, 0); } 16% { transform: translate(0, -2.4px); } 56% { transform: translate(0, -1.4px); } }
+.pet.rock :is(.foot-l, .shoe-l) { animation: rock-l 1.9s ease-in-out; }
+.pet.rock :is(.foot-r, .shoe-r) { animation: rock-r 1.9s ease-in-out; }
+.pet.roly :is(.foot-l, .shoe-l) { animation: rock-l 2.8s ease-in-out; }
+.pet.roly :is(.foot-r, .shoe-r) { animation: rock-r 2.8s ease-in-out; }
+@keyframes tiptoe { 0%, 100% { transform: translate(0, 0); } 15%, 85% { transform: translate(0, -1.4px); } 30%, 60% { transform: translate(0, -.6px); } 45%, 75% { transform: translate(0, -1.6px); } }
+.pet:is(.sniff, .stretch) :is(.foot-side, .shoe-l, .shoe-r) { animation: tiptoe 1.4s ease-in-out; }
+@keyframes foot-wiggle { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-1.2px, 0); } 50% { transform: translate(1.2px, 0); } 75% { transform: translate(-.6px, 0); } }
+.pet.wiggle :is(.foot-side, .shoe-l, .shoe-r) { animation: foot-wiggle .9s ease-in-out; }
+.pet[data-arms="scratch"] :is(.foot-r, .shoe-r) { animation: tap .35s ease-in-out infinite; }
+@keyframes twitch { 0%, 88%, 100% { transform: translate(0, 0); } 91% { transform: translate(0, -1.5px); } 94% { transform: translate(0, 0); } 96% { transform: translate(0, -1px); } }
+.pet[data-state="sleepy"]:not(.hop) :is(.foot-r, .shoe-r) { animation: twitch 6.5s ease-in-out infinite; }
+.pet[data-state="sleepy"]:not(.hop) :is(.foot-l, .shoe-l) { animation: twitch 8s ease-in-out 2.4s infinite; }
+
