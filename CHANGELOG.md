@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 94 (4 Oct)
+- Paw hands are back to toe lines; the pink toe beans only show when the palms turn out (arms up, cheering, holding, covering, fanning).
+- Birdie toes are three round little toes instead of pointy ones.
+
 ## Build 93 (4 Oct)
 - While typing in the Add box, the box sits right above the keyboard and the pet stays in view above it, so you can see it react as you add items. The title row hides meanwhile to give it room.
 - Paws for the bunny, cat, dog, hamster and hedgehog (rounded toes under the feet, pink toe beans on the hands), hooves for the pig and cow, and orange toes for the birdie. They hide under shoes and sleeves.
