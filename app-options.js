@@ -7,7 +7,7 @@ $('buildLabel').textContent = 'Build ' + BUILD;
 /* The cardboard look is the only look for now (it follows the phone's dark mode). The classic look is still in
    styles.css: to offer both again, set data-look only when state.settings.cardboard is true and bring back the Options switch. */
 document.documentElement.dataset.look = 'cardboard';
-/* Light or dark: Auto follows the phone. Kept on this device only (not in the pet's saved data). */
+/* Appearance (light or dark): Auto follows the phone. Kept on this device only (not in the pet's saved data). */
 var THEMES = [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']];
 function applyTheme(t) {
   if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
@@ -25,7 +25,7 @@ var OPTIONS = [
 ];
 var themeRow = document.createElement('div');
 themeRow.className = 'option option-theme';
-themeRow.innerHTML = '<span class="option-title">Light or dark</span>';
+themeRow.innerHTML = '<span class="option-title">Appearance</span>';
 var themeBtns = document.createElement('span');
 themeBtns.className = 'theme-btns';
 THEMES.forEach(function (t) {

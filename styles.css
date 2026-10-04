@@ -504,7 +504,7 @@ button { font: inherit; color: inherit; }
 .pet.sleeved .arm-cuff { display: inline; fill: none; stroke: var(--pet-ink); stroke-width: 1.4; stroke-linecap: round; }
 .pet.sleeved .arm-hand { display: inline; fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 1.4; stroke-linejoin: round; }
 /* shoes replace the pet's own feet */
-.pet.shod .foot { display: none; }
+.pet.shod .foot, .pet.shod.pet .frog-feet[data-sp] { display: none; }
 .pet[data-hood="pighoodie"] .arm ellipse:not(.arm-hi) { fill: #ffc4d2; }
 /* strawberry dress: pink tulle with little strawberries, a ruffled hem, a ribbon bow and puff sleeves */
 .dress-tulle { fill: #f7bfc6; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }

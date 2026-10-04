@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '90';
+var BUILD = '91';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -141,6 +141,9 @@ document.addEventListener('click', function (e) {
   var b = e.target.closest('.dock button, .gear-btn, .add-btn');
   if (!b) return;
   var el = b.querySelector('.dock-icon') || b;
+  // a different rock each time: it may tip left or right first, by a random amount
+  el.style.setProperty('--roly-dir', Math.random() < 0.5 ? -1 : 1);
+  el.style.setProperty('--roly-amp', (0.7 + Math.random() * 0.6).toFixed(2));
   el.classList.remove('roly-tap');
   void el.offsetWidth;
   el.classList.add('roly-tap');

@@ -220,10 +220,10 @@ html[data-look="cardboard"] .dock button:nth-child(4) .dock-icon::before {
 html[data-look="cardboard"] .roly-tap { animation: roly-tap .7s ease-out; transform-origin: 50% 85%; }
 @keyframes roly-tap {
   0% { transform: rotate(var(--tilt, 0deg)); }
-  18% { transform: rotate(calc(var(--tilt, 0deg) - 16deg)); }
-  40% { transform: rotate(calc(var(--tilt, 0deg) + 11deg)); }
-  60% { transform: rotate(calc(var(--tilt, 0deg) - 6deg)); }
-  80% { transform: rotate(calc(var(--tilt, 0deg) + 2.5deg)); }
+  18% { transform: rotate(calc(var(--tilt, 0deg) - 16deg * var(--roly-dir, 1) * var(--roly-amp, 1))); }
+  40% { transform: rotate(calc(var(--tilt, 0deg) + 11deg * var(--roly-dir, 1) * var(--roly-amp, 1))); }
+  60% { transform: rotate(calc(var(--tilt, 0deg) - 6deg * var(--roly-dir, 1) * var(--roly-amp, 1))); }
+  80% { transform: rotate(calc(var(--tilt, 0deg) + 2.5deg * var(--roly-dir, 1) * var(--roly-amp, 1))); }
   100% { transform: rotate(var(--tilt, 0deg)); }
 }
 @media (prefers-reduced-motion: reduce) { html[data-look="cardboard"] .roly-tap { animation: none; } }

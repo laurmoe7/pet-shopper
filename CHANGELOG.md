@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 91 (4 Oct)
+- Options: "Light or dark" is now called Appearance.
+- The frog's webbed feet hide under shoes like the other pets' feet.
+- Sticker buttons rock a little differently each tap: left or right first, by a random amount.
+
 ## Build 90 (4 Oct)
 - Developer tools stay open after an action (and are short again so the pet stays in view).
 - The strawberry dress is redrawn after a pink tulle dress: V neckline with a ruffle trim, little strawberries all over, a ribbon bow with long ties, a ruffled hem and puff sleeves.
