@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 123 (4 Oct)
+- New: a toy to throw; the pet chases it.
+- Dogs and birds fetch, cats bat it about, others hug it.
+- New: tuck the pet in at night, with a moon lamp.
+
 ## Build 122 (4 Oct)
 - Speech bubble points at the pet from the left side too.
 

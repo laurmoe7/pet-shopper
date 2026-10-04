@@ -308,6 +308,13 @@
    * @param {Date} date
    * @returns {string} e.g. "2026-10-02"
    */
+  /**
+   * @param {Date} now
+   * @returns {string} The night this moment belongs to, named by the evening it started (an hour after
+   * midnight is still the night before), so a tuck-in lasts until morning.
+   */
+  function nightOf(now) { return dayKey(new Date(now.getTime() - 12 * 3600 * 1000)); }
+
   function dayKey(date) {
     var m = date.getMonth() + 1, d = date.getDate();
     return date.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (d < 10 ? '0' : '') + d;
@@ -982,6 +989,7 @@
     FRESH_MS: FRESH_MS,
     TRIP_MIN_ITEMS: TRIP_MIN_ITEMS,
     dayKey: dayKey,
+    nightOf: nightOf,
     countsFor: countsFor,
     recordEaten: recordEaten,
     recordTrip: recordTrip,

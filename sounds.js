@@ -2,6 +2,7 @@
  * Sounds.play(kind) where kind is one of:
  *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party,
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
+ *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime),
  *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
  * Every play is pitch-shifted a little, and kinds with several variants pick a
  * different one each time, so nothing sounds exactly the same twice in a row.
@@ -250,6 +251,26 @@
     jiggle: function (t) {
       // a belly wobble: soft boings that get smaller and lower
       for (var i = 0; i < 4; i++) tone(t + i * 0.12, 0.13, 'sine', 330 - i * 28, 230 - i * 22, env(t + i * 0.12, 0.008, 0.12, 0.3 - i * 0.05));
+    },
+    toss: function (t) {
+      // a swish through the air and a little "wheee"
+      var f = noise(t, 0.22, 'bandpass', 700, 2, env(t, 0.03, 0.18, 0.35)); f.frequency.exponentialRampToValueAtTime(2600 * pitch, t + 0.22);
+      tone(t + 0.05, 0.25, 'triangle', 600, 1100, env(t + 0.05, 0.02, 0.22, 0.12));
+    },
+    bounce: function (t) {
+      // a soft rubbery boing on the floor
+      tone(t, 0.14, 'sine', 260, 120, env(t, 0.004, 0.13, 0.35));
+      tone(t, 0.1, 'sine', 520, 300, env(t, 0.004, 0.09, 0.06));
+    },
+    squeak: function (t) {
+      // a squeaky toy: squee-eek
+      tone(t, 0.1, 'square', 1300, 1900, env(t, 0.01, 0.09, 0.05));
+      tone(t + 0.12, 0.13, 'square', 1700, 1250, env(t + 0.12, 0.01, 0.12, 0.045));
+    },
+    tuck: function (t) {
+      // the blanket swishing up, then a soft lullaby chime
+      var f = noise(t, 0.35, 'lowpass', 900, 0.7, env(t, 0.08, 0.27, 0.3)); f.frequency.exponentialRampToValueAtTime(400 * pitch, t + 0.35);
+      chime(t + 0.3, [784, 659, 523], 0.16, 0.6, 'sine');
     },
     ooh: function (t) {
       // a soft, curious "ooh?" that lifts at the end

@@ -99,9 +99,9 @@ function lookAround() {
 // ---------- walking about ----------
 // The pet wanders back and forth on the floor and stays where it stops. Only #pet slides (the CSS translate
 // property), never scaled or turned. --walk-x lives on the stage so the speech bubble and daydream follow.
-var stage = pet.parentNode, walkX = 0, walkTimer, walking = false;
-/** @returns {number} How far the pet may walk from the middle, in px. */
-function walkRange() { return Math.max(0, Math.min(70, stage.clientWidth / 2 - 100)); }
+var stage = pet.parentNode, walkX = 0, walkTimer, walking = false, walkWide = false;
+/** @returns {number} How far the pet may walk from the middle, in px; further while playing with the toy (walkWide). */
+function walkRange() { return Math.max(0, walkWide ? Math.min(130, stage.clientWidth / 2 - 76) : Math.min(70, stage.clientWidth / 2 - 100)); }
 /**
  * @returns {{min: number, max: number}} Where the pet may stand: it can tuck a little behind the receipt and
  * the bag but not hide behind them.
@@ -122,14 +122,15 @@ function clampWalk(x) { var b = walkBounds(); return Math.round(Math.max(b.min, 
 /**
  * Walks the pet to x px from the middle of the stage (clamped to the floor).
  * @param {number} x
+ * @param {number} [pace=26] ms per px; lower is faster (the toy chase runs at about 7).
  * @returns {number} How long the walk takes in ms (0 if it doesn't move).
  */
-function walkTo(x) {
+function walkTo(x, pace) {
   if (reduceMotion) return 0;
   x = clampWalk(x);
   var dist = Math.abs(x - walkX);
   if (dist < 8) return 0;
-  var ms = Math.round(500 + dist * 26);
+  var ms = Math.round((pace ? 250 : 500) + dist * (pace || 26));
   stage.style.setProperty('--walk-ms', ms + 'ms');
   stage.style.setProperty('--walk-x', x + 'px');
   stage.classList.toggle('walk-right', x > 15);
@@ -330,6 +331,7 @@ setInterval(function () {
   // bedtime: back to its cushion
   if (!busy && baseState() === 'sleepy' && walkX) walkTo(0);
   walkHome();
+  refreshBedtime();
 }, 60000);
 
 // ---------- eyes follow your finger or cursor ----------

@@ -70,3 +70,11 @@ test('the pet sleeps at night and is awake in the day when nothing is left to bu
   assert.equal(PetLogic.restingMood(items, day), 'stuffed', 'awake and full after a finished list');
   assert.equal(PetLogic.restingMood(items, night), 'sleepy');
 });
+
+test('a night lasts from the evening to the morning, so a tuck-in holds past midnight', () => {
+  const evening = PetLogic.nightOf(new Date(2026, 9, 4, 22, 30));
+  assert.equal(evening, '2026-10-04');
+  assert.equal(PetLogic.nightOf(new Date(2026, 9, 5, 1, 0)), evening);
+  assert.equal(PetLogic.nightOf(new Date(2026, 9, 5, 6, 59)), evening);
+  assert.notEqual(PetLogic.nightOf(new Date(2026, 9, 5, 22, 30)), evening);
+});

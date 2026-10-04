@@ -41,6 +41,10 @@ test('the dressing room sounds exist', () => {
   assert.ok(Sounds.kinds.includes('excited'));
 });
 
+test('the toy and bedtime sounds exist', () => {
+  for (const kind of ['toss', 'bounce', 'squeak', 'tuck']) assert.ok(Sounds.kinds.includes(kind), kind);
+});
+
 test('menu sounds exist and never play the same variant twice in a row', () => {
   for (const kind of ['tap', 'pick', 'open', 'close', 'on', 'off', 'locked', 'place', 'remove']) {
     assert.ok(Sounds.kinds.includes(kind), kind);

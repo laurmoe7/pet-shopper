@@ -85,11 +85,14 @@ var DEV_ACTIONS = [
     updateEmptyHint();
     refreshBackdrop();
     if (!busy) settle();
+    refreshBedtime();
     return { auto: 'Using the real clock (asleep 10 pm to 7 am when nothing is left to buy).', day: 'Pretending it is daytime.', night: 'Pretending it is night: with nothing left to buy, the pet sleeps.' }[devClock];
   } },
   { label: 'Unlock everything', run: function () { L.unlockAll(state.pet, Achievements, Personalities); return 'All goals finished and personalities earned.'; } },
   { label: 'Lock everything again', run: function () { L.lockAll(state.pet, Achievements, FreeUnlocks); return 'Progress wiped. Locked items are locked again.'; } },
   { label: 'Skip to tomorrow', run: function () { L.skipDays(state, 1); return 'A day has passed: daily limits are fresh.'; } },
+  { label: 'Throw the toy', run: function () { playToy(); return 'Go get it!'; } },
+  { label: 'Bedtime: untuck and lamp on', run: function () { try { localStorage.removeItem(BED_KEY); } catch (e) { /* storage blocked */ } refreshBedtime(); return 'Not tucked in. Set it to night, then tap the pet to tuck it in.'; } },
   { label: 'Belly jiggle', run: function () { bellyJiggle(); return 'Jiggle jiggle.'; } },
   { label: 'Eyes: widen', run: function () { eyesDo('wide'); return 'Wide eyes.'; } },
   { label: 'Eyes: squint', run: function () { eyesDo('squint'); return 'Squinting.'; } },
