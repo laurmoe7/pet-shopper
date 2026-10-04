@@ -1559,6 +1559,9 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 .cute-nose { fill: #ff9fb5; stroke: var(--pet-ink); stroke-width: 1.2; stroke-linejoin: round; }
 /* test: the bunny and cat smile as a :3 under the nose (swaps with the plain smile, like the frog's) */
 .cat-smile { display: none; }
+/* test: the bunny and cat have their eyes a little wider apart and lower (the translate property adds to any blink or sparkle) */
+.pet:is([data-species="bunny"], [data-species="kitty"]) .eye-l { translate: -3px 1.6px; }
+.pet:is([data-species="bunny"], [data-species="kitty"]) .eye-r { translate: 3px 1.6px; }
 .pet:not([data-species="bunny"]):not([data-species="kitty"]) .cat-smile { display: none; }
 .pet:is([data-species="bunny"], [data-species="kitty"])[data-mouth="smile"] path[data-mouth="smile"]:not(.cat-smile) { display: none; }
 .pet:is([data-species="bunny"], [data-species="kitty"])[data-mouth="smile"] .cat-smile { display: inline; }

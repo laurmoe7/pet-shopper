@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 107 (4 Oct)
+- Test: little lip under the :3, eyes wider and lower on the bunny and cat.
+
 ## Build 106 (4 Oct)
 - Test: :3 smile under the nose for the bunny and cat.
 
