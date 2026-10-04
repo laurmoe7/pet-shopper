@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 131 (4 Oct)
+- Fixed: switching to night could leave the pet asleep untucked.
+- Tired eyelids move with the eyes.
+
 ## Build 130 (4 Oct)
 - The bed is pink.
 

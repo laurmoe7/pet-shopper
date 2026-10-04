@@ -25,6 +25,13 @@ function bedtimeNow() { return L.isNight(petNow()) && (baseState() === 'sleepy' 
  * so after a late shop you switch the lamp off and tuck it in again. Opening the app keeps tonight's.
  */
 function refreshBedtime() {
+  // being asleep (pet.dozing) only carries on within a bedtime: one already showing, or tonight's on reopening the
+  // app at night. Otherwise it is left over (from a dev-tool night, say) and must not put the pet to sleep.
+  if (state.pet.dozing && !(bedtimeKnown ? stage.classList.contains('bedtime') : L.isNight(petNow()))) {
+    state.pet.dozing = '';
+    save();
+    if (!busy) settle();
+  }
   var asleep = baseState() === 'sleepy', night = L.isNight(petNow()), bedNow = bedtimeNow();
   var wasBed = stage.classList.contains('bedtime');
   if (bedtimeKnown && (bedNow !== wasBed || (wasAsleep && !asleep))) {

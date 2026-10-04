@@ -84,8 +84,8 @@ var DEV_ACTIONS = [
     devClock = { auto: 'day', day: 'night', night: 'auto' }[devClock];
     updateEmptyHint();
     refreshBackdrop();
-    if (!busy) settle();
     refreshBedtime();
+    if (!busy) settle();
     return { auto: 'Using the real clock (asleep 10 pm to 7 am when nothing is left to buy).', day: 'Pretending it is daytime.', night: 'Pretending it is night: with nothing left to buy, the pet sleeps.' }[devClock];
   } },
   { label: 'Unlock everything', run: function () { L.unlockAll(state.pet, Achievements, Personalities); return 'All goals finished and personalities earned.'; } },
