@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 130 (4 Oct)
+- The bed is pink.
+
 ## Build 129 (4 Oct)
 - Night alone no longer puts the pet to sleep.
 - It sleeps once the lamp is off and it is tucked in.

@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '129';
+var BUILD = '130';
 
 
 var STORE_KEY = 'nibble.v1';

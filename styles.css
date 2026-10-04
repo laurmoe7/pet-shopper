@@ -1488,8 +1488,8 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
 .stage.bedtime :is(.pet-bed, .bed-front) { display: block; animation: bed-in .5s cubic-bezier(.3, 1.5, .5, 1); }
 .stage.bedtime .cushion, .stage.bedtime .receipt, .stage.bedtime .cart-bag { display: none; }
 @keyframes bed-in { from { scale: .8 .5; opacity: 0; } to { scale: 1; opacity: 1; } }
-.bed-rim, .bed-bolster { fill: #c9b8f0; stroke: var(--outline); stroke-width: 1.8; stroke-linejoin: round; }
-.bed-inside { fill: #f2ecff; stroke: var(--outline); stroke-width: 1.5; stroke-linejoin: round; }
+.bed-rim, .bed-bolster { fill: #f7bfd0; stroke: var(--outline); stroke-width: 1.8; stroke-linejoin: round; }
+.bed-inside { fill: #fde6ee; stroke: var(--outline); stroke-width: 1.5; stroke-linejoin: round; }
 .bed-seam { fill: none; stroke: #fff; stroke-width: 1.4; stroke-dasharray: 3 3; stroke-linecap: round; opacity: .85; }
 .bed-shine { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; opacity: .55; }
 .pet .blanket { display: none; }
