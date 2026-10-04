@@ -68,7 +68,15 @@ function refreshBedtime() {
   lampEl.setAttribute('aria-pressed', bedNow && bed.dark ? 'false' : 'true');
   pet.classList.toggle('tired', night && !asleep);
   pet.classList.toggle('has-teddy', bedNow);
-  if (!grabbing) pet.classList.toggle('hugging', bedNow && asleep && bed.tucked);
+  if (!grabbing) {
+    var hugNow = bedNow && asleep && bed.tucked;
+    if (!hugNow && pet.classList.contains('hugging') && !reduceMotion) {
+      // woken: the teddy goes back to its seat the way it came (the pet's copy slides out, then the bed's copy takes over)
+      pet.classList.add('teddy-in');
+      setTimeout(function () { pet.classList.remove('teddy-in'); }, 650);
+    }
+    pet.classList.toggle('hugging', hugNow);
+  }
   // the lamp is off and it is tucked in: off to sleep
   if (bedNow && !asleep && bed.tucked && bed.dark && !busy) fallAsleep();
   bedSoon();

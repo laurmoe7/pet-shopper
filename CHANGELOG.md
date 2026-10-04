@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 149 (4 Oct)
+- The teddy cuddle and grab are back to the smooth way, against his cheek.
+
 ## Build 148 (4 Oct)
 - The bed teddy sits close beside him and only moves a little when he grabs it.
 
