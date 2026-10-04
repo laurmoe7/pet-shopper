@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 122 (4 Oct)
+- Speech bubble points at the pet from the left side too.
+
 ## Build 121 (4 Oct)
 - The cat is a tabby now; the tabby skin is gone.
 - New skin: flame point cat.
