@@ -118,6 +118,7 @@
     var species = saved.species || 'mochi';
     var skin = typeof saved.skin === 'string' ? saved.skin : '';
     if (skin === 'syrian') skin = 'longhair';
+    if (skin === 'yak') skin = '';   // the yak skin was removed in build 117
     if (species === 'chick') species = 'birdie';
     else if (species === 'penguin') { species = 'birdie'; skin = 'penguin'; }
     return {

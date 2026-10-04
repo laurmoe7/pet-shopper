@@ -2,6 +2,15 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 117 (4 Oct)
+- New skins: Scottish fold, chicken, strawberry cow, potbelly pig.
+- Yak removed.
+- Softer, cuter tabby stripes.
+- More strawberry seeds.
+- Belly jiggle: rubs its tummy.
+- Wide eyes instead of sparkle eyes when eating.
+- Bigger, taller ears on Brandt's hedgehog.
+
 ## Build 116 (4 Oct)
 - Eyes go wide or squint in reactions and idle moments.
 - Belly jiggle move (also in dev tools).
