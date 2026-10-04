@@ -8,7 +8,7 @@ A grocery list with a tamagotchi-like pet that "eats" items as you check them of
 - Priority is cute and appealing. Style is kawaii, inspired by Chiikawa but original (don't copy characters). Keep all pet species.
 - She tests on her phone and reports by build number (shown in Options, `BUILD` in `app.js`). Always bump the build when you change app files.
 - Changes go live by pushing to `main` (no pull request). When she says "big push" (she used to say "ship it"), run `npm test`, then push to `main`; the Pages workflow tests and deploys. Do this only when she asks, and check the preview with her first.
-- Add a short line to `CHANGELOG.md` for each build you ship.
+- Add to `CHANGELOG.md` for each build you ship, kept simple: a heading per build and one short line per change (a few words, no explanations or technical detail).
 - She wants people to use the list legitimately, not game it for unlocks (hence the fair-play rules).
 
 - Nothing requires an unlock for now: `FreeUnlocks.all` in `achievements.js` opens every species, skin, hat and personality. New things should not need unlocks either; goals still count progress and set `all` to false to bring unlocking back (the unlock rules and tests are kept). Skin parts that are shared between skins use `data-sk="skin1 skin2"` (matched with `~=`).

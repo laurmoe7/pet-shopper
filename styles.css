@@ -719,7 +719,6 @@ button { font: inherit; color: inherit; }
 .phones-rim { fill: var(--phones-face, #3d3742); stroke: #c9ced6; stroke-width: 2.2; }
 .phones-cable { fill: none; stroke: var(--pet-ink); stroke-width: 1.4; stroke-linecap: round; }
 .phones-plug { fill: #c9ced6; stroke: var(--pet-ink); stroke-width: 1; }
-.phones-mint { --phones: #9fdcc8; --phones-pad: #ffb3c6; --phones-face: #c4ece0; }
 .chef-puff, .chef-band { fill: #fffdf8; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
 .chef-fold, .chef-pleat { fill: none; stroke: #e6ddd4; stroke-width: 1.6; stroke-linecap: round; }
 .chef-shine { fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; }
@@ -951,7 +950,6 @@ button { font: inherit; color: inherit; }
 .lid-tab { fill: #dfe3e9; stroke: var(--pet-ink); stroke-width: 1; }
 .lid-rivet { fill: #8b94a3; }
 .lid-shine { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; opacity: .7; }
-.lid-dent { fill: none; stroke: #8d96a2; stroke-width: 1.2; stroke-linecap: round; }
 .scarf-fringe-o { fill: none; stroke: var(--pet-ink); stroke-width: 4.2; stroke-linecap: round; }
 .scarf-fringe { fill: none; stroke: #f0a63a; stroke-width: 2.2; stroke-linecap: round; }
 
@@ -972,7 +970,6 @@ button { font: inherit; color: inherit; }
 .side-seam { fill: none; stroke: #d9741f; stroke-width: 1.3; stroke-linecap: round; }
 .side-band { fill: #e9792a; stroke: none; }
 .side-button { fill: #e9792a; stroke: var(--pet-ink); stroke-width: 1.4; }
-.side-star { fill: #fff6d6; stroke: none; }
 .cb-shaft { fill: #c47a48; stroke: var(--pet-ink); stroke-width: 1.7; stroke-linejoin: round; }
 .cb-foot { fill: #9c5a32; stroke: var(--pet-ink); stroke-width: 1.7; stroke-linejoin: round; }
 .flag-red { fill: #d8423a; } .flag-white { fill: #fff; } .flag-blue { fill: #2f5fb3; }
@@ -1226,7 +1223,6 @@ button { font: inherit; color: inherit; }
 .pet[data-species="frog"] { --pet-skin: #a9e6a2; --pet-skin-shade: #7bce88; --pet-mark: #7bce88; }
 .pet[data-species="hedgehog"] { --pet-skin: #f6dcc0; --pet-skin-shade: #e6c19a; --pet-ear-in: #ffc4cf; --pet-mark: #8d6b52; }
 .pet[data-species="frog"] [data-sp="frog"], .pet[data-species="hedgehog"] [data-sp="hedgehog"], .pet[data-species="axolotl"] [data-sp="axolotl"] { display: inline; }
-.frog-dome { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.4; }
 .frog-spots ellipse { fill: #7fcf88; }
 .frog-belly { fill: #f6fbd2; }
 .hog-spines path { fill: #8d6b52; stroke: var(--pet-ink); stroke-width: 4.4; stroke-linejoin: round; }

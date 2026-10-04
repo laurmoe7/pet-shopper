@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 102 (4 Oct)
+- Updates no longer re-download all the emoji.
+- Removed some unused styles.
+
 ## Build 101 (4 Oct)
 - The plain brown tape (and tick circle) on every third list label is lilac now.
 - "Eaten" is now "Bought" and "Clear eaten" is "Clear bought", since the pet doesn't eat everything.
