@@ -1959,13 +1959,15 @@ html[data-list="todo"] .item:not(.done) .item-text { cursor: pointer; }
 .task-delete { color: var(--danger); text-decoration-color: var(--danger); }
 /* the clipboard Nibble holds while the to-do list is showing: one paw holds its side (the other stays free), and a line is ticked for each third of the list done */
 .pet .clipboard { display: none; }
-html[data-list="todo"] .pet:not(.has-teddy):not(.tucked) .clipboard { display: inline; }
+html[data-list="todo"] #pet:not(.has-teddy):not(.tucked) .clipboard { display: inline; }
 .clipboard .cb-board { fill: #d49a5c; stroke: var(--prop-ink); stroke-width: 1.7; }
 .clipboard .cb-paper { fill: #fffaf0; stroke: var(--prop-ink); stroke-width: .9; }
 .clipboard .cb-clip { fill: #b8bdc8; stroke: var(--prop-ink); stroke-width: 1.4; }
 .clipboard .cb-line { fill: none; stroke: var(--prop-ink); stroke-width: 1.3; stroke-linecap: round; opacity: .4; }
 .clipboard .cb-tick { fill: none; stroke: #4fb583; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: none; }
 .clipboard[data-ticks="1"] .cb-tick[data-n="1"], .clipboard[data-ticks="2"] .cb-tick:not([data-n="3"]), .clipboard[data-ticks="3"] .cb-tick { display: inline; }
-html[data-list="todo"] .pet[data-arms="idle"]:not(.has-teddy):not(.tucked) .arm-l { translate: 14px -7px; }
+/* the left paw keeps holding the board whatever the face is doing; the other arm stays free for waving and cheering */
+html[data-list="todo"] #pet:not(.has-teddy):not(.tucked) .arm-l { animation: clip-sway 3s ease-in-out infinite; }
+@keyframes clip-sway { 0%, 100% { transform: rotate(50deg); } 50% { transform: rotate(43deg); } }
 /* the clipboard is in the left hand, so the arm turns round the shoulder as before (not round its bigger outline) */
-html[data-list="todo"] .pet:not(.has-teddy):not(.tucked) .arm-l { transform-box: view-box; transform-origin: 27px 110.2px; }
+html[data-list="todo"] #pet:not(.has-teddy):not(.tucked) .arm-l { transform-box: view-box; transform-origin: 27px 110.2px; }

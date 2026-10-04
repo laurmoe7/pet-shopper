@@ -447,3 +447,30 @@ function timeCheck(quiet) {
 }
 timeCheck(true);
 setInterval(timeCheck, 20000);
+
+// ---------- ticking a task before its time ----------
+var earlySheet = $('earlySheet'), earlyFor = null;
+/**
+ * A task with a time that is ticked off before that time gets a warning first.
+ * @param {string} id
+ * @returns {boolean} True if the warning is showing (the tick waits for an answer).
+ */
+function warnIfEarly(id) {
+  var item = find(id);
+  if (!isTodo() || !item || item.done || !item.time || !item.due) return false;
+  var today = todayKey(), early = item.due > today || (item.due === today && item.time > clockKey());
+  if (!early) return false;
+  earlyFor = id;
+  $('earlyText').textContent = '“' + item.text + '” is for ' + infoOf(item).label + '. Tick it off anyway?';
+  openDialog(earlySheet);
+  if (!busy && baseState() !== 'sleepy') { setFace(FACES.suspicious); say(pick(["hey, it's early!", 'psst… not yet!', 'too soon?']), 1400); }
+  return true;
+}
+$('earlyYes').addEventListener('click', function () {
+  var id = earlyFor;
+  earlyFor = null;
+  earlySheet.close();
+  if (id) toggle(id);
+});
+$('earlyNo').addEventListener('click', function () { earlyFor = null; earlySheet.close(); if (!busy) settle(); });
+earlySheet.addEventListener('close', function () { earlyFor = null; if (!busy) settle(); });

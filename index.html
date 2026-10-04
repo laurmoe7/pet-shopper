@@ -514,7 +514,7 @@
                    translate property), and asleep it lies tilted under the right paw; drawn before the arms so the paw is on it -->
               <g class="teddy-hug" transform="translate(94 96) rotate(18 19 21) scale(.95)"></g>
               <!-- little nubbly arms -->
-              <g class="arm arm-l"><!-- the to-do list's clipboard (app-todo.js ticks its lines): it is in the hand, so it moves with the arm --><g class="clipboard" id="clipboard" data-ticks="0" transform="translate(-30 0) rotate(-27 80 128)">
+              <g class="arm arm-l"><!-- the to-do list's clipboard (app-todo.js ticks its lines): it is in the hand, so it moves with the arm --><g class="clipboard" id="clipboard" data-ticks="0" transform="translate(-69 -14) rotate(-80 80 128)">
                   <rect class="cb-board" x="66.5" y="112" width="27" height="32" rx="3.4"/>
                   <rect class="cb-paper" x="69.4" y="117" width="21.2" height="24" rx="1.6"/>
                   <rect class="cb-clip" x="73.6" y="109" width="12.8" height="6.4" rx="1.8"/>
@@ -740,6 +740,18 @@
     <div class="task-actions">
       <button type="button" class="text-btn" id="taskEmoji">Change emoji</button>
       <button type="button" class="text-btn task-delete" id="taskDelete">Delete</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- a warning when a task with a time is ticked off before that time (app-todo.js) -->
+<dialog class="picker pet-sheet early-sheet" id="earlySheet" aria-labelledby="earlyTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="earlyTitle">Not time yet!</h2>
+    <p class="task-name" id="earlyText"></p>
+    <div class="task-chips">
+      <button type="button" class="pill-btn" id="earlyNo" aria-pressed="true">Not yet</button>
+      <button type="button" class="pill-btn" id="earlyYes">Tick it anyway</button>
     </div>
   </form>
 </dialog>

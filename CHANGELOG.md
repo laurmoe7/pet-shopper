@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 140 (4 Oct)
+- Nibble holds the clipboard out to the side, like a real one.
+- No clipboard in the dress-up or pet pickers.
+- A warning when you tick a task before its time.
+
 ## Build 139 (4 Oct)
 - The clipboard is stuck to his hand and moves with the arm.
 - Reminders can have a time, and Nibble tells you when it comes.
