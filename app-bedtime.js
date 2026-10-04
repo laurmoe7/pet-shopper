@@ -16,6 +16,19 @@ function bedtime() {
 function saveBedtime(bed) {
   try { localStorage.setItem(BED_KEY, JSON.stringify(bed)); } catch (e) { /* storage blocked */ }
 }
+// the teddy bear: sits in the bed at bedtime, and the pet hugs it once asleep (shown by styles.css)
+var TEDDY = '<circle class="teddy-fur" cx="9" cy="8" r="5"/><circle class="teddy-in" cx="9" cy="8" r="2.4"/>' +
+  '<circle class="teddy-fur" cx="31" cy="8" r="5"/><circle class="teddy-in" cx="31" cy="8" r="2.4"/>' +
+  '<ellipse class="teddy-fur" cx="20" cy="32" rx="12" ry="10"/><ellipse class="teddy-in" cx="20" cy="34" rx="6.5" ry="5.5"/>' +
+  '<ellipse class="teddy-fur" cx="12" cy="41" rx="4.6" ry="3"/><ellipse class="teddy-fur" cx="28" cy="41" rx="4.6" ry="3"/>' +
+  '<circle class="teddy-fur" cx="20" cy="16" r="11"/><ellipse class="teddy-muzzle" cx="20" cy="20" rx="5" ry="3.8"/>' +
+  '<ellipse class="teddy-nose" cx="20" cy="18.6" rx="1.8" ry="1.3"/><path class="teddy-line" d="M20 19.8 v1.4 M18.2 21.6 q1.8 1.3 3.6 0"/>' +
+  '<circle class="teddy-eye" cx="14.8" cy="14.6" r="1.4"/><circle class="teddy-eye" cx="25.2" cy="14.6" r="1.4"/>' +
+  '<circle class="teddy-blush" cx="12.6" cy="19" r="1.7"/><circle class="teddy-blush" cx="27.4" cy="19" r="1.7"/>' +
+  '<path class="teddy-bow" d="M20 27 l-5.4 -3.2 v6.4 z M20 27 l5.4 -3.2 v6.4 z"/><circle class="teddy-bow" cx="20" cy="27" r="1.7"/>';
+pet.querySelector('.teddy-hug').innerHTML = TEDDY;
+document.querySelector('.teddy-side').innerHTML = '<svg viewBox="0 0 40 44">' + TEDDY + '</svg>';
+
 var bedtimeKnown = false, wasAsleep = false;
 /** @returns {boolean} True when it is bedtime: night, and nothing left to buy (or already asleep). */
 function bedtimeNow() { return L.isNight(petNow()) && (baseState() === 'sleepy' || nothingLeft()); }
@@ -82,6 +95,7 @@ function fallAsleep() {
  * @returns {number} How long the wake-up takes, in ms (the eating waits for it).
  */
 function wakeForSnack() {
+  pet.classList.add('tired'); // it eats happy but tired (settle puts it right afterwards)
   setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: [] });
   eyesDo('wide');
   pulse('stretch', 700);

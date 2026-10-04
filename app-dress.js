@@ -185,8 +185,22 @@ dressSheet.addEventListener('close', function () {
   dressBubble.hidden = true;
   hoveredHat = null;
   if (!busy) {
-    setFace(FACES.tada); pulse('hop', 500);
     var item = L.OUTFIT_SLOTS.some(function (slot) { return wardrobeItem(state.pet.outfit[slot]); });
+    if (baseState() === 'sleepy') {
+      // asleep: only a happy mumble
+      pulse('rocksmall', 1300);
+      talk('lookSleepy', ['mm… fancy…', 'pretty… zzz'], 1500);
+      return;
+    }
+    if (isTired()) {
+      // up at night: pleased with it, but sleepy
+      setFace(tiredFace(FACES.tada)); pulse('hopsmall', 450);
+      if (item) talk('lookTired', ['so fancy… *yawn*', 'cute pajamas?', 'pretty… and sleepy', 'ta-da… *yawn*'], 1600);
+      else say('comfy… *yawn*', 1500);
+      setTimeout(function () { if (!busy) settle(); }, 1200);
+      return;
+    }
+    setFace(FACES.tada); pulse('hop', 500);
     if (item) talk('look', ['so fancy!', 'how do I look?', 'kawaii?', 'ta-da!'], 1500); else say('fresh look!', 1500);
     setTimeout(function () { if (!busy) settle(); }, 1000);
   }

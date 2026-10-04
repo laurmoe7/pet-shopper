@@ -97,6 +97,22 @@ function settle() {
   setFace(tired ? { eyes: 'open', mouth: face.mouth, arms: face.arms, x: face.x } : face);
   pet.classList.toggle('tired', tired);
 }
+/** @returns {boolean} True when it's up at night: happy moments come out happy but tired. */
+function isTired() { return pet.classList.contains('tired'); }
+/**
+ * A happy face, but tired when it's up at night: open eyes (so the heavy lids show) instead of happy or sparkly ones.
+ * @param {{eyes: string, mouth: string, arms?: string, x: string[]}} face
+ */
+function tiredFace(face) {
+  if (!isTired()) return face;
+  var eyes = face.eyes === 'happy' || face.eyes === 'sparkle' ? 'open' : face.eyes;
+  return { eyes: eyes, mouth: face.mouth, arms: face.arms, x: face.x.filter(function (x) { return x !== 'sparkles'; }) };
+}
+/** Big happy moves become small ones when it's tired. */
+function tiredMove(move) {
+  return isTired() && /^(hop|hophop|twirl|boogie|roly|shuffle)$/.test(move[0]) ? ['hopsmall', 450] : move;
+}
+var TIRED_YUM = ['yummy… *yawn*', 'midnight snack ♡', 'mm… so good…', 'sleepy yum~', 'nom… *yawn*'];
 /**
  * The eyes go wide (surprised) or squint (sour, suspicious) for a moment, whatever eyes the face has.
  * @param {'wide'|'squint'} how

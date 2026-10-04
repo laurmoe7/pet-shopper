@@ -66,27 +66,29 @@ function eat(item, fromRect, goals) {
     var to = nonfood ? bagPoint() : mouthPoint();
     return fly(item.emoji, center(fromRect), to, { duration: 600 * sp, scaleTo: nonfood ? 0.15 : 0.5 }).then(function () {
       var r = REACTIONS[key] || REACTIONS[item.cat] || REACTIONS.pantry;
-      setFace(r.face);
+      var tired = isTired();   // up at night: happy but tired
+      setFace(tiredFace(r.face));
       if (!nonfood) {
         pulse('chomp', 300);
         crumbs(mouthPoint(), CRUMB_COLORS[item.cat] || '#e8b04a', r.crumbs || 7);
         drift(['✦', '♥', '✧'], mouthPoint(), 3);
       }
-      if (r.move) setTimeout(function () { pulse(r.move[0], r.move[1]); }, nonfood ? 0 : 320);
-      if (r.look) eyesDo(r.look);
+      if (r.move) setTimeout(function () { var m = tiredMove(r.move); pulse(m[0], m[1]); }, nonfood ? 0 : 320);
+      if (r.look && !tired) eyesDo(r.look);
       sound(L.soundFor(item));
       // shop items that aren't food get a comment in the personality's voice
       if (nonfood && key === item.cat) talk(Foods.kindOf(item.emoji), r.lines, 1400);
+      else if (tired && !nonfood) say(pick(TIRED_YUM), 1400);
       else say(pick(r.lines), 1400);
       if (goals) goalToast(goals);
       var hold = 750 * sp;
-      if (r.then) return wait(hold / 2).then(function () { setFace(r.then); return wait(hold / 2); });
+      if (r.then) return wait(hold / 2).then(function () { setFace(tiredFace(r.then)); return wait(hold / 2); });
       return wait(hold);
     }).then(function () {
       if (!nonfood && isFavourite(item)) {
         // its favourite kind of food: hearts and a happy wiggle
-        setFace(FACES.love);
-        pulse('hop', 460);
+        setFace(tiredFace(FACES.love));
+        pulse(isTired() ? 'hopsmall' : 'hop', 460);
         say(L.styleLine(personality(), pick(personality().lines), null, true), 1300);
         return wait(800 * sp);
       }
@@ -133,10 +135,11 @@ function spitBack(item) {
  */
 function celebrate() {
   var eaten = state.items.filter(function (i) { return i.done; }).map(function (i) { return i.emoji; });
-  setFace(FACES.party);
+  setFace(tiredFace(FACES.party));
   pulse('pat', 1700);
   sound('party');
-  talk('full', ['so full! thank you!', 'best trip ever!', '*happy belly pat*'], 2200);
+  if (isTired()) talk('fullTired', ['so full… *yawn*… thank you!', 'best late trip ever…', 'full and sleepy ♡'], 2200);
+  else talk('full', ['so full! thank you!', 'best trip ever!', '*happy belly pat*'], 2200);
   buzz([20, 60, 20]);
   if (!reduceMotion) {
     var from = mouthPoint();

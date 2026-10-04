@@ -35,7 +35,11 @@ treatGrid.addEventListener('click', function (e) {
   var goals = creditEaten(item, now);
   save();
   renderTreats();    // the sheet stays open until Done, so you can pick the next one
-  eat(item, from, goals);
+  if (baseState() === 'sleepy' && !busy && !reduceMotion) {
+    // asleep: it wakes with a start for the treat, eats it happy but tired, then goes back to sleep
+    busy++;
+    setTimeout(function () { busy--; eat(item, from, goals); }, wakeForSnack());
+  } else eat(item, from, goals);
 });
 
 // a low panel that leaves Nibble in view, so you can watch it eat; only Done (or Escape) closes it

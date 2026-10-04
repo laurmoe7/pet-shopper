@@ -1492,6 +1492,20 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
 .bed-inside { fill: #fde6ee; stroke: var(--outline); stroke-width: 1.5; stroke-linejoin: round; }
 .bed-seam { fill: none; stroke: #fff; stroke-width: 1.4; stroke-dasharray: 3 3; stroke-linecap: round; opacity: .85; }
 .bed-shine { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; opacity: .55; }
+/* the teddy: sits in the bed at bedtime, and is hugged once the pet is asleep (tucked in, state sleepy) */
+.teddy-side { position: absolute; left: calc(50% + 60px); bottom: 26px; width: 46px; height: 51px; z-index: 1; pointer-events: none; display: none; rotate: 8deg; }
+.teddy-side svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.stage.bedtime .teddy-side { display: block; }
+.stage.bedtime:has(#pet.tucked[data-state="sleepy"]) .teddy-side { display: none; }
+.pet .teddy-hug { display: none; }
+.pet.tucked[data-state="sleepy"] .teddy-hug { display: inline; }
+.teddy-fur { fill: #e3b98f; stroke: var(--outline); stroke-width: 1.5; stroke-linejoin: round; }
+.teddy-in { fill: #f7dcc0; }
+.teddy-muzzle { fill: #fbecd9; stroke: var(--outline); stroke-width: 1.2; }
+.teddy-nose, .teddy-eye { fill: var(--outline); }
+.teddy-line { fill: none; stroke: var(--outline); stroke-width: 1.1; stroke-linecap: round; }
+.teddy-bow { fill: #ff8fae; stroke: var(--outline); stroke-width: 1; stroke-linejoin: round; }
+.teddy-blush { fill: #ffb3c1; opacity: .8; }
 .pet .blanket { display: none; }
 .pet.tucked .blanket { display: inline; animation: blanket-in .6s cubic-bezier(.3, 1.4, .5, 1); }
 .pet.tucked .outfit-feet { display: none; }

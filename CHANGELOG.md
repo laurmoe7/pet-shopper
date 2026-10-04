@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 132 (4 Oct)
+- A teddy bear in the bed; hugged while asleep.
+- At night, dress-up, treats and snacks: happy but tired.
+- A treat while asleep: a quick wake, then back to sleep.
+
 ## Build 131 (4 Oct)
 - Fixed: switching to night could leave the pet asleep untucked.
 - Tired eyelids move with the eyes.
