@@ -195,24 +195,39 @@ html[data-look="cardboard"] .picker-grid button { background: var(--surface-2); 
 html[data-look="cardboard"] .option { border-bottom-color: var(--line); }
 html[data-look="cardboard"] .eaten h2 { color: var(--muted); }
 
-/* two stickers have a corner peeling up, in different corners and sizes (the folded back is cream, the gap shows the board) */
+/* two round stickers are peeling at the edge, in different places and sizes. The peel is an oval laid across the rim:
+   its outer half is the board showing through where the sticker lifted, its inner half is the cream back folded over. */
 html[data-look="cardboard"] .dock button:nth-child(2) .dock-icon::before,
 html[data-look="cardboard"] .dock button:nth-child(4) .dock-icon::before {
-  content: ""; position: absolute; z-index: 2; pointer-events: none;
-  filter: drop-shadow(0 1px 1px rgba(60, 35, 15, .35));
+  content: ""; position: absolute; z-index: 2; pointer-events: none; border-radius: 50%;
+  filter: drop-shadow(0 1px .8px rgba(60, 35, 15, .35));
 }
+/* Room: a small lift at the lower right */
 html[data-look="cardboard"] .dock button:nth-child(2) .dock-icon::before {
-  right: -3px; bottom: -3px; width: 12px; height: 12px; border-radius: 0 0 4px 0;
-  background: linear-gradient(135deg, var(--cb-back) 0 38%, #e7d3ae 49%, var(--cb-dock-b) 50%);
+  left: 23px; top: 28px; width: 17px; height: 10px; transform: rotate(-45deg);
+  background: linear-gradient(to bottom, var(--cb-back) 0 40%, #e7d3ae 50%, var(--cb-dock-b) 50%);
 }
+/* Top 10: a bigger lift at the upper left */
 html[data-look="cardboard"] .dock button:nth-child(4) .dock-icon::before {
-  left: -3px; top: -3px; width: 17px; height: 17px; border-radius: 5px 0 0 0;
-  background: linear-gradient(315deg, var(--cb-back) 0 34%, #e2cca4 47%, var(--cb-dock-b) 50%);
+  left: -8px; top: -1px; width: 22px; height: 12px; transform: rotate(-45deg);
+  background: linear-gradient(to top, var(--cb-back) 0 40%, #e2cca4 50%, var(--cb-dock-b) 50%);
 }
+
+/* sticker buttons rock like a roly-poly when tapped (class added in app.js) */
+html[data-look="cardboard"] .roly-tap { animation: roly-tap .7s ease-out; transform-origin: 50% 85%; }
+@keyframes roly-tap {
+  0% { transform: rotate(var(--tilt, 0deg)); }
+  18% { transform: rotate(calc(var(--tilt, 0deg) - 16deg)); }
+  40% { transform: rotate(calc(var(--tilt, 0deg) + 11deg)); }
+  60% { transform: rotate(calc(var(--tilt, 0deg) - 6deg)); }
+  80% { transform: rotate(calc(var(--tilt, 0deg) + 2.5deg)); }
+  100% { transform: rotate(var(--tilt, 0deg)); }
+}
+@media (prefers-reduced-motion: reduce) { html[data-look="cardboard"] .roly-tap { animation: none; } }
 
 /* the Add button is a die-cut sticker too */
 html[data-look="cardboard"] .add-btn {
-  position: relative; border: 4px solid #fff; padding: 6px 18px; transform: rotate(-3deg);
+  position: relative; border: 4px solid #fff; padding: 6px 18px; --tilt: -3deg; transform: rotate(var(--tilt));
   box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 3px 3px var(--shadow); overflow: visible;
 }
 html[data-look="cardboard"] .add-btn::after {
@@ -224,7 +239,7 @@ html[data-look="cardboard"] .pill-btn[aria-pressed="true"] { background: var(--m
 /* the Options gear is a round sticker like the ones in the bottom bar, stuck in the top corner of the board */
 html[data-look="cardboard"] .gear-btn {
   width: 38px; height: 38px; padding: 0; border-radius: 50%; border: 3px solid #fff;
-  background: #efe3cf; color: #9a7650; transform: rotate(8deg); position: relative;
+  background: #efe3cf; color: #9a7650; --tilt: 8deg; transform: rotate(var(--tilt)); position: relative;
   box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 3px 3px rgba(90, 60, 30, .3);
 }
 html[data-look="cardboard"] .gear-btn::after {
@@ -232,4 +247,4 @@ html[data-look="cardboard"] .gear-btn::after {
 }
 html[data-look="cardboard"] .gear-btn svg { width: 22px; height: 22px; fill: currentColor; stroke: currentColor; stroke-width: 1; }
 html[data-look="cardboard"] .gear-btn svg circle { fill: #efe3cf; stroke: none; }
-html[data-look="cardboard"] .gear-btn:active { transform: rotate(8deg) translateY(2px); box-shadow: 0 0 0 1.5px var(--cb-edge-strong); }
+html[data-look="cardboard"] .gear-btn:active { transform: rotate(var(--tilt)) translateY(2px); box-shadow: 0 0 0 1.5px var(--cb-edge-strong); }

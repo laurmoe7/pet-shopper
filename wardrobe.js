@@ -43,7 +43,21 @@
    * on top, so they merge into one soft, bumpy shape.
    * @returns {string} SVG markup.
    */
-  function boa() {
+  /**
+ * A cowboy boot spur: a short arm out of the back of the heel and a star-shaped wheel.
+ * @param {number} x Back of the heel.
+ * @param {number} dir 1 when the back of the boot faces right, -1 when it faces left.
+ */
+function spur(x, dir) {
+  var cx = x + dir * 5.6, cy = 140, star = '';
+  for (var i = 0; i < 10; i++) {
+    var a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 1.5 : 3.6;
+    star += (i ? ' L' : 'M') + (cx + Math.cos(a) * r).toFixed(2) + ' ' + (cy + Math.sin(a) * r).toFixed(2);
+  }
+  return '<path class="spur-arm" d="M' + (x - dir * .4) + ' 140.6 L' + (cx - dir * 1.4) + ' ' + cy + '"/>' +
+    '<path class="spur-star" d="' + star + ' Z"/><circle class="spur-pin" cx="' + cx + '" cy="' + cy + '" r=".7"/>';
+}
+function boa() {
     var puffs = [];
     // a fixed wobble (not random) so the boa looks the same every time
     function wob(i, k) { return Math.sin(i * 12.9898 + k * 78.233) * 0.5; }
@@ -129,7 +143,7 @@
         '</g>'
     },
     {
-      id: 'cap', slot: 'hat', label: 'Boy cap',
+      id: 'cap', slot: 'hat', label: 'Lad\'s cap',
       lines: ['very proper!', 'off to the market!', 'class is in session!'],
       // a peaked student cap: flat top, gold cord and buttons, short dark visor
       svg: '<g transform="rotate(-7 80 36)" class="hat-cap">' +
@@ -237,22 +251,22 @@
       id: 'beret', slot: 'hat', snug: true, label: 'Strawberry beret', icon: '24 8 112 58',
       lines: ['berry chic!', 'très sweet!', 'ooh la la!'],
       svg: '<g class="hat-beret"><g transform="rotate(-4 80 44)">' +
+        // the band is drawn first and its top edge tucks under the beret, so the two are joined
+        '<path class="beret-band" d="M39 46.5 Q80 52 121 46.5 Q123.4 52 124.3 57.7 Q80 67 35.7 57.7 Q36.6 52 39 46.5 Z"/>' +
         '<path class="beret-top" d="M32 48 C30 30 54 25 80 26 C108 27 130 34 128 49 C112 55 50 56 32 48 Z"/>' +
         '<path class="beret-shine" d="M44 38 C50 32 60 29.6 70 29"/>' +
         '<path class="beret-seed" d="M52 40 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M70 46 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M92 41 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M110 45 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M80 38 l1.6 3.6 l-1.6 .6 l-1.6 -.6 Z M100 34 l1.6 3.4 l-1.6 .6 l-1.6 -.6 Z M62 34 l1.6 3.4 l-1.6 .6 l-1.6 -.6 Z"/>' +
         '<path class="beret-leaf" d="M82 27 C76 24 70 25 69 29 C74 30 78 29.6 82 27.8 C80 22 85 19 89 22 C88 25 86 27 84 28 C90 26 95 28 95 32 C91 33 86 31 83.4 29 Z"/>' +
         '<path class="beret-stem" d="M83 28 C83.4 24 84 22 85.4 20"/>' +
-        '</g>' +
-        '<path class="beret-band" d="M40.2 51.5 Q80 60 119.8 51.5 Q122.6 54.4 124.3 57.7 Q80 67 35.7 57.7 Q37.4 54.4 40.2 51.5 Z"/>' +
-        '</g>'
+        '</g></g>'
     },
     {
       id: 'bananapeel', slot: 'hat', snug: true, label: 'Banana peel', icon: '62 -2 84 58',
       lines: ['slippery when worn!', 'a-peeling, right?', 'going bananas!'],
       svg: '<g class="hat-banana" transform="translate(24 4) translate(80 40) rotate(34) scale(.6) translate(-80 -40)">' +
-        '<path class="peel" d="M76 42 C62 28 40 32 32 54 C44 56 60 51 72 47 Z"/>' +
-        '<path class="peel" d="M84 42 C98 28 120 32 128 54 C116 56 100 51 88 47 Z"/>' +
-        '<path class="peel" d="M71 44 C67 26 74 14 80 8 C86 14 93 26 89 44 C85 47 75 47 71 44 Z"/>' +
+        // the strips share one outline (drawn wide underneath, then the fills on top), so the peel is one piece
+        '<g class="peel-out"><path d="M76 42 C62 28 40 32 32 54 C44 56 60 51 72 47 Z"/><path d="M84 42 C98 28 120 32 128 54 C116 56 100 51 88 47 Z"/><path d="M71 44 C67 26 74 14 80 8 C86 14 93 26 89 44 C85 47 75 47 71 44 Z"/><ellipse cx="80" cy="45" rx="11" ry="4.6"/></g>' +
+        '<g class="peel-fill"><path d="M76 42 C62 28 40 32 32 54 C44 56 60 51 72 47 Z"/><path d="M84 42 C98 28 120 32 128 54 C116 56 100 51 88 47 Z"/><path d="M71 44 C67 26 74 14 80 8 C86 14 93 26 89 44 C85 47 75 47 71 44 Z"/><ellipse cx="80" cy="45" rx="11" ry="4.6"/></g>' +
         '<path class="peel-line" d="M80 14 V40 M66 36 C58 36 48 41 40 50 M94 36 C102 36 112 41 120 50"/>' +
         '<path class="peel-tip" d="M77.4 12 C77.6 8 78.6 6 80 5 C81.4 6 82.4 8 82.6 12 Z"/>' +
         '<circle class="peel-spot" cx="45" cy="47" r="1.2"/><circle class="peel-spot" cx="115" cy="47" r="1.2"/><circle class="peel-spot" cx="76" cy="28" r="1.1"/>' +
@@ -280,7 +294,7 @@
         '</g>'
     },
     {
-      id: 'jestercap', slot: 'hat', snug: true, label: 'Mini jester cap', icon: '18 2 124 58',
+      id: 'jestercap', slot: 'hat', snug: true, label: 'Jester cap', icon: '18 2 124 58',
       lines: ['jingle jingle!', 'the royal fool!', 'jest for you!'],
       svg: '<g class="hat-jester">' +
         '<path class="jester-purple" d="M80 45 C80 30 90 20 102 20 C112 20 120 32 125.4 46 C120.6 43 116.4 43 113 46 Z"/>' +
@@ -395,17 +409,18 @@
       }).join('') + '</g>'
     },
     {
-      id: 'heels', slot: 'feet', label: 'High heels', icon: '40 126 80 26',
-      lines: ['so tall!', 'click clack click', 'catwalk ready!'],
-      svg: '<g class="feet-heels">' + [58, 102].map(function (x) {
-        // a round pump that covers the whole foot, on a small heel, with a bow on the toe
-        // the heel sits at the back of the shoe, which reads as the outer side from the front
-        var h = x + (x < 80 ? -8 : 8);
-        return '<path class="heel-spike" d="M' + (h - 3) + ' 141.6 L' + (h - 1.4) + ' 148.4 H' + (h + 1.4) + ' L' + (h + 3) + ' 141.6 Z"/>' +
-          '<ellipse class="heel-shoe" cx="' + x + '" cy="138.4" rx="12" ry="6.2"/>' +
-          '<path class="heel-shine" d="M' + (x - 8.6) + ' 139.6 Q' + (x - 7.4) + ' 142.6 ' + (x - 3.6) + ' 143.6"/>' +
-          '<path class="heel-bow" d="M' + x + ' 140.6 l-3.4 -2.2 v4.4 Z M' + x + ' 140.6 l3.4 -2.2 v4.4 Z"/>' +
-          '<circle class="heel-bow" cx="' + x + '" cy="140.6" r="1.2"/>';
+      id: 'featherslides', slot: 'feet', label: 'Feather slides', icon: '40 126 80 26',
+      lines: ['dahling, I have arrived', 'fabulous toes!', 'only the fluffiest'],
+      svg: '<g class="feet-slides">' + [58, 102].map(function (x) {
+        // a gold sole with a big pink feather puff across the toes and a little gem in the middle
+        var puff = '';
+        [[-7, 0, 3.4], [-3.6, -2.6, 3.6], [0, -3.4, 3.8], [3.6, -2.6, 3.6], [7, 0, 3.4], [-4, 1.4, 3.2], [0, 1, 3.4], [4, 1.4, 3.2]].forEach(function (c) {
+          puff += '<circle cx="' + (x + c[0]) + '" cy="' + (139.6 + c[1]) + '" r="' + c[2] + '"/>';
+        });
+        return '<ellipse class="slide-sole" cx="' + x + '" cy="144" rx="12.6" ry="3.2"/>' +
+          '<g class="boa-edge">' + puff + '</g><g class="boa-puff">' + puff + '</g>' +
+          '<path class="boa-wisp-in" d="M' + (x - 5) + ' 137.6 q1.6 -1.4 3 0 M' + (x + 2) + ' 136.8 q1.6 -1.4 3 0"/>' +
+          '<path class="slide-gem" d="M' + x + ' 137.4 l2.4 2.4 l-2.4 2.6 l-2.4 -2.6 Z"/>';
       }).join('') + '</g>'
     },
     {
@@ -434,7 +449,9 @@
     {
       id: 'cowboyboots', slot: 'feet', label: 'Cowboy boots', icon: '38 120 84 28',
       lines: ['boot scootin!', 'yeehaw!', 'line dance time!'],
-      svg: '<g class="feet-cowboy"><path class="cb-heel" d="M66.6 141.4 L66.2 144 H62 L61.6 142.4 Z"/><path class="cb-shaft" d="M50.4 133.4 Q58 135.4 65.6 133.4 L65 137.4 H51 Z"/><path class="cb-foot" d="M67 139.6 C67 135.6 53 135.2 46 140.2 C53 143.2 67 143.4 67 139.6 Z"/><path class="cb-stitch" d="M56.4 134.8 q1.6 1.6 3.2 0"/><path class="cb-heel" d="M93.4 141.4 L93.8 144 H98 L98.4 142.4 Z"/><path class="cb-shaft" d="M94.4 133.4 Q102 135.4 109.6 133.4 L109 137.4 H95 Z"/><path class="cb-foot" d="M93 139.6 C93 135.6 107 135.2 114 140.2 C107 143.2 93 143.4 93 139.6 Z"/><path class="cb-stitch" d="M100.4 134.8 q1.6 1.6 3.2 0"/></g>'
+      svg: '<g class="feet-cowboy"><path class="cb-heel" d="M66.6 141.4 L66.2 144 H62 L61.6 142.4 Z"/><path class="cb-shaft" d="M50.4 133.4 Q58 135.4 65.6 133.4 L65 137.4 H51 Z"/><path class="cb-foot" d="M67 139.6 C67 135.6 53 135.2 46 140.2 C53 143.2 67 143.4 67 139.6 Z"/><path class="cb-stitch" d="M56.4 134.8 q1.6 1.6 3.2 0"/><path class="cb-heel" d="M93.4 141.4 L93.8 144 H98 L98.4 142.4 Z"/><path class="cb-shaft" d="M94.4 133.4 Q102 135.4 109.6 133.4 L109 137.4 H95 Z"/><path class="cb-foot" d="M93 139.6 C93 135.6 107 135.2 114 140.2 C107 143.2 93 143.4 93 139.6 Z"/><path class="cb-stitch" d="M100.4 134.8 q1.6 1.6 3.2 0"/>' +
+        // spurs: a strap round the heel and a little star wheel sticking out the back
+        spur(66.6, 1) + spur(93.4, -1) + '</g>'
     },
     {
       id: 'clogs', slot: 'feet', label: 'Wooden clogs', icon: '40 124 80 26',

@@ -2,6 +2,14 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 86 (4 Oct)
+- The two peeling stickers in the bottom bar now peel along their round edge instead of a square corner.
+- Sticker buttons (bottom bar, gear, Add) rock like a roly-poly when tapped.
+- Strawberry beret: the band is joined to the top. Banana peel: the strips melt into one piece.
+- Renamed: Mini jester cap -> Jester cap, Boy cap -> Lad's cap.
+- High heels are replaced by pink Feather slides with a gem (saves wearing heels switch over).
+- Cowboy boots have spurs.
+
 ## Build 85 (4 Oct)
 - Typing no longer hides the text box: while the keyboard is up the bottom bar hides and the pet scrolls away. Closing the keyboard brings them back.
 - Sheets follow your finger when you drag the grab bar down, close when pulled far or fast enough, and spring back otherwise.

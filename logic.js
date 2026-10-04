@@ -106,7 +106,12 @@
       name: typeof saved.name === 'string' ? saved.name : 'Nibble',
       species: species,
       skin: skin,
-      outfit: OUTFIT_SLOTS.reduce(function (o, slot) { o[slot] = (saved.outfit && saved.outfit[slot]) || 'none'; return o; }, {}),
+      // renamed items: the high heels became feather slides
+      outfit: OUTFIT_SLOTS.reduce(function (o, slot) {
+        var id = (saved.outfit && saved.outfit[slot]) || 'none';
+        o[slot] = id === 'heels' ? 'featherslides' : id;
+        return o;
+      }, {}),
       achievements: saved.achievements && typeof saved.achievements === 'object' ? saved.achievements : {},
       room: saved.room && typeof saved.room === 'object' ? saved.room : {},
       personality: saved.personality || 'foodie',
