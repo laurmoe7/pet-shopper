@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '102';
+var BUILD = '103';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -136,7 +136,7 @@ document.addEventListener('click', function (e) {
   if (!e.target.closest('.list-area, .scene-bar') || e.target.closest('button')) return;
   document.querySelectorAll('dialog[open]:not(#picker):not(#roomSheet)').forEach(function (d) { d.close(); });
 });
-// sticker buttons rock like a roly-poly when tapped (the look is in look-cardboard.css)
+// sticker buttons rock like a roly-poly when tapped (the look is in styles.css)
 document.addEventListener('click', function (e) {
   var b = e.target.closest('.dock button, .gear-btn, .add-btn');
   if (!b) return;

@@ -7,15 +7,27 @@
   var COOLDOWN_MS = 2200;  // so it can't be spammed
   var down = null, travel = 0, nextAt = 0, stroked = false;
 
-  /** Nibble enjoys it: hearts, a purr and a line. Only a reaction; nothing counts for goals. */
+  // different ways to enjoy being stroked: a happy wiggle, melting, a roly-poly, giggling, leaning into it
+  var PETTED = [
+    { face: { eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['hearts', 'cheeks'] }, move: ['pat', 1300], extra: ['wiggle', 900] },
+    { face: { eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }, move: ['sit', 2600], lines: ['mmm~', 'so nice…', 'melting…'] },
+    { face: { eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['hearts', 'cheeks'] }, move: ['roly', 2800], lines: ['wheee~', 'hehe!', 'again!'] },
+    { face: { eyes: 'happy', mouth: 'open', arms: 'cover', x: ['cheeks'] }, move: ['shuffle', 1500], lines: ['hehe, tickles!', 'that tickles!', 'hihihi'] },
+    { face: { eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['hearts', 'cheeks'] }, move: ['rocksmall', 1300], lines: ['purrr~', 'right there ♡', 'more pets?'] }
+  ];
+  /** Nibble enjoys it: one of a few happy reactions, hearts, a purr and a line. Only a reaction; nothing counts for goals. */
   function petted() {
     if (busy) return;
     busy++;
-    setFace({ eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['hearts', 'cheeks'] });
+    var r = pick(PETTED);
+    setFace(r.face);
+    pulse(r.move[0], r.move[1]);
+    if (r.extra) setTimeout(function () { pulse(r.extra[0], r.extra[1]); }, 350);
+    drift(['♥', '♡', '♥'], petTop(), 3);
     sound('purr');
     buzz(10);
-    talk('pet', ['purrr~', 'mmm, nice', 'more pets?', 'hehe, tickles', '♡'], 1500);
-    setTimeout(function () { busy--; if (!busy) settle(); }, 1700);
+    talk('pet', r.lines || ['purrr~', 'mmm, nice', 'more pets?', 'hehe, tickles', '♡'], 1500);
+    setTimeout(function () { busy--; if (!busy) settle(); }, Math.max(1700, r.move[1]));
   }
 
   pet.addEventListener('pointerdown', function (e) {

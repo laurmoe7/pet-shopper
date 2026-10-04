@@ -1,24 +1,23 @@
-/* Layout: a sticky stage where Nibble sits on its cushion, a memo-pad list scrolls underneath.
-   Look: soft kawaii stationery. Sakura-pink graph paper, cocoa-brown thin outlines, pastel stickers,
-   rounded Japanese type. Everything shares Nibble's outline colour so the app feels hand drawn. */
+/* Layout: a sticky stage where Nibble sits on its cushion, the list scrolls underneath, the pet buttons sit in a
+   bottom bar. Look: a kraft-cardboard box (see "the cardboard look" at the end), rounded Japanese type. */
 :root {
-  --bg: #fdf1f3;
-  --grid: #f6dfe4;
-  --surface: #fffcfa;
-  --surface-2: #fbf2f1;
-  --ink: #5b4239;
-  --muted: #9a8178;
-  --line: #e9cfca;
-  --outline: #6e5045;
-  --accent: #ff9fb5;
-  --accent-ink: #4a2f2a;
-  --mint: #c7ead6;
-  --butter: #fff0b8;
-  --stage-top: #fde3ea;
-  --cushion: #ffc7d3;
-  --cushion-stitch: #f39bb0;
+  --bg: #dcb987;
+  --grid: rgba(125, 82, 40, .09);
+  --surface: #fffaf0;
+  --surface-2: #f4e6cb;
+  --ink: #523a2b;
+  --muted: #8a6f55;
+  --line: #d4b68a;
+  --outline: #7b5a3d;
+  --accent: #ff8fab;
+  --accent-ink: #4a2a2a;
+  --mint: #bfe6cf;
+  --butter: #ffe9a3;
+  --stage-top: #ecd1a2;
+  --cushion: #ffbfd0;
+  --cushion-stitch: #f08aa5;
   --danger: #c4505f;
-  --shadow: #ecd3cf;
+  --shadow: rgba(110, 72, 36, .28);
 
   /* Nibble's own colours stay the same in both themes */
   --pet-skin: #fff4ec;
@@ -35,66 +34,77 @@
 
   --r: 22px;
   color-scheme: light;
+  --cb-edge: rgba(123, 90, 61, .35);
+  --cb-edge-strong: rgba(123, 90, 61, .58);
+  --cb-fade: rgba(236, 209, 162, 0);
+  --cb-done: rgba(255, 250, 240, .55);
+  --cb-dock-a: #f0d9ae;
+  --cb-dock-b: #e6c791;
+  --cb-shine: rgba(255, 255, 255, .5);
+  --cb-back: #fffaf0;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #2a2125;
-    --grid: #33292e;
-    --surface: #3a2f34;
-    --surface-2: #31282c;
-    --ink: #f8ebe6;
-    --muted: #c2aaa3;
-    --line: #54434a;
-    --outline: #e9d3cb;
-    --accent: #ff9fb5;
+    --bg: #3a2c22;
+    --grid: rgba(0, 0, 0, .16);
+    --surface: #5a483b;
+    --surface-2: #4b3b30;
+    --ink: #fbefdc;
+    --muted: #c9b199;
+    --line: #7a6350;
+    --outline: #d9bf9d;
+    --accent: #ff8fab;
     --accent-ink: #3a2226;
-    --mint: #3f5c4d;
-    --butter: #5a4f2e;
-    --stage-top: #3a2a31;
-    --cushion: #7d4a5a;
-    --cushion-stitch: #b46c82;
+    --mint: #8ac7a6;
+    --butter: #e6cd78;
+    --stage-top: #4a392d;
+    --cushion: #c9677f;
+    --cushion-stitch: #e58aa3;
     --danger: #ff98a5;
-    --shadow: #1e181b;
+    --shadow: rgba(0, 0, 0, .35);
     color-scheme: dark;
-  }
+  --cb-edge: rgba(255, 228, 190, .22);
+  --cb-edge-strong: rgba(255, 228, 190, .5);
+  --cb-fade: rgba(74, 57, 45, 0);
+  --cb-done: rgba(90, 72, 59, .5);
+  --cb-dock-a: #6b5342;
+  --cb-dock-b: #57453a;
+  --cb-shine: rgba(255, 255, 255, .12);
+  --cb-back: #e9dcc6;
+}
 }
 :root[data-theme="dark"] {
-  --bg: #2a2125;
-  --grid: #33292e;
-  --surface: #3a2f34;
-  --surface-2: #31282c;
-  --ink: #f8ebe6;
-  --muted: #c2aaa3;
-  --line: #54434a;
-  --outline: #e9d3cb;
-  --accent: #ff9fb5;
+  --bg: #3a2c22;
+  --grid: rgba(0, 0, 0, .16);
+  --surface: #5a483b;
+  --surface-2: #4b3b30;
+  --ink: #fbefdc;
+  --muted: #c9b199;
+  --line: #7a6350;
+  --outline: #d9bf9d;
+  --accent: #ff8fab;
   --accent-ink: #3a2226;
-  --mint: #3f5c4d;
-  --butter: #5a4f2e;
-  --stage-top: #3a2a31;
-  --cushion: #7d4a5a;
-  --cushion-stitch: #b46c82;
+  --mint: #8ac7a6;
+  --butter: #e6cd78;
+  --stage-top: #4a392d;
+  --cushion: #c9677f;
+  --cushion-stitch: #e58aa3;
   --danger: #ff98a5;
-  --shadow: #1e181b;
+  --shadow: rgba(0, 0, 0, .35);
   color-scheme: dark;
+  --cb-edge: rgba(255, 228, 190, .22);
+  --cb-edge-strong: rgba(255, 228, 190, .5);
+  --cb-fade: rgba(74, 57, 45, 0);
+  --cb-done: rgba(90, 72, 59, .5);
+  --cb-dock-a: #6b5342;
+  --cb-dock-b: #57453a;
+  --cb-shine: rgba(255, 255, 255, .12);
+  --cb-back: #e9dcc6;
 }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; }
-body {
-  background-color: var(--bg);
-  /* graph-paper memo pad */
-  background-image:
-    linear-gradient(var(--grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 22px 22px;
-  color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 17px;
-  line-height: 1.45;
-  -webkit-tap-highlight-color: transparent;
-  overscroll-behavior-y: none;
-}
+body { color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.45; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
 button { font: inherit; color: inherit; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 [hidden] { display: none !important; }
@@ -102,13 +112,7 @@ button { font: inherit; color: inherit; }
 .app { max-width: 560px; margin: 0 auto; min-height: 100vh; }
 
 /* ---------- stage ---------- */
-.scene {
-  position: sticky;
-  top: env(safe-area-inset-top, 0px);
-  z-index: 5;
-  background: linear-gradient(var(--stage-top) 70%, var(--bg));
-  padding: 10px 16px 0;
-}
+.scene { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; padding: 10px 16px 0; }
 .scene-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .brand { font-family: var(--font-display); font-weight: 500; font-size: 1.35rem; margin: 0; display: flex; align-items: center; white-space: nowrap; min-width: 0; overflow: hidden; }
 .brand .pet-name { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
@@ -120,13 +124,9 @@ button { font: inherit; color: inherit; }
   .scene-tools { gap: 5px; }
   .gear-btn { padding: 4px 6px; }
 }
-.pill-btn {
-  border: 1.5px solid var(--outline); background: var(--surface); border-radius: 999px;
-  padding: 3px 12px; font-size: .82rem; font-weight: 800; cursor: pointer; color: var(--ink);
-  box-shadow: 0 2px 0 var(--outline);
-}
+.pill-btn { border: 1.5px solid var(--outline); border-radius: 999px; padding: 3px 12px; font-size: .82rem; font-weight: 800; cursor: pointer; color: var(--ink); }
 .pill-btn:active { transform: translateY(2px); box-shadow: none; }
-.pill-btn[aria-pressed="true"] { background: var(--mint); }
+
 .pill-btn:focus-visible, .text-btn:focus-visible, .add-btn:focus-visible, .check:focus-visible, .emoji-btn:focus-visible, .picker-grid button:focus-visible {
   outline: 3px dashed var(--accent); outline-offset: 2px;
 }
@@ -140,11 +140,7 @@ button { font: inherit; color: inherit; }
 }
 .stage::before { left: 34%; top: 30px; }
 .stage::after { right: 22%; top: 112px; width: 10px; height: 10px; background: var(--pet-star); animation-delay: 1.4s; }
-.cushion {
-  position: absolute; left: 50%; bottom: 4px; width: 158px; height: 30px; transform: translateX(-50%);
-  background: var(--cushion); border: 1.8px solid var(--outline); border-radius: 50%; z-index: 0;
-  box-shadow: inset 0 -5px 0 var(--cushion-stitch);
-}
+.cushion { position: absolute; left: 50%; bottom: 4px; width: 158px; height: 30px; transform: translateX(-50%); background: var(--cushion); border: 1.8px solid var(--outline); border-radius: 50%; z-index: 0; }
 .cushion::after {
   content: ""; position: absolute; inset: 5px 14px; border: 1.5px dashed var(--cushion-stitch); border-radius: 50%;
 }
@@ -152,14 +148,7 @@ button { font: inherit; color: inherit; }
 .pet-svg { width: 100%; height: 100%; overflow: visible; display: block; }
 
 /* speech bubble */
-.bubble {
-  position: absolute; left: calc(50% + 62px); right: 0; top: 10px; z-index: 3; width: max-content; max-width: calc(50% - 62px);
-  background: var(--surface); color: var(--ink); border: 1.8px solid var(--outline);
-  font-family: var(--font-display); font-weight: 500; font-size: .95rem; line-height: 1.25;
-  padding: 6px 12px; border-radius: 18px 18px 18px 6px; text-wrap: balance;
-  box-shadow: 0 2px 0 var(--outline);
-  animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); transform-origin: 0 100%;
-}
+.bubble { position: absolute; left: calc(50% + 62px); right: 0; top: 10px; z-index: 3; width: max-content; max-width: calc(50% - 62px); background: var(--surface); color: var(--ink); border: 1.8px solid var(--outline); font-family: var(--font-display); font-weight: 500; font-size: .95rem; line-height: 1.25; padding: 6px 12px; text-wrap: balance; animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); transform-origin: 0 100%; }
 /* in an open menu the bubble hangs at the top of the screen so it still shows over the sheet */
 .bubble.in-sheet { position: fixed; left: auto; right: 12px; top: calc(env(safe-area-inset-top, 0px) + 10px); max-width: min(68vw, 300px); z-index: 100; transform-origin: 100% 100%; }
 @keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -452,7 +441,7 @@ button { font: inherit; color: inherit; }
    always ends up after the last option instead of on top of it */
 .pet-sheet .picker-inner { display: block; overflow-y: auto; }
 .pet-sheet .picker-inner > * + * { margin-top: 12px; }
-.pet-sheet .picker-foot { position: sticky; bottom: -16px; background: var(--surface); margin: 0 -16px; padding: 8px 16px 12px; z-index: 2; }
+.pet-sheet .picker-foot { position: sticky; bottom: -16px; margin: 0 -16px; padding: 8px 16px 12px; z-index: 2; }
 
 /* ---------- hats ---------- */
 .hat-dark { fill: #4d3c43; stroke: var(--pet-ink); stroke-width: 2; }
@@ -546,12 +535,12 @@ button { font: inherit; color: inherit; }
 .pig-hood-nostril { fill: #b8566f; }
 
 /* ---------- options ---------- */
-.gear-btn { padding: 4px 8px; display: inline-grid; place-items: center; }
-.gear-btn svg { width: 20px; height: 20px; fill: var(--surface); stroke: var(--outline); stroke-width: 1.7; stroke-linejoin: round; transition: transform .3s; }
+.gear-btn { display: inline-grid; place-items: center; }
+.gear-btn svg { stroke-linejoin: round; transition: transform .3s; }
 .gear-btn:hover svg, .gear-btn:focus-visible svg { transform: rotate(40deg); }
 .options { display: flex; flex-direction: column; overflow-y: auto; min-height: 0; }
 .option { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; padding: 10px 4px; border-bottom: 1.5px dashed var(--line); cursor: pointer; }
-.option:last-child { border-bottom: 0; }
+
 .option-title { font-weight: 800; }
 .option-text { grid-column: 1; font-size: .8rem; color: var(--muted); }
 .option input { grid-row: 1 / span 2; grid-column: 2; appearance: none; -webkit-appearance: none; margin: 0; width: 46px; height: 26px; border-radius: 999px; background: var(--line); border: 1.5px solid var(--outline); position: relative; cursor: pointer; transition: background .2s; }
@@ -592,12 +581,12 @@ button { font: inherit; color: inherit; }
 .cart-load img:nth-child(1) { left: 0; transform: rotate(-12deg); }
 .cart-load img:nth-child(2) { left: 17px; bottom: 7px; }
 .cart-load img:nth-child(3) { left: 33px; transform: rotate(10deg); }
-.cart-handle { fill: none; stroke: var(--pet-ink, #5b4239); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-.cart-basket { fill: #fff3f6; stroke: #5b4239; stroke-width: 2.4; stroke-linejoin: round; }
-.cart-grid { fill: none; stroke: #f3a9bb; stroke-width: 1.4; }
-.cart-wheel circle { fill: #ff9fb5; stroke: #5b4239; stroke-width: 2; }
-.cart-wheel path { stroke: #5b4239; stroke-width: 1.4; stroke-linecap: round; }
-.cart-heart { fill: #ff9fb5; }
+.cart-handle { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.cart-basket { stroke-linejoin: round; }
+.cart-grid { fill: none; stroke-width: 1.4; }
+
+.cart-wheel path { stroke-linecap: round; }
+
 @media (prefers-reduced-motion: reduce) { .cart:not([hidden]), .cart.bump, .cart-roll, .cart-wheel { animation: none; } }
 /* test (build 98): the receipt beside the pet, standing on the floor and growing upwards as things are ticked off */
 .receipt {
@@ -632,8 +621,8 @@ button { font: inherit; color: inherit; }
   content: ""; position: absolute; left: 2px; right: 2px; bottom: -3px; height: 7px; border-radius: 50%; background: rgba(90, 60, 30, .22);
 }
 .bag-svg { position: absolute; inset: 0; width: 38px; height: 44px; overflow: visible; }
-.bag-handle { fill: none; stroke: var(--pet-ink, #5b4239); stroke-width: 2.2; stroke-linecap: round; }
-.bag-body { fill: #f3dfb6; stroke: var(--pet-ink, #5b4239); stroke-width: 2; stroke-linejoin: round; }
+.bag-handle { fill: none; stroke-linecap: round; }
+.bag-body { stroke-linejoin: round; }
 .bag-heart { fill: #ff9fb5; }
 .bag-load { position: absolute; left: 3px; top: -7px; width: 34px; height: 22px; z-index: -1; }
 .bag-load img { position: absolute; width: 21px; height: 21px; bottom: 0; }
@@ -773,11 +762,7 @@ button { font: inherit; color: inherit; }
 /* ---------- list ---------- */
 .list-area { padding: 8px 16px calc(var(--dock-h, 72px) + 16px); display: flex; flex-direction: column; gap: 10px; }
 
-.add {
-  position: relative; display: flex; align-items: center; gap: 8px;
-  background: var(--surface); border: 1.8px solid var(--outline); border-radius: 999px;
-  padding: 5px 5px 5px 18px; box-shadow: 0 3px 0 var(--outline);
-}
+.add { position: relative; display: flex; align-items: center; gap: 8px; padding: 5px 5px 5px 18px; }
 .add input {
   flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink);
   font: inherit; font-size: 1.02rem; padding: 8px 0;
@@ -785,35 +770,21 @@ button { font: inherit; color: inherit; }
 .add input::placeholder { color: var(--muted); opacity: .85; }
 .add-preview { width: 30px; height: 30px; flex: none; }
 .add-preview img { width: 100%; height: 100%; display: block; animation: pop .25s cubic-bezier(.3, 1.6, .5, 1); }
-.add-btn {
-  border: 1.8px solid var(--outline); background: var(--accent); color: var(--accent-ink); font-weight: 800;
-  border-radius: 999px; padding: 8px 18px; cursor: pointer; flex: none;
-}
-.add-btn:active { transform: scale(.94); }
+.add-btn { color: var(--accent-ink); font-weight: 800; cursor: pointer; flex: none; }
 
 .items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
-.item {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--surface); border: 1.6px solid var(--outline); border-radius: var(--r);
-  padding: 2px 14px 2px 4px; min-height: 48px; box-shadow: 0 3px 0 var(--shadow);
-  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
-  touch-action: manipulation;
-}
+.item { display: flex; align-items: center; gap: 8px; padding: 2px 14px 2px 4px; min-height: 48px; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
 .item:nth-child(3n+2) { --tab: var(--mint); }
 .item:nth-child(3n+3) { --tab: var(--butter); }
-.item.new { animation: slide-in .35s cubic-bezier(.3, 1.5, .5, 1); }
-.item.pressing { transform: scale(.97); transition: transform .3s; }
+
+.item.pressing { transition: transform .3s; }
 @keyframes slide-in { from { opacity: 0; transform: translateY(-8px) scale(.96); } to { opacity: 1; transform: none; } }
 
 .check {
   flex: none; width: 42px; height: 42px; border-radius: 50%; border: 0; background: transparent;
   display: grid; place-items: center; cursor: pointer; padding: 0;
 }
-.check::before {
-  content: ""; width: 26px; height: 26px; border-radius: 50%; border: 1.8px solid var(--outline);
-  background: var(--tab, var(--stage-top));
-  box-sizing: border-box; transition: background .2s, transform .2s;
-}
+.check::before { content: ""; width: 26px; height: 26px; border-radius: 50%; box-sizing: border-box; transition: background .2s, transform .2s; }
 .check:active::before { transform: scale(.85); }
 .item.done .check::before {
   background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 19s-7-4.3-7-9a3.8 3.8 0 0 1 7-2 3.8 3.8 0 0 1 7 2c0 4.7-7 9-7 9z' fill='white'/%3E%3C/svg%3E") center/15px no-repeat;
@@ -822,15 +793,15 @@ button { font: inherit; color: inherit; }
 .emoji-btn img { width: 100%; height: 100%; display: block; }
 .emoji-btn.gone img { visibility: hidden; }
 .item-text { flex: 1; min-width: 0; overflow-wrap: anywhere; font-weight: 700; }
-.item.done { background: var(--surface-2); border-style: dashed; border-color: var(--line); box-shadow: none; }
+.item.done { border-style: dashed; border-color: var(--line); }
 .item.done .item-text { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--accent); text-decoration-thickness: 2.5px; font-weight: 500; }
-.item.done .emoji-btn img { opacity: .4; filter: grayscale(.5); }
+.item.done .emoji-btn img { opacity: .4; }
 
 .empty { color: var(--muted); text-align: center; margin: 8px 0; font-family: var(--font-display); }
 
 .eaten { display: flex; flex-direction: column; gap: 10px; }
 .eaten-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-.eaten h2 { font-family: var(--font-display); font-weight: 500; font-size: 1rem; margin: 0; color: var(--muted); }
+.eaten h2 { font-family: var(--font-display); font-weight: 500; font-size: 1rem; margin: 0; }
 .eaten h2::before { content: "♡ "; color: var(--accent); }
 .count { font-variant-numeric: tabular-nums; }
 .text-btn { border: 0; background: none; color: var(--ink); font-weight: 800; cursor: pointer; padding: 8px 4px; text-decoration: underline wavy var(--accent); text-underline-offset: 5px; }
@@ -840,13 +811,7 @@ button { font: inherit; color: inherit; }
 .credit a { color: inherit; }
 
 /* ---------- emoji picker ---------- */
-.picker {
-  border: 1.8px solid var(--outline); border-bottom: 0; padding: 0; margin: auto auto 0; width: 100%; max-width: 560px;
-  background: var(--surface); color: var(--ink); border-radius: 26px 26px 0 0;
-  max-height: 75vh;
-  /* the inner form does the scrolling, so the sheet itself never shows a second scroll bar */
-  overflow: hidden;
-}
+.picker { border-bottom: 0; padding: 0; margin: auto auto 0; width: 100%; max-width: 560px; color: var(--ink); max-height: 75vh; overflow: hidden; }
 .picker::backdrop { background: rgba(60, 35, 40, .4); }
 /* the sheets are panels above the bottom bar (not modal), so the bar stays usable */
 .picker.pet-sheet { position: fixed; inset: auto 0 0 0; margin: 0 auto; z-index: 20; max-height: calc(75vh + var(--dock-h, 64px)); border-bottom: 1.8px solid var(--outline); box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
@@ -858,7 +823,7 @@ button { font: inherit; color: inherit; }
 .picker-inner { padding: 18px 16px calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; max-height: calc(75vh - 2px); }
 .picker h2 { font-family: var(--font-display); font-weight: 500; font-size: 1.1rem; margin: 0; text-wrap: balance; }
 .picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 6px; overflow-y: auto; min-height: 0; padding: 2px; }
-.picker-grid button { border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 16px; aspect-ratio: 1; padding: 6px; cursor: pointer; max-width: 100%; }
+.picker-grid button { aspect-ratio: 1; padding: 6px; cursor: pointer; max-width: 100%; }
 .picker-grid button[aria-pressed="true"], .species-grid button[aria-pressed="true"], .hat-strip button[aria-pressed="true"] { border-color: var(--outline); background: var(--stage-top); box-shadow: 0 2px 0 var(--outline); }
 .picker-grid img { width: 100%; height: 100%; display: block; }
 .picker-foot { display: flex; justify-content: space-between; gap: 8px; }
@@ -897,7 +862,7 @@ button { font: inherit; color: inherit; }
 }
 .goal > img { width: 40px; height: 40px; grid-row: span 3; }
 .goal-title { font-weight: 800; display: flex; justify-content: space-between; gap: 8px; }
-.goal-reward { font-weight: 700; font-size: .78rem; color: var(--ink); background: var(--stage-top); border: 1.2px solid var(--line); border-radius: 999px; padding: 0 8px; white-space: nowrap; }
+.goal-reward { font-weight: 700; font-size: .78rem; border-radius: 999px; padding: 0 8px; white-space: nowrap; }
 .goal-text { font-size: .82rem; color: var(--muted); }
 .goal-bar { height: 10px; border-radius: 999px; background: var(--bg); border: 1.2px solid var(--line); overflow: hidden; }
 .goal-bar span { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
@@ -1124,23 +1089,14 @@ button { font: inherit; color: inherit; }
 .treat-grid button img { width: 30px; height: 30px; }
 
 /* the main pet buttons, always at the bottom of the screen */
-.dock {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; max-width: 560px; margin: 0 auto;
-  display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px;
-  padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
-  background: var(--surface); border-top: 1.8px solid var(--outline); border-radius: 18px 18px 0 0;
-  box-shadow: 0 -3px 0 rgba(91, 66, 57, .08);
-}
+.dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px)); }
 .dock button {
   display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 0; padding: 4px 0;
   border: 0; border-radius: 12px; background: none; color: var(--ink); font: inherit; cursor: pointer; touch-action: manipulation;
 }
-.dock button:active, .dock button:focus-visible { background: var(--stage-top); outline: none; }
-.dock-icon {
-  display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; font-size: 1.1rem; line-height: 1;
-  color: var(--accent); background: var(--stage-top); border: 1.8px solid var(--outline); box-shadow: 0 2px 0 var(--outline);
-}
-.dock button:active .dock-icon { transform: translateY(2px); box-shadow: none; }
+.dock button:active, .dock button:focus-visible { outline: none; }
+.dock-icon { display: grid; place-items: center; border-radius: 50%; line-height: 1; }
+
 .dock-svg { width: 20px; height: 20px; display: block; }
 .dock-label { font-size: .68rem; font-weight: 800; white-space: nowrap; }
 
@@ -1273,7 +1229,7 @@ button { font: inherit; color: inherit; }
   position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: min(70%, 240px); height: 28px; z-index: 6;
   border: 0; background: none; padding: 0; cursor: pointer; touch-action: none;
 }
-.sheet-grab::after { content: ""; position: absolute; left: 50%; top: 8px; width: 44px; height: 5px; margin-left: -22px; border-radius: 3px; background: var(--line); }
+.sheet-grab::after { content: ""; position: absolute; left: 50%; top: 8px; width: 44px; height: 5px; margin-left: -22px; border-radius: 3px; }
 .picker-foot:empty { display: none; }
 
 /* axolotl: frilly gills, a wide smile and a pale belly */
@@ -1349,7 +1305,6 @@ button { font: inherit; color: inherit; }
 #pet.rocksmall::before, #pet.pat::before { animation: sh-rocksmall 1.3s ease-in-out; }
 #pet.sniff::before { animation: sh-sniff 1.7s ease-in-out; }
 
-
 /* hop: a short crouch on the spot first (svgSquish in app-pet.js squashes the body then), so it waits a moment before leaving the floor */
 @keyframes hop {
   0% { transform: translateY(0); } 16% { transform: translateY(.5px); animation-timing-function: cubic-bezier(.2, .8, .4, 1); }
@@ -1370,3 +1325,232 @@ html.typing-add .add {
 }
 html.typing-add .list-area { padding-bottom: calc(var(--add-h, 56px) + 24px); }
 html.typing-add .scene-bar { display: none; }
+
+/* ---------- the cardboard look ----------
+   A kraft-cardboard box with paper labels held on by tape and sticker icons; light and dark follow the phone
+   (or the Appearance option). Rules here start with html:root so they win over the shared layout above. */
+/* corrugated board with a little speckle */
+html:root body {
+  background-color: var(--bg);
+  background-image:
+    repeating-linear-gradient(90deg, var(--grid) 0 2px, transparent 2px 8px),
+    radial-gradient(rgba(110, 72, 36, .12) 1px, transparent 1.4px),
+    radial-gradient(rgba(255, 255, 255, .14) 1px, transparent 1.4px);
+  background-size: auto, 13px 13px, 17px 17px;
+  background-position: 0 0, 3px 5px, 9px 2px;
+}
+
+/* the top flap */
+html:root .scene {
+  background: linear-gradient(var(--stage-top) 78%, var(--cb-fade));
+  border-bottom: 0;
+}
+html:root .scene::after {
+  content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 0;
+  border-bottom: 2px dashed var(--cb-edge);
+}
+html:root .brand { color: var(--ink); letter-spacing: .01em; }
+html:root .pill-btn { background: var(--surface); box-shadow: 0 2px 0 var(--outline); }
+html:root .cushion { box-shadow: inset 0 -5px 0 var(--cushion-stitch), 0 3px 0 var(--shadow); }
+html:root .bubble { border-radius: 14px 14px 14px 4px; box-shadow: 0 2px 0 var(--shadow); }
+
+/* add bar: a paper label with a cut line */
+html:root .add {
+  border: 0; border-radius: 12px; background: var(--surface);
+  box-shadow: 0 3px 0 var(--shadow), 0 0 0 1.5px var(--cb-edge);
+  outline: 1.5px dashed var(--cb-edge); outline-offset: -5px;
+}
+html:root .add-btn {
+  border: 3px solid #fff; border-radius: 999px; background: var(--accent);
+  box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 3px 3px var(--shadow);
+}
+
+/* list: paper labels, each held on by a strip of tape */
+html:root .item {
+  position: relative; border: 0; border-radius: 10px; background: var(--surface);
+  box-shadow: 0 3px 0 var(--shadow), 0 0 0 1.5px var(--cb-edge);
+  outline: 1.5px dashed var(--cb-edge); outline-offset: -5px;
+  transform: rotate(-.35deg);
+}
+html:root .item:nth-child(even) { transform: rotate(.3deg); }
+html:root .item::before {
+  content: ""; position: absolute; top: -7px; left: 22px; width: 34px; height: 13px; z-index: 1;
+  background: var(--tab, var(--stage-top)); opacity: .9; transform: rotate(-4deg); pointer-events: none;
+  clip-path: polygon(0 12%, 6% 0, 12% 14%, 18% 0, 24% 14%, 30% 0, 100% 0, 100% 100%, 30% 100%, 24% 86%, 18% 100%, 12% 86%, 6% 100%, 0 88%);
+}
+html:root .item:nth-child(even)::before { left: auto; right: 22px; transform: rotate(3deg); }
+html:root .item.new { animation: slide-in .35s cubic-bezier(.3, 1.5, .5, 1); }
+html:root .item.pressing { transform: scale(.97); }
+html:root .item.done {
+  background: var(--cb-done); box-shadow: none; outline-color: var(--cb-edge);
+}
+html:root .item.done::before { opacity: .45; }
+html:root .check::before {
+  border: 2.5px solid #fff; background: var(--tab, var(--stage-top));
+  box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 2px 2px var(--shadow);
+}
+html:root .item.done .check::before { background-color: var(--accent); }
+/* food emoji as die-cut stickers */
+html:root .emoji-btn img {
+  filter: drop-shadow(1.6px 0 0 #fff) drop-shadow(-1.6px 0 0 #fff) drop-shadow(0 1.6px 0 #fff) drop-shadow(0 -1.6px 0 #fff) drop-shadow(0 2px 1.5px rgba(90, 60, 30, .35));
+}
+html:root .item.done .emoji-btn img {
+  filter: grayscale(.5) drop-shadow(1.6px 0 0 #fff) drop-shadow(-1.6px 0 0 #fff) drop-shadow(0 1.6px 0 #fff) drop-shadow(0 -1.6px 0 #fff);
+}
+
+/* the bottom bar: a strip of board with sticker buttons */
+html:root .dock {
+  background: linear-gradient(var(--cb-dock-a), var(--cb-dock-b)); border-top: 0; border-radius: 16px 16px 0 0;
+  box-shadow: 0 -3px 0 var(--cb-edge), inset 0 2px 0 var(--cb-shine);
+}
+html:root .dock::before {
+  content: ""; position: absolute; left: 14px; right: 14px; top: 4px; border-top: 1.5px dashed var(--cb-edge);
+}
+html:root .dock button:active, html:root .dock button:focus-visible { background: rgba(255, 255, 255, .3); }
+html:root .dock-icon {
+  width: 40px; height: 40px; border: 3px solid #fff; font-size: 1.2rem; background: var(--sticker, #ffd3dd); color: var(--sticker-ink, #e0587c);
+  box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 3px 3px rgba(90, 60, 30, .3);
+  transform: rotate(var(--tilt, -4deg)); position: relative;
+}
+html:root .dock-icon::after {
+  content: ""; position: absolute; left: 7px; top: 5px; width: 9px; height: 5px; border-radius: 50%; background: rgba(255, 255, 255, .75); transform: rotate(-30deg);
+}
+html:root .dock button:active .dock-icon { transform: rotate(var(--tilt, -4deg)) translateY(2px); box-shadow: 0 0 0 1.5px var(--cb-edge-strong); }
+html:root .dock button:nth-child(1) { --tilt: -5deg; --sticker: #ffe9a3; --sticker-ink: #d28a0f; }
+html:root .dock button:nth-child(2) { --tilt: 4deg; --sticker: #c9ecd8; --sticker-ink: #3f9a6c; }
+html:root .dock button:nth-child(3) { --tilt: -3deg; --sticker: #ffd3dd; --sticker-ink: #e0587c; }
+html:root .dock button:nth-child(4) { --tilt: 5deg; --sticker: #ffdcb8; --sticker-ink: #d9792a; }
+html:root .dock button:nth-child(5) { --tilt: -4deg; --sticker: #d9ccf5; --sticker-ink: #7d5fcf; }
+html:root .dock button:nth-child(6) { --tilt: 3deg; --sticker: #c8e3f7; --sticker-ink: #3f86c0; }
+
+/* sheets: a card tucked into the box */
+html:root .picker {
+  background: var(--surface); border-color: var(--outline); border-radius: 18px 18px 0 0;
+  box-shadow: 0 -4px 0 rgba(110, 72, 36, .22);
+}
+html:root .picker h2 { color: var(--ink); }
+html:root .picker-grid button { background: var(--surface-2); border: 1.5px dashed var(--line); border-radius: 14px; }
+html:root .option { border-bottom-color: var(--line); }
+html:root .eaten h2 { color: var(--muted); }
+
+/* two round stickers are peeling at the edge, in different places and sizes. The peel layer covers the sticker and its
+   outline ring exactly (a circle, so nothing pokes out past the button). Past a straight fold line the sticker is gone and
+   the board shows; just inside the fold, the lifted piece lies folded over, cream back up (the mirror of the missing piece). */
+html:root .dock button:nth-child(2) .dock-icon::before,
+html:root .dock button:nth-child(4) .dock-icon::before {
+  content: ""; position: absolute; z-index: 2; pointer-events: none; border-radius: 50%;
+  left: -4.5px; top: -4.5px; width: 43px; height: 43px;
+}
+/* Room: a small lift at the lower right */
+html:root .dock button:nth-child(2) .dock-icon::before {
+  background:
+    linear-gradient(135deg, transparent 74.6%, var(--cb-dock-b) 74.6%),
+    radial-gradient(circle 21.5px at 42.7px 42.7px, #cdb48a 14.6px, #e9d6b3 16px, var(--cb-back) 20.4px, #b89c74 20.6px, transparent 21.5px);
+}
+/* Top 10: a bigger lift at the upper left */
+html:root .dock button:nth-child(4) .dock-icon::before {
+  background:
+    linear-gradient(315deg, transparent 71.4%, var(--cb-dock-a) 71.4%),
+    radial-gradient(circle 21.5px at 3.1px 3.1px, #cdb48a 12.6px, #e9d6b3 14px, var(--cb-back) 20.4px, #b89c74 20.6px, transparent 21.5px);
+}
+
+/* sticker buttons rock like a roly-poly when tapped (class added in app.js) */
+html:root .roly-tap { animation: roly-tap .7s ease-out; transform-origin: 50% 85%; }
+@keyframes roly-tap {
+  0% { transform: rotate(var(--tilt, 0deg)); }
+  18% { transform: rotate(calc(var(--tilt, 0deg) - 16deg * var(--roly-dir, 1) * var(--roly-amp, 1))); }
+  40% { transform: rotate(calc(var(--tilt, 0deg) + 11deg * var(--roly-dir, 1) * var(--roly-amp, 1))); }
+  60% { transform: rotate(calc(var(--tilt, 0deg) - 6deg * var(--roly-dir, 1) * var(--roly-amp, 1))); }
+  80% { transform: rotate(calc(var(--tilt, 0deg) + 2.5deg * var(--roly-dir, 1) * var(--roly-amp, 1))); }
+  100% { transform: rotate(var(--tilt, 0deg)); }
+}
+@media (prefers-reduced-motion: reduce) { html:root .roly-tap { animation: none; } }
+
+/* the Add button is a die-cut sticker too */
+html:root .add-btn {
+  position: relative; border: 4px solid #fff; padding: 6px 18px; --tilt: -3deg; transform: rotate(var(--tilt));
+  box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 3px 3px var(--shadow); overflow: visible;
+}
+html:root .add-btn::after {
+  content: ""; position: absolute; left: 10px; top: 3px; width: 16px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, .7); transform: rotate(-8deg);
+}
+html:root .add-btn:active { transform: rotate(-3deg) scale(.94); }
+html:root .pill-btn[aria-pressed="true"] { background: var(--mint); color: #3a2a1d; }
+
+/* the Options gear is a round sticker like the ones in the bottom bar, stuck in the top corner of the board */
+html:root .gear-btn {
+  width: 38px; height: 38px; padding: 0; border-radius: 50%; border: 3px solid #fff;
+  background: #efe3cf; color: #9a7650; --tilt: 8deg; transform: rotate(var(--tilt)); position: relative;
+  box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 3px 3px rgba(90, 60, 30, .3);
+}
+html:root .gear-btn::after {
+  content: ""; position: absolute; left: 6px; top: 4px; width: 8px; height: 4px; border-radius: 50%; background: rgba(255, 255, 255, .8); transform: rotate(-30deg);
+}
+html:root .gear-btn svg { width: 22px; height: 22px; fill: currentColor; stroke: currentColor; stroke-width: 1; }
+html:root .gear-btn svg circle { fill: #efe3cf; stroke: none; }
+html:root .gear-btn:active { transform: rotate(var(--tilt)) translateY(2px); box-shadow: 0 0 0 1.5px var(--cb-edge-strong); }
+
+/* the grab bar on sheets never shows a focus box when a sheet opens */
+html:root .sheet-grab:focus { outline: none; }
+html:root .sheet-grab::after { background: var(--cb-edge-strong); }
+
+/* sheets: a piece of the same kraft board, with a stitched edge, a taped paper title and paper-label cards */
+html:root .picker {
+  border: 0; border-radius: 18px 18px 0 0;
+  background-color: var(--cb-dock-a);
+  background-image:
+    linear-gradient(var(--cb-dock-a), var(--cb-dock-b)),
+    repeating-linear-gradient(90deg, var(--grid) 0 2px, transparent 2px 8px);
+  background-blend-mode: multiply;
+  box-shadow: 0 -3px 0 var(--cb-edge), inset 0 2px 0 var(--cb-shine), 0 -6px 14px var(--shadow);
+}
+html:root .picker::after {
+  content: ""; position: absolute; left: 14px; right: 14px; top: 5px; border-top: 1.5px dashed var(--cb-edge); pointer-events: none;
+}
+html:root .picker.fav-full, html:root .picker.dress-full { border-radius: 0; }
+html:root .picker h2 {
+  display: inline-block; justify-self: start; align-self: flex-start; position: relative; width: max-content; max-width: 100%;
+  background: var(--surface); padding: 3px 14px 4px; border-radius: 6px; transform: rotate(-1.5deg);
+  box-shadow: 0 2px 0 var(--shadow), 0 0 0 1.5px var(--cb-edge);
+}
+html:root .picker h2::before {
+  content: ""; position: absolute; top: -7px; left: 50%; width: 30px; height: 12px; margin-left: -15px;
+  background: var(--mint); opacity: .85; transform: rotate(3deg);
+  clip-path: polygon(0 12%, 6% 0, 12% 14%, 18% 0, 24% 14%, 30% 0, 100% 0, 100% 100%, 30% 100%, 24% 86%, 18% 100%, 12% 86%, 6% 100%, 0 88%);
+}
+/* cards inside sheets are paper labels like the list */
+html:root .goal,
+html:root .fav,
+html:root .options,
+html:root .picker-grid button,
+html:root .treat-grid button,
+html:root .picker .hat-strip button,
+html:root .picker .species-grid button {
+  background: var(--surface); border: 0; border-radius: 10px;
+  box-shadow: 0 2px 0 var(--shadow), 0 0 0 1.5px var(--cb-edge);
+  outline: 1.5px dashed var(--cb-edge); outline-offset: -4px;
+}
+html:root .options { padding: 4px 12px; }
+html:root .option:last-child { border-bottom: 0; }
+html:root .picker [aria-pressed="true"]:is(button) { box-shadow: 0 2px 0 var(--shadow), 0 0 0 2.5px var(--accent); }
+html:root .goal-reward { background: var(--butter); border: 0; color: #523a2b; box-shadow: 0 1px 0 var(--shadow); }
+html:root .picker .field-label, html:root .picker legend { color: var(--ink); }
+
+/* the shopping cart and bag: thick outlines and a soft shadow so they stand out from the board (dark lines by day, light at night) */
+:root:root { --cart-line: #3f2a1c; }
+@media (prefers-color-scheme: dark) { :root:root:not([data-theme="light"]) { --cart-line: #f3e1c6; } }
+:root:root[data-theme="dark"] { --cart-line: #f3e1c6; }
+html:root .cart-svg, html:root .bag-svg { filter: drop-shadow(0 2px 1.5px rgba(60, 35, 15, .35)); }
+html:root .cart-basket { fill: #e2b878; stroke: var(--cart-line); stroke-width: 3; }
+html:root .cart-grid { stroke: #a87a44; stroke-dasharray: 2.4 2; }
+html:root .cart-handle { stroke: var(--cart-line); stroke-width: 3.6; }
+html:root .cart-wheel circle { fill: var(--accent); stroke: var(--cart-line); stroke-width: 2.1; }
+html:root .cart-wheel path { stroke: var(--cart-line); stroke-width: 1.8; }
+html:root .cart-heart { fill: #ff8fab; stroke: var(--cart-line); stroke-width: 1; }
+html:root .pet-sheet .picker-foot { background: var(--cb-dock-b); border-top: 1.5px dashed var(--cb-edge); }
+html:root .bag-handle { stroke: var(--cart-line); stroke-width: 2.8; }
+html:root .bag-body { fill: #e9c58c; stroke: var(--cart-line); stroke-width: 2.6; }
+/* the tape on every third list label (and its tick circle) is lilac instead of plain board brown */
+html:root .item:nth-child(3n+1) { --tab: #d9ccf5; }
+@media (prefers-color-scheme: dark) { html:root:not([data-theme="light"]) .item:nth-child(3n+1) { --tab: #b4a4e0; } }
+html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }

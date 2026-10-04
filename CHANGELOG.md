@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 103 (4 Oct)
+- Old pink look removed; one stylesheet.
+- Bottom bar height measured correctly.
+- Petting: five different happy reactions.
+
 ## Build 102 (4 Oct)
 - Updates no longer re-download all the emoji.
 - Removed some unused styles.

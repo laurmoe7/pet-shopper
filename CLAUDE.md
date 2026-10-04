@@ -25,7 +25,7 @@ A grocery list with a tamagotchi-like pet that "eats" items as you check them of
 
 Plain web app, no build step, no dependencies. `npm test` runs Node's built-in test runner on `tests/`, which load the same scripts the browser uses.
 
-- `index.html`, `styles.css`: UI. `look-cardboard.css`: the optional "Cardboard look" (kraft board, taped paper labels, sticker buttons), the only look for now, set in `app-options.js` as `html[data-look="cardboard"]` (light and dark follow the phone). The classic pink look is still in `styles.css`; removing the `data-look` line brings it back. Style new UI in both files. Nibble is an inline SVG animated with CSS. The main pet buttons live in the `.dock` bottom bar (ids `dressBtn`, `roomBtn`, `treatBtn`, `favBtn`, `goalsBtn`, `editPetBtn`).
+- `index.html`, `styles.css`: UI. The look is cardboard (kraft board, taped paper labels, sticker buttons), with light and dark modes; its rules are at the end of `styles.css` under `html:root` (the old pink look was removed in build 103). Nibble is an inline SVG animated with CSS. The main pet buttons live in the `.dock` bottom bar (ids `dressBtn`, `roomBtn`, `treatBtn`, `favBtn`, `goalsBtn`, `editPetBtn`).
 - `app*.js`: the UI code, split by topic. They are plain scripts sharing one scope (no modules), loaded in the order in `index.html`. Read only the file you need:
   - `app.js` (comes first): `BUILD`, saved state, helpers, page elements, list rendering.
   - `app-pet.js`: Nibble's faces, speech, flying food, crumbs.
