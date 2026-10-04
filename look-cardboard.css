@@ -298,19 +298,17 @@ html[data-look="cardboard"] .picker [aria-pressed="true"]:is(button) { box-shado
 html[data-look="cardboard"] .goal-reward { background: var(--butter); border: 0; color: #523a2b; box-shadow: 0 1px 0 var(--shadow); }
 html[data-look="cardboard"] .picker .field-label, html[data-look="cardboard"] .picker legend { color: var(--ink); }
 
-/* the shopping cart: a little cardboard box on pink sticker wheels, cut out like the food stickers */
-html[data-look="cardboard"] .cart-svg {
-  filter: drop-shadow(1.4px 0 0 #fff) drop-shadow(-1.4px 0 0 #fff) drop-shadow(0 1.4px 0 #fff) drop-shadow(0 -1.4px 0 #fff) drop-shadow(0 2px 1.5px rgba(90, 60, 30, .35));
-}
-html[data-look="cardboard"] .cart-basket { fill: #e2b878; stroke: #6b4a2e; }
-html[data-look="cardboard"] .cart-grid { stroke: #b88a52; stroke-dasharray: 2.4 2; }
-html[data-look="cardboard"] .cart-handle { stroke: #6b4a2e; }
-html[data-look="cardboard"] .cart-wheel circle { fill: var(--accent); stroke: #6b4a2e; }
-html[data-look="cardboard"] .cart-wheel path { stroke: #6b4a2e; }
-html[data-look="cardboard"] .cart-heart { fill: #ff8fab; stroke: #fff; stroke-width: 1.2; paint-order: stroke; }
+/* the shopping cart and bag: thick outlines and a soft shadow so they stand out from the board (dark lines by day, light at night) */
+:root[data-look="cardboard"] { --cart-line: #3f2a1c; }
+@media (prefers-color-scheme: dark) { :root[data-look="cardboard"]:not([data-theme="light"]) { --cart-line: #f3e1c6; } }
+:root[data-look="cardboard"][data-theme="dark"] { --cart-line: #f3e1c6; }
+html[data-look="cardboard"] .cart-svg, html[data-look="cardboard"] .bag-svg { filter: drop-shadow(0 2px 1.5px rgba(60, 35, 15, .35)); }
+html[data-look="cardboard"] .cart-basket { fill: #e2b878; stroke: var(--cart-line); stroke-width: 3; }
+html[data-look="cardboard"] .cart-grid { stroke: #a87a44; stroke-dasharray: 2.4 2; }
+html[data-look="cardboard"] .cart-handle { stroke: var(--cart-line); stroke-width: 3.6; }
+html[data-look="cardboard"] .cart-wheel circle { fill: var(--accent); stroke: var(--cart-line); stroke-width: 2.1; }
+html[data-look="cardboard"] .cart-wheel path { stroke: var(--cart-line); stroke-width: 1.8; }
+html[data-look="cardboard"] .cart-heart { fill: #ff8fab; stroke: var(--cart-line); stroke-width: 1; }
 html[data-look="cardboard"] .pet-sheet .picker-foot { background: var(--cb-dock-b); border-top: 1.5px dashed var(--cb-edge); }
-html[data-look="cardboard"] .bag-svg {
-  filter: drop-shadow(1.2px 0 0 #fff) drop-shadow(-1.2px 0 0 #fff) drop-shadow(0 1.2px 0 #fff) drop-shadow(0 -1.2px 0 #fff) drop-shadow(0 2px 1.5px rgba(90, 60, 30, .35));
-}
-html[data-look="cardboard"] .bag-handle { stroke: #6b4a2e; }
-html[data-look="cardboard"] .bag-body { stroke: #6b4a2e; }
+html[data-look="cardboard"] .bag-handle { stroke: var(--cart-line); stroke-width: 2.8; }
+html[data-look="cardboard"] .bag-body { fill: #e9c58c; stroke: var(--cart-line); stroke-width: 2.6; }

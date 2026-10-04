@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 97 (4 Oct)
+- Cart and bag: no more white sticker edge; thick outlines (dark by day, light at night) and a soft shadow so they stand out. The bag is kraft paper and stands closer to the pet.
+
 ## Build 96 (4 Oct)
 - The Add box only moves above the keyboard on touch screens; with a real keyboard (a computer browser) it stays in place.
 - The paper bag for things that aren't food stands on the floor to the right of the pet, with a little shadow.
