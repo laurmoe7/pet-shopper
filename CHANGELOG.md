@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 110 (4 Oct)
+- Hedgehog: normal blush, softer spines (test).
+- Little lower lip on the pig, cow, frog and axolotl.
+
 ## Build 109 (4 Oct)
 - Bunny, cat, dog, hamster and hedgehog get noses and a :3 mouth.
 - Bunny buck teeth wider and lower.

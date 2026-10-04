@@ -1197,7 +1197,7 @@ button { font: inherit; color: inherit; }
 .frog-web { fill: var(--pet-skin-shade); stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
 .frog-smile { display: none; }
 .pet:not([data-species="frog"]) .frog-smile { display: none; }
-.pet[data-species="frog"][data-mouth="smile"] path[data-mouth="smile"]:not(.frog-smile) { display: none; }
+.pet[data-species="frog"][data-mouth="smile"] path[data-mouth="smile"]:not(.frog-smile):not(.lip-extra) { display: none; }
 .pet[data-species="frog"][data-mouth="smile"] .frog-smile { display: inline; }
 /* frog webbing melts into the foot and hand: no line between them */
 .pet[data-species="frog"] .foot { stroke: none; }
@@ -1244,7 +1244,7 @@ button { font: inherit; color: inherit; }
 .axo-belly { fill: #fff0f4; }
 .axo-smile { display: none; }
 .pet:not([data-species="axolotl"]) .axo-smile { display: none; }
-.pet[data-species="axolotl"][data-mouth="smile"] path[data-mouth="smile"]:not(.axo-smile) { display: none; }
+.pet[data-species="axolotl"][data-mouth="smile"] path[data-mouth="smile"]:not(.axo-smile):not(.lip-extra) { display: none; }
 .pet[data-species="axolotl"][data-mouth="smile"] .axo-smile { display: inline; }
 
 /* ---- grounded moves: the pet stays on the floor, hops have a landing, and a soft shadow on the cushion reacts ----
@@ -1569,16 +1569,19 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 .pet:is([data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"])[data-mouth="smile"] .smile-lip,
 .pet[data-species="bunny"][data-mouth="smile"] .smile-bunny { display: inline; }
 .buck-teeth { fill: #fff; stroke: var(--pet-ink); stroke-width: 1; stroke-linejoin: round; }
+.lip-extra { display: none; }
+.pet:is([data-species="pig"], [data-species="cow"])[data-mouth="smile"] .lip-snout,
+.pet[data-species="frog"][data-mouth="smile"] .lip-frog,
+.pet[data-species="axolotl"][data-mouth="smile"] .lip-axo { display: inline; }
+.pet:not([data-species="pig"]):not([data-species="cow"]) .lip-snout, .pet:not([data-species="frog"]) .lip-frog, .pet:not([data-species="axolotl"]) .lip-axo { display: none; }
 .pet:not([data-species="bunny"]) .smile-bunny,
 .pet:not([data-species="kitty"]):not([data-species="puppy"]):not([data-species="hamster"]):not([data-species="hedgehog"]) .smile-lip { display: none; }
 .pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"]) .eye-l { translate: -3px 1.6px; }
 .pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"]) .eye-r { translate: 3px 1.6px; }
-/* hedgehog, after a hedgehog print: a pale face, a light brown muzzle, a dark nose, triangle blush,
+/* hedgehog, after a hedgehog print: a pale face, a light brown muzzle, a dark nose, soft rounded spines,
    lighter spines with darker dashes and a few pale flecks */
-.hog-muzzle, .hog-cheek { display: none; }
+.hog-muzzle { display: none; }
 .pet[data-species="hedgehog"] .hog-muzzle { display: inline; fill: #dcbb95; }
-.pet[data-species="hedgehog"] .hog-cheek { display: inline; }
-.pet[data-species="hedgehog"] .cheeks ellipse, .pet[data-species="hedgehog"] .hatch { display: none; }
 
 /* ---------- feet ----------
    Each foot (.foot-l / .foot-r, and the shoes' .shoe-l / .shoe-r) moves on its own: little steps when walking,
