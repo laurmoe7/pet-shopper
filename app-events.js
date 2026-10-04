@@ -8,6 +8,12 @@ addForm.addEventListener('submit', function (e) {
   addItem(addInput.value);
   addInput.value = '';
   addPreview.replaceChildren();
+  // keep typing: if the keyboard was up, stay in the box (as the Enter key already does)
+  if (document.documentElement.classList.contains('typing')) addInput.focus();
+});
+// tapping Add would move focus to the button and close the keyboard; keep it in the text box instead
+addForm.querySelector('.add-btn').addEventListener('mousedown', function (e) {
+  if (document.activeElement === addInput) e.preventDefault();
 });
 // ---------- typing: keep the text box in view ----------
 // With the keyboard up there is little room, and the bottom bar and the pet would cover the text box. While you type,

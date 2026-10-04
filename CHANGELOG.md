@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 92 (4 Oct)
+- Tapping Add keeps the keyboard up, like the Enter key, so you can add several items in a row.
+- Test: the bunny has paws, with rounded toes under its feet and toe lines on its hands (hidden under shoes and sleeves).
+
 ## Build 91 (4 Oct)
 - Options: "Light or dark" is now called Appearance.
 - The frog's webbed feet hide under shoes like the other pets' feet.
