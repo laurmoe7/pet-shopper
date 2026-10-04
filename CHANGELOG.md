@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 93 (4 Oct)
+- While typing in the Add box, the box sits right above the keyboard and the pet stays in view above it, so you can see it react as you add items. The title row hides meanwhile to give it room.
+- Paws for the bunny, cat, dog, hamster and hedgehog (rounded toes under the feet, pink toe beans on the hands), hooves for the pig and cow, and orange toes for the birdie. They hide under shoes and sleeves.
+
 ## Build 92 (4 Oct)
 - Tapping Add keeps the keyboard up, like the Enter key, so you can add several items in a row.
 - Test: the bunny has paws, with rounded toes under its feet and toe lines on its hands (hidden under shoes and sleeves).

@@ -15,25 +15,36 @@ addForm.addEventListener('submit', function (e) {
 addForm.querySelector('.add-btn').addEventListener('mousedown', function (e) {
   if (document.activeElement === addInput) e.preventDefault();
 });
-// ---------- typing: keep the text box in view ----------
-// With the keyboard up there is little room, and the bottom bar and the pet would cover the text box. While you type,
-// the bar is hidden and the pet scrolls away with the page (html.typing), and the box is scrolled into view.
+// ---------- typing: keep the text box and the pet in view ----------
+// With the keyboard up there is little room. While you type, the bottom bar hides (html.typing). When the box is the
+// Add box, it sits just above the keyboard (html.typing-add, fixed to the bottom of the visible area) with the page at
+// the top, so the pet and its speech bubble stay in view above it while you add items.
 function isTextBox(el) { return el && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && /^(text|search)$/.test(el.type))); }
-function showTextBox() {
-  var el = document.activeElement;
-  if (isTextBox(el) && !el.closest('dialog')) el.scrollIntoView({ block: 'center' });
+var rootEl = document.documentElement;
+/** Puts the Add box right above the keyboard: the gap between the visible area and the bottom of the layout. */
+function placeAddBox() {
+  if (!rootEl.classList.contains('typing-add')) return;
+  var vv = window.visualViewport;
+  var gap = vv ? Math.max(0, innerHeight - vv.height - vv.offsetTop) : 0;
+  rootEl.style.setProperty('--kb-gap', gap + 'px');
+  rootEl.style.setProperty('--add-h', addForm.offsetHeight + 'px');
+  if (scrollY) scrollTo(0, 0);
 }
 document.addEventListener('focusin', function (e) {
   if (!isTextBox(e.target)) return;
-  document.documentElement.classList.add('typing');
-  document.documentElement.style.setProperty('--dock-h', '0px');
-  setTimeout(showTextBox, 350);
+  rootEl.classList.add('typing');
+  rootEl.style.setProperty('--dock-h', '0px');
+  if (e.target === addInput) {
+    rootEl.classList.add('typing-add');
+    placeAddBox();
+    setTimeout(placeAddBox, 300); // again once the keyboard is up
+  }
 });
 document.addEventListener('focusout', function (e) {
   if (!isTextBox(e.target)) return;
   setTimeout(function () {
-    if (isTextBox(document.activeElement)) return; // moved to another text box
-    document.documentElement.classList.remove('typing');
+    if (isTextBox(document.activeElement)) { if (document.activeElement !== addInput) rootEl.classList.remove('typing-add'); return; }
+    rootEl.classList.remove('typing', 'typing-add');
     dispatchEvent(new Event('resize')); // measures the bottom bar again
   }, 60);
 });
@@ -41,13 +52,15 @@ document.addEventListener('focusout', function (e) {
 if (window.visualViewport) {
   (function () {
     var tallest = visualViewport.height, last = visualViewport.height;
-    visualViewport.addEventListener('resize', function () {
+    function onViewport() {
       var h = visualViewport.height;
       tallest = Math.max(tallest, h);
-      if (h < last) showTextBox();
-      else if (h > last && h > tallest * 0.85 && document.documentElement.classList.contains('typing')) document.activeElement.blur();
+      placeAddBox();
+      if (h > last && h > tallest * 0.85 && rootEl.classList.contains('typing')) document.activeElement.blur();
       last = h;
-    });
+    }
+    visualViewport.addEventListener('resize', onViewport);
+    visualViewport.addEventListener('scroll', placeAddBox);
   })();
 }
 
