@@ -44,10 +44,17 @@ function favAddButton(fav) {
 function podium(fav) {
   var li = document.createElement('li');
   li.className = 'fav-podium';
-  ['s1', 's2', 's3'].forEach(function (c) {
+  // two spotlights sweep over the stand (behind everything else)
+  ['beam-l', 'beam-r'].forEach(function (c) {
+    var beam = document.createElement('span');
+    beam.className = 'pod-beam ' + c;
+    beam.setAttribute('aria-hidden', 'true');
+    li.appendChild(beam);
+  });
+  ['s1', 's2', 's3', 's4', 's5', 's6', 's7'].forEach(function (c) {
     var sp = document.createElement('span');
     sp.className = 'pod-sparkle ' + c;
-    sp.textContent = '✦';
+    sp.textContent = c === 's4' || c === 's6' ? '✧' : '✦';
     sp.setAttribute('aria-hidden', 'true');
     li.appendChild(sp);
   });
@@ -64,7 +71,10 @@ function podium(fav) {
   var one = document.createElement('span');
   one.textContent = '1';
   body.append(medal(1), one);
-  pedestal.append(top, body);
+  var pool = document.createElement('span');
+  pool.className = 'pod-pool'; // the spotlight's pool of light on the pedestal
+  pool.setAttribute('aria-hidden', 'true');
+  pedestal.append(pool, top, body);
   var stand = document.createElement('div');
   stand.className = 'pod-stand';
   stand.append(crown, emoji, pedestal);

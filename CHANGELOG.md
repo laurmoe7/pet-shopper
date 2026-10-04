@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 85 (4 Oct)
+- Typing no longer hides the text box: while the keyboard is up the bottom bar hides and the pet scrolls away. Closing the keyboard brings them back.
+- Sheets follow your finger when you drag the grab bar down, close when pulled far or fast enough, and spring back otherwise.
+- The Options gear is a round sticker like the bottom bar buttons.
+- Top 10: the #1 emoji and crown float, more sparkles twinkle, and two spotlights sweep over the pedestal.
+
 ## Build 84 (4 Oct)
 - The new squish is now always on: chomp, spit, stretch, petting, hops and the soft settle squash the drawing itself. The Squish test switch and the old whole-pet scaling are gone. No squash when the phone asks for reduced motion.
 

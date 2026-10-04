@@ -9,6 +9,42 @@ addForm.addEventListener('submit', function (e) {
   addInput.value = '';
   addPreview.replaceChildren();
 });
+// ---------- typing: keep the text box in view ----------
+// With the keyboard up there is little room, and the bottom bar and the pet would cover the text box. While you type,
+// the bar is hidden and the pet scrolls away with the page (html.typing), and the box is scrolled into view.
+function isTextBox(el) { return el && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && /^(text|search)$/.test(el.type))); }
+function showTextBox() {
+  var el = document.activeElement;
+  if (isTextBox(el) && !el.closest('dialog')) el.scrollIntoView({ block: 'center' });
+}
+document.addEventListener('focusin', function (e) {
+  if (!isTextBox(e.target)) return;
+  document.documentElement.classList.add('typing');
+  document.documentElement.style.setProperty('--dock-h', '0px');
+  setTimeout(showTextBox, 350);
+});
+document.addEventListener('focusout', function (e) {
+  if (!isTextBox(e.target)) return;
+  setTimeout(function () {
+    if (isTextBox(document.activeElement)) return; // moved to another text box
+    document.documentElement.classList.remove('typing');
+    dispatchEvent(new Event('resize')); // measures the bottom bar again
+  }, 60);
+});
+// Closing the keyboard with the back button leaves the box focused, so treat a keyboard that goes away as done typing
+if (window.visualViewport) {
+  (function () {
+    var tallest = visualViewport.height, last = visualViewport.height;
+    visualViewport.addEventListener('resize', function () {
+      var h = visualViewport.height;
+      tallest = Math.max(tallest, h);
+      if (h < last) showTextBox();
+      else if (h > last && h > tallest * 0.85 && document.documentElement.classList.contains('typing')) document.activeElement.blur();
+      last = h;
+    });
+  })();
+}
+
 var lastPreview = '';
 addInput.addEventListener('input', function () {
   var t = addInput.value.trim();

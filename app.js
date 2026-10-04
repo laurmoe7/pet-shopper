@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '84';
+var BUILD = '85';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -92,16 +92,44 @@ document.addEventListener('keydown', function (e) {
   var open = document.querySelectorAll('dialog[open]:not(#picker)');
   if (open.length) open[open.length - 1].close();
 });
-// sheets have no Done button: a grab bar closes a sheet with a tap or a swipe down, and so does a tap on the list
+// sheets have no Done button: a grab bar closes a sheet with a tap or a swipe down, and so does a tap on the list.
+// While you drag the bar the sheet follows your finger, so it is clear that pulling it down closes it.
 document.querySelectorAll('dialog.pet-sheet').forEach(function (d) {
   var grab = document.createElement('button');
   grab.type = 'button'; grab.className = 'sheet-grab'; grab.setAttribute('aria-label', 'Close');
-  var startY = null;
-  grab.addEventListener('pointerdown', function (e) { startY = e.clientY; grab.setPointerCapture(e.pointerId); });
-  grab.addEventListener('pointerup', function (e) {
-    if (startY !== null && (Math.abs(e.clientY - startY) < 8 || e.clientY - startY > 30)) d.close();
-    startY = null;
+  var startY = null, lastY = 0, lastT = 0, speed = 0;
+  function dy(e) { return e.clientY - startY; }
+  grab.addEventListener('pointerdown', function (e) {
+    startY = lastY = e.clientY; lastT = e.timeStamp; speed = 0;
+    grab.setPointerCapture(e.pointerId);
+    d.style.transition = 'none';
   });
+  grab.addEventListener('pointermove', function (e) {
+    if (startY === null) return;
+    var y = dy(e);
+    if (e.timeStamp > lastT) speed = (e.clientY - lastY) / (e.timeStamp - lastT);
+    lastY = e.clientY; lastT = e.timeStamp;
+    // down follows the finger; up only gives a little, like pulling against a spring
+    d.style.transform = 'translateY(' + (y > 0 ? y : y / 6) + 'px)';
+  });
+  function release(e) {
+    if (startY === null) return;
+    var y = dy(e), tap = Math.abs(y) < 8;
+    startY = null;
+    if (tap || y > Math.min(120, d.offsetHeight * 0.3) || (y > 20 && speed > 0.5)) {
+      // slide the rest of the way down, then close
+      d.style.transition = 'transform .18s ease-in';
+      d.style.transform = 'translateY(' + d.offsetHeight + 'px)';
+      setTimeout(function () { d.close(); }, tap ? 0 : 170);
+    } else {
+      d.style.transition = 'transform .25s cubic-bezier(.3, 1.4, .5, 1)';
+      d.style.transform = '';
+    }
+  }
+  grab.addEventListener('pointerup', release);
+  grab.addEventListener('pointercancel', function (e) { e = { clientY: startY + 10 }; release(e); });
+  // a closed sheet starts in its normal place next time
+  d.addEventListener('close', function () { d.style.transition = ''; d.style.transform = ''; });
   d.prepend(grab);
 });
 document.addEventListener('click', function (e) {
@@ -111,7 +139,7 @@ document.addEventListener('click', function (e) {
 // sheets sit just above the bottom bar, wherever the phone puts its home bar
 (function () {
   var dock = document.querySelector('.dock');
-  function measure() { document.documentElement.style.setProperty('--dock-h', dock.offsetHeight + 'px'); }
+  function measure() { if (!document.documentElement.classList.contains('typing')) document.documentElement.style.setProperty('--dock-h', dock.offsetHeight + 'px'); }
   measure();
   addEventListener('resize', measure);
 })();
