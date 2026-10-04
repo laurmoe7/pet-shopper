@@ -1129,6 +1129,67 @@ button { font: inherit; color: inherit; }
 .pet[data-species="frog"][data-skin="dartfrog"] { --pet-skin: #3f86ea; --pet-skin-shade: #2c68c8; --pet-mark: #2c68c8; }
 .pet[data-species="hedgehog"][data-skin="fasthedgehog"] { --pet-skin: #fff6ea; --pet-skin-shade: #eed8bd; --pet-ear-in: #ffc4cf; --pet-mark: #3d78e6; }
 .pet[data-species="frog"][data-skin="toad"] { --pet-skin: #c9a878; --pet-skin-shade: #a98a5c; --pet-mark: #a98a5c; }
+/* skins added in build 115 */
+.pet[data-skin="pigeon"] { --pet-skin: #b4bccd; --pet-skin-shade: #f2939f; }
+.pet[data-skin="orangecat"] { --pet-skin: #f8b96f; --pet-skin-shade: #eb9d4f; --pet-ear-in: #ffc4cf; --pet-mark: #dd8530; }
+.pet[data-skin="munchkin"] { --pet-skin: #fffaf4; --pet-skin-shade: #efe4d8; --pet-ear-in: #ffc4cf; --pet-mark: #a9a3ae; }
+.pet[data-skin="ragdoll"] { --pet-skin: #fff7ec; --pet-skin-shade: #efdfcd; --pet-ear-in: #f6b4c0; --pet-mark: #b49a86; }
+.pet[data-skin="shiba"] { --pet-skin: #f7b4c4; --pet-skin-shade: #ec98ad; --pet-ear-in: #fff1ee; --pet-mark: #ec98ad; }
+.pet[data-skin="frenchie"] { --pet-skin: #ecd2ad; --pet-skin-shade: #dcb98d; --pet-ear-in: #ffbcc9; --pet-mark: #c79d74; }
+.pet[data-skin="shepherd"] { --pet-skin: #e8b072; --pet-skin-shade: #d09352; --pet-ear-in: #8a6a58; --pet-mark: #4d3d37; }
+.pet[data-skin="yak"] { --pet-skin: #a07a63; --pet-skin-shade: #86624d; --pet-ear-in: #e8a9b4; }
+.pet[data-species="hedgehog"][data-skin="brandt"] { --pet-skin: #f3e1cc; --pet-skin-shade: #dfc4a6; --pet-ear-in: #f2a8b6; --pet-mark: #5a4a43; }
+.pet[data-species="axolotl"][data-skin="rainbowaxo"] { --pet-skin: #fbe6f2; --pet-skin-shade: #f0cfe4; }
+.pet[data-skin="pigeon"] [data-sk~="pigeon"], .pet[data-skin="orangecat"] [data-sk~="orangecat"], .pet[data-skin="munchkin"] [data-sk~="munchkin"],
+.pet[data-skin="ragdoll"] [data-sk~="ragdoll"], .pet[data-skin="shiba"] [data-sk~="shiba"], .pet[data-skin="frenchie"] [data-sk~="frenchie"],
+.pet[data-skin="shepherd"] [data-sk~="shepherd"], .pet[data-skin="yak"] [data-sk~="yak"] { display: inline; }
+/* the dogs with upright ears drop the floppy ones and the spot; their ears pivot at the bottom */
+.pet:is([data-skin="shiba"], [data-skin="frenchie"], [data-skin="shepherd"]) [data-sp="puppy"] { display: none; }
+.pet[data-species="puppy"] .up-ears .ear-g { transform-origin: 50% 100%; }
+.pet[data-species="puppy"] .up-ears .ear { fill: var(--pet-skin); }
+.pet[data-skin="shepherd"] .up-ears .ear { fill: #4d3d37; }
+/* pigeon: grey with a shiny green-purple neck, a grey beak and pink feet; no tuft */
+.pet[data-skin="pigeon"] .tuft { display: none; }
+.pigeon-sheen { fill: url(#pigeonSheen); }
+.pet[data-skin="pigeon"] .beak { fill: #8a8592; }
+.pet[data-skin="pigeon"] .arm ellipse { fill: #9ea7ba; }
+/* cats */
+.pet[data-skin="orangecat"] .tabby-muzzle { fill: #fff1df; }
+.munchkin-cap { fill: #aca6b2; }
+.pet[data-skin="munchkin"] .ear { fill: #aca6b2; }
+.pet[data-skin="munchkin"] .stripes path { stroke: #8e8896; }
+/* the munchkin's short legs: smaller feet tucked under the body */
+.pet[data-skin="munchkin"] :is(.foot-side, .shoe-l, .shoe-r) { scale: .82 .62; transform-box: fill-box; transform-origin: 50% 0%; }
+.ragdoll-mask { fill: #e6d4c4; }
+.pet[data-skin="ragdoll"] .ear { fill: #a48876; }
+.pet[data-skin="ragdoll"] .stripes { display: none; }
+.pet[data-skin="ragdoll"] .eyes-open .ink { fill: #4f86d6; }
+/* dogs */
+.urajiro { fill: #fff5ef; }
+.frenchie-muzzle { fill: #c99f76; }
+.frenchie-wrinkle { fill: none; stroke: var(--pet-ink); stroke-width: 1.6; stroke-linecap: round; opacity: .45; }
+.shepherd-saddle { fill: #4d3d37; }
+.shepherd-cheek { fill: #f6d3a6; }
+/* yak: the Highland's fringe and horns in dark brown */
+.pet[data-skin="yak"] .horn, .pet[data-skin="yak"] .spot { display: none; }
+.pet[data-skin="yak"] .hl-fringe path { fill: #6b4c3b; }
+.pet[data-skin="yak"] .muzzle { fill: #d7b8a2; }
+/* Brandt's hedgehog: dark spines and big ears */
+.pet[data-skin="brandt"] .hog-spines path, .pet[data-skin="brandt"] .hog-blend path, .pet[data-skin="brandt"] .hog-fill { fill: #5f4e46; }
+.pet[data-skin="brandt"] .hog-dash { stroke: #3a2e29; }
+.pet[data-skin="brandt"] .hog-fleck { stroke: #b6a091; }
+.pet[data-skin="brandt"] .hog-muzzle { fill: #e2c7aa; }
+.pet[data-skin="brandt"] .hog-cap .ear { fill: #7a655a; }
+.pet[data-skin="brandt"] .hog-cap .ear-g { scale: 1.5; }
+/* rainbow axolotl: a pastel rainbow body and gills in three colours */
+.pet[data-skin="rainbowaxo"] :is(.skin, .skin-under) { fill: url(#axoRainbow); }
+.pet[data-skin="rainbowaxo"] .gill-fill path:nth-of-type(1) { stroke: #ffd36e; }
+.pet[data-skin="rainbowaxo"] .gill-fill circle:nth-of-type(1) { fill: #ffd36e; }
+.pet[data-skin="rainbowaxo"] .gill-fill path:nth-of-type(2) { stroke: #8fc9ff; }
+.pet[data-skin="rainbowaxo"] .gill-fill circle:nth-of-type(2) { fill: #8fc9ff; }
+.pet[data-skin="rainbowaxo"] .gill-fill path:nth-of-type(3) { stroke: #ff8fb1; }
+.pet[data-skin="rainbowaxo"] .gill-fill circle:nth-of-type(3) { fill: #ff8fb1; }
+.pet[data-skin="rainbowaxo"] .axo-belly { fill: #fff; opacity: .55; }
 .pet[data-skin="strawberry"] [data-sk~="strawberry"],
 .pet[data-skin="chocolate"] [data-sk~="chocolate"],
 .pet[data-skin="taro"] [data-sk~="taro"],

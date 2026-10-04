@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 115 (4 Oct)
+- New skins: pigeon, pink shiba, rainbow axolotl, orange cat, French bulldog, German shepherd, munchkin, ragdoll, yak, Brandt's hedgehog.
+- Noses sit in front of the :3 mouth.
+
 ## Build 114 (4 Oct)
 - Pet returns to the middle when there's shopping to do.
 - "Shopping done" is back to "Clear list".
