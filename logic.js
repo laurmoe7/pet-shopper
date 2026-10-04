@@ -66,6 +66,7 @@
   function parseOutfit(saved) {
     var o = OUTFIT_SLOTS.reduce(function (out, slot) { out[slot] = saved[slot] || 'none'; return out; }, {});
     if (o.hat === 'hoodie') { o.body = 'hoodie'; o.hat = 'none'; }    // the hoodie moved from hats to clothes
+    if (o.hat === 'mintphones') o.hat = 'headphones';               // the mint phones were removed
     if (o.feet === 'heels') o.feet = 'featherslides';                  // heels became feather slides
     if (o.neck === 'silkscarf') o.neck = 'none';                      // the silk scarf was removed
     if (o.neck === 'toast' || o.neck === 'mustache') {               // these moved from neck to mouth

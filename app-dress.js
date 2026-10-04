@@ -17,8 +17,7 @@ function wardrobeItem(id) { return byId(Wardrobe, id); }
 function dressUp(el, outfit) {
   var clothes = wardrobeItem(outfit.body);
   var hood = !!(clothes && clothes.hood);
-  // a hood covers the head, so no hat goes on top of it
-  var item = hood ? null : wardrobeItem(outfit.hat);
+  var item = wardrobeItem(outfit.hat); // a hat can go on top of a hood
   el.querySelector('.outfit-hat').innerHTML = item ? item.svg : '';
   el.querySelector('.outfit-body').innerHTML = clothes ? clothes.svg : '';
   if (hood) el.dataset.hood = clothes.id; else delete el.dataset.hood;
@@ -29,6 +28,7 @@ function dressUp(el, outfit) {
   });
   el.classList.toggle('hooded', hood);
   el.classList.toggle('snug', !!(item && item.snug));
+  el.classList.toggle('shod', !!wardrobeItem(outfit.feet)); // shoes replace the pet's own feet
 }
 
 var dressSheet = $('dressSheet'), dressPreview = $('dressPreview');
@@ -88,11 +88,6 @@ function onWearClick(e) {
   if (!unlocked('hat', b.dataset.hat)) { lockHint(hatHint, 'hat', b.dataset.hat); return; }
   hatHint.hidden = true;
   state.pet.outfit[b.dataset.slot] = b.dataset.hat;
-  // a hood and a hat don't go together: putting one on takes the other off
-  var picked = wardrobeItem(b.dataset.hat);
-  if (b.dataset.slot === 'body' && picked && picked.hood) state.pet.outfit.hat = 'none';
-  var worn = wardrobeItem(state.pet.outfit.body);
-  if (b.dataset.slot === 'hat' && picked && worn && worn.hood) state.pet.outfit.body = 'none';
   save();
   refreshDressRoom();
   dressUp(pet, state.pet.outfit);

@@ -136,13 +136,15 @@ scheduleDream();
 // ---------- a soft settle ----------
 // Instead of a breathing squash that never stops (the phone would redraw the pet all the time), the body gives
 // a small squash every 5-9 seconds, or a slow deep breath when sleepy.
-var settleTimer;
-function settleSoon() {
-  clearTimeout(settleTimer);
-  settleTimer = setTimeout(settle, 5000 + Math.random() * 4000);
+// (Named softSettle: settle() in app-pet.js puts the face back, and builds 83-88 accidentally replaced it,
+// which left arms and faces stuck after moves.)
+var softSettleTimer;
+function softSettleSoon() {
+  clearTimeout(softSettleTimer);
+  softSettleTimer = setTimeout(softSettle, 5000 + Math.random() * 4000);
 }
-function settle() {
-  settleSoon();
+function softSettle() {
+  softSettleSoon();
   if (reduceMotion || busy || squishing || document.hidden) return;
   svgSquish(baseState() === 'sleepy' ? SQUISH.breath : SQUISH.settle);
 }
@@ -189,7 +191,7 @@ function lively() {
   }
 }
 scheduleLively();
-settleSoon();
+softSettleSoon();
 
 // ---------- eyes follow your finger or cursor ----------
 var lookAt = null, lookFrame = 0, lookTimer;

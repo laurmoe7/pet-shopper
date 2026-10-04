@@ -42,7 +42,7 @@ test('older saves without pet details get the defaults', () => {
 
 test('wardrobe hats have unique ids and a drawing', () => {
   const hatIds = Wardrobe.map((w) => w.id);
-  assert.deepEqual(hatIds, ['tophat', 'maid', 'sunhat', 'cap', 'hoodie', 'pighoodie', 'hardhat', 'bandana', 'headphones', 'mintphones', 'chefhat', 'knight', 'beret', 'bananapeel', 'trashlid', 'clownwig', 'jestercap', 'cowboyhat', 'sidecap', 'scarf', 'boa', 'toast', 'necktie', 'uglytie', 'mustache', 'boots', 'featherslides', 'bunnyslippers', 'cowboyboots', 'clogs', 'clownshoes', 'shades', 'redspecs', 'eyepatch', 'nerdspecs', 'roundshades', 'clownnose']);
+  assert.deepEqual(hatIds, ['tophat', 'maid', 'sunhat', 'cap', 'hoodie', 'pighoodie', 'berrydress', 'hardhat', 'bandana', 'headphones', 'chefhat', 'knight', 'beret', 'bananapeel', 'trashlid', 'clownwig', 'jestercap', 'cowboyhat', 'sidecap', 'scarf', 'boa', 'toast', 'necktie', 'uglytie', 'mustache', 'boots', 'featherslides', 'bunnyslippers', 'cowboyboots', 'clogs', 'clownshoes', 'shades', 'redspecs', 'eyepatch', 'nerdspecs', 'roundshades', 'clownnose']);
   assert.equal(new Set(hatIds).size, hatIds.length);
   for (const w of Wardrobe) {
     assert.ok(PetLogic.OUTFIT_SLOTS.includes(w.slot), w.id);
@@ -138,12 +138,12 @@ test('sunglasses are their own slot, worn alongside a hat', () => {
 
 test('the new hat, bandana, headphones and sunglasses are free', () => {
   const { FreeUnlocks } = require('./load');
-  for (const id of ['hardhat', 'bandana', 'headphones', 'mintphones', 'chefhat', 'knight', 'shades', 'redspecs', 'eyepatch', 'nerdspecs']) assert.ok(FreeUnlocks.hat.includes(id), id);
+  for (const id of ['hardhat', 'bandana', 'headphones', 'chefhat', 'knight', 'shades', 'redspecs', 'eyepatch', 'nerdspecs']) assert.ok(FreeUnlocks.hat.includes(id), id);
 });
 
 test('clothes, mouth, neck and feet are their own slots, worn alongside a hat and glasses', () => {
   assert.deepEqual(PetLogic.OUTFIT_SLOTS, ['hat', 'body', 'face', 'mouth', 'neck', 'feet']);
-  assert.deepEqual(Wardrobe.filter((w) => w.slot === 'body').map((w) => w.id), ['hoodie', 'pighoodie']);
+  assert.deepEqual(Wardrobe.filter((w) => w.slot === 'body').map((w) => w.id), ['hoodie', 'pighoodie', 'berrydress']);
   const bySlot = (slot) => Wardrobe.filter((w) => w.slot === slot).map((w) => w.id);
   assert.deepEqual(bySlot('mouth'), ['toast', 'mustache']);
   assert.deepEqual(bySlot('neck'), ['scarf', 'boa', 'necktie', 'uglytie']);

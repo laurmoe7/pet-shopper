@@ -2,6 +2,15 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 89 (4 Oct)
+- Fixed arms and faces getting stuck after moves: the soft-squash function from build 83 had the same name as the one that resets the face and replaced it. A test now catches two app functions with the same name.
+- Shoes hide the pet's own feet. In a hoodie the arms are sleeves with the tip of the hand peeking out.
+- Hats and hoods can be worn together again (all clothes go with everything).
+- Sparkle eyes pulse and shimmer through white and pink as well as glittering.
+- New Strawberry dress in Clothes. Mint phones removed (worn ones become the headphones).
+- The pretzel emoji has see-through holes.
+- Removed the animation tester from Developer tools.
+
 ## Build 88 (4 Oct)
 - Trash can lid looks like a galvanised bin lid: stepped rings, a flat strap handle with riveted tabs, lighter metal.
 - Fixed the dressing-room pet getting stuck with its arms waving after picking an outfit and then touching another one.

@@ -84,7 +84,7 @@ var SQUISH = {
   hophop: { ms: 1500, steps: [[0, 1, 1, 0], [.06, .93, 1.08, 0], [.17, 1, 1, 0], [.31, .98, 1.02, 0], [.355, 1.1, .9, 0], [.41, .97, 1.03, 0],
     [.45, .94, 1.07, 0], [.5, 1, 1, 0], [.6, .98, 1.02, 0], [.645, 1.09, .91, 0], [.7, .97, 1.03, 0], [.73, .95, 1.06, 0], [.78, 1, 1, 0],
     [.86, .98, 1.02, 0], [.905, 1.08, .92, 0], [.96, .98, 1.02, 0], [1, 1, 1, 0]] },
-  // a soft settle now and then while it waits (see settleSoon in app-idle.js), and a slow deep breath when sleepy
+  // a soft settle now and then while it waits (see softSettle in app-idle.js), and a slow deep breath when sleepy
   settle: { ms: 1000, steps: [[0, 1, 1, 0], [.35, 1.04, .96, 0], [.7, .99, 1.01, 0], [1, 1, 1, 0]] },
   breath: { ms: 2400, steps: [[0, 1, 1, 0], [.45, .98, 1.035, 0], [1, 1, 1, 0]] }
 };

@@ -73,21 +73,20 @@ test('the mochi head and twist are one outline, so no cut or overlap can show a 
 
 test('snug headwear tucks the mochi twist and chick tuft under it', () => {
   const { Wardrobe } = require('./load');
-  for (const id of ['bandana', 'headphones', 'mintphones']) assert.equal(Wardrobe.find((w) => w.id === id).snug, true, id);
+  for (const id of ['bandana', 'headphones']) assert.equal(Wardrobe.find((w) => w.id === id).snug, true, id);
   assert.match(css, /\.pet\.snug \.skin-twist, \.pet\.hooded \.skin-twist \{ display: none; \}/);
   assert.match(css, /\.pet\.snug \.tuft \{ display: none; \}/);
 });
 
 test('the headphones are over-ear: padded band, hinges, round cups with rims and cushions, and a cable', () => {
   const { Wardrobe } = require('./load');
-  for (const id of ['headphones', 'mintphones']) {
+  for (const id of ['headphones']) {
     const svg = Wardrobe.find((w) => w.id === id).svg;
     for (const part of ['phones-band', 'phones-band-in', 'phones-hinge', 'phones-cup', 'phones-rim', 'phones-cushion', 'phones-cable']) {
       assert.match(svg, new RegExp('class="' + part + '"'), id + ' ' + part);
     }
     assert.equal((svg.match(/class="phones-cup"/g) || []).length, 2);
   }
-  assert.match(Wardrobe.find((w) => w.id === 'mintphones').svg, /phones-mint/);
 });
 
 test('the pet has places for neckwear (under the face) and shoes (over the feet)', () => {
@@ -137,4 +136,18 @@ test('the whole-pet moves on .squash only slide (scaling or rotating them left a
     assert.ok(m, name + ' exists');
     assert.doesNotMatch(m[0], /scale|rotate/, name + ' only translates');
   }
+});
+
+test('no app script defines the same top-level function twice (a later one silently replaces the first)', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const root = path.join(__dirname, '..');
+  const seen = {};
+  fs.readdirSync(root).filter((f) => /^app.*\.js$/.test(f)).forEach((f) => {
+    const src = fs.readFileSync(path.join(root, f), 'utf8');
+    for (const m of src.matchAll(/^function (\w+)\s*\(/gm)) {
+      assert.ok(!seen[m[1]], m[1] + ' is defined in both ' + seen[m[1]] + ' and ' + f);
+      seen[m[1]] = f;
+    }
+  });
 });

@@ -200,7 +200,19 @@ function boa() {
         '<path class="hood-string" d="M68 131 C67 134 66 136 66 139 M92 131 C93 134 94 136 94 139"/>' +
         '<circle class="hood-toggle" cx="66" cy="140" r="2.4"/><circle class="hood-toggle" cx="94" cy="140" r="2.4"/>' +
         '</g>'
+    },    {
+      id: 'berrydress', slot: 'body', label: 'Strawberry dress', layer: 'body', icon: '8 100 144 46',
+      lines: ['berry pretty!', 'twirl twirl!', 'sweet as can be'],
+      // a red dress over the lower body with yellow seeds and a leafy green collar, like a strawberry upside down
+      svg: '<g class="dress-berry">' +
+        '<path class="berry-dress" d="M17 117 Q80 128 143 117 C142 133 119 139.6 80 139.6 C41 139.6 18 133 17 117 Z"/>' +
+        '<path class="berry-seeds" d="M36 128 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M52 133 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M70 131 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M88 134 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M104 131 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M122 128 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M44 136.5 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M80 137 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M114 135.5 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M62 136 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M97 137.4 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M130 132 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z"/>' +
+        '<path class="berry-shine" d="M28 126 Q34 132 44 134.6"/>' +
+        '<path class="berry-collar" d="M17.0 116.0 L24.2 124.4 L30.4 119.5 L36.6 126.1 L42.8 121.0 L49.0 127.4 L55.2 122.0 L61.4 128.2 L67.6 122.7 L73.8 128.6 L80.0 122.9 L86.2 128.6 L92.4 122.7 L98.6 128.2 L104.8 122.0 L111.0 127.4 L117.2 121.0 L123.4 126.1 L129.6 119.5 L135.8 124.4 L142.0 117.6 L143 116.0 Q80 126.4 17 116.0 Z"/>' +
+        '<path class="berry-bow" d="M80 124.6 l-5 -3 v6 Z M80 124.6 l5 -3 v6 Z"/><circle class="berry-bow" cx="80" cy="124.6" r="1.6"/>' +
+        '</g>'
     },
+
     {
       id: 'hardhat', slot: 'hat', label: 'Hard hat',
       lines: ['safety first!', 'let\'s build a snack fort!', 'construction crew!'],
@@ -232,11 +244,6 @@ function boa() {
       id: 'headphones', slot: 'hat', snug: true, label: 'Head\u00ADphones', icon: '14 24 132 60',
       lines: ['my jam!', 'turn it up!', '♪ shopping beats ♪'],
       svg: phones('')
-    },
-    {
-      id: 'mintphones', slot: 'hat', snug: true, label: 'Mint phones', icon: '14 24 132 60',
-      lines: ['minty fresh beats!', 'la la la ♪', 'one more song!'],
-      svg: phones('phones-mint')
     },
     {
       id: 'chefhat', slot: 'hat', snug: true, label: 'Chef hat', icon: '40 -4 80 56',

@@ -267,11 +267,17 @@ button { font: inherit; color: inherit; }
 .line, .line path { fill: none; stroke: var(--pet-ink); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
 .star path { fill: var(--pet-star); stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
 /* sparkle eyes glitter: the stars flash lighter and little glints blink on and off around them (colour and opacity only) */
-.star path:not(.glint) { animation: star-flash 1.1s ease-in-out infinite; }
+.star path:not(.glint) { transform-box: fill-box; transform-origin: center; animation: star-flash 1.1s ease-in-out infinite; }
 .star path:nth-child(2) { animation-delay: .35s; }
 .star .glint { fill: #fff; stroke: #e0a92a; stroke-width: .5; opacity: 0; animation: glint .9s ease-in-out infinite; }
 .star .g2 { animation-delay: .45s; } .star .g3 { animation-delay: .2s; } .star .g4 { animation-delay: .65s; }
-@keyframes star-flash { 0%, 100% { fill: var(--pet-star); } 50% { fill: #fff6cf; } }
+/* the stars pulse bigger and shimmer through white and a hint of pink */
+@keyframes star-flash {
+  0%, 100% { fill: var(--pet-star); transform: scale(1); }
+  30% { fill: #fffbe8; transform: scale(1.18); }
+  55% { fill: #ffd6e2; transform: scale(1.06); }
+  75% { fill: #fff3b0; transform: scale(1.12); }
+}
 @keyframes glint { 0%, 100% { opacity: 0; } 40%, 60% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .star path:not(.glint), .star .glint { animation: none; } }
 .tear { fill: #a9dcff; stroke: var(--pet-ink); stroke-width: 1.2; }
@@ -493,7 +499,19 @@ button { font: inherit; color: inherit; }
 /* snug headwear (bandana, headphones) tucks the mochi twist and chick tuft under it */
 .pet.snug .tuft { display: none; }
 .pet.hooded .arm ellipse:not(.arm-hi) { fill: #fffdf9; }
+/* in a hoodie the arms are sleeves: a cuff line and the tip of the hand peeking out */
+.arm-cuff, .arm-hand { display: none; }
+.pet.hooded .arm-cuff { display: inline; fill: none; stroke: var(--pet-ink); stroke-width: 1.4; stroke-linecap: round; }
+.pet.hooded .arm-hand { display: inline; fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 1.4; stroke-linejoin: round; }
+/* shoes replace the pet's own feet */
+.pet.shod .foot { display: none; }
 .pet[data-hood="pighoodie"] .arm ellipse:not(.arm-hi) { fill: #ffc4d2; }
+/* strawberry dress */
+.berry-dress { fill: #ee4f6c; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
+.berry-seeds { fill: #ffe9a8; }
+.berry-shine { fill: none; stroke: #ffb3c1; stroke-width: 2.2; stroke-linecap: round; }
+.berry-collar { fill: #62c27d; stroke: var(--pet-ink); stroke-width: 1.5; stroke-linejoin: round; }
+.berry-bow { fill: #fff3f6; stroke: var(--pet-ink); stroke-width: 1; stroke-linejoin: round; }
 /* pig hoodie: the same hood in pink */
 .hoodie-pig .hood { fill: #ffc4d2; }
 .hoodie-pig .hood-rim { stroke: #f4a9bb; }
@@ -1268,9 +1286,6 @@ button { font: inherit; color: inherit; }
 #pet.rocksmall::before, #pet.pat::before { animation: sh-rocksmall 1.3s ease-in-out; }
 #pet.sniff::before { animation: sh-sniff 1.7s ease-in-out; }
 
-/* Developer tools stay short so the pet is still visible above them while you test animations */
-.picker.dev-sheet { max-height: calc(44vh + var(--dock-h, 64px)); }
-.picker.dev-sheet .picker-inner { max-height: calc(44vh + var(--dock-h, 64px) - 14px) !important; }
 
 /* hop: a short crouch on the spot first (svgSquish in app-pet.js squashes the body then), so it waits a moment before leaving the floor */
 @keyframes hop {
