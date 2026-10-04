@@ -72,11 +72,12 @@ function pulse(cls, ms) {
 // A CSS scale on the pet makes the phone stretch an already-drawn picture, which left a hairline across the face.
 // Here the body gets a new SVG transform each frame instead, so the phone redraws the shapes at their real size.
 // Each step is [time 0-1, width, height, lift in SVG units]; the squash is anchored at the feet.
+// Build 82: half as strong as build 81, whose biggest squashes still showed the seam.
 var SQUISH = {
-  chomp: { ms: 360, steps: [[0, 1, 1, 0], [.3, 1.32, .68, 0], [.55, .86, 1.2, 0], [.78, 1.06, .95, 0], [1, 1, 1, 0]] },
-  spit: { ms: 450, steps: [[0, 1, 1, 0], [.35, .74, 1.34, -6], [.7, 1.1, .9, 0], [1, 1, 1, 0]] },
-  stretch: { ms: 1100, steps: [[0, 1, 1, 0], [.4, .7, 1.42, 0], [.68, 1.2, .84, 0], [.85, .96, 1.05, 0], [1, 1, 1, 0]] },
-  pat: { ms: 1300, steps: [[0, 1, 1, 0], [.2, 1.18, .84, 0], [.4, .88, 1.14, 0], [.6, 1.12, .9, 0], [.8, .94, 1.06, 0], [1, 1, 1, 0]] }
+  chomp: { ms: 360, steps: [[0, 1, 1, 0], [.3, 1.16, .84, 0], [.55, .93, 1.1, 0], [.78, 1.03, .975, 0], [1, 1, 1, 0]] },
+  spit: { ms: 450, steps: [[0, 1, 1, 0], [.35, .87, 1.17, -3.6], [.7, 1.05, .95, 0], [1, 1, 1, 0]] },
+  stretch: { ms: 1100, steps: [[0, 1, 1, 0], [.4, .85, 1.21, 0], [.68, 1.1, .92, 0], [.85, .98, 1.025, 0], [1, 1, 1, 0]] },
+  pat: { ms: 1300, steps: [[0, 1, 1, 0], [.2, 1.09, .92, 0], [.4, .94, 1.07, 0], [.6, 1.06, .95, 0], [.8, .97, 1.03, 0], [1, 1, 1, 0]] }
 };
 var squishBody = petSvg.querySelector('.pet-body'), squishRun = 0;
 /** @param {{ms: number, steps: number[][]}} sq Plays one squash on the body. */

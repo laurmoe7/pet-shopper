@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 82 (4 Oct)
+- Squish test, new way: squashes are about half as strong, since the biggest ones in build 81 still showed the seam.
+
 ## Build 81 (4 Oct)
 - Seam experiment: Developer tools "Squish test" switches between off, the old squish (scales the whole pet as a picture, the way that left the seam) and a new squish that squashes the drawing itself every frame. The choice is kept between visits.
 
