@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '97';
+var BUILD = '98';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -213,8 +213,9 @@ function fillWith(box, items) {
  * @param {Item[]} done Ticked off.
  */
 function renderCart(todo, done) {
+  if (RECEIPT_TEST) { cartEl.hidden = true; renderReceipt(done); }
+  else cartEl.hidden = todo.length === 0;
   var bagged = done.filter(function (i) { return i.cat === 'nonfood'; });
-  cartEl.hidden = todo.length === 0;
   fillWith(cartLoad, todo.slice(0, 3));
   fillWith(bagLoad, bagged.slice(-2));
   cartBag.hidden = bagged.length === 0;
@@ -226,6 +227,36 @@ function renderCart(todo, done) {
   }
   cartCount = todo.length;
   bagCount = bagged.length;
+}
+// Test (build 98): a receipt stands in for the cart. Set to false to bring the cart back; its code is kept.
+var RECEIPT_TEST = true;
+var receiptEl = $('receipt'), receiptLines = $('receiptLines'), receiptMore = $('receiptMore'), receiptTotal = $('receiptTotal'), receiptCount = -1;
+var RECEIPT_MAX = 6;
+/**
+ * A little shop receipt beside the pet: one line per thing ticked off (the latest ones, newest at the bottom),
+ * so it grows as you shop. Clearing the eaten items clears it.
+ * @param {Item[]} done Ticked off, oldest first.
+ */
+function renderReceipt(done) {
+  receiptEl.hidden = done.length === 0;
+  var shown = done.slice(-RECEIPT_MAX);
+  var key = shown.map(function (i) { return i.id; }).join(',');
+  if (receiptLines.dataset.shown !== key) {
+    receiptLines.replaceChildren.apply(receiptLines, shown.map(function (i) {
+      var li = document.createElement('li');
+      li.append(emojiImg(i.emoji, ''));
+      return li;
+    }));
+    receiptLines.dataset.shown = key;
+  }
+  receiptMore.hidden = done.length <= RECEIPT_MAX;
+  receiptTotal.textContent = done.length + (done.length === 1 ? ' item' : ' items');
+  if (receiptCount >= 0 && done.length > receiptCount) {
+    var last = receiptLines.lastElementChild;
+    if (last) last.classList.add('new');
+    receiptEl.classList.remove('bump'); void receiptEl.offsetWidth; receiptEl.classList.add('bump');
+  }
+  receiptCount = done.length;
 }
 /** @returns {{x: number, y: number}} Where things that aren't food fly to: the top of the paper bag beside the pet. */
 function bagPoint() {

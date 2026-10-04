@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 98 (4 Oct)
+- Test: a little shop receipt stands beside the pet instead of the cart. It gets a line longer (with the item's emoji) for everything ticked off, shows the last six and a count, and clears with Clear eaten. The cart code is kept (`RECEIPT_TEST` in app.js).
+
 ## Build 97 (4 Oct)
 - Cart and bag: no more white sticker edge; thick outlines (dark by day, light at night) and a soft shadow so they stand out. The bag is kraft paper and stands closer to the pet.
 
