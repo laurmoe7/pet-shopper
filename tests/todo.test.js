@@ -42,7 +42,7 @@ test('saved state keeps the other list in the stash and the mode', () => {
 });
 
 test('the to-do sounds exist', () => {
-  for (const k of ['done', 'sparkle', 'coin', 'ring', 'stamp']) assert.ok(Sounds.kinds.includes(k), k);
+  for (const k of ['done', 'sparkle', 'coin', 'ring', 'stamp', 'scribble']) assert.ok(Sounds.kinds.includes(k), k);
 });
 
 test('tasks and foods never share the emoji picker by accident', () => {

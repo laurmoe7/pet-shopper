@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '140';
+var BUILD = '141';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -182,7 +182,7 @@ function updateEmptyHint() {
     emptyHint.replaceChildren(name, asleep
       ? ' is fast asleep. Add things for tomorrow, or tick one off to wake it.'
       : night ? ' is getting sleepy. Pull the lamp cord to switch it off, and tap to tuck it in.'
-        : ' has nothing to do! Add a task, like "call mum", and tick it off together.');
+        : ' has nothing to do! Add a task, like "call mum", then tap it to give it a date, a time or a repeat.');
     return;
   }
   emptyHint.replaceChildren(name, asleep

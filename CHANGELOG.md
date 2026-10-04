@@ -2,6 +2,15 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 141 (4 Oct)
+- Nibble writes on the clipboard with a chubby pencil when you add a task.
+- New idle moves on the to-do list: magnifying glass, writing, looking over the list.
+- The clipboard is held by its wooden side.
+- Option for 24-hour time; time is picked with hour and minute choosers.
+- Tasks show "+ date/time" so it's clear you can add one.
+- Sample items on the to-do list are to-dos.
+- A sleeping Nibble wakes for a happy word when a task is done, then goes back to sleep.
+
 ## Build 140 (4 Oct)
 - Nibble holds the clipboard out to the side, like a real one.
 - No clipboard in the dress-up or pet pickers.

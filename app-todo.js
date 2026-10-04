@@ -28,7 +28,7 @@ function applyListMode(animate) {
   todoEl.setAttribute('aria-label', todo ? 'To do' : 'To buy');
   doneEl.setAttribute('aria-label', todo ? 'Done' : 'Bought');
   $('eatenTitle').textContent = todo ? 'Done' : 'Bought';
-  $('listHint').textContent = todo ? "Tap a task to set a date or repeat. Tap its emoji, or long-press it, to pick a different one." : "Tap an item's emoji, or long-press the item, to pick a different one.";
+  $('listHint').textContent = todo ? "Tap “+ date/time” on a task to set when it's due, a time and a repeat. Tap its emoji, or long-press it, to pick a different one." : "Tap an item's emoji, or long-press the item, to pick a different one.";
   addPreview.replaceChildren(); lastPreview = '';
 }
 
@@ -187,6 +187,13 @@ function doTask(item, fromRect) {
       if (again) { say(pick(['see you ' + again + '!', 'back ' + again + '!', 'again ' + again + '!']), 1300); return wait(1100 * sp); }
     }).then(function () {
       if (pending === 1 && L.mood(state.items) === 'stuffed') return celebrate();
+    }).then(function () {
+      // woken up by a task (it stays 'dozing'): a happy word, then right back to sleep
+      if (baseState() === 'sleepy') {
+        setFace(FACES.sleepy);
+        say(pick(['proud of you… zzz', 'back to sleep… ♡', 'nn… good job… zzz', 'sweet dreams… yay you…']), 1500);
+        return wait(1400);
+      }
     });
   });
 }
@@ -213,16 +220,117 @@ function undoTask(item) {
   });
 }
 
+// ---------- the desk: writing on the clipboard, inspecting it ----------
 /**
- * Nibble's reaction to a task you just added.
+ * Both paws bring the clipboard and a prop to the middle: Nibble leans over its list.
+ * @param {'pencil'|'glass'|''} prop  What the free hand holds.
+ */
+function deskOn(prop) {
+  if (prop) pet.dataset.prop = prop; else delete pet.dataset.prop;
+  pet.classList.add('desk');
+}
+/** Puts the clipboard back at his side and the prop away. */
+function deskOff() {
+  pet.classList.remove('desk', 'writing', 'inspecting');
+  delete pet.dataset.prop;
+}
+/**
+ * Writes on the clipboard with the chubby pencil.
+ * @param {function(): void} [during]  Called as the pencil starts to move (for the speech bubble).
+ * @returns {Promise<void>} Resolves when the clipboard is back at its side.
+ */
+function writeOnClipboard(during) {
+  if (reduceMotion) { if (during) during(); return wait(900); }
+  stopWalk();
+  setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: [] });
+  deskOn('pencil');
+  return wait(420).then(function () {
+    pet.classList.add('writing');
+    sound('scribble');
+    if (during) during();
+    return wait(1050);
+  }).then(function () {
+    pet.classList.remove('writing');
+    return wait(300);
+  }).then(deskOff);
+}
+/**
+ * Pulls out a magnifying glass and inspects the list, then finds something.
+ * @returns {Promise<void>}
+ */
+function inspectList() {
+  if (reduceMotion) { say('hmm, let me look…', 1200); return wait(1400); }
+  stopWalk();
+  setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: [] });
+  deskOn('glass');
+  return wait(450).then(function () {
+    pet.classList.add('inspecting');
+    eyesDo('wide');
+    talk('inspect', ['hmm… let me look…', 'inspecting the list…', 'detective Nibble!', 'what do we have here…'], 1500);
+    return wait(2300);
+  }).then(function () {
+    pet.classList.remove('inspecting');
+    setFace({ eyes: 'sparkle', mouth: 'open', arms: 'idle', x: ['sparkles', 'cheeks'] });
+    pulse('hopsmall', 400);
+    sound('ooh');
+    talk('inspectFound', ['aha! all in order!', 'found it!', 'looks good!', 'we can do this!'], 1300);
+    return wait(1300);
+  }).then(deskOff);
+}
+/**
+ * Leans over the clipboard with a thoughtful hum and looks it over.
+ * @returns {Promise<void>}
+ */
+function lookOverList() {
+  stopWalk();
+  setFace({ eyes: 'open', mouth: 'smile', arms: 'idle', x: [] });
+  deskOn('');
+  pulse('bob', 1400);
+  return wait(500).then(function () {
+    talk('lookOver', ['so much to do!', 'busy, busy!', "we've got this!", 'hmm hmm hmm…'], 1400);
+    return wait(1800);
+  }).then(deskOff);
+}
+/** The to-do list's own idle moves; each returns how long it takes. */
+var TODO_MOVES = [
+  function () { inspectList(); return 4600; },
+  function () { writeOnClipboard(function () { say(pick(['note to self…', 'writing it down!', 'scribble scribble']), 1300); }); return 2300; },
+  function () { lookOverList(); return 2800; }
+];
+
+/**
+ * Nibble's reaction to a task you just added: it writes it on its clipboard.
  * @param {Item} item
  */
 function addedTask(item) {
   if (busy) return;
-  pulse('hop', 460);
-  setFace(FACES.happy);
-  setTimeout(function () { if (!busy) settle(); }, 600);
-  talk('taskAdd' + item.cat, TASK_ADDED[item.cat] || TASK_ADDED.other, 1500);
+  busy++;
+  writeOnClipboard(function () {
+    pulse('hopsmall', 400);
+    talk('taskAdd' + item.cat, TASK_ADDED[item.cat] || TASK_ADDED.other, 1500);
+  }).then(function () {
+    busy--;
+    if (!busy) settle();
+    // the first few times, a nudge that a date and time can be added
+    state.todoTips = (state.todoTips || 0) + 1;
+    if (state.todoTips <= 3 && !item.due && !busy) say('tap "+ date/time" to set a reminder!', 2200);
+  });
+}
+
+/** @returns {Item[]} A few to-dos with dates and times, for the developer tools. */
+function sampleTodos() {
+  var today = todayKey();
+  return [
+    ['Call mum', today, '18:00', ''], ['Book dentist', L.addDays(today, 1), '', ''], ['Water the plants', today, '', 'every3'],
+    ['Pay rent', L.addDays(today, -2), '', 'monthly'], ['Do laundry', L.addDays(today, 3), '', 'weekly'], ['Reply to emails', '', '', ''],
+    ["Buy Oma a birthday gift", L.addDays(today, 8), '', ''], ['Go for a run', today, '07:30', 'daily']
+  ].map(function (r) {
+    var item = L.createItem(r[0], state.overrides, newId(), undefined, 'todo');
+    if (r[1]) item.due = r[1];
+    if (r[2]) item.time = r[2];
+    if (r[3]) item.repeat = r[3];
+    return item;
+  });
 }
 
 // ---------- due dates and repeats ----------
@@ -230,13 +338,24 @@ function addedTask(item) {
 function todayKey() { return L.dayKey(petNow()); }
 /** @returns {string} The time now as HH:MM, by the pet's clock. */
 function clockKey() { var d = petNow(); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
+/** @returns {string} A time of day (HH:MM) as the options say: 14:30, or 2:30 PM. */
+function fmtTime(t) {
+  if (state.settings.time24) return t;
+  var h = +t.slice(0, 2);
+  return (h % 12 || 12) + ':' + t.slice(3) + ' ' + (h < 12 ? 'AM' : 'PM');
+}
 /** @returns {{days: number, state: string, label: string}} How a task's due day and time look now. */
-function infoOf(item) { return L.dueInfo(item.due, todayKey(), item.time, clockKey()); }
+function infoOf(item) {
+  var info = L.dueInfo(item.due, todayKey(), item.time, clockKey());
+  info.label = info.label.replace(/ (\d\d:\d\d)$/, function (m, t) { return ' ' + fmtTime(t); });
+  return info;
+}
 /** @returns {string} What a row's date tag shows and how urgent it is, so the row is redrawn when either changes. */
-function dueTagKey(item) { return dueTagText(item) + (dueTagText(item) ? '|' + infoOf(item).state : ''); }
+function dueTagKey(item) { return dueTagText(item) + (item.due && dueTagText(item) ? '|' + infoOf(item).state : '') + '|' + state.settings.time24; }
 /** @returns {string} The words on a task's date tag ('' when it has none or is done), also used to tell when a row needs redrawing. */
 function dueTagText(item) {
-  if (state.mode !== 'todo' || !item.due || item.done) return '';
+  if (state.mode !== 'todo' || item.done) return '';
+  if (!item.due) return '+ date/time';   // tells you a date and time can be added
   return (item.repeat ? '↻ ' : '') + infoOf(item).label;
 }
 /** @returns {?HTMLElement} The little tag showing when a task is due, or null. */
@@ -244,7 +363,7 @@ function dueTagOf(item) {
   var text = dueTagText(item);
   if (!text) return null;
   var tag = document.createElement('span');
-  tag.className = 'due-tag due-' + infoOf(item).state;
+  tag.className = 'due-tag due-' + (item.due ? infoOf(item).state : 'add');
   tag.textContent = text;
   return tag;
 }
@@ -302,7 +421,7 @@ function renderTaskSheet() {
     chip('In a week', item.due === week, function () { setTaskDue(week); })
   );
   $('dueDate').value = item.due || '';
-  $('dueTime').value = item.time || '';
+  renderTimeSelects(item.time || '');
   $('repeatChips').replaceChildren.apply($('repeatChips'), L.REPEATS.map(function (r) {
     return chip(r.label, (item.repeat || '') === r.id, function () { setTaskRepeat(r.id); });
   }));
@@ -353,7 +472,30 @@ function setTaskTime(time) {
   renderTaskSheet();
   if (time && !busy && baseState() !== 'sleepy') say(pick(['I will tell you at ' + time + '!', 'ding at ' + time + '!', 'on my clock!']), 1300);
 }
-$('dueTime').addEventListener('change', function () { setTaskTime($('dueTime').value); });
+function pad2(n) { return (n < 10 ? '0' : '') + n; }
+function opt(value, text) { var o = document.createElement('option'); o.value = value; o.textContent = text; return o; }
+/** Draws the hour, minute and AM/PM choices (12 or 24 hour, by the options) set to a time. */
+function renderTimeSelects(time) {
+  var h = $('timeH'), m = $('timeM'), ap = $('timeAP'), h24 = state.settings.time24, hh = time ? +time.slice(0, 2) : -1, mm = time ? +time.slice(3) : 0, i;
+  h.replaceChildren(opt('', '--'));
+  for (i = h24 ? 0 : 1; i <= (h24 ? 23 : 12); i++) h.appendChild(opt(String(i), h24 ? pad2(i) : String(i)));
+  h.value = time ? String(h24 ? hh : hh % 12 || 12) : '';
+  m.replaceChildren();
+  for (i = 0; i < 60; i += 5) m.appendChild(opt(String(i), pad2(i)));
+  if (mm % 5) { m.appendChild(opt(String(mm), pad2(mm))); }
+  m.value = String(mm);
+  ap.hidden = h24;
+  ap.replaceChildren(opt('AM', 'AM'), opt('PM', 'PM'));
+  ap.value = hh >= 12 ? 'PM' : 'AM';
+}
+/** Reads the three choices into a time of day (or none). */
+function readTimeSelects() {
+  var h = $('timeH').value;
+  if (h === '') { setTaskTime(''); return; }
+  var hour = state.settings.time24 ? +h : (+h % 12) + ($('timeAP').value === 'PM' ? 12 : 0);
+  setTaskTime(pad2(hour) + ':' + pad2(+$('timeM').value));
+}
+['timeH', 'timeM', 'timeAP'].forEach(function (id) { $(id).addEventListener('change', readTimeSelects); });
 $('clearTime').addEventListener('click', function () { setTaskTime(''); });
 $('taskDelete').addEventListener('click', function () {
   var id = taskFor;

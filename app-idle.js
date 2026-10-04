@@ -292,6 +292,8 @@ function idleMove() {
   // sleepy moves only when it is up at night, and then most of the time
   var late = L.isNight(petNow()) && mood !== 'sleepy' && Math.random() < 0.85;
   moves = moves.filter(function (m) { return !!m.night === late; });
+  // on the to-do list it often does something with its clipboard
+  if (isTodo() && !late && mood !== 'sleepy' && Math.random() < 0.45) moves = TODO_MOVES.map(function (run) { return { run: run }; });
   if (!moves.length) return;
   busy++;
   var ms = pick(moves).run();

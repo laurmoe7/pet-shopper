@@ -4,7 +4,7 @@
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
  *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
- *   done, sparkle, coin, ring (ticking off a to-do), stamp (the check mark landing),
+ *   done, sparkle, coin, ring (ticking off a to-do), stamp (the check mark landing), scribble (writing on the clipboard),
  *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
  * Every play is pitch-shifted a little, and kinds with several variants pick a
  * different one each time, so nothing sounds exactly the same twice in a row.
@@ -335,6 +335,10 @@
       // a rubber stamp thunk
       tone(t, 0.12, 'sine', 190, 70, env(t, 0.003, 0.11, 0.6));
       noise(t, 0.06, 'lowpass', 900, 1, env(t, 0.002, 0.05, 0.3));
+    },
+    scribble: function (t) {
+      // a pencil scribbling: a run of quick scratchy strokes
+      for (var i = 0; i < 8; i++) noise(t + i * 0.11, 0.09, 'bandpass', rnd(2300, 3000), 2.2, env(t + i * 0.11, 0.01, 0.08, 0.14));
     },
     crickets: function (t) {
       // a few gentle cricket trills: tiny high pulses in twos and threes
