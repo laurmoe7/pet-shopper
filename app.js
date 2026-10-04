@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '135';
+var BUILD = '136';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -177,6 +177,13 @@ function updateEmptyHint() {
   name.className = 'pet-name';
   name.textContent = state.pet.name || 'Nibble';
   var night = L.isNight(petNow()), asleep = night && L.restingMood(state.items, petNow(), state.pet.dozing) === 'sleepy';
+  if (state.mode === 'todo') {
+    emptyHint.replaceChildren(name, asleep
+      ? ' is fast asleep. Add things for tomorrow, or tick one off to wake it.'
+      : night ? ' is getting sleepy. Pull the lamp cord to switch it off, and tap to tuck it in.'
+        : ' has nothing to do! Add a task, like "call mum", and tick it off together.');
+    return;
+  }
   emptyHint.replaceChildren(name, asleep
     ? ' is fast asleep. Add things for tomorrow, or check one off to wake it for a midnight snack.'
     : night ? ' is getting sleepy. Pull the lamp cord to switch it off, and tap to tuck it in.'
@@ -236,6 +243,11 @@ function fillWith(box, items) {
  * @param {Item[]} done Ticked off.
  */
 function renderCart(todo, done) {
+  if (state.mode === 'todo') {   // the to-do list has no cart, receipt or bag
+    cartEl.hidden = receiptEl.hidden = cartBag.hidden = true;
+    cartCount = bagCount = receiptCount = -1;
+    return;
+  }
   if (RECEIPT_TEST) { cartEl.hidden = true; renderReceipt(done); }
   else cartEl.hidden = todo.length === 0;
   var bagged = done.filter(isBagged);

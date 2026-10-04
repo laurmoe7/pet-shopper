@@ -4,7 +4,7 @@
 (function (root) {
   'use strict';
 
-  var Foods = root.Foods;
+  var Foods = root.Foods, Tasks = root.Tasks;
 
   /**
    * @typedef {Object} Item
@@ -81,12 +81,14 @@
    * Finds the emoji for an item, preferring one the person picked for that word before.
    * @param {string} text
    * @param {Object<string, string>} overrides  Normalised item text -> picked emoji.
+   * @param {string} [mode]  'todo' for the to-do list (tasks, not foods); anything else is the shopping list.
    * @returns {{emoji: string, cat: string}}
    */
-  function emojiFor(text, overrides) {
+  function emojiFor(text, overrides, mode) {
+    var todo = mode === 'todo';
     var picked = overrides && overrides[Foods.normalize(text)];
-    if (picked) return { emoji: picked, cat: Foods.categoryOf(picked) };
-    var m = Foods.match(text);
+    if (picked) return { emoji: picked, cat: todo ? Tasks.categoryOf(picked) : Foods.categoryOf(picked) };
+    var m = todo ? Tasks.match(text) : Foods.match(text);
     return { emoji: m.emoji, cat: m.cat };
   }
 
@@ -96,10 +98,11 @@
    * @param {Object<string, string>} overrides
    * @param {string} id
    * @param {number} [added]  When it was put on the list (ms); counts towards goals only after a while.
+   * @param {string} [mode]  'todo' for a to-do item.
    * @returns {Item}
    */
-  function createItem(text, overrides, id, added) {
-    var found = emojiFor(text, overrides);
+  function createItem(text, overrides, id, added, mode) {
+    var found = emojiFor(text, overrides, mode);
     var item = { id: id, text: text, emoji: found.emoji, cat: found.cat, done: false };
     if (typeof added === 'number') item.added = added;
     return item;
@@ -148,7 +151,7 @@
    * with the sample shopping list, so the app always opens in a working state.
    * @param {?string} raw  The stored JSON string, or null.
    * @param {function(): string} nextId  Makes ids for sample items.
-   * @returns {{items: Item[], overrides: Object<string,string>, quiet: boolean, lastOpen: number, pet: PetProfile}}
+   * @returns {{items: Item[], mode: string, stash: Item[], overrides: Object<string,string>, quiet: boolean, lastOpen: number, pet: PetProfile}}
    */
   function parseState(raw, nextId) {
     var data = null;
@@ -158,6 +161,9 @@
       SAMPLE.forEach(function (t) { data.items.push(createItem(t, data.overrides, nextId())); });
     }
     data.overrides = data.overrides || {};
+    // the list on show (shopping or to-do) is state.items; the other one waits in state.stash
+    data.mode = data.mode === 'todo' ? 'todo' : 'shop';
+    if (!Array.isArray(data.stash)) data.stash = [];
     data.pet = petProfile(data.pet);
     data.settings = settings(data.settings);
     // developer-only switches from the dev menu
@@ -280,8 +286,9 @@
     if (!target) return false;
     var key = Foods.normalize(target.text);
     state.overrides[key] = emoji;
+    var catOf = state.mode === 'todo' ? Tasks.categoryOf : Foods.categoryOf;
     state.items.forEach(function (i) {
-      if (Foods.normalize(i.text) === key) { i.emoji = emoji; i.cat = Foods.categoryOf(emoji); }
+      if (Foods.normalize(i.text) === key) { i.emoji = emoji; i.cat = catOf(emoji); }
     });
     return true;
   }

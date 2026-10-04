@@ -89,7 +89,7 @@ var SUGGEST_GAP_MS = 3 * 60 * 1000, lastSuggestion = 0; // at most one ask every
  */
 function offerSuggestion() {
   // not too often: at most one ask every three minutes
-  if (!state.settings.suggestions || Date.now() - lastSuggestion < SUGGEST_GAP_MS) return false;
+  if (isTodo() || !state.settings.suggestions || Date.now() - lastSuggestion < SUGGEST_GAP_MS) return false;
   var text = L.suggestion(personality(), state.items);
   if (!text) return false;
   var e = L.emojiFor(text, state.overrides).emoji;

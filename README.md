@@ -28,6 +28,7 @@ The tests live in `tests/` and load the same scripts the browser uses.
 ## What's in it
 
 - **The list.** Add items, tick them off, put them back, delete them. Each item gets a food emoji, and you can pick a different one.
+- **To-do list.** Tap the title ("Nibble's shopping list") to swap to "Nibble's to-do list". Tasks get their own emoji, kinds and chatter; ticking one off earns a check-mark stamp and a cheer instead of being eaten, and there is no receipt. It doesn't count for goals or the Top 10.
 - **Nibble.** Eats each item you tick off, reacts to the type of food, and celebrates when the list is done. Pick a species (mochi, pig, cat, dog, bunny, birdie, cow, hamster, frog, hedgehog or axolotl, with a skin for most of them: strawberry, chocolate or taro mochi, tabby, black or calico cat, chihuahua, Pomeranian or golden retriever, chocolate milk or Highland cow, dirty piggy or boar, floppy-eared or Dutch bunny, white or long-haired black hamster, poison dart frog or toad, fast (blue) hedgehog, penguin, parrot or kiwi birdie) and a personality, and rename it with a double-tap.
 - **Bottom bar.** Dress, Room, Treats, Top 10, Goals and Pet (rename, species, personality) are always one tap away at the bottom of the screen.
 - **Dress up.** Hats, glasses, scarves and shoes, including a clown nose and clown shoes. Each has its own line when you point at it.
@@ -49,7 +50,7 @@ Not in it yet: accounts, shared lists, payments, multiple lists. See `CHANGELOG.
 ## Files
 
 - `index.html`, `styles.css`, `app*.js`: the app. Nibble is an inline SVG animated with CSS. The code is split by topic (`app-dress.js` is the dressing room, `app-goals.js` is goals, and so on); the list is in `CLAUDE.md`.
-- `foods.js`: the keyword dictionary and matching.
+- `foods.js`: the keyword dictionary and matching. `tasks.js` is the same for the to-do list.
 - `logic.js`: the app's rules with no page code (item order, mood, emoji picks, sound choice, saved state, achievement counting and unlocks), so they can be tested.
 - `achievements.js`: the goals, what counts for each, the daily limit and what they unlock.
 - `skins.js`: skins that change how a species looks.

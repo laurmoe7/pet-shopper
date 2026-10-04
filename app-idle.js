@@ -28,6 +28,7 @@ function daydream() {
   var p = personality();
   var item;
   if (mood === 'sleepy' || !todo.length) {
+    if (isTodo()) return;
     // dreaming of something it would like to have
     var wish = L.suggestion(p, state.items);
     if (!wish) return;
@@ -36,7 +37,7 @@ function daydream() {
     var loved = todo.filter(function (i) { return L.likes(p, i); });
     item = pick(loved.length && Math.random() < 0.7 ? loved : todo);
   }
-  var love = mood !== 'sleepy' && isFavourite(item);
+  var love = !isTodo() && mood !== 'sleepy' && isFavourite(item);
   dreaming = true;
   dreamCloud.replaceChildren(emojiImg(item.emoji, ''));
   dreamEl.classList.toggle('love', love);
@@ -50,6 +51,7 @@ function daydream() {
     talk('dream', ['ooh, {x}!', 'can\'t wait!', 'my favourite!'], 1600, { x: item.text.toLowerCase() });
   } else {
     setFace(FACES.dreamy);
+    if (isTodo()) talk('todoDream', ["should we {x}?", "don't forget: {x}", '{x}… soon!'], 1600, { x: item.text.toLowerCase() });
   }
   setTimeout(function () {
     dreamEl.hidden = true;
@@ -209,7 +211,7 @@ var IDLE_MOVES = [
   { moods: ['happy'], run: function () { setFace(FACES.tada); pulse('twirl', 800); } },
   { moods: ['happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); } },
   { moods: ['happy'], run: function () { if (!cartEl.hidden) { setFace({ eyes: 'open', mouth: 'open', arms: 'reach', x: [] }); pulse('peek', 1400); say(pick(['what\'s in the cart?', 'so much loot!', 'cart buddy!']), 1300); } } },
-  { moods: ['curious'], run: function () { setFace({ eyes: 'open', mouth: 'o', arms: 'scratch', x: ['question'] }); talk('idle', ['what\'s next?', 'shopping time?'], 1300); } },
+  { moods: ['curious'], run: function () { setFace({ eyes: 'open', mouth: 'o', arms: 'scratch', x: ['question'] }); talk('idle', isTodo() ? ['what\'s next?', 'to-do time?', 'tick tick?'] : ['what\'s next?', 'shopping time?'], 1300); } },
   // little dances
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('shuffle', 1500); hum(); } },
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'reach', x: ['sparkles', 'cheeks'] }); pulse('boogie', 1500); hum(); } },
@@ -265,7 +267,7 @@ var IDLE_MOVES = [
       setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: ['shock'] });
       eyesDo('wide');
       pulse('hopsmall', 450);
-      talk('nodOff', ['huh! I\'m awake!', 'wasn\'t sleeping!', 'w-what? shopping!'], 1300);
+      talk('nodOff', ['huh! I\'m awake!', 'wasn\'t sleeping!', isTodo() ? 'w-what? tasks!' : 'w-what? shopping!'], 1300);
     }, 1900);
     return 3200;
   } },

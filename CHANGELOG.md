@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 136 (4 Oct)
+- New to-do list: tap the title to swap between shopping and to-do.
+- To-dos get task emojis, their own chatter and a check-mark stamp instead of being eaten.
+- No receipt, cart or bag on the to-do list.
+- A cartoonier kiss sound.
+- The frog's tongue blends into its mouth.
+
 ## Build 135 (4 Oct)
 - Fixed: sleepy eyes jumping up when blinking.
 - Fixed: wide eyes when sleepy.

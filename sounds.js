@@ -4,6 +4,7 @@
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
  *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
+ *   done, sparkle, coin, ring (ticking off a to-do), stamp (the check mark landing),
  *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
  * Every play is pitch-shifted a little, and kinds with several variants pick a
  * different one each time, so nothing sounds exactly the same twice in a row.
@@ -298,10 +299,42 @@
       noise(t + 0.16, 0.1, 'lowpass', 1200, 2, env(t + 0.16, 0.01, 0.08, 0.15));
     },
     kiss: function (t) {
-      // a smooch: a soft lip pop, then a tiny sparkly "mwah"
-      noise(t, 0.05, 'bandpass', 1800, 2.5, env(t, 0.003, 0.045, 0.32));
-      tone(t, 0.06, 'sine', 900, 1500, env(t, 0.003, 0.05, 0.14));
-      chime(t + 0.12, [1319, 1760], 0.08, 0.35, 'sine');
+      // a cartoony smooch: a squeaky pucker sliding up, a big wet "MWAH" pop, and a little smack after
+      tone(t, 0.13, 'sine', 330, 760, env(t, 0.03, 0.1, 0.17));
+      noise(t, 0.12, 'bandpass', 1400, 3, env(t, 0.03, 0.1, 0.05));
+      tone(t + 0.14, 0.09, 'sine', 1250, 260, env(t + 0.14, 0.002, 0.085, 0.42));
+      noise(t + 0.14, 0.05, 'bandpass', 1700, 1.4, env(t + 0.14, 0.002, 0.045, 0.4));
+      tone(t + 0.24, 0.05, 'sine', 900, 420, env(t + 0.24, 0.002, 0.045, 0.18));
+      chime(t + 0.3, [1319, 1760], 0.07, 0.3, 'sine');
+    },
+    done: function (t) {
+      // a to-do ticked off: a crisp tick, then two bright notes going up
+      noise(t, 0.02, 'bandpass', 3200, 3, env(t, 0.001, 0.018, 0.5));
+      chime(t + 0.05, [784, 1175], 0.1, 0.9, 'sine');
+    },
+    sparkle: function (t) {
+      // a cleaning sparkle: a quick run of tiny bells climbing up
+      [1568, 1976, 2349, 2637, 3136].forEach(function (hz, i) { tone(t + i * 0.055, 0.2, 'sine', hz, null, env(t + i * 0.055, 0.004, 0.18, 0.13)); });
+    },
+    coin: function (t) {
+      // cha-ching: two bright metallic pings
+      tone(t, 0.25, 'square', 1568, null, env(t, 0.002, 0.08, 0.05));
+      tone(t, 0.3, 'sine', 1568, null, env(t, 0.002, 0.25, 0.2));
+      tone(t + 0.09, 0.45, 'sine', 2093, null, env(t + 0.09, 0.002, 0.4, 0.22));
+      tone(t + 0.09, 0.45, 'sine', 4186, null, env(t + 0.09, 0.002, 0.3, 0.06));
+    },
+    ring: function (t) {
+      // a little phone: brrring-brrring, picked up
+      for (var i = 0; i < 2; i++) for (var j = 0; j < 4; j++) {
+        var tt = t + i * 0.26 + j * 0.05;
+        tone(tt, 0.05, 'square', j % 2 ? 1250 : 1000, null, env(tt, 0.003, 0.04, 0.07));
+      }
+      noise(t + 0.6, 0.02, 'bandpass', 1500, 3, env(t + 0.6, 0.001, 0.018, 0.4));
+    },
+    stamp: function (t) {
+      // a rubber stamp thunk
+      tone(t, 0.12, 'sine', 190, 70, env(t, 0.003, 0.11, 0.6));
+      noise(t, 0.06, 'lowpass', 900, 1, env(t, 0.002, 0.05, 0.3));
     },
     crickets: function (t) {
       // a few gentle cricket trills: tiny high pulses in twos and threes

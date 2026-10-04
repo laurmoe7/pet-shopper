@@ -1,15 +1,15 @@
 // Offline support: cache the app shell and every emoji on install. The app's own files go network-first
 // (so a new build shows up on the next visit and the cache is only the offline fallback); emoji are cache-first.
-importScripts('foods.js');
-var CACHE = 'nibble-v135';
-var SHELL = ['./', 'index.html', 'styles.css', 'app.js', 'app-pet.js', 'app-actions.js', 'app-petsheet.js', 'app-dress.js', 'app-room.js', 'app-goals.js', 'app-events.js', 'app-personality.js', 'app-favourites.js', 'app-petting.js', 'app-treats.js', 'app-options.js', 'app-backdrop.js', 'app-idle.js', 'app-toy.js', 'app-bedtime.js', 'app-start.js', 'foods.js', 'logic.js', 'achievements.js', 'sounds.js', 'wardrobe.js', 'decor.js', 'personalities.js', 'skins.js', 'manifest.webmanifest', 'icon.svg', 'icon-180.png', 'icon-512.png'];
+importScripts('foods.js', 'tasks.js');
+var CACHE = 'nibble-v136';
+var SHELL = ['./', 'index.html', 'styles.css', 'app.js', 'app-pet.js', 'app-actions.js', 'app-petsheet.js', 'app-dress.js', 'app-room.js', 'app-goals.js', 'app-events.js', 'app-todo.js', 'app-personality.js', 'app-favourites.js', 'app-petting.js', 'app-treats.js', 'app-options.js', 'app-backdrop.js', 'app-idle.js', 'app-toy.js', 'app-bedtime.js', 'app-start.js', 'foods.js', 'tasks.js', 'logic.js', 'achievements.js', 'sounds.js', 'wardrobe.js', 'decor.js', 'personalities.js', 'skins.js', 'manifest.webmanifest', 'icon.svg', 'icon-180.png', 'icon-512.png'];
 
 // Emoji and web fonts live in their own cache that is kept between builds, so an update only downloads
 // the app's own files, not all 160 emoji again. Only emoji that aren't cached yet are fetched.
 var KEEP = 'nibble-emoji-v1';
 
 self.addEventListener('install', function (e) {
-  var emoji = self.Foods.all.map(self.Foods.emojiFile);
+  var emoji = self.Foods.all.concat(self.Tasks.all).map(self.Foods.emojiFile);
   e.waitUntil(Promise.all([
     caches.open(CACHE).then(function (c) { return c.addAll(SHELL); }),
     caches.open(KEEP).then(function (c) {

@@ -70,7 +70,7 @@ var lastPreview = '';
 addInput.addEventListener('input', function () {
   var t = addInput.value.trim();
   if (!t) { addPreview.replaceChildren(); lastPreview = ''; return; }
-  var e = L.emojiFor(t, state.overrides).emoji;
+  var e = L.emojiFor(t, state.overrides, state.mode).emoji;
   if (e !== lastPreview) { addPreview.replaceChildren(emojiImg(e, '')); lastPreview = e; }
 });
 
@@ -135,6 +135,7 @@ pet.addEventListener('click', function () {
   var s = baseState();
   if (s !== 'stuffed' && Math.random() < 0.12 && offerSuggestion()) return;
   if (s === 'sleepy') talk('sleepy', ['zzz… snack?'], 1200);
+  else if (isTodo()) talk(s === 'stuffed' ? 'todoTapDone' : 'todoTap', s === 'stuffed' ? ['all done ♡', 'nothing left to do!', 'so proud of us!'] : ['hi!', "what's next?", "let's do it!", 'hehe'], 1200);
   else if (s === 'stuffed') talk('full', ['so full…', 'what a feast!', 'all done ♡'], 1200);
   else talk('tap', ['hi!', 'hungry!', 'shopping?', 'hehe'], 1200);
 });

@@ -57,6 +57,7 @@ function speed() { return pending > 4 ? 0.4 : pending > 2 ? 0.6 : 1; }
  * @param {?Object} [goals] What recordEaten counted, for the progress toast and unlock cheer.
  */
 function eat(item, fromRect, goals) {
+  if (state.mode === 'todo' && !item.treat) { doTask(item, fromRect); return; }   // to-dos aren't eaten (app-todo.js)
   enqueue(function () {
     stopWalk();
     var sp = speed();
@@ -112,6 +113,7 @@ function eat(item, fromRect, goals) {
  * @param {Item} item
  */
 function spitBack(item) {
+  if (state.mode === 'todo') { undoTask(item); return; }
   enqueue(function () {
     setFace(FACES.catching);
     pulse('spit', 360);
@@ -135,10 +137,12 @@ function spitBack(item) {
  */
 function celebrate() {
   var eaten = state.items.filter(function (i) { return i.done; }).map(function (i) { return i.emoji; });
-  setFace(tiredFace(FACES.party));
-  pulse('pat', 1700);
+  var todo = state.mode === 'todo';   // all the tasks done: proud rather than full
+  setFace(tiredFace(todo ? FACES.tada : FACES.party));
+  pulse(todo ? (isTired() ? 'hopsmall' : 'hophop') : 'pat', todo ? 1500 : 1700);
   sound('party');
-  if (isTired()) talk('fullTired', ['so full… *yawn*… thank you!', 'best late trip ever…', 'full and sleepy ♡'], 2200);
+  if (todo) talk(isTired() ? 'todoAllTired' : 'todoAll', isTired() ? ['all done… *yawn*… so proud!', 'list empty… sleepy now ♡'] : ['all done! so proud!', 'to-do list: empty!', 'you did it all! ✧', 'what a day! ♡'], 2200);
+  else if (isTired()) talk('fullTired', ['so full… *yawn*… thank you!', 'best late trip ever…', 'full and sleepy ♡'], 2200);
   else talk('full', ['so full! thank you!', 'best trip ever!', '*happy belly pat*'], 2200);
   buzz([20, 60, 20]);
   if (!reduceMotion) {
@@ -167,13 +171,14 @@ function celebrate() {
 function addItem(text) {
   text = text.trim();
   if (!text) return;
-  var item = L.createItem(text, state.overrides, newId(), Date.now());
+  var item = L.createItem(text, state.overrides, newId(), Date.now(), state.mode);
   L.addToList(state.items, item);
   freshIds[item.id] = true;
   save();
   render();
   // asleep, it doesn't wake up for this: it only mumbles in its sleep
-  if (baseState() === 'sleepy') { pulse('rocksmall', 1300); say(pick(['for me…', 'mm… yum…', 'snack…']), 1300); return; }
+  if (baseState() === 'sleepy') { pulse('rocksmall', 1300); say(pick(state.mode === 'todo' ? ['tomorrow…', 'mm… later…', 'to-do… zzz'] : ['for me…', 'mm… yum…', 'snack…']), 1300); return; }
+  if (state.mode === 'todo') { addedTask(item); return; }
   if (!busy) {
     pulse('hop', 460);
     var face = isBagged(item) ? null : FACES.catching;
@@ -237,17 +242,20 @@ function toggle(id) {
   freshIds[item.id] = true;
   var now = new Date(), goals = null;
   var wasAsleep = item.done && baseState() === 'sleepy' && L.isNight(petNow());
+  var todoMode = state.mode === 'todo';   // to-dos don't count for goals, tastes or the Top 10
   if (item.done) {
     state.pet.dozing = ''; // a snack wakes it up
-    goals = creditEaten(item, now);
-    item.fav = L.recordFavourite(state.pet, rulesItem(item), now) || undefined;
-    if (L.mood(state.items) === 'stuffed') {
+    if (!todoMode) {
+      goals = creditEaten(item, now);
+      item.fav = L.recordFavourite(state.pet, rulesItem(item), now) || undefined;
+    }
+    if (!todoMode && L.mood(state.items) === 'stuffed') {
       var trip = L.recordTrip(state.pet, state.items.map(rulesItem), now, Achievements);
       goals.counted = goals.counted.concat(trip.counted);
       goals.capped = goals.capped.concat(trip.capped);
       goals.unlocked = goals.unlocked.concat(trip.unlocked);
     }
-  } else {
+  } else if (!todoMode) {
     // putting it back takes today's count back, so ticking on and off can't farm goals
     L.refundEaten(state.pet, item, now, Achievements);
     if (item.tasted) L.refundTaste(state.pet, item);
@@ -293,14 +301,19 @@ function setEmoji(id, emoji) {
 
 // ---------- picker ----------
 var pickerFor = null;
-pickerGrid.append.apply(pickerGrid, Foods.all.map(function (e) {
-  var b = document.createElement('button');
-  b.type = 'button';
-  b.dataset.emoji = e;
-  b.setAttribute('aria-label', e);
-  b.appendChild(emojiImg(e, ''));
-  return b;
-}));
+/** Fills the picker with the emoji for the list on show: foods for shopping, tasks for the to-do list. */
+function fillPicker() {
+  if (pickerGrid.dataset.mode === state.mode) return;
+  pickerGrid.dataset.mode = state.mode;
+  pickerGrid.replaceChildren.apply(pickerGrid, (state.mode === 'todo' ? Tasks.all : Foods.all).map(function (e) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.emoji = e;
+    b.setAttribute('aria-label', e);
+    b.appendChild(emojiImg(e, ''));
+    return b;
+  }));
+}
 /**
  * Opens the emoji picker for one item.
  * @param {string} id
@@ -309,6 +322,7 @@ function openPicker(id) {
   var item = find(id);
   if (!item) return;
   pickerFor = id;
+  fillPicker();
   pickerName.textContent = '“' + item.text + '”';
   pickerGrid.querySelectorAll('button').forEach(function (b) {
     b.setAttribute('aria-pressed', b.dataset.emoji === item.emoji ? 'true' : 'false');

@@ -9,8 +9,8 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 const out = path.join(root, 'preview');
 const read = (f) => fs.readFileSync(path.join(root, f), 'utf8');
-const SCRIPTS = ['foods', 'logic', 'achievements', 'wardrobe', 'decor', 'personalities', 'skins', 'sounds',
-  'app', 'app-pet', 'app-actions', 'app-petsheet', 'app-dress', 'app-room', 'app-goals', 'app-events', 'app-personality', 'app-favourites', 'app-petting', 'app-treats', 'app-options', 'app-backdrop', 'app-idle', 'app-toy', 'app-bedtime', 'app-start'];
+const SCRIPTS = ['foods', 'tasks', 'logic', 'achievements', 'wardrobe', 'decor', 'personalities', 'skins', 'sounds',
+  'app', 'app-pet', 'app-actions', 'app-petsheet', 'app-dress', 'app-room', 'app-goals', 'app-events', 'app-todo', 'app-personality', 'app-favourites', 'app-petting', 'app-treats', 'app-options', 'app-backdrop', 'app-idle', 'app-toy', 'app-bedtime', 'app-start'];
 
 if (process.argv.includes('--bump')) {
   const app = read('app.js');

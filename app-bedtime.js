@@ -114,7 +114,7 @@ function wakeForSnack() {
   eyesDo('wide');
   pulse('stretch', 700);
   sound('yawn');
-  talk('snackWake', ['huh? a snack?!', '*yawn* food?', 'mm? I\'m up!'], 1100);
+  talk('snackWake', isTodo() ? ['huh? done already?', '*yawn* a task?', 'mm? I\'m up!'] : ['huh? a snack?!', '*yawn* food?', 'mm? I\'m up!'], 1100);
   return 750;
 }
 /** Switches the lamp. */

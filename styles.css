@@ -119,9 +119,17 @@ button { font: inherit; color: inherit; }
 .brand { font-family: var(--font-display); font-weight: 500; font-size: 1.35rem; margin: 0; display: flex; align-items: center; white-space: nowrap; min-width: 0; overflow: hidden; }
 .brand .pet-name { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .brand-sub { color: var(--muted); }
+/* the title swaps between the shopping list and the to-do list when tapped (app-todo.js) */
+.brand { cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: manipulation; border-radius: 12px; outline-offset: 3px; }
+.brand-kind { display: inline-block; }
+.brand-kind.flip { animation: kind-flip .42s ease-in-out; }
+@keyframes kind-flip { 0% { transform: none; opacity: 1; } 45% { transform: translateY(-55%); opacity: 0; } 55% { transform: translateY(55%); opacity: 0; } 100% { transform: none; opacity: 1; } }
+.brand-swap { flex: none; width: 15px; height: 15px; margin-left: 7px; fill: none; stroke: var(--muted); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; opacity: .75; transition: transform .35s cubic-bezier(.3, 1.4, .5, 1); }
+.brand.swapped .brand-swap { transform: rotate(180deg); }
 .scene-tools { display: flex; align-items: center; gap: 8px; flex: none; }
 @media (max-width: 370px) {
-  .brand-sub { display: none; }
+  .brand { font-size: 1.1rem; }
+  .brand-swap { margin-left: 5px; }
   .scene-bar { gap: 6px; }
   .scene-tools { gap: 5px; }
   .gear-btn { padding: 4px 6px; }
@@ -1459,8 +1467,8 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
 .kiss-top, .kiss-bottom { fill: #ff6f9a; stroke: #d94a78; stroke-width: 1; stroke-linejoin: round; }
 .kiss-shine { fill: none; stroke: #ffd0de; stroke-width: 1.2; stroke-linecap: round; }
 /* the frog's tongue (tongueGrab in app-toy.js): starts at the mouth and turns towards the toy, which covers its tip */
-.frog-tongue { position: absolute; left: 50%; bottom: 15.5px; height: 7px; width: 0; transform-origin: 0 50%; box-sizing: border-box; border: 1.6px solid var(--prop-ink); border-radius: 4px; background: #f47f9c; z-index: 2; pointer-events: none; }
-.frog-tongue::after { content: ""; position: absolute; right: -5px; top: 50%; width: 11px; height: 11px; margin-top: -5.5px; box-sizing: border-box; border: 1.6px solid var(--prop-ink); border-radius: 50%; background: #f47f9c; }
+.frog-tongue { position: absolute; left: 50%; bottom: 15.5px; height: 7px; width: 0; transform-origin: 0 50%; box-sizing: border-box; border: 1.6px solid var(--prop-ink); border-left: 0; border-radius: 0 4px 4px 0; background: var(--pet-tongue); z-index: 2; pointer-events: none; }
+.frog-tongue::after { content: ""; position: absolute; right: -5px; top: 50%; width: 11px; height: 11px; margin-top: -5.5px; box-sizing: border-box; border: 1.6px solid var(--prop-ink); border-radius: 50%; background: var(--pet-tongue); }
 .frog-tongue[hidden] { display: none; }
 
 /* bedtime (app-bedtime.js): at night a pendant lamp hangs top right and lights up the room around it; it is
@@ -1919,3 +1927,13 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 .pet[data-state="sleepy"]:not(.hop) :is(.foot-r, .shoe-r) { animation: twitch 6.5s ease-in-out infinite; }
 .pet[data-state="sleepy"]:not(.hop) :is(.foot-l, .shoe-l) { animation: twitch 8s ease-in-out 2.4s infinite; }
 
+
+/* the to-do list (app-todo.js): no cart, receipt or bag, and a ticked task earns a check-mark stamp instead of being eaten */
+html[data-list="todo"] .cart, html[data-list="todo"] .receipt, html[data-list="todo"] .cart-bag { display: none !important; }
+.list-area.list-swap { animation: list-swap .38s ease-out; }
+@keyframes list-swap { 0% { opacity: .15; transform: translateY(10px); } 100% { opacity: 1; transform: none; } }
+.task-stamp { position: fixed; left: 0; top: 0; z-index: 40; width: 44px; height: 44px; pointer-events: none; }
+.task-stamp svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.task-stamp circle { fill: #9bdcb4; stroke: var(--prop-ink); stroke-width: 2.4; }
+.task-stamp .stamp-ring { fill: none; stroke: #fff; stroke-width: 1.3; stroke-dasharray: 2.4 3; opacity: .85; }
+.task-stamp path { fill: none; stroke: #fff; stroke-width: 4.6; stroke-linecap: round; stroke-linejoin: round; }

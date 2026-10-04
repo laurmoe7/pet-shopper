@@ -19,7 +19,8 @@
 <div class="app">
   <header class="scene" id="scene">
     <div class="scene-bar">
-      <h1 class="brand"><span class="pet-name" id="brandName">Nibble</span><span class="brand-sub">'s list</span></h1>
+      <!-- tap the title to swap between the shopping list and the to-do list (app-todo.js) -->
+      <h1 class="brand" id="brand" role="button" tabindex="0" aria-label="Switch between the shopping list and the to-do list"><span class="pet-name" id="brandName">Nibble</span><span class="brand-sub" id="brandSub">'s <span class="brand-kind" id="brandKind">shopping list</span></span><svg class="brand-swap" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h9.5M9.5 3 12.5 6 9.5 9M13 11H3.5M6.5 8 3.5 11l3 3"/></svg></h1>
       <div class="scene-tools">
         <button class="pill-btn gear-btn" id="optionsBtn" type="button" aria-label="Options"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 2.6h3.4l.5 2.6c.6.2 1.2.5 1.7.9l2.5-.9 1.7 2.9-2 1.7c.1.6.1 1.3 0 1.9l2 1.7-1.7 2.9-2.5-.9c-.5.4-1.1.7-1.7.9l-.5 2.6h-3.4l-.5-2.6c-.6-.2-1.2-.5-1.7-.9l-2.5.9-1.7-2.9 2-1.7c-.1-.6-.1-1.3 0-1.9l-2-1.7 1.7-2.9 2.5.9c.5-.4 1.1-.7 1.7-.9z"/><circle cx="12" cy="11.6" r="3"/></svg></button>
       </div>
@@ -595,7 +596,7 @@
 
   <main class="list-area">
     <form class="add" id="addForm" autocomplete="off">
-      <label class="visually-hidden" for="addInput">Add an item</label>
+      <label class="visually-hidden" for="addInput" id="addLabel">Add an item</label>
       <input id="addInput" name="item" type="text" placeholder="Add an item, like bananas" enterkeyhint="done" maxlength="80">
       <span class="add-preview" id="addPreview" aria-hidden="true"></span>
       <button type="submit" class="add-btn" aria-label="Add item">Add</button>
@@ -611,13 +612,13 @@
 
     <section class="eaten" id="eatenSection" hidden>
       <div class="eaten-head">
-        <h2>Bought <span id="eatenCount" class="count"></span></h2>
+        <h2><span id="eatenTitle">Bought</span> <span id="eatenCount" class="count"></span></h2>
         <button type="button" class="text-btn" id="clearBtn">Clear list</button>
       </div>
       <ul class="items" id="done" aria-label="Bought"></ul>
     </section>
 
-    <p class="hint">Tap an item's emoji, or long-press the item, to pick a different one.</p>
+    <p class="hint" id="listHint">Tap an item's emoji, or long-press the item, to pick a different one.</p>
     <p class="credit">Emoji by <a href="https://openmoji.org/" target="_blank" rel="noopener">OpenMoji</a>, CC BY-SA 4.0</p>
   </main>
 
@@ -764,6 +765,7 @@
 </dialog>
 
 <script src="foods.js"></script>
+<script src="tasks.js"></script>
 <script src="logic.js"></script>
 <script src="achievements.js"></script>
 <script src="wardrobe.js"></script>
@@ -779,6 +781,7 @@
 <script src="app-room.js"></script>
 <script src="app-goals.js"></script>
 <script src="app-events.js"></script>
+<script src="app-todo.js"></script>
 <script src="app-personality.js"></script>
 <script src="app-favourites.js"></script>
 <script src="app-petting.js"></script>

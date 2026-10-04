@@ -3,6 +3,7 @@
 'use strict';
 
 // ---------- start: Nibble wakes up with a stretch ----------
+applyListMode();
 render();
 var wakeState = baseState();
 if (wakeState !== 'sleepy') {
