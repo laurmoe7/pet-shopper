@@ -68,7 +68,7 @@
     if (o.hat === 'hoodie') { o.body = 'hoodie'; o.hat = 'none'; }    // the hoodie moved from hats to clothes
     if (o.hat === 'mintphones') o.hat = 'headphones';               // the mint phones were removed
     if (o.feet === 'heels') o.feet = 'featherslides';                  // heels became feather slides
-    if (o.neck === 'silkscarf') o.neck = 'none';                      // the silk scarf was removed
+    if (o.neck === 'silkscarf' || o.neck === 'choker') o.neck = 'none'; // the silk scarf and the choker were removed
     if (o.neck === 'toast' || o.neck === 'mustache') {               // these moved from neck to mouth
       if (o.mouth === 'none') o.mouth = o.neck;
       o.neck = 'none';
@@ -118,7 +118,7 @@
     var species = saved.species || 'mochi';
     var skin = typeof saved.skin === 'string' ? saved.skin : '';
     if (skin === 'syrian') skin = 'longhair';
-    if (skin === 'yak') skin = '';   // the yak skin was removed in build 117
+    if (skin === 'yak' || skin === 'lionhead') skin = '';   // removed skins (build 117 and 119)
     if (species === 'chick') species = 'birdie';
     else if (species === 'penguin') { species = 'birdie'; skin = 'penguin'; }
     return {

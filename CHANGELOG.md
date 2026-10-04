@@ -2,6 +2,18 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 119 (4 Oct)
+- Leaf and hay flop downwards.
+- Choker and Lionhead bunny removed.
+- Cairn terrier eyebrows mirror.
+- Pig ears a little higher.
+- Scottish fold ears redone.
+- Tabby stripes reach the edge and come further in.
+- Strawberry dress flares a little.
+- Neckwear sits over clothes.
+- Glasses fit the animals' eyes.
+- New: face bandage.
+
 ## Build 118 (4 Oct)
 - New skins: Lionhead and Himalayan bunnies, cairn terrier.
 - Potbelly pig gets chubby jowls.

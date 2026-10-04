@@ -104,7 +104,7 @@
               <g data-sp="hedgehog">
                 <g class="hog-spines"><path d="M13.3 95.6 Q0.0 83.8 15.4 84.3 L20.2 85.7 L18.3 96.1 Z"/><path d="M15.4 84.3 Q5.1 70.6 19.4 73.6 L23.9 75.7 L20.2 85.7 Z"/><path d="M19.4 73.6 Q10.3 57.4 25.3 63.7 L29.3 66.6 L23.9 75.7 Z"/><path d="M25.3 63.7 Q20.4 47.1 32.9 55.1 L36.3 58.8 L29.3 66.6 Z"/><path d="M32.9 55.1 Q31.5 38.3 42.0 48.1 L44.7 52.4 L36.3 58.8 Z"/><path d="M42.0 48.1 Q43.0 29.6 52.3 43.0 L54.1 47.6 L44.7 52.4 Z"/><path d="M52.3 43.0 Q55.5 22.1 63.3 39.7 L64.3 44.6 L54.1 47.6 Z"/><path d="M63.3 39.7 Q69.9 20.3 74.7 38.2 L75.0 43.2 L64.3 44.6 Z"/><path d="M74.7 38.2 Q84.0 20.0 86.2 38.2 L85.8 43.2 L75.0 43.2 Z"/><path d="M86.2 38.2 Q97.4 24.6 97.5 39.9 L96.4 44.7 L85.8 43.2 Z"/><path d="M97.5 39.9 Q111.3 26.4 108.5 43.3 L106.6 47.9 L96.4 44.7 Z"/><path d="M108.5 43.3 Q123.7 33.8 118.7 48.6 L116.0 52.8 L106.6 47.9 Z"/><path d="M118.7 48.6 Q135.0 42.7 127.7 55.7 L124.2 59.3 L116.0 52.8 Z"/><path d="M127.7 55.7 Q144.6 53.2 135.2 64.4 L131.1 67.3 L124.2 59.3 Z"/><path d="M135.2 64.4 Q152.8 64.8 141.0 74.3 L136.4 76.4 L131.1 67.3 Z"/><path d="M141.0 74.3 Q162.1 76.5 144.8 85.1 L140.0 86.4 L136.4 76.4 Z"/><path d="M144.8 85.1 Q164.7 91.0 146.8 96.4 L141.8 96.9 L140.0 86.4 Z"/></g>
               </g>
-              <g data-sp="pig">
+              <g data-sp="pig" transform="translate(0 -4)">
                 <g class="ear-g ear-l">
                   <path class="ear" d="M44 54 C38 40 42 30 49 33 C57 37 63 43 66 47 C59 50 52 53 44 54Z"/>
                   <path class="ear-in" d="M48 48 C46 41 48 37 51 39 C55 41 58 44 59 46 C55 47 52 48 48 48Z"/>
@@ -116,19 +116,10 @@
               </g>
               <!-- the Scottish fold's ears: small and round, the tips folded forward -->
               <g data-sk="scottishfold" class="fold-ears">
-                <g class="ear-g ear-l">
-                  <path class="ear" d="M33 60 C29 42 38 27 53 26 C66 25 75 35 74 49 Z"/>
-                  <path class="ear-flap" d="M36 42 C37 32 46 27 55 28 C64 29 70 35 70 42 C66 44 62 47 59 52 C55 46 46 42 36 42 Z"/>
-                  <path class="ear-crease" d="M39 39 C46 33 58 32 66 38"/>
-                </g>
-                <g class="ear-g ear-r">
-                  <path class="ear" d="M 127 60 C 131 42 122 27 107 26 C 94 25 85 35 86 49Z"/>
-                  <path class="ear-flap" d="M 124 42 C 123 32 114 27 105 28 C 96 29 90 35 90 42 C 94 44 98 47 101 52 C 105 46 114 42 124 42Z"/>
-                  <path class="ear-crease" d="M 121 39 C 114 33 102 32 94 38"/>
-                </g>
+                <g class="ear-g ear-l"><path class="ear" d="M34 60 C31 45 40 32 53 31 C64 30 72 38 72 49 Z"/></g>
+                <g class="ear-g ear-r"><path class="ear" d="M 126 60 C 129 45 120 32 107 31 C 96 30 88 38 88 49Z"/></g>
               </g>
               <!-- skins: parts drawn behind the body -->
-              <g data-sk="lionhead" class="mane"><circle cx="15.6" cy="84.9" r="10.5"/><circle cx="22.0" cy="71.0" r="10.5"/><circle cx="31.8" cy="58.9" r="10.5"/><circle cx="44.5" cy="49.4" r="10.5"/><circle cx="59.3" cy="43.0" r="10.5"/><circle cx="75.3" cy="40.2" r="10.5"/><circle cx="91.6" cy="40.9" r="10.5"/><circle cx="107.3" cy="45.4" r="10.5"/><circle cx="121.2" cy="53.1" r="10.5"/><circle cx="132.8" cy="63.8" r="10.5"/><circle cx="141.2" cy="76.8" r="10.5"/></g>
               <g data-sk="cairn" class="up-ears">
                 <g class="ear-g ear-l">
                   <path class="ear" d="M42 58 C40 46 42 32 48 24 C56 30 64 38 70 46 Z"/>
@@ -263,7 +254,7 @@
               </g>
               <g data-sk="tabby orangecat" class="tabby">
                 <ellipse class="tabby-muzzle" cx="80" cy="104" rx="22" ry="13"/>
-                <g class="tabby-stripes" clip-path="url(#bodyClip)"><path transform="translate(14 78) rotate(6)" d="M0 -3.6 C6.8 -3.6 12.0 -1.6 15 0 C12.0 1.6 6.8 3.6 0 3.6 C-2.5 3.6 -2.5 -3.6 0 -3.6 Z"/><path transform="translate(146 78) rotate(174)" d="M0 -3.6 C6.8 -3.6 12.0 -1.6 15 0 C12.0 1.6 6.8 3.6 0 3.6 C-2.5 3.6 -2.5 -3.6 0 -3.6 Z"/><path transform="translate(14 90) rotate(-2)" d="M0 -3.0 C5.4 -3.0 9.6 -1.4 12 0 C9.6 1.4 5.4 3.0 0 3.0 C-2.1 3.0 -2.1 -3.0 0 -3.0 Z"/><path transform="translate(146 90) rotate(182)" d="M0 -3.0 C5.4 -3.0 9.6 -1.4 12 0 C9.6 1.4 5.4 3.0 0 3.0 C-2.1 3.0 -2.1 -3.0 0 -3.0 Z"/><path transform="translate(22 118) rotate(-22)" d="M0 -3.2 C5.9 -3.2 10.4 -1.4 13 0 C10.4 1.4 5.9 3.2 0 3.2 C-2.2 3.2 -2.2 -3.2 0 -3.2 Z"/><path transform="translate(138 118) rotate(202)" d="M0 -3.2 C5.9 -3.2 10.4 -1.4 13 0 C10.4 1.4 5.9 3.2 0 3.2 C-2.2 3.2 -2.2 -3.2 0 -3.2 Z"/><path transform="translate(80 41) rotate(90)" d="M0 -3.0 C5.4 -3.0 9.6 -1.4 12 0 C9.6 1.4 5.4 3.0 0 3.0 C-2.1 3.0 -2.1 -3.0 0 -3.0 Z"/><path transform="translate(69 44) rotate(100)" d="M0 -2.6 C4.5 -2.6 8.0 -1.2 10 0 C8.0 1.2 4.5 2.6 0 2.6 C-1.8 2.6 -1.8 -2.6 0 -2.6 Z"/><path transform="translate(91 44) rotate(80)" d="M0 -2.6 C4.5 -2.6 8.0 -1.2 10 0 C8.0 1.2 4.5 2.6 0 2.6 C-1.8 2.6 -1.8 -2.6 0 -2.6 Z"/></g>
+                <g class="tabby-stripes" clip-path="url(#bodyClip)"><path transform="translate(6 77) rotate(6)" d="M0 -3.8 C10.8 -3.8 19.2 -1.7 24 0 C19.2 1.7 10.8 3.8 0 3.8 C-2.7 3.8 -2.7 -3.8 0 -3.8 Z"/><path transform="translate(154 77) rotate(174)" d="M0 -3.8 C10.8 -3.8 19.2 -1.7 24 0 C19.2 1.7 10.8 3.8 0 3.8 C-2.7 3.8 -2.7 -3.8 0 -3.8 Z"/><path transform="translate(6 90) rotate(-2)" d="M0 -3.2 C9.0 -3.2 16.0 -1.4 20 0 C16.0 1.4 9.0 3.2 0 3.2 C-2.2 3.2 -2.2 -3.2 0 -3.2 Z"/><path transform="translate(154 90) rotate(182)" d="M0 -3.2 C9.0 -3.2 16.0 -1.4 20 0 C16.0 1.4 9.0 3.2 0 3.2 C-2.2 3.2 -2.2 -3.2 0 -3.2 Z"/><path transform="translate(12 120) rotate(-22)" d="M0 -3.4 C9.0 -3.4 16.0 -1.5 20 0 C16.0 1.5 9.0 3.4 0 3.4 C-2.4 3.4 -2.4 -3.4 0 -3.4 Z"/><path transform="translate(148 120) rotate(202)" d="M0 -3.4 C9.0 -3.4 16.0 -1.5 20 0 C16.0 1.5 9.0 3.4 0 3.4 C-2.4 3.4 -2.4 -3.4 0 -3.4 Z"/><path transform="translate(80 30) rotate(90)" d="M0 -3.2 C10.8 -3.2 19.2 -1.4 24 0 C19.2 1.4 10.8 3.2 0 3.2 C-2.2 3.2 -2.2 -3.2 0 -3.2 Z"/><path transform="translate(68 32) rotate(100)" d="M0 -2.8 C9.0 -2.8 16.0 -1.3 20 0 C16.0 1.3 9.0 2.8 0 2.8 C-2.0 2.8 -2.0 -2.8 0 -2.8 Z"/><path transform="translate(92 32) rotate(80)" d="M0 -2.8 C9.0 -2.8 16.0 -1.3 20 0 C16.0 1.3 9.0 2.8 0 2.8 C-2.0 2.8 -2.0 -2.8 0 -2.8 Z"/></g>
                 <path class="skin-outline" d="M80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 Z"/>
               </g>
               <g data-sk="calico" class="calico">
@@ -325,7 +316,13 @@
               <g data-sk="cairn" class="cairn">
                 <!-- a scruffy beard and bushy brows -->
                 <path class="cairn-beard" d="M52 100 C52 92 64 89 80 89 C96 89 108 92 108 100 C110 108 106 114 104 118 L100 114 L97 120 L92 115 L88 122 L84 116 L80 123 L76 116 L72 122 L68 115 L63 120 L60 114 L56 118 C54 114 50 108 52 100 Z"/>
-                <path class="cairn-brow" d="M50 82 l3 -5 l3 3 l3 -5 l3 4 l3 -4 M98 81 l3 -4 l3 4 l3 -5 l3 3 l3 -5"/>
+                <path class="cairn-brow" d="M50 82 L53 77 L56 80 L59 75 L62 79 L65 75 M110 82 L107 77 L104 80 L101 75 L98 79 L95 75"/>
+              </g>
+
+              <!-- the Scottish fold's folded ear tips hang forward over the edge of the head -->
+              <g data-sk="scottishfold" class="fold-tips">
+                <path class="ear fold-tip" d="M37 45 C40 37 48 33 56 34 C64 35 69 40 69 46 C61 47 51 50 42 57 C38 54 36.6 50 37 45 Z"/><path class="ear-crease" d="M41 43 C46 38 55 37 63 40"/>
+                <path class="ear fold-tip" d="M 123 45 C 120 37 112 33 104 34 C 96 35 91 40 91 46 C 99 47 109 50 118 57 C 122 54 123.4 50 123 45Z"/><path class="ear-crease" d="M 119 43 C 114 38 105 37 97 40"/>
               </g>
 
               <!-- species parts drawn on top of the body -->
@@ -457,6 +454,8 @@
               <!-- hats are drawn at a slightly bigger scale, centred on the top of the head -->
               <!-- full-size outfits such as hoodies cover the whole pet -->
               <g class="outfit-body"></g>
+              <!-- with clothes on, neckwear moves here so it sits over the clothes -->
+              <g class="outfit-neck-over"></g>
               <!-- glasses sit over the eyes, alongside any hat -->
               <g class="outfit-face"></g>
               <!-- neckwear held in the mouth (toast) sits in front of the face -->

@@ -219,10 +219,13 @@ function boa() {
       // with long ties, a big ruffled hem and puff sleeves (sleeves: the arms are drawn pink with the hand peeking out)
       sleeves: true,
       svg: '<g class="dress-berry">' +
-        '<path class="dress-tulle" d="M15 106 Q46 107.6 66 111.4 L80 121 L94 111.4 Q114 107.6 145 106 C146 130 119 140.6 80 140.6 C41 140.6 14 130 15 106 Z"/>' +
+        '<path class="dress-tulle" d="M15 106 Q46 107.6 66 111.4 L80 121 L94 111.4 Q114 107.6 145 106 C147 117 151 127 151.4 134 Q117 145.4 80 144.6 Q43 145.4 8.6 134 C9 127 13 117 15 106 Z"/>' +
         '<g transform="rotate(-12 26 113)"><path class="sb-berry" d="M26 110.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M23.4 111 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(10 42 116)"><path class="sb-berry" d="M42 113.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M39.4 114 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(-6 58 119)"><path class="sb-berry" d="M58 116.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M55.4 117 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(8 102 119)"><path class="sb-berry" d="M102 116.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M99.4 117 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(-10 118 116)"><path class="sb-berry" d="M118 113.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M115.4 114 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(12 134 113)"><path class="sb-berry" d="M134 110.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M131.4 111 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(6 32 124)"><path class="sb-berry" d="M32 121.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M29.4 122 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(-14 50 127)"><path class="sb-berry" d="M50 124.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M47.4 125 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(10 68 128)"><path class="sb-berry" d="M68 125.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M65.4 126 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(-8 92 128)"><path class="sb-berry" d="M92 125.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M89.4 126 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(6 110 127)"><path class="sb-berry" d="M110 124.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M107.4 125 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(-6 128 124)"><path class="sb-berry" d="M128 121.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M125.4 122 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(4 42 134.6)"><path class="sb-berry" d="M42 132.2 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M39.4 132.6 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(-10 80 132)"><path class="sb-berry" d="M80 129.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M77.4 130 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(8 118 134.6)"><path class="sb-berry" d="M118 132.2 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M115.4 132.6 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(-4 60 136.4)"><path class="sb-berry" d="M60 134.0 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M57.4 134.4 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(10 100 136.4)"><path class="sb-berry" d="M100 134.0 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M97.4 134.4 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g>' +
+        // the skirt flares out a little past the body, so the ruffled hem sits lower and wider
+        '<g transform="translate(80 3) scale(1.07 1.02) translate(-80 0)">' +
         '<path class="dress-ruffle" d="M17.6 113.8 L22.7 120.6 L30.3 126.1 L40.0 130.3 L51.7 133.3 L65.1 135.0 L80.0 135.6 L94.9 135.0 L108.3 133.3 L120.0 130.3 L129.7 126.1 L137.3 120.6 L142.4 113.8 L142.4 119.8 Q139.8 126.0 137.3 126.6 Q133.5 132.2 129.7 132.1 Q124.9 137.0 120.0 136.3 Q114.2 140.6 108.3 139.3 Q101.6 143.0 94.9 141.0 Q87.5 144.1 80.0 141.6 Q72.5 144.1 65.1 141.0 Q58.4 143.0 51.7 139.3 Q45.8 140.6 40.0 136.3 Q35.1 137.0 30.3 132.1 Q26.5 132.2 22.7 126.6 Q20.2 126.0 17.6 119.8 Z"/>' +
         '<path class="dress-fold" d="M22.7 120.9 q.3 2.2 0 4.4 M40.0 130.6 q.3 2.2 0 4.4 M65.1 135.3 q.3 2.2 0 4.4 M94.9 135.3 q.3 2.2 0 4.4 M120.0 130.6 q.3 2.2 0 4.4 M137.3 120.9 q.3 2.2 0 4.4"/>' +
+        '</g>' +
         '<path class="dress-trim" d="M16.6 107.2 Q46 108.8 66.4 112.6 L80 122.2 L93.6 112.6 Q114 108.8 143.4 107.2"/>' +
         '<path class="dress-bow" d="M80 121.4 c-3 -3.6 -8 -3.6 -7.4 -.6 c.4 2.2 4.4 2.2 7.4 .6 Z M80 121.4 c3 -3.6 8 -3.6 7.4 -.6 c-.4 2.2 -4.4 2.2 -7.4 .6 Z"/><path class="dress-tie" d="M79.2 122.4 C77.4 126 76 129.4 74.6 133 M80.8 122.4 C82.6 126 84 129.4 85.4 133"/><circle class="dress-bow" cx="80" cy="121.4" r="1.5"/>' +
         '</g>'
@@ -409,37 +412,26 @@ function boa() {
         '</g>'
     },
     {
-      id: 'choker', slot: 'neck', label: 'Y2K choker', icon: '36 104 88 36',
-      lines: ['so 2002!', "that's hot", 'totally iconic'],
-      // a black velvet band with little rhinestones and a pink heart charm
-      svg: '<g class="neck-choker">' +
-        '<path class="choker-band" d="M40 110.6 Q80 126.6 120 110.6 L119.2 115.8 Q80 132 40.8 115.8 Z"/>' +
-        '<path class="choker-gems" d="M52 117.2 h.1 M64 121 h.1 M96 121 h.1 M108 117.2 h.1"/>' +
-        '<path class="choker-ring" d="M80 124 v3"/>' +
-        '<path class="choker-heart" d="M80 135.4 C74 131.4 73.4 127.6 76 126.6 C77.8 126 79.2 127 80 128.4 C80.8 127 82.2 126 84 126.6 C86.6 127.6 86 131.4 80 135.4 Z"/>' +
-        '<path class="choker-shine" d="M76.6 128.6 q.6 -.8 1.4 -.6"/>' +
-        '</g>'
-    },
-    {
       id: 'leaf', slot: 'mouth', label: 'Leaf in mouth', icon: '66 86 50 32',
       lines: ['nom… leafy', 'very natural', 'crunchy greens!'],
+      // a leaf held by its stem at the side of the mouth, flopping down
       svg: '<g class="mouth-leaf">' +
-        '<path class="leaf-stem" d="M78 106.6 Q82 105 86 102.6"/>' +
-        '<path class="leaf-blade" d="M85 103 C90 94 101 90 111 92 C109 100 99 107 85 103 Z"/>' +
-        '<path class="leaf-vein" d="M86.4 102.4 Q97 98.4 108 93.4 M93 100 l1.6 -4 M99 97.6 l2.6 -3.4 M95 99.4 l3.6 1.2 M101.4 96.8 l3.4 1"/>' +
+        '<path class="leaf-stem" d="M78.6 106.6 Q84.6 105.4 88 108.4"/>' +
+        '<path class="leaf-blade" d="M87.4 107.6 C95.4 105.8 101.4 112.6 100.2 121.6 C99.6 126.2 97.4 129.4 94.2 133.4 C92.6 130.4 89.6 127.4 88 122.4 C86.4 117.6 85.8 112.4 87.4 107.6 Z"/>' +
+        '<path class="leaf-vein" d="M88.6 109.6 C93.4 115 95.4 122 94.4 131.4 M93.2 116.6 l3.6 -2 M94.6 122.2 l3.8 -1.4 M92.4 120.2 l-3 -1.6 M93.6 126.4 l-2.8 -1.4"/>' +
         '</g>'
     },
     {
       id: 'hay', slot: 'mouth', label: 'Hay in mouth', icon: '66 82 56 32',
       lines: ['yeehaw…', 'just chillin', 'farm life'],
-      // a stalk of straw with a little seed head, chewed like a farmer
+      // a stalk of straw chewed like a farmer, bending down under its little seed head
       svg: '<g class="mouth-hay">' +
-        '<path class="hay-line" d="M76 106.6 Q94 101 112 90 M98 99 Q104 98.4 108 96"/>' +
-        '<path class="hay-stalk" d="M76 106.6 Q94 101 112 90"/>' +
-        '<path class="hay-stalk hay-thin" d="M98 99 Q104 98.4 108 96"/>' +
-        '<g class="hay-seeds"><ellipse cx="112.6" cy="89.4" rx="3.4" ry="1.7" transform="rotate(-32 112.6 89.4)"/>' +
-        '<ellipse cx="114.4" cy="85.4" rx="3" ry="1.5" transform="rotate(-62 114.4 85.4)"/>' +
-        '<ellipse cx="116.6" cy="90" rx="3" ry="1.5" transform="rotate(-8 116.6 90)"/></g>' +
+        '<path class="hay-line" d="M77 106.6 Q91 102.4 99 109.4 Q104.4 114.6 105.6 124 M95 106 Q100.6 104.6 104 107.4"/>' +
+        '<path class="hay-stalk" d="M77 106.6 Q91 102.4 99 109.4 Q104.4 114.6 105.6 124"/>' +
+        '<path class="hay-stalk hay-thin" d="M95 106 Q100.6 104.6 104 107.4"/>' +
+        '<g class="hay-seeds"><ellipse cx="105.8" cy="127.4" rx="1.7" ry="3.4" transform="rotate(-6 105.8 127.4)"/>' +
+        '<ellipse cx="103.2" cy="130" rx="1.5" ry="3" transform="rotate(24 103.2 130)"/>' +
+        '<ellipse cx="108.4" cy="130.2" rx="1.5" ry="3" transform="rotate(-30 108.4 130.2)"/></g>' +
         '</g>'
     },
     {
@@ -619,6 +611,16 @@ function boa() {
         '<path class="round-bridge" d="M70.4 90 Q80 85.6 89.6 90"/>' +
         '<path class="round-shine" d="M49.6 87.4 Q51.4 83.6 55.4 82.6 M93.6 87.4 Q95.4 83.6 99.4 82.6"/>' +
         '<path class="round-shine" d="M52.4 99 Q55 101.6 58.8 101.8 M96.4 99 Q99 101.6 102.8 101.8" style="opacity:.35"/>' +
+        '</g>'
+    },
+    {
+      id: 'bandage', slot: 'face', label: 'Face bandage', icon: '92 88 40 32',
+      lines: ['tough cookie!', "it doesn't even hurt", 'battle scar!'],
+      // a little sticking plaster across one cheek
+      svg: '<g class="face-bandage" transform="translate(116 101) rotate(-32)">' +
+        '<rect class="band-strip" x="-12.5" y="-4.6" width="25" height="9.2" rx="4.6"/>' +
+        '<rect class="band-pad" x="-4.6" y="-3.4" width="9.2" height="6.8" rx="1.4"/>' +
+        '<path class="band-holes" d="M-9 -1.4 h.1 M-9 1.4 h.1 M9 -1.4 h.1 M9 1.4 h.1 M-2 -1 h.1 M2 1 h.1"/>' +
         '</g>'
     },
     {

@@ -28,6 +28,9 @@ function dressUp(el, outfit) {
     var w = wardrobeItem(outfit[slot]);
     el.querySelector('.outfit-' + slot).innerHTML = w ? w.svg : '';
   });
+  // with clothes on, neckwear is drawn over them instead of under the face
+  var neck = el.querySelector('.outfit-neck'), over = el.querySelector('.outfit-neck-over');
+  if (clothes && over) { over.innerHTML = neck.innerHTML; neck.innerHTML = ''; } else if (over) over.innerHTML = '';
   el.classList.toggle('hooded', hood);
   el.classList.toggle('snug', !!(item && item.snug));
   el.classList.toggle('shod', !!wardrobeItem(outfit.feet)); // shoes replace the pet's own feet

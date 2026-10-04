@@ -38,7 +38,6 @@
     { id: 'potbelly', base: 'pig', label: 'Potbelly pig' },
     { id: 'floppybunny', base: 'bunny', label: 'Floppy ears' },
     { id: 'dutch', base: 'bunny', label: 'Dutch' },
-    { id: 'lionhead', base: 'bunny', label: 'Lionhead' },
     { id: 'himalayan', base: 'bunny', label: 'Himalayan' },
     { id: 'dartfrog', base: 'frog', label: 'Poison dart frog' },
     { id: 'toad', base: 'frog', label: 'Toad' },
