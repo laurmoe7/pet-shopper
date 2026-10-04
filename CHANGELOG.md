@@ -2,6 +2,14 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 128 (4 Oct)
+- Up late shopping: tired, heavy-lidded eyes.
+- Sleepy moves far more often at night.
+- No longer tucked in by itself at night.
+- After a late shop: lamp off and tuck it in again.
+- Checking something off wakes it with a quick start.
+- Adding items while it sleeps: only a mumble.
+
 ## Build 127 (4 Oct)
 - New empty-list line at night.
 - Gentle crickets at night.

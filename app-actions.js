@@ -169,6 +169,8 @@ function addItem(text) {
   freshIds[item.id] = true;
   save();
   render();
+  // asleep, it doesn't wake up for this: it only mumbles in its sleep
+  if (baseState() === 'sleepy') { pulse('rocksmall', 1300); say(pick(['for me…', 'mm… yum…', 'snack…']), 1300); return; }
   if (!busy) {
     pulse('hop', 460);
     var face = isBagged(item) ? null : FACES.catching;
@@ -231,6 +233,7 @@ function toggle(id) {
   state.items = result.items;
   freshIds[item.id] = true;
   var now = new Date(), goals = null;
+  var wasAsleep = item.done && baseState() === 'sleepy' && L.isNight(petNow());
   if (item.done) {
     state.pet.dozing = ''; // a snack wakes it up
     goals = creditEaten(item, now);
@@ -254,7 +257,12 @@ function toggle(id) {
   buzz(12);
   save();
   render();
-  if (item.done) eat(item, fromRect, goals);
+  if (item.done && wasAsleep && !reduceMotion) {
+    // asleep: it wakes with a start first, then eats
+    busy++;
+    var ms = wakeForSnack();
+    setTimeout(function () { busy--; eat(item, fromRect, goals); }, ms);
+  } else if (item.done) eat(item, fromRect, goals);
   else spitBack(item);
 }
 

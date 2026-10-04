@@ -283,8 +283,8 @@ function idleMove() {
   var moves = IDLE_MOVES.filter(function (m) { return m.moods.indexOf(mood) !== -1; });
   // walking moves (they return how long they take) only when nothing is left to buy
   moves = moves.filter(function (m) { return mayWander() || !m.walk; });
-  // sleepy moves only when it is up at night, and then half the time
-  var late = L.isNight(petNow()) && mood !== 'sleepy' && Math.random() < 0.5;
+  // sleepy moves only when it is up at night, and then most of the time
+  var late = L.isNight(petNow()) && mood !== 'sleepy' && Math.random() < 0.85;
   moves = moves.filter(function (m) { return !!m.night === late; });
   if (!moves.length) return;
   busy++;

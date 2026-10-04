@@ -378,6 +378,11 @@ button { font: inherit; color: inherit; }
 @keyframes eye-wide { 0% { scale: 1 1; } 16% { scale: 1.38 1.6; } 28% { scale: 1.28 1.45; } 78% { scale: 1.28 1.45; } 100% { scale: 1 1; } }
 @keyframes eye-squint { 0% { scale: 1 1; } 18% { scale: 1.15 .32; } 26% { scale: 1.12 .42; } 80% { scale: 1.12 .42; } 100% { scale: 1 1; } }
 @media (prefers-reduced-motion: reduce) { .pet:is(.eyewide, .eyesquint) .eye-set :is(.eye-l, .eye-r) { animation: none; } }
+/* tired eyes when it's up late at night (settle in app-pet.js): the open eyes half-closed under heavy lids */
+.tired-lid { display: none; fill: none; stroke: var(--outline); stroke-width: 2.2; stroke-linecap: round; }
+.pet.tired .tired-lid { display: inline; }
+.pet.tired .eyes-open .pupils :is(.eye-l, .eye-r) { transform-box: fill-box; transform-origin: 50% 75%; scale: 1.05 .55; }
+.pet.tired .eyes-open .glint { opacity: .5; }
 @keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
 @keyframes chew { from { transform: scaleX(1) translateY(0); } to { transform: scaleX(.75) translateY(1.5px); } }
 @keyframes zfloat { 0%, 100% { transform: translateY(0); opacity: .9; } 50% { transform: translateY(-4px); opacity: .5; } }

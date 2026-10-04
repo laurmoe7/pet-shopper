@@ -15,25 +15,48 @@ function bedtime() {
 function saveBedtime(bed) {
   try { localStorage.setItem(BED_KEY, JSON.stringify(bed)); } catch (e) { /* storage blocked */ }
 }
-/** Shows the lamp, blanket and dark room for the time and the list; wakes a tucked-in pet when it should be up. */
+var bedtimeKnown = false;
+/**
+ * Shows the lamp, blanket and dark room for the time and the list, and the tired eyes when it's up late.
+ * Each time it falls asleep (or wakes up) while the app is open, bedtime starts fresh: lamp on, not tucked in,
+ * so after a late shop you switch the lamp off and tuck it in again. Opening the app keeps tonight's bedtime.
+ */
 function refreshBedtime() {
-  var asleep = baseState() === 'sleepy', bed = bedtime();
+  var asleep = baseState() === 'sleepy';
+  var wasAsleep = stage.classList.contains('bedtime');
+  if (bedtimeKnown && asleep !== wasAsleep) {
+    try { localStorage.removeItem(BED_KEY); } catch (e) { /* storage blocked */ }
+  }
+  bedtimeKnown = true;
+  var bed = bedtime();
   var wasTucked = pet.classList.contains('tucked');
-  if (asleep && !stage.classList.contains('bedtime')) owlSoon(true);
+  if (asleep && !wasAsleep) owlSoon(true);
   stage.classList.toggle('bedtime', asleep);
   lampEl.hidden = !asleep;
   pet.classList.toggle('tucked', asleep && bed.tucked);
   stage.classList.toggle('lights-off', asleep && bed.dark);
   lampEl.setAttribute('aria-pressed', asleep && bed.dark ? 'false' : 'true');
+  pet.classList.toggle('tired', !asleep && L.isNight(petNow()));
   bedSoon();
-  // morning, or something was added to the list: up it gets, with a stretch
-  if (wasTucked && !asleep && !busy) {
+  // morning: up it gets, with a stretch (at night only a snack wakes it: wakeForSnack)
+  if (wasTucked && !asleep && !busy && !L.isNight(petNow())) {
     setFace(FACES.wake);
     pulse('stretch', 1000);
-    if (L.isNight(petNow())) talk('tuckWakeList', ['*yawn* shopping?', 'huh? a snack?'], 1500);
-    else talk('tuckMorning', ['good morning!', 'slept so well!', '*yaaawn* morning!'], 1500);
+    talk('tuckMorning', ['good morning!', 'slept so well!', '*yaaawn* morning!'], 1500);
     setTimeout(function () { if (!busy) settle(); }, 1200);
   }
+}
+/**
+ * Checking something off wakes a sleeping pet: a quick start, a stretch and a yawn before it eats.
+ * @returns {number} How long the wake-up takes, in ms (the eating waits for it).
+ */
+function wakeForSnack() {
+  setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: [] });
+  eyesDo('wide');
+  pulse('stretch', 700);
+  sound('yawn');
+  talk('snackWake', ['huh? a snack?!', '*yawn* food?', 'mm? I\'m up!'], 1100);
+  return 750;
 }
 /** Switches the lamp. */
 function setLamp(dark) {

@@ -97,6 +97,8 @@ function settle() {
   var s = baseState();
   pet.dataset.state = s;
   setFace(FACES[s]);
+  // up late shopping: tired, heavy-lidded eyes
+  pet.classList.toggle('tired', s !== 'sleepy' && L.isNight(petNow()));
 }
 /**
  * The eyes go wide (surprised) or squint (sour, suspicious) for a moment, whatever eyes the face has.
