@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 90 (4 Oct)
+- Developer tools stay open after an action (and are short again so the pet stays in view).
+- The strawberry dress is redrawn after a pink tulle dress: V neckline with a ruffle trim, little strawberries all over, a ribbon bow with long ties, a ruffled hem and puff sleeves.
+- Orange cap lines are Dutch now ("hup Holland hup!", "oranje boven!").
+- Options: no description under Light or dark, Vibration or the goal setting, which is now called Goal progress display.
+
 ## Build 89 (4 Oct)
 - Fixed arms and faces getting stuck after moves: the soft-squash function from build 83 had the same name as the one that resets the face and replaced it. A test now catches two app functions with the same name.
 - Shoes hide the pet's own feet. In a hoodie the arms are sleeves with the tip of the hand peeking out.

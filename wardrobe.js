@@ -158,7 +158,7 @@ function boa() {
         '</g>'
     },
     {
-      id: 'hoodie', slot: 'body', label: 'Cow hoodie', layer: 'body', hood: true, icon: '4 14 152 130',
+      id: 'hoodie', slot: 'body', label: 'Cow hoodie', layer: 'body', hood: true, sleeves: true, icon: '4 14 152 130',
       lines: ['moo! so cosy!', 'a cow? me?!', 'so soft and fluffy!'],
       // a white hoodie whose hood is a little cow: horns, floppy ears and spots,
       // with an opening for the face so every species shows through
@@ -183,7 +183,7 @@ function boa() {
         '</g>'
     },
     {
-      id: 'pighoodie', slot: 'body', label: 'Pig hoodie', layer: 'body', hood: true, icon: '4 14 152 130',
+      id: 'pighoodie', slot: 'body', label: 'Pig hoodie', layer: 'body', hood: true, sleeves: true, icon: '4 14 152 130',
       lines: ['oink oink!', 'in the pink!', 'snout cute!'],
       // the cow hoodie's shape in pink, with pig ears folding forward and a snout above the face opening
       svg: '<g class="hoodie hoodie-pig">' +
@@ -202,14 +202,17 @@ function boa() {
         '</g>'
     },    {
       id: 'berrydress', slot: 'body', label: 'Strawberry dress', layer: 'body', icon: '8 100 144 46',
-      lines: ['berry pretty!', 'twirl twirl!', 'sweet as can be'],
-      // a red dress over the lower body with yellow seeds and a leafy green collar, like a strawberry upside down
+      lines: ['berry pretty!', 'twirl twirl!', 'sweet as can be', 'tulle-y fabulous!'],
+      // after a pink tulle dress: V neckline with a ruffle trim, little strawberries all over, a ribbon bow
+      // with long ties, a big ruffled hem and puff sleeves (sleeves: the arms are drawn pink with the hand peeking out)
+      sleeves: true,
       svg: '<g class="dress-berry">' +
-        '<path class="berry-dress" d="M17 117 Q80 128 143 117 C142 133 119 139.6 80 139.6 C41 139.6 18 133 17 117 Z"/>' +
-        '<path class="berry-seeds" d="M36 128 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M52 133 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M70 131 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M88 134 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M104 131 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M122 128 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M44 136.5 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M80 137 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M114 135.5 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M62 136 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M97 137.4 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z M130 132 q.9 -1.6 1.8 0 q-.9 1.4 -1.8 0 Z"/>' +
-        '<path class="berry-shine" d="M28 126 Q34 132 44 134.6"/>' +
-        '<path class="berry-collar" d="M17.0 116.0 L24.2 124.4 L30.4 119.5 L36.6 126.1 L42.8 121.0 L49.0 127.4 L55.2 122.0 L61.4 128.2 L67.6 122.7 L73.8 128.6 L80.0 122.9 L86.2 128.6 L92.4 122.7 L98.6 128.2 L104.8 122.0 L111.0 127.4 L117.2 121.0 L123.4 126.1 L129.6 119.5 L135.8 124.4 L142.0 117.6 L143 116.0 Q80 126.4 17 116.0 Z"/>' +
-        '<path class="berry-bow" d="M80 124.6 l-5 -3 v6 Z M80 124.6 l5 -3 v6 Z"/><circle class="berry-bow" cx="80" cy="124.6" r="1.6"/>' +
+        '<path class="dress-tulle" d="M15 106 Q46 107.6 66 111.4 L80 121 L94 111.4 Q114 107.6 145 106 C146 130 119 140.6 80 140.6 C41 140.6 14 130 15 106 Z"/>' +
+        '<g transform="rotate(-12 26 113)"><path class="sb-berry" d="M26 110.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M23.4 111 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(10 42 116)"><path class="sb-berry" d="M42 113.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M39.4 114 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(-6 58 119)"><path class="sb-berry" d="M58 116.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M55.4 117 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(8 102 119)"><path class="sb-berry" d="M102 116.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M99.4 117 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(-10 118 116)"><path class="sb-berry" d="M118 113.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M115.4 114 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(12 134 113)"><path class="sb-berry" d="M134 110.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M131.4 111 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(6 32 124)"><path class="sb-berry" d="M32 121.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M29.4 122 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(-14 50 127)"><path class="sb-berry" d="M50 124.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M47.4 125 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(10 68 128)"><path class="sb-berry" d="M68 125.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M65.4 126 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(-8 92 128)"><path class="sb-berry" d="M92 125.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M89.4 126 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(6 110 127)"><path class="sb-berry" d="M110 124.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M107.4 125 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(-6 128 124)"><path class="sb-berry" d="M128 121.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M125.4 122 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(4 42 134.6)"><path class="sb-berry" d="M42 132.2 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M39.4 132.6 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(-10 80 132)"><path class="sb-berry" d="M80 129.6 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M77.4 130 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(8 118 134.6)"><path class="sb-berry" d="M118 132.2 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M115.4 132.6 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(-4 60 136.4)"><path class="sb-berry" d="M60 134.0 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M57.4 134.4 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g><g transform="rotate(10 100 136.4)"><path class="sb-berry" d="M100 134.0 c2.2 0 3.2 1.2 3.2 2.6 c0 2.2 -1.9 3.8 -3.2 4.6 c-1.3 -.8 -3.2 -2.4 -3.2 -4.6 c0 -1.4 1 -2.6 3.2 -2.6 Z"/><path class="sb-top" d="M97.4 134.4 l1.4 -.9 l1.2 .7 l1.2 -.7 l1.4 .9 l-1.2 .9 h-2.8 Z"/></g>' +
+        '<path class="dress-ruffle" d="M17.6 113.8 L22.7 120.6 L30.3 126.1 L40.0 130.3 L51.7 133.3 L65.1 135.0 L80.0 135.6 L94.9 135.0 L108.3 133.3 L120.0 130.3 L129.7 126.1 L137.3 120.6 L142.4 113.8 L142.4 119.8 Q139.8 126.0 137.3 126.6 Q133.5 132.2 129.7 132.1 Q124.9 137.0 120.0 136.3 Q114.2 140.6 108.3 139.3 Q101.6 143.0 94.9 141.0 Q87.5 144.1 80.0 141.6 Q72.5 144.1 65.1 141.0 Q58.4 143.0 51.7 139.3 Q45.8 140.6 40.0 136.3 Q35.1 137.0 30.3 132.1 Q26.5 132.2 22.7 126.6 Q20.2 126.0 17.6 119.8 Z"/>' +
+        '<path class="dress-fold" d="M22.7 120.9 q.3 2.2 0 4.4 M40.0 130.6 q.3 2.2 0 4.4 M65.1 135.3 q.3 2.2 0 4.4 M94.9 135.3 q.3 2.2 0 4.4 M120.0 130.6 q.3 2.2 0 4.4 M137.3 120.9 q.3 2.2 0 4.4"/>' +
+        '<path class="dress-trim" d="M16.6 107.2 Q46 108.8 66.4 112.6 L80 122.2 L93.6 112.6 Q114 108.8 143.4 107.2"/>' +
+        '<path class="dress-bow" d="M80 121.4 c-3 -3.6 -8 -3.6 -7.4 -.6 c.4 2.2 4.4 2.2 7.4 .6 Z M80 121.4 c3 -3.6 8 -3.6 7.4 -.6 c-.4 2.2 -4.4 2.2 -7.4 .6 Z"/><path class="dress-tie" d="M79.2 122.4 C77.4 126 76 129.4 74.6 133 M80.8 122.4 C82.6 126 84 129.4 85.4 133"/><circle class="dress-bow" cx="80" cy="121.4" r="1.5"/>' +
         '</g>'
     },
 
@@ -347,7 +350,7 @@ function boa() {
     },
     {
       id: 'sidecap', slot: 'hat', snug: true, label: 'Orange cap', icon: '40 12 106 42',
-      lines: ['totally rad!', 'skate time!', 'yo yo yo!'],
+      lines: ['hup Holland hup!', 'oranje boven!', 'lekker bezig!', 'gezellig!'],
       svg: '<g class="hat-sidecap">' +
         '<path class="side-bill" d="M106 40 C118 37 134 38.6 142 45 C135 50 118 50.4 104 47.6 Z"/>' +
         '<path class="side-bill-line" d="M110 42 C121 41 132 42 138 45"/>' +

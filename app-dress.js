@@ -21,6 +21,8 @@ function dressUp(el, outfit) {
   el.querySelector('.outfit-hat').innerHTML = item ? item.svg : '';
   el.querySelector('.outfit-body').innerHTML = clothes ? clothes.svg : '';
   if (hood) el.dataset.hood = clothes.id; else delete el.dataset.hood;
+  if (clothes) el.dataset.clothes = clothes.id; else delete el.dataset.clothes;
+  el.classList.toggle('sleeved', !!(clothes && clothes.sleeves)); // arms become sleeves with the hand peeking out
   // mouth things (toast, mustache) are drawn in front of the face, so they can be worn with neckwear
   ['face', 'mouth', 'neck', 'feet'].forEach(function (slot) {
     var w = wardrobeItem(outfit[slot]);
