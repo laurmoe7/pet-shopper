@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '95';
+var BUILD = '96';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -194,7 +194,7 @@ function render() {
   if (!busy) settle();
 }
 
-var cartEl = $('cart'), cartLoad = $('cartLoad'), cartBag = $('cartBag'), bagLoad = $('bagLoad'), cartCount = -1;
+var cartEl = $('cart'), cartLoad = $('cartLoad'), cartBag = $('cartBag'), bagLoad = $('bagLoad'), cartCount = -1, bagCount = -1;
 /**
  * Fills a box with emoji, only redrawing when they change.
  * @param {Element} box
@@ -208,27 +208,32 @@ function fillWith(box, items) {
 }
 /**
  * The pet's shopping cart holds the next few things still to buy, so it empties as the list gets done.
- * Things that aren't food go into the bag on its handle once ticked off (the pet doesn't eat those).
+ * Things that aren't food go into the paper bag beside the pet once ticked off (the pet doesn't eat those).
  * @param {Item[]} todo Still to buy.
  * @param {Item[]} done Ticked off.
  */
 function renderCart(todo, done) {
   var bagged = done.filter(function (i) { return i.cat === 'nonfood'; });
-  cartEl.hidden = todo.length === 0 && bagged.length === 0;
+  cartEl.hidden = todo.length === 0;
   fillWith(cartLoad, todo.slice(0, 3));
   fillWith(bagLoad, bagged.slice(-2));
   cartBag.hidden = bagged.length === 0;
-  var count = todo.length * 100 + bagged.length;
-  if (cartCount >= 0 && count !== cartCount) {
+  if (cartCount >= 0 && todo.length !== cartCount) {
     cartEl.classList.remove('bump'); void cartEl.offsetWidth; cartEl.classList.add('bump');
   }
-  cartCount = count;
+  if (bagged.length > bagCount && bagCount >= 0) {
+    cartBag.classList.remove('bump'); void cartBag.offsetWidth; cartBag.classList.add('bump');
+  }
+  cartCount = todo.length;
+  bagCount = bagged.length;
 }
-/** @returns {{x: number, y: number}} Where things that aren't food fly to: the bag on the cart, or beside the pet. */
+/** @returns {{x: number, y: number}} Where things that aren't food fly to: the top of the paper bag beside the pet. */
 function bagPoint() {
-  if (cartEl.hidden) return sidePoint();
-  var r = cartEl.getBoundingClientRect();
-  return { x: r.right + 4, y: r.top + r.height * 0.45 };
+  var hid = cartBag.hidden;
+  cartBag.hidden = false; // measure it even before the first thing goes in
+  var r = cartBag.getBoundingClientRect();
+  cartBag.hidden = hid;
+  return { x: r.left + r.width / 2, y: r.top + r.height * 0.3 };
 }
 
 /**

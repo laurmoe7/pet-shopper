@@ -30,8 +30,10 @@ function placeAddBox() {
   rootEl.style.setProperty('--add-h', addForm.offsetHeight + 'px');
   if (scrollY) scrollTo(0, 0);
 }
+// only on touch screens, where a keyboard slides up: with a real keyboard the box stays where it is
+var touchScreen = window.matchMedia && matchMedia('(pointer: coarse)').matches;
 document.addEventListener('focusin', function (e) {
-  if (!isTextBox(e.target)) return;
+  if (!touchScreen || !isTextBox(e.target)) return;
   rootEl.classList.add('typing');
   rootEl.style.setProperty('--dock-h', '0px');
   if (e.target === addInput) {
@@ -41,7 +43,7 @@ document.addEventListener('focusin', function (e) {
   }
 });
 document.addEventListener('focusout', function (e) {
-  if (!isTextBox(e.target)) return;
+  if (!touchScreen || !isTextBox(e.target)) return;
   setTimeout(function () {
     if (isTextBox(document.activeElement)) { if (document.activeElement !== addInput) rootEl.classList.remove('typing-add'); return; }
     rootEl.classList.remove('typing', 'typing-add');

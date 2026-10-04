@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 96 (4 Oct)
+- The Add box only moves above the keyboard on touch screens; with a real keyboard (a computer browser) it stays in place.
+- The paper bag for things that aren't food stands on the floor to the right of the pet, with a little shadow.
+
 ## Build 95 (4 Oct)
 - The shopping cart now holds the next things still to buy and empties as the pet eats them. Things that aren't food fly into a paper bag hanging on the cart's handle.
 - Fixed the axolotl showing two mouths at once: its wide smile now swaps with the other mouths like the frog's.
