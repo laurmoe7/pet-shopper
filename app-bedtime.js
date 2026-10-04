@@ -87,6 +87,8 @@ function fallAsleep() {
   save();
   busy++;
   grabbing = true;
+  var stow = document.documentElement.dataset.list === 'todo' && !reduceMotion;   // the clipboard goes away first
+  if (stow) { pet.classList.add('stowing'); talk('stowClip', ['all done for today…', 'clipboard away…', 'tomorrow… more notes'], 1100); }
   setFace({ eyes: 'open', mouth: 'smile', arms: 'grab', x: ['cheeks'] }); // the paw reaches out to the teddy
   talk('teddyGrab', ['teddy…', 'my teddy ♡', 'cuddle time…'], 1200);
   var reach = reduceMotion ? 0 : 700;
@@ -104,6 +106,7 @@ function fallAsleep() {
   setTimeout(function () {
     busy--;
     if (!busy) settle();
+    pet.classList.remove('stowing');
     updateEmptyHint();
     bedSoon();
   }, reach + 2400);

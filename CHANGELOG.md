@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 146 (4 Oct)
+- The teddy sits apart from him in bed.
+- He puts the clipboard away when he goes to sleep.
+
 ## Build 145 (4 Oct)
 - Speech bubble moves left at night while shopping, clear of the lamp.
 - He writes on the clipboard in bed when he isn't asleep.

@@ -1525,7 +1525,7 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
 /* the teddy (app-bedtime.js): at bedtime it sits in the bed beside the pet; falling asleep, the right paw reaches
    out to it (arms "grab") and both slide back together (same timing), so it ends up tilted under the paw */
 .pet .teddy-hug { display: none; }
-.pet.has-teddy .teddy-hug { display: inline; translate: 36px -12px; transition: translate .55s ease-in-out; }
+.pet.has-teddy .teddy-hug { display: inline; translate: 47px -10px; transition: translate .55s ease-in-out; }
 .pet.has-teddy.hugging .teddy-hug { translate: 0 0; }
 .pet.tucked .arm-r { transition: transform .55s ease-in-out, translate .55s ease-in-out; }
 .pet.tucked[data-arms="grab"] .arm-r { transform: translate(36px, -12px) rotate(-18deg); translate: -6px -4px; }
@@ -2014,3 +2014,7 @@ html[data-list="todo"] #pet.desk[data-prop="glass"]:not([data-state="sleepy"]) .
 .magnifier .mg-handle { stroke: #a8743c; stroke-width: 4; stroke-linecap: round; fill: none; }
 .magnifier .mg-lens { fill: rgba(190, 232, 255, .5); stroke: var(--prop-ink); stroke-width: 2; }
 .magnifier .mg-shine { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; opacity: .85; }
+
+/* going to sleep with the clipboard in his hand: the arm lowers and the clipboard slips down out of sight (app-bedtime.js adds .stowing) */
+html[data-list="todo"] #pet.stowing .arm-l { transform: rotate(14deg); animation: none; }
+html[data-list="todo"] #pet.stowing .clipboard { transform: translate(-30px, 34px) rotate(-60deg) scale(.55); opacity: 0; transition: transform .6s ease-in, opacity .45s .15s ease-in; }
