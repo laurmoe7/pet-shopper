@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 147 (4 Oct)
+- The teddy sits on the bed on its own and no longer moves with him.
+
 ## Build 146 (4 Oct)
 - The teddy sits apart from him in bed.
 - He puts the clipboard away when he goes to sleep.

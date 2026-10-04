@@ -27,6 +27,7 @@ var TEDDY = '<circle class="teddy-fur" cx="9" cy="8" r="5"/><circle class="teddy
   '<circle class="teddy-blush" cx="12.6" cy="19" r="1.7"/><circle class="teddy-blush" cx="27.4" cy="19" r="1.7"/>' +
   '<path class="teddy-bow" d="M20 27 l-5.4 -3.2 v6.4 z M20 27 l5.4 -3.2 v6.4 z"/><circle class="teddy-bow" cx="20" cy="27" r="1.7"/>';
 pet.querySelector('.teddy-hug').innerHTML = TEDDY;
+$('bedTeddy').querySelector('svg').innerHTML = TEDDY;
 
 var bedtimeKnown = false, wasAsleep = false;
 /** @returns {boolean} True when it is bedtime by the clock and the list: night, unless you are in the middle of shopping (items waiting on the list or tasks don't keep it up). */
@@ -87,6 +88,7 @@ function fallAsleep() {
   save();
   busy++;
   grabbing = true;
+  pet.classList.add('teddy-in');   // the teddy from the bed is now the one in his reach
   var stow = document.documentElement.dataset.list === 'todo' && !reduceMotion;   // the clipboard goes away first
   if (stow) { pet.classList.add('stowing'); talk('stowClip', ['all done for today…', 'clipboard away…', 'tomorrow… more notes'], 1100); }
   setFace({ eyes: 'open', mouth: 'smile', arms: 'grab', x: ['cheeks'] }); // the paw reaches out to the teddy
@@ -106,7 +108,7 @@ function fallAsleep() {
   setTimeout(function () {
     busy--;
     if (!busy) settle();
-    pet.classList.remove('stowing');
+    pet.classList.remove('stowing', 'teddy-in');
     updateEmptyHint();
     bedSoon();
   }, reach + 2400);
