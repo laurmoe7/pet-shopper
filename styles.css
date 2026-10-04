@@ -1205,3 +1205,9 @@ button { font: inherit; color: inherit; }
 #pet.boogie::before { animation: sh-boogie 1.5s ease-in-out; }
 #pet.shuffle::before { animation: sh-shuffle 1.5s ease-in-out; }
 #pet.peek::before { animation: sh-peek 1.4s ease-in-out; }
+
+/* rocking side to side, pivoting on the feet (a tilt of the drawing, so if a hairline ever comes back, look here first) */
+@keyframes rock { 0%, 100% { transform: rotate(0); } 16% { transform: rotate(-6deg); } 36% { transform: rotate(5deg); } 56% { transform: rotate(-3.5deg); } 76% { transform: rotate(2deg); } }
+@keyframes rocksmall { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-2.6deg); } 55% { transform: rotate(2.2deg); } 80% { transform: rotate(-1deg); } }
+.pet.rock .pet-svg { animation: rock 1.9s ease-in-out; transform-origin: 50% 94%; }
+.pet.rocksmall .pet-svg, .pet.pat .pet-svg { animation: rocksmall 1.3s ease-in-out; transform-origin: 50% 94%; }

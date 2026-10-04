@@ -100,6 +100,7 @@ var IDLE_MOVES = [
   { moods: ['curious', 'happy'], run: function () { lookAround(); } },
   { moods: ['curious', 'happy'], run: function () { setFace(FACES.dreamy); lookAround(); pulse('stroll', 3600); } },
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'open', mouth: 'smile', arms: 'idle', x: ['cheeks'] }); pulse('waddle', 1800); } },
+  { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'idle', x: ['cheeks'] }); pulse('rock', 1900); } },
   { moods: ['curious', 'happy'], run: function () { lookAround(); pulse('scoot', 1400); } },
   { moods: ['happy'], run: function () { setFace(FACES.tada); pulse('hophop', 1500); drift(['♥', '✦'], petTop(), 3); } },
   { moods: ['sleepy', 'curious', 'stuffed'], run: function () { setFace({ eyes: 'closed', mouth: 'smile', arms: 'idle', x: ['cheeks'] }); pulse('sit', 2600); } },
@@ -146,20 +147,23 @@ function lively() {
   var mood = baseState();
   if (mood === 'sleepy') return;
   var r = Math.random();
-  if (r < 0.3) {
+  if (r < 0.25) {
     // a quick glance to one side
     var side = Math.random() < 0.5 ? -3.2 : 3.2;
     pet.style.setProperty('--look-x', side + 'px');
     setTimeout(function () { if (!lookAt) { pet.style.removeProperty('--look-x'); } }, 900);
-  } else if (r < 0.55) {
+  } else if (r < 0.45) {
     // two quick blinks
     if (pet.dataset.eyes !== 'open') return;
     pet.dataset.eyes = 'closed';
     setTimeout(function () { if (pet.dataset.eyes === 'closed' && !busy) pet.dataset.eyes = 'open'; }, 120);
     setTimeout(function () { if (pet.dataset.eyes === 'open' && !busy) pet.dataset.eyes = 'closed'; }, 330);
     setTimeout(function () { if (pet.dataset.eyes === 'closed' && !busy) pet.dataset.eyes = 'open'; }, 450);
-  } else if (r < 0.8) {
+  } else if (r < 0.65) {
     pulse('hopsmall', 500);
+  } else if (r < 0.85) {
+    // a small rock from side to side
+    pulse('rocksmall', 1300);
   } else if (mood === 'happy') {
     drift(['♥', '✦'], petTop(), 2);
   }

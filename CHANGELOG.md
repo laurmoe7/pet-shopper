@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 78 (4 Oct)
+- The pet rocks from side to side, pivoting on its feet: a bigger rock now and then, a small one every so often, and a small rock when you pet it.
+
 ## Build 77 (4 Oct)
 - The pet now looks like it moves on the floor, not in the air: calmer resting motion, a soft shadow on the cushion that shrinks when it hops, hops with a landing dip, and happy bouncing in quick hops with a rest between.
 - New moves (slides only): a stepping stroll, a waddle, a scoot, three quick hops, and sitting down for a moment. Small hop replaces the little bob between moves.
