@@ -2018,3 +2018,15 @@ html[data-list="todo"] #pet.desk[data-prop="glass"]:not([data-state="sleepy"]) .
 /* going to sleep with the clipboard in his hand: the arm lowers and the clipboard slips down out of sight (app-bedtime.js adds .stowing) */
 html[data-list="todo"] #pet.stowing .arm-l { transform: rotate(14deg); animation: none; }
 html[data-list="todo"] #pet.stowing .clipboard { transform: translate(-30px, 34px) rotate(-60deg) scale(.55); opacity: 0; transition: transform .6s ease-in, opacity .45s .15s ease-in; }
+
+/* the mic button in the Add bar (app-voice.js): a round sticker; it pulses while it listens */
+.mic-btn { flex: none; width: 36px; height: 36px; padding: 0; border: 3px solid #fff; border-radius: 50%; background: var(--surface); box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 2px 3px var(--shadow); cursor: pointer; display: grid; place-items: center; }
+.mic-btn[hidden] { display: none; }
+.mic-btn svg { width: 20px; height: 20px; fill: var(--accent-ink); stroke: var(--accent-ink); stroke-width: 2; stroke-linecap: round; fill-opacity: .9; }
+.mic-btn svg path { fill: none; }
+.mic-btn:active { transform: scale(.92); }
+.mic-btn.on { background: var(--accent); animation: mic-pulse 1s ease-in-out infinite; }
+.mic-btn.on svg { fill: #fff; stroke: #fff; }
+.mic-btn.call { animation: mic-pulse 1s ease-in-out infinite; }
+@keyframes mic-pulse { 50% { box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 0 0 7px rgba(255, 120, 150, .35); } }
+@media (prefers-reduced-motion: reduce) { .mic-btn.on, .mic-btn.call { animation: none; } }

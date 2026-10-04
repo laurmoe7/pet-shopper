@@ -95,3 +95,14 @@ test('tasks can have a time of day', () => {
   const items = L.parseState(raw, () => '1').items;
   assert.deepEqual(items.map((i) => i.time), [undefined, undefined, '10:00']);
 });
+
+test('speech is split into list items', () => {
+  assert.deepEqual(L.splitSpoken('milk, eggs and bread'), ['Milk', 'Eggs', 'Bread']);
+  assert.deepEqual(L.splitSpoken('Melk, eieren en brood.'), ['Melk', 'Eieren', 'Brood']);
+  assert.deepEqual(L.splitSpoken('  add bananas '), ['Bananas']);
+  assert.deepEqual(L.splitSpoken(''), []);
+  assert.deepEqual(L.splitSpoken('call mum and dad, book dentist', 'todo'), ['Call mum and dad', 'Book dentist']);
+  assert.deepEqual(L.splitSpoken('pay rent then water plants', 'todo'), ['Pay rent', 'Water plants']);
+  assert.equal(L.splitSpoken('x'.repeat(200))[0].length, 80);
+  assert.equal(L.splitSpoken(Array(30).fill('a').join(',')).length, 20);
+});

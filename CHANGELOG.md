@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 151 (4 Oct)
+- Mic button to add items by speaking.
+- "Add by voice" shortcut on the app icon.
+- Voice language option (Auto, English, Nederlands).
+
 ## Build 150 (4 Oct)
 - The teddy cuddle is back to how it was in build 139.
 

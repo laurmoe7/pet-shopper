@@ -323,6 +323,25 @@
     });
     return open.map(function (o) { return o.i; }).concat(done);
   }
+  /**
+   * Turns what was said into list items: "milk, eggs and bread" becomes three. The shopping list also splits on
+   * "and"/"en"/"plus"; the to-do list only on commas and "then"/"daarna", because a task like "call mum and dad" is one.
+   * @param {string} text  The recognised speech.
+   * @param {'shop'|'todo'} [mode]
+   * @returns {string[]} Up to 20 items, first letter capitalised, nothing empty.
+   */
+  function splitSpoken(text, mode) {
+    var parts = String(text || '').split(mode === 'todo' ? /[,;]|\b(?:and then|then|daarna|en dan)\b/i : /[,;]|\b(?:and then|and|en|plus|also|then|daarna)\b/i);
+    var out = [];
+    parts.forEach(function (p) {
+      p = p.replace(/^[\s.!?\u2026]+|[\s.!?\u2026]+$/g, '').replace(/^(?:add|please add|toevoegen|voeg toe)\s+/i, '').trim();
+      if (!p) return;
+      p = p.charAt(0).toUpperCase() + p.slice(1);
+      out.push(p.slice(0, 80));
+    });
+    return out.slice(0, 20);
+  }
+
   /** Drops a due day or repeat that isn't valid (from old or damaged saves). */
   function cleanTask(item) {
     if (item && item.due !== undefined && !isDayKey(item.due)) delete item.due;
@@ -1108,7 +1127,7 @@
     isUnlocked: isUnlocked,
     gateFor: gateFor,
     emojiFor: emojiFor,
-    REPEATS: REPEATS, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
+    splitSpoken: splitSpoken, REPEATS: REPEATS, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
     createItem: createItem,
     petProfile: petProfile,
     parseState: parseState,
