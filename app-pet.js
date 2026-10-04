@@ -65,14 +65,14 @@ function pulse(cls, ms) {
   void pet.offsetWidth;
   pet.classList.add(cls);
   setTimeout(function () { pet.classList.remove(cls); }, ms);
-  if (document.documentElement.dataset.squish === 'svg' && SQUISH[cls]) svgSquish(SQUISH[cls]);
+  if (SQUISH[cls] && !reduceMotion) svgSquish(SQUISH[cls]);
 }
 
-// ---------- squash and stretch drawn inside the SVG (experiment) ----------
+// ---------- squash and stretch, drawn inside the SVG ----------
 // A CSS scale on the pet makes the phone stretch an already-drawn picture, which left a hairline across the face.
 // Here the body gets a new SVG transform each frame instead, so the phone redraws the shapes at their real size.
 // Each step is [time 0-1, width, height, lift in SVG units]; the squash is anchored at the feet.
-// Build 82: half as strong as build 81, whose biggest squashes still showed the seam.
+// Keep them about this strong: the much bigger squashes of build 81 still showed a seam.
 var SQUISH = {
   chomp: { ms: 360, steps: [[0, 1, 1, 0], [.3, 1.16, .84, 0], [.55, .93, 1.1, 0], [.78, 1.03, .975, 0], [1, 1, 1, 0]] },
   spit: { ms: 450, steps: [[0, 1, 1, 0], [.35, .87, 1.17, -3.6], [.7, 1.05, .95, 0], [1, 1, 1, 0]] },

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 84 (4 Oct)
+- The new squish is now always on: chomp, spit, stretch, petting, hops and the soft settle squash the drawing itself. The Squish test switch and the old whole-pet scaling are gone. No squash when the phone asks for reduced motion.
+
 ## Build 83 (4 Oct)
 - Squish test, new way: hops crouch first, stretch on take-off and squash on landing (big hop, small hop, triple hop). The pet also gives a small soft squash every 5-9 seconds, or a slow deep breath when sleepy.
 

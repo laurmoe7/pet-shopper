@@ -307,8 +307,8 @@ button { font: inherit; color: inherit; }
 .pet.x-cheeks .hatch { opacity: 1; }
 .pet.x-cheeks .cheek { opacity: .9; }
 
-/* The squash and stretch moves the whole drawing as one flat layer. Scaling the curved shapes inside the SVG
-   made the phone redraw them at fractional sizes every frame, which left a hairline across the face. */
+/* The whole pet is one flat layer that only slides. Squash and stretch (chomp, spit, stretch, petting, hops, settle) are
+   drawn by svgSquish in app-pet.js on .pet-body instead: a CSS scale here left a hairline across the face on her phone. */
 .squash { width: 100%; height: 100%; transform-origin: 50% 93%; will-change: transform; }
 .pupils { transition: transform .4s; transform: translate(var(--look-x, 0px), var(--look-y, 0px)); }
 .pet[data-state="curious"] .pupils { transform: translate(var(--look-x, 0px), calc(var(--look-y, 0px) + 2.5px)); }
@@ -323,11 +323,7 @@ button { font: inherit; color: inherit; }
 .pet[data-state="happy"] .squash { animation: jelly 1s ease-in-out infinite; }
 .pet[data-state="stuffed"] .squash { animation: breathe 3.2s ease-in-out infinite; }
 
-.pet.hop .pet-svg { animation: hop .5s cubic-bezier(.3, 1.4, .5, 1); }
-.pet.chomp .squash { animation: chomp .32s ease-out; }
-.pet.stretch .squash { animation: stretch 1s ease-in-out; }
-.pet.pat .squash { animation: wobble 1.6s ease-in-out; }
-.pet.spit .squash { animation: spit .35s ease-out; }
+.pet.hop .pet-svg { animation: hop .5s linear; }
 
 /* idle moves, played now and then while the pet waits */
 .pet.wiggle .pet-svg { animation: wiggle .9s ease-in-out; }
@@ -360,12 +356,6 @@ button { font: inherit; color: inherit; }
 @keyframes breathe { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(0, 1px); } }
 @keyframes jelly { 0%, 100% { transform: translate(0, 0); } 30% { transform: translate(0, 1.2px); } 55% { transform: translate(0, -.6px); } 75% { transform: translate(0, .5px); } }
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 14% { transform: translateY(-9px); } 28% { transform: translateY(0); } 32% { transform: translateY(2px); } 38% { transform: translateY(0); } }
-@keyframes hop { 0% { transform: translateY(0); } 40% { transform: translateY(-18px); } 82% { transform: translateY(0); } 91% { transform: translateY(2.5px); } 100% { transform: translateY(0); } }
-/* the whole-pet moves (chomp, spit, stretch, wobble) only slide: scaling or rotating the pet while its arms move left a hairline across the face on her phone */
-@keyframes chomp { 0% { transform: translateY(0); } 30% { transform: translateY(5px); } 60% { transform: translateY(-1.5px); } 80% { transform: translateY(1px); } 100% { transform: translateY(0); } }
-@keyframes spit { 0% { transform: translateY(0); } 40% { transform: translateY(-5px); } 100% { transform: translateY(0); } }
-@keyframes stretch { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-6px); } 70% { transform: translateY(2px); } }
-@keyframes wobble { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 @keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
 @keyframes chew { from { transform: scaleX(1) translateY(0); } to { transform: scaleX(.75) translateY(1.5px); } }
 @keyframes zfloat { 0%, 100% { transform: translateY(0); opacity: .9; } 50% { transform: translateY(-4px); opacity: .5; } }
@@ -1228,25 +1218,9 @@ button { font: inherit; color: inherit; }
 .picker.dev-sheet { max-height: calc(44vh + var(--dock-h, 64px)); }
 .picker.dev-sheet .picker-inner { max-height: calc(44vh + var(--dock-h, 64px) - 14px) !important; }
 
-/* Experiment (Developer tools, "Squish test"). The old way, html[data-squish="css"]: scale the whole pet, squashing down
-   from the feet. This is what left a hairline across the face on her phone, so it is off unless switched on.
-   The new way, html[data-squish="svg"]: svgSquish in app-pet.js squashes the drawing itself, so the slide-only moves are turned off here. */
-@keyframes chomp-x { 0% { transform: scale(1, 1); } 30% { transform: scale(1.32, .68); } 55% { transform: scale(.86, 1.2); } 78% { transform: scale(1.06, .95); } 100% { transform: scale(1, 1); } }
-@keyframes spit-x { 0% { transform: scale(1); } 35% { transform: scale(.74, 1.34) translateY(-6px); } 70% { transform: scale(1.1, .9); } 100% { transform: scale(1); } }
-@keyframes stretch-x { 0%, 100% { transform: scale(1, 1); } 40% { transform: scale(.7, 1.42); } 68% { transform: scale(1.2, .84); } 85% { transform: scale(.96, 1.05); } }
-@keyframes wobble-x { 0%, 100% { transform: scale(1, 1); } 20% { transform: scale(1.18, .84); } 40% { transform: scale(.88, 1.14); } 60% { transform: scale(1.12, .9); } 80% { transform: scale(.94, 1.06); } }
-@keyframes jelly-x { 0%, 100% { transform: scale(1, 1); } 30% { transform: scale(1.05, .94); } 60% { transform: scale(.97, 1.04); } }
-html[data-squish="css"] .pet.chomp .squash { animation: chomp-x .36s ease-out; }
-html[data-squish="css"] .pet.spit .squash { animation: spit-x .45s ease-out; }
-html[data-squish="css"] .pet.stretch .squash { animation: stretch-x 1.1s ease-in-out; }
-html[data-squish="css"] .pet.pat .squash { animation: wobble-x 1.3s ease-in-out; }
-html[data-squish="css"] .pet[data-state="happy"] .squash, html[data-squish="css"] .pet[data-state="curious"] .squash { animation: jelly-x 1.6s ease-in-out infinite; }
-html[data-squish="svg"] .pet.chomp .squash, html[data-squish="svg"] .pet.spit .squash,
-html[data-squish="svg"] .pet.stretch .squash, html[data-squish="svg"] .pet.pat .squash { animation: none; }
-/* new-way hop: a short crouch on the spot first (svgSquish squashes the body then), so it has to wait a moment before leaving the floor */
-@keyframes hop-sq {
+/* hop: a short crouch on the spot first (svgSquish in app-pet.js squashes the body then), so it waits a moment before leaving the floor */
+@keyframes hop {
   0% { transform: translateY(0); } 16% { transform: translateY(.5px); animation-timing-function: cubic-bezier(.2, .8, .4, 1); }
   46% { transform: translateY(-18px); animation-timing-function: cubic-bezier(.6, 0, .8, .4); }
   84% { transform: translateY(0); } 92% { transform: translateY(2px); } 100% { transform: translateY(0); }
 }
-html[data-squish="svg"] .pet.hop .pet-svg { animation: hop-sq .5s linear; }

@@ -133,7 +133,7 @@ function idleMove() {
 }
 scheduleDream();
 
-// ---------- a soft settle (Squish test, new way only) ----------
+// ---------- a soft settle ----------
 // Instead of a breathing squash that never stops (the phone would redraw the pet all the time), the body gives
 // a small squash every 5-9 seconds, or a slow deep breath when sleepy.
 var settleTimer;
@@ -143,7 +143,7 @@ function settleSoon() {
 }
 function settle() {
   settleSoon();
-  if (document.documentElement.dataset.squish !== 'svg' || reduceMotion || busy || squishing || document.hidden) return;
+  if (reduceMotion || busy || squishing || document.hidden) return;
   svgSquish(baseState() === 'sleepy' ? SQUISH.breath : SQUISH.settle);
 }
 

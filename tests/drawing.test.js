@@ -131,7 +131,8 @@ test('speech bubbles are always on: quiet mode and no option can hide them', () 
 });
 
 test('the whole-pet moves on .squash only slide (scaling or rotating them left a seam on her phone)', () => {
-  for (const name of ['breathe', 'jelly', 'chomp', 'spit', 'stretch', 'wobble']) {
+  assert.doesNotMatch(css, /\.squash \{[^}]*animation: (?!breathe|jelly)/, 'squash and stretch are drawn by svgSquish, not on .squash');
+  for (const name of ['breathe', 'jelly']) {
     const m = css.match(new RegExp('@keyframes ' + name + ' \\{[^\\n]*\\}\\n'));
     assert.ok(m, name + ' exists');
     assert.doesNotMatch(m[0], /scale|rotate/, name + ' only translates');
