@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 144 (4 Oct)
+- The lamp hangs all night, even while shopping; switch it off and he gets into bed to be tucked in.
+
 ## Build 143 (4 Oct)
 - Only shopping right now keeps him up at night; waiting items and tasks don't.
 - The toy rests on the other side of the pet.

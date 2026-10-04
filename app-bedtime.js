@@ -29,7 +29,7 @@ var TEDDY = '<circle class="teddy-fur" cx="9" cy="8" r="5"/><circle class="teddy
 pet.querySelector('.teddy-hug').innerHTML = TEDDY;
 
 var bedtimeKnown = false, wasAsleep = false;
-/** @returns {boolean} True when it is bedtime: night, unless you are in the middle of shopping (items waiting on the list or tasks don't keep it up). */
+/** @returns {boolean} True when it is bedtime by the clock and the list: night, unless you are in the middle of shopping (items waiting on the list or tasks don't keep it up). */
 function bedtimeNow() { return L.isNight(petNow()) && (baseState() === 'sleepy' || !shoppingNow()); }
 /**
  * Shows the lamp, bed, quilt and dark room for the time and the list, and the tired eyes when it's up at night.
@@ -44,9 +44,12 @@ function refreshBedtime() {
     save();
     if (!busy) settle();
   }
-  var asleep = baseState() === 'sleepy', night = L.isNight(petNow()), bedNow = bedtimeNow();
+  // The lamp hangs all night. The bed scene (bed, quilt, teddy) comes with bedtime, or when you switch the lamp off
+  // while shopping: then it gets into bed so you can tuck it in.
+  var asleep = baseState() === 'sleepy', night = L.isNight(petNow()), base = bedtimeNow();
+  var bedNow = base || (night && bedtime().dark);
   var wasBed = stage.classList.contains('bedtime');
-  if (bedtimeKnown && (bedNow !== wasBed || (wasAsleep && !asleep))) {
+  if (bedtimeKnown && ((bedNow && !wasBed && base) || (!bedNow && wasBed) || (wasAsleep && !asleep))) {
     try { localStorage.removeItem(BED_KEY); } catch (e) { /* storage blocked */ }
     // bedtime is over (morning, or the dev switch to day): it is up, and must be put to bed again tonight
     if (!bedNow && state.pet.dozing) { state.pet.dozing = ''; save(); asleep = false; }
@@ -57,7 +60,8 @@ function refreshBedtime() {
   var wasTucked = pet.classList.contains('tucked');
   if (bedNow && !wasBed) owlSoon(true);
   stage.classList.toggle('bedtime', bedNow);
-  lampEl.hidden = !bedNow;
+  lampEl.hidden = !night;
+  stage.classList.toggle('night-lamp', night && !bedNow);   // lit lamp, but still shopping: no bed yet
   pet.classList.toggle('tucked', bedNow && bed.tucked);
   stage.classList.toggle('lights-off', bedNow && bed.dark);
   lampEl.setAttribute('aria-pressed', bedNow && bed.dark ? 'false' : 'true');
