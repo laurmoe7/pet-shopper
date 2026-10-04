@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 79 (4 Oct)
+- More roly-poly: the rock is bigger (about 10 degrees), a new big roll swings about 15 degrees and slides a little with each swing, the small rock is bigger, and rocking comes up more often.
+- New sniff: nose down with little twitches, eyes closed, and a sparkle or two.
+
 ## Build 78 (4 Oct)
 - The pet rocks from side to side, pivoting on its feet: a bigger rock now and then, a small one every so often, and a small rock when you pet it.
 

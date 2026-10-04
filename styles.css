@@ -1206,8 +1206,20 @@ button { font: inherit; color: inherit; }
 #pet.shuffle::before { animation: sh-shuffle 1.5s ease-in-out; }
 #pet.peek::before { animation: sh-peek 1.4s ease-in-out; }
 
-/* rocking side to side, pivoting on the feet (a tilt of the drawing, so if a hairline ever comes back, look here first) */
-@keyframes rock { 0%, 100% { transform: rotate(0); } 16% { transform: rotate(-6deg); } 36% { transform: rotate(5deg); } 56% { transform: rotate(-3.5deg); } 76% { transform: rotate(2deg); } }
-@keyframes rocksmall { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-2.6deg); } 55% { transform: rotate(2.2deg); } 80% { transform: rotate(-1deg); } }
+/* rocking side to side like a roly-poly, pivoting on the feet (a tilt of the drawing, so if a hairline ever comes back, look here first) */
+@keyframes rock { 0% { transform: translate(0px, 0px) rotate(0deg); } 16% { transform: translate(-3px, 0px) rotate(-10deg); } 36% { transform: translate(3px, 0px) rotate(9deg); } 56% { transform: translate(-2px, 0px) rotate(-6deg); } 76% { transform: translate(1px, 0px) rotate(3deg); } 100% { transform: translate(0px, 0px) rotate(0deg); } }
+@keyframes roly { 0% { transform: translate(0px, 0px) rotate(0deg); } 12% { transform: translate(-6px, 0px) rotate(-15deg); } 30% { transform: translate(6px, 0px) rotate(14deg); } 46% { transform: translate(-5px, 0px) rotate(-11deg); } 62% { transform: translate(4px, 0px) rotate(8deg); } 78% { transform: translate(-2px, 0px) rotate(-4deg); } 90% { transform: translate(1px, 0px) rotate(2deg); } 100% { transform: translate(0px, 0px) rotate(0deg); } }
+@keyframes rocksmall { 0% { transform: translate(0px, 0px) rotate(0deg); } 25% { transform: translate(-1.5px, 0px) rotate(-4deg); } 55% { transform: translate(1.5px, 0px) rotate(3.5deg); } 80% { transform: translate(-0.5px, 0px) rotate(-1.5deg); } 100% { transform: translate(0px, 0px) rotate(0deg); } }
+@keyframes sniff { 0% { transform: translate(0px, 0px); } 12% { transform: translate(0px, 6px); } 22% { transform: translate(0px, 2.5px); } 32% { transform: translate(0px, 6.5px); } 42% { transform: translate(0px, 2.5px); } 52% { transform: translate(0px, 6.5px); } 62% { transform: translate(0px, 3px); } 76% { transform: translate(0px, 6px); } 100% { transform: translate(0px, 0px); } }
+@keyframes sh-rock { 0% { transform: translateX(0px) scale(1); opacity: 1; } 16% { transform: translateX(-3px) scale(1); opacity: 1; } 36% { transform: translateX(3px) scale(1); opacity: 1; } 56% { transform: translateX(-2px) scale(1); opacity: 1; } 76% { transform: translateX(1px) scale(1); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
+@keyframes sh-roly { 0% { transform: translateX(0px) scale(1); opacity: 1; } 12% { transform: translateX(-7.2px) scale(1); opacity: 1; } 30% { transform: translateX(7.2px) scale(1); opacity: 1; } 46% { transform: translateX(-6px) scale(1); opacity: 1; } 62% { transform: translateX(4.8px) scale(1); opacity: 1; } 78% { transform: translateX(-2.4px) scale(1); opacity: 1; } 90% { transform: translateX(1.2px) scale(1); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
+@keyframes sh-rocksmall { 0% { transform: translateX(0px) scale(1); opacity: 1; } 25% { transform: translateX(-1.5px) scale(1); opacity: 1; } 55% { transform: translateX(1.5px) scale(1); opacity: 1; } 80% { transform: translateX(-0.5px) scale(1); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
+@keyframes sh-sniff { 0% { transform: translateX(0px) scale(1); opacity: 1; } 14% { transform: translateX(0px) scale(1.04); opacity: 1; } 34% { transform: translateX(0px) scale(1.05); opacity: 1; } 54% { transform: translateX(0px) scale(1.05); opacity: 1; } 78% { transform: translateX(0px) scale(1.04); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
 .pet.rock .pet-svg { animation: rock 1.9s ease-in-out; transform-origin: 50% 94%; }
+.pet.roly .pet-svg { animation: roly 2.8s ease-in-out; transform-origin: 50% 94%; }
 .pet.rocksmall .pet-svg, .pet.pat .pet-svg { animation: rocksmall 1.3s ease-in-out; transform-origin: 50% 94%; }
+.pet.sniff .pet-svg { animation: sniff 1.7s ease-in-out; }
+#pet.rock::before { animation: sh-rock 1.9s ease-in-out; }
+#pet.roly::before { animation: sh-roly 2.8s ease-in-out; }
+#pet.rocksmall::before, #pet.pat::before { animation: sh-rocksmall 1.3s ease-in-out; }
+#pet.sniff::before { animation: sh-sniff 1.7s ease-in-out; }
