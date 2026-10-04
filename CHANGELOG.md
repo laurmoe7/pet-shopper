@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 142 (4 Oct)
+- The clipboard turns round when he writes or inspects, so the paper faces him.
+- The magnifying glass goes up to his eye and blows it up.
+- Open tasks no longer keep him awake at night, only the shopping list does.
+
 ## Build 141 (4 Oct)
 - Nibble writes on the clipboard with a chubby pencil when you add a task.
 - New idle moves on the to-do list: magnifying glass, writing, looking over the list.

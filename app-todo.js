@@ -227,12 +227,18 @@ function undoTask(item) {
  */
 function deskOn(prop) {
   if (prop) pet.dataset.prop = prop; else delete pet.dataset.prop;
-  pet.classList.add('desk');
+  pet.classList.remove('flipback');
+  pet.classList.add('desk', 'flipped');   // the clipboard turns round: the paper faces him, not us
 }
-/** Puts the clipboard back at his side and the prop away. */
+/**
+ * Puts the clipboard back at his side (turning it over again) and the prop away.
+ * @returns {Promise<void>}
+ */
 function deskOff() {
-  pet.classList.remove('desk', 'writing', 'inspecting');
+  pet.classList.remove('desk', 'writing', 'inspecting', 'flipped');
+  pet.classList.add('flipback');
   delete pet.dataset.prop;
+  return wait(340).then(function () { pet.classList.remove('flipback'); });
 }
 /**
  * Writes on the clipboard with the chubby pencil.
@@ -244,7 +250,7 @@ function writeOnClipboard(during) {
   stopWalk();
   setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: [] });
   deskOn('pencil');
-  return wait(420).then(function () {
+  return wait(520).then(function () {
     pet.classList.add('writing');
     sound('scribble');
     if (during) during();
@@ -263,7 +269,7 @@ function inspectList() {
   stopWalk();
   setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: [] });
   deskOn('glass');
-  return wait(450).then(function () {
+  return wait(650).then(function () {
     pet.classList.add('inspecting');
     eyesDo('wide');
     talk('inspect', ['hmm… let me look…', 'inspecting the list…', 'detective Nibble!', 'what do we have here…'], 1500);

@@ -1976,15 +1976,29 @@ html[data-list="todo"] #pet .clipboard { transform-box: view-box; transform-orig
 html[data-list="todo"] #pet.desk:not(.has-teddy):not(.tucked) .arm-l { transform: rotate(0deg); translate: 39.5px 6px; animation: none; }
 html[data-list="todo"] #pet.desk:not(.has-teddy):not(.tucked) .clipboard { transform: translate(-39.5px, -12px) rotate(0deg); }
 html[data-list="todo"] #pet.desk:not(.has-teddy):not(.tucked) .arm-r { transform: rotate(0deg); translate: -39px -11px; animation: none; }
-html[data-list="todo"] #pet.desk[data-prop="glass"]:not(.has-teddy):not(.tucked) .arm-r { translate: -39px 9px; }
-.clipboard .cb-ink { fill: none; stroke: #5b4239; stroke-width: 1.5; stroke-linecap: round; stroke-dasharray: 9; stroke-dashoffset: 9; opacity: 0; transition: opacity .5s; }
-#pet.writing .clipboard .cb-ink { opacity: 1; animation: ink-draw 1s linear forwards; }
-@keyframes ink-draw { to { stroke-dashoffset: 0; } }
-#pet.writing .arm-r .pencil { animation: pen-write 1s linear forwards; }
-@keyframes pen-write { 0% { translate: -4.4px 0; } 10% { translate: -3px -1.3px; } 20% { translate: -2.4px .8px; } 30% { translate: -1.2px -1.1px; } 40% { translate: -.4px .8px; } 50% { translate: .6px -1px; } 60% { translate: 1.4px .8px; } 70% { translate: 2.2px -1px; } 80% { translate: 3px .8px; } 90% { translate: 3.8px -.8px; } 100% { translate: 4.6px 0; } }
-#pet.inspecting .arm-r .magnifier { animation: glass-look 2.2s ease-in-out infinite alternate; }
-@keyframes glass-look { 0% { translate: -6px -3px; } 50% { translate: 2px 4px; } 100% { translate: 6px -2px; } }
-@media (prefers-reduced-motion: reduce) { #pet.writing .arm-r .pencil, #pet.inspecting .arm-r .magnifier, #pet.writing .clipboard .cb-ink { animation: none; } #pet.writing .clipboard .cb-ink { stroke-dashoffset: 0; } }
+html[data-list="todo"] #pet.desk[data-prop="pencil"]:not(.has-teddy):not(.tucked) .arm-r { translate: -27px -7px; }
+html[data-list="todo"] #pet.desk[data-prop="glass"]:not(.has-teddy):not(.tucked) .arm-r { translate: -15px -16px; }
+.clipboard .cb-board-back { fill: #c78a4c; }
+.clipboard .cb-grain { fill: none; stroke: var(--prop-ink); stroke-width: .7; opacity: .22; stroke-linecap: round; }
+.clipboard .cb-hole { fill: #7a4f27; stroke: var(--prop-ink); stroke-width: .8; }
+.clipboard .cb-back { display: none; }
+.clipboard :is(.cb-front, .cb-back) { transform-box: view-box; transform-origin: 80px 128px; }
+/* turning the clipboard over: the front squeezes away, the back opens out (and the other way round to turn it back) */
+#pet.flipped .cb-front, #pet.flipback .cb-back { animation: cb-squeeze .16s ease-in forwards; }
+#pet.flipped .cb-back, #pet.flipback .cb-front { display: inline; animation: cb-open .16s .16s ease-out both; }
+#pet.flipback .cb-back { display: inline; }
+@keyframes cb-squeeze { to { transform: scaleX(0); } }
+@keyframes cb-open { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.clipboard .cb-ink { fill: none; stroke: #5b4239; stroke-width: 1.5; stroke-linecap: round; stroke-dasharray: 9; stroke-dashoffset: 9; opacity: 0; }
+#pet.writing .arm-r .pencil { animation: pen-write .13s ease-in-out infinite alternate; }
+@keyframes pen-write { from { translate: -.8px -2.4px; } to { translate: .8px 2.4px; } }
+.magnifier .mg-eye { display: none; }
+#pet.inspecting .magnifier .mg-eye { display: inline; animation: mg-look 1.6s ease-in-out infinite alternate; }
+#pet.inspecting .magnifier .mg-lens { fill: var(--pet-skin); }
+.magnifier .mg-pupil { fill: var(--pet-ink); }
+.magnifier .mg-glint { fill: #fff; }
+@keyframes mg-look { from { translate: -1.6px .6px; } to { translate: 1.2px 1px; } }
+@media (prefers-reduced-motion: reduce) { #pet.writing .arm-r .pencil, #pet.inspecting .magnifier .mg-eye { animation: none; } }
 /* the right hand's props on the to-do list (app-todo.js): a chubby pencil for writing, a magnifying glass for inspecting.
    Both are drawn in the right arm so they move with it; the pet's `desk` pose brings both paws to the clipboard. */
 .arm .pencil, .arm .magnifier { display: none; }

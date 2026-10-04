@@ -177,8 +177,8 @@ function walkPath(spots, pause) {
   });
   return t;
 }
-/** @returns {boolean} True when nothing is left to buy. */
-function nothingLeft() { return !state.items.some(function (i) { return !i.done; }); }
+/** @returns {boolean} Whether nothing is left to buy. Only the shopping list counts: tasks never keep Nibble up. */
+function nothingLeft() { return !(isTodo() ? state.stash : state.items).some(function (i) { return !i.done; }); }
 /** @returns {boolean} True when the pet may wander off its cushion: nothing left to buy, and not bedtime. */
 function mayWander() { return nothingLeft() && !stage.classList.contains('bedtime'); }
 /** With things on the list, the pet comes back to the middle, ready to shop. */
