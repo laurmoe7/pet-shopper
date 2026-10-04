@@ -319,7 +319,7 @@ button { font: inherit; color: inherit; }
 /* idle: a soft jelly wobble */
 .pet[data-state="sleepy"] .squash { animation: breathe 3.8s ease-in-out infinite; }
 .pet[data-state="curious"] .squash { animation: jelly 2.6s ease-in-out infinite; }
-.pet[data-state="happy"] .pet-svg { animation: bounce 1s ease-in-out infinite; }
+.pet[data-state="happy"] .pet-svg { animation: bounce 1.8s ease-in-out infinite; }
 .pet[data-state="happy"] .squash { animation: jelly 1s ease-in-out infinite; }
 .pet[data-state="stuffed"] .squash { animation: breathe 3.2s ease-in-out infinite; }
 
@@ -332,7 +332,6 @@ button { font: inherit; color: inherit; }
 /* idle moves, played now and then while the pet waits */
 .pet.wiggle .pet-svg { animation: wiggle .9s ease-in-out; }
 .pet.twirl .pet-svg { animation: twirl .8s ease-in-out; }
-.pet.stroll .pet-svg { animation: stroll 3.4s ease-in-out; }
 .pet.peek .pet-svg { animation: peek 1.4s ease-in-out; }
 .pet.bob .pet-svg { animation: bob .7s ease-in-out 2; }
 /* dances: a side-to-side shuffle and a bouncy boogie with a little spin at the end */
@@ -355,17 +354,15 @@ button { font: inherit; color: inherit; }
   50% { transform: translateY(2px) scale(1.06, .92); }
   70% { transform: translateY(-16px) scaleX(-1); } 85% { transform: translateY(0) scaleX(1); }
 }
-/* a little stroll along the cushion: slides only, like the other whole-pet moves */
-@keyframes stroll { 0%, 100% { transform: translateX(0); } 28% { transform: translateX(-24px); } 40% { transform: translate(-24px, -5px); } 52% { transform: translateX(-24px); } 78% { transform: translateX(24px); } }
 @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 .note { position: fixed; left: 0; top: 0; z-index: 40; pointer-events: none; font-weight: 800; color: var(--accent); font-size: 1.15rem; text-shadow: 0 1px 0 var(--outline); }
 /* breathing and jelly only nudge the pet up and down: stretching a curved shape on a phone can leave a hairline */
-@keyframes breathe { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(0, 2.5px); } }
-@keyframes jelly { 0%, 100% { transform: translate(0, 0); } 30% { transform: translate(1.5px, 3px); } 55% { transform: translate(-1.5px, -1.5px); } 75% { transform: translate(.5px, 1.5px); } }
-@keyframes bounce { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } 55% { transform: translateY(-10px); } }
-@keyframes hop { 0% { transform: translateY(0); } 40% { transform: translateY(-18px); } 100% { transform: translateY(0); } }
+@keyframes breathe { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(0, 1px); } }
+@keyframes jelly { 0%, 100% { transform: translate(0, 0); } 30% { transform: translate(0, 1.2px); } 55% { transform: translate(0, -.6px); } 75% { transform: translate(0, .5px); } }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 14% { transform: translateY(-9px); } 28% { transform: translateY(0); } 32% { transform: translateY(2px); } 38% { transform: translateY(0); } }
+@keyframes hop { 0% { transform: translateY(0); } 40% { transform: translateY(-18px); } 82% { transform: translateY(0); } 91% { transform: translateY(2.5px); } 100% { transform: translateY(0); } }
 /* the whole-pet moves (chomp, spit, stretch, wobble) only slide: scaling or rotating the pet while its arms move left a hairline across the face on her phone */
-@keyframes chomp { 0% { transform: translateY(0); } 30% { transform: translateY(6px); } 60% { transform: translateY(-4px); } 80% { transform: translateY(1.5px); } 100% { transform: translateY(0); } }
+@keyframes chomp { 0% { transform: translateY(0); } 30% { transform: translateY(5px); } 60% { transform: translateY(-1.5px); } 80% { transform: translateY(1px); } 100% { transform: translateY(0); } }
 @keyframes spit { 0% { transform: translateY(0); } 40% { transform: translateY(-5px); } 100% { transform: translateY(0); } }
 @keyframes stretch { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-6px); } 70% { transform: translateY(2px); } }
 @keyframes wobble { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
@@ -1165,3 +1162,46 @@ button { font: inherit; color: inherit; }
 .axo-smile { display: none; }
 .pet[data-species="axolotl"][data-mouth="smile"] path[data-mouth="smile"]:not(.axo-smile) { display: none; }
 .pet[data-species="axolotl"][data-mouth="smile"] .axo-smile { display: inline; }
+
+/* ---- grounded moves: the pet stays on the floor, hops have a landing, and a soft shadow on the cushion reacts ----
+   (the shadow is the pet's ::before, so it stays on the floor while the drawing moves; slides and fades only) */
+#pet::before {
+  content: ""; position: absolute; left: 50%; bottom: 2px; width: 104px; height: 16px; margin-left: -52px; z-index: -1; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(120, 52, 74, .46), rgba(120, 52, 74, .22) 60%, rgba(120, 52, 74, 0));
+}
+#pet[data-state="happy"]::before { animation: sh-bounce 1.8s ease-in-out infinite; }
+@keyframes stroll { 0% { transform: translate(0px, 0px); } 4.5% { transform: translate(-3px, -3px); } 9% { transform: translate(-6px, 0px); } 13.5% { transform: translate(-9px, -3px); } 18% { transform: translate(-12px, 0px); } 22.5% { transform: translate(-15px, -3px); } 27% { transform: translate(-18px, 0px); } 31.5% { transform: translate(-21px, -3px); } 36% { transform: translate(-24px, 0px); } 46% { transform: translate(-24px, 0px); } 48.25% { transform: translate(-21px, -3px); } 50.5% { transform: translate(-18px, 0px); } 52.75% { transform: translate(-15px, -3px); } 55% { transform: translate(-12px, 0px); } 57.25% { transform: translate(-9px, -3px); } 59.5% { transform: translate(-6px, 0px); } 61.75% { transform: translate(-3px, -3px); } 64% { transform: translate(0px, 0px); } 66.25% { transform: translate(3px, -3px); } 68.5% { transform: translate(6px, 0px); } 70.75% { transform: translate(9px, -3px); } 73% { transform: translate(12px, 0px); } 75.25% { transform: translate(15px, -3px); } 77.5% { transform: translate(18px, 0px); } 79.75% { transform: translate(21px, -3px); } 82% { transform: translate(24px, 0px); } 86% { transform: translate(24px, 0px); } 87.75% { transform: translate(21px, -3px); } 89.5% { transform: translate(18px, 0px); } 91.25% { transform: translate(15px, -3px); } 93% { transform: translate(12px, 0px); } 94.75% { transform: translate(9px, -3px); } 96.5% { transform: translate(6px, 0px); } 98.25% { transform: translate(3px, -3px); } 100% { transform: translate(0px, 0px); } }
+@keyframes waddle { 0% { transform: translate(0px, 0px); } 8% { transform: translate(-1.5px, -2px); } 16% { transform: translate(-3px, 0px); } 33% { transform: translate(0px, -2px); } 50% { transform: translate(3px, 0px); } 66% { transform: translate(0px, -2px); } 83% { transform: translate(-3px, 0px); } 100% { transform: translate(0px, 0px); } }
+@keyframes hophop { 0% { transform: translate(0px, 0px); } 17% { transform: translate(0px, -14px); } 33% { transform: translate(0px, 0px); } 37% { transform: translate(0px, 2px); } 41% { transform: translate(0px, 0px); } 50% { transform: translate(0px, -12px); } 62% { transform: translate(0px, 0px); } 66% { transform: translate(0px, 2px); } 70% { transform: translate(0px, 0px); } 78% { transform: translate(0px, -9px); } 88% { transform: translate(0px, 0px); } 92% { transform: translate(0px, 1.5px); } 100% { transform: translate(0px, 0px); } }
+@keyframes scoot { 0% { transform: translate(0px, 0px); } 10% { transform: translate(-4px, -2px); } 20% { transform: translate(-16px, 0px); } 70% { transform: translate(-16px, 0px); } 85% { transform: translate(-6px, -2px); } 100% { transform: translate(0px, 0px); } }
+@keyframes sit { 0% { transform: translate(0px, 0px); } 25% { transform: translate(0px, 4px); } 75% { transform: translate(0px, 4px); } 100% { transform: translate(0px, 0px); } }
+@keyframes hopsmall { 0% { transform: translate(0px, 0px); } 40% { transform: translate(0px, -7px); } 75% { transform: translate(0px, 0px); } 85% { transform: translate(0px, 1.5px); } 100% { transform: translate(0px, 0px); } }
+@keyframes sh-stroll { 0% { transform: translateX(0px) scale(1); opacity: 1; } 4.5% { transform: translateX(-3px) scale(0.86); opacity: 0.8; } 9% { transform: translateX(-6px) scale(1); opacity: 1; } 13.5% { transform: translateX(-9px) scale(0.86); opacity: 0.8; } 18% { transform: translateX(-12px) scale(1); opacity: 1; } 22.5% { transform: translateX(-15px) scale(0.86); opacity: 0.8; } 27% { transform: translateX(-18px) scale(1); opacity: 1; } 31.5% { transform: translateX(-21px) scale(0.86); opacity: 0.8; } 36% { transform: translateX(-24px) scale(1); opacity: 1; } 46% { transform: translateX(-24px) scale(1); opacity: 1; } 48.25% { transform: translateX(-21px) scale(0.86); opacity: 0.8; } 50.5% { transform: translateX(-18px) scale(1); opacity: 1; } 52.75% { transform: translateX(-15px) scale(0.86); opacity: 0.8; } 55% { transform: translateX(-12px) scale(1); opacity: 1; } 57.25% { transform: translateX(-9px) scale(0.86); opacity: 0.8; } 59.5% { transform: translateX(-6px) scale(1); opacity: 1; } 61.75% { transform: translateX(-3px) scale(0.86); opacity: 0.8; } 64% { transform: translateX(0px) scale(1); opacity: 1; } 66.25% { transform: translateX(3px) scale(0.86); opacity: 0.8; } 68.5% { transform: translateX(6px) scale(1); opacity: 1; } 70.75% { transform: translateX(9px) scale(0.86); opacity: 0.8; } 73% { transform: translateX(12px) scale(1); opacity: 1; } 75.25% { transform: translateX(15px) scale(0.86); opacity: 0.8; } 77.5% { transform: translateX(18px) scale(1); opacity: 1; } 79.75% { transform: translateX(21px) scale(0.86); opacity: 0.8; } 82% { transform: translateX(24px) scale(1); opacity: 1; } 86% { transform: translateX(24px) scale(1); opacity: 1; } 87.75% { transform: translateX(21px) scale(0.86); opacity: 0.8; } 89.5% { transform: translateX(18px) scale(1); opacity: 1; } 91.25% { transform: translateX(15px) scale(0.86); opacity: 0.8; } 93% { transform: translateX(12px) scale(1); opacity: 1; } 94.75% { transform: translateX(9px) scale(0.86); opacity: 0.8; } 96.5% { transform: translateX(6px) scale(1); opacity: 1; } 98.25% { transform: translateX(3px) scale(0.86); opacity: 0.8; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
+@keyframes sh-waddle { 0% { transform: translateX(0px) scale(1); opacity: 1; } 8% { transform: translateX(-1.5px) scale(0.9); opacity: 0.85; } 16% { transform: translateX(-3px) scale(1); opacity: 1; } 33% { transform: translateX(0px) scale(0.9); opacity: 0.85; } 50% { transform: translateX(3px) scale(1); opacity: 1; } 66% { transform: translateX(0px) scale(0.9); opacity: 0.85; } 83% { transform: translateX(-3px) scale(1); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
+@keyframes sh-hophop { 0% { transform: translateX(0px) scale(1); opacity: 1; } 17% { transform: translateX(0px) scale(0.72); opacity: 0.5; } 33% { transform: translateX(0px) scale(1); opacity: 1; } 37% { transform: translateX(0px) scale(1.06); opacity: 1; } 41% { transform: translateX(0px) scale(1); opacity: 1; } 50% { transform: translateX(0px) scale(0.76); opacity: 0.55; } 62% { transform: translateX(0px) scale(1); opacity: 1; } 66% { transform: translateX(0px) scale(1.06); opacity: 1; } 70% { transform: translateX(0px) scale(1); opacity: 1; } 78% { transform: translateX(0px) scale(0.82); opacity: 0.65; } 88% { transform: translateX(0px) scale(1); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
+@keyframes sh-scoot { 0% { transform: translateX(0px) scale(1); opacity: 1; } 10% { transform: translateX(-4px) scale(0.9); opacity: 0.85; } 20% { transform: translateX(-16px) scale(1); opacity: 1; } 70% { transform: translateX(-16px) scale(1); opacity: 1; } 85% { transform: translateX(-6px) scale(0.9); opacity: 0.85; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
+@keyframes sh-sit { 0% { transform: translateX(0px) scale(1); opacity: 1; } 25% { transform: translateX(0px) scale(1.08); opacity: 1.1; } 75% { transform: translateX(0px) scale(1.08); opacity: 1.1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
+@keyframes sh-hopsmall { 0% { transform: translateX(0px) scale(1); opacity: 1; } 40% { transform: translateX(0px) scale(0.84); opacity: 0.65; } 75% { transform: translateX(0px) scale(1); opacity: 1; } 85% { transform: translateX(0px) scale(1.04); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
+@keyframes sh-bounce { 0% { transform: translateX(0px) scale(1); opacity: 1; } 14% { transform: translateX(0px) scale(0.8); opacity: 0.6; } 28% { transform: translateX(0px) scale(1); opacity: 1; } 32% { transform: translateX(0px) scale(1.05); opacity: 1; } 38% { transform: translateX(0px) scale(1); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
+@keyframes sh-hop { 0% { transform: translateX(0px) scale(1); opacity: 1; } 40% { transform: translateX(0px) scale(0.68); opacity: 0.5; } 82% { transform: translateX(0px) scale(1); opacity: 1; } 91% { transform: translateX(0px) scale(1.06); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
+@keyframes sh-bob { 0% { transform: translateX(0px) scale(1); opacity: 1; } 50% { transform: translateX(0px) scale(0.92); opacity: 0.75; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
+@keyframes sh-boogie { 0% { transform: translateX(0px) scale(1); opacity: 1; } 10% { transform: translateX(0px) scale(1.05); opacity: 1; } 20% { transform: translateX(0px) scale(0.72); opacity: 0.5; } 30% { transform: translateX(0px) scale(1.05); opacity: 1; } 40% { transform: translateX(0px) scale(0.72); opacity: 0.5; } 50% { transform: translateX(0px) scale(1.05); opacity: 1; } 70% { transform: translateX(0px) scale(0.65); opacity: 0.45; } 85% { transform: translateX(0px) scale(1); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
+@keyframes sh-shuffle { 0% { transform: translateX(0px) scale(1); opacity: 1; } 12% { transform: translateX(-8px) scale(1); opacity: 1; } 25% { transform: translateX(-8px) scale(0.88); opacity: 0.75; } 37% { transform: translateX(0px) scale(1); opacity: 1; } 50% { transform: translateX(8px) scale(1); opacity: 1; } 62% { transform: translateX(8px) scale(0.88); opacity: 0.75; } 75% { transform: translateX(0px) scale(1); opacity: 1; } 87% { transform: translateX(0px) scale(0.92); opacity: 0.85; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
+@keyframes sh-peek { 0% { transform: translateX(0px) scale(1); opacity: 1; } 30% { transform: translateX(-14px) scale(1); opacity: 1; } 70% { transform: translateX(-14px) scale(1); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
+.pet.stroll .pet-svg { animation: stroll 3.6s ease-in-out; }
+.pet.waddle .pet-svg { animation: waddle 1.8s ease-in-out; }
+.pet.hophop .pet-svg { animation: hophop 1.5s ease-in-out; }
+.pet.scoot .pet-svg { animation: scoot 1.4s ease-in-out; }
+.pet.sit .pet-svg { animation: sit 2.6s ease-in-out; }
+.pet.hopsmall .pet-svg { animation: hopsmall .45s ease-in-out; }
+#pet.stroll::before { animation: sh-stroll 3.6s ease-in-out; }
+#pet.waddle::before { animation: sh-waddle 1.8s ease-in-out; }
+#pet.hophop::before { animation: sh-hophop 1.5s ease-in-out; }
+#pet.scoot::before { animation: sh-scoot 1.4s ease-in-out; }
+#pet.sit::before { animation: sh-sit 2.6s ease-in-out; }
+#pet.hopsmall::before { animation: sh-hopsmall .45s ease-in-out; }
+#pet.hop::before { animation: sh-hop .5s cubic-bezier(.3, 1.4, .5, 1); }
+#pet.bob::before { animation: sh-bob .7s ease-in-out 2; }
+#pet.boogie::before { animation: sh-boogie 1.5s ease-in-out; }
+#pet.shuffle::before { animation: sh-shuffle 1.5s ease-in-out; }
+#pet.peek::before { animation: sh-peek 1.4s ease-in-out; }

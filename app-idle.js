@@ -98,7 +98,11 @@ var IDLE_MOVES = [
   { moods: ['curious', 'happy'], run: function () { pulse('wiggle', 900); } },
   { moods: ['curious', 'happy'], run: function () { setFace(FACES.dreamy); pulse('bob', 1400); hum(); say('♪ hm hm hmm ♪', 1400); } },
   { moods: ['curious', 'happy'], run: function () { lookAround(); } },
-  { moods: ['curious', 'happy'], run: function () { setFace(FACES.dreamy); lookAround(); pulse('stroll', 3400); } },
+  { moods: ['curious', 'happy'], run: function () { setFace(FACES.dreamy); lookAround(); pulse('stroll', 3600); } },
+  { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'open', mouth: 'smile', arms: 'idle', x: ['cheeks'] }); pulse('waddle', 1800); } },
+  { moods: ['curious', 'happy'], run: function () { lookAround(); pulse('scoot', 1400); } },
+  { moods: ['happy'], run: function () { setFace(FACES.tada); pulse('hophop', 1500); drift(['♥', '✦'], petTop(), 3); } },
+  { moods: ['sleepy', 'curious', 'stuffed'], run: function () { setFace({ eyes: 'closed', mouth: 'smile', arms: 'idle', x: ['cheeks'] }); pulse('sit', 2600); } },
   { moods: ['happy'], run: function () { setFace(FACES.love); pulse('hop', 460); drift(['♥', '✦', '♥'], petTop(), 4); } },
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'closed', mouth: 'o', arms: 'cover', x: [] }); pulse('stretch', 1000); } },
   { moods: ['happy'], run: function () { setFace(FACES.tada); pulse('twirl', 800); } },
@@ -124,7 +128,8 @@ scheduleDream();
 
 // ---------- small lively things between the bigger idle moves ----------
 // Every few seconds the pet does something tiny: glances aside, blinks twice, gives a little hop, or lets a heart drift up.
-// Everything here only slides or fades the pet (no squashing or tilting, which left a seam on her phone).
+// Everything here only slides or fades the pet (no squashing or tilting, which left a seam on her phone),
+// and every hop has a landing and a shadow, so it looks like it moves on the floor, not in the air.
 var livelyTimer;
 /** @returns {{x: number, y: number}} A point just above the pet's head. */
 function petTop() {
@@ -154,7 +159,7 @@ function lively() {
     setTimeout(function () { if (pet.dataset.eyes === 'open' && !busy) pet.dataset.eyes = 'closed'; }, 330);
     setTimeout(function () { if (pet.dataset.eyes === 'closed' && !busy) pet.dataset.eyes = 'open'; }, 450);
   } else if (r < 0.8) {
-    pulse('bob', 1400);
+    pulse('hopsmall', 500);
   } else if (mood === 'happy') {
     drift(['♥', '✦'], petTop(), 2);
   }
