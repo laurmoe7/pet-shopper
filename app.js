@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '113';
+var BUILD = '114';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -212,6 +212,7 @@ function render() {
   renderCart(todo, done);
   freshIds = {};
   if (!busy) settle();
+  walkHome();
 }
 
 var cartEl = $('cart'), cartLoad = $('cartLoad'), cartBag = $('cartBag'), bagLoad = $('bagLoad'), cartCount = -1, bagCount = -1;

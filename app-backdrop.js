@@ -165,14 +165,9 @@ function bdKitchen(night) {
     // full curtains either side and the rod
     curtain_(254, 1) + curtain_(362, -1) +
     '<path d="M248 16h120" stroke="#5b4239" stroke-width="2.6" stroke-linecap="round"/><circle cx="248" cy="16" r="3" fill="#c99566" ' + BD_THIN + '/><circle cx="368" cy="16" r="3" fill="#c99566" ' + BD_THIN + '/>' +
-    // a shelf on the left with jars and a pot plant
+    // an empty shelf on the left
     '<path d="M42 64h88" stroke="#c99566" stroke-width="5" stroke-linecap="round"/>' +
-    '<rect x="72" y="42" width="16" height="20" rx="4" fill="#fff6dd" ' + BD_LINE + '/><rect x="71" y="38" width="18" height="6" rx="2" fill="#ff9fb6" ' + BD_LINE + '/>' +
-    '<rect x="94" y="46" width="14" height="16" rx="4" fill="#fff6dd" ' + BD_LINE + '/><rect x="93" y="42" width="16" height="6" rx="2" fill="#9bd4a8" ' + BD_LINE + '/>' +
-    '<path d="M112 50h18l-3 12h-12z" fill="#e8916b" ' + BD_LINE + '/>' +
-    '<path d="M121 50q-8-10-2-18q4 8 2 18q2-12 10-14q-2 10-10 14" fill="#8fcf87" ' + BD_LINE + '/>' +
-    // at night a little lamp glows on the shelf
-    (night ? '<circle cx="54" cy="40" r="16" fill="#ffe7a0" opacity=".35"/><path d="M48 46h12l-2-10h-8z" fill="#ffd27a" ' + BD_LINE + '/><path d="M54 46v12M49 60h10" ' + BD_LINE + '/>' : '') +
+    '<path d="M52 66l6 8M120 66l-6 8" stroke="#c99566" stroke-width="3" stroke-linecap="round"/>' +
     // the counter top along the floor
     '<rect x="-10" y="128" width="420" height="40" fill="' + (night ? '#c7a07a' : '#e9bf8f') + '" ' + BD_LINE + '/>' +
     '<path d="M-10 136H410" stroke="#d6a574" stroke-width="2"/><path d="M60 140v28M170 140v28M280 140v28M380 140v28" stroke="#d6a574" stroke-width="1.6"/>';
@@ -229,13 +224,37 @@ function bdAquarium(night) {
     bdFish(110, 40, 1, night ? '#d98a6a' : '#ffa27a', 1) + bdFish(300, 56, 0.8, night ? '#c9b46a' : '#ffd86b', -1) + bdFish(268, 28, 0.6, night ? '#c98aa0' : '#ffb3c7', -1) +
     // bubbles
     bdBubble(64, 54, 4) + bdBubble(70, 38, 3) + bdBubble(62, 26, 2.2) + bdBubble(330, 40, 3.5) + bdBubble(336, 24, 2.4) +
-    // at night a glowing jellyfish
-    (night ? '<circle cx="186" cy="34" r="16" fill="#f5c4ff" opacity=".18"/><path d="M174 36a12 11 0 0 1 24 0q-3 3 -6 0q-3 3 -6 0q-3 3 -6 0q-3 3 -6 0z" fill="#efc6ff" ' + BD_THIN + '/>' +
-      '<path d="M178 38q-2 6 1 12M186 38q-2 7 1 14M194 38q2 6 -1 12" stroke="#efc6ff" stroke-width="1.4" fill="none" stroke-linecap="round"/>' : '') +
+    // a jellyfish, glowing at night
+    (night ? '<circle cx="186" cy="34" r="16" fill="#f5c4ff" opacity=".18"/>' : '') +
+    '<path d="M178 38q-2 6 1 12M186 38q-2 7 1 14M194 38q2 6 -1 12" stroke="' + (night ? '#efc6ff' : '#e9a6d8') + '" stroke-width="1.4" fill="none" stroke-linecap="round"/>' +
+    '<path d="M174 36a12 11 0 0 1 24 0q-3 3 -6 0q-3 3 -6 0q-3 3 -6 0q-3 3 -6 0z" fill="' + (night ? '#efc6ff' : '#ffc9ec') + '" ' + BD_THIN + '/>' +
     // sand, pebbles and a shell
     '<path d="M-10 136Q100 126 200 134T410 130V170H-10z" fill="' + (night ? '#b8a27e' : '#f3dfae') + '" ' + BD_LINE + '/>' +
     '<ellipse cx="300" cy="146" rx="7" ry="4.5" fill="' + (night ? '#8f8aa6' : '#c9c3dc') + '" ' + BD_THIN + '/><ellipse cx="312" cy="150" rx="5" ry="3.5" fill="' + (night ? '#a37f86' : '#f2b8c2') + '" ' + BD_THIN + '/>' +
     '<path d="M358 150q0-10 9-10q9 0 9 10z" fill="' + (night ? '#c9a0a8' : '#ffd1da') + '" ' + BD_THIN + '/><path d="M367 141v9M362 143l2 7M372 143l-2 7" stroke="#5b4239" stroke-width=".9"/>';
+}
+/**
+ * @param {boolean} night
+ * @returns {string} A round, chubby palm tree: a ringed trunk, puffy leaves and three coconuts.
+ */
+function bdPalm(night) {
+  var leaf = night ? '#3f8a62' : '#7bd29a', vein = night ? '#2f6e4e' : '#55b67a', bark = night ? '#a07a58' : '#d9a66f';
+  var cx = 338, cy = 80, leaves = '';
+  // leaves drawn from the crown: [shape, vein]; the side ones droop and curl at the tips
+  [['M0 0C-2 -12 6 -24 14 -27C14 -16 8 -6 0 0z', 'M2 -3Q8 -14 12 -23'],
+    ['M0 0C2 -12 -6 -24 -14 -27C-14 -16 -8 -6 0 0z', 'M-2 -3Q-8 -14 -12 -23'],
+    ['M0 0C8 -16 32 -16 40 4C30 -2 14 2 0 0z', 'M4 -3Q20 -11 36 1'],
+    ['M0 0C-8 -16 -32 -16 -40 4C-30 -2 -14 2 0 0z', 'M-4 -3Q-20 -11 -36 1'],
+    ['M0 0C10 -6 28 0 30 16C22 8 10 4 0 0z', 'M4 -1Q18 0 27 12'],
+    ['M0 0C-10 -6 -28 0 -30 16C-22 8 -10 4 0 0z', 'M-4 -1Q-18 0 -27 12']].forEach(function (l) {
+    leaves += '<g transform="translate(' + cx + ' ' + cy + ')"><path d="' + l[0] + '" fill="' + leaf + '" ' + BD_LINE + '/>' +
+      '<path d="' + l[1] + '" stroke="' + vein + '" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>';
+  });
+  return '<path d="M326 134Q328 106 334 82H343Q338 108 341 134z" fill="' + bark + '" ' + BD_LINE + '/>' +
+    '<path d="M328 122q6 2 12 0M330 108q5 2 10 0M333 94q4 2 8 0" stroke="#5b4239" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".55"/>' +
+    leaves +
+    '<circle cx="333" cy="86" r="4.6" fill="#8a5a3a" ' + BD_THIN + '/><circle cx="343" cy="86" r="4.6" fill="#8a5a3a" ' + BD_THIN + '/><circle cx="338" cy="90" r="4.6" fill="#8a5a3a" ' + BD_THIN + '/>' +
+    '<circle cx="331.6" cy="84.6" r="1.2" fill="#fff" opacity=".7"/><circle cx="341.6" cy="84.6" r="1.2" fill="#fff" opacity=".7"/><circle cx="336.6" cy="88.6" r="1.2" fill="#fff" opacity=".7"/>';
 }
 /**
  * @param {boolean} night
@@ -244,18 +263,16 @@ function bdAquarium(night) {
 function bdBeach(night) {
   var sea = night ? '#2f4f86' : '#6cc6e0', sand = night ? '#b8a27e' : '#f6dfa8';
   return bdDaySky(night) +
-    (night ? bdMoon(300, 34, 15) + bdStars([[64, 26, 4.5], [150, 18, 3], [212, 40, 1.3], [370, 50, 3], [110, 56, 1.2]]) : bdSun(300, 44) + bdCloud(100, 44, 0.9)) +
+    (night ? bdMoon(84, 30, 15) + bdStars([[150, 22, 4.5], [40, 60, 3], [212, 40, 1.3], [282, 26, 3], [120, 56, 1.2]]) : bdSun(84, 42) + bdCloud(276, 34, 0.9)) +
     // the sea, with a moon path at night
     '<path d="M-10 92H410V136H-10z" fill="' + sea + '" ' + BD_LINE + '/>' +
-    (night ? '<path d="M290 96h24M284 104h34M292 112h20" stroke="#ffe9a8" stroke-width="2.4" stroke-linecap="round" opacity=".8"/>'
+    (night ? '<path d="M74 96h24M68 104h34M76 112h20" stroke="#ffe9a8" stroke-width="2.4" stroke-linecap="round" opacity=".8"/>'
       : '<path d="M40 104q8-4 16 0M150 100q8-4 16 0M250 112q8-4 16 0M330 104q8-4 16 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>') +
     // the waterline and sand
     '<path d="M-10 126Q20 120 50 126T110 126T170 126T230 126T290 126T350 126T410 126V170H-10z" fill="#fff" ' + BD_LINE + '/>' +
     '<path d="M-10 132Q60 126 140 132T290 130T410 131V170H-10z" fill="' + sand + '" ' + BD_LINE + '/>' +
-    // a palm tree on the right and a starfish
-    '<g transform="translate(-16 0)"><path d="M352 132Q350 104 362 76" fill="none" stroke="#a7774f" stroke-width="7" stroke-linecap="round"/><path d="M352 132Q350 104 362 76" fill="none" stroke="#5b4239" stroke-width="1" opacity=".4"/>' +
-    '<path d="M362 76Q344 62 324 70Q344 70 362 76zM362 76Q380 60 398 70Q378 68 362 76zM362 76Q350 56 336 52Q356 60 362 76zM362 76Q376 52 392 50Q372 60 362 76z" fill="' + (night ? '#3f8a62' : '#6cc58a') + '" ' + BD_LINE + '/>' +
-    '<circle cx="358" cy="80" r="3.5" fill="#a7774f" ' + BD_THIN + '/><circle cx="365" cy="81" r="3.5" fill="#a7774f" ' + BD_THIN + '/>' +
+    // a chubby palm tree on the right and a starfish
+    bdPalm(night) +
     '<path d="M300 140l2.5 4.5 5 .5-3.8 3.2 1.2 5-4.9-2.6-4.9 2.6 1.2-5-3.8-3.2 5-.5z" fill="' + (night ? '#c98a6a' : '#ffa27a') + '" ' + BD_THIN + '/>';
 }
 

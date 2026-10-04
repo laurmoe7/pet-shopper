@@ -44,7 +44,7 @@ function enqueue(job) {
   queue = queue.then(job).catch(function (e) { console.error(e); }).then(function () {
     pending--;
     busy--;
-    if (!busy) settle();
+    if (!busy) { settle(); walkHome(); }
   });
 }
 /** @returns {number} An animation speed factor; faster when several items are waiting. */

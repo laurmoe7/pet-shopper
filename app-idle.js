@@ -133,9 +133,7 @@ function walkTo(x) {
   stage.style.setProperty('--walk-ms', ms + 'ms');
   stage.style.setProperty('--walk-x', x + 'px');
   stage.classList.toggle('walk-right', x > 15);
-  // face the way it walks; the eyes look ahead (the mirror turns the look round too)
-  turnTo(x > walkX ? 1 : -1);
-  if (!lookAt) pet.style.setProperty('--look-x', '3.2px');
+  if (!lookAt) pet.style.setProperty('--look-x', (x > walkX ? 3.2 : -3.2) + 'px');
   walkX = x;
   walking = true;
   pet.classList.add('walking');
@@ -173,6 +171,12 @@ function walkPath(spots, pause) {
     from = x;
   });
   return t;
+}
+/** @returns {boolean} True when the list has nothing left to buy, so the pet may wander off its cushion. */
+function mayWander() { return !state.items.some(function (i) { return !i.done; }); }
+/** With things on the list, the pet comes back to the middle, ready to shop. */
+function walkHome() {
+  if (walkX && !mayWander() && !busy) walkTo(0);
 }
 /** @returns {number} A new spot on the floor, a fair way from where the pet stands. */
 function newSpot() {
@@ -220,26 +224,28 @@ var IDLE_MOVES = [
   { moods: ['curious', 'stuffed'], run: function () { setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); drift(['☀'], petTop(), 1); pulse('sit', 2600); talk('sun', ['warm and cozy…', 'sunny day ♡', 'ahh, sunshine'], 1400); } },
   { moods: ['stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'o', arms: 'pat', x: ['cheeks'] }); pulse('hopsmall', 450); say(pick(['*hic*', 'burp! oops', 'hehe, full']), 1100, true); } },
   // walking about: a wander to a new spot, pacing back and forth, a happy trot, a stroll back to the middle
-  { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'open', mouth: 'smile', arms: 'idle', x: [] }); return walkTo(newSpot()); } },
-  { moods: ['curious', 'happy'], run: function () { setFace(FACES.dreamy); hum(); return walkTo(newSpot()); } },
+  { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'open', mouth: 'smile', arms: 'idle', x: [] }); return walkTo(newSpot()); }, walk: true },
+  { moods: ['curious', 'happy'], run: function () { setFace(FACES.dreamy); hum(); return walkTo(newSpot()); }, walk: true },
   { moods: ['curious'], run: function () {
     var b = walkBounds();
     setFace({ eyes: 'open', mouth: 'o', arms: 'scratch', x: ['question'] });
     talk('pace', ['hmm, what to buy…', 'thinking…', 'let me think…'], 1500);
     return walkPath([b.min * 0.8, b.max * 0.8, walkX], 600);
-  } },
+  }, walk: true },
   { moods: ['happy'], run: function () {
     var b = walkBounds();
     setFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] });
     return walkPath([b.max, b.min, 0], 250);
-  } },
-  { moods: ['stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); return walkTo(walkX ? 0 : newSpot() * 0.5); } },
+  }, walk: true },
+  { moods: ['stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); return walkTo(walkX ? 0 : newSpot() * 0.5); }, walk: true },
   { moods: ['happy', 'stuffed'], run: function () { if (!receiptEl.hidden) { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'reach', x: ['sparkles'] }); pulse('peek', 1400); talk('receipt', ['look how much we got!', 'such a long receipt!', 'good shopping!'], 1400); } } }
 ];
 /** Plays one idle move that fits the pet's mood, then settles back. */
 function idleMove() {
   var mood = baseState();
   var moves = IDLE_MOVES.filter(function (m) { return m.moods.indexOf(mood) !== -1; });
+  // walking moves (they return how long they take) only when nothing is left to buy
+  moves = moves.filter(function (m) { return mayWander() || !m.walk; });
   if (!moves.length) return;
   busy++;
   var ms = pick(moves).run();
@@ -297,7 +303,7 @@ function lively() {
     setTimeout(function () { if (pet.dataset.eyes === 'closed' && !busy) pet.dataset.eyes = 'open'; }, 450);
   } else if (r < 0.46) {
     pulse('hopsmall', 500);
-  } else if (r < 0.62) {
+  } else if (r < 0.62 && mayWander()) {
     // a few steps one way or the other
     var step = (Math.random() < 0.5 ? -1 : 1) * (20 + Math.random() * 30);
     var b = walkBounds();
@@ -317,6 +323,7 @@ setInterval(function () {
   if (!busy && !dreaming && pet.dataset.state !== baseState()) settle();
   // bedtime: back to its cushion
   if (!busy && baseState() === 'sleepy' && walkX) walkTo(0);
+  walkHome();
 }, 60000);
 
 // ---------- eyes follow your finger or cursor ----------
@@ -337,8 +344,7 @@ function updateLook() {
     var dx = lookAt.x - (r.left + r.width / 2), dy = lookAt.y - (r.top + r.height / 2);
     var d = Math.hypot(dx, dy) || 1;
     var reach = Math.min(d / 120, 1);
-    // a mirrored pet looks the other way in its own drawing
-    el.style.setProperty('--look-x', (dx / d * 3.4 * reach * (el === pet ? Math.sign(facing) || 1 : 1)).toFixed(2) + 'px');
+    el.style.setProperty('--look-x', (dx / d * 3.4 * reach).toFixed(2) + 'px');
     el.style.setProperty('--look-y', (dy / d * 2.8 * reach).toFixed(2) + 'px');
     el.classList.add('looking');
   });

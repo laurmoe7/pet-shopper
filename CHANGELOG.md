@@ -2,6 +2,14 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 114 (4 Oct)
+- Pet returns to the middle when there's shopping to do.
+- "Shopping done" is back to "Clear list".
+- Empty kitchen shelf.
+- Cuter beach palm tree.
+- Jellyfish in the daytime aquarium too.
+- Turning while walking removed.
+
 ## Build 113 (4 Oct)
 - Potato chips crunch.
 - Pet turns to face the way it walks (test).

@@ -125,9 +125,6 @@ var SQUISH = {
   breath: { ms: 2400, steps: [[0, 1, 1, 0], [.45, .98, 1.035, 0], [1, 1, 1, 0]] }
 };
 var squishBody = petSvg.querySelector('.pet-body'), squishRun = 0, squishing = false;
-// Which way the pet faces: 1 as drawn, -1 mirrored (turnTo flips it when it walks the other way).
-// The mirror is part of the same SVG transform, so it never uses a CSS scale.
-var facing = 1, facingTo = 1, turnRun = 0, turning = false;
 /**
  * Sets the body's SVG transform, anchored at the middle of the feet (80, 146 in the drawing).
  * @param {number} sx
@@ -135,7 +132,6 @@ var facing = 1, facingTo = 1, turnRun = 0, turning = false;
  * @param {number} lift
  */
 function drawBody(sx, sy, lift) {
-  sx *= facing;
   if (sx === 1 && sy === 1 && !lift) { squishBody.removeAttribute('transform'); return; }
   squishBody.setAttribute('transform', 'matrix(' + sx.toFixed(4) + ' 0 0 ' + sy.toFixed(4) + ' ' +
     (80 - 80 * sx).toFixed(3) + ' ' + (146 - 146 * sy + lift).toFixed(3) + ')');
@@ -157,29 +153,6 @@ function svgSquish(sq) {
   }
   requestAnimationFrame(frame);
 }
-/**
- * Turns the pet to face one way: the body narrows to a sliver and opens out mirrored.
- * @param {number} dir 1 as drawn, -1 mirrored.
- */
-function turnTo(dir) {
-  if (dir === facingTo) return;
-  facingTo = dir;
-  if (reduceMotion) { facing = dir; if (!squishing) drawBody(1, 1, 0); return; }
-  var run = ++turnRun, from = facing, start = performance.now(), ms = 260;
-  turning = true;
-  function frame(now) {
-    if (run !== turnRun) return;
-    var t = Math.min(1, (now - start) / ms), k = .5 - Math.cos(t * Math.PI) / 2;
-    // never exactly 0 wide, so the drawing doesn't vanish for a frame
-    facing = from + (dir - from) * k;
-    if (Math.abs(facing) < 0.06) facing = facing < 0 ? -0.06 : 0.06;
-    if (t >= 1) { facing = dir; turning = false; }
-    if (!squishing) drawBody(1, 1, 0);
-    if (t < 1) requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-}
-
 var bubbleTimer, bubbleHome = bubble.parentNode, bubbleNext = bubble.nextSibling;
 /** Puts the bubble back on the stage (it moves into an open menu so the pet can still talk there). */
 function bubbleToStage() {
