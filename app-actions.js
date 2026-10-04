@@ -58,6 +58,7 @@ function speed() { return pending > 4 ? 0.4 : pending > 2 ? 0.6 : 1; }
  */
 function eat(item, fromRect, goals) {
   enqueue(function () {
+    stopWalk();
     var sp = speed();
     var nonfood = isBagged(item);
     var key = reactionOf(item);

@@ -140,6 +140,13 @@ button { font: inherit; color: inherit; }
 }
 .stage::before { left: 34%; top: 30px; }
 .stage::after { right: 22%; top: 112px; width: 10px; height: 10px; background: var(--pet-star); animation-delay: 1.4s; }
+/* a background picture behind the pet (app-backdrop.js), framed like a cut-out card; z-index -1 keeps it
+   behind the sparkles and the room but in front of the scene's board */
+.backdrop { position: absolute; inset: 4px 0 18px; z-index: -1; overflow: hidden; border-radius: 16px; border: 1.8px solid var(--outline); box-shadow: 0 3px 0 var(--shadow); pointer-events: none; }
+.backdrop[hidden] { display: none; }
+.backdrop svg { display: block; width: 100%; height: 100%; }
+:root[data-theme="dark"] .backdrop:not([data-bd="night"]) { filter: brightness(.78) saturate(.85); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .backdrop:not([data-bd="night"]) { filter: brightness(.78) saturate(.85); } }
 .cushion { position: absolute; left: 50%; bottom: 4px; width: 158px; height: 30px; transform: translateX(-50%); background: var(--cushion); border: 1.8px solid var(--outline); border-radius: 50%; z-index: 0; }
 .cushion::after {
   content: ""; position: absolute; inset: 5px 14px; border: 1.5px dashed var(--cushion-stitch); border-radius: 50%;
@@ -148,7 +155,7 @@ button { font: inherit; color: inherit; }
 .pet-svg { width: 100%; height: 100%; overflow: visible; display: block; }
 
 /* speech bubble */
-.bubble { position: absolute; left: calc(50% + 62px); right: 0; top: 10px; z-index: 3; width: max-content; max-width: calc(50% - 62px); background: var(--surface); color: var(--ink); border: 1.8px solid var(--outline); font-family: var(--font-display); font-weight: 500; font-size: .95rem; line-height: 1.25; padding: 6px 12px; text-wrap: balance; animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); transform-origin: 0 100%; }
+.bubble { position: absolute; left: calc(50% + 62px + var(--walk-x, 0px)); right: 0; top: 10px; z-index: 3; width: max-content; max-width: calc(50% - 62px - var(--walk-x, 0px)); background: var(--surface); color: var(--ink); border: 1.8px solid var(--outline); font-family: var(--font-display); font-weight: 500; font-size: .95rem; line-height: 1.25; padding: 6px 12px; text-wrap: balance; animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); transform-origin: 0 100%; }
 /* in an open menu the bubble hangs at the top of the screen so it still shows over the sheet */
 .bubble.in-sheet { position: fixed; left: auto; right: 12px; top: calc(env(safe-area-inset-top, 0px) + 10px); max-width: min(68vw, 300px); z-index: 100; transform-origin: 100% 100%; }
 @keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -633,7 +640,7 @@ button { font: inherit; color: inherit; }
 @media (prefers-reduced-motion: reduce) { .cart-bag:not([hidden]), .cart-bag.bump { animation: none; } }
 
 /* ---------- daydreams ---------- */
-.dream { position: absolute; left: calc(50% - 40px); top: -4px; width: 60px; height: 58px; z-index: 3; pointer-events: none; }
+.dream { position: absolute; left: calc(50% - 40px + var(--walk-x, 0px)); top: -4px; width: 60px; height: 58px; z-index: 3; pointer-events: none; }
 .dream:not([hidden]) { animation: dream-in .5s ease-out; }
 @keyframes dream-in { from { opacity: 0; transform: translateY(8px) scale(.7); } }
 .dream-cloud {
@@ -1225,7 +1232,7 @@ button { font: inherit; color: inherit; }
 
 /* the light / dark choice in Options */
 .option-theme { grid-template-columns: 1fr; cursor: default; }
-.theme-btns { display: flex; gap: 8px; margin-top: 6px; }
+.theme-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 
 /* sheets have no Done button: the grab bar closes them (tap or swipe down), and so does the bar button again */
 .sheet-grab {
@@ -1254,6 +1261,14 @@ button { font: inherit; color: inherit; }
   background: radial-gradient(closest-side, rgba(120, 52, 74, .46), rgba(120, 52, 74, .22) 60%, rgba(120, 52, 74, 0));
 }
 #pet[data-state="happy"]::before { animation: sh-bounce 1.8s ease-in-out infinite; }
+/* walking about the floor (walkTo in app-idle.js): #pet slides with the translate property and the drawing
+   bobs along; the speech bubble and daydream follow, and the bubble moves to the left when the pet is on the right */
+#pet { translate: var(--walk-x, 0px) 0; transition: translate var(--walk-ms, 0s) ease-in-out; }
+.pet.walking .pet-svg { animation: walk-bob .5s ease-in-out infinite; }
+#pet.walking::before { animation: sh-walk .5s ease-in-out infinite; }
+@keyframes walk-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.5px); } }
+@keyframes sh-walk { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.9); opacity: .85; } }
+.stage.walk-right .bubble:not(.in-sheet) { left: auto; right: calc(50% + 62px - var(--walk-x, 0px)); max-width: calc(50% - 62px + var(--walk-x, 0px)); transform-origin: 100% 100%; }
 @keyframes stroll { 0% { transform: translate(0px, 0px); } 4.5% { transform: translate(-3px, -3px); } 9% { transform: translate(-6px, 0px); } 13.5% { transform: translate(-9px, -3px); } 18% { transform: translate(-12px, 0px); } 22.5% { transform: translate(-15px, -3px); } 27% { transform: translate(-18px, 0px); } 31.5% { transform: translate(-21px, -3px); } 36% { transform: translate(-24px, 0px); } 46% { transform: translate(-24px, 0px); } 48.25% { transform: translate(-21px, -3px); } 50.5% { transform: translate(-18px, 0px); } 52.75% { transform: translate(-15px, -3px); } 55% { transform: translate(-12px, 0px); } 57.25% { transform: translate(-9px, -3px); } 59.5% { transform: translate(-6px, 0px); } 61.75% { transform: translate(-3px, -3px); } 64% { transform: translate(0px, 0px); } 66.25% { transform: translate(3px, -3px); } 68.5% { transform: translate(6px, 0px); } 70.75% { transform: translate(9px, -3px); } 73% { transform: translate(12px, 0px); } 75.25% { transform: translate(15px, -3px); } 77.5% { transform: translate(18px, 0px); } 79.75% { transform: translate(21px, -3px); } 82% { transform: translate(24px, 0px); } 86% { transform: translate(24px, 0px); } 87.75% { transform: translate(21px, -3px); } 89.5% { transform: translate(18px, 0px); } 91.25% { transform: translate(15px, -3px); } 93% { transform: translate(12px, 0px); } 94.75% { transform: translate(9px, -3px); } 96.5% { transform: translate(6px, 0px); } 98.25% { transform: translate(3px, -3px); } 100% { transform: translate(0px, 0px); } }
 @keyframes waddle { 0% { transform: translate(0px, 0px); } 8% { transform: translate(-1.5px, -2px); } 16% { transform: translate(-3px, 0px); } 33% { transform: translate(0px, -2px); } 50% { transform: translate(3px, 0px); } 66% { transform: translate(0px, -2px); } 83% { transform: translate(-3px, 0px); } 100% { transform: translate(0px, 0px); } }
 @keyframes hophop { 0% { transform: translate(0px, 0px); } 17% { transform: translate(0px, -14px); } 33% { transform: translate(0px, 0px); } 37% { transform: translate(0px, 2px); } 41% { transform: translate(0px, 0px); } 50% { transform: translate(0px, -12px); } 62% { transform: translate(0px, 0px); } 66% { transform: translate(0px, 2px); } 70% { transform: translate(0px, 0px); } 78% { transform: translate(0px, -9px); } 88% { transform: translate(0px, 0px); } 92% { transform: translate(0px, 1.5px); } 100% { transform: translate(0px, 0px); } }
@@ -1594,8 +1609,8 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 @keyframes stomp { 0%, 100% { transform: translate(0, 0); } 40% { transform: translate(0, -3px); } 70% { transform: translate(0, .6px); } }
 @keyframes shiver { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-.7px, 0); } 75% { transform: translate(.7px, 0); } }
 /* walking about: one foot then the other */
-.pet:is(.stroll, .waddle, .shuffle, .scoot, .boogie) :is(.foot-l, .shoe-l) { animation: step .5s ease-in-out infinite; }
-.pet:is(.stroll, .waddle, .shuffle, .scoot, .boogie) :is(.foot-r, .shoe-r) { animation: step .5s ease-in-out -.25s infinite; }
+.pet:is(.stroll, .waddle, .shuffle, .scoot, .boogie, .walking) :is(.foot-l, .shoe-l) { animation: step .5s ease-in-out infinite; }
+.pet:is(.stroll, .waddle, .shuffle, .scoot, .boogie, .walking) :is(.foot-r, .shoe-r) { animation: step .5s ease-in-out -.25s infinite; }
 /* hops: both feet tuck up in the air */
 .pet.hop :is(.foot-side, .shoe-l, .shoe-r) { animation: tuck .5s ease-in-out; }
 .pet.hopsmall :is(.foot-side, .shoe-l, .shoe-r) { animation: tuck .45s ease-in-out; }

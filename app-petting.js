@@ -31,6 +31,7 @@
   }
 
   pet.addEventListener('pointerdown', function (e) {
+    stopWalk();
     down = { x: e.clientX, y: e.clientY };
     travel = 0;
     stroked = false;

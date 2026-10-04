@@ -96,6 +96,89 @@ function lookAround() {
   });
 }
 // little things the pet does while it waits; some only fit some moods
+// ---------- walking about ----------
+// The pet wanders back and forth on the floor and stays where it stops. Only #pet slides (the CSS translate
+// property), never scaled or turned. --walk-x lives on the stage so the speech bubble and daydream follow.
+var stage = pet.parentNode, walkX = 0, walkTimer, walking = false;
+/** @returns {number} How far the pet may walk from the middle, in px. */
+function walkRange() { return Math.max(0, Math.min(70, stage.clientWidth / 2 - 100)); }
+/**
+ * @returns {{min: number, max: number}} Where the pet may stand: it can tuck a little behind the receipt and
+ * the bag but not hide behind them.
+ */
+function walkBounds() {
+  var max = walkRange(), min = -max, s = stage.getBoundingClientRect(), mid = s.left + s.width / 2;
+  var half = pet.offsetWidth * 0.42, overlap = 14;
+  if (!receiptEl.hidden) min = Math.max(min, receiptEl.getBoundingClientRect().right - mid + half - overlap);
+  var bag = $('cartBag');
+  if (!bag.hidden) max = Math.min(max, bag.getBoundingClientRect().left - mid - half + overlap);
+  return { min: Math.min(0, min), max: Math.max(0, max) };
+}
+/**
+ * @param {number} x
+ * @returns {number} x moved onto the floor the pet may walk on.
+ */
+function clampWalk(x) { var b = walkBounds(); return Math.round(Math.max(b.min, Math.min(b.max, x))); }
+/**
+ * Walks the pet to x px from the middle of the stage (clamped to the floor).
+ * @param {number} x
+ * @returns {number} How long the walk takes in ms (0 if it doesn't move).
+ */
+function walkTo(x) {
+  if (reduceMotion) return 0;
+  x = clampWalk(x);
+  var dist = Math.abs(x - walkX);
+  if (dist < 8) return 0;
+  var ms = Math.round(500 + dist * 26);
+  stage.style.setProperty('--walk-ms', ms + 'ms');
+  stage.style.setProperty('--walk-x', x + 'px');
+  stage.classList.toggle('walk-right', x > 15);
+  if (!lookAt) pet.style.setProperty('--look-x', (x > walkX ? 3.2 : -3.2) + 'px');
+  walkX = x;
+  walking = true;
+  pet.classList.add('walking');
+  clearTimeout(walkTimer);
+  walkTimer = setTimeout(function () {
+    walking = false;
+    pet.classList.remove('walking');
+    if (!lookAt) pet.style.removeProperty('--look-x');
+  }, ms);
+  return ms;
+}
+/** Stops a walk where the pet is now, so food flies to the right spot. */
+function stopWalk() {
+  if (!walking) return;
+  var now = parseFloat(getComputedStyle(pet).translate) || 0;
+  stage.style.setProperty('--walk-ms', '0s');
+  stage.style.setProperty('--walk-x', Math.round(now) + 'px');
+  walkX = Math.round(now);
+  clearTimeout(walkTimer);
+  walking = false;
+  pet.classList.remove('walking');
+}
+/**
+ * Walks through a list of spots, pausing between them.
+ * @param {number[]} spots
+ * @param {number} [pause=500]
+ * @returns {number} The total time in ms.
+ */
+function walkPath(spots, pause) {
+  var t = 0, from = walkX;
+  spots.forEach(function (x) {
+    x = clampWalk(x);
+    setTimeout(function () { walkTo(x); }, t);
+    t += Math.round(500 + Math.abs(x - from) * 26) + (pause || 500);
+    from = x;
+  });
+  return t;
+}
+/** @returns {number} A new spot on the floor, a fair way from where the pet stands. */
+function newSpot() {
+  var b = walkBounds(), x = walkX;
+  for (var i = 0; i < 6 && Math.abs(x - walkX) < (b.max - b.min) * 0.25; i++) x = b.min + Math.random() * (b.max - b.min);
+  return x;
+}
+
 var IDLE_MOVES = [
   { moods: ['curious', 'happy'], run: function () { pulse('wiggle', 900); } },
   { moods: ['curious', 'happy'], run: function () { setFace(FACES.dreamy); pulse('bob', 1400); hum(); say('♪ hm hm hmm ♪', 1400); } },
@@ -134,6 +217,21 @@ var IDLE_MOVES = [
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'sparkle', mouth: 'o', arms: 'reach', x: [] }); drift(['○', '◦', '○'], mouthPoint(), 3); pulse('hopsmall', 450); talk('bubbles', ['bubbles!', 'pop pop!'], 1100); } },
   { moods: ['curious', 'stuffed'], run: function () { setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); drift(['☀'], petTop(), 1); pulse('sit', 2600); talk('sun', ['warm and cozy…', 'sunny day ♡', 'ahh, sunshine'], 1400); } },
   { moods: ['stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'o', arms: 'pat', x: ['cheeks'] }); pulse('hopsmall', 450); say(pick(['*hic*', 'burp! oops', 'hehe, full']), 1100, true); } },
+  // walking about: a wander to a new spot, pacing back and forth, a happy trot, a stroll back to the middle
+  { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'open', mouth: 'smile', arms: 'idle', x: [] }); return walkTo(newSpot()); } },
+  { moods: ['curious', 'happy'], run: function () { setFace(FACES.dreamy); hum(); return walkTo(newSpot()); } },
+  { moods: ['curious'], run: function () {
+    var b = walkBounds();
+    setFace({ eyes: 'open', mouth: 'o', arms: 'scratch', x: ['question'] });
+    talk('pace', ['hmm, what to buy…', 'thinking…', 'let me think…'], 1500);
+    return walkPath([b.min * 0.8, b.max * 0.8, walkX], 600);
+  } },
+  { moods: ['happy'], run: function () {
+    var b = walkBounds();
+    setFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] });
+    return walkPath([b.max, b.min, 0], 250);
+  } },
+  { moods: ['stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); return walkTo(walkX ? 0 : newSpot() * 0.5); } },
   { moods: ['happy', 'stuffed'], run: function () { if (!receiptEl.hidden) { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'reach', x: ['sparkles'] }); pulse('peek', 1400); talk('receipt', ['look how much we got!', 'such a long receipt!', 'good shopping!'], 1400); } } }
 ];
 /** Plays one idle move that fits the pet's mood, then settles back. */
@@ -142,8 +240,8 @@ function idleMove() {
   var moves = IDLE_MOVES.filter(function (m) { return m.moods.indexOf(mood) !== -1; });
   if (!moves.length) return;
   busy++;
-  pick(moves).run();
-  setTimeout(function () { busy--; if (!busy) settle(); }, 1600);
+  var ms = pick(moves).run();
+  setTimeout(function () { busy--; if (!busy) settle(); }, Math.max(1600, ms || 0));
 }
 scheduleDream();
 
@@ -179,7 +277,7 @@ function scheduleLively() {
 }
 function lively() {
   scheduleLively();
-  if (reduceMotion || busy || dreaming || document.hidden || lookAt || document.querySelector('dialog[open]:not(#roomSheet)')) return;
+  if (reduceMotion || busy || walking || dreaming || document.hidden || lookAt || document.querySelector('dialog[open]:not(#roomSheet)')) return;
   var mood = baseState();
   if (mood === 'sleepy') return;
   var r = Math.random();
@@ -195,8 +293,13 @@ function lively() {
     setTimeout(function () { if (pet.dataset.eyes === 'closed' && !busy) pet.dataset.eyes = 'open'; }, 120);
     setTimeout(function () { if (pet.dataset.eyes === 'open' && !busy) pet.dataset.eyes = 'closed'; }, 330);
     setTimeout(function () { if (pet.dataset.eyes === 'closed' && !busy) pet.dataset.eyes = 'open'; }, 450);
-  } else if (r < 0.52) {
+  } else if (r < 0.46) {
     pulse('hopsmall', 500);
+  } else if (r < 0.62) {
+    // a few steps one way or the other
+    var step = (Math.random() < 0.5 ? -1 : 1) * (20 + Math.random() * 30);
+    var b = walkBounds();
+    walkTo(walkX + step < b.min || walkX + step > b.max ? walkX - step : walkX + step);
   } else if (r < 0.82) {
     // a small rock from side to side
     pulse('rocksmall', 1300);
@@ -207,7 +310,12 @@ function lively() {
 scheduleLively();
 softSettleSoon();
 // bedtime and morning: check the clock now and then, so the pet falls asleep at 10 pm and wakes at 7 am
-setInterval(function () { updateEmptyHint(); if (!busy && !dreaming && pet.dataset.state !== baseState()) settle(); }, 60000);
+setInterval(function () {
+  updateEmptyHint();
+  if (!busy && !dreaming && pet.dataset.state !== baseState()) settle();
+  // bedtime: back to its cushion
+  if (!busy && baseState() === 'sleepy' && walkX) walkTo(0);
+}, 60000);
 
 // ---------- eyes follow your finger or cursor ----------
 var lookAt = null, lookFrame = 0, lookTimer;

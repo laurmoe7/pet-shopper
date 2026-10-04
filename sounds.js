@@ -125,19 +125,22 @@
     noise(t + 0.01, 0.08, 'lowpass', 500, 0.7, env(t + 0.01, 0.004, 0.06, 0.35 * vol));
   }
   /**
-   * A crisp bite: a quick crackle of tiny clicks.
+   * A crisp bite: a dry snap, then a burst of crackly grains.
    * @param {number} t
    * @param {number} vol
    */
   function crackle(t, vol) {
-    // a soft, crumbly crunch: a quiet thump and a few muffled clicks, with nothing bright or sharp
-    tone(t, 0.07, 'sine', 140, 70, env(t, 0.006, 0.07, 0.22 * vol));
-    var n = 4 + Math.floor(Math.random() * 3);
+    // the jaw thump
+    tone(t, 0.06, 'sine', rnd(150, 190), 70, env(t, 0.003, 0.06, 0.32 * vol));
+    // the snap as it breaks
+    noise(t, 0.035, 'bandpass', rnd(2600, 3400), 1.2, env(t, 0.001, 0.03, 0.42 * vol));
+    // crumbly grains, bunched near the start and thinning out, kept under 5 kHz so it isn't harsh
+    var n = 9 + Math.floor(Math.random() * 5), tt = t + 0.006;
     for (var i = 0; i < n; i++) {
-      var tt = t + 0.004 + i * rnd(0.012, 0.024);
-      var out = env(tt, 0.004, 0.03, rnd(0.14, 0.26) * vol);
-      var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2600; lp.connect(out);
-      noise(tt, 0.04, 'bandpass', rnd(900, 1700), 0.9, lp);
+      tt += rnd(0.005, 0.012) + i * 0.0015;
+      var out = env(tt, 0.001, rnd(0.012, 0.025), rnd(0.16, 0.34) * vol * (1 - i / (n * 1.6)));
+      var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 5000; lp.connect(out);
+      noise(tt, 0.03, 'bandpass', rnd(1400, 3800), 1.6, lp);
     }
   }
   /**
@@ -203,7 +206,7 @@
   // ---- the sounds ----
   var KINDS = {
     chomp: function (t) { bite(t); bite(t + 0.16, null, 0.8); bite(t + 0.31, null, 0.6); },
-    crunch: function (t) { crackle(t, 1); crackle(t + 0.15, 0.85); crackle(t + 0.29, 0.7); },
+    crunch: function (t) { crackle(t, 1); crackle(t + rnd(0.15, 0.18), 0.9); crackle(t + rnd(0.31, 0.35), 0.75); },
     squish: function (t) { squash(t, 1); squash(t + 0.2, 0.7); },
     glug: function (t) { for (var i = 0; i < 4; i++) gulp(t + i * 0.15, 170 + i * 25, 1 - i * 0.1); },
     slurp: function (t) { slurpSweep(t, 0.5, 450, 2600, 1); },

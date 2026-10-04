@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 112 (4 Oct)
+- Crunchier crunch sound.
+- "Clear bought" is now "Shopping done".
+- Pet walks around the stage.
+- Backgrounds in Options: meadow, kitchen, starry night.
+
 ## Build 111 (4 Oct)
 - Bigger lips on the frog and axolotl; mochi gets a lip.
 - Mochi species renamed Nibble.
