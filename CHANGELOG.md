@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 121 (4 Oct)
+- The cat is a tabby now; the tabby skin is gone.
+- New skin: flame point cat.
+
 ## Build 120 (4 Oct)
 - All pets' eyes a little wider and lower.
 - Strawberry dress back to its length, a little wider at the sides.

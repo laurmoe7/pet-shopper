@@ -213,7 +213,8 @@ button { font: inherit; color: inherit; }
 /* species: colours and which parts show */
 .pet { --pet-skin: #fff8f2; --pet-skin-shade: #ffe4d8; --pet-ear-in: #ffc4cf; --pet-mark: #f3c9a8; }
 .pet[data-species="bunny"] { --pet-skin: #fffafb; --pet-skin-shade: #f7e3ea; --pet-ear-in: #ffbfcc; }
-.pet[data-species="kitty"] { --pet-skin: #fdecd8; --pet-skin-shade: #f5d6b8; --pet-ear-in: #ffc4cf; --pet-mark: #f0b98a; }
+/* the cat is a grey tabby (its soft stripes and muzzle are the .tabby group, shared with the orange cat) */
+.pet[data-species="kitty"] { --pet-skin: #aea8a1; --pet-skin-shade: #96908a; --pet-ear-in: #f2a9ab; --pet-mark: #6e6862; }
 .pet[data-species="birdie"] { --pet-skin: #fff1b0; --pet-skin-shade: #ffe07f; }
 .pet[data-species="pig"] { --pet-skin: #ffe1e6; --pet-skin-shade: #ffc9d3; --pet-ear-in: #ff9fb2; }
 .pet[data-species="cow"] { --pet-skin: #fffdf9; --pet-skin-shade: #e9ddd6; --pet-ear-in: #ffc4cf; --pet-mark: #6f5850; }
@@ -1144,7 +1145,6 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="strawberry"] { --pet-skin: #ffa6bb; --pet-skin-shade: #ff86a3; }
 .pet[data-skin="chocolate"] { --pet-skin: #c99d7e; --pet-skin-shade: #a97b5c; }
 .pet[data-skin="taro"] { --pet-skin: #d6c5f3; --pet-skin-shade: #b8a1e4; }
-.pet[data-skin="tabby"] { --pet-skin: #aea8a1; --pet-skin-shade: #96908a; --pet-ear-in: #f2a9ab; --pet-mark: #6e6862; }
 .pet[data-skin="blackcat"] { --pet-skin: #656073; --pet-skin-shade: #504b5f; --pet-ear-in: #e29aad; --pet-mark: #7d788d; }
 .pet[data-skin="calico"] { --pet-skin: #fffaf3; --pet-skin-shade: #f4e6d6; }
 .pet[data-skin="chihuahua"] { --pet-skin: #f1d3ae; --pet-skin-shade: #e0b98d; --pet-ear-in: #ffb8c6; --pet-mark: #d2a672; }
@@ -1210,6 +1210,13 @@ button { font: inherit; color: inherit; }
 /* the munchkin's short legs: smaller feet tucked under the body */
 .pet[data-skin="munchkin"] :is(.foot-side, .shoe-l, .shoe-r) { scale: .82 .62; transform-box: fill-box; transform-origin: 50% 0%; }
 .ragdoll-mask { fill: #e6d4c4; }
+/* flame point: cream with ginger ears, a soft ginger mask and blaze, and blue eyes */
+.pet[data-skin="flamepoint"] { --pet-skin: #fff8ef; --pet-skin-shade: #f3e3cf; --pet-ear-in: #f6b4b0; --pet-mark: #eab27e; }
+.pet[data-skin="flamepoint"] [data-sk~="flamepoint"] { display: inline; }
+.pet[data-skin="flamepoint"] .ragdoll-mask, .flame-blaze { fill: #f8dabb; }
+.pet[data-skin="flamepoint"] .ear { fill: #eaa66a; }
+.pet[data-skin="flamepoint"] .stripes { display: none; }
+.pet[data-skin="flamepoint"] .eyes-open .ink { fill: #5b93db; }
 .pet[data-skin="ragdoll"] .ear { fill: #a48876; }
 .pet[data-skin="ragdoll"] .stripes { display: none; }
 .pet[data-skin="ragdoll"] .eyes-open .ink { fill: #4f86d6; }
@@ -1256,7 +1263,6 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="strawberry"] [data-sk~="strawberry"],
 .pet[data-skin="chocolate"] [data-sk~="chocolate"],
 .pet[data-skin="taro"] [data-sk~="taro"],
-.pet[data-skin="tabby"] [data-sk~="tabby"],
 .pet[data-skin="calico"] [data-sk~="calico"],
 .pet[data-skin="dirty"] [data-sk~="dirty"],
 .pet[data-skin="floppybunny"] [data-sk~="floppybunny"],
@@ -1288,8 +1294,9 @@ button { font: inherit; color: inherit; }
 .choc .chunk-hi { fill: #7a4a33; stroke: none; }
 .taro circle { fill: #a78ed8; opacity: .85; }
 .tabby-stripes path { fill: var(--pet-mark); opacity: .8; }
-/* tabbies have their own soft forehead stripes */
-.pet:is([data-skin="tabby"], [data-skin="orangecat"]) .stripes { display: none; }
+/* the tabby (the plain cat) and the orange cat have their own soft forehead stripes */
+.pet[data-skin]:not([data-skin=""]):not([data-skin="orangecat"]) .tabby { display: none; }
+.pet[data-species="kitty"]:is(:not([data-skin]), [data-skin=""], [data-skin="orangecat"]) .stripes { display: none; }
 .tabby-muzzle { fill: #f4e8d8; }
 .calico-orange { fill: #f3a95d; }
 .calico-black { fill: #5b566a; }
