@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 120 (4 Oct)
+- All pets' eyes a little wider and lower.
+- Strawberry dress back to its length, a little wider at the sides.
+- Scottish fold ears: one layer, behind the head.
+
 ## Build 119 (4 Oct)
 - Leaf and hay flop downwards.
 - Choker and Lionhead bunny removed.

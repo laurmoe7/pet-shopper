@@ -1717,10 +1717,11 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 .pet:not([data-species="mochi"]):not([data-species="pig"]):not([data-species="cow"]) .lip-snout, .pet:not([data-species="frog"]) .lip-frog, .pet:not([data-species="axolotl"]) .lip-axo { display: none; }
 .pet:not([data-species="bunny"]) .smile-bunny,
 .pet:not([data-species="kitty"]):not([data-species="puppy"]):not([data-species="hamster"]):not([data-species="hedgehog"]) .smile-lip { display: none; }
-.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"]) .eye-l { translate: -3px 1.6px; }
-/* glasses follow those eyes: a little wider apart and lower (the frames stretch round the middle of the face) */
-.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"]) .outfit-face { transform-box: view-box; transform-origin: 80px 92px; scale: 1.13 1.04; translate: 0 1.6px; }
-.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"]) .eye-r { translate: 3px 1.6px; }
+/* every pet's eyes sit a little wider apart and lower than drawn (moved with translate so blinks still work) */
+.pet .eye-l { translate: -3px 1.6px; }
+/* glasses follow the eyes: a little wider apart and lower (the frames stretch round the middle of the face) */
+.pet .outfit-face { transform-box: view-box; transform-origin: 80px 92px; scale: 1.13 1.04; translate: 0 1.6px; }
+.pet .eye-r { translate: 3px 1.6px; }
 /* hedgehog, after a hedgehog print: a pale face, a light brown muzzle, a dark nose, soft rounded spines,
    lighter spines with darker dashes and a few pale flecks */
 .hog-muzzle { display: none; }
