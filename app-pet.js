@@ -65,6 +65,37 @@ function pulse(cls, ms) {
   void pet.offsetWidth;
   pet.classList.add(cls);
   setTimeout(function () { pet.classList.remove(cls); }, ms);
+  if (document.documentElement.dataset.squish === 'svg' && SQUISH[cls]) svgSquish(SQUISH[cls]);
+}
+
+// ---------- squash and stretch drawn inside the SVG (experiment) ----------
+// A CSS scale on the pet makes the phone stretch an already-drawn picture, which left a hairline across the face.
+// Here the body gets a new SVG transform each frame instead, so the phone redraws the shapes at their real size.
+// Each step is [time 0-1, width, height, lift in SVG units]; the squash is anchored at the feet.
+var SQUISH = {
+  chomp: { ms: 360, steps: [[0, 1, 1, 0], [.3, 1.32, .68, 0], [.55, .86, 1.2, 0], [.78, 1.06, .95, 0], [1, 1, 1, 0]] },
+  spit: { ms: 450, steps: [[0, 1, 1, 0], [.35, .74, 1.34, -6], [.7, 1.1, .9, 0], [1, 1, 1, 0]] },
+  stretch: { ms: 1100, steps: [[0, 1, 1, 0], [.4, .7, 1.42, 0], [.68, 1.2, .84, 0], [.85, .96, 1.05, 0], [1, 1, 1, 0]] },
+  pat: { ms: 1300, steps: [[0, 1, 1, 0], [.2, 1.18, .84, 0], [.4, .88, 1.14, 0], [.6, 1.12, .9, 0], [.8, .94, 1.06, 0], [1, 1, 1, 0]] }
+};
+var squishBody = petSvg.querySelector('.pet-body'), squishRun = 0;
+/** @param {{ms: number, steps: number[][]}} sq Plays one squash on the body. */
+function svgSquish(sq) {
+  var run = ++squishRun, start = performance.now(), steps = sq.steps;
+  function frame(now) {
+    if (run !== squishRun) return;
+    var t = Math.min(1, (now - start) / sq.ms), i = 1;
+    while (i < steps.length - 1 && steps[i][0] < t) i++;
+    var a = steps[i - 1], b = steps[i], k = (t - a[0]) / (b[0] - a[0] || 1);
+    k = .5 - Math.cos(k * Math.PI) / 2; // ease in and out between steps
+    var sx = a[1] + (b[1] - a[1]) * k, sy = a[2] + (b[2] - a[2]) * k, lift = a[3] + (b[3] - a[3]) * k;
+    if (t >= 1) { squishBody.removeAttribute('transform'); return; }
+    // anchored at the middle of the feet (80, 146 in the drawing)
+    squishBody.setAttribute('transform', 'matrix(' + sx.toFixed(4) + ' 0 0 ' + sy.toFixed(4) + ' ' +
+      (80 - 80 * sx).toFixed(3) + ' ' + (146 - 146 * sy + lift).toFixed(3) + ')');
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 }
 
 var bubbleTimer, bubbleHome = bubble.parentNode, bubbleNext = bubble.nextSibling;

@@ -40,6 +40,7 @@ function applyPet() {
 function petCopy() {
   var copy = petSvg.cloneNode(true);
   copy.querySelectorAll('defs').forEach(function (d) { d.remove(); });
+  copy.querySelector('.pet-body').removeAttribute('transform'); // not caught mid-squish
   return copy;
 }
 // species buttons show a small static copy of the pet

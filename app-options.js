@@ -105,6 +105,15 @@ function autoAnim() {
   playAnim(animIndex + 1);
   animAuto = setTimeout(autoAnim, ANIMS[animIndex][1] + 900);
 }
+// Squish test: "css" scales the whole pet (the old way, which left a seam), "svg" squashes the drawing itself
+// (svgSquish in app-pet.js). Kept between visits so it can be tried in normal use.
+function squishMode() { return document.documentElement.dataset.squish || 'off'; }
+function setSquish(mode) {
+  if (mode === 'off') delete document.documentElement.dataset.squish;
+  else document.documentElement.dataset.squish = mode;
+  try { localStorage.setItem('nibble-squish', mode); } catch (e) { /* storage blocked */ }
+}
+try { var savedSquish = localStorage.getItem('nibble-squish'); if (savedSquish === 'css' || savedSquish === 'svg') setSquish(savedSquish); } catch (e) { /* storage blocked */ }
 var DEV_ACTIONS = [
   { label: 'Animations: next ▶', run: function () { return playAnim(animIndex + 1); } },
   { label: 'Animations: ◀ back', run: function () { return playAnim(animIndex - 1); } },
@@ -113,9 +122,14 @@ var DEV_ACTIONS = [
     animAuto = setTimeout(autoAnim, 50);
     return 'Auto-cycle started: each move plays in turn, and its name shows above the pet.';
   } },
-  { label: 'Extreme squish (test, may bring the seam back)', run: function () {
-    var on = document.documentElement.classList.toggle('bn-squish');
-    return on ? 'Extreme squish ON: chomp, stretch, spit and petting squash the pet. Turns off when you reload.' : 'Extreme squish OFF.';
+  { label: 'Squish test: off → old way → new way', run: function () {
+    var next = { off: 'css', css: 'svg', svg: 'off' }[squishMode()];
+    setSquish(next);
+    return {
+      css: 'Squish: OLD way (the whole pet is scaled as a picture). This is the way that left the seam.',
+      svg: 'Squish: NEW way (the drawing itself is squashed, redrawn every frame). Look for the seam while feeding or using the animation tester.',
+      off: 'Squish OFF: back to the normal moves.'
+    }[next];
   } },
   { label: 'Unlock everything', run: function () { L.unlockAll(state.pet, Achievements, Personalities); return 'All goals finished and personalities earned.'; } },
   { label: 'Lock everything again', run: function () { L.lockAll(state.pet, Achievements, FreeUnlocks); return 'Progress wiped. Locked items are locked again.'; } },

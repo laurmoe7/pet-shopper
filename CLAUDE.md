@@ -57,7 +57,7 @@ Lauren previews on her phone via a single-file build (styles and scripts inlined
 
 ## Lessons learned
 
-- The whole-pet moves on `.squash` (chomp, spit, stretch, wobble) only slide with translate: scaling or rotating the pet while its arms moved left a hairline across the face on her phone (found with Developer-tools switches in build 72). Avoid scaling or rotating curved SVG shapes in animations; it caused visible seams and trails on her phone. Animate with translation or opacity, or redraw the shape.
+- The whole-pet moves on `.squash` (chomp, spit, stretch, wobble) only slide with translate: scaling or rotating the pet while its arms moved left a hairline across the face on her phone (found with Developer-tools switches in build 72). Avoid scaling or rotating curved SVG shapes in animations; it caused visible seams and trails on her phone. Animate with translation or opacity, or redraw the shape. Build 81 tests redrawing: Developer tools "Squish test" (`html[data-squish]`, saved as `nibble-squish`) compares the old CSS scale with `svgSquish` in `app-pet.js`, which sets an SVG `transform` on `.pet-body` each frame. If the new way shows no seam on her phone, use it for all squash and stretch.
 - Keep shoes about the size of the original boots; the first oversized shoes looked awkward to her.
 - The mochi hair twist: fill covers the outline and the line ends on it, with the skin path starting at the bottom, so there is no seam.
 - Test on a phone-sized viewport; she reports visual glitches that desktop hides.

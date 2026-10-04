@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 81 (4 Oct)
+- Seam experiment: Developer tools "Squish test" switches between off, the old squish (scales the whole pet as a picture, the way that left the seam) and a new squish that squashes the drawing itself every frame. The choice is kept between visits.
+
 ## Build 80 (4 Oct)
 - Developer tools: an animation tester (next, back, auto-cycle) that plays every pet move in turn and shows its name. The sheet is shorter now so the pet stays visible.
 - Developer tools: "Extreme squish (test)" switch for a much stronger squash and stretch from the feet. Off by default because scaling the pet caused the seam on her phone.
