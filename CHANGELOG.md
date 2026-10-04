@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 116 (4 Oct)
+- Eyes go wide or squint in reactions and idle moments.
+- Belly jiggle move (also in dev tools).
+
 ## Build 115 (4 Oct)
 - New skins: pigeon, pink shiba, rainbow axolotl, orange cat, French bulldog, German shepherd, munchkin, ragdoll, yak, Brandt's hedgehog.
 - Noses sit in front of the :3 mouth.

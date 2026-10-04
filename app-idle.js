@@ -223,6 +223,10 @@ var IDLE_MOVES = [
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'sparkle', mouth: 'o', arms: 'reach', x: [] }); drift(['○', '◦', '○'], mouthPoint(), 3); pulse('hopsmall', 450); talk('bubbles', ['bubbles!', 'pop pop!'], 1100); } },
   { moods: ['curious', 'stuffed'], run: function () { setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); drift(['☀'], petTop(), 1); pulse('sit', 2600); talk('sun', ['warm and cozy…', 'sunny day ♡', 'ahh, sunshine'], 1400); } },
   { moods: ['stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'o', arms: 'pat', x: ['cheeks'] }); pulse('hopsmall', 450); say(pick(['*hic*', 'burp! oops', 'hehe, full']), 1100, true); } },
+  // the belly jiggle, and eyes that go wide or squint
+  { moods: ['happy', 'stuffed'], run: function () { bellyJiggle(); return 1300; } },
+  { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: [] }); eyesDo('wide'); lookAround(); talk('notice', ['ooh?!', 'what was that?', 'huh!'], 1200); } },
+  { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'open', mouth: 'wavy', arms: 'scratch', x: [] }); eyesDo('squint'); talk('squint', ['hmmm…', 'suspicious…', 'squint squint'], 1300); } },
   // walking about: a wander to a new spot, pacing back and forth, a happy trot, a stroll back to the middle
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'open', mouth: 'smile', arms: 'idle', x: [] }); return walkTo(newSpot()); }, walk: true },
   { moods: ['curious', 'happy'], run: function () { setFace(FACES.dreamy); hum(); return walkTo(newSpot()); }, walk: true },
@@ -293,6 +297,8 @@ function lively() {
     // a quick glance to one side
     var side = Math.random() < 0.5 ? -3.2 : 3.2;
     pet.style.setProperty('--look-x', side + 'px');
+    // now and then the eyes go wide or narrow as it looks
+    if (Math.random() < 0.3) eyesDo(Math.random() < 0.5 ? 'wide' : 'squint');
     setTimeout(function () { if (!lookAt) { pet.style.removeProperty('--look-x'); } }, 900);
   } else if (r < 0.38) {
     // two quick blinks

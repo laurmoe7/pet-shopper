@@ -21,24 +21,24 @@ var FACES = {
 var CHEW = { eyes: 'happy', mouth: 'chew', arms: 'nom', x: ['cheeks'] };
 var REACTIONS = {
   fruit: { face: { eyes: 'happy', mouth: 'chew', arms: 'cheer', x: ['hearts', 'cheeks'] }, lines: ['so juicy!', 'fruity ♡', 'yum yum!', 'amai~ (sweet!)'] },
-  veg: { face: { eyes: 'teary', mouth: 'wavy', arms: 'clench', x: [] }, then: CHEW, lines: ['b-brave face…', 'crunchy. fine!', 'for my health…', 'okay… not bad'] },
-  sweets: { face: { eyes: 'sparkle', mouth: 'chew', arms: 'cheer', x: ['sparkles', 'cheeks'] }, lines: ['kira kira!', 'treat time ♡', 'SUGAR!', 'one more?'] },
-  spicy: { face: { eyes: 'squint', mouth: 'open', arms: 'fan', x: ['steam', 'redface', 'shock'] }, lines: ['HOT HOT HOT', 'hii~ spicy!', 'fire! fire!', 'water?!'] },
+  veg: { face: { eyes: 'teary', mouth: 'wavy', arms: 'clench', x: [] }, then: CHEW, look: 'squint', lines: ['b-brave face…', 'crunchy. fine!', 'for my health…', 'okay… not bad'] },
+  sweets: { face: { eyes: 'sparkle', mouth: 'chew', arms: 'cheer', x: ['sparkles', 'cheeks'] }, look: 'wide', lines: ['kira kira!', 'treat time ♡', 'SUGAR!', 'one more?'] },
+  spicy: { face: { eyes: 'squint', mouth: 'open', arms: 'fan', x: ['steam', 'redface', 'shock'] }, look: 'wide', lines: ['HOT HOT HOT', 'hii~ spicy!', 'fire! fire!', 'water?!'] },
   drink: { face: { eyes: 'happy', mouth: 'o', arms: 'hold', x: ['cheeks'] }, lines: ['gokun gokun', 'sluuurp', 'refreshing!', 'puhaa~'] },
   baked: { face: { eyes: 'happy', mouth: 'chew', arms: 'nom', x: ['cheeks'] }, lines: ['fuwa fuwa ♡', 'warm & chewy', 'carbs!', 'mmm, bready'] },
   dairy: { face: CHEW, lines: ['creamy ♡', 'mogu mogu', 'MORE?', 'so smooth'] },
   protein: { face: CHEW, lines: ['mogu mogu', 'strong snack!', 'tasty!', 'MORE?'] },
   pantry: { face: CHEW, lines: ['mogu mogu', 'tiny snack!', 'ooh, yum', 'paku!'] },
-  nonfood: { face: { eyes: 'confused', mouth: 'wavy', arms: 'scratch', x: ['question'] }, lines: ["that's not food", 'hmm… for later', 'tuck it away'] },
-  mystery: { face: { eyes: 'sparkle', mouth: 'chew', arms: 'cheer', x: ['sparkles', 'cheeks'] }, lines: ['a surprise?!', 'mystery snack!', 'what was that?'] },
+  nonfood: { face: { eyes: 'confused', mouth: 'wavy', arms: 'scratch', x: ['question'] }, look: 'squint', lines: ["that's not food", 'hmm… for later', 'tuck it away'] },
+  mystery: { face: { eyes: 'sparkle', mouth: 'chew', arms: 'cheer', x: ['sparkles', 'cheeks'] }, look: 'wide', lines: ['a surprise?!', 'mystery snack!', 'what was that?'] },
   // reactions to particular foods (picked by reactionOf, on top of the food's category)
-  sour: { face: { eyes: 'squint', mouth: 'wavy', arms: 'clench', x: ['shock'] }, then: CHEW, move: ['wiggle', 900], lines: ['so sour!!', 'sour sour sour!', 'my face!!'] },
+  sour: { face: { eyes: 'squint', mouth: 'wavy', arms: 'clench', x: ['shock'] }, then: CHEW, move: ['wiggle', 900], look: 'squint', lines: ['so sour!!', 'sour sour sour!', 'my face!!'] },
   crunchy: { face: { eyes: 'happy', mouth: 'chew', arms: 'nom', x: ['cheeks'] }, crumbs: 14, lines: ['crunch crunch!', 'kari kari!', 'so crispy!'] },
-  cold: { face: { eyes: 'squint', mouth: 'o', arms: 'clench', x: ['sweat'] }, then: { eyes: 'sparkle', mouth: 'chew', arms: 'cheer', x: ['cheeks'] }, move: ['wiggle', 900], lines: ['brrr! brain freeze!', 'so cold!', 'hiyaa~ cold!'] },
-  coffee: { face: { eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['sparkles', 'shock'] }, move: ['hophop', 1500], lines: ['ZOOM!', 'I can see sounds!', 'wide awake!!'] },
-  grownup: { face: { eyes: 'confused', mouth: 'wavy', arms: 'cover', x: ['sweat'] }, bag: true, lines: ['for the grown-ups!', 'not for me!', 'into the bag~'] },
+  cold: { face: { eyes: 'squint', mouth: 'o', arms: 'clench', x: ['sweat'] }, then: { eyes: 'sparkle', mouth: 'chew', arms: 'cheer', x: ['cheeks'] }, move: ['wiggle', 900], look: 'squint', lines: ['brrr! brain freeze!', 'so cold!', 'hiyaa~ cold!'] },
+  coffee: { face: { eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['sparkles', 'shock'] }, move: ['hophop', 1500], look: 'wide', lines: ['ZOOM!', 'I can see sounds!', 'wide awake!!'] },
+  grownup: { face: { eyes: 'confused', mouth: 'wavy', arms: 'cover', x: ['sweat'] }, bag: true, look: 'squint', lines: ['for the grown-ups!', 'not for me!', 'into the bag~'] },
   nochoc: { face: { eyes: 'teary', mouth: 'wavy', arms: 'cover', x: ['sweat'] }, bag: true, lines: ['no chocolate for pets!', 'chocolate makes us sick… for you!', 'into the bag, sadly~', 'smells good, but no!'] },
-  petfood: { face: { eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['hearts', 'sparkles'] }, bag: true, move: ['hop', 460], lines: ['is this… for ME?!', 'treats?! for me?!', 'saving it for later!'] }
+  petfood: { face: { eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['hearts', 'sparkles'] }, bag: true, move: ['hop', 460], look: 'wide', lines: ['is this… for ME?!', 'treats?! for me?!', 'saving it for later!'] }
 };
 // which items get one of the reactions above: by emoji, or by words in the item
 var REACTION_RULES = [
@@ -92,6 +92,19 @@ function settle() {
   setFace(FACES[s]);
 }
 /**
+ * The eyes go wide (surprised) or squint (sour, suspicious) for a moment, whatever eyes the face has.
+ * @param {'wide'|'squint'} how
+ */
+function eyesDo(how) { pulse(how === 'wide' ? 'eyewide' : 'eyesquint', how === 'wide' ? 1000 : 1200); }
+/** The belly jiggle: it pats its tummy and the body wobbles side to side. */
+function bellyJiggle() {
+  setFace({ eyes: 'happy', mouth: 'open', arms: 'pat', x: ['cheeks'] });
+  pulse('jiggle', 1200);
+  sound('jiggle');
+  say(pick(['jiggle jiggle!', 'wobble wobble~', 'squishy tummy!', 'boing boing']), 1300, true);
+  setTimeout(function () { if (!busy) settle(); }, 1400);
+}
+/**
  * Plays a one-off CSS animation on the pet by adding a class for a while.
  * @param {string} cls
  * @param {number} ms How long to keep the class.
@@ -122,6 +135,9 @@ var SQUISH = {
     [.86, .98, 1.02, 0], [.905, 1.08, .92, 0], [.96, .98, 1.02, 0], [1, 1, 1, 0]] },
   // a soft settle now and then while it waits (see softSettle in app-idle.js), and a slow deep breath when sleepy
   settle: { ms: 1000, steps: [[0, 1, 1, 0], [.35, 1.04, .96, 0], [.7, .99, 1.01, 0], [1, 1, 1, 0]] },
+  // a belly jiggle: quick wobbles side to side that die down (see bellyJiggle)
+  jiggle: { ms: 1200, steps: [[0, 1, 1, 0], [.08, 1.08, .95, 0], [.18, .94, 1.04, 0], [.28, 1.07, .96, 0], [.38, .95, 1.035, 0],
+    [.48, 1.05, .97, 0], [.58, .97, 1.02, 0], [.68, 1.03, .985, 0], [.8, .99, 1.008, 0], [.9, 1.01, .995, 0], [1, 1, 1, 0]] },
   breath: { ms: 2400, steps: [[0, 1, 1, 0], [.45, .98, 1.035, 0], [1, 1, 1, 0]] }
 };
 var squishBody = petSvg.querySelector('.pet-body'), squishRun = 0, squishing = false;

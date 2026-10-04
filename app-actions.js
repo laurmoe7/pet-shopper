@@ -73,6 +73,7 @@ function eat(item, fromRect, goals) {
         drift(['✦', '♥', '✧'], mouthPoint(), 3);
       }
       if (r.move) setTimeout(function () { pulse(r.move[0], r.move[1]); }, nonfood ? 0 : 320);
+      if (r.look) eyesDo(r.look);
       sound(L.soundFor(item));
       // shop items that aren't food get a comment in the personality's voice
       if (nonfood && key === item.cat) talk(Foods.kindOf(item.emoji), r.lines, 1400);

@@ -1,6 +1,6 @@
 /* Nibble's sounds, synthesised with the Web Audio API (no audio files).
  * Sounds.play(kind) where kind is one of:
- *   chomp, crunch, squish, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party,
+ *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party,
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
  *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
  * Every play is pitch-shifted a little, and kinds with several variants pick a
@@ -247,6 +247,10 @@
       tone(t + 0.02, 0.14, 'sine', 620, 190, env(t + 0.02, 0.005, 0.13, 0.6));
     },
     party: function (t) { chime(t, [523, 659, 784, 1047, 1319], 0.09, 1.1); },
+    jiggle: function (t) {
+      // a belly wobble: soft boings that get smaller and lower
+      for (var i = 0; i < 4; i++) tone(t + i * 0.12, 0.13, 'sine', 330 - i * 28, 230 - i * 22, env(t + i * 0.12, 0.008, 0.12, 0.3 - i * 0.05));
+    },
     ooh: function (t) {
       // a soft, curious "ooh?" that lifts at the end
       tone(t, 0.2, 'triangle', rnd(480, 540), 860, env(t, 0.03, 0.18, 0.16));

@@ -366,6 +366,15 @@ button { font: inherit; color: inherit; }
 @keyframes breathe { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(0, 1px); } }
 @keyframes jelly { 0%, 100% { transform: translate(0, 0); } 30% { transform: translate(0, 1.2px); } 55% { transform: translate(0, -.6px); } 75% { transform: translate(0, .5px); } }
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 14% { transform: translateY(-9px); } 28% { transform: translateY(0); } 32% { transform: translateY(2px); } 38% { transform: translateY(0); } }
+/* eyes that go wide or squint for a moment (eyesDo in app-pet.js): each eye part grows or narrows round its own
+   middle with the scale property, so every eye state works, the eyes stay where they are, and the blink
+   (a transform on .eyes-open) and the animal faces' translate still apply */
+.pet:is(.eyewide, .eyesquint) .eye-set :is(.eye-l, .eye-r) { transform-box: fill-box; transform-origin: 50% 50%; }
+.pet.eyewide .eye-set :is(.eye-l, .eye-r) { animation: eye-wide 1s ease-out; }
+.pet.eyesquint .eye-set :is(.eye-l, .eye-r) { animation: eye-squint 1.2s ease-in-out; }
+@keyframes eye-wide { 0% { scale: 1 1; } 16% { scale: 1.38 1.6; } 28% { scale: 1.28 1.45; } 78% { scale: 1.28 1.45; } 100% { scale: 1 1; } }
+@keyframes eye-squint { 0% { scale: 1 1; } 18% { scale: 1.15 .32; } 26% { scale: 1.12 .42; } 80% { scale: 1.12 .42; } 100% { scale: 1 1; } }
+@media (prefers-reduced-motion: reduce) { .pet:is(.eyewide, .eyesquint) .eye-set :is(.eye-l, .eye-r) { animation: none; } }
 @keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
 @keyframes chew { from { transform: scaleX(1) translateY(0); } to { transform: scaleX(.75) translateY(1.5px); } }
 @keyframes zfloat { 0%, 100% { transform: translateY(0); opacity: .9; } 50% { transform: translateY(-4px); opacity: .5; } }
