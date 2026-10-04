@@ -1162,14 +1162,3 @@ button { font: inherit; color: inherit; }
 .axo-smile { display: none; }
 .pet[data-species="axolotl"][data-mouth="smile"] path[data-mouth="smile"]:not(.axo-smile) { display: none; }
 .pet[data-species="axolotl"][data-mouth="smile"] .axo-smile { display: inline; }
-
-/* Experiment (Developer tools, "Squish while still"): bring the real squash back for chomp, spit and stretch, but freeze
-   everything that moves inside the drawing while it plays, so the phone only scales one flat picture. */
-@keyframes chomp-s { 0% { transform: scale(1, 1); } 30% { transform: scale(1.14, .84); } 60% { transform: scale(.94, 1.08); } 80% { transform: scale(1.03, .97); } 100% { transform: scale(1, 1); } }
-@keyframes spit-s { 0% { transform: scale(1); } 40% { transform: scale(.9, 1.1) translateY(-4px); } 100% { transform: scale(1); } }
-@keyframes stretch-s { 0%, 100% { transform: scale(1, 1); } 45% { transform: scale(.88, 1.14); } 70% { transform: scale(1.06, .95); } }
-html.bn-squish .pet.chomp .squash { animation: chomp-s .32s ease-out; }
-html.bn-squish .pet.spit .squash { animation: spit-s .35s ease-out; }
-html.bn-squish .pet.stretch .squash { animation: stretch-s 1s ease-in-out; }
-html.bn-squish .pet:is(.chomp, .spit, .stretch) :is(.arm, .eyes-open, .chew) { animation-play-state: paused !important; transition: none !important; }
-html.bn-squish .pet:is(.chomp, .spit, .stretch) .ear-g { animation: none !important; transition: none !important; }
