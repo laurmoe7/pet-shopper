@@ -2,6 +2,17 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 118 (4 Oct)
+- New skins: Lionhead and Himalayan bunnies, cairn terrier.
+- Potbelly pig gets chubby jowls.
+- Scottish fold ears more folded, behind the head.
+- Pig ears behind the head.
+- Paws rub the belly during the jiggle.
+- Tabby stripes stay inside the body.
+- Winter scarf end hangs from a knot.
+- "Horrific tie" is now "Hideous tie".
+- New: Y2K choker, butterfly clip, leaf in mouth, hay in mouth.
+
 ## Build 117 (4 Oct)
 - New skins: Scottish fold, chicken, strawberry cow, potbelly pig.
 - Yak removed.

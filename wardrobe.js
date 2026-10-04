@@ -109,6 +109,18 @@ function boa() {
         '</g>'
     },
     {
+      id: 'butterflyclip', slot: 'hat', label: 'Butterfly clip', icon: '92 30 40 36',
+      lines: ['so sparkly!', 'flutter flutter', 'y2k cutie'],
+      // a little blue butterfly clipped to the side of the head
+      svg: '<g class="hat-butterfly" transform="translate(110 47) rotate(18)">' +
+        '<path class="bfly-wing" d="M0 0 C-4 -10 -14 -12 -14 -5 C-14 0 -7 2 0 0 Z M0 0 C4 -10 14 -12 14 -5 C14 0 7 2 0 0 Z"/>' +
+        '<path class="bfly-wing bfly-low" d="M0 0 C-3 6 -10 9 -11 4 C-11 1 -6 0 0 0 Z M0 0 C3 6 10 9 11 4 C11 1 6 0 0 0 Z"/>' +
+        '<path class="bfly-spot" d="M-8 -6 h.1 M8 -6 h.1"/>' +
+        '<path class="bfly-body" d="M0 -6 V5"/>' +
+        '<path class="bfly-antenna" d="M0 -6 Q-2 -10 -4 -11 M0 -6 Q2 -10 4 -11"/>' +
+        '</g>'
+    },
+    {
       id: 'maid', slot: 'hat', label: "Maid's hairband",
       lines: ['at your service!', 'so frilly!', 'I\'ll tidy the snacks'],
       svg: '<g class="hat-maid">' +
@@ -367,14 +379,18 @@ function boa() {
       id: 'scarf', slot: 'neck', label: 'Winter scarf', icon: '10 104 140 56',
       lines: ['so toasty!', 'snow day?', 'cozy cozy cozy'],
       svg: '<g class="neck-scarf">' +
+        // the hanging end, drawn first so the band and the knot sit over its top
+        '<path class="scarf-band" d="M95 116 Q105 113 115 116 L119 146 Q105 151 92 146 Z"/>' +
+        '<path class="scarf-orange" d="M93.4 130 L117.6 130.4 L118.3 139 L92.6 138.8 Z M94.4 146 L118.8 146 L119 146 Q105 151 92 146 Z"/>' +
+        '<path class="scarf-outline" d="M95 116 Q105 113 115 116 L119 146 Q105 151 92 146 Z"/>' +
+        '<path class="scarf-fringe-o" d="M95 147.0 v5.4 M100 148.1 v5.4 M105 148.5 v5.4 M110 148.1 v5.4 M115 147.0 v5.4 "/><path class="scarf-fringe" d="M95 147.0 v5.4 M100 148.1 v5.4 M105 148.5 v5.4 M110 148.1 v5.4 M115 147.0 v5.4 "/>' +
         '<path class="scarf-band" d="M17 108 Q80 124 143 108 Q147 114 145 121 Q80 140 15 121 Q13 114 17 108 Z"/>' +
         '<path class="scarf-orange" d="M32.8 111.5 L38 112.4 L43.2 113.3 L48.5 114 L47.5 128.1 L42.1 127.3 L36.7 126.3 L31.2 125.2 Z M64.2 115.5 L69.5 115.8 L74.8 115.9 L80 116 L80 130.5 L74.6 130.4 L69.2 130.2 L63.8 129.9 Z M95.8 115.5 L101 115.1 L106.3 114.6 L111.5 114 L112.5 128.1 L107.1 128.9 L101.7 129.4 L96.2 129.9 Z M127.2 111.5 L132.5 110.4 L137.8 109.3 L143 108 L145 121 L139.6 122.5 L134.2 123.9 L128.8 125.2 Z "/>' +
         '<path class="scarf-outline" d="M17 108 Q80 124 143 108 Q147 114 145 121 Q80 140 15 121 Q13 114 17 108 Z"/>' +
-        '<path class="scarf-band" d="M94 120 Q104 114 116 119 L119 146 Q105 151 92 146 Z"/>' +
-        '<path class="scarf-orange" d="M93.4 130 L117.6 130.4 L118.3 139 L92.6 138.8 Z M94.4 146 L118.8 146 L119 146 Q105 151 92 146 Z"/>' +
-        '<path class="scarf-outline" d="M94 120 Q104 114 116 119 L119 146 Q105 151 92 146 Z"/>' +
-        '<path class="scarf-fringe-o" d="M95 147.0 v5.4 M100 148.1 v5.4 M105 148.5 v5.4 M110 148.1 v5.4 M115 147.0 v5.4 "/><path class="scarf-fringe" d="M95 147.0 v5.4 M100 148.1 v5.4 M105 148.5 v5.4 M110 148.1 v5.4 M115 147.0 v5.4 "/>' +
-        '<path class="scarf-knit" d="M25 117 l2 1.6 l2 -1.6 M60 122 l2 1.6 l2 -1.6 M96 124 l2 1.6 l2 -1.6 M130 117 l2 1.6 l2 -1.6"/>' +
+        '<path class="scarf-knit" d="M25 117 l2 1.6 l2 -1.6 M60 122 l2 1.6 l2 -1.6 M130 117 l2 1.6 l2 -1.6"/>' +
+        // the knot where the end hangs from the band
+        '<path class="scarf-band scarf-knot" d="M95.5 115.2 Q105 112.4 115 115 Q118.2 121.4 115.4 127.6 Q105 130.6 95.6 127.8 Q92.6 121.4 95.5 115.2 Z"/>' +
+        '<path class="scarf-knit" d="M101 120.6 l2 1.6 l2 -1.6 M106 120.6 l2 1.6 l2 -1.6"/>' +
         '</g>'
     },
     {
@@ -393,6 +409,40 @@ function boa() {
         '</g>'
     },
     {
+      id: 'choker', slot: 'neck', label: 'Y2K choker', icon: '36 104 88 36',
+      lines: ['so 2002!', "that's hot", 'totally iconic'],
+      // a black velvet band with little rhinestones and a pink heart charm
+      svg: '<g class="neck-choker">' +
+        '<path class="choker-band" d="M40 110.6 Q80 126.6 120 110.6 L119.2 115.8 Q80 132 40.8 115.8 Z"/>' +
+        '<path class="choker-gems" d="M52 117.2 h.1 M64 121 h.1 M96 121 h.1 M108 117.2 h.1"/>' +
+        '<path class="choker-ring" d="M80 124 v3"/>' +
+        '<path class="choker-heart" d="M80 135.4 C74 131.4 73.4 127.6 76 126.6 C77.8 126 79.2 127 80 128.4 C80.8 127 82.2 126 84 126.6 C86.6 127.6 86 131.4 80 135.4 Z"/>' +
+        '<path class="choker-shine" d="M76.6 128.6 q.6 -.8 1.4 -.6"/>' +
+        '</g>'
+    },
+    {
+      id: 'leaf', slot: 'mouth', label: 'Leaf in mouth', icon: '66 86 50 32',
+      lines: ['nom… leafy', 'very natural', 'crunchy greens!'],
+      svg: '<g class="mouth-leaf">' +
+        '<path class="leaf-stem" d="M78 106.6 Q82 105 86 102.6"/>' +
+        '<path class="leaf-blade" d="M85 103 C90 94 101 90 111 92 C109 100 99 107 85 103 Z"/>' +
+        '<path class="leaf-vein" d="M86.4 102.4 Q97 98.4 108 93.4 M93 100 l1.6 -4 M99 97.6 l2.6 -3.4 M95 99.4 l3.6 1.2 M101.4 96.8 l3.4 1"/>' +
+        '</g>'
+    },
+    {
+      id: 'hay', slot: 'mouth', label: 'Hay in mouth', icon: '66 82 56 32',
+      lines: ['yeehaw…', 'just chillin', 'farm life'],
+      // a stalk of straw with a little seed head, chewed like a farmer
+      svg: '<g class="mouth-hay">' +
+        '<path class="hay-line" d="M76 106.6 Q94 101 112 90 M98 99 Q104 98.4 108 96"/>' +
+        '<path class="hay-stalk" d="M76 106.6 Q94 101 112 90"/>' +
+        '<path class="hay-stalk hay-thin" d="M98 99 Q104 98.4 108 96"/>' +
+        '<g class="hay-seeds"><ellipse cx="112.6" cy="89.4" rx="3.4" ry="1.7" transform="rotate(-32 112.6 89.4)"/>' +
+        '<ellipse cx="114.4" cy="85.4" rx="3" ry="1.5" transform="rotate(-62 114.4 85.4)"/>' +
+        '<ellipse cx="116.6" cy="90" rx="3" ry="1.5" transform="rotate(-8 116.6 90)"/></g>' +
+        '</g>'
+    },
+    {
       id: 'necktie', slot: 'neck', label: 'Necktie', icon: '40 108 80 42',
       lines: ['dressed for success!', 'meeting at nine!', 'very businesslike'],
       svg: '<g class="neck-tie">' +
@@ -404,7 +454,7 @@ function boa() {
         '</g>'
     },
     {
-      id: 'uglytie', slot: 'neck', label: 'Horrific tie', icon: '40 108 80 42',
+      id: 'uglytie', slot: 'neck', label: 'Hideous tie', icon: '40 108 80 42',
       lines: ['it was a gift', 'bold choice, right?', 'my lucky tie!'],
       // the same shape as the necktie, with a clashing patchwork of greens, mustard, red and navy and some white doodles
       svg: '<g class="neck-tie neck-ugly">' +

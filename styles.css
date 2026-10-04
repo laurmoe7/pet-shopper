@@ -419,8 +419,8 @@ button { font: inherit; color: inherit; }
 @keyframes clench-l { from { transform: translate(6px, -2px) rotate(-10deg); } to { transform: translate(7px, -2px) rotate(-16deg); } }
 @keyframes clench-r { from { transform: translate(-6px, -2px) rotate(10deg); } to { transform: translate(-7px, -2px) rotate(16deg); } }
 /* rub: both paws on the tummy, going round in little circles */
-@keyframes rub-l { 0%, 100% { transform: translate(22px, 2px) rotate(-40deg); } 25% { transform: translate(26px, -2px) rotate(-50deg); } 50% { transform: translate(30px, 2px) rotate(-45deg); } 75% { transform: translate(26px, 6px) rotate(-35deg); } }
-@keyframes rub-r { 0%, 100% { transform: translate(-22px, 2px) rotate(40deg); } 25% { transform: translate(-26px, 6px) rotate(35deg); } 50% { transform: translate(-30px, 2px) rotate(45deg); } 75% { transform: translate(-26px, -2px) rotate(50deg); } }
+@keyframes rub-l { 0%, 100% { transform: translate(14px, 11px) rotate(-82deg); } 25% { transform: translate(18px, 7px) rotate(-90deg); } 50% { transform: translate(22px, 11px) rotate(-86deg); } 75% { transform: translate(18px, 15px) rotate(-76deg); } }
+@keyframes rub-r { 0%, 100% { transform: translate(-14px, 11px) rotate(82deg); } 25% { transform: translate(-18px, 15px) rotate(76deg); } 50% { transform: translate(-22px, 11px) rotate(86deg); } 75% { transform: translate(-18px, 7px) rotate(90deg); } }
 @keyframes pat { from { transform: translate(-14px, 0) rotate(40deg); } to { transform: translate(-18px, 4px) rotate(70deg); } }
 
 /* ---------- pet editor ---------- */
@@ -917,6 +917,27 @@ button { font: inherit; color: inherit; }
 .wig-r { fill: #f0291a; } .wig-o { fill: #f58a0a; } .wig-y { fill: #fbe80a; }
 .wig-g { fill: #1c9a2c; } .wig-b { fill: #3374f5; } .wig-p { fill: #9a38a0; }
 .scarf-band { fill: #f7bd45; }
+.scarf-knot { stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
+/* Y2K choker */
+.choker-band { fill: #2d2633; stroke: var(--pet-ink); stroke-width: 1.6; stroke-linejoin: round; }
+.choker-gems { fill: none; stroke: #f4f1ff; stroke-width: 2.4; stroke-linecap: round; }
+.choker-ring { fill: none; stroke: #c9cbd6; stroke-width: 1.8; stroke-linecap: round; }
+.choker-heart { fill: #ff8fc0; stroke: var(--pet-ink); stroke-width: 1.6; stroke-linejoin: round; }
+.choker-shine { fill: none; stroke: #fff; stroke-width: 1.2; stroke-linecap: round; }
+/* leaf and hay in the mouth */
+.leaf-stem { fill: none; stroke: #4f9a52; stroke-width: 2; stroke-linecap: round; }
+.leaf-blade { fill: #86d17f; stroke: var(--pet-ink); stroke-width: 1.6; stroke-linejoin: round; }
+.leaf-vein { fill: none; stroke: #4f9a52; stroke-width: 1.1; stroke-linecap: round; }
+.hay-line { fill: none; stroke: var(--pet-ink); stroke-width: 5.4; stroke-linecap: round; }
+.hay-stalk { fill: none; stroke: #f0cc62; stroke-width: 2.8; stroke-linecap: round; }
+.hay-thin { stroke-width: 1.6; }
+.hay-seeds ellipse { fill: #f0cf70; stroke: var(--pet-ink); stroke-width: 1.2; }
+/* butterfly hair clip */
+.bfly-wing { fill: #7cc3ff; stroke: var(--pet-ink); stroke-width: 1.4; stroke-linejoin: round; }
+.bfly-low { fill: #a9d8ff; }
+.bfly-spot { fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; }
+.bfly-body { fill: none; stroke: var(--pet-ink); stroke-width: 2.4; stroke-linecap: round; }
+.bfly-antenna { fill: none; stroke: var(--pet-ink); stroke-width: 1.1; stroke-linecap: round; }
 .scarf-orange { fill: #e8832a; }
 .scarf-outline { fill: none; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
 .scarf-knit { fill: none; stroke: #b9651c; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }
@@ -1154,13 +1175,28 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="scottishfold"] { --pet-skin: #cfcdd8; --pet-skin-shade: #b8b5c4; --pet-ear-in: #f4b8c6; --pet-mark: #a9a6b6; }
 .pet[data-skin="chicken"] { --pet-skin: #fffaf2; --pet-skin-shade: #ffb347; }
 .pet[data-skin="strawberrycow"] { --pet-skin: #ffd6e0; --pet-skin-shade: #f7bccb; --pet-ear-in: #ff9fb6; --pet-mark: #ff8fae; }
+.pet[data-skin="lionhead"] { --pet-skin: #fbefe0; --pet-skin-shade: #f0dcc6; --pet-ear-in: #ffbfcc; }
+.pet[data-skin="himalayan"] { --pet-skin: #fffcfa; --pet-skin-shade: #6e5d58; --pet-ear-in: #a88e88; }
+.pet[data-skin="cairn"] { --pet-skin: #d6b688; --pet-skin-shade: #c09c6c; --pet-ear-in: #8f6f52; --pet-mark: #8f6f52; }
 .pet[data-skin="potbelly"] { --pet-skin: #9a94a2; --pet-skin-shade: #837d8c; --pet-ear-in: #e8a6b6; }
 .pet[data-species="hedgehog"][data-skin="brandt"] { --pet-skin: #f3e1cc; --pet-skin-shade: #dfc4a6; --pet-ear-in: #f2a8b6; --pet-mark: #5a4a43; }
 .pet[data-species="axolotl"][data-skin="rainbowaxo"] { --pet-skin: #fbe6f2; --pet-skin-shade: #f0cfe4; }
 .pet[data-skin="pigeon"] [data-sk~="pigeon"], .pet[data-skin="orangecat"] [data-sk~="orangecat"], .pet[data-skin="munchkin"] [data-sk~="munchkin"],
 .pet[data-skin="ragdoll"] [data-sk~="ragdoll"], .pet[data-skin="shiba"] [data-sk~="shiba"], .pet[data-skin="frenchie"] [data-sk~="frenchie"],
 .pet[data-skin="shepherd"] [data-sk~="shepherd"], .pet[data-skin="scottishfold"] [data-sk~="scottishfold"],
-.pet[data-skin="chicken"] [data-sk~="chicken"], .pet[data-skin="potbelly"] [data-sk~="potbelly"] { display: inline; }
+.pet[data-skin="chicken"] [data-sk~="chicken"], .pet[data-skin="potbelly"] [data-sk~="potbelly"],
+.pet[data-skin="lionhead"] [data-sk~="lionhead"], .pet[data-skin="himalayan"] [data-sk~="himalayan"], .pet[data-skin="cairn"] [data-sk~="cairn"] { display: inline; }
+/* Lionhead bunny: a fluffy mane round the head */
+.mane circle { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.4; }
+/* Himalayan bunny: white with dark ears, nose, paws and feet */
+.pet[data-skin="himalayan"] [data-sp="bunny"] .ear { fill: #6e5d58; }
+.pet[data-skin="himalayan"] .arm ellipse { fill: #6e5d58; }
+.hima-nose { fill: #6e5d58; opacity: .85; }
+.pet[data-skin="himalayan"] .cute-nose { fill: #4f413d; }
+/* cairn terrier: scruffy wheaten fur, small pointy ears, a beard and bushy brows */
+.pet[data-skin="cairn"] [data-sp="puppy"] { display: none; }
+.cairn-beard { fill: #ead6b4; }
+.cairn-brow { fill: none; stroke: #8f6f52; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 /* the dogs with upright ears drop the floppy ones and the spot; their ears pivot at the bottom */
 .pet:is([data-skin="shiba"], [data-skin="frenchie"], [data-skin="shepherd"]) [data-sp="puppy"] { display: none; }
 .pet[data-species="puppy"] .up-ears .ear-g { transform-origin: 50% 100%; }
@@ -1191,7 +1227,8 @@ button { font: inherit; color: inherit; }
 /* Scottish fold: ears folded forward and big round eyes */
 .pet[data-skin="scottishfold"] .kitty-ears { display: none; }
 .pet[data-skin="scottishfold"] .fold-ears .ear-g { transform-origin: 50% 100%; }
-.ear-fold { fill: none; stroke: var(--pet-ear-in); stroke-width: 2.4; stroke-linecap: round; }
+.ear-flap { fill: #bdbac9; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
+.ear-crease { fill: none; stroke: #f4b8c6; stroke-width: 1.6; stroke-linecap: round; }
 .pet[data-skin="scottishfold"] .eyes-open .ink { rx: 5.6px; ry: 6.2px; }
 .pet[data-skin="scottishfold"] .stripes path { stroke: #a9a6b6; }
 /* chicken: white with a red comb and wattle */
@@ -1201,6 +1238,8 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="strawberrycow"] .muzzle { fill: #fff0f4; }
 /* potbelly pig: grey, a round pale belly and a wrinkly forehead */
 .pot-belly { fill: #b9b3c0; }
+.pot-jowl { fill: #a49eac; }
+.pot-jowl-line { fill: none; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linecap: round; opacity: .6; }
 .pot-wrinkle { fill: none; stroke: var(--pet-ink); stroke-width: 1.6; stroke-linecap: round; opacity: .45; }
 .pet[data-skin="potbelly"] .snout ellipse:not(.nostril) { fill: #e3c3cf; }
 /* Brandt's hedgehog: dark spines and big ears */
