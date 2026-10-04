@@ -16,7 +16,7 @@ function bedtime() {
 function saveBedtime(bed) {
   try { localStorage.setItem(BED_KEY, JSON.stringify(bed)); } catch (e) { /* storage blocked */ }
 }
-// the teddy bear: sits in the bed at bedtime, and the pet hugs it once asleep (shown by styles.css)
+// the teddy bear: sits in the bed beside the pet at bedtime, and once asleep the pet holds it under its paw
 var TEDDY = '<circle class="teddy-fur" cx="9" cy="8" r="5"/><circle class="teddy-in" cx="9" cy="8" r="2.4"/>' +
   '<circle class="teddy-fur" cx="31" cy="8" r="5"/><circle class="teddy-in" cx="31" cy="8" r="2.4"/>' +
   '<ellipse class="teddy-fur" cx="20" cy="32" rx="12" ry="10"/><ellipse class="teddy-in" cx="20" cy="34" rx="6.5" ry="5.5"/>' +
@@ -27,7 +27,6 @@ var TEDDY = '<circle class="teddy-fur" cx="9" cy="8" r="5"/><circle class="teddy
   '<circle class="teddy-blush" cx="12.6" cy="19" r="1.7"/><circle class="teddy-blush" cx="27.4" cy="19" r="1.7"/>' +
   '<path class="teddy-bow" d="M20 27 l-5.4 -3.2 v6.4 z M20 27 l5.4 -3.2 v6.4 z"/><circle class="teddy-bow" cx="20" cy="27" r="1.7"/>';
 pet.querySelector('.teddy-hug').innerHTML = TEDDY;
-document.querySelector('.teddy-side').innerHTML = '<svg viewBox="0 0 40 44">' + TEDDY + '</svg>';
 
 var bedtimeKnown = false, wasAsleep = false;
 /** @returns {boolean} True when it is bedtime: night, and nothing left to buy (or already asleep). */
@@ -63,6 +62,8 @@ function refreshBedtime() {
   stage.classList.toggle('lights-off', bedNow && bed.dark);
   lampEl.setAttribute('aria-pressed', bedNow && bed.dark ? 'false' : 'true');
   pet.classList.toggle('tired', night && !asleep);
+  pet.classList.toggle('has-teddy', bedNow);
+  if (!grabbing) pet.classList.toggle('hugging', bedNow && asleep && bed.tucked);
   // the lamp is off and it is tucked in: off to sleep
   if (bedNow && !asleep && bed.tucked && bed.dark && !busy) fallAsleep();
   bedSoon();
@@ -74,56 +75,34 @@ function refreshBedtime() {
     setTimeout(function () { if (!busy) settle(); }, 1200);
   }
 }
-/** Lamp off and tucked in: it reaches for its teddy, tucks it under its paw, and drifts off. */
+/** Lamp off and tucked in: it reaches out for its teddy, pulls it in under its paw, and drifts off. */
+var grabbing = false;
 function fallAsleep() {
   state.pet.dozing = L.nightOf(petNow());
   wasAsleep = true;
   save();
   busy++;
-  setFace({ eyes: 'open', mouth: 'smile', arms: 'grab', x: ['cheeks'] });
+  grabbing = true;
+  setFace({ eyes: 'open', mouth: 'smile', arms: 'grab', x: ['cheeks'] }); // the paw reaches out to the teddy
   talk('teddyGrab', ['teddy…', 'my teddy ♡', 'cuddle time…'], 1200);
-  var grabMs = grabTeddy();
+  var reach = reduceMotion ? 0 : 700;
   setTimeout(function () {
+    // paw and teddy come back together (same timing in styles.css)
+    pet.dataset.arms = 'rest';
+    pet.classList.add('hugging');
+  }, reach);
+  setTimeout(function () {
+    grabbing = false;
     setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] });
-    pet.dataset.state = 'sleepy'; // the hugged teddy shows now
     pulse('sit', 2600);
     talk('fallAsleep', ['night night…', 'g\'night ♡', 'sleepy… zzz'], 1500);
-  }, grabMs);
+  }, reach + 700);
   setTimeout(function () {
     busy--;
     if (!busy) settle();
     updateEmptyHint();
     bedSoon();
-  }, grabMs + 1700);
-}
-/**
- * The teddy flies from beside the pet into its arms: a copy slides and tilts to the hug spot.
- * @returns {number} How long it takes, in ms.
- */
-function grabTeddy() {
-  var side = document.querySelector('.teddy-side');
-  var from = side.getBoundingClientRect();
-  if (reduceMotion || !from.width) return 300;
-  var r = petSvg.getBoundingClientRect();
-  // the hugged teddy's middle in the pet drawing (svg units), and its size there
-  var to = { x: r.left + r.width * (113 / 160), y: r.top + r.height * (117 / 150) };
-  var scale = (40 * 0.95 * r.width / 160) / from.width;
-  var fly = side.firstChild.cloneNode(true);
-  fly.classList.add('teddy-fly');
-  fly.style.width = from.width + 'px';
-  fly.style.height = from.height + 'px';
-  document.body.appendChild(fly);
-  stage.classList.add('teddy-moving');
-  var dx = to.x - from.width / 2, dy = to.y - from.height / 2;
-  fly.animate([
-    { transform: 'translate(' + from.left + 'px,' + from.top + 'px) rotate(8deg)' },
-    { transform: 'translate(' + (from.left - 6) + 'px,' + (from.top - 10) + 'px) rotate(-6deg)', offset: 0.35 },
-    { transform: 'translate(' + dx + 'px,' + dy + 'px) rotate(18deg) scale(' + scale.toFixed(2) + ')' }
-  ], { duration: 650, delay: 250, easing: 'ease-in-out', fill: 'both' }).finished.then(function () {
-    fly.remove();
-    stage.classList.remove('teddy-moving');
-  });
-  return 950;
+  }, reach + 2400);
 }
 /**
  * Checking something off wakes a sleeping pet: a quick start, a stretch and a yawn before it eats.

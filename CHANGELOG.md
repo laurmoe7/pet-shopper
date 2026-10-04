@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 134 (4 Oct)
+- Toy, lamp, bed, quilt and teddy keep dark outlines in dark mode.
+- The paw really grabs the teddy and pulls it in.
+- Tired eyelids stay dark in dark mode.
+
 ## Build 133 (4 Oct)
 - Falling asleep, the pet grabs its teddy and tucks it under its paw.
 - Darker teddy.

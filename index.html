@@ -509,7 +509,8 @@
                 <path class="blanket-cuff" d="M3 112 Q80 104 157 112 Q160 119 155 123 Q80 115 5 123 Q0 119 3 112 Z"/>
                 <path class="blanket-stitch" d="M10 117.6 Q80 110.6 150 117.6"/>
               </g>
-              <!-- the teddy it hugs while it sleeps (app-bedtime.js draws it), under the arms so a paw rests on it -->
+              <!-- the teddy (app-bedtime.js draws it): at bedtime it sits in the bed beside the pet (moved out with the CSS
+                   translate property), and asleep it lies tilted under the right paw; drawn before the arms so the paw is on it -->
               <g class="teddy-hug" transform="translate(94 96) rotate(18 19 21) scale(.95)"></g>
               <!-- little nubbly arms -->
               <g class="arm arm-l"><ellipse cx="27" cy="117" rx="7" ry="9"/><path class="arm-cuff" d="M20.4 120.4 Q27 123.4 33.6 120.4"/><path class="arm-hand" d="M21.4 121.6 Q27 124 32.6 121.6 Q32 126 27 126 Q22 126 21.4 121.6 Z"/><path data-sp="frog" class="frog-web frog-web-hand" d="M21.2 122 Q19.4 133 23 132 Q25 128.5 27 132.5 Q29 128.5 31 132 Q34.6 133 32.8 122"/><g class="paw-part paw-hand"><path class="paw-line paw-toe-lines" d="M24.6 122 v3 M29.4 122 v3"/><g class="paw-beans"><path class="paw-bean" d="M24.7 119.8 a2.3 1.7 0 1 0 4.6 0 a2.3 1.7 0 1 0 -4.6 0 Z"/><circle class="paw-bean" cx="24" cy="122.8" r="1.05"/><circle class="paw-bean" cx="27" cy="123.7" r="1.05"/><circle class="paw-bean" cx="30" cy="122.8" r="1.05"/></g></g><g class="hoof-part hoof-hand"><path class="hoof" d="M20.3 119.6 Q27 122.8 33.7 119.6 Q33.2 126.2 27 126.2 Q20.8 126.2 20.3 119.6 Z"/><path class="hoof-split" d="M27 121.6 V126"/></g><ellipse class="arm-hi" cx="25" cy="114" rx="2.4" ry="3"/></g>
@@ -544,8 +545,6 @@
         <div class="tummy" id="tummy" aria-hidden="true"></div>
       </div>
       <div class="cushion" aria-hidden="true"></div>
-      <!-- the teddy sits in the bed beside the pet at bedtime, until it is asleep and hugging it (app-bedtime.js) -->
-      <div class="teddy-side" aria-hidden="true"></div>
       <div class="bed-front" aria-hidden="true"><svg viewBox="0 0 250 46">
         <path class="bed-bolster" d="M6 26 C4 12 22 6 48 9 C80 13 100 20 125 20 C150 20 170 13 202 9 C228 6 246 12 244 26 C242 40 222 45 125 45 C28 45 8 40 6 26 Z"/>
         <path class="bed-seam" d="M18 30 C40 34 80 34 125 33 C170 34 210 34 232 30"/>
