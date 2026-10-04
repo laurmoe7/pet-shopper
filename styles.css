@@ -1120,7 +1120,7 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="kiwi"] { --pet-skin: #b68f63; --pet-skin-shade: #dcaa5c; --pet-mark: #7a5a38; }
 .pet[data-skin="dutch"] { --pet-skin: #fffafb; --pet-skin-shade: #f0e0e4; --pet-ear-in: #ffbfcc; --pet-mark: #8e8a99; }
 .pet[data-species="frog"][data-skin="dartfrog"] { --pet-skin: #3f86ea; --pet-skin-shade: #2c68c8; --pet-mark: #2c68c8; }
-.pet[data-species="hedgehog"][data-skin="fasthedgehog"] { --pet-skin: #f6dcc0; --pet-skin-shade: #e6c19a; --pet-ear-in: #ffc4cf; --pet-mark: #8d6b52; }
+.pet[data-species="hedgehog"][data-skin="fasthedgehog"] { --pet-skin: #fff6ea; --pet-skin-shade: #eed8bd; --pet-ear-in: #ffc4cf; --pet-mark: #3d78e6; }
 .pet[data-species="frog"][data-skin="toad"] { --pet-skin: #c9a878; --pet-skin-shade: #a98a5c; --pet-mark: #a98a5c; }
 .pet[data-skin="strawberry"] [data-sk~="strawberry"],
 .pet[data-skin="chocolate"] [data-sk~="chocolate"],
@@ -1177,13 +1177,13 @@ button { font: inherit; color: inherit; }
 
 /* ---------- frog and hedgehog ---------- */
 .pet[data-species="frog"] { --pet-skin: #a9e6a2; --pet-skin-shade: #7bce88; --pet-mark: #7bce88; }
-.pet[data-species="hedgehog"] { --pet-skin: #f6dcc0; --pet-skin-shade: #e6c19a; --pet-ear-in: #ffc4cf; --pet-mark: #8d6b52; }
+.pet[data-species="hedgehog"] { --pet-skin: #fff6ea; --pet-skin-shade: #eed8bd; --pet-ear-in: #f2c9a8; --pet-mark: #a9825c; }
 .pet[data-species="frog"] [data-sp="frog"], .pet[data-species="hedgehog"] [data-sp="hedgehog"], .pet[data-species="axolotl"] [data-sp="axolotl"] { display: inline; }
 .frog-spots ellipse { fill: #7fcf88; }
 .frog-belly { fill: #f6fbd2; }
-.hog-spines path { fill: #8d6b52; stroke: var(--pet-ink); stroke-width: 4.4; stroke-linejoin: round; }
-.hog-fill { fill: #8d6b52; stroke: none; }
-.hog-blend path { fill: #8d6b52; stroke: none; }
+.hog-spines path { fill: #c49a6c; stroke: var(--pet-ink); stroke-width: 4.4; stroke-linejoin: round; }
+.hog-fill { fill: #c49a6c; stroke: none; }
+.hog-blend path { fill: #c49a6c; stroke: none; }
 .hog-edge { fill: none; stroke: var(--pet-ink); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
 
 .pet[data-skin="longhair"] .belly { fill: #625d6c; }
@@ -1203,7 +1203,10 @@ button { font: inherit; color: inherit; }
 .pet[data-species="frog"] .foot { stroke: none; }
 .frog-web-hand { fill: var(--pet-skin); stroke-linecap: round; }
 /* hedgehog ears are half moons */
-.pet[data-species="hedgehog"] .ear { stroke-linejoin: round; }
+.pet[data-species="hedgehog"] .ear { stroke-linejoin: round; fill: #a9825c; }
+.hog-dash { fill: none; stroke: #8a6544; stroke-width: 2.2; stroke-linecap: round; }
+.hog-fleck { fill: none; stroke: #fff4e2; stroke-width: 2; stroke-linecap: round; }
+.pet[data-skin="fasthedgehog"] .hog-dash { stroke: #224f9e; }
 /* frog skins */
 .dart-red { fill: #e83b4b; }
 .dart-black ellipse { fill: #1b1f33; }
@@ -1555,18 +1558,27 @@ html:root .item:nth-child(3n+1) { --tab: #d9ccf5; }
 @media (prefers-color-scheme: dark) { html:root:not([data-theme="light"]) .item:nth-child(3n+1) { --tab: #b4a4e0; } }
 html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 
-/* test: little noses on the bunny and the cat */
-.cute-nose { fill: #ff9fb5; stroke: var(--pet-ink); stroke-width: 1.2; stroke-linejoin: round; }
-/* test: the bunny and cat smile as a :3 under the nose (swaps with the plain smile, like the frog's) */
+/* animal faces: a little nose over a :3 mouth (with a lip, or buck teeth for the bunny), eyes a little wider and lower */
+.cute-nose { display: none; fill: #ff9fb5; stroke: var(--pet-ink); stroke-width: 1.2; stroke-linejoin: round; }
+.pet:is([data-species="bunny"], [data-species="hamster"]) .nose-round,
+.pet[data-species="kitty"] .nose-cat,
+.pet:is([data-species="puppy"], [data-species="hedgehog"]) .nose-dark { display: inline; }
+.nose-dark { fill: #3d2b24; stroke: #2a1d18; }
 .cat-smile { display: none; }
-/* test: the bunny and cat have their eyes a little wider apart and lower (the translate property adds to any blink or sparkle) */
-.pet:is([data-species="bunny"], [data-species="kitty"]) .eye-l { translate: -3px 1.6px; }
-.pet:is([data-species="bunny"], [data-species="kitty"]) .eye-r { translate: 3px 1.6px; }
-.pet:not([data-species="bunny"]):not([data-species="kitty"]) .cat-smile { display: none; }
-.pet:is([data-species="bunny"], [data-species="kitty"])[data-mouth="smile"] path[data-mouth="smile"]:not(.cat-smile) { display: none; }
-.pet[data-species="kitty"][data-mouth="smile"] .smile-kitty, .pet[data-species="bunny"][data-mouth="smile"] .smile-bunny { display: inline; }
-.pet[data-species="kitty"] .smile-bunny, .pet[data-species="bunny"] .smile-kitty { display: none; }
+.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"])[data-mouth="smile"] path[data-mouth="smile"]:not(.cat-smile) { display: none; }
+.pet:is([data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"])[data-mouth="smile"] .smile-lip,
+.pet[data-species="bunny"][data-mouth="smile"] .smile-bunny { display: inline; }
 .buck-teeth { fill: #fff; stroke: var(--pet-ink); stroke-width: 1; stroke-linejoin: round; }
+.pet:not([data-species="bunny"]) .smile-bunny,
+.pet:not([data-species="kitty"]):not([data-species="puppy"]):not([data-species="hamster"]):not([data-species="hedgehog"]) .smile-lip { display: none; }
+.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"]) .eye-l { translate: -3px 1.6px; }
+.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"]) .eye-r { translate: 3px 1.6px; }
+/* hedgehog, after a hedgehog print: a pale face, a light brown muzzle, a dark nose, triangle blush,
+   lighter spines with darker dashes and a few pale flecks */
+.hog-muzzle, .hog-cheek { display: none; }
+.pet[data-species="hedgehog"] .hog-muzzle { display: inline; fill: #dcbb95; }
+.pet[data-species="hedgehog"] .hog-cheek { display: inline; }
+.pet[data-species="hedgehog"] .cheeks ellipse, .pet[data-species="hedgehog"] .hatch { display: none; }
 
 /* ---------- feet ----------
    Each foot (.foot-l / .foot-r, and the shoes' .shoe-l / .shoe-r) moves on its own: little steps when walking,

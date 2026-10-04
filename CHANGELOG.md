@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 109 (4 Oct)
+- Bunny, cat, dog, hamster and hedgehog get noses and a :3 mouth.
+- Bunny buck teeth wider and lower.
+- Hedgehog restyled after a hedgehog print.
+
 ## Build 108 (4 Oct)
 - Test: bunny gets buck teeth and a lower :3 (no lip); cat's lip sits lower.
 
