@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '99';
+var BUILD = '100';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -162,6 +162,25 @@ var $ = function (id) { return document.getElementById(id); };
 var pet = $('pet'), petSvg = pet.querySelector('.pet-svg'), bubble = $('bubble'), todoEl = $('todo'), doneEl = $('done');
 var addForm = $('addForm'), addInput = $('addInput'), addPreview = $('addPreview');
 var eatenSection = $('eatenSection'), eatenCount = $('eatenCount'), emptyHint = $('emptyHint');
+// Developer tools can pretend it is day or night ('auto' uses the real clock). Not saved.
+var devClock = 'auto';
+/** @returns {Date} The time the pet goes by: the real time, or midday / 11 pm when Developer tools say so. */
+function petNow() {
+  var d = new Date();
+  if (devClock === 'day') d.setHours(12, 0, 0, 0);
+  if (devClock === 'night') d.setHours(23, 0, 0, 0);
+  return d;
+}
+/** The line shown when the list is empty: awake in the day, asleep at night. */
+function updateEmptyHint() {
+  var name = document.createElement('span');
+  name.className = 'pet-name';
+  name.textContent = state.pet.name || 'Nibble';
+  var night = L.isNight(petNow());
+  emptyHint.replaceChildren(name, night
+    ? ' is sleeping. Add something to the list for a wake-up snack.'
+    : ' is wide awake. Add something to the list to go shopping together!');
+}
 var clearBtn = $('clearBtn');
 var picker = $('picker'), pickerGrid = $('pickerGrid'), pickerName = $('pickerName'), deleteBtn = $('deleteBtn');
 
@@ -189,6 +208,7 @@ function render() {
   eatenSection.hidden = done.length === 0;
   eatenCount.textContent = '(' + done.length + ')';
   emptyHint.hidden = state.items.length > 0;
+  updateEmptyHint();
   renderCart(todo, done);
   freshIds = {};
   if (!busy) settle();

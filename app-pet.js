@@ -36,7 +36,7 @@ var REACTIONS = {
 var busy = 0;
 
 /** @returns {string} The pet's resting mood for the current list. */
-function baseState() { return L.restingMood(state.items, new Date()); }
+function baseState() { return L.restingMood(state.items, petNow()); }
 /**
  * Shows a face on the pet: eyes, mouth, arm pose and extras such as hearts or steam.
  * @param {{eyes: string, mouth: string, arms?: string, x: string[]}} face

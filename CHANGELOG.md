@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 100 (4 Oct)
+- The empty-list line uses the pet's name: "… is wide awake" in the day, "… is sleeping" at night.
+- Developer tools: Day / night switch (real clock, day, night).
+- New daytime things the pet does: waves hello, watches a butterfly, sneezes, does a little workout, blows bubbles, sunbathes, hiccups when full, and admires the receipt.
+- The pet asks for something more often while awake, at most once a minute.
+
 ## Build 99 (4 Oct)
 - The receipt is bigger and headed RECEIPT (shows the last five things).
 - The pet no longer falls asleep when the list is done or empty: it is awake in the day (full and happy after a finished list) and sleeps from 10 pm to 7 am. A list with things to buy still wakes it at night. It checks the clock every minute, so it nods off and wakes on time.

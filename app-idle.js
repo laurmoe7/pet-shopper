@@ -15,6 +15,8 @@ function scheduleDream() {
 function idle() {
   scheduleDream();
   if (busy || dreaming || document.hidden || document.querySelector('dialog[open]:not(#roomSheet)')) return;
+  // while it's awake it asks for something now and then (offerSuggestion keeps that to once a minute at most)
+  if (baseState() !== 'sleepy' && Math.random() < 0.2 && offerSuggestion()) return;
   if (state.settings.daydreams && Math.random() < 0.3) daydream();
   else idleMove();
 }
@@ -120,7 +122,19 @@ var IDLE_MOVES = [
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('shuffle', 1500); hum(); } },
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'reach', x: ['sparkles', 'cheeks'] }); pulse('boogie', 1500); hum(); } },
   { moods: ['sleepy', 'stuffed'], run: function () { pulse('wiggle', 900); } },
-  { moods: ['stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); } }
+  { moods: ['stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); } },
+  // daytime things to do
+  { moods: ['curious', 'happy', 'stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('hopsmall', 450); talk('wave', ['hi hi!', 'hello~', 'yoohoo!'], 1200); } },
+  { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'sparkle', mouth: 'o', arms: 'reach', x: [] }); drift(['🦋'], petTop(), 1); lookAround(); talk('butterfly', ['a butterfly!', 'so pretty…', 'come back!'], 1300); } },
+  { moods: ['curious', 'happy', 'stuffed'], run: function () {
+    setFace({ eyes: 'squint', mouth: 'o', arms: 'cover', x: [] });
+    setTimeout(function () { setFace({ eyes: 'closed', mouth: 'open', arms: 'idle', x: ['shock'] }); pulse('spit', 350); say(pick(['achoo!', 'a-choo!', 'hatchoo!']), 1000, true); }, 550);
+  } },
+  { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'cheer', x: ['sweat', 'cheeks'] }); pulse('hophop', 1500); talk('exercise', ['one, two! one, two!', 'stretchy stretch!', 'workout time!'], 1300); } },
+  { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'sparkle', mouth: 'o', arms: 'reach', x: [] }); drift(['○', '◦', '○'], mouthPoint(), 3); pulse('hopsmall', 450); talk('bubbles', ['bubbles!', 'pop pop!'], 1100); } },
+  { moods: ['curious', 'stuffed'], run: function () { setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); drift(['☀'], petTop(), 1); pulse('sit', 2600); talk('sun', ['warm and cosy…', 'sunny day ♡', 'ahh, sunshine'], 1400); } },
+  { moods: ['stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'o', arms: 'pat', x: ['cheeks'] }); pulse('hopsmall', 450); say(pick(['*hic*', 'burp! oops', 'hehe, full']), 1100, true); } },
+  { moods: ['happy', 'stuffed'], run: function () { if (!receiptEl.hidden) { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'reach', x: ['sparkles'] }); pulse('peek', 1400); talk('receipt', ['look how much we got!', 'such a long receipt!', 'good shopping!'], 1400); } } }
 ];
 /** Plays one idle move that fits the pet's mood, then settles back. */
 function idleMove() {
@@ -193,7 +207,7 @@ function lively() {
 scheduleLively();
 softSettleSoon();
 // bedtime and morning: check the clock now and then, so the pet falls asleep at 10 pm and wakes at 7 am
-setInterval(function () { if (!busy && !dreaming && pet.dataset.state !== baseState()) settle(); }, 60000);
+setInterval(function () { updateEmptyHint(); if (!busy && !dreaming && pet.dataset.state !== baseState()) settle(); }, 60000);
 
 // ---------- eyes follow your finger or cursor ----------
 var lookAt = null, lookFrame = 0, lookTimer;
