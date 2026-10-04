@@ -28,15 +28,17 @@
     <div class="stage">
       <!-- the room behind the pet: decor you place from the dressing room -->
       <div class="room" id="room"></div>
-      <!-- bedtime (app-bedtime.js): the room goes dark when the lamp is off, and a moon lamp hangs at the top right at night -->
+      <!-- bedtime (app-bedtime.js): a moon lamp hangs at the top right at night; tug it down to switch it off and the room goes dark -->
       <div class="nightshade" aria-hidden="true"></div>
-      <button class="moon-lamp" id="moonLamp" type="button" aria-label="Lamp" aria-pressed="true" hidden><svg viewBox="0 0 40 64" aria-hidden="true">
-        <path class="lamp-cord" d="M20 0 V20"/>
+      <button class="moon-lamp" id="moonLamp" type="button" aria-label="Lamp: pull down to switch" aria-pressed="true" hidden><svg viewBox="0 0 40 64" aria-hidden="true">
+        <rect class="lamp-cord" x="19.2" y="-2" width="1.6" height="23"/>
+        <g class="lamp-body">
         <circle class="lamp-glow" cx="21" cy="40" r="19"/>
         <path class="lamp-moon" d="M27.5 24.6 A15.5 15.5 0 1 0 30.4 52.6 A12.5 12.5 0 0 1 27.5 24.6 Z"/>
         <circle class="lamp-blush" cx="14.5" cy="43.5" r="2.2"/>
         <path class="lamp-face" d="M11.5 37.6 q2 1.8 4 0 M18 41 q1.4 1.2 2.8 0"/>
         <path class="lamp-star" d="M33 33 l1 2.4 2.4 1 -2.4 1 -1 2.4 -1 -2.4 -2.4 -1 2.4 -1 z"/>
+        </g>
       </svg></button>
       <div class="bubble" id="bubble" role="status" aria-live="polite" hidden></div>
       <!-- a daydream: a thought cloud with something from the list -->

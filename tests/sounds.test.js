@@ -42,7 +42,7 @@ test('the dressing room sounds exist', () => {
 });
 
 test('the toy and bedtime sounds exist', () => {
-  for (const kind of ['toss', 'bounce', 'squeak', 'tuck']) assert.ok(Sounds.kinds.includes(kind), kind);
+  for (const kind of ['toss', 'bounce', 'squeak', 'tuck', 'snore']) assert.ok(Sounds.kinds.includes(kind), kind);
 });
 
 test('menu sounds exist and never play the same variant twice in a row', () => {

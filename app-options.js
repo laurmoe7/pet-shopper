@@ -92,12 +92,7 @@ var DEV_ACTIONS = [
   { label: 'Lock everything again', run: function () { L.lockAll(state.pet, Achievements, FreeUnlocks); return 'Progress wiped. Locked items are locked again.'; } },
   { label: 'Skip to tomorrow', run: function () { L.skipDays(state, 1); return 'A day has passed: daily limits are fresh.'; } },
   { label: 'Throw the toy', run: function () { playToy(); return 'Go get it!'; } },
-  { label: 'Bedtime: untuck and lamp on', run: function () { try { localStorage.removeItem(BED_KEY); } catch (e) { /* storage blocked */ } refreshBedtime(); return 'Not tucked in. Set it to night, then tap the pet to tuck it in.'; } },
-  { label: 'Belly jiggle', run: function () { bellyJiggle(); return 'Jiggle jiggle.'; } },
-  { label: 'Eyes: widen', run: function () { eyesDo('wide'); return 'Wide eyes.'; } },
-  { label: 'Eyes: squint', run: function () { eyesDo('squint'); return 'Squinting.'; } },
-  { label: 'Daydream now', run: function () { setTimeout(daydream, 200); return 'Daydreaming…'; } },
-  { label: 'Suggest something now', run: function () { lastSuggestion = 0; setTimeout(offerSuggestion, 200); return 'Suggestion shown above the list.'; } },
+  { label: 'Bedtime: untuck and lamp on', run: function () { try { localStorage.removeItem(BED_KEY); } catch (e) { /* storage blocked */ } refreshBedtime(); return 'Not tucked in, lamp on. Set it to night, pull the lamp down, then tap the pet to tuck it in.'; } },
   { label: 'Fill with sample items', run: function () { state.items = state.items.concat(L.parseState(null, newId).items); return 'Sample items added.'; } },
   { label: 'Clear the list', run: function () { state.items = []; return 'List cleared.'; } },
   { label: 'Reset all saved data', danger: true, run: function () {

@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 124 (4 Oct)
+- Pull the lamp down to switch it off.
+- The lamp swings until it is off.
+- In the dark, the pet mumbles to be tucked in.
+- Tucked in, the pet snores.
+- Fewer developer tools.
+
 ## Build 123 (4 Oct)
 - New: a toy to throw; the pet chases it.
 - Dogs and birds fetch, cats bat it about, others hug it.

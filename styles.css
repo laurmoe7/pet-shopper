@@ -1431,11 +1431,19 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
 
 /* bedtime (app-bedtime.js): a moon lamp hangs at the top at night; with it off the room goes dark behind the
    pet, and a tucked-in pet has a blanket over its tummy */
-.moon-lamp { position: absolute; left: min(calc(100% - 46px), calc(50% + 104px)); top: 0; width: 40px; height: 64px; padding: 0; border: 0; background: none; z-index: 2; cursor: pointer; transform-origin: 50% 0; animation: lamp-sway 5s ease-in-out infinite; -webkit-tap-highlight-color: transparent; }
+.moon-lamp { position: absolute; left: min(calc(100% - 46px), calc(50% + 104px)); top: 0; width: 40px; height: 64px; padding: 0; border: 0; background: none; z-index: 2; cursor: grab; touch-action: none; transform-origin: 50% 0; animation: lamp-sway 5s ease-in-out infinite; -webkit-tap-highlight-color: transparent; }
+/* while it is on at bedtime, the lamp swings and bobs now and then to be noticed; off, it hangs still */
+.stage.bedtime:not(.lights-off) .moon-lamp { animation: lamp-call 3.2s ease-in-out infinite; }
+.stage.lights-off .moon-lamp { animation: none; }
+@keyframes lamp-call { 0%, 55%, 100% { rotate: 0deg; } 62% { rotate: -11deg; } 70% { rotate: 9deg; } 78% { rotate: -6deg; } 86% { rotate: 3deg; } 93% { rotate: -1deg; } }
+/* pulling it down (app-bedtime.js sets --pull): the cord stretches and the moon follows the finger, then springs back */
+.lamp-cord { fill: var(--outline); transform-box: view-box; transform-origin: 20px 0; scale: 1 calc(1 + var(--pull, 0) / 21); transition: scale .45s cubic-bezier(.3, 1.8, .5, 1); }
+.lamp-body { translate: 0 calc(var(--pull, 0) * 1px); transition: translate .45s cubic-bezier(.3, 1.8, .5, 1); }
+.moon-lamp.pulling .lamp-cord, .moon-lamp.pulling .lamp-body { transition: none; }
+.moon-lamp.pulling { cursor: grabbing; }
 .moon-lamp[hidden] { display: none; }
 .moon-lamp svg { display: block; width: 100%; height: 100%; overflow: visible; }
 @keyframes lamp-sway { 0%, 100% { rotate: -3deg; } 50% { rotate: 3deg; } }
-.lamp-cord { fill: none; stroke: var(--outline); stroke-width: 1.6; }
 .lamp-moon { fill: #ffe9a3; stroke: var(--outline); stroke-width: 1.8; stroke-linejoin: round; transition: fill .6s; }
 .lamp-glow { fill: #fff2b8; opacity: .45; transition: opacity .6s; }
 .lamp-blush { fill: #ffb3c1; opacity: .8; }
