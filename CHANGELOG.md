@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 150 (4 Oct)
+- The teddy cuddle is back to how it was in build 139.
+
 ## Build 149 (4 Oct)
 - The teddy cuddle and grab are back to the smooth way, against his cheek.
 
