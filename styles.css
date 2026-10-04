@@ -185,6 +185,9 @@ button { font: inherit; color: inherit; }
 .pet[data-species="cow"] .ear-r { transform-origin: 0% 50%; }
 .pet[data-species="puppy"] .ear-g { transform-origin: 70% 0%; }
 .pet[data-species="puppy"] .ear-r { transform-origin: 30% 0%; }
+/* the floppy-eared bunny's ears hang and swing from the head like the dog's */
+.pet[data-skin="floppybunny"] .ear-g { transform-origin: 70% 0%; }
+.pet[data-skin="floppybunny"] .ear-r { transform-origin: 30% 0%; }
 .pet[data-state="happy"] .ear-l { animation: ear-flick-l 2.2s ease-in-out infinite; }
 .pet[data-state="happy"] .ear-r { animation: ear-flick-r 2.2s ease-in-out .3s infinite; }
 .pet[data-state="sleepy"] .ear-l, .pet[data-state="stuffed"] .ear-l { transform: rotate(-6deg); }
@@ -571,6 +574,8 @@ button { font: inherit; color: inherit; }
 .hoof { fill: #6e5a52; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
 .pet[data-species="pig"] .hoof { fill: #c98896; }
 .hoof-split { fill: none; stroke: var(--pet-ink); stroke-width: 1.2; stroke-linecap: round; }
+.arm .bird-hand ellipse { stroke-width: 1.5; }
+.pet.sleeved .bird-hand { display: none !important; }
 .bird-part .bird-toe { fill: #ffb259; stroke: var(--pet-ink); stroke-width: 1.8; }
 .pet[data-hood="pighoodie"] .arm ellipse:not(.arm-hi) { fill: #ffc4d2; }
 /* strawberry dress: pink tulle with little strawberries, a ruffled hem, a ribbon bow and puff sleeves */
@@ -2020,13 +2025,16 @@ html[data-list="todo"] #pet.stowing .arm-l { transform: rotate(14deg); animation
 html[data-list="todo"] #pet.stowing .clipboard { transform: translate(-30px, 34px) rotate(-60deg) scale(.55); opacity: 0; transition: transform .6s ease-in, opacity .45s .15s ease-in; }
 
 /* the mic button in the Add bar (app-voice.js): a round sticker; it pulses while it listens */
-.mic-btn { flex: none; width: 36px; height: 36px; padding: 0; border: 3px solid #fff; border-radius: 50%; background: var(--surface); box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 2px 3px var(--shadow); cursor: pointer; display: grid; place-items: center; }
+.mic-btn { flex: none; width: 36px; height: 36px; padding: 0; border: 3px solid #fff; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 2px 3px var(--shadow); cursor: pointer; display: grid; place-items: center; }
 .mic-btn[hidden] { display: none; }
-.mic-btn svg { width: 20px; height: 20px; fill: var(--accent-ink); stroke: var(--accent-ink); stroke-width: 2; stroke-linecap: round; fill-opacity: .9; }
+.mic-btn svg { width: 20px; height: 20px; fill: #fff; stroke: #fff; stroke-width: 2; stroke-linecap: round; fill-opacity: .9; }
 .mic-btn svg path { fill: none; }
 .mic-btn:active { transform: scale(.92); }
-.mic-btn.on { background: var(--accent); animation: mic-pulse 1s ease-in-out infinite; }
-.mic-btn.on svg { fill: #fff; stroke: #fff; }
+.mic-btn.on { background: #ff6f93; animation: mic-pulse 1s ease-in-out infinite; }
 .mic-btn.call { animation: mic-pulse 1s ease-in-out infinite; }
 @keyframes mic-pulse { 50% { box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 0 0 7px rgba(255, 120, 150, .35); } }
 @media (prefers-reduced-motion: reduce) { .mic-btn.on, .mic-btn.call { animation: none; } }
+
+/* to-do tasks that aren't for today: a slightly different tint (app.js adds .later to a task due after today) */
+html:root .item.later:not(.done) { background: color-mix(in srgb, var(--surface) 86%, #b9a6ec); }
+html:root .item.later:not(.done) .item-text { color: color-mix(in srgb, var(--ink) 82%, #8f7bd0); }

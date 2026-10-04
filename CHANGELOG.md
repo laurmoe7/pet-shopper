@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 152 (4 Oct)
+- Mic button is pink with a white mic.
+- Floppy-eared bunny's ears swing like the dog's.
+- To-do tasks for later days have a soft purple tint.
+- Bottom bar order: Pet, Dress-up, Room, Treats, Top 10, Goals.
+- Birds have tiny wing hands.
+
 ## Build 151 (4 Oct)
 - Mic button to add items by speaking.
 - "Add by voice" shortcut on the app icon.
