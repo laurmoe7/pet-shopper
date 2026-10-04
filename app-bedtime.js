@@ -1,10 +1,10 @@
-// Bedtime: at night a moon lamp hangs above the pet and swings now and then until it is off. Tug it down to switch
-// it off (or on); in the dark the pet mumbles to be tucked in, and a tap tucks it under a blanket, where it snores.
+// Bedtime: at night a pendant lamp hangs above the pet, lighting up the room, and swings now and then until it is off.
+// Tug its pull-cord down to switch it off (or on; that makes a sleeping pet grumpy); in the dark the pet mumbles to be tucked in, and a tap tucks it under a blanket, where it snores.
 // It lasts until morning (or until the list needs shopping). Kept on this device only.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
-var BED_KEY = 'nibble-bedtime', moonLamp = $('moonLamp'), tucking = false;
+var BED_KEY = 'nibble-bedtime', lampEl = $('lamp'), tucking = false;
 /** @returns {{night: string, tucked: boolean, dark: boolean}} Tonight's bedtime, or a fresh one. */
 function bedtime() {
   var night = L.nightOf(petNow()), saved = null;
@@ -20,10 +20,10 @@ function refreshBedtime() {
   var asleep = baseState() === 'sleepy', bed = bedtime();
   var wasTucked = pet.classList.contains('tucked');
   stage.classList.toggle('bedtime', asleep);
-  moonLamp.hidden = !asleep;
+  lampEl.hidden = !asleep;
   pet.classList.toggle('tucked', asleep && bed.tucked);
   stage.classList.toggle('lights-off', asleep && bed.dark);
-  moonLamp.setAttribute('aria-pressed', asleep && bed.dark ? 'false' : 'true');
+  lampEl.setAttribute('aria-pressed', asleep && bed.dark ? 'false' : 'true');
   bedSoon();
   // morning, or something was added to the list: up it gets, with a stretch
   if (wasTucked && !asleep && !busy) {
@@ -39,10 +39,10 @@ function setLamp(dark) {
   var bed = bedtime();
   bed.dark = dark;
   saveBedtime(bed);
-  sound(dark ? 'off' : 'on');
+  sound('click');
   refreshBedtime();
 }
-/** Tucks the sleeping pet in: the blanket comes up, a sleepy "night night", then the lamp goes off. */
+/** Tucks the sleeping pet in: the blanket comes up and a sleepy "night night"; it asks for the lamp if it is still on. */
 function tuckIn() {
   var bed = bedtime();
   bed.tucked = true;
@@ -76,34 +76,33 @@ pet.addEventListener('click', function (e) {
 }, true);
 // the lamp is switched by tugging it down, like a pull cord: it follows the finger and springs back
 var PULL_PX = 22, pullFrom = null, pulled = 0;
-moonLamp.addEventListener('pointerdown', function (e) {
+lampEl.addEventListener('pointerdown', function (e) {
   if (tucking) return;
   pullFrom = e.clientY;
   pulled = 0;
-  moonLamp.classList.add('pulling');
-  try { moonLamp.setPointerCapture(e.pointerId); } catch (err) { /* fine without */ }
+  lampEl.classList.add('pulling');
+  try { lampEl.setPointerCapture(e.pointerId); } catch (err) { /* fine without */ }
 });
-moonLamp.addEventListener('pointermove', function (e) {
+lampEl.addEventListener('pointermove', function (e) {
   if (pullFrom == null) return;
-  pulled = Math.max(0, Math.min(40, e.clientY - pullFrom));
-  moonLamp.style.setProperty('--pull', Math.round(pulled * 0.8));
+  pulled = Math.max(0, Math.min(36, e.clientY - pullFrom));
+  lampEl.style.setProperty('--pull', Math.round(pulled * 0.8));
 });
 function letGo() {
   if (pullFrom == null) return;
   pullFrom = null;
-  moonLamp.classList.remove('pulling');
-  moonLamp.style.removeProperty('--pull'); // springs back up
+  lampEl.classList.remove('pulling');
+  lampEl.style.removeProperty('--pull'); // springs back up
   if (pulled >= PULL_PX) pullLamp();
   else {
-    // only a tap: it bobs, a hint to pull it
-    moonLamp.animate([{ translate: '0 0' }, { translate: '0 5px' }, { translate: '0 0' }], { duration: 350, easing: 'ease-out' });
-    sound('tap');
+    // only a tap: the cord gives a little dip, a hint to pull it
+    lampEl.querySelector('.lamp-bead').animate([{ translate: '0 0' }, { translate: '0 7px' }, { translate: '0 0' }], { duration: 380, easing: 'ease-out' });
   }
 }
-moonLamp.addEventListener('pointerup', letGo);
-moonLamp.addEventListener('pointercancel', letGo);
+lampEl.addEventListener('pointerup', letGo);
+lampEl.addEventListener('pointercancel', letGo);
 // a keyboard press (Enter or Space) switches it too
-moonLamp.addEventListener('click', function (e) {
+lampEl.addEventListener('click', function (e) {
   e.stopPropagation();
   if (e.detail === 0 && !tucking) pullLamp();
 });
@@ -112,8 +111,17 @@ function pullLamp() {
   var dark = !bedtime().dark;
   setLamp(dark);
   if (busy) return;
-  if (!dark) talk('lampOn', ['mm… bright…', '*squint*'], 1200);
+  if (!dark) grumpy();
   else if (!bedtime().tucked) setTimeout(tuckMumble, 1100);
+}
+/** The light comes back on while it sleeps: a grumpy squint at you, then back to sleep. */
+function grumpy() {
+  busy++;
+  setFace({ eyes: 'squint', mouth: 'wavy', arms: 'idle', x: [] });
+  eyesDo('squint');
+  pulse('rocksmall', 1300);
+  talk('lampGrumpy', ['hey… too bright…', 'hmph!', '*grumble grumble*', 'I was sleeping…'], 1600);
+  setTimeout(function () { busy--; if (!busy) settle(); }, 1800);
 }
 
 // ---------- in bed: snoring, and mumbling to be tucked in ----------

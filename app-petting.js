@@ -19,6 +19,13 @@
   function petted() {
     if (busy) return;
     busy++;
+    if (baseState() === 'sleepy') {
+      // asleep: it only stirs a little and mumbles
+      pulse('rocksmall', 1300);
+      talk('petSleepy', ['mm… nice…', 'hehe… zzz', 'five more minutes…', 'mmm… snacks…'], 1500);
+      setTimeout(function () { busy--; if (!busy) settle(); }, 1500);
+      return;
+    }
     var r = pick(PETTED);
     setFace(r.face);
     pulse(r.move[0], r.move[1]);

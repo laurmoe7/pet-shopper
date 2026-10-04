@@ -2,7 +2,7 @@
  * Sounds.play(kind) where kind is one of:
  *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party,
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
- *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), snore (tucked in),
+ *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), snore (tucked in), click (the lamp's pull-cord),
  *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
  * Every play is pitch-shifted a little, and kinds with several variants pick a
  * different one each time, so nothing sounds exactly the same twice in a row.
@@ -271,6 +271,12 @@
       // the blanket swishing up, then a soft lullaby chime
       var f = noise(t, 0.35, 'lowpass', 900, 0.7, env(t, 0.08, 0.27, 0.3)); f.frequency.exponentialRampToValueAtTime(400 * pitch, t + 0.35);
       chime(t + 0.3, [784, 659, 523], 0.16, 0.6, 'sine');
+    },
+    click: function (t) {
+      // a pull-cord switch: a sharp tick down and a softer one back up
+      noise(t, 0.018, 'bandpass', 3800, 3, env(t, 0.001, 0.016, 0.9));
+      tone(t, 0.03, 'square', 1900, 1200, env(t, 0.001, 0.025, 0.06));
+      noise(t + 0.09, 0.015, 'bandpass', 2900, 3, env(t + 0.09, 0.001, 0.013, 0.5));
     },
     snore: function (t) {
       // a tiny snore: a soft rumbly breath in, then a little whistle out

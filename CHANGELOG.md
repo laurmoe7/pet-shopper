@@ -2,6 +2,15 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 125 (4 Oct)
+- New lamp: a pink pendant lamp with a pull-cord.
+- The lamp lights up the room around it.
+- The cord tugs itself and shows arrows, to say "pull me".
+- The cord clicks when pulled.
+- Lamp back on while it sleeps: a grumpy squint.
+- Petting it while asleep: a little stir and a mumble.
+- Throw-the-toy dev tool removed.
+
 ## Build 124 (4 Oct)
 - Pull the lamp down to switch it off.
 - The lamp swings until it is off.

@@ -28,16 +28,22 @@
     <div class="stage">
       <!-- the room behind the pet: decor you place from the dressing room -->
       <div class="room" id="room"></div>
-      <!-- bedtime (app-bedtime.js): a moon lamp hangs at the top right at night; tug it down to switch it off and the room goes dark -->
+      <!-- bedtime (app-bedtime.js): at night a little pendant lamp hangs top right and lights up the room around it;
+           tug its pull-cord down to switch it off, and the room goes dark -->
       <div class="nightshade" aria-hidden="true"></div>
-      <button class="moon-lamp" id="moonLamp" type="button" aria-label="Lamp: pull down to switch" aria-pressed="true" hidden><svg viewBox="0 0 40 64" aria-hidden="true">
-        <rect class="lamp-cord" x="19.2" y="-2" width="1.6" height="23"/>
-        <g class="lamp-body">
-        <circle class="lamp-glow" cx="21" cy="40" r="19"/>
-        <path class="lamp-moon" d="M27.5 24.6 A15.5 15.5 0 1 0 30.4 52.6 A12.5 12.5 0 0 1 27.5 24.6 Z"/>
-        <circle class="lamp-blush" cx="14.5" cy="43.5" r="2.2"/>
-        <path class="lamp-face" d="M11.5 37.6 q2 1.8 4 0 M18 41 q1.4 1.2 2.8 0"/>
-        <path class="lamp-star" d="M33 33 l1 2.4 2.4 1 -2.4 1 -1 2.4 -1 -2.4 -2.4 -1 2.4 -1 z"/>
+      <div class="lamp-light" aria-hidden="true"></div>
+      <button class="lamp" id="lamp" type="button" aria-label="Lamp: pull the cord down to switch it" aria-pressed="true" hidden><svg viewBox="0 0 48 80" aria-hidden="true">
+        <rect class="lamp-cord" x="23.2" y="-2" width="1.6" height="16"/>
+        <circle class="lamp-glow" cx="24" cy="35" r="21"/>
+        <rect class="lamp-chain" x="33.2" y="24" width="1.4" height="22"/>
+        <g class="lamp-bead"><circle cx="33.9" cy="49.4" r="3.8"/><path class="lamp-hint" d="M30.6 57.6 l3.3 3.2 3.3 -3.2 M30.6 62.4 l3.3 3.2 3.3 -3.2"/></g>
+        <circle class="lamp-bulb" cx="24" cy="32.6" r="5.4"/>
+        <g class="lamp-shade">
+          <path class="lamp-top" d="M20.5 13.6 h7 v-2.6 q0 -1.4 -1.4 -1.4 h-4.2 q-1.4 0 -1.4 1.4 z"/>
+          <path class="lamp-dome" d="M7.5 31 C7.5 19 14 13.2 24 13.2 C34 13.2 40.5 19 40.5 31 Z"/>
+          <path class="lamp-trim" d="M7.5 31 q2.75 3.6 5.5 0 q2.75 3.6 5.5 0 q2.75 3.6 5.5 0 q2.75 3.6 5.5 0 q2.75 3.6 5.5 0 q2.75 3.6 5.5 0 Z"/>
+          <path class="lamp-heart" d="M24 22.2 c-1.1 -1.9 -4.2 -.8 -2.9 1.4 l2.9 2.8 l2.9 -2.8 c1.3 -2.2 -1.8 -3.3 -2.9 -1.4z"/>
+          <path class="lamp-shine" d="M12.6 26 Q13.4 19.4 19 16.6"/>
         </g>
       </svg></button>
       <div class="bubble" id="bubble" role="status" aria-live="polite" hidden></div>
