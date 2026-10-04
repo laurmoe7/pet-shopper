@@ -82,7 +82,41 @@ function refreshAll() {
   renderPersonalities();
   renderRoom();
 }
+// ---------- animation tester (Developer tools) ----------
+// Plays each pet move in turn, so you can see them all quickly. "Next" and "Back" step through; "Auto" keeps going.
+var ANIMS = [
+  ['chomp', 320], ['stretch', 1000], ['spit', 350], ['pat', 1600],
+  ['hop', 500], ['hopsmall', 450], ['hophop', 1500], ['bob', 1400],
+  ['wiggle', 900], ['twirl', 800], ['peek', 1400], ['shuffle', 1500], ['boogie', 1500],
+  ['stroll', 3600], ['waddle', 1800], ['scoot', 1400], ['sit', 2600],
+  ['rocksmall', 1300], ['rock', 1900], ['roly', 2800], ['sniff', 1700]
+];
+var animIndex = -1, animAuto = null;
+function playAnim(i) {
+  animIndex = (i + ANIMS.length) % ANIMS.length;
+  var a = ANIMS[animIndex];
+  pet.className = pet.className.replace(/\b(hop|hopsmall|hophop|bob|wiggle|twirl|peek|shuffle|boogie|stroll|waddle|scoot|sit|rock|rocksmall|roly|sniff|chomp|stretch|spit|pat)\b/g, '').replace(/\s+/g, ' ');
+  pulse(a[0], a[1]);
+  say(a[0], 1200, true);
+  return a[0] + ' (' + (animIndex + 1) + ' of ' + ANIMS.length + ')';
+}
+function autoAnim() {
+  if (!animAuto) return;
+  playAnim(animIndex + 1);
+  animAuto = setTimeout(autoAnim, ANIMS[animIndex][1] + 900);
+}
 var DEV_ACTIONS = [
+  { label: 'Animations: next ▶', run: function () { return playAnim(animIndex + 1); } },
+  { label: 'Animations: ◀ back', run: function () { return playAnim(animIndex - 1); } },
+  { label: 'Animations: auto-cycle on/off', run: function () {
+    if (animAuto) { clearTimeout(animAuto); animAuto = null; return 'Auto-cycle stopped.'; }
+    animAuto = setTimeout(autoAnim, 50);
+    return 'Auto-cycle started: each move plays in turn, and its name shows above the pet.';
+  } },
+  { label: 'Extreme squish (test, may bring the seam back)', run: function () {
+    var on = document.documentElement.classList.toggle('bn-squish');
+    return on ? 'Extreme squish ON: chomp, stretch, spit and petting squash the pet. Turns off when you reload.' : 'Extreme squish OFF.';
+  } },
   { label: 'Unlock everything', run: function () { L.unlockAll(state.pet, Achievements, Personalities); return 'All goals finished and personalities earned.'; } },
   { label: 'Lock everything again', run: function () { L.lockAll(state.pet, Achievements, FreeUnlocks); return 'Progress wiped. Locked items are locked again.'; } },
   { label: 'Skip to tomorrow', run: function () { L.skipDays(state, 1); return 'A day has passed: daily limits are fresh.'; } },

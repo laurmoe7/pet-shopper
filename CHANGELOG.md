@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 80 (4 Oct)
+- Developer tools: an animation tester (next, back, auto-cycle) that plays every pet move in turn and shows its name. The sheet is shorter now so the pet stays visible.
+- Developer tools: "Extreme squish (test)" switch for a much stronger squash and stretch from the feet. Off by default because scaling the pet caused the seam on her phone.
+
 ## Build 79 (4 Oct)
 - More roly-poly: the rock is bigger (about 10 degrees), a new big roll swings about 15 degrees and slides a little with each swing, the small rock is bigger, and rocking comes up more often.
 - New sniff: nose down with little twitches, eyes closed, and a sparkle or two.
