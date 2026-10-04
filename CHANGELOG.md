@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 126 (4 Oct)
+- Snores more often, sometimes a big snore.
+- An owl hoots at night.
+- The blanket is a patchwork quilt.
+- At bedtime the speech bubble moves left, off the lamp.
+- Adding to the list no longer wakes a sleeping pet; checking something off does.
+
 ## Build 125 (4 Oct)
 - New lamp: a pink pendant lamp with a pull-cord.
 - The lamp lights up the room around it.

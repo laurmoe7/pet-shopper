@@ -232,6 +232,7 @@ function toggle(id) {
   freshIds[item.id] = true;
   var now = new Date(), goals = null;
   if (item.done) {
+    state.pet.dozing = ''; // a snack wakes it up
     goals = creditEaten(item, now);
     item.fav = L.recordFavourite(state.pet, rulesItem(item), now) || undefined;
     if (L.mood(state.items) === 'stuffed') {

@@ -2,7 +2,7 @@
  * Sounds.play(kind) where kind is one of:
  *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party,
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
- *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), snore (tucked in), click (the lamp's pull-cord),
+ *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), snore and snorebig (tucked in), owl (at night), click (the lamp's pull-cord),
  *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
  * Every play is pitch-shifted a little, and kinds with several variants pick a
  * different one each time, so nothing sounds exactly the same twice in a row.
@@ -272,6 +272,23 @@
       var f = noise(t, 0.35, 'lowpass', 900, 0.7, env(t, 0.08, 0.27, 0.3)); f.frequency.exponentialRampToValueAtTime(400 * pitch, t + 0.35);
       chime(t + 0.3, [784, 659, 523], 0.16, 0.6, 'sine');
     },
+    snorebig: function (t) {
+      // a bigger, rumblier snore with a little snort, and a long whistle out
+      var g = env(t, 0.5, 0.45, 0.32);
+      noise(t, 1, 'lowpass', 300, 2, g);
+      for (var i = 0; i < 12; i++) tone(t + 0.08 + i * 0.065, 0.07, 'sawtooth', 70, 62, env(t + 0.08 + i * 0.065, 0.015, 0.05, 0.05));
+      noise(t + 0.86, 0.08, 'bandpass', 600, 2, env(t + 0.86, 0.005, 0.07, 0.25));
+      tone(t + 1.15, 0.6, 'sine', 1000, 560, env(t + 1.15, 0.1, 0.48, 0.04));
+    },
+    owl: function (t) {
+      // far off in the night: hoo… hoo-hoo
+      [[0, 0.32], [0.62, 0.14], [0.82, 0.38]].forEach(function (h) {
+        var tt = t + h[0];
+        var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; lp.connect(env(tt, 0.06, h[1], 0.18));
+        tone(tt, h[1] + 0.08, 'sine', 410, 360, lp);
+        tone(tt, h[1] + 0.08, 'triangle', 410, 360, env(tt, 0.06, h[1], 0.02));
+      });
+    },
     click: function (t) {
       // a pull-cord switch: a sharp tick down and a softer one back up
       noise(t, 0.018, 'bandpass', 3800, 3, env(t, 0.001, 0.016, 0.9));
@@ -280,7 +297,7 @@
     },
     snore: function (t) {
       // a tiny snore: a soft rumbly breath in, then a little whistle out
-      var g = env(t, 0.45, 0.4, 0.22);
+      var g = env(t, 0.45, 0.4, 0.3);
       noise(t, 0.85, 'lowpass', 380, 1.5, g);
       for (var i = 0; i < 9; i++) tone(t + 0.1 + i * 0.07, 0.07, 'sine', 95, 85, env(t + 0.1 + i * 0.07, 0.02, 0.05, 0.08));
       tone(t + 1.0, 0.45, 'sine', 900, 620, env(t + 1.0, 0.08, 0.36, 0.035));

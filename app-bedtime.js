@@ -136,8 +136,18 @@ function bedSoon() {
     bedSoon();
     if (busy || dreaming || document.hidden || document.querySelector('dialog[open]')) return;
     if (pet.classList.contains('tucked')) snore(); else tuckMumble();
-  }, tucked ? 4200 + Math.random() * 1600 : 9000 + Math.random() * 5000);
+  }, tucked ? 2400 + Math.random() * 1000 : 9000 + Math.random() * 5000);
 }
+// now and then an owl hoots outside while it sleeps
+var owlTimer;
+function owlSoon() {
+  clearTimeout(owlTimer);
+  owlTimer = setTimeout(function () {
+    owlSoon();
+    if (stage.classList.contains('bedtime') && !document.hidden && !document.querySelector('dialog[open]')) sound('owl');
+  }, 16000 + Math.random() * 20000);
+}
+owlSoon();
 /** A sleepy mumble to be tucked in (sleep-talk, since it is asleep). */
 function tuckMumble() {
   if (busy || pet.classList.contains('tucked') || baseState() !== 'sleepy') return;
@@ -146,7 +156,7 @@ function tuckMumble() {
 }
 /** One snore: a sound, a slow breath and a few z's. */
 function snore() {
-  sound('snore');
+  sound(Math.random() < 0.3 ? 'snorebig' : 'snore');
   if (!reduceMotion && !squishing) svgSquish(SQUISH.breath);
   drift(['z', 'Z', 'z'], petTop(), 2);
 }

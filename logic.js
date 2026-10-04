@@ -131,6 +131,8 @@
       personality: saved.personality || 'foodie',
       tastes: saved.tastes && typeof saved.tastes === 'object' ? saved.tastes : {},
       favourites: saved.favourites && typeof saved.favourites === 'object' ? saved.favourites : {},
+      // the night it fell asleep (nightOf), so things added to the list don't wake it; checking one off does
+      dozing: typeof saved.dozing === 'string' ? saved.dozing : '',
       treats: { day: (saved.treats && saved.treats.day) || '', used: (saved.treats && Array.isArray(saved.treats.used)) ? saved.treats.used : [] },
       guard: {
         day: (saved.guard && saved.guard.day) || '',
@@ -219,13 +221,16 @@
   /**
    * The pet's resting mood once the time of day is counted: with nothing left to buy it sleeps at night,
    * and is awake in the day (curious with an empty list, full after a finished one). A list with things
-   * still to buy wakes it, day or night.
+   * still to buy keeps it awake at night, but once it has fallen asleep only checking something off wakes it.
    * @param {Item[]} items
    * @param {Date} now
+   * @param {string} [dozing] The night it fell asleep (pet.dozing), if it has.
    * @returns {string}
    */
-  function restingMood(items, now) {
+  function restingMood(items, now, dozing) {
     var m = mood(items);
+    // asleep already tonight: adding to the list doesn't wake it, only checking something off (which clears dozing)
+    if (dozing && isNight(now) && dozing === nightOf(now)) return 'sleepy';
     if (m === 'sleepy' || m === 'stuffed') return isNight(now) ? 'sleepy' : (m === 'sleepy' ? 'curious' : 'stuffed');
     return m;
   }

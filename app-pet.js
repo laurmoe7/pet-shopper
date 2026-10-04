@@ -71,8 +71,15 @@ function isBagged(item) {
 
 var busy = 0;
 
-/** @returns {string} The pet's resting mood for the current list. */
-function baseState() { return L.restingMood(state.items, petNow()); }
+/**
+ * @returns {string} The pet's resting mood for the current list. Falling asleep at night is remembered
+ * (pet.dozing), so adding to the list doesn't wake it; checking something off does (toggle).
+ */
+function baseState() {
+  var now = petNow(), m = L.restingMood(state.items, now, state.pet.dozing);
+  if (m === 'sleepy' && L.isNight(now) && state.pet.dozing !== L.nightOf(now)) { state.pet.dozing = L.nightOf(now); save(); }
+  return m;
+}
 /**
  * Shows a face on the pet: eyes, mouth, arm pose and extras such as hearts or steam.
  * @param {{eyes: string, mouth: string, arms?: string, x: string[]}} face

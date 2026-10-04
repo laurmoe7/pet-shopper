@@ -71,6 +71,18 @@ test('the pet sleeps at night and is awake in the day when nothing is left to bu
   assert.equal(PetLogic.restingMood(items, night), 'sleepy');
 });
 
+test('once asleep, adding to the list does not wake the pet; checking something off does', () => {
+  const night = new Date(2026, 9, 4, 23, 0), morning = new Date(2026, 9, 5, 8, 0);
+  const tonight = PetLogic.nightOf(night);
+  const items = list('Bananas');
+  assert.equal(PetLogic.restingMood(items, night, tonight), 'sleepy', 'still asleep with something on the list');
+  assert.equal(PetLogic.restingMood(items, night, ''), 'curious', 'woken (dozing cleared) by a checked-off item');
+  assert.equal(PetLogic.restingMood(items, night, '2026-10-01'), 'curious', 'an old night does not count');
+  assert.equal(PetLogic.restingMood(items, morning, tonight), 'curious', 'awake in the morning');
+  assert.equal(PetLogic.petProfile({ dozing: tonight }).dozing, tonight);
+  assert.equal(PetLogic.petProfile({}).dozing, '');
+});
+
 test('a night lasts from the evening to the morning, so a tuck-in holds past midnight', () => {
   const evening = PetLogic.nightOf(new Date(2026, 9, 4, 22, 30));
   assert.equal(evening, '2026-10-04');
