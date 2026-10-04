@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 138 (4 Oct)
+- Nibble holds the clipboard in one hand, the other is free.
+
 ## Build 137 (4 Oct)
 - Nibble holds a clipboard on the to-do list, ticking lines as you finish.
 - Tap a task to give it a due date or a repeat.
