@@ -1243,3 +1243,10 @@ html[data-squish="css"] .pet.pat .squash { animation: wobble-x 1.3s ease-in-out;
 html[data-squish="css"] .pet[data-state="happy"] .squash, html[data-squish="css"] .pet[data-state="curious"] .squash { animation: jelly-x 1.6s ease-in-out infinite; }
 html[data-squish="svg"] .pet.chomp .squash, html[data-squish="svg"] .pet.spit .squash,
 html[data-squish="svg"] .pet.stretch .squash, html[data-squish="svg"] .pet.pat .squash { animation: none; }
+/* new-way hop: a short crouch on the spot first (svgSquish squashes the body then), so it has to wait a moment before leaving the floor */
+@keyframes hop-sq {
+  0% { transform: translateY(0); } 16% { transform: translateY(.5px); animation-timing-function: cubic-bezier(.2, .8, .4, 1); }
+  46% { transform: translateY(-18px); animation-timing-function: cubic-bezier(.6, 0, .8, .4); }
+  84% { transform: translateY(0); } 92% { transform: translateY(2px); } 100% { transform: translateY(0); }
+}
+html[data-squish="svg"] .pet.hop .pet-svg { animation: hop-sq .5s linear; }

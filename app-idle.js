@@ -133,6 +133,20 @@ function idleMove() {
 }
 scheduleDream();
 
+// ---------- a soft settle (Squish test, new way only) ----------
+// Instead of a breathing squash that never stops (the phone would redraw the pet all the time), the body gives
+// a small squash every 5-9 seconds, or a slow deep breath when sleepy.
+var settleTimer;
+function settleSoon() {
+  clearTimeout(settleTimer);
+  settleTimer = setTimeout(settle, 5000 + Math.random() * 4000);
+}
+function settle() {
+  settleSoon();
+  if (document.documentElement.dataset.squish !== 'svg' || reduceMotion || busy || squishing || document.hidden) return;
+  svgSquish(baseState() === 'sleepy' ? SQUISH.breath : SQUISH.settle);
+}
+
 // ---------- small lively things between the bigger idle moves ----------
 // Every few seconds the pet does something tiny: glances aside, blinks twice, gives a little hop, or lets a heart drift up.
 // Everything here only slides or fades the pet (no squashing or tilting, which left a seam on her phone),
@@ -175,6 +189,7 @@ function lively() {
   }
 }
 scheduleLively();
+settleSoon();
 
 // ---------- eyes follow your finger or cursor ----------
 var lookAt = null, lookFrame = 0, lookTimer;

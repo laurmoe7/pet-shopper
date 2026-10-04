@@ -77,12 +77,22 @@ var SQUISH = {
   chomp: { ms: 360, steps: [[0, 1, 1, 0], [.3, 1.16, .84, 0], [.55, .93, 1.1, 0], [.78, 1.03, .975, 0], [1, 1, 1, 0]] },
   spit: { ms: 450, steps: [[0, 1, 1, 0], [.35, .87, 1.17, -3.6], [.7, 1.05, .95, 0], [1, 1, 1, 0]] },
   stretch: { ms: 1100, steps: [[0, 1, 1, 0], [.4, .85, 1.21, 0], [.68, 1.1, .92, 0], [.85, .98, 1.025, 0], [1, 1, 1, 0]] },
-  pat: { ms: 1300, steps: [[0, 1, 1, 0], [.2, 1.09, .92, 0], [.4, .94, 1.07, 0], [.6, 1.06, .95, 0], [.8, .97, 1.03, 0], [1, 1, 1, 0]] }
+  pat: { ms: 1300, steps: [[0, 1, 1, 0], [.2, 1.09, .92, 0], [.4, .94, 1.07, 0], [.6, 1.06, .95, 0], [.8, .97, 1.03, 0], [1, 1, 1, 0]] },
+  // hops: crouch, stretch on take-off, squash on landing. The times match the hop keyframes in styles.css.
+  hop: { ms: 500, steps: [[0, 1, 1, 0], [.16, 1.12, .87, 0], [.26, .9, 1.12, 0], [.46, .98, 1.02, 0], [.8, .96, 1.05, 0], [.86, 1.14, .87, 0], [.94, .97, 1.03, 0], [1, 1, 1, 0]] },
+  hopsmall: { ms: 450, steps: [[0, 1, 1, 0], [.1, .95, 1.06, 0], [.4, 1, 1, 0], [.72, .98, 1.02, 0], [.8, 1.08, .92, 0], [.9, .98, 1.02, 0], [1, 1, 1, 0]] },
+  hophop: { ms: 1500, steps: [[0, 1, 1, 0], [.06, .93, 1.08, 0], [.17, 1, 1, 0], [.31, .98, 1.02, 0], [.355, 1.1, .9, 0], [.41, .97, 1.03, 0],
+    [.45, .94, 1.07, 0], [.5, 1, 1, 0], [.6, .98, 1.02, 0], [.645, 1.09, .91, 0], [.7, .97, 1.03, 0], [.73, .95, 1.06, 0], [.78, 1, 1, 0],
+    [.86, .98, 1.02, 0], [.905, 1.08, .92, 0], [.96, .98, 1.02, 0], [1, 1, 1, 0]] },
+  // a soft settle now and then while it waits (see settleSoon in app-idle.js), and a slow deep breath when sleepy
+  settle: { ms: 1000, steps: [[0, 1, 1, 0], [.35, 1.04, .96, 0], [.7, .99, 1.01, 0], [1, 1, 1, 0]] },
+  breath: { ms: 2400, steps: [[0, 1, 1, 0], [.45, .98, 1.035, 0], [1, 1, 1, 0]] }
 };
-var squishBody = petSvg.querySelector('.pet-body'), squishRun = 0;
+var squishBody = petSvg.querySelector('.pet-body'), squishRun = 0, squishing = false;
 /** @param {{ms: number, steps: number[][]}} sq Plays one squash on the body. */
 function svgSquish(sq) {
   var run = ++squishRun, start = performance.now(), steps = sq.steps;
+  squishing = true;
   function frame(now) {
     if (run !== squishRun) return;
     var t = Math.min(1, (now - start) / sq.ms), i = 1;
@@ -90,7 +100,7 @@ function svgSquish(sq) {
     var a = steps[i - 1], b = steps[i], k = (t - a[0]) / (b[0] - a[0] || 1);
     k = .5 - Math.cos(k * Math.PI) / 2; // ease in and out between steps
     var sx = a[1] + (b[1] - a[1]) * k, sy = a[2] + (b[2] - a[2]) * k, lift = a[3] + (b[3] - a[3]) * k;
-    if (t >= 1) { squishBody.removeAttribute('transform'); return; }
+    if (t >= 1) { squishBody.removeAttribute('transform'); squishing = false; return; }
     // anchored at the middle of the feet (80, 146 in the drawing)
     squishBody.setAttribute('transform', 'matrix(' + sx.toFixed(4) + ' 0 0 ' + sy.toFixed(4) + ' ' +
       (80 - 80 * sx).toFixed(3) + ' ' + (146 - 146 * sy + lift).toFixed(3) + ')');

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 83 (4 Oct)
+- Squish test, new way: hops crouch first, stretch on take-off and squash on landing (big hop, small hop, triple hop). The pet also gives a small soft squash every 5-9 seconds, or a slow deep breath when sleepy.
+
 ## Build 82 (4 Oct)
 - Squish test, new way: squashes are about half as strong, since the biggest ones in build 81 still showed the seam.
 
