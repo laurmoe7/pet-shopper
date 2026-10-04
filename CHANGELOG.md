@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 148 (4 Oct)
+- The bed teddy sits close beside him and only moves a little when he grabs it.
+
 ## Build 147 (4 Oct)
 - The teddy sits on the bed on its own and no longer moves with him.
 
