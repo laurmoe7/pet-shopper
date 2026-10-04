@@ -1557,6 +1557,11 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 
 /* test: little noses on the bunny and the cat */
 .cute-nose { fill: #ff9fb5; stroke: var(--pet-ink); stroke-width: 1.2; stroke-linejoin: round; }
+/* test: the bunny and cat smile as a :3 under the nose (swaps with the plain smile, like the frog's) */
+.cat-smile { display: none; }
+.pet:not([data-species="bunny"]):not([data-species="kitty"]) .cat-smile { display: none; }
+.pet:is([data-species="bunny"], [data-species="kitty"])[data-mouth="smile"] path[data-mouth="smile"]:not(.cat-smile) { display: none; }
+.pet:is([data-species="bunny"], [data-species="kitty"])[data-mouth="smile"] .cat-smile { display: inline; }
 
 /* ---------- feet ----------
    Each foot (.foot-l / .foot-r, and the shoes' .shoe-l / .shoe-r) moves on its own: little steps when walking,

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 106 (4 Oct)
+- Test: :3 smile under the nose for the bunny and cat.
+
 ## Build 105 (4 Oct)
 - Animal pets refuse chocolate and bag it.
 - More foot moves.
