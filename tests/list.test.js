@@ -58,3 +58,15 @@ test('picking an emoji updates every item with that word and future ones', () =>
   assert.equal(PetLogic.createItem("oma's cake", state.overrides, 'y').emoji, '🎂');
   assert.equal(PetLogic.pickEmoji(state, 'missing', '🍕'), false);
 });
+
+test('the pet sleeps at night and is awake in the day when nothing is left to buy', () => {
+  const day = new Date(2026, 9, 4, 14, 0), night = new Date(2026, 9, 4, 23, 0), early = new Date(2026, 9, 4, 6, 30);
+  assert.equal(PetLogic.restingMood([], day), 'curious');
+  assert.equal(PetLogic.restingMood([], night), 'sleepy');
+  assert.equal(PetLogic.restingMood([], early), 'sleepy');
+  let items = list('Bananas');
+  assert.equal(PetLogic.restingMood(items, night), 'curious', 'a list wakes it up at night');
+  items = PetLogic.toggleDone(items, 'i0').items;
+  assert.equal(PetLogic.restingMood(items, day), 'stuffed', 'awake and full after a finished list');
+  assert.equal(PetLogic.restingMood(items, night), 'sleepy');
+});

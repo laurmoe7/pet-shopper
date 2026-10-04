@@ -207,6 +207,29 @@
   }
 
   /**
+   * @param {Date} now
+   * @returns {boolean} Whether it is night (10 pm to 7 am), when the pet sleeps if there is nothing left to buy.
+   */
+  function isNight(now) {
+    var h = now.getHours();
+    return h >= 22 || h < 7;
+  }
+
+  /**
+   * The pet's resting mood once the time of day is counted: with nothing left to buy it sleeps at night,
+   * and is awake in the day (curious with an empty list, full after a finished one). A list with things
+   * still to buy wakes it, day or night.
+   * @param {Item[]} items
+   * @param {Date} now
+   * @returns {string}
+   */
+  function restingMood(items, now) {
+    var m = mood(items);
+    if (m === 'sleepy' || m === 'stuffed') return isNight(now) ? 'sleepy' : (m === 'sleepy' ? 'curious' : 'stuffed');
+    return m;
+  }
+
+  /**
    * Adds an item at the end of the to-buy part of the list (above eaten items).
    * @param {Item[]} items  Changed in place.
    * @param {Item} item
@@ -950,6 +973,8 @@
     sleepTalk: sleepTalk,
     BIRDS: BIRDS,
     OUTFIT_SLOTS: OUTFIT_SLOTS,
+    isNight: isNight,
+    restingMood: restingMood,
     isBird: isBird,
     toggleDecor: toggleDecor,
     moveDecor: moveDecor,

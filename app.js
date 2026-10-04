@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '98';
+var BUILD = '99';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -231,7 +231,7 @@ function renderCart(todo, done) {
 // Test (build 98): a receipt stands in for the cart. Set to false to bring the cart back; its code is kept.
 var RECEIPT_TEST = true;
 var receiptEl = $('receipt'), receiptLines = $('receiptLines'), receiptMore = $('receiptMore'), receiptTotal = $('receiptTotal'), receiptCount = -1;
-var RECEIPT_MAX = 6;
+var RECEIPT_MAX = 5;
 /**
  * A little shop receipt beside the pet: one line per thing ticked off (the latest ones, newest at the bottom),
  * so it grows as you shop. Clearing the eaten items clears it.

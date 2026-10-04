@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 99 (4 Oct)
+- The receipt is bigger and headed RECEIPT (shows the last five things).
+- The pet no longer falls asleep when the list is done or empty: it is awake in the day (full and happy after a finished list) and sleeps from 10 pm to 7 am. A list with things to buy still wakes it at night. It checks the clock every minute, so it nods off and wakes on time.
+
 ## Build 98 (4 Oct)
 - Test: a little shop receipt stands beside the pet instead of the cart. It gets a line longer (with the item's emoji) for everything ticked off, shows the last six and a count, and clears with Clear eaten. The cart code is kept (`RECEIPT_TEST` in app.js).
 

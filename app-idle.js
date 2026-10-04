@@ -120,7 +120,7 @@ var IDLE_MOVES = [
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('shuffle', 1500); hum(); } },
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'reach', x: ['sparkles', 'cheeks'] }); pulse('boogie', 1500); hum(); } },
   { moods: ['sleepy', 'stuffed'], run: function () { pulse('wiggle', 900); } },
-  { moods: ['stuffed'], run: function () { setFace({ eyes: 'closed', mouth: 'smile', arms: 'pat', x: ['zzz', 'cheeks'] }); } }
+  { moods: ['stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); } }
 ];
 /** Plays one idle move that fits the pet's mood, then settles back. */
 function idleMove() {
@@ -192,6 +192,8 @@ function lively() {
 }
 scheduleLively();
 softSettleSoon();
+// bedtime and morning: check the clock now and then, so the pet falls asleep at 10 pm and wakes at 7 am
+setInterval(function () { if (!busy && !dreaming && pet.dataset.state !== baseState()) settle(); }, 60000);
 
 // ---------- eyes follow your finger or cursor ----------
 var lookAt = null, lookFrame = 0, lookTimer;

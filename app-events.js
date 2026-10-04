@@ -134,6 +134,7 @@ pet.addEventListener('click', function () {
   pulse('hop', 460);
   var s = baseState();
   if (s !== 'stuffed' && Math.random() < 0.12 && offerSuggestion()) return;
-  if (s === 'sleepy' || s === 'stuffed') talk('sleepy', ['zzz… snack?'], 1200);
+  if (s === 'sleepy') talk('sleepy', ['zzz… snack?'], 1200);
+  else if (s === 'stuffed') talk('full', ['so full…', 'what a feast!', 'all done ♡'], 1200);
   else talk('tap', ['hi!', 'hungry!', 'shopping?', 'hehe'], 1200);
 });

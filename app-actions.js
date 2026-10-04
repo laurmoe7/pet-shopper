@@ -96,7 +96,7 @@ function eat(item, fromRect, goals) {
     }).then(function () {
       if (goals && goals.unlocked.length) return cheerUnlocks(goals.unlocked);
     }).then(function () {
-      if (!item.treat && pending === 1 && baseState() === 'stuffed') return celebrate();
+      if (!item.treat && pending === 1 && L.mood(state.items) === 'stuffed') return celebrate();
     });
   });
 }

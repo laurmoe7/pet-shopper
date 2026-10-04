@@ -8,7 +8,7 @@ var FACES = {
   sleepy: { eyes: 'closed', mouth: 'o', arms: 'rest', x: ['zzz'] },
   curious: { eyes: 'open', mouth: 'smile', arms: 'idle', x: [] },
   happy: { eyes: 'open', mouth: 'smile', arms: 'idle', x: ['cheeks'] },
-  stuffed: { eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['zzz', 'cheeks'] },
+  stuffed: { eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks'] },
   catching: { eyes: 'open', mouth: 'open', arms: 'reach', x: [] },
   sheepish: { eyes: 'closed', mouth: 'wavy', arms: 'cover', x: ['sweat', 'cheeks'] },
   wake: { eyes: 'happy', mouth: 'open', arms: 'reach', x: ['sparkles'] },
@@ -36,7 +36,7 @@ var REACTIONS = {
 var busy = 0;
 
 /** @returns {string} The pet's resting mood for the current list. */
-function baseState() { return L.mood(state.items); }
+function baseState() { return L.restingMood(state.items, new Date()); }
 /**
  * Shows a face on the pet: eyes, mouth, arm pose and extras such as hearts or steam.
  * @param {{eyes: string, mouth: string, arms?: string, x: string[]}} face
