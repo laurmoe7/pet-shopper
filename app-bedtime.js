@@ -74,21 +74,56 @@ function refreshBedtime() {
     setTimeout(function () { if (!busy) settle(); }, 1200);
   }
 }
-/** Lamp off and tucked in: its eyes close and it drifts off. */
+/** Lamp off and tucked in: it reaches for its teddy, tucks it under its paw, and drifts off. */
 function fallAsleep() {
   state.pet.dozing = L.nightOf(petNow());
   wasAsleep = true;
   save();
   busy++;
-  setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] });
-  pulse('sit', 2600);
-  talk('fallAsleep', ['night night…', 'g\'night ♡', 'sleepy… zzz'], 1500);
+  setFace({ eyes: 'open', mouth: 'smile', arms: 'grab', x: ['cheeks'] });
+  talk('teddyGrab', ['teddy…', 'my teddy ♡', 'cuddle time…'], 1200);
+  var grabMs = grabTeddy();
+  setTimeout(function () {
+    setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] });
+    pet.dataset.state = 'sleepy'; // the hugged teddy shows now
+    pulse('sit', 2600);
+    talk('fallAsleep', ['night night…', 'g\'night ♡', 'sleepy… zzz'], 1500);
+  }, grabMs);
   setTimeout(function () {
     busy--;
     if (!busy) settle();
     updateEmptyHint();
     bedSoon();
-  }, 1700);
+  }, grabMs + 1700);
+}
+/**
+ * The teddy flies from beside the pet into its arms: a copy slides and tilts to the hug spot.
+ * @returns {number} How long it takes, in ms.
+ */
+function grabTeddy() {
+  var side = document.querySelector('.teddy-side');
+  var from = side.getBoundingClientRect();
+  if (reduceMotion || !from.width) return 300;
+  var r = petSvg.getBoundingClientRect();
+  // the hugged teddy's middle in the pet drawing (svg units), and its size there
+  var to = { x: r.left + r.width * (113 / 160), y: r.top + r.height * (117 / 150) };
+  var scale = (40 * 0.95 * r.width / 160) / from.width;
+  var fly = side.firstChild.cloneNode(true);
+  fly.classList.add('teddy-fly');
+  fly.style.width = from.width + 'px';
+  fly.style.height = from.height + 'px';
+  document.body.appendChild(fly);
+  stage.classList.add('teddy-moving');
+  var dx = to.x - from.width / 2, dy = to.y - from.height / 2;
+  fly.animate([
+    { transform: 'translate(' + from.left + 'px,' + from.top + 'px) rotate(8deg)' },
+    { transform: 'translate(' + (from.left - 6) + 'px,' + (from.top - 10) + 'px) rotate(-6deg)', offset: 0.35 },
+    { transform: 'translate(' + dx + 'px,' + dy + 'px) rotate(18deg) scale(' + scale.toFixed(2) + ')' }
+  ], { duration: 650, delay: 250, easing: 'ease-in-out', fill: 'both' }).finished.then(function () {
+    fly.remove();
+    stage.classList.remove('teddy-moving');
+  });
+  return 950;
 }
 /**
  * Checking something off wakes a sleeping pet: a quick start, a stretch and a yawn before it eats.

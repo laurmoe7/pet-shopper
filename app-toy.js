@@ -1,4 +1,4 @@
-// The toy: a ball on the floor. Tap it and it bounces away, and the pet runs after it: a dog or a bird
+// The toy: a ball on the floor. Tap it and it bounces away, or grab it and throw it, and the pet runs after it: a dog or a bird
 // fetches it back, a cat bats it about first, everyone else pounces on it and hugs it.
 // Only a game: nothing counts for goals. These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
@@ -80,7 +80,7 @@ function playToy() {
   busy++;
   stopWalk();
   clearTimeout(bubbleTimer); bubble.hidden = true;
-  var b = walkBounds(), style = playStyle();
+  var b = walkBounds();
   // throw it to the side with more room, a good way from the pet
   var side = b.max - walkX >= walkX - b.min ? 1 : -1;
   var room = side > 0 ? b.max - walkX : walkX - b.min;
@@ -99,19 +99,26 @@ function playToy() {
     return Promise.all([wait(walkTo(stop, 7)), landed]);
   }).then(function () {
     pet.classList.remove('running');
-    if (style === 'bat') return batAbout(side);
-  }).then(function () {
+    return getIt(side);
+  }).then(endPlay);
+}
+/** Next to the toy on the floor: a cat bats it about first, then the pet pounces and fetches or hugs it. */
+function getIt(side) {
+  return (playStyle() === 'bat' ? batAbout(side) : Promise.resolve()).then(function () {
     return pounce();
   }).then(function () {
-    return style === 'fetch' ? fetchBack() : hugToy();
-  }).then(function () {
-    pet.style.removeProperty('--look-x');
-    playing = false;
-    walkWide = false;
-    busy--;
-    if (!busy) settle();
-    walkHome();
+    return playStyle() === 'fetch' ? fetchBack() : hugToy();
   });
+}
+/** The game is over: back to normal. */
+function endPlay() {
+  pet.style.removeProperty('--look-x');
+  pet.classList.remove('running');
+  playing = false;
+  walkWide = false;
+  busy--;
+  if (!busy) settle();
+  walkHome();
 }
 /** The pet hops onto the toy. */
 function pounce() {
@@ -175,5 +182,129 @@ function hugToy() {
   });
 }
 
+// ---------- grab and throw ----------
+// Drag the toy about and let go: it flies off at the speed you threw it, bounces off the sides, top and floor of
+// the room, and the pet runs underneath to catch it (in its mouth for a dog or bird, in its arms for the rest).
+// If it lands out of reach, the pet runs over and pounces on it. A plain tap still tosses it (playToy).
+var held = null, skipClick = false, flight = 0;
+/** @returns {{minX: number, maxX: number, maxY: number}} Where the toy can go: px from the middle, px above the floor. */
+function toyLimits() {
+  var w = stage.clientWidth;
+  return { minX: -w / 2 + 18, maxX: w / 2 - 18, maxY: stage.clientHeight - 3 - 32 - 8 };
+}
+/** Puts the toy at x (px from the middle), y (px above the floor), turned by spin degrees. */
+function placeToy(x, y, spin) {
+  toyX = x;
+  toyEl.style.translate = Math.round(x) + 'px 0';
+  toyBall.style.transform = 'translateY(' + (-y).toFixed(1) + 'px) rotate(' + Math.round(spin || 0) + 'deg)';
+}
+toyEl.addEventListener('pointerdown', function (e) {
+  if (playing || busy || stage.classList.contains('bedtime')) return;
+  try { toyEl.setPointerCapture(e.pointerId); } catch (err) { /* fine without */ }
+  held = { x0: e.clientX, y0: e.clientY, moved: false, y: 0, pts: [] };
+});
+toyEl.addEventListener('pointermove', function (e) {
+  if (!held) return;
+  if (!held.moved) {
+    if (Math.hypot(e.clientX - held.x0, e.clientY - held.y0) < 8) return;
+    held.moved = true;
+    // picked up: the pet can't wait
+    playing = true;
+    walkWide = true;
+    busy++;
+    stopWalk();
+    setFace({ eyes: 'sparkle', mouth: 'open', arms: 'reach', x: ['cheeks'] });
+    pulse('hopsmall', 450);
+    talk('toyHeld', ['throw it! throw it!', 'ooh! ooh!', 'I\'m ready!', 'over here!'], 1300);
+  }
+  var st = stage.getBoundingClientRect(), lim = toyLimits();
+  held.y = Math.max(0, Math.min(lim.maxY, st.bottom - 19 - e.clientY));
+  placeToy(Math.max(lim.minX, Math.min(lim.maxX, e.clientX - (st.left + st.width / 2))), held.y, 0);
+  held.pts.push({ x: e.clientX, y: e.clientY, t: e.timeStamp });
+  if (held.pts.length > 5) held.pts.shift();
+});
+function letGoToy() {
+  if (!held) return;
+  var h = held;
+  held = null;
+  if (!h.moved) return; // a tap: the click tosses it
+  skipClick = true;
+  var a = h.pts[0], z = h.pts[h.pts.length - 1], dt = Math.max(16, z.t - a.t) / 1000;
+  var vx = (z.x - a.x) / dt, vy = -(z.y - a.y) / dt, speed = Math.hypot(vx, vy);
+  if (speed > 1500) { vx *= 1500 / speed; vy *= 1500 / speed; }
+  fling(vx, vy, h.y);
+}
+toyEl.addEventListener('pointerup', letGoToy);
+toyEl.addEventListener('pointercancel', letGoToy);
 // which toy shows (yarn, tennis ball or ball) is set in styles.css by the species
-toyEl.addEventListener('click', function (e) { e.stopPropagation(); playToy(); });
+toyEl.addEventListener('click', function (e) {
+  e.stopPropagation();
+  if (skipClick) { skipClick = false; return; }
+  playToy();
+});
+
+/**
+ * The toy flies from where it was let go, bouncing about the room, while the pet runs under it to catch it.
+ * @param {number} vx px per second, to the right.
+ * @param {number} vy px per second, upwards.
+ * @param {number} y Height it was let go at.
+ */
+function fling(vx, vy, y) {
+  sound('toss');
+  setFace({ eyes: 'sparkle', mouth: 'o', arms: 'reach', x: [] });
+  eyesDo('wide');
+  pet.classList.add('running');
+  var lim = toyLimits(), x = toyX, spin = 0, start = performance.now(), last = start, chaseAt = 0;
+  var catchAt = playStyle() === 'fetch' ? mouthHeight() : 14;
+  cancelAnimationFrame(flight);
+  if (reduceMotion) { placeToy(x, 0, 0); landed(); return; }
+  function step(now) {
+    var dt = Math.min(0.033, (now - last) / 1000);
+    last = now;
+    vy -= 1500 * dt;
+    x += vx * dt;
+    y += vy * dt;
+    // bounce off the sides, the top and the floor of the room
+    if (x < lim.minX) { x = lim.minX; vx = -vx * 0.75; sound('bounce'); }
+    if (x > lim.maxX) { x = lim.maxX; vx = -vx * 0.75; sound('bounce'); }
+    if (y > lim.maxY) { y = lim.maxY; vy = -Math.abs(vy) * 0.6; }
+    if (y < 0) {
+      y = 0;
+      if (vy < -140) sound('bounce');
+      vy = -vy * 0.6;
+      if (vy < 70) vy = 0;
+      vx *= 0.88;
+    }
+    if (y === 0 && vy === 0) vx *= Math.pow(0.3, dt); // rolling to a stop
+    spin += vx * dt * 2.4;
+    placeToy(x, y, spin);
+    // the pet runs to where the toy is heading
+    if (now > chaseAt) { chaseAt = now + 200; walkTo(x + vx * 0.2, 6); }
+    pet.style.setProperty('--look-x', (x > walkX ? 3.2 : -3.2) + 'px');
+    // caught: coming down at the right height, right in front of the pet
+    var px = parseFloat(getComputedStyle(pet).translate) || 0;
+    if (now - start > 250 && vy <= 0 && y < catchAt + 18 && y > catchAt - 24 && Math.abs(x - px) < 30) { caught(); return; }
+    if ((y === 0 && vy === 0 && Math.abs(vx) < 14) || now - start > 7000) { landed(); return; }
+    flight = requestAnimationFrame(step);
+  }
+  flight = requestAnimationFrame(step);
+}
+/** Caught it! A dog or bird has it in its mouth and brings it back; the rest hug it. */
+function caught() {
+  pet.classList.remove('running');
+  stopWalk();
+  pulse('hop', 500);
+  drift(['✦', '♥'], petTop(), 2);
+  say(pick(['caught it!', 'got it!', 'nice throw!', 'yay!']), 1100);
+  var next = playStyle() === 'fetch' ? (toyHold(mouthHeight(), walkX, 150), wait(500).then(fetchBack)) : hugToy();
+  next.then(endPlay);
+}
+/** It came down out of reach: the pet runs over and gets it off the floor. */
+function landed() {
+  var side = toyX >= walkX ? 1 : -1;
+  pet.classList.add('running');
+  wait(walkTo(toyX - side * 40, 7)).then(function () {
+    pet.classList.remove('running');
+    return getIt(side);
+  }).then(endPlay);
+}

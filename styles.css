@@ -1419,7 +1419,7 @@ button { font: inherit; color: inherit; }
 
 /* the toy (app-toy.js): it slides along the floor with the translate property and the ball inside bounces
    and spins; its shadow stays on the floor */
-.toy { position: absolute; left: calc(50% - 16px); bottom: 3px; width: 32px; height: 32px; padding: 0; border: 0; background: none; z-index: 2; cursor: pointer; translate: -58px 0; -webkit-tap-highlight-color: transparent; }
+.toy { position: absolute; left: calc(50% - 16px); bottom: 3px; width: 32px; height: 32px; padding: 0; border: 0; background: none; z-index: 2; cursor: grab; touch-action: none; translate: -58px 0; -webkit-tap-highlight-color: transparent; }
 .toy::before { content: ""; position: absolute; left: 3px; right: 3px; bottom: -2px; height: 6px; border-radius: 50%; background: var(--shadow, rgba(91, 66, 57, .18)); opacity: .7; }
 .toy::after { content: ""; position: absolute; inset: -12px; } /* a bigger target for a finger */
 .toy-ball { position: absolute; inset: 0; display: block; }
@@ -1499,9 +1499,14 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
 .stage.bedtime:has(#pet.tucked[data-state="sleepy"]) .teddy-side { display: none; }
 .pet .teddy-hug { display: none; }
 .pet.tucked[data-state="sleepy"] .teddy-hug { display: inline; }
-.teddy-fur { fill: #e3b98f; stroke: var(--outline); stroke-width: 1.5; stroke-linejoin: round; }
-.teddy-in { fill: #f7dcc0; }
-.teddy-muzzle { fill: #fbecd9; stroke: var(--outline); stroke-width: 1.2; }
+.stage.teddy-moving .teddy-side { visibility: hidden; }
+.teddy-fly { position: fixed; left: 0; top: 0; z-index: 40; pointer-events: none; overflow: visible; transform-origin: 50% 50%; }
+/* reaching out to the side for the teddy (fallAsleep) */
+.pet[data-arms="grab"] .arm-r { transform: translate(6px, -12px) rotate(-62deg); transition: transform .25s ease-out; }
+.pet[data-arms="grab"] .arm-l { transform: translate(4px, -2px) rotate(-12deg); }
+.teddy-fur { fill: #b9814f; stroke: var(--outline); stroke-width: 1.5; stroke-linejoin: round; }
+.teddy-in { fill: #dfae80; }
+.teddy-muzzle { fill: #f0d2ad; stroke: var(--outline); stroke-width: 1.2; }
 .teddy-nose, .teddy-eye { fill: var(--outline); }
 .teddy-line { fill: none; stroke: var(--outline); stroke-width: 1.1; stroke-linecap: round; }
 .teddy-bow { fill: #ff8fae; stroke: var(--outline); stroke-width: 1; stroke-linejoin: round; }

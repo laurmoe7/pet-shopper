@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 133 (4 Oct)
+- Falling asleep, the pet grabs its teddy and tucks it under its paw.
+- Darker teddy.
+- Grab and throw the toy; it bounces around the room and the pet catches it.
+
 ## Build 132 (4 Oct)
 - A teddy bear in the bed; hugged while asleep.
 - At night, dress-up, treats and snacks: happy but tired.
