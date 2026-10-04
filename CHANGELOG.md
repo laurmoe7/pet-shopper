@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 108 (4 Oct)
+- Test: bunny gets buck teeth and a lower :3 (no lip); cat's lip sits lower.
+
 ## Build 107 (4 Oct)
 - Test: little lip under the :3, eyes wider and lower on the bunny and cat.
 

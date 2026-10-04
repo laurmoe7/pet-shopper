@@ -1564,7 +1564,9 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 .pet:is([data-species="bunny"], [data-species="kitty"]) .eye-r { translate: 3px 1.6px; }
 .pet:not([data-species="bunny"]):not([data-species="kitty"]) .cat-smile { display: none; }
 .pet:is([data-species="bunny"], [data-species="kitty"])[data-mouth="smile"] path[data-mouth="smile"]:not(.cat-smile) { display: none; }
-.pet:is([data-species="bunny"], [data-species="kitty"])[data-mouth="smile"] .cat-smile { display: inline; }
+.pet[data-species="kitty"][data-mouth="smile"] .smile-kitty, .pet[data-species="bunny"][data-mouth="smile"] .smile-bunny { display: inline; }
+.pet[data-species="kitty"] .smile-bunny, .pet[data-species="bunny"] .smile-kitty { display: none; }
+.buck-teeth { fill: #fff; stroke: var(--pet-ink); stroke-width: 1; stroke-linejoin: round; }
 
 /* ---------- feet ----------
    Each foot (.foot-l / .foot-r, and the shoes' .shoe-l / .shoe-r) moves on its own: little steps when walking,
