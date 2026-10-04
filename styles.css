@@ -1937,3 +1937,33 @@ html[data-list="todo"] .cart, html[data-list="todo"] .receipt, html[data-list="t
 .task-stamp circle { fill: #9bdcb4; stroke: var(--prop-ink); stroke-width: 2.4; }
 .task-stamp .stamp-ring { fill: none; stroke: #fff; stroke-width: 1.3; stroke-dasharray: 2.4 3; opacity: .85; }
 .task-stamp path { fill: none; stroke: #fff; stroke-width: 4.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* to-do dates and the clipboard (app-todo.js) */
+.due-tag { flex: none; align-self: center; font-size: .72rem; font-weight: 800; line-height: 1; padding: 4px 8px; border-radius: 999px; background: rgba(212, 182, 138, .25); color: var(--muted); border: 1.5px solid var(--line); white-space: nowrap; }
+.due-tag.due-soon { background: #fff0c2; color: #8a6420; border-color: #e8cf86; }
+.due-tag.due-today { background: #ffe19a; color: #6e4a0c; border-color: #e0b24c; }
+.due-tag.due-overdue { background: #ffd0da; color: #a23550; border-color: #f0a0b3; }
+html[data-list="todo"] .item:not(.done) .item-text { cursor: pointer; }
+.brand-due { flex: none; margin-left: 6px; min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 9px; background: #ff7c9c; color: #fff; font-size: .7rem; font-weight: 800; line-height: 18px; text-align: center; font-family: var(--font-body); }
+.task-name { margin: 0; font-weight: 800; font-size: 1.05rem; overflow-wrap: anywhere; }
+.task-field { border: 0; margin: 0; padding: 0; min-width: 0; }
+.task-field .field-label { margin-bottom: 6px; }
+.task-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.task-chips .pill-btn { background: var(--surface); padding: 7px 14px; font-size: .88rem; }
+.task-chips .pill-btn[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: transparent; }
+.task-date-label { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: .88rem; font-weight: 700; color: var(--muted); }
+.task-date { font: inherit; padding: 6px 8px; border: 1.5px solid var(--outline); border-radius: 10px; background: var(--surface); color: var(--ink); }
+.task-note { margin: 8px 0 0; font-size: .82rem; color: var(--muted); }
+.task-actions { display: flex; justify-content: space-between; }
+.task-delete { color: var(--danger); text-decoration-color: var(--danger); }
+/* the clipboard Nibble holds while the to-do list is showing: its paws hold the sides, and a line is ticked for each third of the list done */
+.pet .clipboard { display: none; }
+html[data-list="todo"] .pet:not(.has-teddy):not(.tucked) .clipboard { display: inline; }
+.clipboard .cb-board { fill: #d49a5c; stroke: var(--prop-ink); stroke-width: 1.7; }
+.clipboard .cb-paper { fill: #fffaf0; stroke: var(--prop-ink); stroke-width: .9; }
+.clipboard .cb-clip { fill: #b8bdc8; stroke: var(--prop-ink); stroke-width: 1.4; }
+.clipboard .cb-line { fill: none; stroke: var(--prop-ink); stroke-width: 1.3; stroke-linecap: round; opacity: .4; }
+.clipboard .cb-tick { fill: none; stroke: #4fb583; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: none; }
+.clipboard[data-ticks="1"] .cb-tick[data-n="1"], .clipboard[data-ticks="2"] .cb-tick:not([data-n="3"]), .clipboard[data-ticks="3"] .cb-tick { display: inline; }
+html[data-list="todo"] .pet[data-arms="idle"]:not(.has-teddy):not(.tucked) .arm-l { translate: 36px -6px; }
+html[data-list="todo"] .pet[data-arms="idle"]:not(.has-teddy):not(.tucked) .arm-r { translate: -36px -6px; }

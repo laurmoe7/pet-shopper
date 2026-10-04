@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '136';
+var BUILD = '137';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -134,6 +134,7 @@ document.querySelectorAll('dialog.pet-sheet').forEach(function (d) {
 });
 document.addEventListener('click', function (e) {
   if (!e.target.closest('.list-area, .scene-bar') || e.target.closest('button')) return;
+  if (state.mode === 'todo' && e.target.closest('.item:not(.done) .item-text, .due-tag')) return;   // that tap opens the task sheet
   document.querySelectorAll('dialog[open]:not(#picker):not(#roomSheet)').forEach(function (d) { d.close(); });
 });
 // sticker buttons rock like a roly-poly when tapped (the look is in styles.css)
@@ -204,7 +205,7 @@ function render() {
   var done = state.items.filter(function (i) { return i.done; });
   var kept = {};
   function rowFor(item) {
-    var key = (item.done ? 1 : 0) + item.emoji + '|' + item.text;
+    var key = (item.done ? 1 : 0) + item.emoji + '|' + item.text + '|' + dueTagText(item);
     var old = rows[item.id];
     var li = old && old.key === key && !freshIds[item.id] ? old.li : row(item);
     kept[item.id] = { key: key, li: li };
@@ -218,6 +219,7 @@ function render() {
   emptyHint.hidden = state.items.length > 0;
   updateEmptyHint();
   renderCart(todo, done);
+  updateTodoExtras();
   freshIds = {};
   if (!busy) settle();
   walkHome();
@@ -329,6 +331,8 @@ function row(item) {
   text.textContent = item.text;
 
   li.append(check, eb, text);
+  var due = dueTagOf(item);
+  if (due) li.append(due);
   return li;
 }
 

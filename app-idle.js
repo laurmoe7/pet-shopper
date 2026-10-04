@@ -16,6 +16,7 @@ function idle() {
   scheduleDream();
   if (busy || dreaming || document.hidden || document.querySelector('dialog[open]:not(#roomSheet)')) return;
   // while it's awake it asks for something now and then (offerSuggestion keeps that to once every three minutes at most)
+  if (Math.random() < 0.3 && dueNag(true)) return;
   if (baseState() !== 'sleepy' && Math.random() < 0.2 && offerSuggestion()) return;
   if (state.settings.daydreams && Math.random() < 0.3) daydream();
   else idleMove();
@@ -35,7 +36,8 @@ function daydream() {
     item = L.createItem(wish, state.overrides, 'dream');
   } else {
     var loved = todo.filter(function (i) { return L.likes(p, i); });
-    item = pick(loved.length && Math.random() < 0.7 ? loved : todo);
+    var urgent = isTodo() ? dueTasks() : [];
+    item = urgent.length && Math.random() < 0.6 ? pick(urgent) : pick(loved.length && Math.random() < 0.7 ? loved : todo);
   }
   var love = !isTodo() && mood !== 'sleepy' && isFavourite(item);
   dreaming = true;
@@ -51,7 +53,7 @@ function daydream() {
     talk('dream', ['ooh, {x}!', 'can\'t wait!', 'my favourite!'], 1600, { x: item.text.toLowerCase() });
   } else {
     setFace(FACES.dreamy);
-    if (isTodo()) talk('todoDream', ["should we {x}?", "don't forget: {x}", '{x}… soon!'], 1600, { x: item.text.toLowerCase() });
+    if (isTodo()) talk('todoDream', item.due && item.due <= todayKey() ? ['{x} is due!', 'psst… {x}, today!', 'we should {x}!'] : ["should we {x}?", "don't forget: {x}", '{x}… soon!'], 1600, { x: item.text.toLowerCase() });
   }
   setTimeout(function () {
     dreamEl.hidden = true;

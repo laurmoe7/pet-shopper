@@ -2,6 +2,14 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 137 (4 Oct)
+- Nibble holds a clipboard on the to-do list, ticking lines as you finish.
+- Tap a task to give it a due date or a repeat.
+- Date tags on tasks: today, tomorrow, weekday, late.
+- Nibble reminds you of tasks that are due.
+- A badge on the title shows due to-dos from the shopping list.
+- Repeating tasks come back with their next date when ticked.
+
 ## Build 136 (4 Oct)
 - New to-do list: tap the title to swap between shopping and to-do.
 - To-dos get task emojis, their own chatter and a check-mark stamp instead of being eaten.

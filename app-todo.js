@@ -28,7 +28,7 @@ function applyListMode(animate) {
   todoEl.setAttribute('aria-label', todo ? 'To do' : 'To buy');
   doneEl.setAttribute('aria-label', todo ? 'Done' : 'Bought');
   $('eatenTitle').textContent = todo ? 'Done' : 'Bought';
-  $('listHint').textContent = todo ? "Tap a task's emoji, or long-press the task, to pick a different one." : "Tap an item's emoji, or long-press the item, to pick a different one.";
+  $('listHint').textContent = todo ? "Tap a task to set a date or repeat. Tap its emoji, or long-press it, to pick a different one." : "Tap an item's emoji, or long-press the item, to pick a different one.";
   addPreview.replaceChildren(); lastPreview = '';
 }
 
@@ -173,10 +173,18 @@ function doTask(item, fromRect) {
       crumbs(at, r.color, 10);
       drift(r.bits, { x: at.x, y: at.y - 24 }, 4);
       if (r.move) { var m = tiredMove(r.move); pulse(m[0], m[1]); }
+      var late = item.due ? L.daysUntil(item.due, todayKey()) : null;   // done late, on the day or early: it says so
       if (tired) say(pick(TIRED_DONE), 1400);
+      else if (late !== null && late < 0) talk('taskLate', ['better late than never!', 'finally! phew~', 'late, but done!'], 1500);
+      else if (late === 0) talk('taskOnTime', ['just in time!', 'done today! ✧', 'right on the day!'], 1500);
+      else if (late !== null && late > 1) talk('taskEarly', ['early bird!', 'way ahead of time!', 'so organised!'], 1500);
       else talk('task' + item.cat, r.lines, 1500);
       buzz(14);
       return wait(1000 * sp);
+    }).then(function () {
+      var again = repeatNote[item.id];
+      delete repeatNote[item.id];
+      if (again) { say(pick(['see you ' + again + '!', 'back ' + again + '!', 'again ' + again + '!']), 1300); return wait(1100 * sp); }
     }).then(function () {
       if (pending === 1 && L.mood(state.items) === 'stuffed') return celebrate();
     });
@@ -215,4 +223,167 @@ function addedTask(item) {
   setFace(FACES.happy);
   setTimeout(function () { if (!busy) settle(); }, 600);
   talk('taskAdd' + item.cat, TASK_ADDED[item.cat] || TASK_ADDED.other, 1500);
+}
+
+// ---------- due dates and repeats ----------
+/** @returns {string} Today as YYYY-MM-DD, by the pet's clock. */
+function todayKey() { return L.dayKey(petNow()); }
+/** @returns {string} The words on a task's date tag ('' when it has none or is done), also used to tell when a row needs redrawing. */
+function dueTagText(item) {
+  if (state.mode !== 'todo' || !item.due || item.done) return '';
+  return (item.repeat ? '↻ ' : '') + L.dueInfo(item.due, todayKey()).label;
+}
+/** @returns {?HTMLElement} The little tag showing when a task is due, or null. */
+function dueTagOf(item) {
+  var text = dueTagText(item);
+  if (!text) return null;
+  var tag = document.createElement('span');
+  tag.className = 'due-tag due-' + L.dueInfo(item.due, todayKey()).state;
+  tag.textContent = text;
+  return tag;
+}
+/** @returns {Item[]} The tasks that are due today or late, soonest first (from whichever list is hidden, too). */
+function dueTasks() {
+  var list = isTodo() ? state.items : state.stash, today = todayKey();
+  return list.filter(function (i) { return !i.done && i.due && i.due <= today; }).sort(function (a, b) { return a.due < b.due ? -1 : a.due > b.due ? 1 : 0; });
+}
+var brandDue = $('brandDue'), clipboardEl = $('clipboard');
+/** Keeps the clipboard's ticks and the due badge on the title in step with the lists. */
+function updateTodoExtras() {
+  // the clipboard has a tick for each third of the list that is done
+  var total = state.items.length, done = state.items.filter(function (i) { return i.done; }).length;
+  clipboardEl.dataset.ticks = String(isTodo() && total ? (done === total ? 3 : Math.min(2, Math.floor(done * 3 / total))) : 0);
+  // on the shopping list, a badge on the title says how many tasks are due
+  var n = isTodo() ? 0 : dueTasks().length;
+  brandDue.hidden = !n;
+  brandDue.textContent = n;
+  brandEl.setAttribute('aria-label', 'Switch between the shopping list and the to-do list' + (n ? ' (' + n + ' to-do' + (n > 1 ? 's' : '') + ' due)' : ''));
+}
+// a new day: tags like "tomorrow" need redrawing when the app comes back to the front
+document.addEventListener('visibilitychange', function () { if (!document.hidden) render(); });
+
+var taskSheet = $('taskSheet'), taskFor = null;
+/** @returns {?Item} The task the sheet is for. */
+function taskItem() { return taskFor ? find(taskFor) : null; }
+/**
+ * Opens the sheet for a task's due day and repeat.
+ * @param {string} id
+ */
+function openTaskSheet(id) {
+  if (!find(id)) return;
+  taskFor = id;
+  renderTaskSheet();
+  openDialog(taskSheet);
+}
+function chip(text, pressed, onTap) {
+  var b = document.createElement('button');
+  b.type = 'button'; b.className = 'pill-btn'; b.textContent = text;
+  b.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+  b.addEventListener('click', onTap);
+  return b;
+}
+/** Draws the sheet's choices for the task it is open on. */
+function renderTaskSheet() {
+  var item = taskItem();
+  if (!item) return;
+  var today = todayKey(), tomorrow = L.addDays(today, 1), week = L.addDays(today, 7);
+  $('taskName').textContent = item.text;
+  $('dueChips').replaceChildren(
+    chip('No date', !item.due, function () { setTaskDue(''); }),
+    chip('Today', item.due === today, function () { setTaskDue(today); }),
+    chip('Tomorrow', item.due === tomorrow, function () { setTaskDue(tomorrow); }),
+    chip('In a week', item.due === week, function () { setTaskDue(week); })
+  );
+  $('dueDate').value = item.due || '';
+  $('repeatChips').replaceChildren.apply($('repeatChips'), L.REPEATS.map(function (r) {
+    return chip(r.label, (item.repeat || '') === r.id, function () { setTaskRepeat(r.id); });
+  }));
+  $('repeatNote').textContent = item.due ? 'A repeating task comes back on its next day when you tick it off.' : 'Picking a repeat sets the date to today.';
+}
+/**
+ * Gives the open task a due day (or none), and puts the tasks in due order.
+ * @param {string} due  YYYY-MM-DD, or '' for none.
+ */
+function setTaskDue(due) {
+  var item = taskItem();
+  if (!item) return;
+  if (due && !L.isDayKey(due)) return;
+  if (due) item.due = due; else { delete item.due; delete item.repeat; }
+  state.items = L.sortByDue(state.items);
+  save();
+  render();
+  renderTaskSheet();
+  if (due && !busy && baseState() !== 'sleepy') say(pick(['noted, ' + L.dueInfo(due, todayKey()).label + '!', 'I will remind you!', 'on my calendar!']), 1200);
+}
+/**
+ * Makes the open task repeat (or stop).
+ * @param {string} repeat  A REPEATS id, or '' for never.
+ */
+function setTaskRepeat(repeat) {
+  var item = taskItem();
+  if (!item) return;
+  if (repeat) { item.repeat = repeat; if (!item.due) item.due = todayKey(); } else delete item.repeat;
+  state.items = L.sortByDue(state.items);
+  save();
+  render();
+  renderTaskSheet();
+}
+$('dueDate').addEventListener('change', function () { setTaskDue($('dueDate').value); });
+$('taskDelete').addEventListener('click', function () {
+  var id = taskFor;
+  taskSheet.close();
+  if (id) { sound('remove'); removeItem(id); }
+});
+$('taskEmoji').addEventListener('click', function () {
+  var id = taskFor;
+  taskSheet.close();
+  if (id) openPicker(id);
+});
+taskSheet.addEventListener('close', function () { taskFor = null; });
+
+// a task you tick off that repeats puts its next one back on the list (and un-ticking takes that one away again)
+var repeatNote = {};   // task id -> when its next one is due, for Nibble to mention
+/**
+ * @param {Item} item  The task that was just ticked or un-ticked.
+ */
+function repeatTask(item) {
+  if (item.done && item.repeat) {
+    var due = L.nextDue(item.due, item.repeat, todayKey());
+    var copy = L.createItem(item.text, state.overrides, newId(), Date.now(), 'todo');
+    copy.emoji = item.emoji; copy.cat = item.cat; copy.due = due; copy.repeat = item.repeat;
+    item.spawned = copy.id;
+    L.addToList(state.items, copy);
+    state.items = L.sortByDue(state.items);
+    freshIds[copy.id] = true;
+    repeatNote[item.id] = L.dueInfo(due, todayKey()).label;
+  } else if (!item.done && item.spawned) {
+    var next = find(item.spawned);
+    if (next && !next.done) state.items = state.items.filter(function (i) { return i !== next; });
+    delete item.spawned;
+  }
+}
+
+// ---------- Nibble reminds you ----------
+var lastNag = 0;
+/**
+ * Nibble mentions tasks that are due today or late.
+ * @param {boolean} [idle]  Called from its idle moments: only on the to-do list, and not too often.
+ * @returns {boolean} Whether it said something.
+ */
+function dueNag(idle) {
+  if (busy || baseState() === 'sleepy' || document.hidden) return false;
+  var due = dueTasks();
+  if (!due.length) return false;
+  if (idle && (!isTodo() || Date.now() - lastNag < 10 * 60 * 1000)) return false;
+  lastNag = Date.now();
+  var late = due.filter(function (i) { return i.due < todayKey(); }).length, first = due[0], hint = isTodo() ? '' : '\ncheck the to-do list ♡';
+  setFace(late ? FACES.sheepish : FACES.curious);
+  pulse('hop', 460);
+  if (due.length === 1) {
+    talk(late ? 'dueLate' : 'dueToday', late ? ['{x} is overdue…' + hint, 'psst… {x}?' + hint, '{x} is late!' + hint] : ['{x} is due today!' + hint, "don't forget {x}!" + hint, 'psst, {x} today!' + hint], 2000, { x: first.text.toLowerCase() });
+  } else {
+    talk('dueMany', ['{n} to-dos are due!' + hint, '{n} tasks need us!' + hint, 'busy day: {n} to-dos!' + hint], 2000, { n: due.length });
+  }
+  setTimeout(function () { if (!busy) settle(); }, 1800);
+  return true;
 }

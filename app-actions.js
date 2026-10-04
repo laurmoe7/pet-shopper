@@ -265,6 +265,7 @@ function toggle(id) {
     delete item.counted;
     delete item.countedDay;
   }
+  if (todoMode) repeatTask(item);
   buzz(12);
   save();
   render();

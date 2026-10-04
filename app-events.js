@@ -84,6 +84,7 @@ function onListClick(e) {
   if (!li) return;
   if (e.target.closest('.check')) toggle(li.dataset.id);
   else if (e.target.closest('.emoji-btn')) openPicker(li.dataset.id);
+  else if (isTodo() && !li.classList.contains('done')) openTaskSheet(li.dataset.id);   // the task's words or date tag
 }
 todoEl.addEventListener('click', onListClick);
 doneEl.addEventListener('click', onListClick);

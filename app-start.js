@@ -21,6 +21,7 @@ if (wakeState !== 'sleepy') {
     setTimeout(function () { busy--; if (!busy) settle(); }, 1000);
   }, 700);
 }
+setTimeout(function () { dueNag(); }, 3800);   // then it mentions anything due
 state.lastOpen = Date.now();
 save();
 

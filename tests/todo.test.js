@@ -49,3 +49,35 @@ test('tasks and foods never share the emoji picker by accident', () => {
   assert.ok(Tasks.all.length > 60);
   assert.ok(Foods.all.length > 100);
 });
+
+test('due days: labels, urgency and sorting', () => {
+  const today = '2026-10-05';   // a Monday
+  assert.equal(L.dueInfo('2026-10-05', today).state, 'today');
+  assert.equal(L.dueInfo('2026-10-06', today).label, 'tomorrow');
+  assert.equal(L.dueInfo('2026-10-09', today).label, 'Fri');
+  assert.equal(L.dueInfo('2026-10-20', today).label, '20 Oct');
+  assert.deepEqual([L.dueInfo('2026-10-04', today).label, L.dueInfo('2026-10-02', today).label, L.dueInfo('2026-10-02', today).state], ['yesterday', '3d late', 'overdue']);
+  const a = { id: 'a', done: false }, b = { id: 'b', done: false, due: '2026-10-07' }, c = { id: 'c', done: false, due: '2026-10-06' }, d = { id: 'd', done: true, due: '2026-10-01' };
+  assert.deepEqual(L.sortByDue([a, b, d, c]).map((i) => i.id), ['c', 'b', 'a', 'd']);
+});
+
+test('repeating tasks come back on their next day, never in the past', () => {
+  assert.equal(L.nextDue('2026-10-05', 'daily', '2026-10-05'), '2026-10-06');
+  assert.equal(L.nextDue('2026-10-01', 'daily', '2026-10-05'), '2026-10-06');          // ticked late: tomorrow
+  assert.equal(L.nextDue('2026-10-01', 'weekly', '2026-10-05'), '2026-10-08');         // stays on its weekday
+  assert.equal(L.nextDue('2026-10-05', 'every3', '2026-10-05'), '2026-10-08');
+  assert.equal(L.nextDue('2026-01-31', 'monthly', '2026-01-31'), '2026-02-28');        // kept inside the month
+  assert.equal(L.nextDue('2026-01-31', 'monthly', '2026-03-01'), '2026-03-31');
+  assert.equal(L.nextDue(undefined, 'daily', '2026-10-05'), '2026-10-06');
+  assert.equal(L.addMonths('2026-12-15', 1), '2027-01-15');
+});
+
+test('damaged due days and repeats are dropped when loading', () => {
+  const raw = JSON.stringify({ items: [{ id: '1', text: 'a', emoji: '📌', cat: 'other', done: false, due: 'soon', repeat: 'daily' }, { id: '2', text: 'b', emoji: '📌', cat: 'other', done: false, due: '2026-10-05', repeat: 'hourly' }, { id: '3', text: 'c', emoji: '📌', cat: 'other', done: false, due: '2026-10-05', repeat: 'weekly' }] });
+  const items = L.parseState(raw, () => '1').items;
+  assert.equal(items[0].due, undefined);
+  assert.equal(items[0].repeat, undefined);
+  assert.equal(items[1].due, '2026-10-05');
+  assert.equal(items[1].repeat, undefined);
+  assert.equal(items[2].repeat, 'weekly');
+});

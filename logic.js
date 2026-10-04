@@ -164,6 +164,8 @@
     // the list on show (shopping or to-do) is state.items; the other one waits in state.stash
     data.mode = data.mode === 'todo' ? 'todo' : 'shop';
     if (!Array.isArray(data.stash)) data.stash = [];
+    data.items.forEach(cleanTask);
+    data.stash.forEach(cleanTask);
     data.pet = petProfile(data.pet);
     data.settings = settings(data.settings);
     // developer-only switches from the dev menu
@@ -241,6 +243,87 @@
     return m === 'sleepy' ? 'curious' : m;
   }
 
+
+  // ---------- to-do dates ----------
+  // A task can have a due day ('YYYY-MM-DD', the same form as dayKey) and a repeat; ticking a repeating task puts
+  // the next one back on the list.
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  /** The ways a task can repeat, with the days or months each step moves on. */
+  var REPEATS = [
+    { id: '', label: 'Never' },
+    { id: 'daily', label: 'Every day', days: 1 },
+    { id: 'every3', label: 'Every 3 days', days: 3 },
+    { id: 'weekly', label: 'Every week', days: 7 },
+    { id: 'monthly', label: 'Every month', months: 1 }
+  ];
+  /** @returns {boolean} Whether this is a due day in the form YYYY-MM-DD. */
+  function isDayKey(s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s); }
+  /** @returns {Date} The day as a local date (at noon, so clock changes never move it). */
+  function dayDate(key) { return new Date(+key.slice(0, 4), +key.slice(5, 7) - 1, +key.slice(8, 10), 12); }
+  /** @returns {string} The day n days after this one (n can be negative). */
+  function addDays(key, n) { var d = dayDate(key); d.setDate(d.getDate() + n); return dayKey(d); }
+  /** @returns {string} The day n months after this one, kept inside the month (31 Jan + 1 month = 28/29 Feb). */
+  function addMonths(key, n) {
+    var d = dayDate(key), day = d.getDate();
+    d.setDate(1); d.setMonth(d.getMonth() + n);
+    d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()));
+    return dayKey(d);
+  }
+  /** @returns {number} How many days from today until the due day (negative once it is past). */
+  function daysUntil(due, today) { return Math.round((dayDate(due) - dayDate(today)) / 86400000); }
+  /**
+   * How a due day looks on a task: a short label, and how pressing it is.
+   * @param {string} due
+   * @param {string} today
+   * @returns {{days: number, state: 'overdue'|'today'|'soon'|'later', label: string}}
+   */
+  function dueInfo(due, today) {
+    var n = daysUntil(due, today), d = dayDate(due);
+    if (n < 0) return { days: n, state: 'overdue', label: n === -1 ? 'yesterday' : -n + 'd late' };
+    if (n === 0) return { days: n, state: 'today', label: 'today' };
+    if (n === 1) return { days: n, state: 'soon', label: 'tomorrow' };
+    return { days: n, state: n <= 2 ? 'soon' : 'later', label: n <= 6 ? WEEKDAYS[d.getDay()] : d.getDate() + ' ' + MONTHS[d.getMonth()] };
+  }
+  /**
+   * The next day a repeating task is due: one step after its due day, and always after today (a task that was
+   * ticked weeks late comes back on its next regular day, not in the past).
+   * @param {?string} due  Its due day, if it had one.
+   * @param {string} repeat  A REPEATS id.
+   * @param {string} today
+   * @returns {string}
+   */
+  function nextDue(due, repeat, today) {
+    var r = REPEATS.filter(function (x) { return x.id === repeat; })[0];
+    var base = isDayKey(due) ? due : today;
+    if (!r || !r.id) return base;
+    var k = 1, next;
+    do {
+      next = r.months ? addMonths(base, r.months * k) : addDays(base, r.days * k);
+      k++;
+    } while (next <= today && k < 4000);
+    return next;
+  }
+  /**
+   * Puts the open tasks in due order (undated ones last, same order as before otherwise); done ones stay at the end.
+   * @param {Item[]} items
+   * @returns {Item[]} A new list.
+   */
+  function sortByDue(items) {
+    var open = items.filter(function (i) { return !i.done; }).map(function (i, n) { return { i: i, n: n }; });
+    var done = items.filter(function (i) { return i.done; });
+    open.sort(function (a, b) {
+      var x = a.i.due || '9999-99-99', y = b.i.due || '9999-99-99';
+      return x < y ? -1 : x > y ? 1 : a.n - b.n;
+    });
+    return open.map(function (o) { return o.i; }).concat(done);
+  }
+  /** Drops a due day or repeat that isn't valid (from old or damaged saves). */
+  function cleanTask(item) {
+    if (item && item.due !== undefined && !isDayKey(item.due)) delete item.due;
+    if (item && item.repeat !== undefined && (!item.due || !REPEATS.some(function (r) { return r.id && r.id === item.repeat; }))) delete item.repeat;
+    return item;
+  }
 
   /**
    * Adds an item at the end of the to-buy part of the list (above eaten items).
@@ -1019,6 +1102,7 @@
     isUnlocked: isUnlocked,
     gateFor: gateFor,
     emojiFor: emojiFor,
+    REPEATS: REPEATS, isDayKey: isDayKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
     createItem: createItem,
     petProfile: petProfile,
     parseState: parseState,
