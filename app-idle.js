@@ -173,8 +173,10 @@ function walkPath(spots, pause) {
   });
   return t;
 }
-/** @returns {boolean} True when the list has nothing left to buy, so the pet may wander off its cushion. */
-function mayWander() { return !state.items.some(function (i) { return !i.done; }); }
+/** @returns {boolean} True when nothing is left to buy. */
+function nothingLeft() { return !state.items.some(function (i) { return !i.done; }); }
+/** @returns {boolean} True when the pet may wander off its cushion: nothing left to buy, and not bedtime. */
+function mayWander() { return nothingLeft() && !stage.classList.contains('bedtime'); }
 /** With things on the list, the pet comes back to the middle, ready to shop. */
 function walkHome() {
   if (walkX && !mayWander() && !busy) walkTo(0);

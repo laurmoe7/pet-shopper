@@ -131,7 +131,7 @@
       personality: saved.personality || 'foodie',
       tastes: saved.tastes && typeof saved.tastes === 'object' ? saved.tastes : {},
       favourites: saved.favourites && typeof saved.favourites === 'object' ? saved.favourites : {},
-      // the night it fell asleep (nightOf), so things added to the list don't wake it; checking one off does
+      // the night it was put to bed (nightOf): asleep until something is checked off or the morning
       dozing: typeof saved.dozing === 'string' ? saved.dozing : '',
       treats: { day: (saved.treats && saved.treats.day) || '', used: (saved.treats && Array.isArray(saved.treats.used)) ? saved.treats.used : [] },
       guard: {
@@ -219,21 +219,21 @@
   }
 
   /**
-   * The pet's resting mood once the time of day is counted: with nothing left to buy it sleeps at night,
-   * and is awake in the day (curious with an empty list, full after a finished one). A list with things
-   * still to buy keeps it awake at night, but once it has fallen asleep only checking something off wakes it.
+   * The pet's resting mood: from the list (curious with an empty list, full after a finished one), but asleep
+   * once it has been put to bed tonight (the lamp switched off and tucked in, which sets dozing). Night alone
+   * doesn't make it sleep. Adding to the list doesn't wake it; checking something off (which clears dozing) does,
+   * and so does the morning.
    * @param {Item[]} items
    * @param {Date} now
-   * @param {string} [dozing] The night it fell asleep (pet.dozing), if it has.
+   * @param {string} [dozing] The night it was put to bed (pet.dozing), if it was.
    * @returns {string}
    */
   function restingMood(items, now, dozing) {
-    var m = mood(items);
-    // asleep already tonight: adding to the list doesn't wake it, only checking something off (which clears dozing)
     if (dozing && isNight(now) && dozing === nightOf(now)) return 'sleepy';
-    if (m === 'sleepy' || m === 'stuffed') return isNight(now) ? 'sleepy' : (m === 'sleepy' ? 'curious' : 'stuffed');
-    return m;
+    var m = mood(items);
+    return m === 'sleepy' ? 'curious' : m;
   }
+
 
   /**
    * Adds an item at the end of the to-buy part of the list (above eaten items).

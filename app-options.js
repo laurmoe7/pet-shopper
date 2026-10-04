@@ -91,7 +91,7 @@ var DEV_ACTIONS = [
   { label: 'Unlock everything', run: function () { L.unlockAll(state.pet, Achievements, Personalities); return 'All goals finished and personalities earned.'; } },
   { label: 'Lock everything again', run: function () { L.lockAll(state.pet, Achievements, FreeUnlocks); return 'Progress wiped. Locked items are locked again.'; } },
   { label: 'Skip to tomorrow', run: function () { L.skipDays(state, 1); return 'A day has passed: daily limits are fresh.'; } },
-  { label: 'Bedtime: untuck and lamp on', run: function () { try { localStorage.removeItem(BED_KEY); } catch (e) { /* storage blocked */ } refreshBedtime(); return 'Not tucked in, lamp on. Set it to night, pull the lamp cord, then tap the pet to tuck it in.'; } },
+  { label: 'Bedtime: wake, untuck, lamp on', run: function () { try { localStorage.removeItem(BED_KEY); } catch (e) { /* storage blocked */ } state.pet.dozing = ''; save(); refreshBedtime(); if (!busy) settle(); return 'Not tucked in, lamp on. Set it to night, pull the lamp cord, then tap the pet to tuck it in.'; } },
   { label: 'Fill with sample items', run: function () { state.items = state.items.concat(L.parseState(null, newId).items); return 'Sample items added.'; } },
   { label: 'Clear the list', run: function () { state.items = []; return 'List cleared.'; } },
   { label: 'Reset all saved data', danger: true, run: function () {

@@ -72,14 +72,10 @@ function isBagged(item) {
 var busy = 0;
 
 /**
- * @returns {string} The pet's resting mood for the current list. Falling asleep at night is remembered
- * (pet.dozing), so adding to the list doesn't wake it; checking something off does (toggle).
+ * @returns {string} The pet's resting mood: from the list, or asleep once it has been put to bed tonight
+ * (pet.dozing, set in app-bedtime.js when the lamp is off and it is tucked in; checking something off clears it).
  */
-function baseState() {
-  var now = petNow(), m = L.restingMood(state.items, now, state.pet.dozing);
-  if (m === 'sleepy' && L.isNight(now) && state.pet.dozing !== L.nightOf(now)) { state.pet.dozing = L.nightOf(now); save(); }
-  return m;
-}
+function baseState() { return L.restingMood(state.items, petNow(), state.pet.dozing); }
 /**
  * Shows a face on the pet: eyes, mouth, arm pose and extras such as hearts or steam.
  * @param {{eyes: string, mouth: string, arms?: string, x: string[]}} face
@@ -96,9 +92,10 @@ function setFace(face) {
 function settle() {
   var s = baseState();
   pet.dataset.state = s;
-  setFace(FACES[s]);
-  // up late shopping: tired, heavy-lidded eyes
-  pet.classList.toggle('tired', s !== 'sleepy' && L.isNight(petNow()));
+  // up at night: tired, heavy-lidded eyes (they show on the open eyes, so its resting face keeps them open)
+  var tired = s !== 'sleepy' && L.isNight(petNow()), face = FACES[s];
+  setFace(tired ? { eyes: 'open', mouth: face.mouth, arms: face.arms, x: face.x } : face);
+  pet.classList.toggle('tired', tired);
 }
 /**
  * The eyes go wide (surprised) or squint (sour, suspicious) for a moment, whatever eyes the face has.

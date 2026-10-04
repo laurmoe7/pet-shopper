@@ -1479,17 +1479,19 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
 .stage.bedtime:not(.lights-off) .lamp-light { opacity: 1; }
 .nightshade { position: absolute; inset: 4px 0 18px; z-index: 0; border-radius: 16px; background: radial-gradient(ellipse 60% 70% at 50% 100%, rgba(40, 34, 84, .25), rgba(24, 20, 58, .62)); opacity: 0; transition: opacity 1.2s ease; pointer-events: none; }
 .stage.lights-off .nightshade { opacity: 1; }
-/* the beanbag: behind the pet, in place of the cushion while it sleeps; the receipt and bag are put away for the night */
-.beanbag { position: absolute; left: calc(50% - 120px); bottom: 0; width: 240px; height: 100px; z-index: 0; pointer-events: none; display: none; transform-origin: 50% 100%; }
-.beanbag svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.stage.bedtime .beanbag { display: block; animation: bean-in .55s cubic-bezier(.3, 1.5, .5, 1); }
+/* the pet bed: the rim behind the pet and the bolster in front, in place of the cushion while it is bedtime;
+   the receipt and bag are put away for the night */
+.pet-bed, .bed-front { position: absolute; pointer-events: none; display: none; transform-origin: 50% 100%; }
+.pet-bed { left: calc(50% - 120px); bottom: 0; width: 240px; height: 100px; z-index: 0; }
+.bed-front { left: calc(50% - 125px); bottom: -2px; width: 250px; height: 46px; z-index: 2; }
+.pet-bed svg, .bed-front svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.stage.bedtime :is(.pet-bed, .bed-front) { display: block; animation: bed-in .5s cubic-bezier(.3, 1.5, .5, 1); }
 .stage.bedtime .cushion, .stage.bedtime .receipt, .stage.bedtime .cart-bag { display: none; }
-@keyframes bean-in { from { scale: .7 .4; opacity: 0; } to { scale: 1; opacity: 1; } }
-.bean-body { fill: #f7c3d3; stroke: var(--outline); stroke-width: 1.8; stroke-linejoin: round; }
-.bean-shade { fill: none; stroke: #e9a4bb; stroke-width: 5; stroke-linecap: round; opacity: .7; }
-.bean-seam { fill: none; stroke: #fff; stroke-width: 1.4; stroke-dasharray: 3 3; stroke-linecap: round; opacity: .8; }
-.bean-shine { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; opacity: .55; }
-.bean-front { fill: #eeaec3; stroke: var(--outline); stroke-width: 1.8; stroke-linejoin: round; }
+@keyframes bed-in { from { scale: .8 .5; opacity: 0; } to { scale: 1; opacity: 1; } }
+.bed-rim, .bed-bolster { fill: #c9b8f0; stroke: var(--outline); stroke-width: 1.8; stroke-linejoin: round; }
+.bed-inside { fill: #f2ecff; stroke: var(--outline); stroke-width: 1.5; stroke-linejoin: round; }
+.bed-seam { fill: none; stroke: #fff; stroke-width: 1.4; stroke-dasharray: 3 3; stroke-linecap: round; opacity: .85; }
+.bed-shine { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; opacity: .55; }
 .pet .blanket { display: none; }
 .pet.tucked .blanket { display: inline; animation: blanket-in .6s cubic-bezier(.3, 1.4, .5, 1); }
 .pet.tucked .outfit-feet { display: none; }

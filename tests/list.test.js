@@ -59,26 +59,20 @@ test('picking an emoji updates every item with that word and future ones', () =>
   assert.equal(PetLogic.pickEmoji(state, 'missing', '🍕'), false);
 });
 
-test('the pet sleeps at night and is awake in the day when nothing is left to buy', () => {
-  const day = new Date(2026, 9, 4, 14, 0), night = new Date(2026, 9, 4, 23, 0), early = new Date(2026, 9, 4, 6, 30);
-  assert.equal(PetLogic.restingMood([], day), 'curious');
-  assert.equal(PetLogic.restingMood([], night), 'sleepy');
-  assert.equal(PetLogic.restingMood([], early), 'sleepy');
-  let items = list('Bananas');
-  assert.equal(PetLogic.restingMood(items, night), 'curious', 'a list wakes it up at night');
-  items = PetLogic.toggleDone(items, 'i0').items;
-  assert.equal(PetLogic.restingMood(items, day), 'stuffed', 'awake and full after a finished list');
-  assert.equal(PetLogic.restingMood(items, night), 'sleepy');
-});
-
-test('once asleep, adding to the list does not wake the pet; checking something off does', () => {
-  const night = new Date(2026, 9, 4, 23, 0), morning = new Date(2026, 9, 5, 8, 0);
+test('the pet only sleeps once put to bed, and stays asleep until something is checked off', () => {
+  const day = new Date(2026, 9, 4, 14, 0), night = new Date(2026, 9, 4, 23, 0), early = new Date(2026, 9, 5, 6, 30), morning = new Date(2026, 9, 5, 8, 0);
   const tonight = PetLogic.nightOf(night);
-  const items = list('Bananas');
-  assert.equal(PetLogic.restingMood(items, night, tonight), 'sleepy', 'still asleep with something on the list');
-  assert.equal(PetLogic.restingMood(items, night, ''), 'curious', 'woken (dozing cleared) by a checked-off item');
+  assert.equal(PetLogic.restingMood([], day), 'curious');
+  assert.equal(PetLogic.restingMood([], night), 'curious', 'night alone does not put it to sleep');
+  assert.equal(PetLogic.restingMood([], night, tonight), 'sleepy', 'put to bed');
+  assert.equal(PetLogic.restingMood([], early, tonight), 'sleepy', 'still asleep after midnight');
+  assert.equal(PetLogic.restingMood([], morning, tonight), 'curious', 'awake in the morning');
+  let items = list('Bananas');
+  assert.equal(PetLogic.restingMood(items, night, tonight), 'sleepy', 'adding to the list does not wake it');
   assert.equal(PetLogic.restingMood(items, night, '2026-10-01'), 'curious', 'an old night does not count');
-  assert.equal(PetLogic.restingMood(items, morning, tonight), 'curious', 'awake in the morning');
+  items = PetLogic.toggleDone(items, 'i0').items;
+  assert.equal(PetLogic.restingMood(items, day), 'stuffed', 'full after a finished list');
+  assert.equal(PetLogic.restingMood(items, night), 'stuffed');
   assert.equal(PetLogic.petProfile({ dozing: tonight }).dozing, tonight);
   assert.equal(PetLogic.petProfile({}).dozing, '');
 });

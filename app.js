@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '128';
+var BUILD = '129';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -176,10 +176,11 @@ function updateEmptyHint() {
   var name = document.createElement('span');
   name.className = 'pet-name';
   name.textContent = state.pet.name || 'Nibble';
-  var night = L.isNight(petNow());
-  emptyHint.replaceChildren(name, night
+  var night = L.isNight(petNow()), asleep = night && L.restingMood(state.items, petNow(), state.pet.dozing) === 'sleepy';
+  emptyHint.replaceChildren(name, asleep
     ? ' is fast asleep. Add things for tomorrow, or check one off to wake it for a midnight snack.'
-    : ' is ready when you are. Add something to the list to go shopping together!');
+    : night ? ' is getting sleepy. Pull the lamp cord to switch it off, and tap to tuck it in.'
+      : ' is ready when you are. Add something to the list to go shopping together!');
 }
 var clearBtn = $('clearBtn');
 var picker = $('picker'), pickerGrid = $('pickerGrid'), pickerName = $('pickerName'), deleteBtn = $('deleteBtn');

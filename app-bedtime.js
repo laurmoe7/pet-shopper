@@ -1,6 +1,7 @@
-// Bedtime: at night a pendant lamp hangs above the pet, lighting up the room, and swings now and then until it is off.
-// Tug its pull-cord down to switch it off (or on; that makes a sleeping pet grumpy); in the dark the pet mumbles to be tucked in, and a tap tucks it under a blanket, where it snores.
-// It lasts until morning (or until the list needs shopping). Kept on this device only.
+// Bedtime: at night, once nothing is left to buy, a pendant lamp hangs above the pet (lighting up the room, and
+// swinging now and then until it is off) and its cushion becomes a bed. The pet is awake and tired until you put it
+// to bed: tug the lamp cord down to switch the light off and tap the pet to tuck it in, in either order. Then it falls
+// asleep (pet.dozing) and snores until something is checked off or the morning. Kept on this device only.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
@@ -15,36 +16,59 @@ function bedtime() {
 function saveBedtime(bed) {
   try { localStorage.setItem(BED_KEY, JSON.stringify(bed)); } catch (e) { /* storage blocked */ }
 }
-var bedtimeKnown = false;
+var bedtimeKnown = false, wasAsleep = false;
+/** @returns {boolean} True when it is bedtime: night, and nothing left to buy (or already asleep). */
+function bedtimeNow() { return L.isNight(petNow()) && (baseState() === 'sleepy' || nothingLeft()); }
 /**
- * Shows the lamp, blanket and dark room for the time and the list, and the tired eyes when it's up late.
- * Each time it falls asleep (or wakes up) while the app is open, bedtime starts fresh: lamp on, not tucked in,
- * so after a late shop you switch the lamp off and tuck it in again. Opening the app keeps tonight's bedtime.
+ * Shows the lamp, bed, quilt and dark room for the time and the list, and the tired eyes when it's up at night.
+ * Bedtime starts fresh (lamp on, not tucked in) each time it begins or the pet wakes while the app is open,
+ * so after a late shop you switch the lamp off and tuck it in again. Opening the app keeps tonight's.
  */
 function refreshBedtime() {
-  var asleep = baseState() === 'sleepy';
-  var wasAsleep = stage.classList.contains('bedtime');
-  if (bedtimeKnown && asleep !== wasAsleep) {
+  var asleep = baseState() === 'sleepy', night = L.isNight(petNow()), bedNow = bedtimeNow();
+  var wasBed = stage.classList.contains('bedtime');
+  if (bedtimeKnown && (bedNow !== wasBed || (wasAsleep && !asleep))) {
     try { localStorage.removeItem(BED_KEY); } catch (e) { /* storage blocked */ }
+    // bedtime is over (morning, or the dev switch to day): it is up, and must be put to bed again tonight
+    if (!bedNow && state.pet.dozing) { state.pet.dozing = ''; save(); asleep = false; }
   }
   bedtimeKnown = true;
+  wasAsleep = asleep;
   var bed = bedtime();
   var wasTucked = pet.classList.contains('tucked');
-  if (asleep && !wasAsleep) owlSoon(true);
-  stage.classList.toggle('bedtime', asleep);
-  lampEl.hidden = !asleep;
-  pet.classList.toggle('tucked', asleep && bed.tucked);
-  stage.classList.toggle('lights-off', asleep && bed.dark);
-  lampEl.setAttribute('aria-pressed', asleep && bed.dark ? 'false' : 'true');
-  pet.classList.toggle('tired', !asleep && L.isNight(petNow()));
+  if (bedNow && !wasBed) owlSoon(true);
+  stage.classList.toggle('bedtime', bedNow);
+  lampEl.hidden = !bedNow;
+  pet.classList.toggle('tucked', bedNow && bed.tucked);
+  stage.classList.toggle('lights-off', bedNow && bed.dark);
+  lampEl.setAttribute('aria-pressed', bedNow && bed.dark ? 'false' : 'true');
+  pet.classList.toggle('tired', night && !asleep);
+  // the lamp is off and it is tucked in: off to sleep
+  if (bedNow && !asleep && bed.tucked && bed.dark && !busy) fallAsleep();
   bedSoon();
   // morning: up it gets, with a stretch (at night only a snack wakes it: wakeForSnack)
-  if (wasTucked && !asleep && !busy && !L.isNight(petNow())) {
+  if (wasTucked && !bedNow && !night && !busy) {
     setFace(FACES.wake);
     pulse('stretch', 1000);
     talk('tuckMorning', ['good morning!', 'slept so well!', '*yaaawn* morning!'], 1500);
     setTimeout(function () { if (!busy) settle(); }, 1200);
   }
+}
+/** Lamp off and tucked in: its eyes close and it drifts off. */
+function fallAsleep() {
+  state.pet.dozing = L.nightOf(petNow());
+  wasAsleep = true;
+  save();
+  busy++;
+  setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] });
+  pulse('sit', 2600);
+  talk('fallAsleep', ['night night…', 'g\'night ♡', 'sleepy… zzz'], 1500);
+  setTimeout(function () {
+    busy--;
+    if (!busy) settle();
+    updateEmptyHint();
+    bedSoon();
+  }, 1700);
 }
 /**
  * Checking something off wakes a sleeping pet: a quick start, a stretch and a yawn before it eats.
@@ -66,7 +90,7 @@ function setLamp(dark) {
   sound('click');
   refreshBedtime();
 }
-/** Tucks the sleeping pet in: the blanket comes up and a sleepy "night night"; it asks for the lamp if it is still on. */
+/** Tucks the pet in: the quilt comes up; it asks for the lamp if it is still on, or falls asleep if it is off. */
 function tuckIn() {
   var bed = bedtime();
   bed.tucked = true;
@@ -85,18 +109,20 @@ function tuckIn() {
     tucking = false;
     busy--;
     if (!busy) settle();
-    // still bright: it asks for the lamp (which keeps swinging until it is off)
+    // still bright: it asks for the lamp (which keeps swinging until it is off); dark: it falls asleep
     if (!bedtime().dark && !busy) talk('lampPlease', ['lamp off please…', 'too bright…'], 1500);
-    bedSoon();
+    refreshBedtime();
   }, 2000);
 }
-// a tap on the sleeping pet tucks it in; once it is tucked in, it only mumbles
+// at bedtime a tap tucks it in; tucked in, it asks for the lamp, and asleep it only mumbles
 pet.addEventListener('click', function (e) {
-  if (baseState() !== 'sleepy' || busy) return;
+  if (!stage.classList.contains('bedtime') || busy) return;
   e.stopImmediatePropagation();
-  if (!bedtime().tucked) { tuckIn(); return; }
-  pulse('rocksmall', 1300);
-  talk('tuckedTap', ['five more minutes…', 'mmm… cozy…', 'zzz… snacks…'], 1400);
+  if (baseState() === 'sleepy') {
+    pulse('rocksmall', 1300);
+    talk('tuckedTap', ['five more minutes…', 'mmm… cozy…', 'zzz… snacks…'], 1400);
+  } else if (!bedtime().tucked) tuckIn();
+  else talk('lampPlease', ['lamp off please…', 'too bright…'], 1400);
 }, true);
 // the lamp is switched by tugging it down, like a pull cord: it follows the finger and springs back
 var PULL_PX = 22, pullFrom = null, pulled = 0;
@@ -130,13 +156,13 @@ lampEl.addEventListener('click', function (e) {
   e.stopPropagation();
   if (e.detail === 0 && !tucking) pullLamp();
 });
-/** Switches the lamp after a tug; in the dark, an untucked pet asks to be tucked in. */
+/** Switches the lamp after a tug: asleep, the light makes it grumpy; awake in the dark, it asks to be tucked in. */
 function pullLamp() {
   var dark = !bedtime().dark;
   setLamp(dark);
   if (busy) return;
-  if (!dark) grumpy();
-  else if (!bedtime().tucked) setTimeout(tuckMumble, 1100);
+  if (baseState() === 'sleepy') { if (!dark) grumpy(); }
+  else if (dark && !bedtime().tucked) setTimeout(bedHint, 1100);
 }
 /** The light comes back on while it sleeps: a grumpy squint at you, then back to sleep. */
 function grumpy() {
@@ -150,17 +176,16 @@ function grumpy() {
 
 // ---------- in bed: snoring, and mumbling to be tucked in ----------
 var bedTimer;
-/** Plans the next snore (tucked in) or mumble (dark but not tucked in yet). */
+/** Plans the next snore (asleep) or sleepy hint (bedtime, not put to bed yet). */
 function bedSoon() {
   clearTimeout(bedTimer);
   if (!stage.classList.contains('bedtime')) return;
-  var tucked = pet.classList.contains('tucked');
-  if (!tucked && !stage.classList.contains('lights-off')) return;
+  var asleep = baseState() === 'sleepy';
   bedTimer = setTimeout(function () {
     bedSoon();
     if (busy || dreaming || document.hidden || document.querySelector('dialog[open]')) return;
-    if (pet.classList.contains('tucked')) snore(); else tuckMumble();
-  }, tucked ? 2400 + Math.random() * 1000 : 9000 + Math.random() * 5000);
+    if (baseState() === 'sleepy') snore(); else bedHint();
+  }, asleep ? 2400 + Math.random() * 1000 : 11000 + Math.random() * 6000);
 }
 // night sounds while it sleeps: crickets now and then, and an owl hooting outside
 var owlTimer, cricketTimer;
@@ -182,11 +207,16 @@ function cricketsSoon() {
 }
 owlSoon(true);
 cricketsSoon();
-/** A sleepy mumble to be tucked in (sleep-talk, since it is asleep). */
-function tuckMumble() {
-  if (busy || pet.classList.contains('tucked') || baseState() !== 'sleepy') return;
+/** Up at bedtime: a sleepy hint at what's still needed (the lamp off, the quilt). */
+function bedHint() {
+  if (busy || baseState() === 'sleepy' || !stage.classList.contains('bedtime')) return;
+  var bed = bedtime();
+  setFace({ eyes: 'closed', mouth: 'o', arms: 'idle', x: [] });
   pulse('rocksmall', 1300);
-  talk('tuckMumble', ['tuck me in…?', 'blankie…', 'cold toes…', 'need my blanket…'], 1800);
+  if (!bed.dark && !bed.tucked) talk('bedHint', ['so sleepy… bedtime?', '*yawn* lights off?', 'sleepy…'], 1800);
+  else if (!bed.tucked) talk('tuckMumble', ['tuck me in…?', 'blankie…?', 'cold toes…'], 1800);
+  else talk('lampPlease', ['lamp off please…', 'too bright…'], 1800);
+  setTimeout(function () { if (!busy) settle(); }, 1400);
 }
 /** One snore: a sound, a slow breath and a few z's. */
 function snore() {

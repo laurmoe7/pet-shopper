@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 129 (4 Oct)
+- Night alone no longer puts the pet to sleep.
+- It sleeps once the lamp is off and it is tucked in.
+- Awake at bedtime: tired eyes and sleepy hints.
+- New bed: a round pet bed it lies in.
+- New empty-list line at bedtime.
+
 ## Build 128 (4 Oct)
 - Up late shopping: tired, heavy-lidded eyes.
 - Sleepy moves far more often at night.
