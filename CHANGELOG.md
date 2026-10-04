@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 95 (4 Oct)
+- The shopping cart now holds the next things still to buy and empties as the pet eats them. Things that aren't food fly into a paper bag hanging on the cart's handle.
+- Fixed the axolotl showing two mouths at once: its wide smile now swaps with the other mouths like the frog's.
+
 ## Build 94 (4 Oct)
 - Paw hands are back to toe lines; the pink toe beans only show when the palms turn out (arms up, cheering, holding, covering, fanning).
 - Birdie toes are three round little toes instead of pointy ones.

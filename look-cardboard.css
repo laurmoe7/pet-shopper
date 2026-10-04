@@ -309,3 +309,8 @@ html[data-look="cardboard"] .cart-wheel circle { fill: var(--accent); stroke: #6
 html[data-look="cardboard"] .cart-wheel path { stroke: #6b4a2e; }
 html[data-look="cardboard"] .cart-heart { fill: #ff8fab; stroke: #fff; stroke-width: 1.2; paint-order: stroke; }
 html[data-look="cardboard"] .pet-sheet .picker-foot { background: var(--cb-dock-b); border-top: 1.5px dashed var(--cb-edge); }
+html[data-look="cardboard"] .bag-svg {
+  filter: drop-shadow(1.2px 0 0 #fff) drop-shadow(-1.2px 0 0 #fff) drop-shadow(0 1.2px 0 #fff) drop-shadow(0 -1.2px 0 #fff) drop-shadow(0 2px 1.5px rgba(90, 60, 30, .35));
+}
+html[data-look="cardboard"] .bag-handle { stroke: #6b4a2e; }
+html[data-look="cardboard"] .bag-body { stroke: #6b4a2e; }

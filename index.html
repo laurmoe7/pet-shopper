@@ -316,7 +316,7 @@
 
               <path data-mouth="smile" class="line" d="M75 103 Q80 108 85 103"/>
               <path data-mouth="smile" class="line frog-smile" d="M57 101 Q80 116 103 101"/>
-              <path data-sp="axolotl" class="line axo-smile" d="M64 101 Q80 112 96 101"/>
+              <path data-mouth="smile" class="line axo-smile" d="M64 101 Q80 112 96 101"/>
               <g data-mouth="open">
                 <path d="M73 102 Q80 101 87 102 Q87 113 80 113 Q73 113 73 102Z" class="mouth-in"/>
                 <ellipse cx="80" cy="110" rx="3.6" ry="2.4" class="tongue"/>
@@ -377,9 +377,14 @@
         <div class="tummy" id="tummy" aria-hidden="true"></div>
       </div>
       <div class="cushion" aria-hidden="true"></div>
-      <!-- the pet's little shopping cart, out once you start ticking things off -->
+      <!-- the pet's little shopping cart: it holds what is still to buy and empties as the pet eats.
+           Things that aren't food go into the bag hanging on its handle. -->
       <div class="cart" id="cart" aria-hidden="true" hidden><div class="cart-roll">
         <div class="cart-load" id="cartLoad"></div>
+        <div class="cart-bag" id="cartBag" hidden>
+          <div class="bag-load" id="bagLoad"></div>
+          <svg viewBox="0 0 30 34" class="bag-svg"><path class="bag-handle" d="M9.5 11 C9.5 3 20.5 3 20.5 11"/><path class="bag-body" d="M3.4 10.6 H26.6 L25 31.4 Q24.9 33 23.4 33 H6.6 Q5.1 33 5 31.4 Z"/><path class="bag-heart" d="M15 19.4 c-1 -1.7 -3.8 -.7 -2.6 1.2 l2.6 2.6 l2.6 -2.6 c1.2 -1.9 -1.6 -2.9 -2.6 -1.2z"/></svg>
+        </div>
         <svg viewBox="0 0 64 52" class="cart-svg">
           <path class="cart-handle" d="M4 8 H12 L16 14"/>
           <path class="cart-basket" d="M14 14 H60 L55 36 Q54 39 51 39 H22 Q19 39 18 36 Z"/>

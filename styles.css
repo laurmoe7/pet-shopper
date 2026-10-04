@@ -599,6 +599,17 @@ button { font: inherit; color: inherit; }
 .cart-wheel path { stroke: #5b4239; stroke-width: 1.4; stroke-linecap: round; }
 .cart-heart { fill: #ff9fb5; }
 @media (prefers-reduced-motion: reduce) { .cart:not([hidden]), .cart.bump, .cart-roll, .cart-wheel { animation: none; } }
+/* the bag on the cart's handle, for things that aren't food */
+.cart-bag { position: absolute; right: -10px; top: 14px; width: 30px; height: 34px; }
+.bag-svg { position: absolute; inset: 0; width: 30px; height: 34px; overflow: visible; }
+.bag-handle { fill: none; stroke: var(--pet-ink, #5b4239); stroke-width: 2.2; stroke-linecap: round; }
+.bag-body { fill: #f3dfb6; stroke: var(--pet-ink, #5b4239); stroke-width: 2; stroke-linejoin: round; }
+.bag-heart { fill: #ff9fb5; }
+.bag-load { position: absolute; left: 2px; top: -6px; width: 28px; height: 18px; z-index: -1; }
+.bag-load img { position: absolute; width: 17px; height: 17px; bottom: 0; }
+.bag-load img:nth-child(1) { left: 1px; transform: rotate(-10deg); }
+.bag-load img:nth-child(2) { left: 10px; bottom: 2px; transform: rotate(8deg); }
+.cart-bag:not([hidden]) { animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); }
 
 /* ---------- daydreams ---------- */
 .dream { position: absolute; left: calc(50% - 40px); top: -4px; width: 60px; height: 58px; z-index: 3; pointer-events: none; }
@@ -1245,6 +1256,7 @@ button { font: inherit; color: inherit; }
 .gill-fill circle { fill: #ff86ab; r: 3.9px; }
 .axo-belly { fill: #fff0f4; }
 .axo-smile { display: none; }
+.pet:not([data-species="axolotl"]) .axo-smile { display: none; }
 .pet[data-species="axolotl"][data-mouth="smile"] path[data-mouth="smile"]:not(.axo-smile) { display: none; }
 .pet[data-species="axolotl"][data-mouth="smile"] .axo-smile { display: inline; }
 

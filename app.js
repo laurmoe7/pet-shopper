@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '94';
+var BUILD = '95';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -189,28 +189,46 @@ function render() {
   eatenSection.hidden = done.length === 0;
   eatenCount.textContent = '(' + done.length + ')';
   emptyHint.hidden = state.items.length > 0;
-  renderCart(done);
+  renderCart(todo, done);
   freshIds = {};
   if (!busy) settle();
 }
 
-var cartEl = $('cart'), cartLoad = $('cartLoad'), cartCount = 0;
+var cartEl = $('cart'), cartLoad = $('cartLoad'), cartBag = $('cartBag'), bagLoad = $('bagLoad'), cartCount = -1;
 /**
- * Shows the pet's shopping cart once something is ticked off, with the last
- * few things it picked up peeking out.
- * @param {Item[]} done The eaten items.
+ * Fills a box with emoji, only redrawing when they change.
+ * @param {Element} box
+ * @param {Item[]} items
  */
-function renderCart(done) {
-  cartEl.hidden = done.length === 0;
-  var shown = done.slice(-3).map(function (i) { return i.emoji; }).join('');
-  if (cartLoad.dataset.shown !== shown) {
-    cartLoad.replaceChildren.apply(cartLoad, done.slice(-3).map(function (i) { return emojiImg(i.emoji, ''); }));
-    cartLoad.dataset.shown = shown;
-  }
-  if (done.length > cartCount && cartCount > 0) {
+function fillWith(box, items) {
+  var shown = items.map(function (i) { return i.emoji; }).join('');
+  if (box.dataset.shown === shown) return;
+  box.replaceChildren.apply(box, items.map(function (i) { return emojiImg(i.emoji, ''); }));
+  box.dataset.shown = shown;
+}
+/**
+ * The pet's shopping cart holds the next few things still to buy, so it empties as the list gets done.
+ * Things that aren't food go into the bag on its handle once ticked off (the pet doesn't eat those).
+ * @param {Item[]} todo Still to buy.
+ * @param {Item[]} done Ticked off.
+ */
+function renderCart(todo, done) {
+  var bagged = done.filter(function (i) { return i.cat === 'nonfood'; });
+  cartEl.hidden = todo.length === 0 && bagged.length === 0;
+  fillWith(cartLoad, todo.slice(0, 3));
+  fillWith(bagLoad, bagged.slice(-2));
+  cartBag.hidden = bagged.length === 0;
+  var count = todo.length * 100 + bagged.length;
+  if (cartCount >= 0 && count !== cartCount) {
     cartEl.classList.remove('bump'); void cartEl.offsetWidth; cartEl.classList.add('bump');
   }
-  cartCount = done.length;
+  cartCount = count;
+}
+/** @returns {{x: number, y: number}} Where things that aren't food fly to: the bag on the cart, or beside the pet. */
+function bagPoint() {
+  if (cartEl.hidden) return sidePoint();
+  var r = cartEl.getBoundingClientRect();
+  return { x: r.right + 4, y: r.top + r.height * 0.45 };
 }
 
 /**

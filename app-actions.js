@@ -61,7 +61,7 @@ function eat(item, fromRect, goals) {
     var sp = speed();
     var nonfood = item.cat === 'nonfood';
     setFace(FACES.catching);
-    var to = nonfood ? sidePoint() : mouthPoint();
+    var to = nonfood ? bagPoint() : mouthPoint();
     return fly(item.emoji, center(fromRect), to, { duration: 600 * sp, scaleTo: nonfood ? 0.15 : 0.5 }).then(function () {
       var r = REACTIONS[item.cat] || REACTIONS.pantry;
       setFace(r.face);
