@@ -17,6 +17,10 @@ test('each kind of food gets its own sound', () => {
   assert.equal(soundOf('steak'), 'chomp');
 });
 
+test('chips and crisps crunch, even with "potato" in the name', () => {
+  for (const t of ['potato chips', 'crisps', 'pringles', 'popcorn', 'pretzels', 'peanuts']) assert.equal(soundOf(t), 'crunch', t);
+});
+
 test('sweets, spicy, non-food and mystery items always use their own sound', () => {
   assert.equal(soundOf('chocolate'), 'sweet');
   assert.equal(soundOf('cake'), 'sweet');

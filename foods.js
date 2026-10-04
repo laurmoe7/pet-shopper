@@ -92,7 +92,7 @@
     ['🫗', 'pantry', 'oil, olive oil, sunflower oil, rapeseed oil, soy sauce'],
     ['🍕', 'pantry', 'pizza, frozen pizza'],
     ['🍔', 'pantry', 'burger, burger buns'],
-    ['🍟', 'pantry', 'fries, chips, crisps, oven chips'],
+    ['🍟', 'pantry', 'fries, chips, crisps, oven chips, potato chips, potato crisps, kettle chips, pringles, doritos, lays, nachos'],
     ['🌮', 'pantry', 'taco, taco shells'],
     ['🌯', 'pantry', 'burrito'],
     ['🥪', 'pantry', 'sandwich'],

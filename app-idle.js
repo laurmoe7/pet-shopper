@@ -133,7 +133,9 @@ function walkTo(x) {
   stage.style.setProperty('--walk-ms', ms + 'ms');
   stage.style.setProperty('--walk-x', x + 'px');
   stage.classList.toggle('walk-right', x > 15);
-  if (!lookAt) pet.style.setProperty('--look-x', (x > walkX ? 3.2 : -3.2) + 'px');
+  // face the way it walks; the eyes look ahead (the mirror turns the look round too)
+  turnTo(x > walkX ? 1 : -1);
+  if (!lookAt) pet.style.setProperty('--look-x', '3.2px');
   walkX = x;
   walking = true;
   pet.classList.add('walking');
@@ -335,7 +337,8 @@ function updateLook() {
     var dx = lookAt.x - (r.left + r.width / 2), dy = lookAt.y - (r.top + r.height / 2);
     var d = Math.hypot(dx, dy) || 1;
     var reach = Math.min(d / 120, 1);
-    el.style.setProperty('--look-x', (dx / d * 3.4 * reach).toFixed(2) + 'px');
+    // a mirrored pet looks the other way in its own drawing
+    el.style.setProperty('--look-x', (dx / d * 3.4 * reach * (el === pet ? Math.sign(facing) || 1 : 1)).toFixed(2) + 'px');
     el.style.setProperty('--look-y', (dy / d * 2.8 * reach).toFixed(2) + 'px');
     el.classList.add('looking');
   });

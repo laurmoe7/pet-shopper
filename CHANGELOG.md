@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 113 (4 Oct)
+- Potato chips crunch.
+- Pet turns to face the way it walks (test).
+- Backgrounds have night versions.
+- New backgrounds: farm, beach, aquarium.
+- Sun no longer cut off; thicker kitchen curtains.
+
 ## Build 112 (4 Oct)
 - Crunchier crunch sound.
 - "Clear bought" is now "Shopping done".
