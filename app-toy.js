@@ -3,8 +3,8 @@
 // Only a game: nothing counts for goals. These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
-var toyEl = $('toy'), toyBall = toyEl.querySelector('.toy-ball'), toyX = -58, playing = false;
-var TOY_HOME = -58; // its spot beside the cushion
+var toyEl = $('toy'), toyBall = toyEl.querySelector('.toy-ball'), toyX = 58, playing = false;
+var TOY_HOME = 58; // its spot beside the cushion
 /** @returns {string} How the species plays: fetch, bat, tongue or hug. */
 function playStyle() {
   var sp = state.pet.species;

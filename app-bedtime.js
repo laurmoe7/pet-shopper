@@ -29,8 +29,8 @@ var TEDDY = '<circle class="teddy-fur" cx="9" cy="8" r="5"/><circle class="teddy
 pet.querySelector('.teddy-hug').innerHTML = TEDDY;
 
 var bedtimeKnown = false, wasAsleep = false;
-/** @returns {boolean} True when it is bedtime: night, and nothing left to buy (or already asleep). */
-function bedtimeNow() { return L.isNight(petNow()) && (baseState() === 'sleepy' || nothingLeft()); }
+/** @returns {boolean} True when it is bedtime: night, unless you are in the middle of shopping (items waiting on the list or tasks don't keep it up). */
+function bedtimeNow() { return L.isNight(petNow()) && (baseState() === 'sleepy' || !shoppingNow()); }
 /**
  * Shows the lamp, bed, quilt and dark room for the time and the list, and the tired eyes when it's up at night.
  * Bedtime starts fresh (lamp on, not tucked in) each time it begins or the pet wakes while the app is open,

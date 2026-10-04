@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 143 (4 Oct)
+- Only shopping right now keeps him up at night; waiting items and tasks don't.
+- The toy rests on the other side of the pet.
+
 ## Build 142 (4 Oct)
 - The clipboard turns round when he writes or inspects, so the paper faces him.
 - The magnifying glass goes up to his eye and blows it up.

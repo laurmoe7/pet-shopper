@@ -265,6 +265,7 @@ function toggle(id) {
     delete item.counted;
     delete item.countedDay;
   }
+  if (!todoMode) { if (item.done) item.doneAt = Date.now(); else delete item.doneAt; }   // when it was ticked: shopping right now keeps Nibble up at night
   if (todoMode) repeatTask(item);
   buzz(12);
   save();

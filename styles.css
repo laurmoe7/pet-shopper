@@ -1440,7 +1440,7 @@ button { font: inherit; color: inherit; }
 
 /* the toy (app-toy.js): it slides along the floor with the translate property and the ball inside bounces
    and spins; its shadow stays on the floor */
-.toy { position: absolute; left: calc(50% - 16px); bottom: 3px; width: 32px; height: 32px; padding: 0; border: 0; background: none; z-index: 2; cursor: grab; touch-action: none; translate: -58px 0; -webkit-tap-highlight-color: transparent; }
+.toy { position: absolute; left: calc(50% - 16px); bottom: 3px; width: 32px; height: 32px; padding: 0; border: 0; background: none; z-index: 2; cursor: grab; touch-action: none; translate: 58px 0; -webkit-tap-highlight-color: transparent; }
 .toy::before { content: ""; position: absolute; left: 3px; right: 3px; bottom: -2px; height: 6px; border-radius: 50%; background: var(--shadow, rgba(91, 66, 57, .18)); opacity: .7; }
 .toy::after { content: ""; position: absolute; inset: -12px; } /* a bigger target for a finger */
 .toy-ball { position: absolute; inset: 0; display: block; }
