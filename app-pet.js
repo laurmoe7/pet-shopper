@@ -187,6 +187,28 @@ function crumbs(at, color, n) {
     ], { duration: 520 + Math.random() * 200, easing: 'ease-out' }).finished.then(c.remove.bind(c));
   }
 }
+/**
+ * Floats a few little symbols up from a point and fades them out. They only slide and fade.
+ * @param {string[]} chars The symbols to pick from, e.g. hearts and sparkles.
+ * @param {{x: number, y: number}} at
+ * @param {number} n How many.
+ */
+function drift(chars, at, n) {
+  if (reduceMotion) return;
+  for (var i = 0; i < n; i++) {
+    var el = document.createElement('span');
+    el.className = 'note';
+    el.textContent = pick(chars);
+    document.body.appendChild(el);
+    var x = at.x + (Math.random() - 0.5) * 70, y = at.y + (Math.random() - 0.5) * 20;
+    var dx = (Math.random() - 0.5) * 24;
+    el.animate([
+      { transform: 'translate(' + x + 'px,' + y + 'px)', opacity: 0 },
+      { transform: 'translate(' + (x + dx / 2) + 'px,' + (y - 14) + 'px)', opacity: 1, offset: 0.25 },
+      { transform: 'translate(' + (x + dx) + 'px,' + (y - 48) + 'px)', opacity: 0 }
+    ], { duration: 1300 + Math.random() * 500, delay: i * 160, easing: 'ease-out', fill: 'both' }).finished.then(el.remove.bind(el), el.remove.bind(el));
+  }
+}
 var CRUMB_COLORS = { fruit: '#ffd77a', veg: '#9ed99a', sweets: '#c99a7c', spicy: '#ff8b7a', drink: '#a9dcff', baked: '#f1c48d', dairy: '#fff3d6', protein: '#e7a598', pantry: '#f6cf86', mystery: '#ffb3c6', nonfood: '#d6cde0' };
 
 // sakura-style petals drifting down for the all-done celebration

@@ -68,6 +68,7 @@ function eat(item, fromRect, goals) {
       if (!nonfood) {
         pulse('chomp', 300);
         crumbs(mouthPoint(), CRUMB_COLORS[item.cat] || '#e8b04a', 7);
+        drift(['✦', '♥', '✧'], mouthPoint(), 3);
       }
       sound(L.soundFor(item));
       // shop items that aren't food get a comment in the personality's voice

@@ -129,3 +129,11 @@ test('speech bubbles are always on: quiet mode and no option can hide them', () 
   assert.doesNotMatch(app, /key: 'bubbles'/);
   assert.match(app, /function say\(text, ms, own\) \{\s+if \(!text\) return;/);
 });
+
+test('the whole-pet moves on .squash only slide (scaling or rotating them left a seam on her phone)', () => {
+  for (const name of ['breathe', 'jelly', 'chomp', 'spit', 'stretch', 'wobble']) {
+    const m = css.match(new RegExp('@keyframes ' + name + ' \\{[^\\n]*\\}\\n'));
+    assert.ok(m, name + ' exists');
+    assert.doesNotMatch(m[0], /scale|rotate/, name + ' only translates');
+  }
+});

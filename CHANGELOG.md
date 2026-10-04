@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 76 (4 Oct)
+- More life, using only slides and fades (so no seam): bigger idle breathing and bobbing, a stronger chomp dip, little hearts and sparkles floating up after each bite and sometimes when happy, quick glances and double blinks every few seconds, a stroll along the cushion, and idle moves more often.
+
 ## Build 75 (4 Oct)
 - Tried bringing back the squash while holding the arms and ears still; the seam still showed on her phone, so it is removed again. Chomp, spit, stretch and wobble keep sliding.
 

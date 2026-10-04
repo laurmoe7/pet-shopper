@@ -332,6 +332,7 @@ button { font: inherit; color: inherit; }
 /* idle moves, played now and then while the pet waits */
 .pet.wiggle .pet-svg { animation: wiggle .9s ease-in-out; }
 .pet.twirl .pet-svg { animation: twirl .8s ease-in-out; }
+.pet.stroll .pet-svg { animation: stroll 3.4s ease-in-out; }
 .pet.peek .pet-svg { animation: peek 1.4s ease-in-out; }
 .pet.bob .pet-svg { animation: bob .7s ease-in-out 2; }
 /* dances: a side-to-side shuffle and a bouncy boogie with a little spin at the end */
@@ -354,15 +355,17 @@ button { font: inherit; color: inherit; }
   50% { transform: translateY(2px) scale(1.06, .92); }
   70% { transform: translateY(-16px) scaleX(-1); } 85% { transform: translateY(0) scaleX(1); }
 }
+/* a little stroll along the cushion: slides only, like the other whole-pet moves */
+@keyframes stroll { 0%, 100% { transform: translateX(0); } 28% { transform: translateX(-24px); } 40% { transform: translate(-24px, -5px); } 52% { transform: translateX(-24px); } 78% { transform: translateX(24px); } }
 @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 .note { position: fixed; left: 0; top: 0; z-index: 40; pointer-events: none; font-weight: 800; color: var(--accent); font-size: 1.15rem; text-shadow: 0 1px 0 var(--outline); }
 /* breathing and jelly only nudge the pet up and down: stretching a curved shape on a phone can leave a hairline */
-@keyframes breathe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(1.5px); } }
-@keyframes jelly { 0%, 100% { transform: translateY(0); } 30% { transform: translateY(1.5px); } 55% { transform: translateY(-1px); } 75% { transform: translateY(.5px); } }
+@keyframes breathe { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(0, 2.5px); } }
+@keyframes jelly { 0%, 100% { transform: translate(0, 0); } 30% { transform: translate(1.5px, 3px); } 55% { transform: translate(-1.5px, -1.5px); } 75% { transform: translate(.5px, 1.5px); } }
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } 55% { transform: translateY(-10px); } }
 @keyframes hop { 0% { transform: translateY(0); } 40% { transform: translateY(-18px); } 100% { transform: translateY(0); } }
 /* the whole-pet moves (chomp, spit, stretch, wobble) only slide: scaling or rotating the pet while its arms move left a hairline across the face on her phone */
-@keyframes chomp { 0% { transform: translateY(0); } 30% { transform: translateY(4px); } 60% { transform: translateY(-2.5px); } 80% { transform: translateY(1px); } 100% { transform: translateY(0); } }
+@keyframes chomp { 0% { transform: translateY(0); } 30% { transform: translateY(6px); } 60% { transform: translateY(-4px); } 80% { transform: translateY(1.5px); } 100% { transform: translateY(0); } }
 @keyframes spit { 0% { transform: translateY(0); } 40% { transform: translateY(-5px); } 100% { transform: translateY(0); } }
 @keyframes stretch { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-6px); } 70% { transform: translateY(2px); } }
 @keyframes wobble { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }

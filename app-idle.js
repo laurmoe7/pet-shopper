@@ -9,13 +9,13 @@ var dreamEl = $('dream'), dreamCloud = $('dreamCloud'), dreamTimer, dreaming = f
 /** Waits a little while, then does something idle: a daydream or a little move. */
 function scheduleDream() {
   clearTimeout(dreamTimer);
-  dreamTimer = setTimeout(idle, 7000 + Math.random() * 7000);
+  dreamTimer = setTimeout(idle, 4000 + Math.random() * 4500);
 }
 /** One idle moment, when nothing else is going on. */
 function idle() {
   scheduleDream();
   if (busy || dreaming || document.hidden || document.querySelector('dialog[open]:not(#roomSheet)')) return;
-  if (state.settings.daydreams && Math.random() < 0.4) daydream();
+  if (state.settings.daydreams && Math.random() < 0.3) daydream();
   else idleMove();
 }
 /** Shows a thought cloud with an item and lets the pet react to it. */
@@ -98,6 +98,8 @@ var IDLE_MOVES = [
   { moods: ['curious', 'happy'], run: function () { pulse('wiggle', 900); } },
   { moods: ['curious', 'happy'], run: function () { setFace(FACES.dreamy); pulse('bob', 1400); hum(); say('♪ hm hm hmm ♪', 1400); } },
   { moods: ['curious', 'happy'], run: function () { lookAround(); } },
+  { moods: ['curious', 'happy'], run: function () { setFace(FACES.dreamy); lookAround(); pulse('stroll', 3400); } },
+  { moods: ['happy'], run: function () { setFace(FACES.love); pulse('hop', 460); drift(['♥', '✦', '♥'], petTop(), 4); } },
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'closed', mouth: 'o', arms: 'cover', x: [] }); pulse('stretch', 1000); } },
   { moods: ['happy'], run: function () { setFace(FACES.tada); pulse('twirl', 800); } },
   { moods: ['happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); } },
@@ -119,6 +121,45 @@ function idleMove() {
   setTimeout(function () { busy--; if (!busy) settle(); }, 1600);
 }
 scheduleDream();
+
+// ---------- small lively things between the bigger idle moves ----------
+// Every few seconds the pet does something tiny: glances aside, blinks twice, gives a little hop, or lets a heart drift up.
+// Everything here only slides or fades the pet (no squashing or tilting, which left a seam on her phone).
+var livelyTimer;
+/** @returns {{x: number, y: number}} A point just above the pet's head. */
+function petTop() {
+  var r = pet.getBoundingClientRect();
+  return { x: r.left + r.width / 2, y: r.top + r.height * 0.25 };
+}
+function scheduleLively() {
+  clearTimeout(livelyTimer);
+  livelyTimer = setTimeout(lively, 2200 + Math.random() * 2600);
+}
+function lively() {
+  scheduleLively();
+  if (reduceMotion || busy || dreaming || document.hidden || lookAt || document.querySelector('dialog[open]:not(#roomSheet)')) return;
+  var mood = baseState();
+  if (mood === 'sleepy') return;
+  var r = Math.random();
+  if (r < 0.3) {
+    // a quick glance to one side
+    var side = Math.random() < 0.5 ? -3.2 : 3.2;
+    pet.style.setProperty('--look-x', side + 'px');
+    setTimeout(function () { if (!lookAt) { pet.style.removeProperty('--look-x'); } }, 900);
+  } else if (r < 0.55) {
+    // two quick blinks
+    if (pet.dataset.eyes !== 'open') return;
+    pet.dataset.eyes = 'closed';
+    setTimeout(function () { if (pet.dataset.eyes === 'closed' && !busy) pet.dataset.eyes = 'open'; }, 120);
+    setTimeout(function () { if (pet.dataset.eyes === 'open' && !busy) pet.dataset.eyes = 'closed'; }, 330);
+    setTimeout(function () { if (pet.dataset.eyes === 'closed' && !busy) pet.dataset.eyes = 'open'; }, 450);
+  } else if (r < 0.8) {
+    pulse('bob', 1400);
+  } else if (mood === 'happy') {
+    drift(['♥', '✦'], petTop(), 2);
+  }
+}
+scheduleLively();
 
 // ---------- eyes follow your finger or cursor ----------
 var lookAt = null, lookFrame = 0, lookTimer;
