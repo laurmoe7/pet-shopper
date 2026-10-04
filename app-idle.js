@@ -132,7 +132,7 @@ var IDLE_MOVES = [
   } },
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'cheer', x: ['sweat', 'cheeks'] }); pulse('hophop', 1500); talk('exercise', ['one, two! one, two!', 'stretchy stretch!', 'workout time!'], 1300); } },
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'sparkle', mouth: 'o', arms: 'reach', x: [] }); drift(['○', '◦', '○'], mouthPoint(), 3); pulse('hopsmall', 450); talk('bubbles', ['bubbles!', 'pop pop!'], 1100); } },
-  { moods: ['curious', 'stuffed'], run: function () { setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); drift(['☀'], petTop(), 1); pulse('sit', 2600); talk('sun', ['warm and cosy…', 'sunny day ♡', 'ahh, sunshine'], 1400); } },
+  { moods: ['curious', 'stuffed'], run: function () { setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); drift(['☀'], petTop(), 1); pulse('sit', 2600); talk('sun', ['warm and cozy…', 'sunny day ♡', 'ahh, sunshine'], 1400); } },
   { moods: ['stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'o', arms: 'pat', x: ['cheeks'] }); pulse('hopsmall', 450); say(pick(['*hic*', 'burp! oops', 'hehe, full']), 1100, true); } },
   { moods: ['happy', 'stuffed'], run: function () { if (!receiptEl.hidden) { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'reach', x: ['sparkles'] }); pulse('peek', 1400); talk('receipt', ['look how much we got!', 'such a long receipt!', 'good shopping!'], 1400); } } }
 ];

@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '103';
+var BUILD = '104';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -235,7 +235,7 @@ function fillWith(box, items) {
 function renderCart(todo, done) {
   if (RECEIPT_TEST) { cartEl.hidden = true; renderReceipt(done); }
   else cartEl.hidden = todo.length === 0;
-  var bagged = done.filter(function (i) { return i.cat === 'nonfood'; });
+  var bagged = done.filter(isBagged);
   fillWith(cartLoad, todo.slice(0, 3));
   fillWith(bagLoad, bagged.slice(-2));
   cartBag.hidden = bagged.length === 0;

@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 104 (4 Oct)
+- "Cosy" is now "cozy".
+- Feet step, tuck, tap, stomp, shiver and stick out.
+- New food reactions: sour, crunchy, cold, coffee, grown-up drinks, pet food.
+
 ## Build 103 (4 Oct)
 - Old pink look removed; one stylesheet.
 - Bottom bar height measured correctly.

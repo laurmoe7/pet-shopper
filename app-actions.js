@@ -59,20 +59,22 @@ function speed() { return pending > 4 ? 0.4 : pending > 2 ? 0.6 : 1; }
 function eat(item, fromRect, goals) {
   enqueue(function () {
     var sp = speed();
-    var nonfood = item.cat === 'nonfood';
+    var nonfood = isBagged(item);
+    var key = reactionOf(item);
     setFace(FACES.catching);
     var to = nonfood ? bagPoint() : mouthPoint();
     return fly(item.emoji, center(fromRect), to, { duration: 600 * sp, scaleTo: nonfood ? 0.15 : 0.5 }).then(function () {
-      var r = REACTIONS[item.cat] || REACTIONS.pantry;
+      var r = REACTIONS[key] || REACTIONS[item.cat] || REACTIONS.pantry;
       setFace(r.face);
       if (!nonfood) {
         pulse('chomp', 300);
-        crumbs(mouthPoint(), CRUMB_COLORS[item.cat] || '#e8b04a', 7);
+        crumbs(mouthPoint(), CRUMB_COLORS[item.cat] || '#e8b04a', r.crumbs || 7);
         drift(['✦', '♥', '✧'], mouthPoint(), 3);
       }
+      if (r.move) setTimeout(function () { pulse(r.move[0], r.move[1]); }, nonfood ? 0 : 320);
       sound(L.soundFor(item));
       // shop items that aren't food get a comment in the personality's voice
-      if (nonfood) talk(Foods.kindOf(item.emoji), r.lines, 1400);
+      if (nonfood && key === item.cat) talk(Foods.kindOf(item.emoji), r.lines, 1400);
       else say(pick(r.lines), 1400);
       if (goals) goalToast(goals);
       var hold = 750 * sp;
@@ -167,7 +169,7 @@ function addItem(text) {
   render();
   if (!busy) {
     pulse('hop', 460);
-    var face = item.cat === 'nonfood' ? null : FACES.catching;
+    var face = isBagged(item) ? null : FACES.catching;
     if (face) { setFace(face); setTimeout(function () { if (!busy) settle(); }, 500); }
   }
   // something you buy a lot gets a remark from its history; the rest get a quick cheer

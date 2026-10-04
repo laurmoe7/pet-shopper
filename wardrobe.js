@@ -159,7 +159,7 @@ function boa() {
     },
     {
       id: 'hoodie', slot: 'body', label: 'Cow hoodie', layer: 'body', hood: true, sleeves: true, icon: '4 14 152 130',
-      lines: ['moo! so cosy!', 'a cow? me?!', 'so soft and fluffy!'],
+      lines: ['moo! so cozy!', 'a cow? me?!', 'so soft and fluffy!'],
       // a white hoodie whose hood is a little cow: horns, floppy ears and spots,
       // with an opening for the face so every species shows through
       svg: '<g class="hoodie">' +
@@ -365,7 +365,7 @@ function boa() {
     },
     {
       id: 'scarf', slot: 'neck', label: 'Winter scarf', icon: '10 104 140 56',
-      lines: ['so toasty!', 'snow day?', 'cosy cosy cosy'],
+      lines: ['so toasty!', 'snow day?', 'cozy cozy cozy'],
       svg: '<g class="neck-scarf">' +
         '<path class="scarf-band" d="M17 108 Q80 124 143 108 Q147 114 145 121 Q80 140 15 121 Q13 114 17 108 Z"/>' +
         '<path class="scarf-orange" d="M32.8 111.5 L38 112.4 L43.2 113.3 L48.5 114 L47.5 128.1 L42.1 127.3 L36.7 126.3 L31.2 125.2 Z M64.2 115.5 L69.5 115.8 L74.8 115.9 L80 116 L80 130.5 L74.6 130.4 L69.2 130.2 L63.8 129.9 Z M95.8 115.5 L101 115.1 L106.3 114.6 L111.5 114 L112.5 128.1 L107.1 128.9 L101.7 129.4 L96.2 129.9 Z M127.2 111.5 L132.5 110.4 L137.8 109.3 L143 108 L145 121 L139.6 122.5 L134.2 123.9 L128.8 125.2 Z "/>' +
@@ -464,7 +464,7 @@ function boa() {
     },
     {
       id: 'bunnyslippers', slot: 'feet', label: 'Bunny slippers', icon: '40 124 80 26',
-      lines: ['so fuzzy!', 'cosy toes!', 'hop hop hop!'],
+      lines: ['so fuzzy!', 'cozy toes!', 'hop hop hop!'],
       svg: '<g class="feet-bunny">' + [58, 102].map(function (x) {
         // a fluffy slipper with two floppy ears and a tiny face
         var fluff = '';
@@ -580,4 +580,28 @@ function boa() {
         '</g>'
     }
   ];
+
+  /**
+   * Splits a pair of shoes into a left and a right group (by where each part sits), so each foot can step and tap
+   * on its own (styles.css moves .shoe-l and .shoe-r with the pet's .foot-l and .foot-r).
+   * @param {string} svg A feet item: one wrapper group whose children are the parts of both shoes.
+   * @returns {string}
+   */
+  function splitShoes(svg) {
+    var m = svg.match(/^(<g [^>]*>)([\s\S]*)<\/g>$/);
+    if (!m) return svg;
+    var sides = { l: '', r: '' }, depth = 0, start = 0, tag = /<(\/?)(\w+)[^>]*?(\/?)>/g, t;
+    while ((t = tag.exec(m[2]))) {
+      if (t[1]) depth--;
+      if (depth === 0 && !t[1]) start = t.index;
+      if (!t[1] && !t[3]) depth++;
+      if (depth === 0) {
+        var part = m[2].slice(start, tag.lastIndex);
+        var x = part.match(/(?:cx="|d="M\s*)([\d.]+)/);
+        sides[x && parseFloat(x[1]) < 80 ? 'l' : 'r'] += part;
+      }
+    }
+    return m[1] + '<g class="shoe-l">' + sides.l + '</g><g class="shoe-r">' + sides.r + '</g></g>';
+  }
+  root.Wardrobe.forEach(function (w) { if (w.slot === 'feet') w.svg = splitShoes(w.svg); });
 })(typeof self !== 'undefined' ? self : globalThis);

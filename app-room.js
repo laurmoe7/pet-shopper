@@ -65,7 +65,7 @@ decorStrip.addEventListener('click', function (e) {
   save();
   renderRoom();
   sound(placed ? 'place' : 'remove');
-  if (placed && !busy) { pulse('hop', 460); talk('room', ['so cosy!', 'home sweet home!', 'I love it here!'], 1500); }
+  if (placed && !busy) { pulse('hop', 460); talk('room', ['so cozy!', 'home sweet home!', 'I love it here!'], 1500); }
 });
 // the room panel opens without covering the room: the stage stays visible (and draggable) above it
 var roomSheet = $('roomSheet');

@@ -30,8 +30,41 @@ var REACTIONS = {
   protein: { face: CHEW, lines: ['mogu mogu', 'strong snack!', 'tasty!', 'MORE?'] },
   pantry: { face: CHEW, lines: ['mogu mogu', 'tiny snack!', 'ooh, yum', 'paku!'] },
   nonfood: { face: { eyes: 'confused', mouth: 'wavy', arms: 'scratch', x: ['question'] }, lines: ["that's not food", 'hmm… for later', 'tuck it away'] },
-  mystery: { face: { eyes: 'sparkle', mouth: 'chew', arms: 'cheer', x: ['sparkles', 'cheeks'] }, lines: ['a surprise?!', 'mystery snack!', 'what was that?'] }
+  mystery: { face: { eyes: 'sparkle', mouth: 'chew', arms: 'cheer', x: ['sparkles', 'cheeks'] }, lines: ['a surprise?!', 'mystery snack!', 'what was that?'] },
+  // reactions to particular foods (picked by reactionOf, on top of the food's category)
+  sour: { face: { eyes: 'squint', mouth: 'wavy', arms: 'clench', x: ['shock'] }, then: CHEW, move: ['wiggle', 900], lines: ['so sour!!', 'sour sour sour!', 'my face!!'] },
+  crunchy: { face: { eyes: 'happy', mouth: 'chew', arms: 'nom', x: ['cheeks'] }, crumbs: 14, lines: ['crunch crunch!', 'kari kari!', 'so crispy!'] },
+  cold: { face: { eyes: 'squint', mouth: 'o', arms: 'clench', x: ['sweat'] }, then: { eyes: 'sparkle', mouth: 'chew', arms: 'cheer', x: ['cheeks'] }, move: ['wiggle', 900], lines: ['brrr! brain freeze!', 'so cold!', 'hiyaa~ cold!'] },
+  coffee: { face: { eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['sparkles', 'shock'] }, move: ['hophop', 1500], lines: ['ZOOM!', 'I can see sounds!', 'wide awake!!'] },
+  grownup: { face: { eyes: 'confused', mouth: 'wavy', arms: 'cover', x: ['sweat'] }, bag: true, lines: ['for the grown-ups!', 'not for me!', 'into the bag~'] },
+  petfood: { face: { eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['hearts', 'sparkles'] }, bag: true, move: ['hop', 460], lines: ['is this… for ME?!', 'treats?! for me?!', 'saving it for later!'] }
 };
+// which items get one of the reactions above: by emoji, or by words in the item
+var REACTION_RULES = [
+  ['grownup', ['🍷', '🍺', '🍻', '🥂', '🍸', '🍹', '🍾', '🥃'], /\b(wine|beer|cider|prosecco|champagne|vodka|gin|rum|whisk(e)?y|liqueur)\b/],
+  ['petfood', [], /\b(dog|cat|pet|bird|fish) (food|treats?|biscuits?)\b|\bkibble\b/],
+  ['coffee', ['☕'], /\b(coffee|espresso|cappuccino|latte)\b/],
+  ['cold', ['🍨', '🧊'], /\b(ice cream|ice lolly|popsicle|frozen|ice cubes?|gelato|sorbet)\b/],
+  ['sour', ['🍋'], /\b(lemons?|limes?|pickles?|gherkins?|sauerkraut|vinegar|sour(?! cream))\b/],
+  ['crunchy', ['🍿', '🥨'], /\b(chips|crisps|popcorn|pretzels?|nuts|peanuts|almonds|crackers|nachos|tortilla chips)\b/]
+];
+/**
+ * @param {Item} item
+ * @returns {string} The reaction for this item: a special one from REACTION_RULES, or its food category.
+ */
+function reactionOf(item) {
+  var text = (item.text || '').toLowerCase();
+  for (var i = 0; i < REACTION_RULES.length; i++) {
+    var r = REACTION_RULES[i];
+    if (r[1].indexOf(item.emoji) !== -1 || r[2].test(text)) return r[0];
+  }
+  return item.cat;
+}
+/** @returns {boolean} Whether the pet puts this in the bag instead of eating it (not food, or not for pets). */
+function isBagged(item) {
+  var r = REACTIONS[reactionOf(item)];
+  return item.cat === 'nonfood' || !!(r && r.bag);
+}
 
 var busy = 0;
 

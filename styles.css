@@ -1554,3 +1554,33 @@ html:root .bag-body { fill: #e9c58c; stroke: var(--cart-line); stroke-width: 2.6
 html:root .item:nth-child(3n+1) { --tab: #d9ccf5; }
 @media (prefers-color-scheme: dark) { html:root:not([data-theme="light"]) .item:nth-child(3n+1) { --tab: #b4a4e0; } }
 html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
+
+/* ---------- feet ----------
+   Each foot (.foot-l / .foot-r, and the shoes' .shoe-l / .shoe-r) moves on its own: little steps when walking,
+   tucking up on hops, tapping when happy, stomping when it's too hot, shivering when it's cold or sour,
+   and sticking out when it sits. They only slide. */
+.foot-side, .shoe-l, .shoe-r { transform-box: view-box; }
+@keyframes step { 0%, 50%, 100% { transform: translate(0, 0); } 25% { transform: translate(0, -2.6px); } }
+@keyframes tuck { 0%, 100% { transform: translate(0, 0); } 35%, 60% { transform: translate(0, -3px); } }
+@keyframes tap { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(0, -1.8px); } }
+@keyframes stomp { 0%, 100% { transform: translate(0, 0); } 40% { transform: translate(0, -3px); } 70% { transform: translate(0, .6px); } }
+@keyframes shiver { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-.7px, 0); } 75% { transform: translate(.7px, 0); } }
+/* walking about: one foot then the other */
+.pet:is(.stroll, .waddle, .shuffle, .scoot, .boogie) :is(.foot-l, .shoe-l) { animation: step .5s ease-in-out infinite; }
+.pet:is(.stroll, .waddle, .shuffle, .scoot, .boogie) :is(.foot-r, .shoe-r) { animation: step .5s ease-in-out -.25s infinite; }
+/* hops: both feet tuck up in the air */
+.pet.hop :is(.foot-side, .shoe-l, .shoe-r) { animation: tuck .5s ease-in-out; }
+.pet.hopsmall :is(.foot-side, .shoe-l, .shoe-r) { animation: tuck .45s ease-in-out; }
+.pet.hophop :is(.foot-side, .shoe-l, .shoe-r) { animation: tuck .5s ease-in-out 3; }
+/* happy feet when cheering, stomping when fanning a hot mouth, shivering when clenched */
+.pet[data-arms="cheer"]:not(.hop):not(.hophop):not(.hopsmall) :is(.foot-l, .shoe-l) { animation: tap .32s ease-in-out infinite; }
+.pet[data-arms="cheer"]:not(.hop):not(.hophop):not(.hopsmall) :is(.foot-r, .shoe-r) { animation: tap .32s ease-in-out -.16s infinite; }
+.pet[data-arms="fan"] :is(.foot-l, .shoe-l) { animation: stomp .24s ease-in-out infinite; }
+.pet[data-arms="fan"] :is(.foot-r, .shoe-r) { animation: stomp .24s ease-in-out -.12s infinite; }
+.pet[data-arms="clench"] :is(.foot-side, .shoe-l, .shoe-r) { animation: shiver .12s linear infinite; }
+/* sitting: the feet stick out a little to the sides */
+@keyframes sit-l { 0%, 100% { transform: translate(0, 0); } 25%, 75% { transform: translate(-2.4px, -.6px); } }
+@keyframes sit-r { 0%, 100% { transform: translate(0, 0); } 25%, 75% { transform: translate(2.4px, -.6px); } }
+.pet.sit :is(.foot-l, .shoe-l) { animation: sit-l 2.6s ease-in-out; }
+.pet.sit :is(.foot-r, .shoe-r) { animation: sit-r 2.6s ease-in-out; }
+@media (prefers-reduced-motion: reduce) { .foot-side, .shoe-l, .shoe-r { animation: none !important; } }
