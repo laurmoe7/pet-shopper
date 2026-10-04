@@ -99,7 +99,7 @@ function boa() {
     {
       id: 'tophat', slot: 'hat', label: 'Top hat',
       lines: ['ooh, so fancy!', 'very distinguished', 'a hat for tea time?'],
-      svg: '<g transform="rotate(-9 84 34)" class="hat-tophat">' +
+      svg: '<g transform="translate(-2 0) rotate(-3 84 34)" class="hat-tophat">' +
         '<ellipse class="hat-dark" cx="84" cy="38" rx="25" ry="6"/>' +
         '<path class="hat-dark" d="M71 37 V13 Q71 8 76 8 H92 Q97 8 97 13 V37 Z"/>' +
         '<path class="hat-band" d="M71 29 H97 V35 H71 Z"/>' +
@@ -278,9 +278,9 @@ function boa() {
       svg: '<g class="hat-lid" transform="rotate(-5 80 44)">' +
         '<ellipse class="lid-rim" cx="80" cy="47" rx="47" ry="6.4"/>' +
         '<path class="lid-top" d="M36 46 C37 36 56 30 80 30 C104 30 123 36 124 46 C110 50 50 50 36 46 Z"/>' +
-        '<path class="lid-ring" d="M46 43.6 C50 38.6 64 36 80 36 C96 36 110 38.6 114 43.6"/>' +
-        '<path class="lid-ring" d="M58 41.6 C62 39 71 38.2 80 38.2 C89 38.2 98 39 102 41.6"/>' +
-        '<path class="lid-rib" d="M42 45 L46 40 M52 46.6 L55 39 M66 47.6 L67 39 M94 47.6 L93 39 M108 46.6 L105 39 M118 45 L114 40"/>' +
+        // metal lid: ribs pressed in from the handle out to the rim, and a raised ring round the handle
+        '<path class="lid-rib" d="M94.3 39.4 Q106.6 40.8 119.0 46.7 M91.1 40.5 Q100.8 42.0 110.5 47.9 M86.1 41.3 Q91.4 42.8 96.7 48.7 M80.0 41.6 Q80.0 43.1 80.0 49.0 M73.9 41.3 Q68.6 42.8 63.3 48.7 M68.9 40.5 Q59.2 42.0 49.5 47.9 M65.7 39.4 Q53.4 40.8 41.0 46.7"/>' +
+        '<ellipse class="lid-ring" cx="80" cy="37.6" rx="15" ry="3.4"/>' +
         '<path class="lid-shine" d="M42 40.6 C46 35.6 53 33.2 61 32.4"/>' +
         '<path class="lid-handle" d="M67 34 C67 21 93 21 93 34"/><path class="lid-handle-in" d="M67 34 C67 21 93 21 93 34"/>' +
         '</g>'
@@ -317,7 +317,7 @@ function boa() {
         '</g>'
     },
     {
-      id: 'sidecap', slot: 'hat', snug: true, label: 'Sideways cap', icon: '40 12 106 42',
+      id: 'sidecap', slot: 'hat', snug: true, label: 'Orange cap', icon: '40 12 106 42',
       lines: ['totally rad!', 'skate time!', 'yo yo yo!'],
       svg: '<g class="hat-sidecap">' +
         '<path class="side-bill" d="M106 40 C118 37 134 38.6 142 45 C135 50 118 50.4 104 47.6 Z"/>' +
@@ -326,7 +326,9 @@ function boa() {
         '<path class="side-seam" d="M80 17.6 C72 26 68 36 67 48.6 M80 17.6 C88 26 92 36 93 48.6"/>' +
         '<path class="side-band" d="M48.4 43 C64 46.4 96 46.4 111.6 43 L112 47 C96 50 64 50 48 47 Z"/>' +
         '<circle class="side-button" cx="80" cy="17.6" r="2.6"/>' +
-        '<path class="side-star" d="M58 30 l1.5 3.2 l3.5 .4 l-2.6 2.4 l.7 3.4 l-3.1 -1.7 l-3.1 1.7 l.7 -3.4 l-2.6 -2.4 l3.5 -.4 Z"/>' +
+        // a little Dutch flag patch on the side
+        '<g transform="rotate(-14 59 34)"><path class="flag-red" d="M52 29.6 H66 V33.4 H52 Z"/><path class="flag-white" d="M52 33.4 H66 V37.2 H52 Z"/>' +
+        '<path class="flag-blue" d="M52 37.2 H66 V41 H52 Z"/><rect class="flag-edge" x="52" y="29.6" width="14" height="11.4" rx="1.6"/></g>' +
         '</g>'
     },
     {
@@ -344,27 +346,12 @@ function boa() {
         '</g>'
     },
     {
-      id: 'silkscarf', slot: 'neck', label: 'Silk scarf', icon: '6 100 148 60',
-      lines: ['très chic!', 'pas mal, non?', 'quite dapper, no?'],
-      svg: '<g class="neck-silk">' +
-        '<path class="silk-tail" d="M106 118 L138 124 Q140 136 128 148 Q122 156 118 160 L100 134 Z"/>' +
-        '<path class="silk-leaf" d="M112 128 C122 128 131 133 132 145 C121 144 113 139 112 128 Z"/>' +
-        '<path class="silk-print" d="M123 125 l3.4 1.6 v3.4 l-3.4 1.6 l-3.4 -1.6 v-3.4 Z M106.6 138 l3 1.4 v3 l-3 1.4 l-3 -1.4 v-3 Z M118 148 l2.8 1.4 v2.8 l-2.8 1.4 l-2.8 -1.4 v-2.8 Z"/>' +
-        '<path class="silk-trim" d="M106 118 L138 124 Q140 136 128 148 Q122 156 118 160"/>' +
-        '<path class="silk-band" d="M14 106 Q80 126 146 106 L149 116 Q80 139 11 116 Z"/>' +
-        '<path class="silk-stripes" d="M23.3 110.5 L20.2 117.4 M32.1 112.6 L29.4 119.8 M40.9 114.4 L38.6 121.9 M49.7 115.8 L47.8 123.5 M58.5 116.9 L57.0 124.7 M67.3 117.6 L66.2 125.5 M76.1 118.0 L75.4 125.9 M84.9 118.0 L84.6 125.9 M93.7 117.6 L93.8 125.5 M102.5 116.9 L103.0 124.7 M111.3 115.8 L112.2 123.5 M120.1 114.4 L121.4 121.9 M128.9 112.6 L130.6 119.8 M137.7 110.5 L139.8 117.4 "/>' +
-        '<path class="silk-yellow" d="M14 106 Q80 126 146 106 L146.6 109.6 Q80 130 13.4 109.6 Z"/>' +
-        '<ellipse class="silk-knot" cx="110" cy="117" rx="8" ry="6"/>' +
-        '<path class="silk-fold" d="M104 114.6 Q110 118 116 114.6"/>' +
-        '</g>'
-    },
-    {
       id: 'boa', slot: 'neck', label: 'Feather boa', icon: '8 104 144 46',
       lines: ['dahling!', 'fabulous, simply fabulous', 'strike a pose!'],
       svg: '<g class="neck-boa">' + boa() + '</g>'
     },
     {
-      id: 'toast', slot: 'neck', front: true, label: 'Toast in mouth', icon: '60 88 56 34',
+      id: 'toast', slot: 'mouth', label: 'Toast in mouth', icon: '60 88 56 34',
       lines: ['mmf mmf!', 'late for the shop!', 'buttery!'],
       svg: '<g class="neck-toast" transform="translate(78 109) rotate(86) translate(-10 -17) scale(1.12)">' +
         '<path class="toast-crust" d="M2 20 V10 C-1.5 9 -1.5 3 2.5 2 C4 -2 9 -3 10.5 0 C12 -2.5 17 -2 18 2 a2.6 2.6 0 0 0 -.5 4 a2.6 2.6 0 0 0 1 4 L20 10 V20 Z"/>' +
@@ -385,7 +372,27 @@ function boa() {
         '</g>'
     },
     {
-      id: 'mustache', slot: 'neck', front: true, label: 'Fake mustache', icon: '44 90 72 26',
+      id: 'uglytie', slot: 'neck', label: 'Horrific tie', icon: '40 108 80 42',
+      lines: ['it was a gift', 'bold choice, right?', 'my lucky tie!'],
+      // the same shape as the necktie, with a clashing patchwork of greens, mustard, red and navy and some white doodles
+      svg: '<g class="neck-tie neck-ugly">' +
+        '<path class="ugly-collar" d="M44 110 Q80 128 116 110 L112 118 Q80 134 48 118 Z"/>' +
+        '<path class="ugly-collar-dark" d="M46 113.6 Q80 130 114 113.6 L112 118 Q80 134 48 118 Z"/>' +
+        '<path class="ugly-base" d="M73 124 L87 124 L90 143 Q80 148 70 143 Z"/>' +
+        '<path class="ugly-olive" d="M73.6 125.4 L83 125 L81.6 130.4 L72.9 131 Z"/>' +
+        '<path class="ugly-navy" d="M72.2 133.6 L77.4 131.8 L78.2 137.8 L71.4 139 Z"/>' +
+        '<path class="ugly-mustard" d="M80.4 134.6 L85 133.4 L87.4 136.6 L84.6 140 L80.2 139 Z"/>' +
+        '<path class="ugly-teal" d="M74.8 141.4 L84.6 140.6 L87.2 143 Q80 145.6 72.8 143.2 Z"/>' +
+        '<path class="ugly-red" d="M83.6 126.2 L86.6 126 L87.2 131.4 L84.2 131.8 Z"/>' +
+        '<path class="ugly-doodle" d="M85 128 l1.4 1.4 M86.4 128 l-1.4 1.4 M76 140.2 h2.4 M77.2 139 v2.4 M82.4 136.6 l1.6 -1"/>' +
+        '<circle class="ugly-dot" cx="75.4" cy="128" r=".9"/><circle class="ugly-dot" cx="81.6" cy="142.6" r=".8"/>' +
+        '<path class="ugly-outline" d="M73 124 L87 124 L90 143 Q80 148 70 143 Z"/>' +
+        '<path class="ugly-knot" d="M72 117 H88 L86 125 H74 Z"/>' +
+        '<path class="ugly-diamond" d="M80 118.6 l2.6 2.6 l-2.6 2.6 l-2.6 -2.6 Z M80 120.4 l.8 .8 l-.8 .8 l-.8 -.8 Z"/>' +
+        '</g>'
+    },
+    {
+      id: 'mustache', slot: 'mouth', label: 'Fake mustache', icon: '44 90 72 26',
       lines: ['ahem, good day!', 'very distinguished', 'is it on straight?'],
       svg: '<g class="neck-mustache">' +
         '<path class="stache" d="M80 102.4 C86 100.4 95 100 101 102 C106 103.6 109.6 101 112.4 96.8 C113.6 102.4 111.6 108.6 104.6 110 C97.4 111.4 88.6 109.6 80 109.6 C71.4 109.6 62.6 111.4 55.4 110 C48.4 108.6 46.4 102.4 47.6 96.8 C50.4 101 54 103.6 59 102 C65 100 74 100.4 80 102.4 Z"/>' +

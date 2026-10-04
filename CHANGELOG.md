@@ -2,6 +2,15 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 87 (4 Oct)
+- Sheets restyled to match the cardboard look: kraft board with a stitched edge, a taped paper title, and paper-label cards. No more focus box on the grab bar.
+- The shopping cart is a little cardboard box on pink wheels, cut out like the food stickers.
+- The sticker peel stays inside the round button: the board shows where it lifted and the cream back is folded over.
+- New Mouth row in the dressing room: the fake mustache and toast moved there, so they can be worn with neckwear.
+- New Horrific tie (patchwork greens, mustard, red and navy). The silk scarf is gone.
+- Top hat sits straighter. The trash can lid has ribs from the handle to the rim and a ring round the handle.
+- The sideways cap is now the Orange cap, with a little Dutch flag instead of the star.
+
 ## Build 86 (4 Oct)
 - The two peeling stickers in the bottom bar now peel along their round edge instead of a square corner.
 - Sticker buttons (bottom bar, gear, Add) rock like a roly-poly when tapped.

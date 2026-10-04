@@ -56,5 +56,5 @@
   // Available from the start, no achievement needed.
   // With `all: true` everything is free to use and nothing is locked. Goals still count
   // progress, so set it to false to bring unlocking back.
-  root.FreeUnlocks = { all: true, skin: ['parrot'], species: ['mochi', 'pig', 'kitty', 'puppy'], hat: ['none', 'tophat', 'cap', 'hoodie', 'hardhat', 'bandana', 'headphones', 'mintphones', 'chefhat', 'knight', 'shades', 'redspecs', 'eyepatch', 'nerdspecs', 'scarf', 'silkscarf', 'boa', 'toast', 'boots', 'featherslides', 'bunnyslippers', 'bananapeel', 'trashlid', 'beret', 'roundshades', 'necktie', 'mustache', 'clownwig', 'jestercap', 'cowboyhat', 'sidecap', 'cowboyboots', 'clogs', 'clownshoes', 'clownnose'] };
+  root.FreeUnlocks = { all: true, skin: ['parrot'], species: ['mochi', 'pig', 'kitty', 'puppy'], hat: ['none', 'tophat', 'cap', 'hoodie', 'hardhat', 'bandana', 'headphones', 'mintphones', 'chefhat', 'knight', 'shades', 'redspecs', 'eyepatch', 'nerdspecs', 'scarf', 'boa', 'toast', 'boots', 'featherslides', 'bunnyslippers', 'bananapeel', 'trashlid', 'beret', 'roundshades', 'necktie', 'uglytie', 'mustache', 'clownwig', 'jestercap', 'cowboyhat', 'sidecap', 'cowboyboots', 'clogs', 'clownshoes', 'clownnose'] };
 })(typeof self !== 'undefined' ? self : globalThis);

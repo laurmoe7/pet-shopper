@@ -12,19 +12,17 @@ function wardrobeItem(id) { return byId(Wardrobe, id); }
  * Draws an outfit into a pet drawing: hats on the head, body items (hoodies) over the whole pet,
  * and glasses, neckwear and shoes in their own places.
  * @param {Element} el A .pet element.
- * @param {{hat: string, face: string, neck: string, feet: string}} outfit
+ * @param {{hat: string, face: string, mouth: string, neck: string, feet: string}} outfit
  */
 function dressUp(el, outfit) {
   var item = wardrobeItem(outfit.hat);
   var body = !!(item && item.layer === 'body');
   el.querySelector('.outfit-hat').innerHTML = item && !body ? item.svg : '';
   el.querySelector('.outfit-body').innerHTML = item && body ? item.svg : '';
-  ['face', 'neck', 'feet'].forEach(function (slot) {
+  // mouth things (toast, mustache) are drawn in front of the face, so they can be worn with neckwear
+  ['face', 'mouth', 'neck', 'feet'].forEach(function (slot) {
     var w = wardrobeItem(outfit[slot]);
-    // neckwear held in the mouth is drawn in front of the face
-    var front = slot === 'neck' && w && w.front;
-    el.querySelector('.outfit-' + slot).innerHTML = w && !front ? w.svg : '';
-    if (slot === 'neck') el.querySelector('.outfit-mouth').innerHTML = front ? w.svg : '';
+    el.querySelector('.outfit-' + slot).innerHTML = w ? w.svg : '';
   });
   el.classList.toggle('hooded', !!(item && item.hood));
   el.classList.toggle('snug', !!(item && item.snug));
@@ -35,6 +33,7 @@ var dressSheet = $('dressSheet'), dressPreview = $('dressPreview');
 var WEAR_ROWS = [
   { slot: 'hat', strip: $('hatStrip'), none: 'Nothing' },
   { slot: 'face', strip: $('faceStrip'), none: 'No glasses' },
+  { slot: 'mouth', strip: $('mouthStrip'), none: 'Nothing' },
   { slot: 'neck', strip: $('neckStrip'), none: 'Bare neck' },
   { slot: 'feet', strip: $('feetStrip'), none: 'Bare feet' }
 ];

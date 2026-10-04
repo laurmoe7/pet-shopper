@@ -195,22 +195,25 @@ html[data-look="cardboard"] .picker-grid button { background: var(--surface-2); 
 html[data-look="cardboard"] .option { border-bottom-color: var(--line); }
 html[data-look="cardboard"] .eaten h2 { color: var(--muted); }
 
-/* two round stickers are peeling at the edge, in different places and sizes. The peel is an oval laid across the rim:
-   its outer half is the board showing through where the sticker lifted, its inner half is the cream back folded over. */
+/* two round stickers are peeling at the edge, in different places and sizes. The peel layer covers the sticker and its
+   outline ring exactly (a circle, so nothing pokes out past the button). Past a straight fold line the sticker is gone and
+   the board shows; just inside the fold, the lifted piece lies folded over, cream back up (the mirror of the missing piece). */
 html[data-look="cardboard"] .dock button:nth-child(2) .dock-icon::before,
 html[data-look="cardboard"] .dock button:nth-child(4) .dock-icon::before {
   content: ""; position: absolute; z-index: 2; pointer-events: none; border-radius: 50%;
-  filter: drop-shadow(0 1px .8px rgba(60, 35, 15, .35));
+  left: -4.5px; top: -4.5px; width: 43px; height: 43px;
 }
 /* Room: a small lift at the lower right */
 html[data-look="cardboard"] .dock button:nth-child(2) .dock-icon::before {
-  left: 23px; top: 28px; width: 17px; height: 10px; transform: rotate(-45deg);
-  background: linear-gradient(to bottom, var(--cb-back) 0 40%, #e7d3ae 50%, var(--cb-dock-b) 50%);
+  background:
+    linear-gradient(135deg, transparent 74.6%, var(--cb-dock-b) 74.6%),
+    radial-gradient(circle 21.5px at 42.7px 42.7px, #cdb48a 14.6px, #e9d6b3 16px, var(--cb-back) 20.4px, #b89c74 20.6px, transparent 21.5px);
 }
 /* Top 10: a bigger lift at the upper left */
 html[data-look="cardboard"] .dock button:nth-child(4) .dock-icon::before {
-  left: -8px; top: -1px; width: 22px; height: 12px; transform: rotate(-45deg);
-  background: linear-gradient(to top, var(--cb-back) 0 40%, #e2cca4 50%, var(--cb-dock-b) 50%);
+  background:
+    linear-gradient(315deg, transparent 71.4%, var(--cb-dock-a) 71.4%),
+    radial-gradient(circle 21.5px at 3.1px 3.1px, #cdb48a 12.6px, #e9d6b3 14px, var(--cb-back) 20.4px, #b89c74 20.6px, transparent 21.5px);
 }
 
 /* sticker buttons rock like a roly-poly when tapped (class added in app.js) */
@@ -248,3 +251,61 @@ html[data-look="cardboard"] .gear-btn::after {
 html[data-look="cardboard"] .gear-btn svg { width: 22px; height: 22px; fill: currentColor; stroke: currentColor; stroke-width: 1; }
 html[data-look="cardboard"] .gear-btn svg circle { fill: #efe3cf; stroke: none; }
 html[data-look="cardboard"] .gear-btn:active { transform: rotate(var(--tilt)) translateY(2px); box-shadow: 0 0 0 1.5px var(--cb-edge-strong); }
+
+/* the grab bar on sheets never shows a focus box when a sheet opens */
+html[data-look="cardboard"] .sheet-grab:focus { outline: none; }
+html[data-look="cardboard"] .sheet-grab::after { background: var(--cb-edge-strong); }
+
+/* sheets: a piece of the same kraft board, with a stitched edge, a taped paper title and paper-label cards */
+html[data-look="cardboard"] .picker {
+  border: 0; border-radius: 18px 18px 0 0;
+  background-color: var(--cb-dock-a);
+  background-image:
+    linear-gradient(var(--cb-dock-a), var(--cb-dock-b)),
+    repeating-linear-gradient(90deg, var(--grid) 0 2px, transparent 2px 8px);
+  background-blend-mode: multiply;
+  box-shadow: 0 -3px 0 var(--cb-edge), inset 0 2px 0 var(--cb-shine), 0 -6px 14px var(--shadow);
+}
+html[data-look="cardboard"] .picker::after {
+  content: ""; position: absolute; left: 14px; right: 14px; top: 5px; border-top: 1.5px dashed var(--cb-edge); pointer-events: none;
+}
+html[data-look="cardboard"] .picker.fav-full, html[data-look="cardboard"] .picker.dress-full { border-radius: 0; }
+html[data-look="cardboard"] .picker h2 {
+  display: inline-block; justify-self: start; align-self: flex-start; position: relative; width: max-content; max-width: 100%;
+  background: var(--surface); padding: 3px 14px 4px; border-radius: 6px; transform: rotate(-1.5deg);
+  box-shadow: 0 2px 0 var(--shadow), 0 0 0 1.5px var(--cb-edge);
+}
+html[data-look="cardboard"] .picker h2::before {
+  content: ""; position: absolute; top: -7px; left: 50%; width: 30px; height: 12px; margin-left: -15px;
+  background: var(--mint); opacity: .85; transform: rotate(3deg);
+  clip-path: polygon(0 12%, 6% 0, 12% 14%, 18% 0, 24% 14%, 30% 0, 100% 0, 100% 100%, 30% 100%, 24% 86%, 18% 100%, 12% 86%, 6% 100%, 0 88%);
+}
+/* cards inside sheets are paper labels like the list */
+html[data-look="cardboard"] .goal,
+html[data-look="cardboard"] .fav,
+html[data-look="cardboard"] .options,
+html[data-look="cardboard"] .picker-grid button,
+html[data-look="cardboard"] .treat-grid button,
+html[data-look="cardboard"] .picker .hat-strip button,
+html[data-look="cardboard"] .picker .species-grid button {
+  background: var(--surface); border: 0; border-radius: 10px;
+  box-shadow: 0 2px 0 var(--shadow), 0 0 0 1.5px var(--cb-edge);
+  outline: 1.5px dashed var(--cb-edge); outline-offset: -4px;
+}
+html[data-look="cardboard"] .options { padding: 4px 12px; }
+html[data-look="cardboard"] .option:last-child { border-bottom: 0; }
+html[data-look="cardboard"] .picker [aria-pressed="true"]:is(button) { box-shadow: 0 2px 0 var(--shadow), 0 0 0 2.5px var(--accent); }
+html[data-look="cardboard"] .goal-reward { background: var(--butter); border: 0; color: #523a2b; box-shadow: 0 1px 0 var(--shadow); }
+html[data-look="cardboard"] .picker .field-label, html[data-look="cardboard"] .picker legend { color: var(--ink); }
+
+/* the shopping cart: a little cardboard box on pink sticker wheels, cut out like the food stickers */
+html[data-look="cardboard"] .cart-svg {
+  filter: drop-shadow(1.4px 0 0 #fff) drop-shadow(-1.4px 0 0 #fff) drop-shadow(0 1.4px 0 #fff) drop-shadow(0 -1.4px 0 #fff) drop-shadow(0 2px 1.5px rgba(90, 60, 30, .35));
+}
+html[data-look="cardboard"] .cart-basket { fill: #e2b878; stroke: #6b4a2e; }
+html[data-look="cardboard"] .cart-grid { stroke: #b88a52; stroke-dasharray: 2.4 2; }
+html[data-look="cardboard"] .cart-handle { stroke: #6b4a2e; }
+html[data-look="cardboard"] .cart-wheel circle { fill: var(--accent); stroke: #6b4a2e; }
+html[data-look="cardboard"] .cart-wheel path { stroke: #6b4a2e; }
+html[data-look="cardboard"] .cart-heart { fill: #ff8fab; stroke: #fff; stroke-width: 1.2; paint-order: stroke; }
+html[data-look="cardboard"] .pet-sheet .picker-foot { background: var(--cb-dock-b); border-top: 1.5px dashed var(--cb-edge); }

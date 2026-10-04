@@ -845,20 +845,11 @@ button { font: inherit; color: inherit; }
 .lid-handle { fill: none; stroke: var(--pet-ink); stroke-width: 6; stroke-linecap: round; }
 .lid-handle-in { fill: none; stroke: #c9d0d9; stroke-width: 2.6; stroke-linecap: round; }
 .lid-ring { fill: none; stroke: #6f7886; stroke-width: 1.7; stroke-linecap: round; }
-.lid-rib { fill: none; stroke: #6f7886; stroke-width: 2; stroke-linecap: round; }
+.lid-rib { fill: none; stroke: #8b94a3; stroke-width: 1.5; stroke-linecap: round; }
 .lid-shine { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; opacity: .7; }
 .lid-dent { fill: none; stroke: #8d96a2; stroke-width: 1.2; stroke-linecap: round; }
 .scarf-fringe-o { fill: none; stroke: var(--pet-ink); stroke-width: 4.2; stroke-linecap: round; }
 .scarf-fringe { fill: none; stroke: #f0a63a; stroke-width: 2.2; stroke-linecap: round; }
-.silk-band { fill: #fff8e8; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linejoin: round; }
-.silk-yellow { fill: #f4cf3a; stroke: none; }
-.silk-stripes { fill: none; stroke: #d6453a; stroke-width: 1.6; stroke-linecap: round; opacity: .85; }
-.silk-tail { fill: #fffdf4; stroke: none; }
-.silk-trim { fill: none; stroke: #f4cf3a; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
-.silk-leaf { fill: #2f9a82; stroke: none; }
-.silk-print { fill: #5b4239; stroke: none; }
-.silk-knot { fill: #fff8e8; stroke: var(--pet-ink); stroke-width: 1.7; }
-.silk-fold { fill: none; stroke: #d9d1c3; stroke-width: 1.1; stroke-linecap: round; }
 
 .jester-red { fill: #e86a7a; stroke: var(--pet-ink); stroke-width: 1.9; stroke-linejoin: round; }
 .jester-gold { fill: #f2c84b; stroke: var(--pet-ink); stroke-width: 1.9; stroke-linejoin: round; }
@@ -880,6 +871,18 @@ button { font: inherit; color: inherit; }
 .side-star { fill: #fff6d6; stroke: none; }
 .cb-shaft { fill: #c47a48; stroke: var(--pet-ink); stroke-width: 1.7; stroke-linejoin: round; }
 .cb-foot { fill: #9c5a32; stroke: var(--pet-ink); stroke-width: 1.7; stroke-linejoin: round; }
+.flag-red { fill: #d8423a; } .flag-white { fill: #fff; } .flag-blue { fill: #2f5fb3; }
+.flag-edge { fill: none; stroke: var(--pet-ink); stroke-width: 1.2; }
+.ugly-collar { fill: #3d8a78; stroke: var(--pet-ink); stroke-width: 1.6; stroke-linejoin: round; }
+.ugly-collar-dark { fill: #2c3550; stroke: none; opacity: .75; }
+.ugly-base { fill: #4f9a5e; }
+.ugly-olive { fill: #8a9a3c; } .ugly-navy { fill: #2c3550; } .ugly-mustard { fill: #e0b030; }
+.ugly-teal { fill: #2f7f86; } .ugly-red { fill: #d8452f; }
+.ugly-doodle { fill: none; stroke: #f4f0e2; stroke-width: .9; stroke-linecap: round; }
+.ugly-dot { fill: #f4f0e2; }
+.ugly-outline { fill: none; stroke: var(--pet-ink); stroke-width: 1.6; stroke-linejoin: round; }
+.ugly-knot { fill: #d8452f; stroke: var(--pet-ink); stroke-width: 1.6; stroke-linejoin: round; }
+.ugly-diamond { fill: #f2c230; fill-rule: evenodd; stroke: #7a2a1a; stroke-width: .6; }
 .spur-arm { fill: none; stroke: #a8adb8; stroke-width: 1.6; stroke-linecap: round; }
 .spur-star { fill: #e3e6ec; stroke: var(--pet-ink); stroke-width: .9; stroke-linejoin: round; }
 .spur-pin { fill: #8a909c; }
