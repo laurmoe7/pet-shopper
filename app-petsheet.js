@@ -4,7 +4,7 @@
 
 // ---------- your pet: name and species ----------
 var SPECIES = [
-  { id: 'mochi', label: 'Mochi' },
+  { id: 'mochi', label: 'Nibble' },
   { id: 'pig', label: 'Pig' },
   { id: 'kitty', label: 'Cat' },
   { id: 'puppy', label: 'Dog' },

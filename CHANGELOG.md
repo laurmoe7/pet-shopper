@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 111 (4 Oct)
+- Bigger lips on the frog and axolotl; mochi gets a lip.
+- Mochi species renamed Nibble.
+- Hedgehog hairline is a soft curve.
+
 ## Build 110 (4 Oct)
 - Hedgehog: normal blush, softer spines (test).
 - Little lower lip on the pig, cow, frog and axolotl.
