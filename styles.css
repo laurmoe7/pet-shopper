@@ -1434,7 +1434,7 @@ button { font: inherit; color: inherit; }
 @keyframes walk-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.5px); } }
 @keyframes sh-walk { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.9); opacity: .85; } }
 /* at bedtime too, so it doesn't cover the lamp */
-.stage.walk-right .bubble:not(.in-sheet), .stage.bedtime .bubble:not(.in-sheet) { left: auto; right: calc(50% + 62px - var(--walk-x, 0px)); max-width: calc(50% - 62px + var(--walk-x, 0px)); transform-origin: 100% 100%; }
+.stage.walk-right .bubble:not(.in-sheet), .stage.bedtime .bubble:not(.in-sheet), .stage.night-lamp .bubble:not(.in-sheet) { left: auto; right: calc(50% + 62px - var(--walk-x, 0px)); max-width: calc(50% - 62px + var(--walk-x, 0px)); transform-origin: 100% 100%; }
 .pet.walking.running .pet-svg { animation-duration: .26s; }
 #pet.walking.running::before { animation-duration: .26s; }
 
@@ -1650,7 +1650,7 @@ html:root .brand { color: var(--ink); letter-spacing: .01em; }
 html:root .pill-btn { background: var(--surface); box-shadow: 0 2px 0 var(--outline); }
 html:root .cushion { box-shadow: inset 0 -5px 0 var(--cushion-stitch), 0 3px 0 var(--shadow); }
 html:root .bubble { border-radius: 14px 14px 14px 4px; box-shadow: 0 2px 0 var(--shadow); }
-html:root .stage.walk-right .bubble:not(.in-sheet), html:root .stage.bedtime .bubble:not(.in-sheet) { border-radius: 14px 14px 4px 14px; }
+html:root .stage.walk-right .bubble:not(.in-sheet), html:root .stage.bedtime .bubble:not(.in-sheet), html:root .stage.night-lamp .bubble:not(.in-sheet) { border-radius: 14px 14px 4px 14px; }
 
 /* add bar: a paper label with a cut line */
 html:root .add {
@@ -1959,7 +1959,7 @@ html[data-list="todo"] .item:not(.done) .item-text { cursor: pointer; }
 .task-delete { color: var(--danger); text-decoration-color: var(--danger); }
 /* the clipboard Nibble holds while the to-do list is showing: one paw holds its side (the other stays free), and a line is ticked for each third of the list done */
 .pet .clipboard { display: none; }
-html[data-list="todo"] #pet:not(.has-teddy):not(.tucked) .clipboard { display: inline; }
+html[data-list="todo"] #pet:not([data-state="sleepy"]) .clipboard { display: inline; }
 .clipboard .cb-board { fill: #d49a5c; stroke: var(--prop-ink); stroke-width: 1.7; }
 .clipboard .cb-paper { fill: #fffaf0; stroke: var(--prop-ink); stroke-width: .9; }
 .clipboard .cb-clip { fill: #b8bdc8; stroke: var(--prop-ink); stroke-width: 1.4; }
@@ -1968,16 +1968,16 @@ html[data-list="todo"] #pet:not(.has-teddy):not(.tucked) .clipboard { display: i
 .clipboard[data-ticks="1"] .cb-tick[data-n="1"], .clipboard[data-ticks="2"] .cb-tick:not([data-n="3"]), .clipboard[data-ticks="3"] .cb-tick { display: inline; }
 /* the left paw keeps holding the board whatever the face is doing; the other arm stays free for waving and cheering.
    The arm's own tilt is its transform; the sway is the `rotate` property, so the two never fight. */
-html[data-list="todo"] #pet:not(.has-teddy):not(.tucked) .arm-l { transform-box: view-box; transform-origin: 27px 110.2px; transform: rotate(75deg); animation: clip-sway 3s ease-in-out infinite; }
+html[data-list="todo"] #pet:not([data-state="sleepy"]) .arm-l { transform-box: view-box; transform-origin: 27px 110.2px; transform: rotate(75deg); animation: clip-sway 3s ease-in-out infinite; }
 @keyframes clip-sway { 0%, 100% { rotate: 0deg; } 50% { rotate: -7deg; } }
 html[data-list="todo"] #pet .arm { transition: transform .35s cubic-bezier(.3, 1.3, .5, 1), translate .35s ease; }
 html[data-list="todo"] #pet .clipboard { transform-box: view-box; transform-origin: 80px 128px; transform: translate(-47px, 1px) rotate(-110deg); transition: transform .35s ease; }
 /* the desk pose (writing, inspecting): both paws bring the clipboard and the pencil or glass to the middle */
-html[data-list="todo"] #pet.desk:not(.has-teddy):not(.tucked) .arm-l { transform: rotate(0deg); translate: 39.5px 6px; animation: none; }
-html[data-list="todo"] #pet.desk:not(.has-teddy):not(.tucked) .clipboard { transform: translate(-39.5px, -12px) rotate(0deg); }
-html[data-list="todo"] #pet.desk:not(.has-teddy):not(.tucked) .arm-r { transform: rotate(0deg); translate: -39px -11px; animation: none; }
-html[data-list="todo"] #pet.desk[data-prop="pencil"]:not(.has-teddy):not(.tucked) .arm-r { translate: -27px -7px; }
-html[data-list="todo"] #pet.desk[data-prop="glass"]:not(.has-teddy):not(.tucked) .arm-r { translate: -15px -16px; }
+html[data-list="todo"] #pet.desk:not([data-state="sleepy"]) .arm-l { transform: rotate(0deg); translate: 39.5px 6px; animation: none; }
+html[data-list="todo"] #pet.desk:not([data-state="sleepy"]) .clipboard { transform: translate(-39.5px, -12px) rotate(0deg); }
+html[data-list="todo"] #pet.desk:not([data-state="sleepy"]) .arm-r { transform: rotate(0deg); translate: -39px -11px; animation: none; }
+html[data-list="todo"] #pet.desk[data-prop="pencil"]:not([data-state="sleepy"]) .arm-r { translate: -27px -7px; }
+html[data-list="todo"] #pet.desk[data-prop="glass"]:not([data-state="sleepy"]) .arm-r { translate: -15px -16px; }
 .clipboard .cb-board-back { fill: #c78a4c; }
 .clipboard .cb-grain { fill: none; stroke: var(--prop-ink); stroke-width: .7; opacity: .22; stroke-linecap: round; }
 .clipboard .cb-hole { fill: #7a4f27; stroke: var(--prop-ink); stroke-width: .8; }

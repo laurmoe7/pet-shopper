@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 145 (4 Oct)
+- Speech bubble moves left at night while shopping, clear of the lamp.
+- He writes on the clipboard in bed when he isn't asleep.
+
 ## Build 144 (4 Oct)
 - The lamp hangs all night, even while shopping; switch it off and he gets into bed to be tucked in.
 
