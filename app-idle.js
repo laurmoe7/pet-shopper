@@ -243,6 +243,38 @@ var IDLE_MOVES = [
     return walkPath([b.max, b.min, 0], 250);
   }, walk: true },
   { moods: ['stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); return walkTo(walkX ? 0 : newSpot() * 0.5); }, walk: true },
+  // up late shopping (night, but awake): yawns, rubbing its eyes, nodding off, heavy blinks
+  { moods: ['curious', 'happy', 'stuffed'], night: true, run: function () {
+    setFace({ eyes: 'closed', mouth: 'open', arms: 'reach', x: [] });
+    pulse('stretch', 1000);
+    sound('yawn');
+    say(pick(['*yaaawn*', '*yawn*… sleepy', 'hwaaa~']), 1500, true);
+    return 1800;
+  } },
+  { moods: ['curious', 'happy', 'stuffed'], night: true, run: function () {
+    setFace({ eyes: 'closed', mouth: 'wavy', arms: 'eyerub', x: [] });
+    talk('eyeRub', ['so sleepy…', '*rub rub*', 'eyes are heavy…'], 1500);
+    return 1700;
+  } },
+  { moods: ['curious', 'happy', 'stuffed'], night: true, run: function () {
+    setFace({ eyes: 'closed', mouth: 'o', arms: 'rest', x: ['zzz'] });
+    pulse('sit', 2600);
+    setTimeout(function () {
+      setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: ['shock'] });
+      eyesDo('wide');
+      pulse('hopsmall', 450);
+      talk('nodOff', ['huh! I\'m awake!', 'wasn\'t sleeping!', 'w-what? shopping!'], 1300);
+    }, 1900);
+    return 3200;
+  } },
+  { moods: ['curious', 'happy', 'stuffed'], night: true, run: function () {
+    setFace({ eyes: 'closed', mouth: 'smile', arms: 'idle', x: [] });
+    setTimeout(function () { pet.dataset.eyes = 'open'; }, 700);
+    setTimeout(function () { pet.dataset.eyes = 'closed'; }, 1100);
+    setTimeout(function () { pet.dataset.eyes = 'open'; }, 2100);
+    talk('heavyBlink', ['keep… eyes… open…', 'just a little longer…'], 1600);
+    return 2400;
+  } },
   { moods: ['happy', 'stuffed'], run: function () { if (!receiptEl.hidden) { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'reach', x: ['sparkles'] }); pulse('peek', 1400); talk('receipt', ['look how much we got!', 'such a long receipt!', 'good shopping!'], 1400); } } }
 ];
 /** Plays one idle move that fits the pet's mood, then settles back. */
@@ -251,6 +283,9 @@ function idleMove() {
   var moves = IDLE_MOVES.filter(function (m) { return m.moods.indexOf(mood) !== -1; });
   // walking moves (they return how long they take) only when nothing is left to buy
   moves = moves.filter(function (m) { return mayWander() || !m.walk; });
+  // sleepy moves only when it is up at night, and then half the time
+  var late = L.isNight(petNow()) && mood !== 'sleepy' && Math.random() < 0.5;
+  moves = moves.filter(function (m) { return !!m.night === late; });
   if (!moves.length) return;
   busy++;
   var ms = pick(moves).run();

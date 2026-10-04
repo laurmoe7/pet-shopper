@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '126';
+var BUILD = '127';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -178,7 +178,7 @@ function updateEmptyHint() {
   name.textContent = state.pet.name || 'Nibble';
   var night = L.isNight(petNow());
   emptyHint.replaceChildren(name, night
-    ? ' is sleeping. Add something to the list for a wake-up snack.'
+    ? ' is fast asleep. Add things for tomorrow, or check one off to wake it for a midnight snack.'
     : ' is ready when you are. Add something to the list to go shopping together!');
 }
 var clearBtn = $('clearBtn');

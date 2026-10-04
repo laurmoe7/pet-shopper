@@ -19,6 +19,7 @@ function saveBedtime(bed) {
 function refreshBedtime() {
   var asleep = baseState() === 'sleepy', bed = bedtime();
   var wasTucked = pet.classList.contains('tucked');
+  if (asleep && !stage.classList.contains('bedtime')) owlSoon(true);
   stage.classList.toggle('bedtime', asleep);
   lampEl.hidden = !asleep;
   pet.classList.toggle('tucked', asleep && bed.tucked);
@@ -138,16 +139,26 @@ function bedSoon() {
     if (pet.classList.contains('tucked')) snore(); else tuckMumble();
   }, tucked ? 2400 + Math.random() * 1000 : 9000 + Math.random() * 5000);
 }
-// now and then an owl hoots outside while it sleeps
-var owlTimer;
-function owlSoon() {
+// night sounds while it sleeps: crickets now and then, and an owl hooting outside
+var owlTimer, cricketTimer;
+/** @returns {boolean} True when night sounds may play: asleep, on screen, no menu open. */
+function nightSounds() { return stage.classList.contains('bedtime') && !document.hidden && !document.querySelector('dialog[open]'); }
+function owlSoon(first) {
   clearTimeout(owlTimer);
   owlTimer = setTimeout(function () {
     owlSoon();
-    if (stage.classList.contains('bedtime') && !document.hidden && !document.querySelector('dialog[open]')) sound('owl');
-  }, 16000 + Math.random() * 20000);
+    if (nightSounds()) sound('owl');
+  }, first ? 5000 + Math.random() * 5000 : 15000 + Math.random() * 15000);
 }
-owlSoon();
+function cricketsSoon() {
+  clearTimeout(cricketTimer);
+  cricketTimer = setTimeout(function () {
+    cricketsSoon();
+    if (nightSounds()) sound('crickets');
+  }, 3500 + Math.random() * 4500);
+}
+owlSoon(true);
+cricketsSoon();
 /** A sleepy mumble to be tucked in (sleep-talk, since it is asleep). */
 function tuckMumble() {
   if (busy || pet.classList.contains('tucked') || baseState() !== 'sleepy') return;

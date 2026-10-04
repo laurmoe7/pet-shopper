@@ -539,6 +539,15 @@
         <div class="tummy" id="tummy" aria-hidden="true"></div>
       </div>
       <div class="cushion" aria-hidden="true"></div>
+      <!-- at bedtime the cushion becomes a big beanbag the pet sleeps in (app-bedtime.js) -->
+      <div class="beanbag" aria-hidden="true"><svg viewBox="0 0 240 100">
+        <path class="bean-body" d="M12 90 C0 66 8 42 38 35 C56 31 68 23 92 23 C108 23 114 29 126 27 C150 22 172 27 190 35 C224 42 240 66 228 90 Q120 102 12 90 Z"/>
+        <path class="bean-shade" d="M22 84 C14 66 22 50 40 44 M218 84 C226 66 218 50 200 44"/>
+        <path class="bean-seam" d="M48 38 Q90 22 120 32 Q152 22 192 38"/>
+        <path class="bean-shine" d="M30 58 Q36 44 54 40"/>
+        <path class="bean-front" d="M8 84 Q120 72 232 84 Q238 97 222 98 H18 Q2 97 8 84 Z"/>
+        <path class="bean-seam" d="M22 90 Q120 80 218 90"/>
+      </svg></div>
       <!-- a toy on the floor (app-toy.js): tap it and the pet chases it. Which one shows depends on the species. -->
       <button class="toy" id="toy" type="button" aria-label="Throw the toy"><span class="toy-ball"><svg viewBox="0 0 26 26" aria-hidden="true">
         <g class="toy-kind" data-toy="ball"><circle class="ball-fill" cx="13" cy="13" r="11"/><path class="ball-band" d="M3.4 8.6 Q13 12.6 22.6 8.6 L23.8 13.8 Q13 18.4 2.2 13.8 Z"/><path class="ball-star" d="M13 10.8 l.9 1.9 2 .3 -1.5 1.4 .4 2 -1.8 -1 -1.8 1 .4 -2 -1.5 -1.4 2 -.3 z"/><circle class="toy-line" cx="13" cy="13" r="11"/><ellipse class="toy-hi" cx="8.6" cy="6.8" rx="2.6" ry="1.6" transform="rotate(-30 8.6 6.8)"/></g>

@@ -2,6 +2,14 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 127 (4 Oct)
+- New empty-list line at night.
+- Gentle crickets at night.
+- The owl is louder and hoots sooner.
+- Asleep, the pet lies in a big beanbag.
+- Receipt and bag put away at bedtime.
+- Up late, the pet yawns, rubs its eyes and nods off.
+
 ## Build 126 (4 Oct)
 - Snores more often, sometimes a big snore.
 - An owl hoots at night.

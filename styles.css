@@ -407,6 +407,10 @@ button { font: inherit; color: inherit; }
 .pet[data-arms="clench"] .arm-r { animation: clench-r .1s linear infinite alternate; }
 .pet[data-arms="pat"] .arm-l { animation: cheer-l .3s ease-in-out infinite alternate; }
 .pet[data-arms="pat"] .arm-r { animation: pat .28s ease-in-out infinite alternate; }
+.pet[data-arms="eyerub"] .arm-l { animation: eyerub-l .4s ease-in-out infinite alternate; }
+.pet[data-arms="eyerub"] .arm-r { animation: eyerub-r .4s ease-in-out infinite alternate .2s; }
+@keyframes eyerub-l { from { transform: translate(28px, -22px) rotate(-140deg); } to { transform: translate(32px, -18px) rotate(-150deg); } }
+@keyframes eyerub-r { from { transform: translate(-28px, -22px) rotate(140deg); } to { transform: translate(-32px, -18px) rotate(150deg); } }
 .pet[data-arms="rub"] .arm-l { animation: rub-l .55s linear infinite; }
 .pet[data-arms="rub"] .arm-r { animation: rub-r .55s linear infinite; }
 
@@ -1470,6 +1474,17 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
 .stage.bedtime:not(.lights-off) .lamp-light { opacity: 1; }
 .nightshade { position: absolute; inset: 4px 0 18px; z-index: 0; border-radius: 16px; background: radial-gradient(ellipse 60% 70% at 50% 100%, rgba(40, 34, 84, .25), rgba(24, 20, 58, .62)); opacity: 0; transition: opacity 1.2s ease; pointer-events: none; }
 .stage.lights-off .nightshade { opacity: 1; }
+/* the beanbag: behind the pet, in place of the cushion while it sleeps; the receipt and bag are put away for the night */
+.beanbag { position: absolute; left: calc(50% - 120px); bottom: 0; width: 240px; height: 100px; z-index: 0; pointer-events: none; display: none; transform-origin: 50% 100%; }
+.beanbag svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.stage.bedtime .beanbag { display: block; animation: bean-in .55s cubic-bezier(.3, 1.5, .5, 1); }
+.stage.bedtime .cushion, .stage.bedtime .receipt, .stage.bedtime .cart-bag { display: none; }
+@keyframes bean-in { from { scale: .7 .4; opacity: 0; } to { scale: 1; opacity: 1; } }
+.bean-body { fill: #f7c3d3; stroke: var(--outline); stroke-width: 1.8; stroke-linejoin: round; }
+.bean-shade { fill: none; stroke: #e9a4bb; stroke-width: 5; stroke-linecap: round; opacity: .7; }
+.bean-seam { fill: none; stroke: #fff; stroke-width: 1.4; stroke-dasharray: 3 3; stroke-linecap: round; opacity: .8; }
+.bean-shine { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; opacity: .55; }
+.bean-front { fill: #eeaec3; stroke: var(--outline); stroke-width: 1.8; stroke-linejoin: round; }
 .pet .blanket { display: none; }
 .pet.tucked .blanket { display: inline; animation: blanket-in .6s cubic-bezier(.3, 1.4, .5, 1); }
 .pet.tucked .outfit-feet { display: none; }

@@ -2,7 +2,7 @@
  * Sounds.play(kind) where kind is one of:
  *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party,
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
- *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), snore and snorebig (tucked in), owl (at night), click (the lamp's pull-cord),
+ *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
  * Every play is pitch-shifted a little, and kinds with several variants pick a
  * different one each time, so nothing sounds exactly the same twice in a row.
@@ -281,13 +281,28 @@
       tone(t + 1.15, 0.6, 'sine', 1000, 560, env(t + 1.15, 0.1, 0.48, 0.04));
     },
     owl: function (t) {
-      // far off in the night: hoo… hoo-hoo
-      [[0, 0.32], [0.62, 0.14], [0.82, 0.38]].forEach(function (h) {
+      // an owl outside: hoo… hoo-hoo, with a soft breathy edge
+      [[0, 0.36], [0.62, 0.16], [0.84, 0.42]].forEach(function (h) {
         var tt = t + h[0];
-        var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; lp.connect(env(tt, 0.06, h[1], 0.18));
-        tone(tt, h[1] + 0.08, 'sine', 410, 360, lp);
-        tone(tt, h[1] + 0.08, 'triangle', 410, 360, env(tt, 0.06, h[1], 0.02));
+        tone(tt, h[1] + 0.1, 'sine', 560, 500, env(tt, 0.05, h[1], 0.4));
+        tone(tt, h[1] + 0.1, 'sine', 1120, 1000, env(tt, 0.05, h[1], 0.05));
+        noise(tt, h[1], 'bandpass', 560, 4, env(tt, 0.05, h[1] * 0.8, 0.12));
       });
+    },
+    crickets: function (t) {
+      // a few gentle cricket trills: tiny high pulses in twos and threes
+      var n = 2 + Math.floor(Math.random() * 3);
+      for (var j = 0; j < n; j++) {
+        var tt = t + j * rnd(0.32, 0.45), hz = rnd(4300, 4700);
+        for (var i = 0; i < 4; i++) tone(tt + i * 0.03, 0.022, 'sine', hz, null, env(tt + i * 0.03, 0.003, 0.018, 0.035));
+      }
+    },
+    yawn: function (t) {
+      // a sleepy "hwaaah" sliding down, with breath
+      var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(1400 * pitch, t); lp.frequency.exponentialRampToValueAtTime(500 * pitch, t + 0.8);
+      lp.connect(env(t, 0.15, 0.7, 0.2));
+      tone(t, 0.85, 'triangle', 520, 260, lp);
+      noise(t, 0.8, 'bandpass', 900, 0.8, env(t, 0.12, 0.65, 0.12));
     },
     click: function (t) {
       // a pull-cord switch: a sharp tick down and a softer one back up
