@@ -228,20 +228,27 @@ function addedTask(item) {
 // ---------- due dates and repeats ----------
 /** @returns {string} Today as YYYY-MM-DD, by the pet's clock. */
 function todayKey() { return L.dayKey(petNow()); }
+/** @returns {string} The time now as HH:MM, by the pet's clock. */
+function clockKey() { var d = petNow(); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
+/** @returns {{days: number, state: string, label: string}} How a task's due day and time look now. */
+function infoOf(item) { return L.dueInfo(item.due, todayKey(), item.time, clockKey()); }
+/** @returns {string} What a row's date tag shows and how urgent it is, so the row is redrawn when either changes. */
+function dueTagKey(item) { return dueTagText(item) + (dueTagText(item) ? '|' + infoOf(item).state : ''); }
 /** @returns {string} The words on a task's date tag ('' when it has none or is done), also used to tell when a row needs redrawing. */
 function dueTagText(item) {
   if (state.mode !== 'todo' || !item.due || item.done) return '';
-  return (item.repeat ? '↻ ' : '') + L.dueInfo(item.due, todayKey()).label;
+  return (item.repeat ? '↻ ' : '') + infoOf(item).label;
 }
 /** @returns {?HTMLElement} The little tag showing when a task is due, or null. */
 function dueTagOf(item) {
   var text = dueTagText(item);
   if (!text) return null;
   var tag = document.createElement('span');
-  tag.className = 'due-tag due-' + L.dueInfo(item.due, todayKey()).state;
+  tag.className = 'due-tag due-' + infoOf(item).state;
   tag.textContent = text;
   return tag;
 }
+var alerted = {};   // task id -> its time has been announced (while the app is open)
 /** @returns {Item[]} The tasks that are due today or late, soonest first (from whichever list is hidden, too). */
 function dueTasks() {
   var list = isTodo() ? state.items : state.stash, today = todayKey();
@@ -295,6 +302,7 @@ function renderTaskSheet() {
     chip('In a week', item.due === week, function () { setTaskDue(week); })
   );
   $('dueDate').value = item.due || '';
+  $('dueTime').value = item.time || '';
   $('repeatChips').replaceChildren.apply($('repeatChips'), L.REPEATS.map(function (r) {
     return chip(r.label, (item.repeat || '') === r.id, function () { setTaskRepeat(r.id); });
   }));
@@ -308,12 +316,13 @@ function setTaskDue(due) {
   var item = taskItem();
   if (!item) return;
   if (due && !L.isDayKey(due)) return;
-  if (due) item.due = due; else { delete item.due; delete item.repeat; }
+  if (due) item.due = due; else { delete item.due; delete item.repeat; delete item.time; }
+  delete alerted[item.id];
   state.items = L.sortByDue(state.items);
   save();
   render();
   renderTaskSheet();
-  if (due && !busy && baseState() !== 'sleepy') say(pick(['noted, ' + L.dueInfo(due, todayKey()).label + '!', 'I will remind you!', 'on my calendar!']), 1200);
+  if (due && !busy && baseState() !== 'sleepy') say(pick(['noted, ' + infoOf(taskItem()).label + '!', 'I will remind you!', 'on my calendar!']), 1200);
 }
 /**
  * Makes the open task repeat (or stop).
@@ -329,6 +338,23 @@ function setTaskRepeat(repeat) {
   renderTaskSheet();
 }
 $('dueDate').addEventListener('change', function () { setTaskDue($('dueDate').value); });
+/**
+ * Gives the open task a time of day (which also gives it today as its day if it had none), or takes it off.
+ * @param {string} time  HH:MM, or '' for none.
+ */
+function setTaskTime(time) {
+  var item = taskItem();
+  if (!item || (time && !L.isTimeKey(time))) return;
+  if (time) { item.time = time; if (!item.due) item.due = todayKey(); } else delete item.time;
+  delete alerted[item.id];
+  state.items = L.sortByDue(state.items);
+  save();
+  render();
+  renderTaskSheet();
+  if (time && !busy && baseState() !== 'sleepy') say(pick(['I will tell you at ' + time + '!', 'ding at ' + time + '!', 'on my clock!']), 1300);
+}
+$('dueTime').addEventListener('change', function () { setTaskTime($('dueTime').value); });
+$('clearTime').addEventListener('click', function () { setTaskTime(''); });
 $('taskDelete').addEventListener('click', function () {
   var id = taskFor;
   taskSheet.close();
@@ -351,11 +377,12 @@ function repeatTask(item) {
     var due = L.nextDue(item.due, item.repeat, todayKey());
     var copy = L.createItem(item.text, state.overrides, newId(), Date.now(), 'todo');
     copy.emoji = item.emoji; copy.cat = item.cat; copy.due = due; copy.repeat = item.repeat;
+    if (item.time) copy.time = item.time;
     item.spawned = copy.id;
     L.addToList(state.items, copy);
     state.items = L.sortByDue(state.items);
     freshIds[copy.id] = true;
-    repeatNote[item.id] = L.dueInfo(due, todayKey()).label;
+    repeatNote[item.id] = infoOf(copy).label;
   } else if (!item.done && item.spawned) {
     var next = find(item.spawned);
     if (next && !next.done) state.items = state.items.filter(function (i) { return i !== next; });
@@ -387,3 +414,36 @@ function dueNag(idle) {
   setTimeout(function () { if (!busy) settle(); }, 1800);
   return true;
 }
+
+/**
+ * When a task's time comes while the app is open, Nibble tells you (once). Tasks already past their time when
+ * the app opens are only marked, as the start-up reminder covers them.
+ * @param {boolean} [quiet]  Only mark them.
+ */
+var tagSig = '';
+function timeCheck(quiet) {
+  // a tag turns pink when its time passes, or says "today" after midnight: redraw when any tag changes
+  var sig = state.items.map(dueTagKey).join(';');
+  if (sig !== tagSig) { var first = tagSig === ''; tagSig = sig; if (!first && !busy) render(); }
+  var today = todayKey(), now = clockKey(), hit = [];
+  state.items.concat(state.stash).forEach(function (i) {
+    if (i.done || !i.time || i.due !== today || i.time > now || alerted[i.id]) return;
+    alerted[i.id] = true;
+    hit.push(i);
+  });
+  if (quiet || !hit.length || document.hidden) return;
+  if (baseState() === 'sleepy') return;
+  var hint = isTodo() ? '' : '\ncheck the to-do list ♡';
+  var go = function () {
+    if (busy) { setTimeout(go, 1500); return; }
+    setFace(FACES.tada);
+    pulse('hop', 460);
+    sound('ring');
+    buzz([40, 60, 40]);
+    talk('timeUp', hit.length === 1 ? ["it's time: {x}!" + hint, '{x} — now!' + hint, 'ding ding! {x}!' + hint] : ['{n} things are due now!' + hint, 'ding ding! {n} to-dos!' + hint], 2400, { x: hit[0].text.toLowerCase(), n: hit.length });
+    setTimeout(function () { if (!busy) settle(); }, 2200);
+  };
+  go();
+}
+timeCheck(true);
+setInterval(timeCheck, 20000);

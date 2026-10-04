@@ -259,6 +259,8 @@
   ];
   /** @returns {boolean} Whether this is a due day in the form YYYY-MM-DD. */
   function isDayKey(s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s); }
+  /** @returns {boolean} Whether this is a time of day in the form HH:MM (24 hours). */
+  function isTimeKey(s) { return typeof s === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(s); }
   /** @returns {Date} The day as a local date (at noon, so clock changes never move it). */
   function dayDate(key) { return new Date(+key.slice(0, 4), +key.slice(5, 7) - 1, +key.slice(8, 10), 12); }
   /** @returns {string} The day n days after this one (n can be negative). */
@@ -276,14 +278,16 @@
    * How a due day looks on a task: a short label, and how pressing it is.
    * @param {string} due
    * @param {string} today
+   * @param {string} [time]  The time it is due (HH:MM), if it has one.
+   * @param {string} [clock]  The time now (HH:MM): a task due today turns overdue once its time has passed.
    * @returns {{days: number, state: 'overdue'|'today'|'soon'|'later', label: string}}
    */
-  function dueInfo(due, today) {
-    var n = daysUntil(due, today), d = dayDate(due);
+  function dueInfo(due, today, time, clock) {
+    var n = daysUntil(due, today), d = dayDate(due), at = isTimeKey(time) ? ' ' + time : '';
     if (n < 0) return { days: n, state: 'overdue', label: n === -1 ? 'yesterday' : -n + 'd late' };
-    if (n === 0) return { days: n, state: 'today', label: 'today' };
-    if (n === 1) return { days: n, state: 'soon', label: 'tomorrow' };
-    return { days: n, state: n <= 2 ? 'soon' : 'later', label: n <= 6 ? WEEKDAYS[d.getDay()] : d.getDate() + ' ' + MONTHS[d.getMonth()] };
+    if (n === 0) return { days: n, state: at && clock && clock >= time ? 'overdue' : 'today', label: 'today' + at };
+    if (n === 1) return { days: n, state: 'soon', label: 'tomorrow' + at };
+    return { days: n, state: n <= 2 ? 'soon' : 'later', label: (n <= 6 ? WEEKDAYS[d.getDay()] : d.getDate() + ' ' + MONTHS[d.getMonth()]) + at };
   }
   /**
    * The next day a repeating task is due: one step after its due day, and always after today (a task that was
@@ -313,7 +317,7 @@
     var open = items.filter(function (i) { return !i.done; }).map(function (i, n) { return { i: i, n: n }; });
     var done = items.filter(function (i) { return i.done; });
     open.sort(function (a, b) {
-      var x = a.i.due || '9999-99-99', y = b.i.due || '9999-99-99';
+      var x = a.i.due ? a.i.due + ' ' + (a.i.time || '24:00') : '9999-99-99', y = b.i.due ? b.i.due + ' ' + (b.i.time || '24:00') : '9999-99-99';
       return x < y ? -1 : x > y ? 1 : a.n - b.n;
     });
     return open.map(function (o) { return o.i; }).concat(done);
@@ -321,6 +325,7 @@
   /** Drops a due day or repeat that isn't valid (from old or damaged saves). */
   function cleanTask(item) {
     if (item && item.due !== undefined && !isDayKey(item.due)) delete item.due;
+    if (item && item.time !== undefined && (!item.due || !isTimeKey(item.time))) delete item.time;
     if (item && item.repeat !== undefined && (!item.due || !REPEATS.some(function (r) { return r.id && r.id === item.repeat; }))) delete item.repeat;
     return item;
   }
@@ -1102,7 +1107,7 @@
     isUnlocked: isUnlocked,
     gateFor: gateFor,
     emojiFor: emojiFor,
-    REPEATS: REPEATS, isDayKey: isDayKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
+    REPEATS: REPEATS, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
     createItem: createItem,
     petProfile: petProfile,
     parseState: parseState,

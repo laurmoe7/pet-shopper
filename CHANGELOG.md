@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 139 (4 Oct)
+- The clipboard is stuck to his hand and moves with the arm.
+- Reminders can have a time, and Nibble tells you when it comes.
+
 ## Build 138 (4 Oct)
 - Nibble holds the clipboard in one hand, the other is free.
 

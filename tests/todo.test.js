@@ -81,3 +81,17 @@ test('damaged due days and repeats are dropped when loading', () => {
   assert.equal(items[1].repeat, undefined);
   assert.equal(items[2].repeat, 'weekly');
 });
+
+test('tasks can have a time of day', () => {
+  const today = '2026-10-05';
+  assert.equal(L.dueInfo('2026-10-05', today, '14:30', '09:00').label, 'today 14:30');
+  assert.equal(L.dueInfo('2026-10-05', today, '14:30', '09:00').state, 'today');
+  assert.equal(L.dueInfo('2026-10-05', today, '14:30', '14:30').state, 'overdue');   // its time has come
+  assert.equal(L.dueInfo('2026-10-06', today, '08:00', '23:00').label, 'tomorrow 08:00');
+  const a = { id: 'a', done: false, due: today, time: '16:00' }, b = { id: 'b', done: false, due: today, time: '08:00' }, c = { id: 'c', done: false, due: today };
+  assert.deepEqual(L.sortByDue([c, a, b]).map((i) => i.id), ['b', 'a', 'c']);
+  assert.ok(L.isTimeKey('07:05') && !L.isTimeKey('7:5') && !L.isTimeKey('24:00'));
+  const raw = JSON.stringify({ items: [{ id: '1', text: 'a', emoji: '📌', cat: 'other', done: false, due: today, time: '25:99' }, { id: '2', text: 'b', emoji: '📌', cat: 'other', done: false, time: '10:00' }, { id: '3', text: 'c', emoji: '📌', cat: 'other', done: false, due: today, time: '10:00' }] });
+  const items = L.parseState(raw, () => '1').items;
+  assert.deepEqual(items.map((i) => i.time), [undefined, undefined, '10:00']);
+});

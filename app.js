@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '138';
+var BUILD = '139';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -205,7 +205,7 @@ function render() {
   var done = state.items.filter(function (i) { return i.done; });
   var kept = {};
   function rowFor(item) {
-    var key = (item.done ? 1 : 0) + item.emoji + '|' + item.text + '|' + dueTagText(item);
+    var key = (item.done ? 1 : 0) + item.emoji + '|' + item.text + '|' + dueTagKey(item);
     var old = rows[item.id];
     var li = old && old.key === key && !freshIds[item.id] ? old.li : row(item);
     kept[item.id] = { key: key, li: li };

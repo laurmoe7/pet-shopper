@@ -1952,6 +1952,7 @@ html[data-list="todo"] .item:not(.done) .item-text { cursor: pointer; }
 .task-chips .pill-btn { background: var(--surface); padding: 7px 14px; font-size: .88rem; }
 .task-chips .pill-btn[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: transparent; }
 .task-date-label { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: .88rem; font-weight: 700; color: var(--muted); }
+.task-date-label .text-btn { padding: 4px; font-size: .85rem; }
 .task-date { font: inherit; padding: 6px 8px; border: 1.5px solid var(--outline); border-radius: 10px; background: var(--surface); color: var(--ink); }
 .task-note { margin: 8px 0 0; font-size: .82rem; color: var(--muted); }
 .task-actions { display: flex; justify-content: space-between; }
@@ -1966,3 +1967,5 @@ html[data-list="todo"] .pet:not(.has-teddy):not(.tucked) .clipboard { display: i
 .clipboard .cb-tick { fill: none; stroke: #4fb583; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: none; }
 .clipboard[data-ticks="1"] .cb-tick[data-n="1"], .clipboard[data-ticks="2"] .cb-tick:not([data-n="3"]), .clipboard[data-ticks="3"] .cb-tick { display: inline; }
 html[data-list="todo"] .pet[data-arms="idle"]:not(.has-teddy):not(.tucked) .arm-l { translate: 14px -7px; }
+/* the clipboard is in the left hand, so the arm turns round the shoulder as before (not round its bigger outline) */
+html[data-list="todo"] .pet:not(.has-teddy):not(.tucked) .arm-l { transform-box: view-box; transform-origin: 27px 110.2px; }
