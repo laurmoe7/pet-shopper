@@ -1,15 +1,16 @@
 // The toy: a ball on the floor. Tap it and it bounces away, or grab it and throw it, and the pet runs after it: a dog or a bird
-// fetches it back, a cat bats it about first, everyone else pounces on it and hugs it.
+// fetches it back, a cat bats it about first, a frog snatches it with its tongue, everyone else pounces on it and hugs it.
 // Only a game: nothing counts for goals. These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
 var toyEl = $('toy'), toyBall = toyEl.querySelector('.toy-ball'), toyX = -58, playing = false;
 var TOY_HOME = -58; // its spot beside the cushion
-/** @returns {string} How the species plays: fetch, bat or hug. */
+/** @returns {string} How the species plays: fetch, bat, tongue or hug. */
 function playStyle() {
   var sp = state.pet.species;
   if (sp === 'puppy' || L.isBird(sp)) return 'fetch';
   if (sp === 'kitty') return 'bat';
+  if (sp === 'frog') return 'tongue';
   return 'hug';
 }
 
@@ -85,7 +86,8 @@ function playToy() {
   var side = b.max - walkX >= walkX - b.min ? 1 : -1;
   var room = side > 0 ? b.max - walkX : walkX - b.min;
   var land = room >= 50 ? walkX + side * (room * (0.75 + Math.random() * 0.25)) : walkX + side * 46;
-  var stop = room >= 50 ? land - side * Math.min(44, Math.abs(land - walkX) / 2) : walkX; // where the pet stops before it pounces
+  // where the pet stops before it pounces (a frog stops further off and uses its tongue)
+  var stop = room >= 50 ? land - side * Math.min(playStyle() === 'tongue' ? 80 : 44, Math.abs(land - walkX) / 2) : walkX;
 
   sound('toss');
   setFace({ eyes: 'sparkle', mouth: 'o', arms: 'reach', x: [] });
@@ -102,8 +104,9 @@ function playToy() {
     return getIt(side);
   }).then(endPlay);
 }
-/** Next to the toy on the floor: a cat bats it about first, then the pet pounces and fetches or hugs it. */
+/** Next to the toy on the floor: a cat bats it about first, then the pet pounces and fetches or hugs it; a frog licks it up. */
 function getIt(side) {
+  if (playStyle() === 'tongue') return tongueGrab(toyX, 0).then(fetchBack);
   return (playStyle() === 'bat' ? batAbout(side) : Promise.resolve()).then(function () {
     return pounce();
   }).then(function () {
@@ -255,7 +258,7 @@ function fling(vx, vy, y) {
   eyesDo('wide');
   pet.classList.add('running');
   var lim = toyLimits(), x = toyX, spin = 0, start = performance.now(), last = start, chaseAt = 0;
-  var catchAt = playStyle() === 'fetch' ? mouthHeight() : 14;
+  var catchAt = playStyle() === 'fetch' ? mouthHeight() : 14, frog = playStyle() === 'tongue';
   cancelAnimationFrame(flight);
   if (reduceMotion) { placeToy(x, 0, 0); landed(); return; }
   function step(now) {
@@ -283,28 +286,96 @@ function fling(vx, vy, y) {
     pet.style.setProperty('--look-x', (x > walkX ? 3.2 : -3.2) + 'px');
     // caught: coming down at the right height, right in front of the pet
     var px = parseFloat(getComputedStyle(pet).translate) || 0;
+    // a frog snatches it out of the air with its tongue once it is within reach
+    if (frog && now - start > 250 && y > 6 && Math.hypot(x - px, y - mouthHeight()) < 115) { caught(x, y); return; }
     if (now - start > 250 && vy <= 0 && y < catchAt + 18 && y > catchAt - 24 && Math.abs(x - px) < 30) { caught(); return; }
     if ((y === 0 && vy === 0 && Math.abs(vx) < 14) || now - start > 7000) { landed(); return; }
     flight = requestAnimationFrame(step);
   }
   flight = requestAnimationFrame(step);
 }
-/** Caught it! A dog or bird has it in its mouth and brings it back; the rest hug it. */
-function caught() {
+/**
+ * Caught it! A dog or bird has it in its mouth and brings it back, a frog licks it out of the air first; the rest hug it.
+ * @param {number} x Where the toy was caught (px from the middle).
+ * @param {number} y Px above the floor.
+ */
+function caught(x, y) {
   pet.classList.remove('running');
   stopWalk();
-  pulse('hop', 500);
-  drift(['✦', '♥'], petTop(), 2);
-  say(pick(['caught it!', 'got it!', 'nice throw!', 'yay!']), 1100);
-  var next = playStyle() === 'fetch' ? (toyHold(mouthHeight(), walkX, 150), wait(500).then(fetchBack)) : hugToy();
-  next.then(endPlay);
+  var style = playStyle();
+  (style === 'tongue' ? tongueGrab(x, y) : wait(0)).then(function () {
+    pulse('hop', 500);
+    drift(['✦', '♥'], petTop(), 2);
+    say(pick(style === 'tongue' ? ['thwip! got it!', 'gotcha! ribbit!', 'nice throw!', 'yoink!'] : ['caught it!', 'got it!', 'nice throw!', 'yay!']), 1100);
+    if (style === 'hug' || style === 'bat') return hugToy();
+    toyHold(mouthHeight(), walkX, 150);
+    return wait(500).then(fetchBack);
+  }).then(endPlay);
 }
 /** It came down out of reach: the pet runs over and gets it off the floor. */
 function landed() {
   var side = toyX >= walkX ? 1 : -1;
   pet.classList.add('running');
-  wait(walkTo(toyX - side * 40, 7)).then(function () {
+  wait(walkTo(toyX - side * (playStyle() === 'tongue' ? 80 : 40), 7)).then(function () {
     pet.classList.remove('running');
     return getIt(side);
   }).then(endPlay);
+}
+
+// ---------- the frog's tongue ----------
+var tongueEl = $('frogTongue');
+/** @returns {{x: number, y: number}} Where the frog's mouth is, in the toy's terms: px from the middle, px above the floor. */
+function mouthAt() {
+  var svg = pet.querySelector('.pet-svg'), m = svg && svg.getScreenCTM(), st = stage.getBoundingClientRect();
+  if (!m) return { x: walkX, y: mouthHeight() };
+  var pt = svg.createSVGPoint();
+  pt.x = 80; pt.y = 106;
+  pt = pt.matrixTransform(m);
+  return { x: pt.x - (st.left + st.width / 2), y: st.bottom - 19 - pt.y };
+}
+/** Stretches the tongue from the mouth m to the point x, y (toy terms). */
+function drawTongue(m, x, y) {
+  var dx = x - m.x, dy = m.y - y; // the page's y grows downwards
+  tongueEl.style.width = Math.max(4, Math.hypot(dx, dy)).toFixed(1) + 'px';
+  tongueEl.style.transform = 'translate(' + m.x.toFixed(1) + 'px, ' + (-m.y).toFixed(1) + 'px) rotate(' + Math.atan2(dy, dx).toFixed(3) + 'rad)';
+}
+/**
+ * The frog shoots its tongue out to the toy at x, y and reels it back into its mouth.
+ * @param {number} x Px from the middle.
+ * @param {number} y Px above the floor.
+ * @returns {Promise<void>} Resolves with the toy in its mouth.
+ */
+function tongueGrab(x, y) {
+  sound('tongue');
+  setFace({ eyes: 'open', mouth: 'open', arms: 'reach', x: [] });
+  eyesDo('wide');
+  pet.style.setProperty('--look-x', (x > walkX ? 3.2 : -3.2) + 'px');
+  if (reduceMotion) { toyHold(mouthHeight(), walkX); return wait(300); }
+  var OUT = 120, BACK = 260, t0 = performance.now();
+  tongueEl.hidden = false;
+  return new Promise(function (done) {
+    function step(now) {
+      var t = now - t0, m = mouthAt();
+      if (t < OUT) {
+        var u = t / OUT;
+        drawTongue(m, m.x + (x - m.x) * u, m.y + (y - m.y) * u);
+      } else if (t < OUT + BACK) {
+        // stuck to the tongue, the toy comes flying back
+        var v = (t - OUT) / BACK, tx, ty;
+        v = v * v * (3 - 2 * v);
+        tx = x + (m.x - x) * v; ty = y + (m.y - y) * v;
+        drawTongue(m, tx, ty);
+        placeToy(tx, ty, 0);
+      } else {
+        tongueEl.hidden = true;
+        toyX = walkX;
+        toyHold(mouthHeight(), walkX, 60);
+        setFace({ eyes: 'happy', mouth: 'o', arms: 'idle', x: ['cheeks'] });
+        done();
+        return;
+      }
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
 }

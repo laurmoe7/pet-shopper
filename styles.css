@@ -190,7 +190,6 @@ button { font: inherit; color: inherit; }
 @keyframes ear-flick-l { 0%, 70%, 100% { transform: rotate(0); } 78% { transform: rotate(-9deg); } 86% { transform: rotate(4deg); } }
 @keyframes ear-flick-r { 0%, 70%, 100% { transform: rotate(0); } 78% { transform: rotate(9deg); } 86% { transform: rotate(-4deg); } }
 .tuft path { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
-.stripes path { fill: none; stroke: var(--pet-mark); stroke-width: 3; stroke-linecap: round; }
 .whiskers path { stroke-width: 1.6; }
 .spot { fill: var(--pet-mark); opacity: .7; }
 .snout ellipse { fill: #ffb8c6; stroke: var(--pet-ink); stroke-width: 1.8; }
@@ -385,6 +384,23 @@ button { font: inherit; color: inherit; }
 .pet.tired .tired-lid { display: inline; }
 .pet.tired .eyes-open .pupils :is(.eye-l, .eye-r):not(.tired-lid) { transform-box: fill-box; transform-origin: 50% 75%; scale: 1.05 .55; }
 .pet.tired .eyes-open .glint { opacity: .5; }
+/* tired blinks, wide eyes and squints start and end on the half-closed eyes; the blink shuts each eye down
+   towards its lower edge as the lid drops onto it, instead of squeezing the whole set round its middle, which pulled the eyes up under the lids */
+.pet.tired[data-eyes="open"] .eyes-open { animation: none; }
+.pet.tired .eyes-open .pupils :is(.eye-l, .eye-r):not(.tired-lid) { animation: tired-blink 4.5s infinite; }
+.pet.tired.eyewide .eyes-open .pupils :is(.eye-l, .eye-r):not(.tired-lid) { animation: tired-wide 1s ease-out; }
+.pet.tired.eyesquint .eyes-open .pupils :is(.eye-l, .eye-r):not(.tired-lid) { animation: tired-squint 1.2s ease-in-out; }
+.pet.tired .tired-lid.eye-l { animation: lid-blink-l 4.5s infinite; }
+.pet.tired .tired-lid.eye-r { animation: lid-blink-r 4.5s infinite; }
+.pet.tired.eyewide .tired-lid:is(.eye-l, .eye-r) { animation: lid-lift 1s ease-out; }
+.pet.tired.eyesquint .tired-lid:is(.eye-l, .eye-r) { animation: none; }
+@keyframes lid-blink-l { 0%, 94%, 100% { translate: -3px 1.6px; } 97% { translate: -3px 6.4px; } }
+@keyframes lid-blink-r { 0%, 94%, 100% { translate: 3px 1.6px; } 97% { translate: 3px 6.4px; } }
+@keyframes tired-blink { 0%, 94%, 100% { scale: 1.05 .55; } 97% { scale: 1.05 .06; } }
+@keyframes tired-wide { 0% { scale: 1.05 .55; } 16% { scale: 1.3 1.45; } 28% { scale: 1.22 1.3; } 78% { scale: 1.22 1.3; } 100% { scale: 1.05 .55; } }
+@keyframes lid-lift { 0%, 100% { opacity: 1; } 12%, 80% { opacity: 0; } }
+@keyframes tired-squint { 0% { scale: 1.05 .55; } 18% { scale: 1.15 .22; } 26% { scale: 1.12 .28; } 80% { scale: 1.12 .28; } 100% { scale: 1.05 .55; } }
+@media (prefers-reduced-motion: reduce) { .pet.tired .eyes-open .pupils :is(.eye-l, .eye-r):not(.tired-lid), .pet.tired .tired-lid { animation: none; } }
 @keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
 @keyframes chew { from { transform: scaleX(1) translateY(0); } to { transform: scaleX(.75) translateY(1.5px); } }
 @keyframes zfloat { 0%, 100% { transform: translateY(0); opacity: .9; } 50% { transform: translateY(-4px); opacity: .5; } }
@@ -1219,19 +1235,16 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="orangecat"] .tabby-muzzle { fill: #fff1df; }
 .munchkin-cap { fill: #aca6b2; }
 .pet[data-skin="munchkin"] .ear { fill: #aca6b2; }
-.pet[data-skin="munchkin"] .stripes path { stroke: #8e8896; }
 /* the munchkin's short legs: smaller feet tucked under the body */
 .pet[data-skin="munchkin"] :is(.foot-side, .shoe-l, .shoe-r) { scale: .82 .62; transform-box: fill-box; transform-origin: 50% 0%; }
 .ragdoll-mask { fill: #e6d4c4; }
-/* flame point: cream with ginger ears, a soft ginger mask and blaze, and blue eyes */
-.pet[data-skin="flamepoint"] { --pet-skin: #fff8ef; --pet-skin-shade: #f3e3cf; --pet-ear-in: #f6b4b0; --pet-mark: #eab27e; }
-.pet[data-skin="flamepoint"] [data-sk~="flamepoint"] { display: inline; }
-.pet[data-skin="flamepoint"] .ragdoll-mask, .flame-blaze { fill: #f8dabb; }
-.pet[data-skin="flamepoint"] .ear { fill: #eaa66a; }
-.pet[data-skin="flamepoint"] .stripes { display: none; }
-.pet[data-skin="flamepoint"] .eyes-open .ink { fill: #5b93db; }
+/* Siamese: a cream body with dark seal-brown points (ears, mask, paws and feet) and blue eyes */
+.pet[data-skin="siamese"] { --pet-skin: #f6ead9; --pet-skin-shade: #6e5042; --pet-ear-in: #a87c6c; --pet-mark: #6e5042; }
+.pet[data-skin="siamese"] [data-sk~="siamese"] { display: inline; }
+.siamese-mask { fill: url(#siameseFade); }
+.pet[data-skin="siamese"] .ear, .pet[data-skin="siamese"] .arm ellipse:not(.arm-hi) { fill: #6e5042; }
+.pet[data-skin="siamese"] .eyes-open .ink { fill: #4f8fe0; }
 .pet[data-skin="ragdoll"] .ear { fill: #a48876; }
-.pet[data-skin="ragdoll"] .stripes { display: none; }
 .pet[data-skin="ragdoll"] .eyes-open .ink { fill: #4f86d6; }
 /* dogs */
 .urajiro { fill: #fff5ef; }
@@ -1245,7 +1258,6 @@ button { font: inherit; color: inherit; }
 .ear-flap { fill: #bdbac9; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
 .ear-crease { fill: none; stroke: #9d99ab; stroke-width: 1.8; stroke-linecap: round; }
 .pet[data-skin="scottishfold"] .eyes-open .ink { rx: 5.6px; ry: 6.2px; }
-.pet[data-skin="scottishfold"] .stripes path { stroke: #a9a6b6; }
 /* chicken: white with a red comb and wattle */
 .pet[data-skin="chicken"] .tuft { display: none; }
 .chicken-comb path, .chicken-wattle { fill: #ef5d63; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
@@ -1292,10 +1304,8 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="pomeranian"] [data-sp="puppy"] { display: none; }
 .pet[data-skin="highland"] .horn, .pet[data-skin="highland"] .spot, .pet[data-skin="golden"] .spot { display: none; }
 .pet[data-skin="chihuahua"] .ear, .pet[data-skin="pomeranian"] .ear, .pet[data-skin="floppybunny"] .ear { fill: var(--pet-skin); }
-.pet[data-skin="calico"] .stripes path { stroke: #e3d4c2; }
 .pet[data-skin="calico"] .ear-l .ear { fill: #f3a95d; }
 .pet[data-skin="calico"] .ear-r .ear { fill: #5b566a; }
-.pet[data-skin="blackcat"] .stripes path { stroke: #7d788d; }
 /* the black cat's eyes show up as light on dark */
 .pet[data-skin="blackcat"] .eyes-open .ink, .pet[data-skin="longhair"] .eyes-open .ink { fill: #ffd84a; }
 .pet[data-skin="blackcat"] g[data-eyes] path.line, .pet[data-skin="blackcat"] g[data-eyes].line path,
@@ -1307,9 +1317,10 @@ button { font: inherit; color: inherit; }
 .choc .chunk-hi { fill: #7a4a33; stroke: none; }
 .taro circle { fill: #a78ed8; opacity: .85; }
 .tabby-stripes path { fill: var(--pet-mark); opacity: .8; }
-/* the tabby (the plain cat) and the orange cat have their own soft forehead stripes */
+/* the orange cat's stripes are the tabby's, in a deeper ginger */
+.pet[data-skin="orangecat"] .tabby-stripes path { fill: #d9762a; opacity: .9; }
+/* only the tabby (the plain cat) and the orange cat have stripes */
 .pet[data-skin]:not([data-skin=""]):not([data-skin="orangecat"]) .tabby { display: none; }
-.pet[data-species="kitty"]:is(:not([data-skin]), [data-skin=""], [data-skin="orangecat"]) .stripes { display: none; }
 .tabby-muzzle { fill: #f4e8d8; }
 .calico-orange { fill: #f3a95d; }
 .calico-black { fill: #5b566a; }
@@ -1442,6 +1453,15 @@ button { font: inherit; color: inherit; }
 .tennis-seam { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; }
 .stage.bedtime .toy, .stage.toy-off .toy { display: none; }
 body:has(#roomSheet[open]) .toy { pointer-events: none; }
+/* the goodnight kiss (kissGoodnight in app-bedtime.js): a pink kiss mark pops onto its forehead */
+.kiss-mark { position: fixed; z-index: 40; width: 26px; height: 20px; pointer-events: none; }
+.kiss-mark svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.kiss-top, .kiss-bottom { fill: #ff6f9a; stroke: #d94a78; stroke-width: 1; stroke-linejoin: round; }
+.kiss-shine { fill: none; stroke: #ffd0de; stroke-width: 1.2; stroke-linecap: round; }
+/* the frog's tongue (tongueGrab in app-toy.js): starts at the mouth and turns towards the toy, which covers its tip */
+.frog-tongue { position: absolute; left: 50%; bottom: 15.5px; height: 7px; width: 0; transform-origin: 0 50%; box-sizing: border-box; border: 1.6px solid var(--prop-ink); border-radius: 4px; background: #f47f9c; z-index: 2; pointer-events: none; }
+.frog-tongue::after { content: ""; position: absolute; right: -5px; top: 50%; width: 11px; height: 11px; margin-top: -5.5px; box-sizing: border-box; border: 1.6px solid var(--prop-ink); border-radius: 50%; background: #f47f9c; }
+.frog-tongue[hidden] { display: none; }
 
 /* bedtime (app-bedtime.js): at night a pendant lamp hangs top right and lights up the room around it; it is
    switched by tugging its pull-cord (app-bedtime.js sets --pull). Off, the room goes dark behind the pet,

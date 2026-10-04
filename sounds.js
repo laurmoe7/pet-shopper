@@ -3,6 +3,7 @@
  *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party,
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
  *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
+ *   tongue (the frog catching the toy), kiss (a goodnight kiss),
  *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
  * Every play is pitch-shifted a little, and kinds with several variants pick a
  * different one each time, so nothing sounds exactly the same twice in a row.
@@ -288,6 +289,19 @@
         tone(tt, h[1] + 0.1, 'sine', 1120, 1000, env(tt, 0.05, h[1], 0.05));
         noise(tt, h[1], 'bandpass', 560, 4, env(tt, 0.05, h[1] * 0.8, 0.12));
       });
+    },
+    tongue: function (t) {
+      // the frog's tongue: a quick rising "thwip" out and a wet little "shlup" back in
+      tone(t, 0.08, 'sine', 500, 1500, env(t, 0.005, 0.07, 0.22));
+      noise(t, 0.06, 'bandpass', 2400, 3, env(t, 0.004, 0.05, 0.12));
+      tone(t + 0.16, 0.12, 'sine', 900, 320, env(t + 0.16, 0.01, 0.11, 0.2));
+      noise(t + 0.16, 0.1, 'lowpass', 1200, 2, env(t + 0.16, 0.01, 0.08, 0.15));
+    },
+    kiss: function (t) {
+      // a smooch: a soft lip pop, then a tiny sparkly "mwah"
+      noise(t, 0.05, 'bandpass', 1800, 2.5, env(t, 0.003, 0.045, 0.32));
+      tone(t, 0.06, 'sine', 900, 1500, env(t, 0.003, 0.05, 0.14));
+      chime(t + 0.12, [1319, 1760], 0.08, 0.35, 'sine');
     },
     crickets: function (t) {
       // a few gentle cricket trills: tiny high pulses in twos and threes

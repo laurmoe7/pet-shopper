@@ -20,10 +20,9 @@
     if (busy) return;
     busy++;
     if (baseState() === 'sleepy') {
-      // asleep: it only stirs a little and mumbles
-      pulse('rocksmall', 1300);
-      talk('petSleepy', ['mm… nice…', 'hehe… zzz', 'five more minutes…', 'mmm… snacks…'], 1500);
-      setTimeout(function () { busy--; if (!busy) settle(); }, 1500);
+      // asleep: instead of a stroke it gets a goodnight kiss (app-bedtime.js)
+      busy--;
+      kissGoodnight();
       return;
     }
     var r = pick(PETTED);

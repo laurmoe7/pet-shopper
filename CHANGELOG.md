@@ -2,6 +2,15 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 135 (4 Oct)
+- Fixed: sleepy eyes jumping up when blinking.
+- Fixed: wide eyes when sleepy.
+- The frog catches the toy with its tongue.
+- Tap or stroke a sleeping pet to kiss it goodnight.
+- No forehead stripes on the black cat, calico, munchkin and Scottish fold.
+- Deeper ginger stripes on the orange cat.
+- Flame point replaced by a Siamese cat.
+
 ## Build 134 (4 Oct)
 - Toy, lamp, bed, quilt and teddy keep dark outlines in dark mode.
 - The paw really grabs the teddy and pulls it in.

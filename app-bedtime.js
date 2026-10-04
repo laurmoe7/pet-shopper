@@ -149,14 +149,12 @@ function tuckIn() {
     refreshBedtime();
   }, 2000);
 }
-// at bedtime a tap tucks it in; tucked in, it asks for the lamp, and asleep it only mumbles
+// at bedtime a tap tucks it in; tucked in, it asks for the lamp, and asleep it gets a goodnight kiss
 pet.addEventListener('click', function (e) {
   if (!stage.classList.contains('bedtime') || busy) return;
   e.stopImmediatePropagation();
-  if (baseState() === 'sleepy') {
-    pulse('rocksmall', 1300);
-    talk('tuckedTap', ['five more minutes…', 'mmm… cozy…', 'zzz… snacks…'], 1400);
-  } else if (!bedtime().tucked) tuckIn();
+  if (baseState() === 'sleepy') kissGoodnight();
+  else if (!bedtime().tucked) tuckIn();
   else talk('lampPlease', ['lamp off please…', 'too bright…'], 1400);
 }, true);
 // the lamp is switched by tugging it down, like a pull cord: it follows the finger and springs back
@@ -198,6 +196,40 @@ function pullLamp() {
   if (busy) return;
   if (baseState() === 'sleepy') { if (!dark) grumpy(); }
   else if (dark && !bedtime().tucked) setTimeout(bedHint, 1100);
+}
+// a kiss mark (a little pair of pink lips) for the goodnight kiss
+var KISS_SVG = '<svg viewBox="0 0 24 18" aria-hidden="true"><path class="kiss-top" d="M2 8.6 Q5.4 2.2 9.2 4.4 Q12 6 14.8 4.4 Q18.6 2.2 22 8.6 Q12 7.4 2 8.6 Z"/>' +
+  '<path class="kiss-bottom" d="M2 9.4 Q12 8.4 22 9.4 Q19 16.4 12 16.4 Q5 16.4 2 9.4 Z"/><path class="kiss-shine" d="M6 12 Q8 14 11 14.4"/></svg>';
+/** Asleep, a tap or a stroke gets a goodnight kiss: a smooch, a kiss mark on its forehead, a sleepy smile and a blush. */
+function kissGoodnight() {
+  if (busy) return;
+  busy++;
+  sound('kiss');
+  buzz(8);
+  setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] });
+  if (!reduceMotion && !squishing) svgSquish(SQUISH.breath);
+  var svg = pet.querySelector('.pet-svg'), m = svg && svg.getScreenCTM();
+  if (m && !reduceMotion) {
+    var pt = svg.createSVGPoint();
+    pt.x = 106; pt.y = 76; // on its forehead, above the quilt
+    pt = pt.matrixTransform(m);
+    var el = document.createElement('span');
+    el.className = 'kiss-mark';
+    el.innerHTML = KISS_SVG;
+    el.style.left = pt.x + 'px';
+    el.style.top = pt.y + 'px';
+    document.body.appendChild(el);
+    el.animate([
+      { transform: 'translate(-50%, -50%) rotate(-14deg) scale(0)', opacity: 0 },
+      { transform: 'translate(-50%, -50%) rotate(-14deg) scale(1.35)', opacity: 1, offset: 0.12 },
+      { transform: 'translate(-50%, -50%) rotate(-14deg) scale(1)', opacity: 1, offset: 0.22 },
+      { transform: 'translate(-50%, -50%) rotate(-14deg) scale(1)', opacity: 1, offset: 0.75 },
+      { transform: 'translate(-50%, -90%) rotate(-14deg) scale(.9)', opacity: 0 }
+    ], { duration: 1900, easing: 'ease-out', fill: 'both' }).finished.then(el.remove.bind(el), el.remove.bind(el));
+  }
+  setTimeout(function () { drift(['♥', '♡', '♥'], petTop(), 3); }, 250);
+  talk('kissNight', ['mm… night night ♡', 'hehe… zzz ♡', 'g\'night… love you…', 'sweet dreams… zzz'], 1700);
+  setTimeout(function () { busy--; if (!busy) settle(); }, 1900);
 }
 /** The light comes back on while it sleeps: a grumpy squint at you, then back to sleep. */
 function grumpy() {

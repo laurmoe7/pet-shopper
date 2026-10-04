@@ -119,6 +119,7 @@
     var skin = typeof saved.skin === 'string' ? saved.skin : '';
     if (skin === 'syrian') skin = 'longhair';
     if (skin === 'yak' || skin === 'lionhead' || skin === 'tabby') skin = '';   // removed skins (the tabby became the plain cat in build 121)
+    if (skin === 'flamepoint') skin = 'siamese';                                 // the flame point became the Siamese in build 135
     if (species === 'chick') species = 'birdie';
     else if (species === 'penguin') { species = 'birdie'; skin = 'penguin'; }
     return {

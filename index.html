@@ -64,6 +64,8 @@
             <!-- the rainbow axolotl's pastel body and the pigeon's shiny neck -->
             <linearGradient id="axoRainbow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc9dc"/><stop offset=".25" stop-color="#ffe2bd"/><stop offset=".45" stop-color="#fff3b8"/><stop offset=".65" stop-color="#ccf2d8"/><stop offset=".82" stop-color="#c9e5ff"/><stop offset="1" stop-color="#e2d3ff"/></linearGradient>
             <linearGradient id="pigeonSheen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8fd9bf"/><stop offset=".5" stop-color="#b9a3e8"/><stop offset="1" stop-color="#8fd9bf"/></linearGradient>
+            <!-- the Siamese mask: darkest round the nose, fading out towards the eyes and cheeks -->
+            <radialGradient id="siameseFade" cx=".5" cy=".58" r=".5"><stop offset="0" stop-color="#7a5a49" stop-opacity=".92"/><stop offset=".45" stop-color="#86685a" stop-opacity=".8"/><stop offset="1" stop-color="#a98670" stop-opacity="0"/></radialGradient>
           </defs>
           <g class="pet-body">
             <!-- each foot is its own group so it can step, tap and tuck (styles.css). Paws, hooves and bird toes peek out
@@ -320,8 +322,9 @@
                 <path class="munchkin-cap" d="M15 92 C16 62 42 38 80 38 C118 38 144 62 145 92 C136 80 124 74 112 74 C100 74 92 66 86 54 L80 46 L74 54 C68 66 60 74 48 74 C36 74 24 80 15 92 Z"/>
                 <path class="skin-outline" d="M80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 Z"/>
               </g>
-              <g data-sk="flamepoint" class="flamepoint"><ellipse class="flame-blaze" cx="80" cy="58" rx="8" ry="15"/></g>
-              <g data-sk="ragdoll flamepoint" class="ragdoll">
+              <!-- Siamese: a dark seal-point mask round the nose and mouth -->
+              <g data-sk="siamese" class="siamese"><ellipse class="siamese-mask" cx="80" cy="99" rx="36" ry="27"/></g>
+              <g data-sk="ragdoll" class="ragdoll">
                 <path class="ragdoll-mask" d="M32 96 C28 80 40 64 56 62 C66 61 72 66 76 72 L80 78 L84 72 C88 66 94 61 104 62 C120 64 132 80 128 96 C124 106 110 108 100 102 C94 98 90 94 86 92 L80 96 L74 92 C70 94 66 98 60 102 C50 108 36 106 32 96 Z"/>
               </g>
               <g data-sk="pigeon" class="pigeon">
@@ -347,9 +350,6 @@
 
 
               <!-- species parts drawn on top of the body -->
-              <g data-sp="kitty" class="stripes">
-                <path d="M72 44 l3 9 M80 42 v10 M88 44 l-3 9"/>
-              </g>
               <g data-sp="kitty" class="whiskers line">
                 <path d="M22 98 l-10 -2 M22 104 l-10 2 M138 98 l10 -2 M138 104 l10 2"/>
               </g>
@@ -558,6 +558,8 @@
         <path class="bed-inside" d="M34 96 C32 74 60 58 120 57 C180 58 208 74 206 96 Z"/>
         <path class="bed-shine" d="M30 62 Q44 42 74 36"/>
       </svg></div>
+      <!-- the frog's tongue, stretched from its mouth to the toy when it catches it (tongueGrab in app-toy.js) -->
+      <span class="frog-tongue" id="frogTongue" aria-hidden="true" hidden></span>
       <!-- a toy on the floor (app-toy.js): tap it and the pet chases it. Which one shows depends on the species. -->
       <button class="toy" id="toy" type="button" aria-label="Throw the toy"><span class="toy-ball"><svg viewBox="0 0 26 26" aria-hidden="true">
         <g class="toy-kind" data-toy="ball"><circle class="ball-fill" cx="13" cy="13" r="11"/><path class="ball-band" d="M3.4 8.6 Q13 12.6 22.6 8.6 L23.8 13.8 Q13 18.4 2.2 13.8 Z"/><path class="ball-star" d="M13 10.8 l.9 1.9 2 .3 -1.5 1.4 .4 2 -1.8 -1 -1.8 1 .4 -2 -1.5 -1.4 2 -.3 z"/><circle class="toy-line" cx="13" cy="13" r="11"/><ellipse class="toy-hi" cx="8.6" cy="6.8" rx="2.6" ry="1.6" transform="rotate(-30 8.6 6.8)"/></g>

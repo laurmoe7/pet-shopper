@@ -22,7 +22,7 @@
     { id: 'munchkin', base: 'kitty', label: 'Munchkin' },
     { id: 'ragdoll', base: 'kitty', label: 'Ragdoll' },
     { id: 'scottishfold', base: 'kitty', label: 'Scottish fold' },
-    { id: 'flamepoint', base: 'kitty', label: 'Flame point' },
+    { id: 'siamese', base: 'kitty', label: 'Siamese' },
     { id: 'chihuahua', base: 'puppy', label: 'Chihuahua' },
     { id: 'pomeranian', base: 'puppy', label: 'Pomeranian' },
     { id: 'golden', base: 'puppy', label: 'Golden retriever' },
