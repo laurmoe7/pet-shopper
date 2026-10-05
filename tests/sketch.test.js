@@ -26,3 +26,38 @@ test('the sketch file keeps the pet coordinates and the notes', () => {
   const inner = svg.split('\n')[1].slice(5, -4);
   assert.ok(!inner.includes('--') && !inner.includes('<'), 'the note cannot break out of the comment');
 });
+
+// a wobbly hand: the same shape every run
+function wobble(pts, amount) { let seed = 7; return pts.map(([x, y]) => { seed = (seed * 9301 + 49297) % 233280; const a = seed / 233280 - 0.5; seed = (seed * 9301 + 49297) % 233280; const b = seed / 233280 - 0.5; return [x + a * amount, y + b * amount]; }); }
+const HOW = { passes: 6, snap: true };
+
+test('tidy: a wobbly straight line becomes a straight line', () => {
+  const raw = wobble(Array.from({ length: 60 }, (_, i) => [10 + i * 2, 20 + i * 0.5]), 1.2);
+  const t = L.tidyStroke(raw, 220, HOW);
+  assert.equal(t.pts.length, 2);
+  assert.ok(Math.abs(t.pts[0][0] - 10) < 2 && Math.abs(t.pts[1][0] - 128) < 3);
+  assert.equal(t.closed, false);
+});
+
+test('tidy: a wobbly circle becomes a true ellipse and closes', () => {
+  const raw = wobble(Array.from({ length: 80 }, (_, i) => [60 + 20 * Math.cos(i / 79 * 6.4), 70 + 20 * Math.sin(i / 79 * 6.4)]), 1.5);
+  const t = L.tidyStroke(raw, 220, HOW);
+  assert.equal(t.closed, true);
+  for (const [x, y] of t.pts) assert.ok(Math.abs(Math.hypot(x - 60, y - 70) - 20) < 1.5);
+});
+
+test('tidy: a curve is smoothed but stays a curve, and snapping can be off', () => {
+  const arc = Array.from({ length: 80 }, (_, i) => [20 + i * 1.5, 80 - 30 * Math.sin(i / 79 * Math.PI)]);
+  const raw = wobble(arc, 2);
+  const off = (p) => p.reduce((sum, [x, y]) => sum + Math.abs(y - (80 - 30 * Math.sin((x - 20) / 1.5 / 79 * Math.PI))), 0) / p.length;
+  const t = L.tidyStroke(raw, 220, { passes: 6, snap: false });
+  assert.ok(t.pts.length > 3 && t.pts.length < raw.length);
+  assert.ok(off(t.pts) < off(raw) * 0.85, 'closer to the true curve than the wobbly hand was');
+  assert.ok(Math.abs(t.pts[0][0] - raw[0][0]) < 1 && Math.abs(t.pts[t.pts.length - 1][0] - raw[79][0]) < 1.5);   // ends stay where they were drawn
+  assert.equal(L.tidyStroke(raw, 220, { passes: 0, snap: true }).pts.length, raw.length);
+});
+
+test('tidy: a dot or a tiny scribble is left alone', () => {
+  assert.equal(L.tidyStroke([[5, 5]], 220, HOW).pts.length, 1);
+  assert.equal(L.tidyStroke([[5, 5], [5.2, 5.1], [5.1, 5.2], [5.2, 5.2]], 220, HOW).pts.length, 4);
+});

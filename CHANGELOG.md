@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 177 (5 Oct)
+- Sketchpad moved out of the game to its own page (sketch.html).
+- Backgrounds' pictures moved to their own file.
+
 ## Build 176 (5 Oct)
 - Sketchpad: pick a colour from anywhere on screen (desktop Chrome).
 

@@ -1,0 +1,16 @@
+{
+  "name": "Nibble Sketchpad",
+  "short_name": "Sketchpad",
+  "description": "Draw skins, hats, toys, backgrounds and furniture over Nibble's pets.",
+  "id": "./sketch.html",
+  "start_url": "./sketch.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fdf1f3",
+  "theme_color": "#fde3ea",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

@@ -1,0 +1,66 @@
+/* The standalone sketchpad (sketch.html, sketch.js). The pet, wardrobe and cardboard look come from styles.css. */
+body.skp { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; font-size: 15px; }
+#skSource { position: absolute; left: -9999px; top: 0; width: 200px; height: 200px; overflow: hidden; pointer-events: none; }
+.skp-top { flex: none; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 8px 14px; border-bottom: 1.5px solid var(--line); background: var(--surface); }
+.skp-top h1 { margin: 0; font-size: 1.15rem; }
+.skp-wrap { flex: 1; min-height: 0; display: flex; gap: 12px; padding: 12px; }
+.skp-canvas { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.skp-panel { flex: none; width: 340px; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; gap: 10px; padding-bottom: 12px; }
+.skp-panel::-webkit-scrollbar { display: none; }
+.skp-box { background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.skp-box[hidden] { display: none; }
+.skp-box h2 { margin: 0; font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.skp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
+.skp-grid select { width: 100%; }
+.skp-grid label { min-width: 0; display: flex; flex-direction: column; gap: 2px; font-size: .75rem; font-weight: 700; color: var(--muted); }
+.skp-furn { display: inline-flex; gap: 4px 10px; flex-wrap: wrap; }
+.skp-btn { padding: 7px 12px; border: 1.5px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font: inherit; font-size: .85rem; font-weight: 700; cursor: pointer; }
+.skp-btn:hover { border-color: var(--accent); }
+.skp-main { background: var(--accent); color: #fff; border-color: transparent; flex: 1 1 100%; padding: 10px; font-size: .95rem; }
+.skp-status { margin: 0; min-height: 1.2em; font-size: .8rem; color: var(--muted); }
+.skp-help { font-size: .8rem; }
+.skp-help summary { cursor: pointer; font-weight: 700; }
+.skp-help ol { margin: 6px 0; padding-left: 20px; }
+.skp-help label { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; font-weight: 700; color: var(--muted); }
+.sk-label { font-size: .8rem; font-weight: 700; }
+.sk-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sk-seg { display: inline-flex; border: 1.5px solid var(--line); border-radius: 999px; overflow: hidden; }
+.sk-seg button, .sk-tools button { padding: 6px 11px; border: 0; background: var(--surface); color: var(--ink); font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; }
+.sk-seg button[aria-pressed="true"], .sk-tools button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.sk-tools { gap: 5px; }
+.sk-tools button { border: 1.5px solid var(--line); border-radius: 999px; }
+.sk-view { flex: 1; min-height: 0; overflow: auto; scrollbar-width: none; border-radius: 14px; border: 1.5px solid var(--line); background: #fff6ec; }
+.sk-view::-webkit-scrollbar { display: none; }
+.sk-stage { position: relative; isolation: isolate; margin: 0 auto; background: #fff6ec; user-select: none; -webkit-user-select: none; }
+.sk-stage * { animation: none !important; transition: none !important; }
+.sk-ref, .sk-bd, .sk-grid, .sk-draw { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+.sk-ref { opacity: var(--sk-ghost, 1); z-index: 0; }
+.sk-grid { z-index: 1; }
+.sk-draw { z-index: 2; }   /* always on top, whatever the picture underneath does with z-index */
+.sk-bd svg { display: block; width: 100%; height: 100%; }
+.sk-stage .pet { cursor: default; touch-action: none; }
+.sk-stage.no-ref .sk-ref { visibility: hidden; }
+.sk-grid path { fill: none; stroke: #8a6a52; vector-effect: non-scaling-stroke; }
+.sk-grid .g1 { stroke-width: .5; opacity: .16; } .sk-grid .g2 { stroke-width: .8; opacity: .32; } .sk-grid .g3 { stroke-width: 1; opacity: .5; stroke-dasharray: 4 3; stroke: #e0568a; }
+.sk-stage.no-grid .sk-grid { display: none; }
+.sk-draw { pointer-events: auto; touch-action: none; cursor: crosshair; }
+.sk-stage[data-tool="hand"] .sk-draw { cursor: grab; }
+.sk-stage[data-tool="erase"] .sk-draw { cursor: cell; }
+.sk-coords { margin: 0 0 0 auto; font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: pre; min-width: 9em; text-align: right; }
+.sk-colours { gap: 6px; }
+.sk-eye { padding: 5px 10px; border: 1.5px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; }
+.sk-swatch { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--line); cursor: pointer; padding: 0; }
+.sk-swatch[aria-pressed="true"] { outline: 3px solid var(--accent); outline-offset: 1px; }
+#skPick { width: 34px; height: 30px; padding: 0; border: 1.5px solid var(--line); border-radius: 8px; background: none; }
+.sk-check { display: inline-flex; align-items: center; gap: 5px; font-size: .82rem; font-weight: 700; }
+.skp select, .skp input[type="text"], .skp input[type="password"] { padding: 6px 8px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: .85rem; min-width: 0; }
+#skNote { flex: 1; }
+.skp input[type="range"] { width: 90px; }
+
+@media (max-width: 760px) {
+  body.skp { overflow: auto; height: auto; }
+  .skp-wrap { flex-direction: column; }
+  .skp-canvas { min-height: 70dvh; }
+  .skp-panel { width: auto; overflow: visible; }
+}
+.skp-grid .sk-check { flex-direction: row; align-self: end; padding-bottom: 6px; color: var(--ink); font-size: .82rem; }

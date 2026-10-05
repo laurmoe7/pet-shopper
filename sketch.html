@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nibble Sketchpad</title>
+<meta name="description" content="Draw new skins, hats, toys, backgrounds and furniture over Nibble's pets, then send them to Claude.">
+<meta name="theme-color" content="#fde3ea">
+<link rel="manifest" href="sketch.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="sketch.css">
+</head>
+<body class="skp">
+<header class="skp-top">
+  <h1>Sketchpad</h1>
+  <div class="sk-seg" id="skModes" role="group" aria-label="What to draw on">
+    <button type="button" data-mode="pet" aria-pressed="true">Pet</button>
+    <button type="button" data-mode="scene" aria-pressed="false">Scene</button>
+    <button type="button" data-mode="toy" aria-pressed="false">Toy</button>
+    <button type="button" data-mode="room" aria-pressed="false">Furniture</button>
+  </div>
+  <div class="sk-seg" id="skZoom" role="group" aria-label="Zoom">
+    <button type="button" data-zoom="1" aria-pressed="true">1×</button>
+    <button type="button" data-zoom="2" aria-pressed="false">2×</button>
+    <button type="button" data-zoom="3" aria-pressed="false">3×</button>
+    <button type="button" data-zoom="4" aria-pressed="false">4×</button>
+  </div>
+  <p class="sk-coords" id="skCoords" aria-live="off"></p>
+</header>
+
+<div class="skp-wrap">
+  <main class="skp-canvas">
+    <div class="sk-view" id="skView"><div class="sk-stage" id="skStage"></div></div>
+  </main>
+
+  <aside class="skp-panel" aria-label="Controls">
+    <section class="skp-box">
+      <h2>Draw</h2>
+      <div class="sk-row sk-tools" id="skTools" role="group" aria-label="Tools">
+        <button type="button" data-tool="pen" aria-pressed="true" title="Pen (P)">Pen</button>
+        <button type="button" data-tool="blob" aria-pressed="false" title="Filled shape (F)">Filled</button>
+        <button type="button" data-tool="erase" aria-pressed="false" title="Erase (E)">Erase</button>
+        <button type="button" data-tool="hand" aria-pressed="false" title="Move the picture when zoomed (H)">Move</button>
+        <button type="button" id="skUndo" title="Undo (Ctrl+Z)">Undo</button>
+        <button type="button" id="skClear">Clear</button>
+      </div>
+      <div class="sk-row sk-colours" id="skColours" role="group" aria-label="Colour"></div>
+      <div class="sk-row">
+        <div class="sk-seg" id="skSizes" role="group" aria-label="Line size">
+          <button type="button" data-size="0" aria-pressed="false">Thin</button>
+          <button type="button" data-size="1" aria-pressed="true">Medium</button>
+          <button type="button" data-size="2" aria-pressed="false">Thick</button>
+        </div>
+      </div>
+      <div class="sk-row">
+        <span class="sk-label">Tidy my wobbly lines</span>
+        <div class="sk-seg" id="skTidy" role="group" aria-label="How much to smooth each line">
+          <button type="button" data-tidy="0" aria-pressed="false">Off</button>
+          <button type="button" data-tidy="3" aria-pressed="false">Light</button>
+          <button type="button" data-tidy="6" aria-pressed="true">Normal</button>
+          <button type="button" data-tidy="12" aria-pressed="false">Strong</button>
+        </div>
+      </div>
+      <label class="sk-check"><input type="checkbox" id="skSnap" checked> Straighten lines and make loops into neat ovals</label>
+    </section>
+
+    <section class="skp-box">
+      <h2>Look</h2>
+      <div class="sk-row">
+        <label class="sk-check"><input type="checkbox" id="skGrid" checked> Grid</label>
+        <label class="sk-check"><input type="checkbox" id="skRef" checked> <span id="skRefLabel">Show pet</span></label>
+        <label class="sk-check">Ghost <input type="range" id="skGhost" min="15" max="100" value="100" aria-label="How strong the picture underneath is"></label>
+      </div>
+    </section>
+
+    <section class="skp-box" id="skPetBox">
+      <h2>The pet underneath</h2>
+      <div class="skp-grid">
+        <label>Pet <select id="skSpecies"></select></label>
+        <label>Skin <select id="skSkin"></select></label>
+      </div>
+      <div class="skp-grid" id="skOutfit"></div>
+    </section>
+
+    <section class="skp-box" id="skSceneBox" hidden>
+      <h2>The room underneath</h2>
+      <div class="skp-grid">
+        <label>Background <select id="skBd"></select></label>
+        <label class="sk-check"><input type="checkbox" id="skNight"> Night</label>
+      </div>
+      <div class="sk-row" id="skRoomWrap"><span class="sk-label">Furniture</span><span class="skp-furn" id="skRoom"></span></div>
+    </section>
+
+    <section class="skp-box">
+      <h2>Send to Claude</h2>
+      <div class="sk-row">
+        <select id="skKind" aria-label="What is it?">
+          <option value="hat">Hat</option><option value="clothes">Clothes</option><option value="face">Glasses / face</option><option value="mouth">Mouth thing</option>
+          <option value="neck">Neck</option><option value="feet">Shoes</option><option value="skin">Skin</option><option value="toy">Toy</option>
+          <option value="background">Background</option><option value="furniture">Room furniture</option><option value="other">Something else</option>
+        </select>
+        <input type="text" id="skNote" placeholder="Tell Claude about it…" autocomplete="off" aria-label="A note for Claude">
+      </div>
+      <div class="sk-row sk-send">
+        <button type="button" class="skp-btn skp-main" id="skUpload">Upload to Claude</button>
+        <button type="button" class="skp-btn" id="skSaveFile">Save SVG</button>
+        <button type="button" class="skp-btn" id="skCopy">Copy SVG</button>
+      </div>
+      <p class="skp-status" id="skStatus" aria-live="polite"></p>
+      <details class="skp-help" id="skSettings">
+        <summary>GitHub connection</summary>
+        <p>Uploads go to the <b>drawings</b> branch of your repository, in the <b>drawings</b> folder, so the game itself is never touched. You need to connect once:</p>
+        <ol>
+          <li>On GitHub: your picture, Settings, Developer settings, Personal access tokens, <b>Fine-grained tokens</b>, Generate new token.</li>
+          <li>Repository access: only <b>laurmoe7/pet-shopper</b>. Permissions, Repository: <b>Contents: Read and write</b>. Nothing else.</li>
+          <li>Paste the token here. It stays in this browser on this computer, and is only sent to GitHub.</li>
+        </ol>
+        <label>Token <input type="password" id="skToken" autocomplete="off" placeholder="github_pat_…"></label>
+        <label>Repository <input type="text" id="skRepo" value="laurmoe7/pet-shopper" autocomplete="off"></label>
+        <label>Branch <input type="text" id="skBranch" value="drawings" autocomplete="off"></label>
+        <div class="sk-row"><button type="button" class="skp-btn" id="skCheck">Check the connection</button><button type="button" class="skp-btn" id="skForget">Forget the token</button></div>
+      </details>
+    </section>
+  </aside>
+</div>
+
+<!-- the pet and the toy are borrowed from the game's own page (index.html) when this page opens, so they are always the current ones -->
+<div id="skSource" aria-hidden="true"></div>
+
+<script src="logic.js"></script>
+<script src="wardrobe.js"></script>
+<script src="skins.js"></script>
+<script src="decor.js"></script>
+<script src="backdrops.js"></script>
+<script src="sketch.js"></script>
+</body>
+</html>

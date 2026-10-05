@@ -1267,11 +1267,102 @@
     var out = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + [view.x, view.y, view.w, view.h].join(' ') + '" width="' + Math.round(view.w * 4) + '" height="' + Math.round(view.h * 4) + '" fill="none" stroke-linecap="round" stroke-linejoin="round">'];
     out.push('<!-- ' + esc(JSON.stringify(meta || {})) + ' -->');
     strokes.forEach(function (s) {
-      var d = sketchPath(s.pts, s.fill && s.pts.length > 2, dp);
+      var d = sketchPath(s.pts, (s.fill || s.closed) && s.pts.length > 2, dp);
       out.push('<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + esc(s.color) + '"' : '') + '/>');
     });
     out.push('</svg>');
     return out.join('\n');
+  }
+
+
+  /** @returns {number} Distance between two points. */
+  function skDist(a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); }
+  /** @returns {number[][]} The line redrawn with a point every `step` along it (the last point is kept). */
+  function skResample(pts, step) {
+    var out = [pts[0].slice()], carry = 0;
+    for (var i = 1; i < pts.length; i++) {
+      var a = pts[i - 1], b = pts[i], d = skDist(a, b);
+      if (!d) continue;
+      var t = step - carry;
+      while (t <= d) { out.push([a[0] + (b[0] - a[0]) * t / d, a[1] + (b[1] - a[1]) * t / d]); t += step; }
+      carry = d - (t - step);
+    }
+    var last = pts[pts.length - 1];
+    if (skDist(out[out.length - 1], last) > step * 0.3) out.push(last.slice()); else out[out.length - 1] = last.slice();
+    return out;
+  }
+  /** @returns {number[][]} The line with fewer points (Ramer-Douglas-Peucker), off by at most `eps`. */
+  function skSimplify(pts, eps) {
+    if (pts.length < 3) return pts.slice();
+    var a = pts[0], b = pts[pts.length - 1], worst = -1, at = 0;
+    for (var i = 1; i < pts.length - 1; i++) {
+      var d = skLineDist(pts[i], a, b);
+      if (d > worst) { worst = d; at = i; }
+    }
+    if (worst <= eps) return [a, b];
+    return skSimplify(pts.slice(0, at + 1), eps).slice(0, -1).concat(skSimplify(pts.slice(at), eps));
+  }
+  /** @returns {number} How far a point is from the segment a-b. */
+  function skLineDist(p, a, b) {
+    var dx = b[0] - a[0], dy = b[1] - a[1], len2 = dx * dx + dy * dy;
+    var t = len2 ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / len2)) : 0;
+    return Math.hypot(a[0] + t * dx - p[0], a[1] + t * dy - p[1]);
+  }
+  /**
+   * Cleans up a hand-drawn line: evens out the wobble and, if asked, turns a near-straight line into a straight one and a
+   * near-round loop into a true ellipse.
+   * @param {number[][]} pts The points as drawn.
+   * @param {number} w The width of the drawing area (sizes are relative to it, so it works at any scale).
+   * @param {{passes: number, snap: boolean}} how `passes` is how much to smooth (0 leaves the line alone).
+   * @returns {{pts: number[][], closed: boolean}}
+   */
+  function tidyStroke(pts, w, how) {
+    var passes = how && how.passes || 0;
+    if (!passes || pts.length < 4) return { pts: pts.map(function (p) { return p.slice(); }), closed: false };
+    var rs = skResample(pts, w * 0.006), n = rs.length, len = 0, i;
+    for (i = 1; i < n; i++) len += skDist(rs[i - 1], rs[i]);
+    if (n < 4 || len < w * 0.02) return { pts: pts.map(function (p) { return p.slice(); }), closed: false };
+    var closed = skDist(rs[0], rs[n - 1]) < len * 0.15 && len > w * 0.05;
+    if (how.snap && !closed) {   // a straight line
+      var chord = skDist(rs[0], rs[n - 1]), worst = 0;
+      for (i = 1; i < n - 1; i++) worst = Math.max(worst, skLineDist(rs[i], rs[0], rs[n - 1]));
+      if (chord > w * 0.02 && worst < chord * 0.04) return { pts: [rs[0], rs[n - 1]], closed: false };
+    }
+    if (how.snap && closed) {   // a round loop: fit an ellipse along the loop's own long and short axes
+      var mx = 0, my = 0, sxx = 0, syy = 0, sxy = 0;
+      rs.forEach(function (p) { mx += p[0] / n; my += p[1] / n; });
+      rs.forEach(function (p) { var dx = p[0] - mx, dy = p[1] - my; sxx += dx * dx; syy += dy * dy; sxy += dx * dy; });
+      var th = 0.5 * Math.atan2(2 * sxy, sxx - syy), c = Math.cos(th), s = Math.sin(th);
+      var us = rs.map(function (p) { return [(p[0] - mx) * c + (p[1] - my) * s, -(p[0] - mx) * s + (p[1] - my) * c]; });
+      var u0 = Math.min.apply(0, us.map(function (u) { return u[0]; })), u1 = Math.max.apply(0, us.map(function (u) { return u[0]; }));
+      var v0 = Math.min.apply(0, us.map(function (u) { return u[1]; })), v1 = Math.max.apply(0, us.map(function (u) { return u[1]; }));
+      var cu = (u0 + u1) / 2, cv = (v0 + v1) / 2, rx = (u1 - u0) / 2, ry = (v1 - v0) / 2;
+      if (rx > w * 0.01 && ry > w * 0.01) {
+        var rr = us.map(function (u) { return Math.hypot((u[0] - cu) / rx, (u[1] - cv) / ry); });
+        var mean = rr.reduce(function (a, b) { return a + b; }, 0) / n;
+        var sd = Math.sqrt(rr.reduce(function (a, b) { return a + (b - mean) * (b - mean); }, 0) / n);
+        if (sd < 0.09 && mean > 0.85 && mean < 1.15) {
+          var out = [];
+          for (i = 0; i <= 40; i++) {
+            var a = i / 40 * Math.PI * 2, u = cu + rx * Math.cos(a), v = cv + ry * Math.sin(a);
+            out.push([mx + u * c - v * s, my + u * s + v * c]);
+          }
+          return { pts: out, closed: true };
+        }
+      }
+    }
+    for (var k = 0; k < passes; k++) {   // 1-2-1 smoothing; an open line keeps its ends, a loop wraps round
+      var next = rs.map(function (p, j) {
+        if (!closed && (j === 0 || j === n - 1)) return p;
+        var a = rs[(j + n - 1) % n], b = rs[(j + 1) % n];
+        if (closed && j === 0) a = rs[n - 2];
+        if (closed && j === n - 1) b = rs[1];
+        return [(a[0] + 2 * p[0] + b[0]) / 4, (a[1] + 2 * p[1] + b[1]) / 4];
+      });
+      rs = next;
+    }
+    if (closed) rs[n - 1] = rs[0].slice();
+    return { pts: skSimplify(rs, w * 0.0012), closed: closed };
   }
 
   root.PetLogic = {
@@ -1326,6 +1417,6 @@
     toggleDone: toggleDone,
     pickEmoji: pickEmoji,
     soundFor: soundFor,
-    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg
+    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke
   };
 })(typeof self !== 'undefined' ? self : globalThis);
