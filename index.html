@@ -722,7 +722,7 @@
       </defs>
       <rect width="400" height="190" fill="url(#dfBack)"/>
       <!-- the two stage lights throw soft beams onto the podium -->
-      <g class="df-beams"><path d="M82 26 L102 26 L226 186 L96 186Z" fill="url(#dfBeam)"/><path d="M298 26 L318 26 L304 186 L174 186Z" fill="url(#dfBeam)"/></g>
+      <g class="df-beams"><path class="df-beam df-beam-l" d="M82 26 L102 26 L226 186 L96 186Z" fill="url(#dfBeam)"/><path class="df-beam df-beam-r" d="M298 26 L318 26 L304 186 L174 186Z" fill="url(#dfBeam)"/></g>
       <ellipse class="df-glow" cx="200" cy="170" rx="96" ry="22" fill="url(#dfGlow)"/>
       <!-- curtains -->
       <path d="M0 0 H64 C54 40 70 70 56 110 C48 140 60 170 54 190 H0Z" fill="url(#dfCurtain)" stroke="#a63c5d" stroke-width="1.4"/>
@@ -732,8 +732,8 @@
       <path d="M0 0 H400 V12 Q387 24 374 12 Q361 24 348 12 Q335 24 322 12 Q309 24 296 12 Q283 24 270 12 Q257 24 244 12 Q231 24 218 12 Q205 24 192 12 Q179 24 166 12 Q153 24 140 12 Q127 24 114 12 Q101 24 88 12 Q75 24 62 12 Q49 24 36 12 Q23 24 10 12 L0 12Z" fill="#f2698f" stroke="#a63c5d" stroke-width="1.4"/>
       <g class="df-bulbs"><circle cx="40" cy="27" r="3"/><circle cx="82" cy="30" r="3"/><circle cx="124" cy="27" r="3"/><circle cx="166" cy="30" r="3"/><circle cx="208" cy="27" r="3"/><circle cx="250" cy="30" r="3"/><circle cx="292" cy="27" r="3"/><circle cx="334" cy="30" r="3"/><circle cx="376" cy="27" r="3"/></g>
       <!-- the spotlights themselves -->
-      <g class="df-lamp"><path d="M78 14 H106 L110 28 Q92 36 74 28Z"/><circle cx="92" cy="30" r="5"/></g>
-      <g class="df-lamp"><path d="M294 14 H322 L326 28 Q308 36 290 28Z"/><circle cx="308" cy="30" r="5"/></g>
+      <g class="df-lamp df-lamp-l"><path d="M78 14 H106 L110 28 Q92 36 74 28Z"/><circle cx="92" cy="30" r="5"/></g>
+      <g class="df-lamp df-lamp-r"><path d="M294 14 H322 L326 28 Q308 36 290 28Z"/><circle cx="308" cy="30" r="5"/></g>
       <!-- the round podium -->
       <path d="M118 174 V186 Q200 200 282 186 V174Z" fill="#f59ab5" stroke="#7b5a3d" stroke-width="1.6" stroke-linejoin="round"/>
       <ellipse cx="200" cy="174" rx="82" ry="11" fill="#ffd3df" stroke="#7b5a3d" stroke-width="1.6"/>

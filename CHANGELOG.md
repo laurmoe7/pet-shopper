@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 158 (5 Oct)
+- Late to-dos shake a bit more often.
+- Dressing room: spotlights and beams sway, sparkles pulse in place.
+- Nibble does little dances and poses in the dressing room.
+
 ## Build 157 (5 Oct)
 - Late to-dos give a very gentle shake now and then.
 - Dressing room stage: podium, stage lights, curtains, bulbs and sparkles.
