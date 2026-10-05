@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 155 (5 Oct)
+- Eye patch back to its old size, strap shortened to stay on the face.
+- Shopping list sorted into aisles (fruit & veg, bakery, meat, dairy...), with an option to turn it off.
+
 ## Build 154 (5 Oct)
 - Bird wing tips removed.
 - Eye patch is smaller.

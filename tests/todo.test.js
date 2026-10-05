@@ -109,3 +109,24 @@ test('speech is split into list items', () => {
   assert.equal(L.splitSpoken('x'.repeat(200))[0].length, 80);
   assert.equal(L.splitSpoken(Array(30).fill('a').join(',')).length, 20);
 });
+
+test('shopping items are grouped into aisles in shop order', () => {
+  const mk = (t) => L.createItem(t, {}, t, 1);
+  const aisle = (t) => L.aisleOf(mk(t));
+  assert.equal(aisle('bananas'), 'produce');
+  assert.equal(aisle('carrots'), 'produce');
+  assert.equal(aisle('bread'), 'bakery');
+  assert.equal(aisle('chicken'), 'meat');
+  assert.equal(aisle('chickpeas'), 'pantry');   // beans and nuts are not with the meat
+  assert.equal(aisle('milk'), 'dairy');
+  assert.equal(aisle('rice'), 'pantry');
+  assert.equal(aisle('cola'), 'drinks');
+  assert.equal(aisle('chocolate'), 'treats');
+  assert.equal(aisle('sponge'), 'home');
+  assert.equal(aisle('paracetamol'), 'health');
+  assert.equal(aisle('zzzz'), 'other');
+  const groups = L.groupByAisle(['chocolate', 'milk', 'apples', 'bananas'].map(mk));
+  assert.deepEqual(groups.map((g) => g.aisle.id), ['produce', 'dairy', 'treats']);
+  assert.deepEqual(groups[0].items.map((i) => i.text), ['apples', 'bananas']);
+  assert.ok(L.AISLES.every((a) => a.emoji));
+});

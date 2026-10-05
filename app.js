@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '154';
+var BUILD = '155';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -199,6 +199,26 @@ var freshIds = {};
 // doesn't rebuild every row and reload every emoji
 var rows = {};
 
+/**
+ * The shopping list grouped by aisle (a small label above each group), in shop order. Only how it is shown: the list's own order is untouched.
+ * @param {Item[]} items  The open items.
+ * @param {function(Item): HTMLElement} rowFor
+ * @returns {HTMLElement[]}
+ */
+function aisleNodes(items, rowFor) {
+  var out = [];
+  L.groupByAisle(items).forEach(function (g) {
+    var head = document.createElement('li');
+    head.className = 'aisle';
+    head.setAttribute('role', 'heading');
+    head.setAttribute('aria-level', '3');
+    head.append(emojiImg(g.aisle.emoji, ''), g.aisle.label);
+    out.push(head);
+    g.items.forEach(function (i) { out.push(rowFor(i)); });
+  });
+  return out;
+}
+
 /** Redraws both lists and the empty hint from state. */
 function render() {
   var todo = state.items.filter(function (i) { return !i.done; });
@@ -211,7 +231,7 @@ function render() {
     kept[item.id] = { key: key, li: li };
     return li;
   }
-  todoEl.replaceChildren.apply(todoEl, todo.map(rowFor));
+  todoEl.replaceChildren.apply(todoEl, state.mode !== 'todo' && state.settings.aisles ? aisleNodes(todo, rowFor) : todo.map(rowFor));
   doneEl.replaceChildren.apply(doneEl, done.map(rowFor));
   rows = kept;
   eatenSection.hidden = done.length === 0;

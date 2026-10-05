@@ -17,6 +17,7 @@ var optionsSheet = $('optionsSheet'), optionsList = $('optionsList');
 var OPTIONS = [
   { key: 'quiet', title: 'Quiet mode', text: '' },
   { key: 'vibration', title: 'Vibration', text: '' },
+  { key: 'aisles', title: 'Sort by aisle', text: 'Groups the shopping list into fruit & veg, meat, dairy and so on, in the order you walk round a shop.' },
   { key: 'time24', title: '24-hour time', text: 'Times on to-dos read 14:30 instead of 2:30 PM.' },
   { key: 'goalToasts', title: 'Goal progress display', text: '' },
   { key: 'fairPlayTips', title: 'Fair-play tips', text: 'Mentions the 15-minute rule and the once-a-day rule. The rules still apply when this is off.' }

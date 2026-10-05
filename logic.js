@@ -185,10 +185,11 @@
    * @property {boolean} goalToasts   The progress label under the pet after a bite.
    * @property {boolean} cardboard    The cardboard-and-stickers look (off = the classic pink look).
    * @property {boolean} time24      Times on tasks as 14:30 (off: 2:30 PM).
+   * @property {boolean} aisles      The shopping list is shown grouped by shop aisle.
    */
 
   /** The settings a new phone starts with: everything on. */
-  var DEFAULT_SETTINGS = { sounds: true, vibration: true, daydreams: true, suggestions: true, fairPlayTips: true, goalToasts: true, cardboard: true, time24: true };
+  var DEFAULT_SETTINGS = { sounds: true, vibration: true, daydreams: true, suggestions: true, fairPlayTips: true, goalToasts: true, cardboard: true, time24: true, aisles: true };
 
   /**
    * Fills in any settings missing from what was saved.
@@ -346,6 +347,47 @@
     return out.slice(0, 20);
   }
 
+  /** The shop aisles the shopping list can be grouped into, in the order you walk round a shop. */
+  var AISLES = [
+    { id: 'produce', label: 'Fruit & veg', emoji: '🥬' },
+    { id: 'bakery', label: 'Bakery', emoji: '🍞' },
+    { id: 'meat', label: 'Meat & fish', emoji: '🥩' },
+    { id: 'dairy', label: 'Dairy & eggs', emoji: '🧀' },
+    { id: 'pantry', label: 'Pantry', emoji: '🥫' },
+    { id: 'drinks', label: 'Drinks', emoji: '🥤' },
+    { id: 'treats', label: 'Treats', emoji: '🍫' },
+    { id: 'home', label: 'Household', emoji: '🧽' },
+    { id: 'health', label: 'Health', emoji: '💊' },
+    { id: 'other', label: 'Other', emoji: '🛍️' }
+  ];
+  var PANTRY_PROTEIN = ['🫘', '🧆', '🥜', '🌰'];   // beans, falafel, nuts and seeds live in the pantry aisle, not with the meat
+  /**
+   * Which aisle an item belongs in, from its emoji (so a picked emoji moves it too).
+   * @param {Item} item
+   * @returns {string} An AISLES id.
+   */
+  function aisleOf(item) {
+    var cat = Foods.categoryOf(item.emoji);
+    if (cat === 'fruit' || cat === 'veg') return 'produce';
+    if (cat === 'baked') return 'bakery';
+    if (cat === 'protein') return PANTRY_PROTEIN.indexOf(item.emoji) !== -1 ? 'pantry' : 'meat';
+    if (cat === 'dairy') return 'dairy';
+    if (cat === 'pantry' || cat === 'spicy') return 'pantry';
+    if (cat === 'drink') return 'drinks';
+    if (cat === 'sweets') return 'treats';
+    if (cat === 'nonfood') { var k = Foods.kindOf(item.emoji); return k === 'home' || k === 'health' ? k : 'other'; }
+    return 'other';
+  }
+  /**
+   * Groups items by aisle, in shop order; items keep their list order inside an aisle. Aisles with nothing in them are left out.
+   * @param {Item[]} items
+   * @returns {{aisle: {id: string, label: string, emoji: string}, items: Item[]}[]}
+   */
+  function groupByAisle(items) {
+    return AISLES.map(function (a) {
+      return { aisle: a, items: items.filter(function (i) { return aisleOf(i) === a.id; }) };
+    }).filter(function (g) { return g.items.length; });
+  }
   /** Drops a due day or repeat that isn't valid (from old or damaged saves). */
   function cleanTask(item) {
     if (item && item.due !== undefined && !isDayKey(item.due)) delete item.due;
@@ -1131,7 +1173,7 @@
     isUnlocked: isUnlocked,
     gateFor: gateFor,
     emojiFor: emojiFor,
-    splitSpoken: splitSpoken, REPEATS: REPEATS, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
+    splitSpoken: splitSpoken, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, REPEATS: REPEATS, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
     createItem: createItem,
     petProfile: petProfile,
     parseState: parseState,

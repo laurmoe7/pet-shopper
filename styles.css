@@ -2036,3 +2036,9 @@ html[data-list="todo"] #pet.stowing .clipboard { transform: translate(-30px, 34p
 /* to-do tasks that aren't for today: a slightly different tint (app.js adds .later to a task due after today) */
 html:root .item.later:not(.done) { background: color-mix(in srgb, var(--surface) 86%, #b9a6ec); }
 html:root .item.later:not(.done) .item-text { color: color-mix(in srgb, var(--ink) 82%, #8f7bd0); }
+
+/* the shopping list grouped by aisle (aisleNodes in app.js): a small label above each group */
+.items .aisle { display: flex; align-items: center; gap: 6px; margin: 8px 4px -2px; font-size: .74rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.items .aisle:first-child { margin-top: 0; }
+.items .aisle img { width: 18px; height: 18px; }
+.items .aisle::after { content: ""; flex: 1; border-top: 1.5px dashed var(--line); }
