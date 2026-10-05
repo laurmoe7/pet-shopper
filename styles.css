@@ -776,11 +776,12 @@ button { font: inherit; color: inherit; }
 /* the stage and the tabs stay in place; only the panel under them scrolls */
 .picker.pet-sheet.dress-full .picker-inner { display: flex; flex-direction: column; overflow: hidden; gap: 8px; }
 .picker.dress-full h2 { flex: none; }
-.dress-tabs { flex: none; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 2px 16px; }
-.dress-tabs::-webkit-scrollbar { display: none; }
-.dress-tabs button { flex: none; padding: 7px 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: .88rem; font-weight: 800; cursor: pointer; }
-.dress-tabs button[aria-selected="true"] { background: var(--accent); color: #fff; border-color: transparent; }
-.dress-panels { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+.dress-tabs { flex: none; display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.dress-tabs button { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 0; padding: 5px 0 4px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); color: var(--muted); font: inherit; font-size: .64rem; font-weight: 800; cursor: pointer; transition: transform .15s; }
+.dress-tabs button img { width: 22px; height: 22px; opacity: .75; }
+.dress-tabs button[aria-selected="true"] { background: var(--accent); color: #fff; border-color: transparent; transform: translateY(-1px); box-shadow: 0 2px 0 rgba(123, 90, 61, .3); }
+.dress-tabs button[aria-selected="true"] img { opacity: 1; }
+.dress-panels { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 22px; -webkit-mask-image: linear-gradient(#000 calc(100% - 22px), transparent); mask-image: linear-gradient(#000 calc(100% - 22px), transparent); }   /* the panel fades out at its bottom edge instead of showing a scroll bar */
 .dress-panels > * + * { margin-top: 12px; }
 .dress-panel[hidden] { display: none; }
 .picker.dress-full .picker-inner > * + * { margin-top: 0; }
@@ -918,7 +919,7 @@ button { font: inherit; color: inherit; }
 .picker.pet-sheet { position: fixed; inset: auto 0 0 0; margin: 0 auto; z-index: 20; max-height: calc(var(--sheet-h) + var(--dock-h, 64px)); border-bottom: 1.8px solid var(--outline); box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
 .picker.pet-sheet .picker-inner { padding-bottom: calc(12px + var(--dock-h, 64px)); max-height: calc(var(--sheet-h) + var(--dock-h, 64px) - 2px); }
 /* the scroll bar starts below the rounded corners instead of being clipped by them */
-.picker.pet-sheet:not(.dress-full):not(.fav-full) .picker-inner { margin-top: 12px; padding-top: 6px; max-height: calc(var(--sheet-h) + var(--dock-h, 64px) - 14px); scrollbar-width: thin; }
+.picker.pet-sheet:not(.dress-full):not(.fav-full) .picker-inner { margin-top: 12px; padding-top: 6px; max-height: calc(var(--sheet-h) + var(--dock-h, 64px) - 14px); scrollbar-width: none; }
 .picker[open] { animation: sheet .3s cubic-bezier(.3, 1.3, .5, 1); }
 @keyframes sheet { from { transform: translateY(60px); opacity: .5; } to { transform: none; opacity: 1; } }
 .picker-inner { padding: 18px 16px calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; max-height: calc(var(--sheet-h) - 2px); }
@@ -2162,3 +2163,7 @@ html:root .dock #stampBtn { --tilt: 3deg; --sticker: #c8e3f7; --sticker-ink: #3f
 @keyframes df-flash { 0% { opacity: 0; } 18% { opacity: .38; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .dress-flash.pop { animation-name: df-flash-calm; } }
 @keyframes df-flash-calm { 0%, 100% { opacity: 0; } 40% { opacity: .15; } }
+
+/* no scroll bars inside the sheets: they scroll with a finger, and the bottom of a long one fades out */
+.picker, .picker * { scrollbar-width: none; }
+.picker *::-webkit-scrollbar, .picker::-webkit-scrollbar { display: none; }

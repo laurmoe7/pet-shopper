@@ -683,9 +683,8 @@
   </form>
 </dialog>
 
-<dialog class="picker pet-sheet dress-full" id="dressSheet" aria-labelledby="dressTitle">
+<dialog class="picker pet-sheet dress-full" id="dressSheet" aria-label="Pet and dress-up">
   <form method="dialog" class="picker-inner">
-    <h2 id="dressTitle">Pet &amp; dress-up</h2>
     <div class="dress-stage"><svg class="dress-fx" viewBox="0 0 400 190" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id="dfBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9d6f9a"/><stop offset=".55" stop-color="#d9a9c4"/><stop offset="1" stop-color="#f6d6df"/></linearGradient>
@@ -728,13 +727,13 @@
       </g>
     </svg><div class="dress-preview" id="dressPreview"></div><div class="dress-flash" id="dressFlash" aria-hidden="true"></div><div class="dress-bubble" id="dressBubble" aria-live="polite" hidden></div></div>
     <div class="dress-tabs" id="dressTabs" role="tablist" aria-label="Pet and outfits">
-      <button type="button" role="tab" data-tab="pet" aria-selected="true">Pet</button>
-      <button type="button" role="tab" data-tab="hat" aria-selected="false">Hats</button>
-      <button type="button" role="tab" data-tab="body" aria-selected="false">Clothes</button>
-      <button type="button" role="tab" data-tab="face" aria-selected="false">Glasses</button>
-      <button type="button" role="tab" data-tab="mouth" aria-selected="false">Mouth</button>
-      <button type="button" role="tab" data-tab="neck" aria-selected="false">Neck</button>
-      <button type="button" role="tab" data-tab="feet" aria-selected="false">Feet</button>
+      <button type="button" role="tab" data-tab="pet" aria-selected="true"><img src="emoji/1F43E.svg" alt="" width="22" height="22"><span>Pet</span></button>
+      <button type="button" role="tab" data-tab="hat" aria-selected="false"><img src="emoji/1F3A9.svg" alt="" width="22" height="22"><span>Hats</span></button>
+      <button type="button" role="tab" data-tab="body" aria-selected="false"><img src="emoji/1F455.svg" alt="" width="22" height="22"><span>Clothes</span></button>
+      <button type="button" role="tab" data-tab="face" aria-selected="false"><img src="emoji/1F453.svg" alt="" width="22" height="22"><span>Glasses</span></button>
+      <button type="button" role="tab" data-tab="mouth" aria-selected="false"><img src="emoji/1F444.svg" alt="" width="22" height="22"><span>Mouth</span></button>
+      <button type="button" role="tab" data-tab="neck" aria-selected="false"><img src="emoji/1F9E3.svg" alt="" width="22" height="22"><span>Neck</span></button>
+      <button type="button" role="tab" data-tab="feet" aria-selected="false"><img src="emoji/1F45F.svg" alt="" width="22" height="22"><span>Feet</span></button>
     </div>
     <div class="dress-panels" id="dressPanels">
     <div class="dress-panel" data-tab="pet" role="tabpanel">
@@ -761,27 +760,27 @@
       <p class="lock-hint" id="speciesHint" aria-live="polite" hidden></p>
     </div>
     <fieldset class="species dress-panel" data-tab="hat" hidden>
-      <legend class="field-label">Hats</legend>
+      <legend class="visually-hidden">Hats</legend>
       <div class="hat-strip" id="hatStrip"></div>
     </fieldset>
     <fieldset class="species dress-panel" data-tab="body" hidden>
-      <legend class="field-label">Clothes</legend>
+      <legend class="visually-hidden">Clothes</legend>
       <div class="hat-strip" id="bodyStrip"></div>
     </fieldset>
     <fieldset class="species dress-panel" data-tab="face" hidden>
-      <legend class="field-label">Glasses</legend>
+      <legend class="visually-hidden">Glasses</legend>
       <div class="hat-strip" id="faceStrip"></div>
     </fieldset>
     <fieldset class="species dress-panel" data-tab="mouth" hidden>
-      <legend class="field-label">Mouth</legend>
+      <legend class="visually-hidden">Mouth</legend>
       <div class="hat-strip" id="mouthStrip"></div>
     </fieldset>
     <fieldset class="species dress-panel" data-tab="neck" hidden>
-      <legend class="field-label">Neck</legend>
+      <legend class="visually-hidden">Neck</legend>
       <div class="hat-strip" id="neckStrip"></div>
     </fieldset>
     <fieldset class="species dress-panel" data-tab="feet" hidden>
-      <legend class="field-label">Feet</legend>
+      <legend class="visually-hidden">Feet</legend>
       <div class="hat-strip" id="feetStrip"></div>
     </fieldset>
     <p class="lock-hint" id="hatHint" aria-live="polite" hidden></p>

@@ -17,8 +17,10 @@ const FIXES = {
 };
 fs.mkdirSync(out, { recursive: true });
 let missing = [];
-// the foods, the tasks and the personalities' icons
-const used = global.Foods.all.concat(global.Tasks.all, global.Personalities.map((p) => p.icon));
+// the foods, the tasks, the personalities' icons
+// and the little pictures on the Pet page's tabs
+const TAB_ICONS = ['🐾', '🎩', '👕', '👓', '👄', '🧣', '👟'];
+const used = global.Foods.all.concat(global.Tasks.all, global.Personalities.map((p) => p.icon), TAB_ICONS);
 for (const e of used) {
   const file = path.basename(global.Foods.emojiFile(e));
   const from = path.join(src, file);

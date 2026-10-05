@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 166 (5 Oct)
+- Pet page tabs have little icons and all fit in one row.
+- Removed the repeated titles on the Pet page.
+- No more scroll bars in menus; long ones fade out at the bottom.
+
 ## Build 165 (5 Oct)
 - Pet and Dress-up are one page: tabs for Pet, Hats, Clothes, Glasses, Mouth, Neck and Feet. It opens on Pet.
 
