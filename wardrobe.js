@@ -583,7 +583,7 @@ function boa() {
       id: 'eyepatch', slot: 'face', label: 'Eye patch', icon: '18 66 132 40',
       lines: ['arr, matey!', 'yo ho, snacks ho!', 'I see half the treats!'],
       svg: '<g class="face-patch">' +
-        '<path class="patch-strap" clip-path="url(#bodyClip)" d="M93 85 C78 74 50 67 19 73 M112.5 90.5 L146 92"/>' +
+        '<path class="patch-strap" clip-path="url(#bodyClip)" d="M93 85 Q58 72 22 77 M112.5 90.5 L140 92"/>' +
         '<path class="patch" d="M91.5 89 C91.5 82 97 80 103 80.5 C110 81 114 85 113.5 91.5 C113 98.5 108 102 101.5 101.5 C95 101 91.5 96 91.5 89 Z"/>' +
         '<path class="patch-heart" d="M102.5 89 c-1.1 -1.8 -3.8 -.7 -2.7 1.1 l2.7 2.7 l2.7 -2.7 c1.1 -1.8 -1.6 -2.9 -2.7 -1.1z"/>' +
         '<path class="patch-shine" d="M95.5 86 Q96.5 83.6 99 83"/>' +

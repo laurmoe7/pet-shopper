@@ -711,7 +711,47 @@
 <dialog class="picker pet-sheet dress-full" id="dressSheet" aria-labelledby="dressTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="dressTitle">Dressing room</h2>
-    <div class="dress-stage"><div class="dress-preview" id="dressPreview"></div><div class="dress-bubble" id="dressBubble" aria-live="polite" hidden></div></div>
+    <div class="dress-stage"><svg class="dress-fx" viewBox="0 0 400 190" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="dfBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9d6f9a"/><stop offset=".55" stop-color="#d9a9c4"/><stop offset="1" stop-color="#f6d6df"/></linearGradient>
+        <linearGradient id="dfBeam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff7d6" stop-opacity=".85"/><stop offset="1" stop-color="#fff7d6" stop-opacity=".08"/></linearGradient>
+        <linearGradient id="dfCurtain" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d9577b"/><stop offset=".3" stop-color="#f58aa6"/><stop offset=".55" stop-color="#d9577b"/><stop offset=".8" stop-color="#f58aa6"/><stop offset="1" stop-color="#e06487"/></linearGradient>
+        <radialGradient id="dfGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fffbe6" stop-opacity=".95"/><stop offset="1" stop-color="#fffbe6" stop-opacity="0"/></radialGradient>
+        <path id="dfSpark" d="M0 -6 Q.9 -.9 6 0 Q.9 .9 0 6 Q-.9 .9 -6 0 Q-.9 -.9 0 -6Z"/>
+        <path id="dfHeart" d="M0 3 C-5 -.5 -3.6 -5 0 -2.4 C3.6 -5 5 -.5 0 3Z"/>
+      </defs>
+      <rect width="400" height="190" fill="url(#dfBack)"/>
+      <!-- the two stage lights throw soft beams onto the podium -->
+      <g class="df-beams"><path d="M82 26 L102 26 L226 186 L96 186Z" fill="url(#dfBeam)"/><path d="M298 26 L318 26 L304 186 L174 186Z" fill="url(#dfBeam)"/></g>
+      <ellipse class="df-glow" cx="200" cy="170" rx="96" ry="22" fill="url(#dfGlow)"/>
+      <!-- curtains -->
+      <path d="M0 0 H64 C54 40 70 70 56 110 C48 140 60 170 54 190 H0Z" fill="url(#dfCurtain)" stroke="#a63c5d" stroke-width="1.4"/>
+      <path d="M400 0 H336 C346 40 330 70 344 110 C352 140 340 170 346 190 H400Z" fill="url(#dfCurtain)" stroke="#a63c5d" stroke-width="1.4"/>
+      <path d="M18 0 C14 60 22 120 16 190 M38 0 C32 60 42 120 36 190 M382 0 C386 60 378 120 384 190 M362 0 C368 60 358 120 364 190" fill="none" stroke="#a63c5d" stroke-width="1" opacity=".35"/>
+      <!-- a scalloped valance with a string of bulbs -->
+      <path d="M0 0 H400 V12 Q387 24 374 12 Q361 24 348 12 Q335 24 322 12 Q309 24 296 12 Q283 24 270 12 Q257 24 244 12 Q231 24 218 12 Q205 24 192 12 Q179 24 166 12 Q153 24 140 12 Q127 24 114 12 Q101 24 88 12 Q75 24 62 12 Q49 24 36 12 Q23 24 10 12 L0 12Z" fill="#f2698f" stroke="#a63c5d" stroke-width="1.4"/>
+      <g class="df-bulbs"><circle cx="40" cy="27" r="3"/><circle cx="82" cy="30" r="3"/><circle cx="124" cy="27" r="3"/><circle cx="166" cy="30" r="3"/><circle cx="208" cy="27" r="3"/><circle cx="250" cy="30" r="3"/><circle cx="292" cy="27" r="3"/><circle cx="334" cy="30" r="3"/><circle cx="376" cy="27" r="3"/></g>
+      <!-- the spotlights themselves -->
+      <g class="df-lamp"><path d="M78 14 H106 L110 28 Q92 36 74 28Z"/><circle cx="92" cy="30" r="5"/></g>
+      <g class="df-lamp"><path d="M294 14 H322 L326 28 Q308 36 290 28Z"/><circle cx="308" cy="30" r="5"/></g>
+      <!-- the round podium -->
+      <path d="M118 174 V186 Q200 200 282 186 V174Z" fill="#f59ab5" stroke="#7b5a3d" stroke-width="1.6" stroke-linejoin="round"/>
+      <ellipse cx="200" cy="174" rx="82" ry="11" fill="#ffd3df" stroke="#7b5a3d" stroke-width="1.6"/>
+      <ellipse cx="200" cy="174" rx="70" ry="8.4" fill="none" stroke="#fff" stroke-width="1.3" stroke-dasharray="5 4" opacity=".85"/>
+      <g class="df-sparks">
+        <use class="sp s1" href="#dfSpark" x="104" y="84" fill="#fff6b8"/>
+        <use class="sp s2" href="#dfSpark" x="296" y="70" fill="#ffffff"/>
+        <use class="sp s3" href="#dfSpark" x="132" y="142" fill="#ffffff"/>
+        <use class="sp s4" href="#dfSpark" x="272" y="146" fill="#fff6b8"/>
+        <use class="sp s5" href="#dfSpark" x="86" y="124" fill="#ffffff"/>
+        <use class="sp s6" href="#dfSpark" x="318" y="112" fill="#fff6b8"/>
+        <use class="sp s7" href="#dfSpark" x="226" y="52" fill="#ffffff"/>
+        <use class="sp s8" href="#dfSpark" x="168" y="58" fill="#fff6b8"/>
+        <use class="ht h1" href="#dfHeart" x="120" y="150" fill="#ff7d9f"/>
+        <use class="ht h2" href="#dfHeart" x="284" y="152" fill="#ff7d9f"/>
+        <use class="ht h3" href="#dfHeart" x="204" y="100" fill="#ffb3c6"/>
+      </g>
+    </svg><div class="dress-preview" id="dressPreview"></div><div class="dress-bubble" id="dressBubble" aria-live="polite" hidden></div></div>
     <fieldset class="species">
       <legend class="field-label">Hats</legend>
       <div class="hat-strip" id="hatStrip"></div>

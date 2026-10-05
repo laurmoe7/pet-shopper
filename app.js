@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '156';
+var BUILD = '157';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -351,7 +351,11 @@ function row(item) {
   text.textContent = item.text;
 
   li.append(check, eb, text);
-  if (state.mode === 'todo' && item.due && !item.done && infoOf(item).days > 0) li.classList.add('later');   // not for today
+  if (state.mode === 'todo' && item.due && !item.done) {
+    var when = infoOf(item);
+    if (when.days > 0) li.classList.add('later');   // not for today
+    if (when.state === 'overdue') li.classList.add('late');   // gives a very gentle shake now and then
+  }
   var due = dueTagOf(item);
   if (due) li.append(due);
   return li;

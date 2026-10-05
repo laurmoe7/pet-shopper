@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 157 (5 Oct)
+- Late to-dos give a very gentle shake now and then.
+- Dressing room stage: podium, stage lights, curtains, bulbs and sparkles.
+- Eye patch strap ends exactly at the edge of the face.
+
 ## Build 156 (5 Oct)
 - Eye patch straps stop at the edge of the face.
 - Hay in mouth is thinner.
