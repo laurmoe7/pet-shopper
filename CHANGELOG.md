@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 162 (5 Oct)
+- Camera flash is gentler and may go off when you put something on.
+
 ## Build 161 (5 Oct)
 - Calendar: month and year drop-down menus.
 - Plans more than 10 days away stay in the calendar until they get close.

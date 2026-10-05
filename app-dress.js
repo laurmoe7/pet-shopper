@@ -98,6 +98,7 @@ function onWearClick(e) {
   refreshDressRoom();
   dressUp(pet, state.pet.outfit);
   sound(b.dataset.hat !== 'none' ? 'excited' : 'tap');
+  if (b.dataset.hat !== 'none' && Math.random() < 0.3) setTimeout(dressFlash, 650);   // sometimes it snaps a photo of the new look
   var pointed = hoveredHat === b.dataset.hat;
   if (pointed && b.dataset.hat !== 'none') dressSay(line('look', ['how do I look?', 'I love it!', 'kawaii?', 'ta-da!']), 1600, true);
   else dressSay(b.dataset.hat === 'none' ? 'fresh look!' : hatLine(b.dataset.hat), 1600);
@@ -226,7 +227,7 @@ var DRESS_MOVES = [
 // and every now and then it poses for a photo: a flash of light and the click of a camera shutter
 var PHOTO_MOVE = { cls: '', ms: 1900, eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'], photo: true };
 var DRESS_FX = ['zzz', 'steam', 'hearts', 'sparkles', 'question', 'sweat', 'shock', 'redface', 'cheeks'];
-var dressDanceTimer, dressLastMove = -1;
+var dressDanceTimer, dressLastMove = -1, lastFlash = 0;
 /** The preview pet's resting face right now (what a hover or a tap goes back to, so it keeps emoting around them). */
 var dressRest = { eyes: 'open', mouth: 'smile', arms: 'idle' };
 /** Sets the preview pet's face, arms and little extras (hearts, sparkles, cheeks). */
@@ -237,7 +238,8 @@ function dressFace(view, f) {
 }
 /** The camera goes off: a white flash over the stage and a shutter click. */
 function dressFlash() {
-  if (!dressSheet.open) return;
+  if (!dressSheet.open || Date.now() - lastFlash < 3500) return;   // never in quick succession
+  lastFlash = Date.now();
   var f = $('dressFlash');
   f.classList.remove('pop'); void f.offsetWidth; f.classList.add('pop');
   sound('shutter');

@@ -2142,7 +2142,9 @@ html:root .dock button:nth-child(8) { --tilt: 3deg; --sticker: #c8e3f7; --sticke
 .picker.cal-sheet .picker-inner, .picker.stamp-sheet .picker-inner { gap: 8px; }
 
 /* the dressing room's camera: now and then a flash of light washes over the stage */
-.dress-flash { position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at 50% 55%, #fff 0, rgba(255, 255, 255, .9) 35%, rgba(255, 255, 255, .5) 100%); }
-.dress-flash.pop { animation: df-flash .55s ease-out; }
-@keyframes df-flash { 0% { opacity: 0; } 8% { opacity: .95; } 100% { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .dress-flash.pop { animation-duration: .3s; } }
+.dress-flash { position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at 50% 55%, #fff6dc 0, rgba(255, 244, 214, .75) 45%, rgba(255, 236, 200, .35) 100%); }
+/* kept gentle on purpose: a soft glow that eases in and out (never a hard white flash), only one at a time */
+.dress-flash.pop { animation: df-flash 1s ease-in-out; }
+@keyframes df-flash { 0% { opacity: 0; } 18% { opacity: .38; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .dress-flash.pop { animation-name: df-flash-calm; } }
+@keyframes df-flash-calm { 0%, 100% { opacity: 0; } 40% { opacity: .15; } }
