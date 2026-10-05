@@ -575,6 +575,7 @@ button { font: inherit; color: inherit; }
 .pet[data-species="pig"] .hoof { fill: #c98896; }
 .hoof-split { fill: none; stroke: var(--pet-ink); stroke-width: 1.2; stroke-linecap: round; }
 .arm .bird-hand ellipse { stroke-width: 1.5; }
+.arm .bird-hand .bird-join { stroke: none; } /* the wing tips melt into the hand: no outline where they join */
 .pet.sleeved .bird-hand { display: none !important; }
 .bird-part .bird-toe { fill: #ffb259; stroke: var(--pet-ink); stroke-width: 1.8; }
 .pet[data-hood="pighoodie"] .arm ellipse:not(.arm-hi) { fill: #ffc4d2; }

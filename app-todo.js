@@ -443,7 +443,7 @@ function setTaskDue(due) {
   if (due && !L.isDayKey(due)) return;
   if (due) item.due = due; else { delete item.due; delete item.repeat; delete item.time; }
   delete alerted[item.id];
-  state.items = L.sortByDue(state.items);
+  state.items = L.sortByDue(state.items, todayKey());
   save();
   render();
   renderTaskSheet();
@@ -457,7 +457,7 @@ function setTaskRepeat(repeat) {
   var item = taskItem();
   if (!item) return;
   if (repeat) { item.repeat = repeat; if (!item.due) item.due = todayKey(); } else delete item.repeat;
-  state.items = L.sortByDue(state.items);
+  state.items = L.sortByDue(state.items, todayKey());
   save();
   render();
   renderTaskSheet();
@@ -472,7 +472,7 @@ function setTaskTime(time) {
   if (!item || (time && !L.isTimeKey(time))) return;
   if (time) { item.time = time; if (!item.due) item.due = todayKey(); } else delete item.time;
   delete alerted[item.id];
-  state.items = L.sortByDue(state.items);
+  state.items = L.sortByDue(state.items, todayKey());
   save();
   render();
   renderTaskSheet();
@@ -528,7 +528,7 @@ function repeatTask(item) {
     if (item.time) copy.time = item.time;
     item.spawned = copy.id;
     L.addToList(state.items, copy);
-    state.items = L.sortByDue(state.items);
+    state.items = L.sortByDue(state.items, todayKey());
     freshIds[copy.id] = true;
     repeatNote[item.id] = infoOf(copy).label;
   } else if (!item.done && item.spawned) {

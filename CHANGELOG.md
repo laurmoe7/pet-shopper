@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 153 (5 Oct)
+- To-dos are ordered soonest first; tasks with no date sit right after today's.
+- Bird wing tips melt into the hands.
+
 ## Build 152 (4 Oct)
 - Mic button is pink with a white mic.
 - Floppy-eared bunny's ears swing like the dog's.

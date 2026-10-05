@@ -173,6 +173,7 @@ function addItem(text) {
   if (!text) return;
   var item = L.createItem(text, state.overrides, newId(), Date.now(), state.mode);
   L.addToList(state.items, item);
+  if (state.mode === 'todo') state.items = L.sortByDue(state.items, todayKey());   // an undated task goes above the ones for later days
   freshIds[item.id] = true;
   save();
   render();

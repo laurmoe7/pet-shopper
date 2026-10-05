@@ -94,7 +94,7 @@ var DEV_ACTIONS = [
   { label: 'Skip to tomorrow', run: function () { L.skipDays(state, 1); return 'A day has passed: daily limits are fresh.'; } },
   { label: 'Bedtime: wake, untuck, lamp on', run: function () { try { localStorage.removeItem(BED_KEY); } catch (e) { /* storage blocked */ } state.pet.dozing = ''; save(); refreshBedtime(); if (!busy) settle(); return 'Not tucked in, lamp on. Set it to night, pull the lamp cord, then tap the pet to tuck it in.'; } },
   { label: 'Fill with sample items', run: function () {
-    if (isTodo()) { state.items = L.sortByDue(state.items.concat(sampleTodos())); return 'Sample to-dos added.'; }
+    if (isTodo()) { state.items = L.sortByDue(state.items.concat(sampleTodos()), todayKey()); return 'Sample to-dos added.'; }
     state.items = state.items.concat(L.parseState(null, newId).items); return 'Sample items added.';
   } },
   { label: 'Clear the list', run: function () { state.items = []; return 'List cleared.'; } },

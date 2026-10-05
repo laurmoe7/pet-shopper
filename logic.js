@@ -310,15 +310,19 @@
     return next;
   }
   /**
-   * Puts the open tasks in due order (undated ones last, same order as before otherwise); done ones stay at the end.
+   * Puts the open tasks in due order: late ones, then today's, then the undated ones (they are not for any later day,
+   * so they stay near the top), then later days in order; the same order as before within a tie. Done ones stay at the end.
+   * Without `today` the undated ones go last.
    * @param {Item[]} items
+   * @param {string} [today]
    * @returns {Item[]} A new list.
    */
-  function sortByDue(items) {
+  function sortByDue(items, today) {
+    var none = today ? today + ' 99:99' : '9999-99-99';
     var open = items.filter(function (i) { return !i.done; }).map(function (i, n) { return { i: i, n: n }; });
     var done = items.filter(function (i) { return i.done; });
     open.sort(function (a, b) {
-      var x = a.i.due ? a.i.due + ' ' + (a.i.time || '24:00') : '9999-99-99', y = b.i.due ? b.i.due + ' ' + (b.i.time || '24:00') : '9999-99-99';
+      var x = a.i.due ? a.i.due + ' ' + (a.i.time || '24:00') : none, y = b.i.due ? b.i.due + ' ' + (b.i.time || '24:00') : none;
       return x < y ? -1 : x > y ? 1 : a.n - b.n;
     });
     return open.map(function (o) { return o.i; }).concat(done);

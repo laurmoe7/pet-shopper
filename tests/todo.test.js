@@ -59,6 +59,9 @@ test('due days: labels, urgency and sorting', () => {
   assert.deepEqual([L.dueInfo('2026-10-04', today).label, L.dueInfo('2026-10-02', today).label, L.dueInfo('2026-10-02', today).state], ['yesterday', '3d late', 'overdue']);
   const a = { id: 'a', done: false }, b = { id: 'b', done: false, due: '2026-10-07' }, c = { id: 'c', done: false, due: '2026-10-06' }, d = { id: 'd', done: true, due: '2026-10-01' };
   assert.deepEqual(L.sortByDue([a, b, d, c]).map((i) => i.id), ['c', 'b', 'a', 'd']);
+  // with today given, undated tasks come after today's and late ones but before later days
+  const t = { id: 't', done: false, due: today }, late = { id: 'l', done: false, due: '2026-10-03' };
+  assert.deepEqual(L.sortByDue([b, a, t, late, c], today).map((i) => i.id), ['l', 't', 'a', 'c', 'b']);
 });
 
 test('repeating tasks come back on their next day, never in the past', () => {
