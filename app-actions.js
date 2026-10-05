@@ -267,7 +267,7 @@ function toggle(id) {
     delete item.countedDay;
   }
   if (!todoMode) { if (item.done) item.doneAt = Date.now(); else delete item.doneAt; }   // when it was ticked: shopping right now keeps Nibble up at night
-  if (todoMode) repeatTask(item);
+  if (todoMode) { repeatTask(item); L.addStamp(state.pet, item.cat, item.done ? 1 : -1); }   // the stamp book
   buzz(12);
   save();
   render();

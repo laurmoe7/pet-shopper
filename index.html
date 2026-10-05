@@ -666,6 +666,8 @@
     <button type="button" id="treatBtn" aria-label="Treats: feed Nibble a free snack"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.6s-8.4-5.2-8.4-11.1a4.6 4.6 0 0 1 8.4-2.6 4.6 4.6 0 0 1 8.4 2.6c0 5.9-8.4 11.1-8.4 11.1z" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="dock-label">Treats</span></button>
     <button type="button" id="favBtn" aria-label="Top 10: what you buy most"><span class="dock-icon" aria-hidden="true">♛</span><span class="dock-label">Top 10</span></button>
     <button type="button" id="goalsBtn" aria-label="Goals: unlock new pets and hats"><span class="dock-icon" aria-hidden="true">★</span><span class="dock-label">Goals</span></button>
+    <button type="button" id="calBtn" class="todo-only" aria-label="Calendar: birthdays and plans"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3.4" fill="currentColor"/><rect x="3" y="5" width="18" height="5.2" rx="2.6" fill="currentColor" stroke="currentColor" stroke-width="1"/><path d="M8 2.8v4M16 2.8v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><g fill="#fff" opacity=".9"><circle cx="8" cy="14" r="1.3"/><circle cx="12" cy="14" r="1.3"/><circle cx="16" cy="14" r="1.3"/><circle cx="8" cy="18" r="1.3"/><circle cx="12" cy="18" r="1.3"/></g></svg></span><span class="dock-label">Calendar</span></button>
+    <button type="button" id="stampBtn" class="todo-only" aria-label="Stamps: your stamp book"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c-1.2 0-2.2.8-2.2 2 0 1.6 1.2 2.2 1.2 3.8H8.6c-1.7 0-3 1.3-3 3v1.4h12.8v-1.4c0-1.7-1.3-3-3-3H13c0-1.6 1.2-2.2 1.2-3.8 0-1.2-1-2-2.2-2z" fill="currentColor"/><rect x="4" y="13.4" width="16" height="3.2" rx="1.4" fill="currentColor"/><path d="M5.4 20.2h13.2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M9.6 19.2l1.6 1.6 3.4-3.6" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0"/></svg></span><span class="dock-label">Stamps</span></button>
   </nav>
 </div>
 
@@ -751,7 +753,7 @@
         <use class="ht h2" href="#dfHeart" x="284" y="152" fill="#ff7d9f"/>
         <use class="ht h3" href="#dfHeart" x="204" y="100" fill="#ffb3c6"/>
       </g>
-    </svg><div class="dress-preview" id="dressPreview"></div><div class="dress-bubble" id="dressBubble" aria-live="polite" hidden></div></div>
+    </svg><div class="dress-preview" id="dressPreview"></div><div class="dress-flash" id="dressFlash" aria-hidden="true"></div><div class="dress-bubble" id="dressBubble" aria-live="polite" hidden></div></div>
     <fieldset class="species">
       <legend class="field-label">Hats</legend>
       <div class="hat-strip" id="hatStrip"></div>
@@ -852,6 +854,36 @@
   </form>
 </dialog>
 
+<dialog class="picker pet-sheet cal-sheet" id="calSheet" aria-labelledby="calTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="calTitle">Calendar</h2>
+    <div class="cal-head">
+      <button type="button" class="pill-btn cal-nav" id="calPrev" aria-label="Previous month">‹</button>
+      <strong class="cal-month" id="calMonth" aria-live="polite"></strong>
+      <button type="button" class="pill-btn cal-nav" id="calNext" aria-label="Next month">›</button>
+    </div>
+    <div class="cal-grid cal-dow" aria-hidden="true"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-day">
+      <h3 id="calDayTitle"></h3>
+      <ul class="cal-list" id="calList"></ul>
+      <div class="cal-add" id="calAdd">
+        <input id="calInput" type="text" maxlength="80" placeholder="Add a birthday or plan…" autocomplete="off" enterkeyhint="done" aria-label="Add to this day">
+        <button type="button" class="pill-btn" id="calYearly" aria-pressed="false">🎂 every year</button>
+        <button type="button" class="add-btn cal-add-btn" id="calAddBtn">Add</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="picker pet-sheet stamp-sheet" id="stampSheet" aria-labelledby="stampTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="stampTitle">Stamp book</h2>
+    <p class="goals-intro" id="stampIntro"></p>
+    <div class="stamp-grid" id="stampGrid"></div>
+  </form>
+</dialog>
+
 <dialog class="picker pet-sheet" id="optionsSheet" aria-labelledby="optionsTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="optionsTitle">Options</h2>
@@ -895,6 +927,8 @@
 <script src="app-goals.js"></script>
 <script src="app-events.js"></script>
 <script src="app-todo.js"></script>
+<script src="app-calendar.js"></script>
+<script src="app-stamps.js"></script>
 <script src="app-personality.js"></script>
 <script src="app-favourites.js"></script>
 <script src="app-petting.js"></script>

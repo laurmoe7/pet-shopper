@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 160 (5 Oct)
+- To-do list: Calendar and Stamps in the bottom bar (instead of Top 10 and Goals).
+- Calendar for birthdays and plans, with yearly repeats.
+- Stamp book: a stamp for every ticked task, by kind.
+- Dressing room: now and then Nibble poses for a photo, with a flash and shutter click.
+
 ## Build 159 (5 Oct)
 - Dressing room sparkles and hearts only pulse gently, nothing drifts.
 

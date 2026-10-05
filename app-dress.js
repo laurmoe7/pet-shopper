@@ -224,12 +224,21 @@ var DRESS_MOVES = [
   { cls: '', ms: 1700, eyes: 'closed', mouth: 'smile', arms: 'cover', x: ['cheeks'] },               // shy pose
   { cls: '', ms: 1700, eyes: 'happy', mouth: 'open', arms: 'reach', x: ['cheeks'] }                // jazz hands
 ];
+// and every now and then it poses for a photo: a flash of light and the click of a camera shutter
+var PHOTO_MOVE = { cls: '', ms: 1900, eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'], photo: true };
 var DRESS_FX = ['zzz', 'steam', 'hearts', 'sparkles', 'question', 'sweat', 'shock', 'redface', 'cheeks'];
 var dressDanceTimer, dressLastMove = -1;
 /** Sets the preview pet's face, arms and little extras (hearts, sparkles, cheeks). */
 function dressFace(view, f) {
   view.dataset.eyes = f.eyes; view.dataset.mouth = f.mouth; view.dataset.arms = f.arms;
   DRESS_FX.forEach(function (x) { view.classList.toggle('x-' + x, f.x.indexOf(x) !== -1); });
+}
+/** The camera goes off: a white flash over the stage and a shutter click. */
+function dressFlash() {
+  if (!dressSheet.open) return;
+  var f = $('dressFlash');
+  f.classList.remove('pop'); void f.offsetWidth; f.classList.add('pop');
+  sound('shutter');
 }
 function dressDanceSoon() {
   clearTimeout(dressDanceTimer);
@@ -241,11 +250,15 @@ function dressDance() {
   if (!dressSheet.open || !view) return;
   // wait while you are trying things on or hovering one
   if (Date.now() - lastDressTouch < 2000 || hoveredHat) { dressDanceSoon(); return; }
-  var n;
-  do { n = Math.floor(Math.random() * DRESS_MOVES.length); } while (n === dressLastMove);
-  dressLastMove = n;
-  var m = DRESS_MOVES[n];
+  var m, n = -1;
+  if (Math.random() < 0.2) m = PHOTO_MOVE;
+  else {
+    do { n = Math.floor(Math.random() * DRESS_MOVES.length); } while (n === dressLastMove);
+    dressLastMove = n;
+    m = DRESS_MOVES[n];
+  }
   dressFace(view, m);
+  if (m.photo) setTimeout(dressFlash, 750);
   if (m.cls) { view.classList.remove(m.cls); void view.offsetWidth; view.classList.add(m.cls); }
   setTimeout(function () {
     if (m.cls) view.classList.remove(m.cls);

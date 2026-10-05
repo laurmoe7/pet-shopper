@@ -28,6 +28,7 @@ The tests live in `tests/` and load the same scripts the browser uses.
 ## What's in it
 
 - **The list.** Add items, tick them off, put them back, delete them. Each item gets a food emoji, and you can pick a different one.
+- **Calendar and stamps.** On the to-do list the bottom bar has a Calendar (birthdays and plans, with yearly repeats) and a stamp book that fills with a stamp for every task you tick.
 - **Aisles.** The shopping list groups itself by shop aisle (fruit & veg, bakery, meat, dairy, pantry, drinks, treats...) in the order you walk round a shop; it can be switched off in Options.
 - **Add by voice.** A mic button in the Add bar listens and adds what you say ("milk, eggs and bread" becomes three items), in English or Dutch; the app icon also has an "Add by voice" shortcut.
 - **To-do list.** Tap the title ("Nibble's shopping list") to swap to "Nibble's to-do list". Tasks get their own emoji, kinds and chatter; ticking one off earns a check-mark stamp and a cheer instead of being eaten, and there is no receipt. Tap a task to give it a due date and a repeat (every day, 3 days, week or month); Nibble holds a clipboard, mentions what is due, and a repeating task comes back with its next date when ticked. It doesn't count for goals or the Top 10.

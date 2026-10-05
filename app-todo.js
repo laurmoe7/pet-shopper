@@ -30,6 +30,7 @@ function applyListMode(animate) {
   $('eatenTitle').textContent = todo ? 'Done' : 'Bought';
   $('listHint').textContent = todo ? "Tap “+ date/time” on a task to set when it's due, a time and a repeat. Tap its emoji, or long-press it, to pick a different one." : "Tap an item's emoji, or long-press the item, to pick a different one.";
   addPreview.replaceChildren(); lastPreview = '';
+  if (!todo) { if ($('calSheet').open) $('calSheet').close(); if ($('stampSheet').open) $('stampSheet').close(); }   // those two belong to the to-do list
 }
 
 /** Swaps the shopping list and the to-do list; Nibble notices. */

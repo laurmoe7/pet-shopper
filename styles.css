@@ -2088,3 +2088,58 @@ html:root .item.late:not(.done) { animation: late-shake 3.6s ease-in-out infinit
   96% { rotate: .25deg; translate: .4px 0; }
 }
 @media (prefers-reduced-motion: reduce) { html:root .item.late:not(.done) { animation: none; } }
+
+/* ---------- to-do mode: the calendar and stamp book replace Top 10 and Goals in the bottom bar ---------- */
+.dock .todo-only { display: none; }
+html[data-list="todo"] .dock .todo-only { display: flex; }
+html[data-list="todo"] .dock #favBtn, html[data-list="todo"] .dock #goalsBtn { display: none; }
+html:root .dock button:nth-child(7) { --tilt: -4deg; --sticker: #d9ccf5; --sticker-ink: #7d5fcf; }
+html:root .dock button:nth-child(8) { --tilt: 3deg; --sticker: #c8e3f7; --sticker-ink: #3f86c0; }
+/* calendar */
+.cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cal-month { font-family: var(--font-display); font-weight: 500; font-size: 1.05rem; }
+.cal-nav { width: 38px; height: 30px; padding: 0; font-size: 1.3rem; line-height: 1; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.cal-dow { font-size: .7rem; font-weight: 800; color: var(--muted); text-align: center; margin-bottom: -4px; }
+.cal-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; height: 31px; padding: 0; border: 1.5px solid transparent; border-radius: 10px; background: var(--surface); color: var(--ink); font: inherit; font-size: .85rem; font-weight: 700; cursor: pointer; }
+.cal-cell.out { opacity: .4; }
+.cal-cell.today { border-color: var(--accent); }
+.cal-cell.sel { background: var(--accent); color: #fff; }
+.cal-dots { display: flex; gap: 2px; height: 4px; }
+.cal-dots i { width: 4px; height: 4px; border-radius: 50%; background: #e0a43a; }
+.cal-dots i.yearly { background: #ec6a8f; }
+.cal-dots i.done { opacity: .35; }
+.cal-cell.sel .cal-dots i { background: #fff; }
+.cal-day h3 { margin: 2px 0 5px; font-size: .9rem; }
+.cal-list { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.cal-list li { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 10px; background: var(--surface); font-weight: 700; font-size: .92rem; }
+.cal-list li img { width: 24px; height: 24px; flex: none; }
+.cal-list li span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.cal-list li.done span { text-decoration: line-through; color: var(--muted); }
+.cal-list li.cal-empty { background: none; color: var(--muted); font-weight: 600; }
+.cal-del { padding: 2px 6px; }
+.cal-add { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.cal-add[hidden] { display: none; }
+.cal-add input { flex: 1 1 140px; min-width: 0; padding: 8px 10px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: .92rem; }
+.cal-add .pill-btn { padding: 7px 10px; font-size: .82rem; }
+.cal-add .pill-btn[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: transparent; }
+.cal-add-btn { padding: 7px 14px; border-radius: 999px; background: var(--accent); }
+/* stamp book */
+.stamp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stamp { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px 6px; border: 1.5px dashed var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; }
+.stamp-ring { position: relative; display: grid; place-items: center; width: 50px; height: 50px; border-radius: 50%; border: 2.5px dashed var(--line); opacity: .55; filter: grayscale(.8); }
+.stamp-ring img { width: 28px; height: 28px; }
+.stamp-ring b { position: absolute; right: -4px; bottom: -4px; display: grid; place-items: center; width: 19px; height: 19px; border-radius: 50%; background: #5fb97f; color: #fff; font-size: .72rem; border: 2px solid var(--surface); }
+.stamp.t1 .stamp-ring, .stamp.t2 .stamp-ring, .stamp.t3 .stamp-ring { opacity: 1; filter: none; transform: rotate(-6deg); }
+.stamp.t1 .stamp-ring { border: 2.5px solid #5fb97f; }
+.stamp.t2 .stamp-ring { border: 3px double #d9792a; box-shadow: 0 0 0 2px rgba(217, 121, 42, .2); }
+.stamp.t3 .stamp-ring { border: 3px double #e0b01f; box-shadow: 0 0 0 3px rgba(240, 200, 60, .35), 0 0 10px rgba(240, 200, 60, .5); }
+.stamp-label { font-size: .75rem; font-weight: 800; }
+.stamp-count { font-size: .78rem; font-weight: 700; color: var(--muted); }
+.picker.cal-sheet .picker-inner, .picker.stamp-sheet .picker-inner { gap: 8px; }
+
+/* the dressing room's camera: now and then a flash of light washes over the stage */
+.dress-flash { position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at 50% 55%, #fff 0, rgba(255, 255, 255, .9) 35%, rgba(255, 255, 255, .5) 100%); }
+.dress-flash.pop { animation: df-flash .55s ease-out; }
+@keyframes df-flash { 0% { opacity: 0; } 8% { opacity: .95; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .dress-flash.pop { animation-duration: .3s; } }

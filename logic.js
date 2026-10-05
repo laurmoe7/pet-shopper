@@ -134,6 +134,8 @@
       room: saved.room && typeof saved.room === 'object' ? saved.room : {},
       personality: saved.personality || 'foodie',
       tastes: saved.tastes && typeof saved.tastes === 'object' ? saved.tastes : {},
+      // check-mark stamps from ticked tasks, by task kind (the stamp book)
+      stamps: saved.stamps && typeof saved.stamps === 'object' ? saved.stamps : {},
       favourites: saved.favourites && typeof saved.favourites === 'object' ? saved.favourites : {},
       // the night it was put to bed (nightOf): asleep until something is checked off or the morning
       dozing: typeof saved.dozing === 'string' ? saved.dozing : '',
@@ -257,7 +259,8 @@
     { id: 'daily', label: 'Every day', days: 1 },
     { id: 'every3', label: 'Every 3 days', days: 3 },
     { id: 'weekly', label: 'Every week', days: 7 },
-    { id: 'monthly', label: 'Every month', months: 1 }
+    { id: 'monthly', label: 'Every month', months: 1 },
+    { id: 'yearly', label: 'Every year', months: 12 }
   ];
   /** @returns {boolean} Whether this is a due day in the form YYYY-MM-DD. */
   function isDayKey(s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s); }
@@ -387,6 +390,45 @@
     return AISLES.map(function (a) {
       return { aisle: a, items: items.filter(function (i) { return aisleOf(i) === a.id; }) };
     }).filter(function (g) { return g.items.length; });
+  }
+  /**
+   * The days of a month for a calendar, Monday first: whole weeks, with the days of the neighbouring months filling the ends.
+   * @param {number} year
+   * @param {number} month  0 to 11.
+   * @returns {{day: string, inMonth: boolean}[]} 35 or 42 days.
+   */
+  function monthGrid(year, month) {
+    var first = new Date(year, month, 1, 12), pad = (first.getDay() + 6) % 7;
+    var count = Math.ceil((pad + new Date(year, month + 1, 0).getDate()) / 7) * 7;
+    var out = [], start = dayKey(first);
+    for (var i = 0; i < count; i++) {
+      var day = addDays(start, i - pad);
+      out.push({ day: day, inMonth: +day.slice(5, 7) - 1 === month });
+    }
+    return out;
+  }
+  /** @returns {Item[]} The tasks due on this day, open ones first. */
+  function tasksOn(items, day) {
+    var on = items.filter(function (i) { return i.due === day; });
+    return on.filter(function (i) { return !i.done; }).concat(on.filter(function (i) { return i.done; }));
+  }
+  /**
+   * Adds (or with a negative n takes back) check-mark stamps for a kind of task. Never below zero.
+   * @param {Object} profile
+   * @param {string} kind
+   * @param {number} n
+   * @returns {number} How many stamps of that kind it has now.
+   */
+  function addStamp(profile, kind, n) {
+    if (!profile.stamps) profile.stamps = {};
+    var now = Math.max(0, (profile.stamps[kind] || 0) + n);
+    if (now) profile.stamps[kind] = now; else delete profile.stamps[kind];
+    return now;
+  }
+  /** @returns {number} All the stamps in the book. */
+  function stampTotal(profile) {
+    var s = profile.stamps || {};
+    return Object.keys(s).reduce(function (n, k) { return n + (s[k] || 0); }, 0);
   }
   /** Drops a due day or repeat that isn't valid (from old or damaged saves). */
   function cleanTask(item) {
@@ -1173,7 +1215,7 @@
     isUnlocked: isUnlocked,
     gateFor: gateFor,
     emojiFor: emojiFor,
-    splitSpoken: splitSpoken, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, REPEATS: REPEATS, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
+    splitSpoken: splitSpoken, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, REPEATS: REPEATS, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
     createItem: createItem,
     petProfile: petProfile,
     parseState: parseState,

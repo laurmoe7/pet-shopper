@@ -130,3 +130,23 @@ test('shopping items are grouped into aisles in shop order', () => {
   assert.deepEqual(groups[0].items.map((i) => i.text), ['apples', 'bananas']);
   assert.ok(L.AISLES.every((a) => a.emoji));
 });
+
+test('calendar months, tasks on a day and the stamp book', () => {
+  const oct = L.monthGrid(2026, 9);   // October 2026 starts on a Thursday
+  assert.equal(oct.length, 35);
+  assert.equal(oct[0].day, '2026-09-28');            // weeks start on Monday
+  assert.equal(oct[0].inMonth, false);
+  assert.equal(oct[3].day, '2026-10-01');
+  assert.equal(oct.filter((d) => d.inMonth).length, 31);
+  assert.equal(L.monthGrid(2027, 1).length, 28);      // Feb 2027 is exactly four Monday-first weeks
+  assert.equal(L.monthGrid(2026, 1).length, 35);      // Feb 2026 starts on a Sunday, so it needs five
+  const a = { id: 'a', done: true, due: '2026-10-05' }, b = { id: 'b', done: false, due: '2026-10-05' }, c = { id: 'c', done: false, due: '2026-10-06' };
+  assert.deepEqual(L.tasksOn([a, b, c], '2026-10-05').map((i) => i.id), ['b', 'a']);
+  assert.equal(L.nextDue('2026-03-02', 'yearly', '2026-10-05'), '2027-03-02');   // a birthday comes back next year
+  const p = L.petProfile({});
+  assert.equal(L.addStamp(p, 'chore', 1), 1);
+  L.addStamp(p, 'call', 2);
+  assert.equal(L.stampTotal(p), 3);
+  assert.equal(L.addStamp(p, 'chore', -5), 0);          // never below zero, and an empty kind is dropped
+  assert.deepEqual(Object.keys(p.stamps), ['call']);
+});

@@ -4,7 +4,7 @@
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
  *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
- *   done, sparkle, coin, ring (ticking off a to-do), stamp (the check mark landing), scribble (writing on the clipboard),
+ *   done, sparkle, coin, ring (ticking off a to-do), stamp (the check mark landing), scribble (writing on the clipboard), shutter (the dressing room's camera),
  *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
  * Every play is pitch-shifted a little, and kinds with several variants pick a
  * different one each time, so nothing sounds exactly the same twice in a row.
@@ -335,6 +335,14 @@
       // a rubber stamp thunk
       tone(t, 0.12, 'sine', 190, 70, env(t, 0.003, 0.11, 0.6));
       noise(t, 0.06, 'lowpass', 900, 1, env(t, 0.002, 0.05, 0.3));
+    },
+    shutter: function (t) {
+      // a camera shutter: a quick click-clack, then a tiny whirr of the film
+      noise(t, 0.012, 'bandpass', 3200, 2, env(t, 0.001, 0.01, 0.55));
+      tone(t, 0.04, 'square', 1800, 900, env(t, 0.001, 0.035, 0.12));
+      noise(t + 0.055, 0.016, 'bandpass', 2200, 2, env(t + 0.055, 0.001, 0.014, 0.5));
+      tone(t + 0.055, 0.05, 'square', 1200, 600, env(t + 0.055, 0.001, 0.045, 0.1));
+      noise(t + 0.14, 0.12, 'highpass', 5000, 1, env(t + 0.14, 0.02, 0.1, 0.05));
     },
     scribble: function (t) {
       // a pencil scribbling: a run of quick scratchy strokes
