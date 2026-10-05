@@ -289,7 +289,8 @@ function fling(vx, vy, y) {
     var px = parseFloat(getComputedStyle(pet).translate) || 0;
     // a frog snatches it out of the air with its tongue once it is within reach
     if (frog && now - start > 250 && y > 6 && Math.hypot(x - px, y - mouthHeight()) < 115) { caught(x, y); return; }
-    if (now - start > 250 && vy <= 0 && y < catchAt + 18 && y > catchAt - 24 && Math.abs(x - px) < 30) { caught(); return; }
+    // a cat does not catch it out of the air: it waits for it to land, then hunts it on the floor (landed > getIt > batAbout)
+    if (playStyle() !== 'bat' && now - start > 250 && vy <= 0 && y < catchAt + 18 && y > catchAt - 24 && Math.abs(x - px) < 30) { caught(); return; }
     if ((y === 0 && vy === 0 && Math.abs(vx) < 14) || now - start > 7000) { landed(); return; }
     flight = requestAnimationFrame(step);
   }

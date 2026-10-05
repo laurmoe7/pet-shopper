@@ -2216,8 +2216,8 @@ html.typing .page-fade { display: none; }
 .closet-btn svg { width: 24px; height: 24px; display: block; }
 .closet-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--outline); }
 .closet-btn:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
-.picker.closet-sheet { z-index: 30; }
-.picker.pet-sheet.closet-sheet .picker-inner { padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); max-height: 62vh; overflow-y: auto; scrollbar-width: none; }
+.picker.closet-sheet { z-index: 30; inset: auto 0 var(--dock-h, 64px) 0; }   /* above the bottom bar, which stays usable */
+.picker.pet-sheet.closet-sheet .picker-inner { padding-bottom: 14px; max-height: 55vh; overflow-y: auto; scrollbar-width: none; }
 .closet-save { display: flex; gap: 8px; align-items: center; }
 .closet-save input, .closet-rename { flex: 1; min-width: 0; padding: 7px 10px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: .9rem; }
 .closet-save .pill-btn { flex: none; padding: 6px 12px; }

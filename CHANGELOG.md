@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 179 (5 Oct)
+- Closet sits above the bottom bar.
+- Cats hunt and pounce on a thrown toy.
+- Pet icon on the bottom bar is now paws.
+
 ## Build 178 (5 Oct)
 - Closet: save and name outfits (button on the dressing room stage).
 - Dressing room: highlight no longer cut off on the left.
