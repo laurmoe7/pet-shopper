@@ -7,7 +7,8 @@
 <meta name="description" content="Draw new skins, hats, toys, backgrounds and furniture over Nibble's pets, then send them to Claude.">
 <meta name="theme-color" content="#fde3ea">
 <link rel="manifest" href="sketch.webmanifest">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="icon" href="sketch-icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="sketch-icon-180.png">
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="sketch.css">
 </head>
@@ -26,6 +27,7 @@
     <button type="button" data-zoom="3" aria-pressed="false">3×</button>
     <button type="button" data-zoom="4" aria-pressed="false">4×</button>
   </div>
+  <span class="sk-zoomtext" id="skZoomText" title="Scroll the mouse wheel over the canvas to zoom">100%</span>
   <p class="sk-coords" id="skCoords" aria-live="off"></p>
 </header>
 
@@ -38,12 +40,15 @@
     <section class="skp-box">
       <h2>Draw</h2>
       <div class="sk-row sk-tools" id="skTools" role="group" aria-label="Tools">
-        <button type="button" data-tool="pen" aria-pressed="true" title="Pen (P)">Pen</button>
-        <button type="button" data-tool="blob" aria-pressed="false" title="Filled shape (F)">Filled</button>
-        <button type="button" data-tool="erase" aria-pressed="false" title="Erase (E)">Erase</button>
-        <button type="button" data-tool="hand" aria-pressed="false" title="Move the picture when zoomed (H)">Move</button>
-        <button type="button" id="skUndo" title="Undo (Ctrl+Z)">Undo</button>
-        <button type="button" id="skClear">Clear</button>
+        <button type="button" data-tool="pen" aria-pressed="true" title="Pen (P)"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14.5 6.5l3 3"/></svg><span>Pen</span></button>
+        <button type="button" data-tool="blob" aria-pressed="false" title="Filled shape (F)"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 13c-.8-4 2-8 7-8s6.5 4 5.5 8-3.5 6-7.500 5.500S6.300 17 5.500 13z" fill="currentColor"/></svg><span>Filled</span></button>
+        <button type="button" data-tool="erase" aria-pressed="false" title="Erase (E)"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h12"/><path d="M4.500 14.500l8-9a2 2 0 0 1 3 0l3 3a2 2 0 0 1 0 3l-5.500 6H8.500z"/><path d="M9.500 9.500l6 6"/></svg><span>Erase</span></button>
+        <button type="button" data-tool="drop" aria-pressed="false" title="Eyedropper: pick a colour from anywhere on your screen (I)"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.500 3.500a2.500 2.500 0 0 0-3.500 0l-3 3-1-1-2 2 1 1-7 7V19h3.500l7-7 1 1 2-2-1-1 3-3a2.500 2.500 0 0 0 0-3.500z"/></svg><span>Pick colour</span></button>
+        <button type="button" data-tool="hand" aria-pressed="false" title="Move the canvas (H, or hold Space and drag)"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12V5.500a1.500 1.500 0 0 1 3 0V11"/><path d="M12 10.500V4.500a1.500 1.500 0 0 1 3 0v6"/><path d="M15 10.500V6.500a1.500 1.500 0 0 1 3 0V15c0 3.500-2 6-6 6-3 0-4.500-1.500-6.500-4.500l-1.700-2.800a1.500 1.500 0 0 1 2.500-1.600L9 14.500"/></svg><span>Pan</span></button>
+        <button type="button" data-tool="imgmove" aria-pressed="false" title="Drag the selected image layer (M)"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/><path d="M9 6l3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3M18 9l3 3-3 3"/></svg><span>Move image</span></button>
+        <button type="button" id="skUndo" title="Undo (Ctrl+Z)"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7H4.500V2.500"/><path d="M4.500 7A9 9 0 1 1 6.500 18"/></svg><span>Undo</span></button>
+        <button type="button" id="skRedo" title="Redo (Ctrl+Y)"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h4.500V2.500"/><path d="M19.500 7A9 9 0 1 0 17.500 18"/></svg><span>Redo</span></button>
+        <button type="button" id="skClear" title="Clear everything drawn here"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.500 7h15"/><path d="M9 7V4h6v3"/><path d="M6.500 7l1 13h9l1-13"/></svg><span>Clear</span></button>
       </div>
       <div class="sk-row sk-colours" id="skColours" role="group" aria-label="Colour"></div>
       <div class="sk-row">
@@ -72,6 +77,13 @@
         <label class="sk-check"><input type="checkbox" id="skRef" checked> <span id="skRefLabel">Show pet</span></label>
         <label class="sk-check">Ghost <input type="range" id="skGhost" min="15" max="100" value="100" aria-label="How strong the picture underneath is"></label>
       </div>
+    </section>
+
+    <section class="skp-box">
+      <h2>Images</h2>
+      <p class="skp-hint">Put a picture under your drawing to trace. Each image is its own layer: change its opacity or size, move it with the Move image tool, or remove it. Images are never part of what you send.</p>
+      <div class="sk-row"><button type="button" class="skp-btn" id="skAddImage">Add image…</button><input type="file" id="skFile" accept="image/*" hidden></div>
+      <div class="skp-layers" id="skLayers"></div>
     </section>
 
     <section class="skp-box" id="skPetBox">

@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 181 (5 Oct)
+- Nibble asks for snacks and you feed him; Treats menu removed.
+- Sketchpad: rainbow icon.
+- Sketchpad: tool icons, redo, eyedropper tool.
+- Sketchpad: hold Space to move the canvas, mouse wheel zooms.
+- Sketchpad: image layers to trace over.
+
 ## Build 180 (5 Oct)
 - Closet slides under the bottom bar.
 - Emoji colours softened to suit the cardboard look.

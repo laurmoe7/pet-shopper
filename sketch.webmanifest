@@ -9,8 +9,8 @@
   "background_color": "#fdf1f3",
   "theme_color": "#fde3ea",
   "icons": [
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" },
-    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "sketch-icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "sketch-icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "sketch-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }
