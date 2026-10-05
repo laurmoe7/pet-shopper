@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 178 (5 Oct)
+- Closet: save and name outfits (button on the dressing room stage).
+- Dressing room: highlight no longer cut off on the left.
+- Dressing room: more space between headings.
+
 ## Build 177 (5 Oct)
 - Sketchpad moved out of the game to its own page (sketch.html).
 - Backgrounds' pictures moved to their own file.

@@ -76,6 +76,7 @@ function refreshDressRoom() {
   });
   var view = dressPreview.querySelector('.pet');
   if (view) dressUp(view, state.pet.outfit);
+  if (typeof markCloset === 'function') markCloset();   // app-closet.js: shows which saved outfit is on
 }
 /** Builds the dressing room's live copy of the pet (to try things on) from the main pet. */
 function buildDressView() {
@@ -134,16 +135,23 @@ function onWearClick(e) {
   var pointed = hoveredHat === b.dataset.hat;
   if (pointed && wearing) dressSay(line('look', ['how do I look?', 'I love it!', 'kawaii?', 'ta-da!']), 1600, true);
   else dressSay(wearing ? hatLine(b.dataset.hat) : 'fresh look!', 1600);
+  dressCheer(wearing);
+}
+/**
+ * The dressing-room pet's little cheer after a change of outfit: a hop and happy eyes, then back to resting.
+ * @param {boolean} happy Something was put on (it cheers); false when something came off.
+ */
+function dressCheer(happy) {
   var view = dressPreview.querySelector('.pet');
   if (view) {
     view.dataset.mouth = 'smile';
-    view.dataset.eyes = wearing ? 'happy' : 'open';
+    view.dataset.eyes = happy ? 'happy' : 'open';
     // back to open eyes soon, so they can follow your finger again
     clearTimeout(sparkleTimer);
     sparkleTimer = setTimeout(function () { view.dataset.eyes = dressRest.eyes; }, 900);
     // the cheer has its own timer: tapping the next outfit starts a sparkle, which clears sparkleTimer,
     // and that used to leave the arms waving in the air for good
-    view.dataset.arms = wearing ? 'cheer' : 'idle';
+    view.dataset.arms = happy ? 'cheer' : 'idle';
     clearTimeout(cheerTimer);
     cheerTimer = setTimeout(function () { view.dataset.arms = dressRest.arms; }, 900);
     view.classList.remove('hop'); void view.offsetWidth; view.classList.add('hop');

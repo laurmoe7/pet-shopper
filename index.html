@@ -732,7 +732,7 @@
         <use class="ht h2" href="#dfHeart" x="284" y="152" fill="#ff7d9f"/>
         <use class="ht h3" href="#dfHeart" x="204" y="100" fill="#ffb3c6"/>
       </g>
-    </svg><div class="dress-preview" id="dressPreview"></div><div class="dress-flash" id="dressFlash" aria-hidden="true"></div><div class="dress-bubble" id="dressBubble" aria-live="polite" hidden></div></div>
+    </svg><div class="dress-preview" id="dressPreview"></div><div class="dress-flash" id="dressFlash" aria-hidden="true"></div><div class="dress-bubble" id="dressBubble" aria-live="polite" hidden></div><button type="button" class="closet-btn" id="closetBtn" aria-label="Closet: saved outfits"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.4a2.3 2.3 0 1 1 2.3 2.3c-1 0-2.3.8-2.3 2v1M12 11.7l8.6 6.1a1.2 1.2 0 0 1-.7 2.2H4.1a1.2 1.2 0 0 1-.7-2.2z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Closet</span></button></div>
     <div class="dress-tabs" id="dressTabs" role="tablist" aria-label="Pet and outfits">
       <button type="button" role="tab" data-tab="pet" aria-selected="true"><img src="emoji/1F43E.svg" alt="" width="22" height="22"><span>Pet</span></button>
       <button type="button" role="tab" data-tab="hat" aria-selected="false"><img src="emoji/1F3A9.svg" alt="" width="22" height="22"><span>Hats</span></button>
@@ -793,6 +793,19 @@
     </fieldset>
     <p class="lock-hint" id="hatHint" aria-live="polite" hidden></p>
     </div>
+  </form>
+</dialog>
+
+<!-- the closet: outfits saved by name, over the dressing room (app-closet.js) -->
+<dialog class="picker pet-sheet closet-sheet" id="closetSheet" aria-labelledby="closetTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="closetTitle">Closet</h2>
+    <div class="closet-save">
+      <input id="closetName" type="text" maxlength="16" autocomplete="off" enterkeyhint="done" placeholder="Name this outfit" aria-label="Name for the outfit you are wearing">
+      <button type="button" class="pill-btn" id="closetSave">Save what I'm wearing</button>
+    </div>
+    <p class="mood-info closet-note" id="closetNote" aria-live="polite"></p>
+    <div class="closet-grid" id="closetGrid"></div>
   </form>
 </dialog>
 
@@ -946,6 +959,7 @@
 <script src="app-actions.js"></script>
 <script src="app-petsheet.js"></script>
 <script src="app-dress.js"></script>
+<script src="app-closet.js"></script>
 <script src="app-room.js"></script>
 <script src="app-goals.js"></script>
 <script src="app-events.js"></script>

@@ -27,6 +27,7 @@
    * @property {Guard} guard  What the anti-cheat rules remember.
    * @property {string} personality  Id from personalities.js; "foodie" to start.
    * @property {Object<string, number>} tastes  How many of each food category it has eaten.
+   * @property {{id: string, name: string, outfit: Object<string, string>}[]} closet  Outfits saved by name in the closet.
    * @property {Object<string, {x: number, y: number}>} room  Placed decor by id, with its
    *   spot in the room (0 to 1 across and down).
    * @property {Object<string, Favourite>} favourites  What has been bought most, by word.
@@ -181,6 +182,8 @@
       outfit: parseOutfit(saved.outfit || {}),
       achievements: saved.achievements && typeof saved.achievements === 'object' ? saved.achievements : {},
       room: saved.room && typeof saved.room === 'object' ? saved.room : {},
+      // outfits saved in the closet (dressing room)
+      closet: parseCloset(saved.closet),
       personality: saved.personality || 'foodie',
       tastes: saved.tastes && typeof saved.tastes === 'object' ? saved.tastes : {},
       // check-mark stamps from ticked tasks, by task kind (the stamp book)
@@ -904,6 +907,43 @@
     return name || old || 'Nibble';
   }
 
+  /** How many outfits the closet holds. */
+  var CLOSET_MAX = 24;
+  /** @returns {string} An outfit name tidied up: single spaces, at most 16 characters ('' if nothing was typed). */
+  function cleanOutfitName(typed) { return String(typed || '').replace(/\s+/g, ' ').trim().slice(0, 16).trim(); }
+  /** @returns {{id: string, name: string, outfit: Object}[]} The saved outfits from whatever was stored, with defaults filled in. */
+  function parseCloset(saved) {
+    if (!Array.isArray(saved)) return [];
+    return saved.filter(function (o) { return o && typeof o === 'object'; }).slice(0, CLOSET_MAX).map(function (o, i) {
+      return { id: typeof o.id === 'string' && o.id ? o.id : 'o' + i, name: cleanOutfitName(o.name) || 'Outfit ' + (i + 1), outfit: parseOutfit(o.outfit && typeof o.outfit === 'object' ? o.outfit : {}) };
+    });
+  }
+  /** @returns {boolean} Whether anything is worn. */
+  function isDressed(outfit) { return OUTFIT_SLOTS.some(function (slot) { return wornIds(outfit, slot).length > 0; }); }
+  /** @returns {boolean} Whether two outfits have the same things on (the order they went on in does not matter). */
+  function sameOutfit(a, b) {
+    return OUTFIT_SLOTS.every(function (slot) { return wornIds(a, slot).slice().sort().join() === wornIds(b, slot).slice().sort().join(); });
+  }
+  /**
+   * Puts an outfit in the closet.
+   * @param {{id: string, name: string, outfit: Object}[]} closet Changed in place.
+   * @param {string} name What it is called ('' gives "Outfit 3" and so on).
+   * @param {Object} outfit What is worn (copied).
+   * @param {string} id A new id.
+   * @returns {{entry: ?Object, why: string}} The saved entry; or, if it could not be saved, `why`: 'empty' (nothing worn), 'same' (it is already there, `entry` is that one) or 'full'.
+   */
+  function saveOutfit(closet, name, outfit, id) {
+    if (!isDressed(outfit)) return { entry: null, why: 'empty' };
+    var dupe = closet.filter(function (o) { return sameOutfit(o.outfit, outfit); })[0];
+    if (dupe) return { entry: dupe, why: 'same' };
+    if (closet.length >= CLOSET_MAX) return { entry: null, why: 'full' };
+    var n = closet.length + 1;
+    while (closet.some(function (o) { return o.name === 'Outfit ' + n; }) && !cleanOutfitName(name)) n++;
+    var entry = { id: id, name: cleanOutfitName(name) || 'Outfit ' + n, outfit: parseOutfit(JSON.parse(JSON.stringify(outfit))) };
+    closet.push(entry);
+    return { entry: entry, why: '' };
+  }
+
   /** Species that are birds: they talk and eat with a beak, so they have no mouth. Add new birds here. */
   var BIRDS = ['birdie'];
 
@@ -1411,6 +1451,12 @@
     splitSpoken: splitSpoken, wornIds: wornIds, toggleWorn: toggleWorn, faceStack: faceStack, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, REPEATS: REPEATS, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
     createItem: createItem,
     petProfile: petProfile,
+    CLOSET_MAX: CLOSET_MAX,
+    cleanOutfitName: cleanOutfitName,
+    parseCloset: parseCloset,
+    isDressed: isDressed,
+    sameOutfit: sameOutfit,
+    saveOutfit: saveOutfit,
     parseState: parseState,
     mood: mood,
     addToList: addToList,

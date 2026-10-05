@@ -786,8 +786,10 @@ button { font: inherit; color: inherit; }
 .dress-tabs button img { width: 22px; height: 22px; opacity: .75; }
 .dress-tabs button[aria-selected="true"] { background: var(--accent); color: #fff; border-color: transparent; transform: translateY(-1px); box-shadow: 0 2px 0 rgba(123, 90, 61, .3); }
 .dress-tabs button[aria-selected="true"] img { opacity: 1; }
-.dress-panels { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 22px; }
+.dress-panels { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 5px 5px 22px; margin: -5px -5px 0; }   /* room round the tiles, so the ring on the one you picked is not cut off at the edge */
 .dress-panels > * + * { margin-top: 12px; }
+/* a clear gap between the headings (Species, Skin, Personality; Glasses, Mouth) */
+.dress-panel[data-tab="pet"] > * + *, .dress-panel[data-tab="face"] > * + * { margin-top: 22px; }
 .dress-panel[hidden] { display: none; }
 .picker.dress-full .picker-inner > * + * { margin-top: 0; }
 .picker.dress-full .pet.preview { width: 180px; height: 168px; }
@@ -1877,7 +1879,8 @@ html:root .options,
 html:root .picker-grid button,
 html:root .treat-grid button,
 html:root .picker .hat-strip button,
-html:root .picker .species-grid button {
+html:root .picker .species-grid button,
+html:root .picker .closet-wear {
   background: var(--surface); border: 0; border-radius: 10px;
   box-shadow: 0 2px 0 var(--shadow), 0 0 0 1.5px var(--cb-edge);
   outline: 1.5px dashed var(--cb-edge); outline-offset: -4px;
@@ -2203,3 +2206,36 @@ html.typing .page-fade { display: none; }
 .anim-chips { display: flex; flex-wrap: wrap; gap: 5px; }
 .anim-chip { padding: 5px 10px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; }
 .anim-chip[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: transparent; }
+
+/* ---------- the closet (app-closet.js) ---------- */
+.closet-btn {
+  position: absolute; right: 10px; bottom: 8px; z-index: 3; width: 48px; padding: 4px 0 3px; display: flex; flex-direction: column; align-items: center; gap: 0;
+  border: 1.5px solid var(--outline); border-radius: 14px; background: var(--surface); color: var(--ink); box-shadow: 0 2px 0 var(--outline);
+  font: inherit; font-size: .62rem; font-weight: 800; cursor: pointer;
+}
+.closet-btn svg { width: 24px; height: 24px; display: block; }
+.closet-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--outline); }
+.closet-btn:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
+.picker.closet-sheet { z-index: 30; }
+.picker.pet-sheet.closet-sheet .picker-inner { padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); max-height: 62vh; overflow-y: auto; scrollbar-width: none; }
+.closet-save { display: flex; gap: 8px; align-items: center; }
+.closet-save input, .closet-rename { flex: 1; min-width: 0; padding: 7px 10px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: .9rem; }
+.closet-save .pill-btn { flex: none; padding: 6px 12px; }
+.closet-note { min-height: 1.3em; margin: 0; }
+.closet-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; padding: 3px; }
+.closet-item { position: relative; min-width: 0; }
+.closet-wear {
+  width: 100%; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px 6px;
+  border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 18px; cursor: pointer; font: inherit; font-size: .8rem; font-weight: 700; color: var(--ink);
+}
+.closet-wear:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
+.closet-wear[aria-pressed="true"] { border-color: var(--outline); background: var(--stage-top); }
+.closet-label, .closet-rename { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.closet-rename { flex: none; width: 100%; padding: 3px 6px; font-size: .8rem; text-align: center; box-sizing: border-box; }
+.closet-mini-btn {
+  position: absolute; top: 3px; min-width: 24px; height: 24px; padding: 0 5px; display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--muted); font: inherit; font-size: .72rem; font-weight: 800; cursor: pointer;
+}
+.closet-pen { left: 3px; } .closet-del { right: 3px; }
+.closet-del.armed { background: #ffd9d4; color: #a3342b; border-color: #e58c84; }
+.closet-empty { grid-column: 1 / -1; }
