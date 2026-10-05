@@ -71,8 +71,8 @@ function refreshDressRoom() {
   var view = dressPreview.querySelector('.pet');
   if (view) dressUp(view, state.pet.outfit);
 }
-$('dressBtn').addEventListener('click', function () {
-  // a live copy of the pet to try things on
+/** Builds the dressing room's live copy of the pet (to try things on) from the main pet. */
+function buildDressView() {
   var view = document.createElement('div');
   view.className = 'pet preview x-cheeks' + (L.isBird(state.pet.species) ? ' beaked' : '');
   view.dataset.species = state.pet.species;
@@ -83,8 +83,34 @@ $('dressBtn').addEventListener('click', function () {
   view.dataset.arms = 'idle';
   view.appendChild(petCopy());
   dressPreview.replaceChildren(view);
-  refreshLocks();
   refreshDressRoom();
+}
+// the page's tabs: Pet (name, species, skin, personality), then one tab for each kind of outfit
+var dressTabs = $('dressTabs'), dressPanels = $('dressPanels'), nameAtOpen = '';
+/** Shows one tab's panel, from the top. @param {string} tab 'pet', 'hat', 'body', 'face', 'mouth', 'neck' or 'feet'. */
+function showDressTab(tab) {
+  dressTabs.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === tab)); });
+  dressPanels.querySelectorAll('.dress-panel').forEach(function (p) { p.hidden = p.dataset.tab !== tab; });
+  dressPanels.scrollTop = 0;
+}
+dressTabs.addEventListener('click', function (e) {
+  var b = e.target.closest('button');
+  if (!b) return;
+  sound('tap');
+  showDressTab(b.dataset.tab);
+  var again = dressTabs.querySelector('[aria-selected="true"]');
+  if (again && again.scrollIntoView) again.scrollIntoView({ inline: 'center', block: 'nearest' });
+});
+$('dressBtn').addEventListener('click', function () {
+  if (dressSheet.open) return;   // the same button closes it (openDialog)
+  nameAtOpen = petName();
+  showName();
+  lastNameTap = 0;
+  refreshLocks();
+  applyPet();
+  renderPersonalities();
+  buildDressView();
+  showDressTab('pet');   // it always opens on the pet's own page
   openDialog(dressSheet);
 });
 function onWearClick(e) {
@@ -184,8 +210,14 @@ function onHatLeave() {
 }
 
 dressSheet.addEventListener('close', function () {
+  finishRename(true);
+  state.pet.name = petName();
+  save();
+  applyPet();
+  speciesHint.hidden = true;
   dressBubble.hidden = true;
   hoveredHat = null;
+  if (!busy && petName() !== nameAtOpen) { pulse('hop', 500); talk('name', ["I'm {name}!"], 1500, { name: petName() }); return; }   // renamed: it says its new name
   if (!busy) {
     var item = L.OUTFIT_SLOTS.some(function (slot) { return wardrobeItem(state.pet.outfit[slot]); });
     if (baseState() === 'sleepy') {

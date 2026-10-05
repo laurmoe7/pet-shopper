@@ -77,7 +77,6 @@ personalityStrip.addEventListener('click', function (e) {
   renderPersonalities();
   sound('excited');
 });
-$('editPetBtn').addEventListener('click', renderPersonalities);
 renderPersonalities();
 
 // ---------- suggestions ----------

@@ -1,4 +1,4 @@
-// Edit pet: name and species.
+// Edit pet: name, species and skin (the panels sit on the Pet tab of the dressing room, app-dress.js).
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
@@ -16,7 +16,7 @@ var SPECIES = [
   { id: 'hedgehog', label: 'Hedgehog' },
   { id: 'axolotl', label: 'Axolotl' }
 ];
-var petSheet = $('petSheet'), petNameInput = $('petNameInput'), speciesGrid = $('speciesGrid');
+var petNameInput = $('petNameInput'), speciesGrid = $('speciesGrid');
 
 /** @returns {string} The pet's name, or "Nibble" if it is blank. */
 function petName() { return (state.pet.name || '').trim() || 'Nibble'; }
@@ -34,6 +34,7 @@ function applyPet() {
     b.setAttribute('aria-pressed', b.dataset.species === state.pet.species ? 'true' : 'false');
   });
   renderSkins();
+  if (typeof dressSheet !== 'undefined' && dressSheet.open) buildDressView();   // the dressing room shows the new species or skin
 }
 
 /** @returns {SVGSVGElement} A copy of the pet drawing for a button or the dressing room. */
@@ -150,18 +151,3 @@ petNameInput.addEventListener('keydown', function (e) {
   else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finishRename(false); }
 });
 petNameInput.addEventListener('blur', function () { finishRename(true); });
-$('editPetBtn').addEventListener('click', function () {
-  showName();
-  lastNameTap = 0;
-  refreshLocks();
-  applyPet();
-  openDialog(petSheet);
-});
-petSheet.addEventListener('close', function () {
-  finishRename(true);
-  state.pet.name = petName();
-  save();
-  applyPet();
-  if (!busy) { pulse('hop', 500); talk('name', ["I'm {name}!"], 1500, { name: petName() }); }
-});
-petSheet.addEventListener('click', function (e) { if (e.target === petSheet) petSheet.close(); });

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 165 (5 Oct)
+- Pet and Dress-up are one page: tabs for Pet, Hats, Clothes, Glasses, Mouth, Neck and Feet. It opens on Pet.
+
 ## Build 164 (5 Oct)
 - Joker and Feisty get their own icons.
 

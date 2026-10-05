@@ -168,7 +168,6 @@ $('goalsBtn').addEventListener('click', function () {
   openDialog(goalsSheet);
 });
 goalsSheet.addEventListener('click', function (e) { if (e.target === goalsSheet) goalsSheet.close(); });
-petSheet.addEventListener('close', function () { speciesHint.hidden = true; });
 dressSheet.addEventListener('close', function () { hatHint.hidden = true; });
 
 refreshLocks();
