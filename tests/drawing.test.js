@@ -42,7 +42,7 @@ test('the main pet buttons sit in a bar at the bottom of the screen', () => {
 });
 
 test('glasses have their own place on the pet, over the eyes', () => {
-  assert.match(html, /<g class="outfit-face"><\/g>/);
+  assert.match(html, /<g class="outfit-faces"><\/g>/);   // glasses and mouth things share one stack, drawn in the order they were put on
   assert.match(html, /id="faceStrip"/);
 });
 
@@ -90,7 +90,7 @@ test('the headphones are over-ear: padded band, hinges, round cups with rims and
 });
 
 test('the pet has places for neckwear (under the face) and shoes (over the feet)', () => {
-  const neck = html.indexOf('<g class="outfit-neck">'), face = html.indexOf('<g class="outfit-face">');
+  const neck = html.indexOf('<g class="outfit-neck">'), face = html.indexOf('<g class="outfit-faces">');
   const feet = html.indexOf('<g class="outfit-feet">'), arms = html.indexOf('<g class="arm arm-r">');
   assert.ok(neck > 0 && neck < html.indexOf('class="redface"') && neck < face);
   assert.ok(feet > arms, 'shoes are drawn in front of the body');
@@ -114,8 +114,8 @@ test('plain ellipses sit under the head and the penguin skin belly, so a GPU hai
 
 test('mouth items (toast, mustache) are drawn in front of the face, neckwear under it', () => {
   const { Wardrobe } = require('./load');
-  const mouth = html.indexOf('<g class="outfit-mouth">');
-  assert.ok(mouth > html.indexOf('<g class="outfit-face">') && mouth < html.indexOf('<g class="arm arm-r">'));
+  const stack = html.indexOf('<g class="outfit-faces">');
+  assert.ok(stack > html.indexOf('<g class="outfit-neck-over">') && stack < html.indexOf('<g class="arm arm-r">'));
   assert.equal(Wardrobe.find((w) => w.id === 'toast').slot, 'mouth');
   assert.equal(Wardrobe.find((w) => w.id === 'mustache').slot, 'mouth');
   assert.ok(!Wardrobe.some((w) => w.front), 'nothing uses the old front flag: mouth items have their own slot');

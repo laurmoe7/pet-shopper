@@ -3,8 +3,9 @@
 // Only a game: nothing counts for goals. These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
-var toyEl = $('toy'), toyBall = toyEl.querySelector('.toy-ball'), toyX = 58, playing = false;
-var TOY_HOME = 58; // its spot beside the cushion
+var toyEl = $('toy'), toyBall = toyEl.querySelector('.toy-ball'), toyX = toyHome(), playing = false;
+/** @returns {number} The toy's spot beside the cushion: a bigger pet takes more room (its size is --pet-size on the stage). */
+function toyHome() { return Math.round(58 * (parseFloat(getComputedStyle(stage).getPropertyValue('--pet-size')) || 1)); }
 /** @returns {string} How the species plays: fetch, bat, tongue or hug. */
 function playStyle() {
   var sp = state.pet.species;
@@ -166,7 +167,7 @@ function fetchBack() {
     pulse('hophop', 1500);
     drift(['♥', '✦', '♥'], petTop(), 3);
     talk('toyAgain', ['again! again!', 'throw it again!', 'I got it!', 'fetched it!'], 1500);
-    return toyBounce(TOY_HOME, 600, 10, mouthHeight());
+    return toyBounce(toyHome(), 600, 10, mouthHeight());
   }).then(function () { return wait(900); });
 }
 /** Hugs the toy for a moment, then lets it roll off a little. */
@@ -378,4 +379,11 @@ function tongueGrab(x, y) {
     }
     requestAnimationFrame(step);
   });
+}
+
+/** Puts the toy back at its spot beside the cushion (for when the pet's size changes with its species). */
+function toyBackHome() {
+  if (playing) return;
+  toyEl.style.translate = '';
+  toyX = toyHome();
 }

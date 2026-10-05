@@ -34,6 +34,7 @@ function applyPet() {
     b.setAttribute('aria-pressed', b.dataset.species === state.pet.species ? 'true' : 'false');
   });
   renderSkins();
+  if (typeof toyBackHome === 'function') toyBackHome();   // a bigger or smaller pet needs the toy a different distance away
   if (typeof dressSheet !== 'undefined' && dressSheet.open) buildDressView();   // the dressing room shows the new species or skin
 }
 

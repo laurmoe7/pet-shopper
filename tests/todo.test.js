@@ -178,3 +178,18 @@ test('a slot can hold several things at once', () => {
   L.toggleWorn(o, 'feet', 'boots'); L.toggleWorn(o, 'feet', 'clogs');
   assert.deepEqual(L.wornIds(o, 'feet'), ['clogs']);         // only one pair of shoes at a time
 });
+
+test('glasses and mouth things stack in the order they were put on', () => {
+  const o = { face: 'none', mouth: 'none' };
+  L.toggleWorn(o, 'mouth', 'mustache');
+  L.toggleWorn(o, 'face', 'shades');
+  assert.deepEqual(L.faceStack(o).map((e) => e.id), ['mustache', 'shades']);   // the shades are on top of the mustache
+  L.toggleWorn(o, 'face', 'eyepatch');
+  L.toggleWorn(o, 'mouth', 'hay');
+  assert.deepEqual(L.faceStack(o).map((e) => e.id), ['mustache', 'shades', 'eyepatch', 'hay']);
+  L.toggleWorn(o, 'face', 'shades');                                              // taking one off keeps the rest in order
+  assert.deepEqual(L.faceStack(o).map((e) => e.id), ['mustache', 'eyepatch', 'hay']);
+  assert.deepEqual(L.faceStack({ face: 'shades', mouth: 'hay' }).map((e) => e.id), ['shades', 'hay']);   // an old save: glasses, then mouth
+  L.toggleWorn(o, 'mouth', 'none');
+  assert.deepEqual(L.faceStack(o).map((e) => e.id), ['eyepatch']);
+});

@@ -65,6 +65,7 @@
    */
   function parseOutfit(saved) {
     var o = OUTFIT_SLOTS.reduce(function (out, slot) { out[slot] = saved[slot] || 'none'; return out; }, {});
+    if (typeof saved.order === 'string' && saved.order) o.order = saved.order;   // the order things went on in (see faceStack)
     if (o.hat === 'hoodie') { o.body = 'hoodie'; o.hat = 'none'; }    // the hoodie moved from hats to clothes
     if (o.hat === 'mintphones') o.hat = 'headphones';               // the mint phones were removed
     if (o.feet === 'heels') o.feet = 'featherslides';                  // heels became feather slides
@@ -94,11 +95,34 @@
    * @returns {boolean} Whether it is worn now.
    */
   function toggleWorn(outfit, slot, id) {
-    if (id === 'none') { outfit[slot] = 'none'; return false; }
-    var ids = wornIds(outfit, slot), at = ids.indexOf(id);
-    if (at === -1) { if (slot === 'feet') ids = []; ids.push(id); } else ids.splice(at, 1);   // one pair of shoes at a time
-    outfit[slot] = ids.length ? ids.join(',') : 'none';
-    return at === -1;
+    var order = (outfit.order || '').split(',').filter(Boolean);
+    function drop(x) { var i = order.indexOf(x); if (i !== -1) order.splice(i, 1); }
+    var worn;
+    if (id === 'none') { wornIds(outfit, slot).forEach(drop); outfit[slot] = 'none'; worn = false; }
+    else {
+      var ids = wornIds(outfit, slot), at = ids.indexOf(id);
+      if (at === -1) { if (slot === 'feet') { ids.forEach(drop); ids = []; } ids.push(id); order.push(id); }   // one pair of shoes at a time
+      else { ids.splice(at, 1); drop(id); }
+      outfit[slot] = ids.length ? ids.join(',') : 'none';
+      worn = at === -1;
+    }
+    if (order.length) outfit.order = order.join(','); else delete outfit.order;
+    return worn;
+  }
+  /**
+   * The glasses and mouth things in the order they were put on, first at the bottom, so the next one goes on top of it
+   * (whichever of the two it is). Things worn from before the order was kept go glasses first, then the mouth.
+   * @param {Object<string, string>} outfit
+   * @returns {{slot: string, id: string}[]}
+   */
+  function faceStack(outfit) {
+    var order = (outfit.order || '').split(',').filter(Boolean);
+    var all = wornIds(outfit, 'face').map(function (id) { return { slot: 'face', id: id }; })
+      .concat(wornIds(outfit, 'mouth').map(function (id) { return { slot: 'mouth', id: id }; }));
+    function rank(e) { var i = order.indexOf(e.id); return i === -1 ? order.length : i; }
+    return all.map(function (e, n) { return { e: e, n: n }; })
+      .sort(function (a, b) { return rank(a.e) - rank(b.e) || a.n - b.n; })
+      .map(function (x) { return x.e; });
   }
   var SAMPLE = ['Bananas', 'Oat milk', '500g Quark', 'Broccoli', 'Chili flakes', 'Dark chocolate', 'Toilet paper', "Oma's cake"];
 
@@ -1244,7 +1268,7 @@
     isUnlocked: isUnlocked,
     gateFor: gateFor,
     emojiFor: emojiFor,
-    splitSpoken: splitSpoken, wornIds: wornIds, toggleWorn: toggleWorn, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, REPEATS: REPEATS, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
+    splitSpoken: splitSpoken, wornIds: wornIds, toggleWorn: toggleWorn, faceStack: faceStack, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, REPEATS: REPEATS, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
     createItem: createItem,
     petProfile: petProfile,
     parseState: parseState,

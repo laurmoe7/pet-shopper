@@ -25,9 +25,14 @@ function dressUp(el, outfit) {
   if (last) el.dataset.clothes = last.id; else delete el.dataset.clothes;
   el.classList.toggle('sleeved', clothes.some(function (c) { return c.sleeves; })); // arms become sleeves with the hand peeking out
   // mouth things (toast, mustache) are drawn in front of the face, so they can be worn with neckwear
-  ['face', 'mouth', 'neck', 'feet'].forEach(function (slot) {
+  ['neck', 'feet'].forEach(function (slot) {
     el.querySelector('.outfit-' + slot).innerHTML = worn(slot).map(function (w) { return w.svg; }).join('');
   });
+  // glasses and mouth things share one stack: the first put on is at the bottom, the next on top of it
+  el.querySelector('.outfit-faces').innerHTML = L.faceStack(outfit).map(function (e) {
+    var w = wardrobeItem(e.id);
+    return w ? '<g class="outfit-' + e.slot + '">' + w.svg + '</g>' : '';
+  }).join('');
   // with clothes on, neckwear is drawn over them instead of under the face
   var neck = el.querySelector('.outfit-neck'), over = el.querySelector('.outfit-neck-over');
   if (clothes.length && over) { over.innerHTML = neck.innerHTML; neck.innerHTML = ''; } else if (over) over.innerHTML = '';

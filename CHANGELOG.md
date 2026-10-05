@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 169 (5 Oct)
+- Glasses and mouth things layer in the order you put them on.
+- Size test: Nibble 20% smaller, the pig 20% bigger.
+
 ## Build 168 (5 Oct)
 - Tapping the Pet button again closes it.
 - Only one pair of shoes at a time.
