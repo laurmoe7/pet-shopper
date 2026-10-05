@@ -175,4 +175,6 @@ test('a slot can hold several things at once', () => {
   L.toggleWorn(o, 'hat', 'none');                            // "nothing" clears the slot
   assert.equal(o.hat, 'none');
   assert.deepEqual(L.wornIds(o, 'face'), ['shades']);        // a saved single id still reads
+  L.toggleWorn(o, 'feet', 'boots'); L.toggleWorn(o, 'feet', 'clogs');
+  assert.deepEqual(L.wornIds(o, 'feet'), ['clogs']);         // only one pair of shoes at a time
 });

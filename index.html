@@ -544,10 +544,18 @@
                   <path class="pc-smile" d="M12.6 6.4 Q13.9 7.7 15.2 6.4"/>
                 </g>
                 <g class="magnifier">
-                  <path class="mg-handle" d="M127.6 116 L139.5 122.5"/>
-                  <circle class="mg-lens" cx="120" cy="110" r="10.4"/>
-                  <g class="mg-eye"><ellipse class="mg-pupil" cx="120" cy="110.4" rx="6.6" ry="7.6"/><circle class="mg-glint" cx="117.2" cy="106.8" r="2.3"/><circle class="mg-glint" cx="122.8" cy="114" r="1.1"/></g>
-                  <path class="mg-shine" d="M112.6 107 Q113.8 102.6 118.4 101.6"/>
+                  <path class="mg-handle" d="M130.4 116.4 L139.5 122.5"/>
+                  <g transform="translate(120 110) scale(1.3) translate(-120 -110)">
+                    <circle class="mg-lens" cx="120" cy="110" r="10.4"/>
+                    <!-- the eye seen through the glass, enlarged: it shows the same eye the pet has (open, sparkling, happy or closed) -->
+                    <g class="mg-eye">
+                      <g class="mg-open"><ellipse class="mg-pupil" cx="120" cy="110.4" rx="6.6" ry="7.6"/><circle class="mg-glint" cx="117.2" cy="106.8" r="2.3"/><circle class="mg-glint" cx="122.8" cy="114" r="1.1"/></g>
+                      <g class="mg-star"><path class="mg-pupil" d="M120 101.2 L122.2 108 L129 110.2 L122.2 112.4 L120 119.2 L117.8 112.4 L111 110.2 L117.8 108Z"/><path class="mg-glint mg-g1" d="M125.4 102.4 l.7 1.9 l1.9 .7 l-1.9 .7 l-.7 1.9 l-.7 -1.9 l-1.9 -.7 l1.9 -.7Z"/><path class="mg-glint mg-g2" d="M112.2 115.4 l.5 1.4 l1.4 .5 l-1.4 .5 l-.5 1.4 l-.5 -1.4 l-1.4 -.5 l1.4 -.5Z"/></g>
+                      <path class="mg-arc mg-happy" d="M113.4 113.4 Q120 103.4 126.6 113.4"/>
+                      <path class="mg-arc mg-closed" d="M113.4 108.6 Q120 114.6 126.6 108.6"/>
+                    </g>
+                    <path class="mg-shine" d="M112.6 107 Q113.8 102.6 118.4 101.6"/>
+                  </g>
                 </g><ellipse cx="133" cy="117" rx="7" ry="9"/><path class="arm-cuff" d="M126.4 120.4 Q133 123.4 139.6 120.4"/><path class="arm-hand" d="M127.4 121.6 Q133 124 138.6 121.6 Q138 126 133 126 Q128 126 127.4 121.6 Z"/><path data-sp="frog" class="frog-web frog-web-hand" d="M127.2 122 Q125.4 133 129 132 Q131 128.5 133 132.5 Q135 128.5 137 132 Q140.6 133 138.8 122"/><g class="paw-part paw-hand"><path class="paw-line paw-toe-lines" d="M130.6 122 v3 M135.4 122 v3"/><g class="paw-beans"><path class="paw-bean" d="M130.7 119.8 a2.3 1.7 0 1 0 4.6 0 a2.3 1.7 0 1 0 -4.6 0 Z"/><circle class="paw-bean" cx="130" cy="122.8" r="1.05"/><circle class="paw-bean" cx="133" cy="123.7" r="1.05"/><circle class="paw-bean" cx="136" cy="122.8" r="1.05"/></g></g><g class="hoof-part hoof-hand"><path class="hoof" d="M126.3 119.6 Q133 122.8 139.7 119.6 Q139.2 126.2 133 126.2 Q126.8 126.2 126.3 119.6 Z"/><path class="hoof-split" d="M133 121.6 V126"/></g><ellipse class="arm-hi" cx="131" cy="114" rx="2.4" ry="3"/></g>
             </g>
             <!-- shoes go on the feet, in front of the bottom of the body -->

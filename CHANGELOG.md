@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 168 (5 Oct)
+- Tapping the Pet button again closes it.
+- Only one pair of shoes at a time.
+- Bigger magnifying glass; the magnified eye shows sparkles, happy and closed eyes too.
+
 ## Build 167 (5 Oct)
 - Menus and the main lists fade out at the bottom when there is more, no scroll bars.
 - Glasses and Mouth are one Face tab.

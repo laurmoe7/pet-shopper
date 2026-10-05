@@ -103,7 +103,7 @@ dressTabs.addEventListener('click', function (e) {
   if (again && again.scrollIntoView) again.scrollIntoView({ inline: 'center', block: 'nearest' });
 });
 $('dressBtn').addEventListener('click', function () {
-  if (dressSheet.open) return;   // the same button closes it (openDialog)
+  if (dressSheet.open) { dressSheet.close(); return; }   // tapping it again closes it, like the other menus
   nameAtOpen = petName();
   showName();
   lastNameTap = 0;

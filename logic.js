@@ -86,7 +86,8 @@
     return String((outfit && outfit[slot]) || '').split(',').filter(function (id) { return id && id !== 'none'; });
   }
   /**
-   * Puts something on or takes it off in its slot (others in the same slot stay on); 'none' takes the whole slot off.
+   * Puts something on or takes it off in its slot (others in the same slot stay on, except shoes: one pair at a time);
+   * 'none' takes the whole slot off.
    * @param {Object<string, string>} outfit  Changed in place.
    * @param {string} slot
    * @param {string} id
@@ -95,7 +96,7 @@
   function toggleWorn(outfit, slot, id) {
     if (id === 'none') { outfit[slot] = 'none'; return false; }
     var ids = wornIds(outfit, slot), at = ids.indexOf(id);
-    if (at === -1) ids.push(id); else ids.splice(at, 1);
+    if (at === -1) { if (slot === 'feet') ids = []; ids.push(id); } else ids.splice(at, 1);   // one pair of shoes at a time
     outfit[slot] = ids.length ? ids.join(',') : 'none';
     return at === -1;
   }
