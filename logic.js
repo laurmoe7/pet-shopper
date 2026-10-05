@@ -1225,6 +1225,55 @@
     return true;
   }
 
+
+  // ---------- sketchpad (Developer tools): drawings kept as vectors in the pet's own coordinates ----------
+  /** @returns {string} A number for an SVG path, with up to `dp` decimals and no trailing zeros. */
+  function skNum(n, dp) { return String(+n.toFixed(dp)); }
+  /**
+   * Turns a freehand line into a smooth SVG path (curves through the midpoints of the points).
+   * @param {number[][]} pts [[x, y], ...]
+   * @param {boolean} closed Close the shape (for filled blobs).
+   * @param {number} dp Decimals to keep.
+   */
+  function sketchPath(pts, closed, dp) {
+    if (!pts.length) return '';
+    var P = function (p) { return skNum(p[0], dp) + ' ' + skNum(p[1], dp); };
+    if (pts.length === 1) return 'M' + P(pts[0]) + 'h0.01';   // a dot (round caps make it visible)
+    var d = 'M' + P(pts[0]);
+    for (var i = 1; i < pts.length - 1; i++) {
+      d += 'Q' + P(pts[i]) + ' ' + P([(pts[i][0] + pts[i + 1][0]) / 2, (pts[i][1] + pts[i + 1][1]) / 2]);
+    }
+    return d + 'L' + P(pts[pts.length - 1]) + (closed ? 'Z' : '');
+  }
+  /** @returns {boolean} Whether a line (or dot) passes within `r` of the point `p`. */
+  function sketchHit(pts, p, r) {
+    for (var i = 0; i < pts.length; i++) {
+      var a = pts[i], b = pts[i + 1] || a, dx = b[0] - a[0], dy = b[1] - a[1], len2 = dx * dx + dy * dy;
+      var t = len2 ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / len2)) : 0;
+      var ex = a[0] + t * dx - p[0], ey = a[1] + t * dy - p[1];
+      if (ex * ex + ey * ey <= r * r) return true;
+    }
+    return false;
+  }
+  /**
+   * Builds the drawing as an SVG file: the same coordinates as the pet, backdrop or toy it was drawn over.
+   * @param {{pts: number[][], color: string, width: number, fill: boolean}[]} strokes
+   * @param {{x: number, y: number, w: number, h: number}} view The drawing area in the reference's coordinates.
+   * @param {Object} meta Notes for whoever reads the file (what it is, which pet it was drawn on...).
+   */
+  function sketchSvg(strokes, view, meta) {
+    var dp = view.w > 100 ? 1 : 2;
+    var esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/--/g, '- -'); };
+    var out = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + [view.x, view.y, view.w, view.h].join(' ') + '" width="' + Math.round(view.w * 4) + '" height="' + Math.round(view.h * 4) + '" fill="none" stroke-linecap="round" stroke-linejoin="round">'];
+    out.push('<!-- ' + esc(JSON.stringify(meta || {})) + ' -->');
+    strokes.forEach(function (s) {
+      var d = sketchPath(s.pts, s.fill && s.pts.length > 2, dp);
+      out.push('<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + esc(s.color) + '"' : '') + '/>');
+    });
+    out.push('</svg>');
+    return out.join('\n');
+  }
+
   root.PetLogic = {
     unlockAll: unlockAll,
     lockAll: lockAll,
@@ -1276,6 +1325,7 @@
     addToList: addToList,
     toggleDone: toggleDone,
     pickEmoji: pickEmoji,
-    soundFor: soundFor
+    soundFor: soundFor,
+    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg
   };
 })(typeof self !== 'undefined' ? self : globalThis);

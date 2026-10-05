@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 173 (5 Oct)
+- Developer tool: sketchpad to draw over the pet, scene or toy and send it.
+
 ## Build 172 (5 Oct)
 - Developer tool: animation player to preview any animation by name.
 

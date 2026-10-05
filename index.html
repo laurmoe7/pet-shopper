@@ -907,6 +907,62 @@
   </form>
 </dialog>
 
+<dialog class="picker sketch-sheet" id="sketchSheet" aria-label="Sketchpad (developer tool)">
+  <form method="dialog" class="sk-body" id="skBody">
+    <div class="sk-row sk-top">
+      <div class="sk-seg" id="skModes" role="group" aria-label="What to draw on">
+        <button type="button" data-mode="pet" aria-pressed="true">Pet</button>
+        <button type="button" data-mode="scene" aria-pressed="false">Scene</button>
+        <button type="button" data-mode="toy" aria-pressed="false">Toy</button>
+      </div>
+      <div class="sk-seg" id="skZoom" role="group" aria-label="Zoom">
+        <button type="button" data-zoom="1" aria-pressed="true">1×</button>
+        <button type="button" data-zoom="2" aria-pressed="false">2×</button>
+        <button type="button" data-zoom="3" aria-pressed="false">3×</button>
+      </div>
+      <button type="button" class="pill-btn" id="skDone">Done</button>
+    </div>
+    <div class="sk-view" id="skView"><div class="sk-stage" id="skStage"></div></div>
+    <p class="sk-coords" id="skCoords" aria-live="polite"></p>
+    <div class="sk-row sk-tools" id="skTools" role="group" aria-label="Tools">
+      <button type="button" data-tool="pen" aria-pressed="true">Pen</button>
+      <button type="button" data-tool="blob" aria-pressed="false">Filled</button>
+      <button type="button" data-tool="erase" aria-pressed="false">Erase</button>
+      <button type="button" data-tool="hand" aria-pressed="false">Move</button>
+      <button type="button" id="skUndo">Undo</button>
+      <button type="button" id="skClear">Clear</button>
+    </div>
+    <div class="sk-row sk-colours" id="skColours" role="group" aria-label="Colour"></div>
+    <div class="sk-row">
+      <div class="sk-seg" id="skSizes" role="group" aria-label="Line size">
+        <button type="button" data-size="0" aria-pressed="false">Thin</button>
+        <button type="button" data-size="1" aria-pressed="true">Medium</button>
+        <button type="button" data-size="2" aria-pressed="false">Thick</button>
+      </div>
+      <label class="sk-check"><input type="checkbox" id="skGrid" checked> Grid</label>
+      <label class="sk-check"><input type="checkbox" id="skRef" checked> Show pet</label>
+    </div>
+    <div class="sk-row sk-opts">
+      <label>Ghost <input type="range" id="skGhost" min="15" max="100" value="100" aria-label="How strong the picture underneath is"></label>
+      <label id="skBdWrap">Background <select id="skBd"></select></label>
+    </div>
+    <div class="sk-row">
+      <select id="skKind" aria-label="What is it?">
+        <option value="hat">Hat</option><option value="clothes">Clothes</option><option value="face">Glasses / face</option><option value="mouth">Mouth thing</option>
+        <option value="neck">Neck</option><option value="feet">Shoes</option><option value="skin">Skin</option><option value="toy">Toy</option>
+        <option value="background">Background</option><option value="furniture">Room furniture</option><option value="other">Something else</option>
+      </select>
+      <input type="text" id="skNote" placeholder="Tell Claude about it…" autocomplete="off" aria-label="A note for Claude">
+    </div>
+    <div class="sk-row sk-send">
+      <button type="button" class="pill-btn" id="skShare">Share</button>
+      <button type="button" class="pill-btn" id="skSave">Save files</button>
+      <button type="button" class="pill-btn" id="skCopy">Copy SVG</button>
+    </div>
+    <p class="dev-status" id="skStatus" aria-live="polite"></p>
+  </form>
+</dialog>
+
 <dialog class="picker pet-sheet" id="optionsSheet" aria-labelledby="optionsTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="optionsTitle">Options</h2>
@@ -929,6 +985,7 @@
     </label>
     <div class="dev-actions" id="devActions"></div>
     <button type="button" class="pill-btn" id="animBtn">Animation player</button>
+    <button type="button" class="pill-btn" id="sketchBtn">Sketchpad</button>
     <p class="dev-status" id="devStatus" aria-live="polite"></p>
   </form>
 </dialog>
@@ -959,6 +1016,7 @@
 <script src="app-treats.js"></script>
 <script src="app-options.js"></script>
 <script src="app-anims.js"></script>
+<script src="app-sketch.js"></script>
 <script src="app-voice.js"></script>
 <script src="app-backdrop.js"></script>
 <script src="app-idle.js"></script>
