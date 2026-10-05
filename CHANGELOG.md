@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 187 (5 Oct)
+- Magnifying glass: no more star eye; he closes his eyes and smiles after squinting.
+- Sketchpad: undo and redo react when pressed and grey out when empty.
+- Sketchpad: pen colour shown; eyedropper reports problems.
+- Sketchpad: removed the hint under Images.
+
 ## Build 186 (5 Oct)
 - Magnifying glass: the sparkle is enlarged in the glass.
 - Magnifying glass: thicker handle.

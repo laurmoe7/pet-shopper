@@ -184,6 +184,7 @@ function skBuild() {
   skStage.replaceChildren(skImgUnder, ref, skImgOver, skGrid(v), skDraw, skSelBox);
   skRenderImages();
   SK.strokes[SK.mode].forEach(function (s) { skDraw.appendChild(skEl(s)); });
+  skHistoryUI();
   skApplyLook();
   skLayout();
 }
@@ -254,6 +255,18 @@ function skPushHistory() {
   var h = SK.hist[SK.mode];
   h.push(JSON.stringify(SK.strokes[SK.mode]));
   if (h.length > 60) h.shift();
+  skHistoryUI();
+}
+/** Greys out Undo and Redo when there is nothing to undo or redo. */
+function skHistoryUI() {
+  $('skUndo').disabled = !SK.hist[SK.mode].length;
+  $('skRedo').disabled = !SK.redo[SK.mode].length;
+}
+/** A quick pulse on a button, so you can see the press (also for the keyboard shortcuts). */
+function skFlash(id) {
+  var b = $(id);
+  b.classList.remove('flash'); void b.offsetWidth; b.classList.add('flash');
+  setTimeout(function () { b.classList.remove('flash'); }, 320);
 }
 function skRedraw() {
   skDraw.replaceChildren.apply(skDraw, SK.strokes[SK.mode].map(skEl));
@@ -329,17 +342,23 @@ function skCancel() {
 function skUndo() {
   var h = SK.hist[SK.mode];
   if (!h.length) { skStatus.textContent = 'Nothing to undo.'; return; }
+  skFlash('skUndo');
   SK.redo[SK.mode].push(JSON.stringify(SK.strokes[SK.mode]));
   SK.strokes[SK.mode] = JSON.parse(h.pop());
   skRedraw();
+  skHistoryUI();
+  skStatus.textContent = 'Undone.';
   skSave();
 }
 function skRedo() {
   var r = SK.redo[SK.mode];
   if (!r.length) { skStatus.textContent = 'Nothing to redo.'; return; }
+  skFlash('skRedo');
   SK.hist[SK.mode].push(JSON.stringify(SK.strokes[SK.mode]));
   SK.strokes[SK.mode] = JSON.parse(r.pop());
   skRedraw();
+  skHistoryUI();
+  skStatus.textContent = 'Redone.';
   skSave();
 }
 
@@ -570,6 +589,8 @@ function skColourButtons() {
 }
 function skUseColour(c) {
   SK.color = c;
+  $('skCur').style.background = c;
+  $('skCurText').textContent = 'Pen colour ' + c;
   $('skColours').querySelectorAll('.sk-swatch').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.c === c)); });
   var pick = $('skPick');
   if (pick && /^#[0-9a-f]{6}$/i.test(c)) pick.value = c;
@@ -579,10 +600,15 @@ function skUseColour(c) {
 function skEyedrop() {
   if (!window.EyeDropper) { skStatus.textContent = 'The eyedropper needs Chrome or Edge on a computer.'; return; }
   skStatus.textContent = 'Click anywhere on the screen to pick a colour. Esc cancels.';
-  new window.EyeDropper().open().then(function (r) {
+  var open;
+  try { open = new window.EyeDropper().open(); } catch (e) { skStatus.textContent = 'The eyedropper could not start: ' + e.message; return; }
+  open.then(function (r) {
     skUseColour(r.sRGBHex);
-    skStatus.textContent = 'Picked ' + r.sRGBHex + '.';
-  }).catch(function () { skStatus.textContent = ''; /* cancelled with Esc */ });
+    if (SK.tool === 'erase' || SK.tool === 'hand' || SK.tool === 'imgmove') skSetTool('pen');
+    skStatus.textContent = 'Picked ' + r.sRGBHex + '. It is your pen colour now.';
+  }).catch(function (e) {
+    skStatus.textContent = e && e.name === 'AbortError' ? 'Eyedropper cancelled.' : 'The eyedropper did not work: ' + (e && (e.message || e.name) || 'unknown error') + '. Use the colour box or a swatch instead.';
+  });
 }
 function skSetTool(t) {
   if (t === 'drop') { skEyedrop(); return; }   // not a mode: it picks once, then you carry on with the tool you had
@@ -676,6 +702,7 @@ $('skClear').addEventListener('click', function () {
   SK.strokes[SK.mode] = [];
   skRedraw();
   skSave();
+  skStatus.textContent = 'Cleared. Undo brings it back.';
 });
 $('skColours').addEventListener('click', function (e) {
   var b = e.target.closest('.sk-swatch');
@@ -752,6 +779,7 @@ window.addEventListener('resize', skLayout);
 
 // ---------- start ----------
 skColourButtons();
+skUseColour(SK.color);
 skLoad();
 skLoadImages();
 { var im0 = SK.images[SK.mode]; SK.sel = im0.length ? im0[im0.length - 1].id : null; }

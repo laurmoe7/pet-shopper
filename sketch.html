@@ -51,6 +51,7 @@
         <button type="button" id="skClear" title="Clear everything drawn here"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.500 7h15"/><path d="M9 7V4h6v3"/><path d="M6.500 7l1 13h9l1-13"/></svg><span>Clear</span></button>
       </div>
       <div class="sk-row sk-colours" id="skColours" role="group" aria-label="Colour"></div>
+      <div class="sk-row"><span class="sk-cur" id="skCur" aria-hidden="true"></span><span class="sk-label" id="skCurText">Pen colour</span></div>
       <div class="sk-row">
         <div class="sk-seg" id="skSizes" role="group" aria-label="Line size">
           <button type="button" data-size="0" aria-pressed="false">Thin</button>
@@ -81,7 +82,6 @@
 
     <section class="skp-box">
       <h2>Images</h2>
-      <p class="skp-hint">Put a picture under your drawing to trace. Each image is its own layer: change its opacity or size, move it with the Move image tool, or remove it. Images are never part of what you send.</p>
       <div class="sk-row"><button type="button" class="skp-btn" id="skAddImage">Add image…</button><input type="file" id="skFile" accept="image/*" hidden></div>
       <div class="skp-layers" id="skLayers"></div>
     </section>

@@ -281,11 +281,10 @@ function inspectList() {
     eyesDo('squint');
     return wait(1200);
   }).then(function () {
-    // found it: the sparkle stays in the glass, enlarged (mg-aha), until he puts the glass away
+    // found it: he closes his eyes and smiles (the closed eye is enlarged in the glass too, mg-aha), until he puts the glass away
     pet.classList.remove('mg-squint');
     pet.classList.add('mg-aha');
-    setFace({ eyes: 'sparkle', mouth: 'open', arms: 'idle', x: ['sparkles', 'cheeks'] });
-    eyesDo('wide');
+    setFace({ eyes: 'closed', mouth: 'smile', arms: 'idle', x: ['cheeks'] });
     pulse('hopsmall', 400);
     sound('ooh');
     talk('inspectFound', ['aha! all in order!', 'found it!', 'looks good!', 'we can do this!'], 1300);

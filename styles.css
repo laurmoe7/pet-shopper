@@ -2042,7 +2042,7 @@ html[data-list="todo"] #pet.desk[data-prop="glass"]:not([data-state="sleepy"]) .
 /* through the glass he never sparkles: an open eye, and after a moment a squint, both enlarged (app-todo.js inspectList) */
 #pet.inspecting:not(.mg-aha) .magnifier :is(.mg-star, .mg-happy, .mg-closed) { display: none !important; }
 #pet.inspecting:not(.mg-aha) .magnifier .mg-open { display: inline !important; }
-/* the moment he finds it, the sparkle is enlarged in the glass like his other eyes */
+/* the moment he finds it he closes his eyes and smiles, and the closed eye in the glass pops a little larger */
 #pet.mg-aha .magnifier .mg-eye { animation: mg-aha .5s ease-out; }
 @keyframes mg-aha { 0% { scale: .7; } 60% { scale: 1.15; } 100% { scale: 1; } }
 .magnifier .mg-open { transform-box: fill-box; transform-origin: 50% 50%; }

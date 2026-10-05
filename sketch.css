@@ -86,3 +86,10 @@ body.skp { height: 100dvh; display: flex; flex-direction: column; overflow: hidd
 }
 .skp-grid .sk-check { flex-direction: row; align-self: end; padding-bottom: 6px; color: var(--ink); font-size: .82rem; }
 .skp-layer input[type="range"] { border: 0; padding: 0; background: none; }
+
+.sk-cur { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--line); box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--line); }
+.sk-tools button { transition: transform .08s, background .12s; }
+.sk-tools button:not(:disabled):hover { border-color: var(--accent); }
+.sk-tools button:not(:disabled):active, .sk-tools button.flash { transform: scale(.9); background: var(--accent); color: #fff; border-color: transparent; }
+.sk-tools button.flash svg { animation: sk-wiggle .3s ease-out; }
+@keyframes sk-wiggle { 30% { transform: rotate(-18deg) scale(1.15); } 70% { transform: rotate(10deg); } }
