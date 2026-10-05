@@ -33,7 +33,11 @@ function askForTreat(force) {
   wishEl.setAttribute('aria-label', 'Nibble would like ' + word + '. Tap to feed it.');
   wishEl.hidden = false;
   sound('ooh');
-  say(pick(['could I have ' + (WISH_NAME[word] || word) + '?', 'ooh… ' + word + '?', 'I\'m peckish…', 'snack time?']), 1800);
+  // the first few asks say how it works
+  var asks = 0;
+  try { asks = +localStorage.getItem('nibble-wish-asks') || 0; localStorage.setItem('nibble-wish-asks', String(asks + 1)); } catch (e) { /* storage blocked */ }
+  if (asks < 4) say(pick(['tap my thought cloud to feed me!', 'psst… tap the cloud, I want ' + (WISH_NAME[word] || word) + '!']), 2600);
+  else say(pick(['could I have ' + (WISH_NAME[word] || word) + '?', 'ooh… ' + word + '?', 'I\'m peckish…', 'snack time?']), 1800);
   clearTimeout(wishGone);
   wishGone = setTimeout(function () { dropWish(false); }, WISH_STAYS_MS);
 }

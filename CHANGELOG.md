@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 183 (5 Oct)
+- Snack request: "Tap to feed" label, pulsing ring and a hint line.
+
 ## Build 182 (5 Oct)
 - Developer tool: make Nibble ask for a snack; bedtime tool removed.
 

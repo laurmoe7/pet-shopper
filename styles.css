@@ -2232,10 +2232,16 @@ html.typing .page-fade { display: none; }
 .wish-cloud { position: absolute; left: 0; top: 0; width: 58px; height: 44px; display: grid; place-items: center; background: var(--surface); border: 1.8px solid var(--outline); border-radius: 24px; box-shadow: 0 2px 0 var(--shadow); animation: wish-bob 3.4s ease-in-out .5s infinite; }
 .wish-cloud img { width: 32px; height: 32px; display: block; }
 .wish-dot { position: absolute; background: var(--surface); border: 1.6px solid var(--outline); border-radius: 50%; }
-.wish-dot.d1 { right: 9px; top: 46px; width: 9px; height: 9px; }
-.wish-dot.d2 { right: 1px; top: 54px; width: 5px; height: 5px; }
+.wish-dot.d1 { right: -4px; top: 52px; width: 9px; height: 9px; }
+.wish-dot.d2 { right: -11px; top: 60px; width: 5px; height: 5px; }
+/* a label hung on the cloud and a ring that keeps pulsing, so it is clear that the cloud can be tapped */
+.wish { height: 70px; }
+.wish-tag { position: absolute; left: 50%; top: 38px; translate: -50% 0; padding: 1px 8px 2px; border-radius: 999px; background: var(--accent); color: #fff; border: 1.5px solid #fff; box-shadow: 0 1px 0 var(--shadow); font-size: .62rem; font-weight: 800; line-height: 1.25; white-space: nowrap; pointer-events: none; }
+.wish-cloud::after { content: ""; position: absolute; inset: -2px; border-radius: 26px; border: 2.5px solid var(--accent); opacity: 0; animation: wish-ping 1.9s ease-out .6s infinite; pointer-events: none; }
+.wish:hover .wish-cloud { transform: scale(1.06); }
 .wish:active .wish-cloud { transform: scale(.94); }
 .wish:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; border-radius: 22px; }
 @keyframes wish-in { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes wish-bob { 50% { translate: 0 -3px; } }
-@media (prefers-reduced-motion: reduce) { .wish-cloud { animation: none; } }
+@keyframes wish-ping { 0% { transform: scale(.96); opacity: .85; } 100% { transform: scale(1.35, 1.5); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .wish-cloud, .wish-cloud::after { animation: none; } }
