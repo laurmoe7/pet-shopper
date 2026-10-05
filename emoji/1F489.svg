@@ -1,9 +1,9 @@
 <svg id="emoji" viewBox="0 0 72 72" version="1.1" xmlns="http://www.w3.org/2000/svg">
   <g id="color">
     <path transform="rotate(45)" fill="#fff" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="0.1" d="m45.25-20.36h9.591v19.33h-9.591z"/>
-    <path transform="rotate(45)" fill="#d22f27" d="m48.52 10.64h3.608v3.691h-3.608z"/>
-    <rect x="47.94" y="-29.98" width="4.643" height="10.19" transform="rotate(45)" fill="#d0cfce"/>
-    <path fill="#d22f27" d="m32.77 31.37 6.738 6.681-8.252 8.252-6.782-6.782z"/>
+    <path transform="rotate(45)" fill="#d55646" d="m48.52 10.64h3.608v3.691h-3.608z"/>
+    <rect x="47.94" y="-29.98" width="4.643" height="10.19" transform="rotate(45)" fill="#d6d5d4"/>
+    <path fill="#d55646" d="m32.77 31.37 6.738 6.681-8.252 8.252-6.782-6.782z"/>
   </g>
   <g id="hair"/>
   <g id="skin"/>

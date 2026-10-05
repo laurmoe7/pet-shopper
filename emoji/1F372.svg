@@ -1,7 +1,7 @@
 <svg id="emoji" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
   <g id="color">
-    <path fill="#FFFFFF" stroke="none" d="M7,36c0,16.0166,12.9834,29,29,29s29-12.9834,29-29H7z"/>
-    <path fill="#d0cfce" stroke="none" d="M49,36c0,16.0156-4,29-13,29c16.0166,0,29-12.9844,29-29H49z"/>
+    <path fill="#ffffff" stroke="none" d="M7,36c0,16.0166,12.9834,29,29,29s29-12.9834,29-29H7z"/>
+    <path fill="#d6d5d4" stroke="none" d="M49,36c0,16.0156-4,29-13,29c16.0166,0,29-12.9844,29-29H49z"/>
   </g>
   <g id="hair"/>
   <g id="skin"/>

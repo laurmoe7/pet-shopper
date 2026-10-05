@@ -4,8 +4,8 @@
     <line x1="18.0445" x2="37.0861" y1="20.0657" y2="20.0657" fill="none" stroke="#5B4239" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"/>
   </g>
   <g id="color">
-    <polygon fill="#B1CC33" points="17.0606,19 23.5,27.4999 36,43.9999 48.5,27.4999 54.9394,19"/>
-    <polygon fill="#5C9E31" points="44.9394,19 38.5,27.4999 31,37.4 36,43.9999 48.5,27.4999 54.9394,19"/>
+    <polygon fill="#b8cd53" points="17.0606,19 23.5,27.4999 36,43.9999 48.5,27.4999 54.9394,19"/>
+    <polygon fill="#6fb740" points="44.9394,19 38.5,27.4999 31,37.4 36,43.9999 48.5,27.4999 54.9394,19"/>
   </g>
   <g id="hair"/>
   <g id="skin"/>

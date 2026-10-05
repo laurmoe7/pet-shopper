@@ -1,10 +1,10 @@
 <svg id="emoji" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
   <g id="color">
-    <polygon fill="#3F3F3F" stroke="none" points="14.5943,53.154 18.2544,56.814 12.6242,59.0928"/>
-    <polyline fill="#f4aa41" stroke="none" points="18.0381,41.8761 36.8684,23.0457 48.1813,34.3586 29.5108,53.0291"/>
-    <polyline fill="#a57939" stroke="none" points="14.4132,52.5663 17.9281,43.3946 27.8278,53.2939 18.6558,56.809"/>
-    <polyline fill="#EA5A47" stroke="none" points="42.9209,16.9933 50.4228,9.4913 61.7357,20.8042 54.2975,28.2424"/>
-    <polyline fill="#9b9b9a" stroke="none" points="35.6498,24.2643 43.3318,16.5823 54.6447,27.8952 47.0278,35.512"/>
+    <polygon fill="#585858" stroke="none" points="14.5943,53.154 18.2544,56.814 12.6242,59.0928"/>
+    <polyline fill="#efb960" stroke="none" points="18.0381,41.8761 36.8684,23.0457 48.1813,34.3586 29.5108,53.0291"/>
+    <polyline fill="#ba904a" stroke="none" points="14.4132,52.5663 17.9281,43.3946 27.8278,53.2939 18.6558,56.809"/>
+    <polyline fill="#e77c65" stroke="none" points="42.9209,16.9933 50.4228,9.4913 61.7357,20.8042 54.2975,28.2424"/>
+    <polyline fill="#a8a8a7" stroke="none" points="35.6498,24.2643 43.3318,16.5823 54.6447,27.8952 47.0278,35.512"/>
   </g>
   <g id="hair"/>
   <g id="skin"/>

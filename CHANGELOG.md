@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 180 (5 Oct)
+- Closet slides under the bottom bar.
+- Emoji colours softened to suit the cardboard look.
+- Emoji stickers: cream edge with a thin brown line.
+
 ## Build 179 (5 Oct)
 - Closet sits above the bottom bar.
 - Cats hunt and pounce on a thrown toy.

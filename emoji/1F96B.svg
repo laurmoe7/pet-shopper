@@ -1,13 +1,13 @@
 <svg id="emoji" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
   <g id="color">
-    <rect x="19" y="49" width="34" height="11" fill="#d0cfce"/>
+    <rect x="19" y="49" width="34" height="11" fill="#d6d5d4"/>
     <rect x="19" y="21" width="34" height="28" fill="#fff"/>
-    <rect x="19" y="4" width="34" height="16.7953" fill="#d0cfce"/>
-    <ellipse cx="36" cy="36.6512" rx="8" ry="6.3488" fill="#ea5a47"/>
-    <ellipse cx="36" cy="30.623" rx="3" ry="1.8361" fill="#5c9e31"/>
-    <rect x="47" y="4" width="6.5" height="17" fill="#9b9b9a"/>
-    <rect x="47" y="49" width="6" height="11" fill="#9b9b9a"/>
-    <rect x="47" y="21" width="6" height="28" fill="#d0cfce"/>
+    <rect x="19" y="4" width="34" height="16.7953" fill="#d6d5d4"/>
+    <ellipse cx="36" cy="36.6512" rx="8" ry="6.3488" fill="#e77c65"/>
+    <ellipse cx="36" cy="30.623" rx="3" ry="1.8361" fill="#6fb740"/>
+    <rect x="47" y="4" width="6.5" height="17" fill="#a8a8a7"/>
+    <rect x="47" y="49" width="6" height="11" fill="#a8a8a7"/>
+    <rect x="47" y="21" width="6" height="28" fill="#d6d5d4"/>
   </g>
   <g id="line">
     <g>
