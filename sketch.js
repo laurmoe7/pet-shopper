@@ -777,6 +777,14 @@ window.addEventListener('blur', function () { SK.space = false; skStage.classLis
 document.addEventListener('change', function (e) { if (e.target.tagName === 'SELECT') e.target.blur(); });
 window.addEventListener('resize', skLayout);
 
+// Firefox and Safari have no eyedropper for the screen: the button says so instead of looking like it works
+if (!window.EyeDropper) {
+  var dropBtn = document.querySelector('#skTools [data-tool="drop"]');
+  dropBtn.classList.add('unavailable');
+  dropBtn.title = 'Needs Chrome or Edge. In this browser, use the colour box or a swatch.';
+  dropBtn.querySelector('span').textContent = 'Chrome only';
+}
+
 // ---------- start ----------
 skColourButtons();
 skUseColour(SK.color);

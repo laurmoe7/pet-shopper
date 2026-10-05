@@ -93,3 +93,4 @@ body.skp { height: 100dvh; display: flex; flex-direction: column; overflow: hidd
 .sk-tools button:not(:disabled):active, .sk-tools button.flash { transform: scale(.9); background: var(--accent); color: #fff; border-color: transparent; }
 .sk-tools button.flash svg { animation: sk-wiggle .3s ease-out; }
 @keyframes sk-wiggle { 30% { transform: rotate(-18deg) scale(1.15); } 70% { transform: rotate(10deg); } }
+.sk-tools button.unavailable { opacity: .5; border-style: dashed; }
