@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 182 (5 Oct)
+- Developer tool: make Nibble ask for a snack; bedtime tool removed.
+
 ## Build 181 (5 Oct)
 - Nibble asks for snacks and you feed him; Treats menu removed.
 - Sketchpad: rainbow icon.
