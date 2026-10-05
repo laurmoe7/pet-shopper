@@ -274,9 +274,14 @@ function inspectList() {
     pet.classList.add('inspecting');
     eyesDo('wide');
     talk('inspect', ['hmm… let me look…', 'inspecting the list…', 'detective Nibble!', 'what do we have here…'], 1500);
-    return wait(2300);
+    return wait(1100);
   }).then(function () {
-    pet.classList.remove('inspecting');
+    // after a moment he squints through the glass: his eye and the enlarged one in the lens both narrow
+    pet.classList.add('mg-squint');
+    eyesDo('squint');
+    return wait(1200);
+  }).then(function () {
+    pet.classList.remove('inspecting', 'mg-squint');
     setFace({ eyes: 'sparkle', mouth: 'open', arms: 'idle', x: ['sparkles', 'cheeks'] });
     pulse('hopsmall', 400);
     sound('ooh');

@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 185 (5 Oct)
+- Magnifying glass only shows when he uses it, and is attached to its handle.
+- Magnifying glass: no sparkle eye; he squints after a moment.
+
 ## Build 184 (5 Oct)
 - Suggestions wait while Nibble asks for a snack.
 - Suggestion chip floats instead of moving the list.

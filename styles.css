@@ -2039,9 +2039,15 @@ html[data-list="todo"] #pet.desk[data-prop="glass"]:not([data-state="sleepy"]) .
 #pet.writing .arm-r .pencil { animation: pen-write .13s ease-in-out infinite alternate; }
 @keyframes pen-write { from { translate: -.8px -2.4px; } to { translate: .8px 2.4px; } }
 .magnifier .mg-eye { display: none; }
+/* through the glass he never sparkles: an open eye, and after a moment a squint, both enlarged (app-todo.js inspectList) */
+#pet.inspecting .magnifier .mg-star, #pet.inspecting .magnifier .mg-happy, #pet.inspecting .magnifier .mg-closed { display: none !important; }
+#pet.inspecting .magnifier .mg-open { display: inline !important; }
+.magnifier .mg-open { transform-box: fill-box; transform-origin: 50% 50%; }
+#pet.mg-squint .magnifier .mg-open { animation: mg-squint .35s ease-out forwards; }
+@keyframes mg-squint { to { transform: scale(1.08, .42); } }
 #pet.inspecting .magnifier .mg-eye { display: inline; animation: mg-look 1.6s ease-in-out infinite alternate; }
 #pet.inspecting .magnifier .mg-lens { fill: var(--pet-skin); }
-.magnifier .mg-pupil { fill: var(--pet-ink); }
+#pet .magnifier .mg-pupil { fill: var(--pet-ink); }   /* the id keeps the arm colour rules (sleeves, skins) from tinting the eye in the glass */
 /* the enlarged eye follows the pet's own eyes */
 .magnifier .mg-star, .magnifier .mg-arc { display: none; }
 .magnifier .mg-arc { fill: none; stroke: var(--pet-ink); stroke-width: 2.6; stroke-linecap: round; }
@@ -2053,7 +2059,7 @@ html[data-list="todo"] #pet.desk[data-prop="glass"]:not([data-state="sleepy"]) .
 @keyframes mg-twinkle { 0%, 100% { opacity: .2; scale: .5; } 50% { opacity: 1; scale: 1.1; } }
 .magnifier .mg-glint { fill: #fff; }
 @keyframes mg-look { from { translate: -1.6px .6px; } to { translate: 1.2px 1px; } }
-@media (prefers-reduced-motion: reduce) { #pet.writing .arm-r .pencil, #pet.inspecting .magnifier .mg-eye { animation: none; } }
+@media (prefers-reduced-motion: reduce) { #pet.writing .arm-r .pencil, #pet.inspecting .magnifier .mg-eye, #pet.mg-squint .magnifier .mg-open { animation: none; } #pet.mg-squint .magnifier .mg-open { transform: scale(1.08, .42); } }
 /* the right hand's props on the to-do list (app-todo.js): a chubby pencil for writing, a magnifying glass for inspecting.
    Both are drawn in the right arm so they move with it; the pet's `desk` pose brings both paws to the clipboard. */
 .arm .pencil, .arm .magnifier { display: none; }
