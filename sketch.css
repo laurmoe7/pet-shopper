@@ -96,3 +96,7 @@ body.skp { height: 100dvh; display: flex; flex-direction: column; overflow: hidd
 .sk-draw > * { pointer-events: none; }   /* a stroke never takes the click, so you can start a new line on top of an old one */
 .sk-stage.sampling * { pointer-events: auto !important; }
 .sk-stage.sampling .sk-draw { pointer-events: none !important; }
+
+/* people the page is shared with can draw and save, but do not see the Claude upload at all (it also needs a token only the owner has) */
+.skp-guest .owner-only { display: none !important; }
+.skp-guest #skSaveFile { flex: 1 1 100%; background: var(--accent); color: #fff; border-color: transparent; padding: 10px; }

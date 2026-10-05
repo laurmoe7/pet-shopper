@@ -23,7 +23,7 @@ var SK = {
   /** Pictures to trace, one layer each, in the same coordinates as the drawing: {id, name, src, cx, cy, bw, bh, scale, opacity, visible, behind} */
   images: { pet: [], scene: [], toy: [], room: [] }
 };
-var skDraw = null, skDrawing = false, skPan = null, skPetSvg = null, skToys = null, skImgUnder = null, skImgOver = null, skSelBox = null;
+var SK_OWNER = false, skDraw = null, skDrawing = false, skPan = null, skPetSvg = null, skToys = null, skImgUnder = null, skImgOver = null, skSelBox = null;
 
 // ---------- borrowing the pet from the game ----------
 /** Fetches the game's page and keeps its pet drawing (with its gradients and clip) and its toys, hidden, to copy from. */
@@ -858,6 +858,21 @@ window.addEventListener('blur', function () { SK.space = false; skStage.classLis
 document.addEventListener('change', function (e) { if (e.target.tagName === 'SELECT') e.target.blur(); });
 window.addEventListener('resize', skLayout);
 
+// ---------- who sees the Claude upload ----------
+// The upload needs a GitHub token that only Lauren has, so a shared copy of this page cannot send anything. To keep the button
+// out of everyone else's way it is hidden unless this browser has been set up by her: open the page once with ?owner=1 (or
+// paste a token), and it stays visible on that browser.
+(function () {
+  var owner = false;
+  try {
+    if (/[?&]owner(=|&|$)/.test(location.search)) localStorage.setItem('nibble-sketchpad-owner', '1');
+    var g = JSON.parse(localStorage.getItem('nibble-sketchpad-gh') || 'null');
+    owner = localStorage.getItem('nibble-sketchpad-owner') === '1' || !!(g && g.token);
+  } catch (e) { /* storage blocked: treated as a visitor */ }
+  document.body.classList.toggle('skp-guest', !owner);
+  SK_OWNER = owner;
+})();
+
 // ---------- start ----------
 skColourButtons();
 skUseColour(SK.color);
@@ -868,7 +883,7 @@ skLayersUI();
 skBuildPanels();
 skStatus.textContent = 'Loading the pet…';
 skLoadSource().then(function () {
-  skStatus.textContent = 'Draw on the picture, then press Upload to Claude.';
+  skStatus.textContent = SK_OWNER ? 'Draw on the picture, then press Upload to Claude.' : 'Draw on the picture, then press Save SVG to keep your drawing.';
   skBuild();
 }).catch(function (e) {
   skStatus.textContent = 'Could not load the pet from index.html (' + e.message + '). This page has to be opened from the website, not as a file.';

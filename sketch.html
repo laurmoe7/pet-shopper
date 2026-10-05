@@ -115,12 +115,12 @@
         <input type="text" id="skNote" placeholder="Tell Claude about it…" autocomplete="off" aria-label="A note for Claude">
       </div>
       <div class="sk-row sk-send">
-        <button type="button" class="skp-btn skp-main" id="skUpload">Upload to Claude</button>
+        <button type="button" class="skp-btn skp-main owner-only" id="skUpload">Upload to Claude</button>
         <button type="button" class="skp-btn" id="skSaveFile">Save SVG</button>
         <button type="button" class="skp-btn" id="skCopy">Copy SVG</button>
       </div>
       <p class="skp-status" id="skStatus" aria-live="polite"></p>
-      <details class="skp-help" id="skSettings">
+      <details class="skp-help owner-only" id="skSettings">
         <summary>GitHub connection</summary>
         <p>Uploads go to the <b>drawings</b> branch of your repository, in the <b>drawings</b> folder, so the game itself is never touched. You need to connect once:</p>
         <ol>
