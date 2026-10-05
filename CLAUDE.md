@@ -25,7 +25,7 @@ A grocery list with a tamagotchi-like pet that "eats" items as you check them of
 
 Plain web app, no build step, no dependencies. `npm test` runs Node's built-in test runner on `tests/`, which load the same scripts the browser uses (the `app*.js` page scripts are only checked to parse, in `tests/syntax.test.js`).
 
-- `index.html`, `styles.css`: UI. The look is cardboard (kraft board, taped paper labels, sticker buttons) with light and dark modes; its rules are at the end of `styles.css` under `html:root`. Nibble is an inline SVG animated with CSS. The pet buttons live in the `.dock` bottom bar (Pet, Dress-up, Room, Treats, Top 10, Goals).
+- `index.html`, `styles.css`: UI. Bottom sheets are capped by `--sheet-h` (and `--sheet-h-s`) so Nibble stays in view above them. The look is cardboard (kraft board, taped paper labels, sticker buttons) with light and dark modes; its rules are at the end of `styles.css` under `html:root`. Nibble is an inline SVG animated with CSS. The pet buttons live in the `.dock` bottom bar (Pet, Dress-up, Room, Treats, Top 10, Goals).
 - `app*.js`: the UI code, split by topic. Plain scripts sharing one scope (no modules), loaded in the order in `index.html`; top-level code can only use things from files loaded before it. Read only the file you need:
   - `app.js` (first): `BUILD`, saved state, helpers, page elements, list rendering.
   - `app-pet.js`: faces, speech, flying food, crumbs. `app-actions.js`: sound and haptics, eating queue, list actions, emoji picker.
@@ -48,7 +48,7 @@ Plain web app, no build step, no dependencies. `npm test` runs Node's built-in t
 - Ears are `.ear-l`/`.ear-r` (`.ear-g`) groups behind the body; the cats' are `.kitty-ears`. The axolotl's gills are `.ear-g` too. Floppy ears (dog, floppy bunny) pivot at the top, upright ones at the bottom.
 - All eye states live in `.eye-set`. Don't put `transform` on the eye groups: the blink animation overrides it. Eye parts carry `.eye-l`/`.eye-r` and are moved with the CSS `translate` property (every pet's eyes sit a little wider and lower than drawn; glasses are adjusted to match).
 - Animal faces (bunny, cat, dog, hamster, hedgehog): a nose (`.nose-round`, `.nose-cat`, `.nose-dark`, drawn after the mouths) and a :3 smile (`.smile-lip`, or `.smile-bunny` with buck teeth); set per species in `styles.css`.
-- Each foot is its own group (`.foot-l`/`.foot-r`; shoes are split by `splitShoes` in `wardrobe.js`). Paws, hooves and bird toes are `.paw-part`, `.hoof-part`, `.bird-part`; which species shows which is set in `styles.css`. The frog keeps its own webs.
+- Each foot is its own group (`.foot-l`/`.foot-r`; shoes are split by `splitShoes` in `wardrobe.js`). Paws, hooves and bird toes are `.paw-part`, `.hoof-part`, `.bird-part`; which species shows which is set in `styles.css`. The frog keeps its own webs. Mouth items on birds are moved up to the beak (`.pet.beaked .outfit-mouth`; hay and leaf are held at its corner).
 - Eye moves: `eyesDo('wide'|'squint')` scales the eye parts (classes `eyewide`/`eyesquint`); reactions pick one with `look`. `bellyJiggle` is a `SQUISH` wobble with a tummy pat.
 - Food reactions: `REACTIONS` in `app-pet.js` by category, plus special ones from `REACTION_RULES`/`reactionOf` (no chocolate for any species but the mochi; chocolate, grown-up drinks and pet food go in the bag via `isBagged`).
 

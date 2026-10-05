@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 156 (5 Oct)
+- Eye patch straps stop at the edge of the face.
+- Hay in mouth is thinner.
+- Mouth items sit at the beak on birds.
+- Strawberry cow is now Strawberry milk.
+- Menus are shorter so Nibble stays in view.
+
 ## Build 155 (5 Oct)
 - Eye patch back to its old size, strap shortened to stay on the face.
 - Shopping list sorted into aisles (fruit & veg, bakery, meat, dairy...), with an option to turn it off.

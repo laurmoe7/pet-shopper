@@ -32,7 +32,7 @@
     { id: 'cairn', base: 'puppy', label: 'Cairn terrier' },
     { id: 'chocolatemilk', base: 'cow', label: 'Chocolate milk' },
     { id: 'highland', base: 'cow', label: 'Highland cattle' },
-    { id: 'strawberrycow', base: 'cow', label: 'Strawberry cow' },
+    { id: 'strawberrycow', base: 'cow', label: 'Strawberry milk' },
     { id: 'dirty', base: 'pig', label: 'Dirty piggy' },
     { id: 'boar', base: 'pig', label: 'Boar' },
     { id: 'potbelly', base: 'pig', label: 'Potbelly pig' },

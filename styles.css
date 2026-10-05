@@ -11,6 +11,9 @@
   --outline: #7b5a3d;
   /* outlines of the toy, lamp, bed, quilt and teddy: the same dark brown in light and dark mode */
   --prop-ink: #7b5a3d;
+  /* how tall a bottom sheet may be: short enough that Nibble stays in view above it */
+  --sheet-h: max(240px, min(75vh, calc(100dvh - 320px)));
+  --sheet-h-s: max(220px, min(62vh, calc(100dvh - 320px)));
   --accent: #ff8fab;
   --accent-ink: #4a2a2a;
   --mint: #bfe6cf;
@@ -873,16 +876,16 @@ button { font: inherit; color: inherit; }
 .credit a { color: inherit; }
 
 /* ---------- emoji picker ---------- */
-.picker { border-bottom: 0; padding: 0; margin: auto auto 0; width: 100%; max-width: 560px; color: var(--ink); max-height: 75vh; overflow: hidden; }
+.picker { border-bottom: 0; padding: 0; margin: auto auto 0; width: 100%; max-width: 560px; color: var(--ink); max-height: var(--sheet-h); overflow: hidden; }
 .picker::backdrop { background: rgba(60, 35, 40, .4); }
 /* the sheets are panels above the bottom bar (not modal), so the bar stays usable */
-.picker.pet-sheet { position: fixed; inset: auto 0 0 0; margin: 0 auto; z-index: 20; max-height: calc(75vh + var(--dock-h, 64px)); border-bottom: 1.8px solid var(--outline); box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
-.picker.pet-sheet .picker-inner { padding-bottom: calc(12px + var(--dock-h, 64px)); max-height: calc(75vh + var(--dock-h, 64px) - 2px); }
+.picker.pet-sheet { position: fixed; inset: auto 0 0 0; margin: 0 auto; z-index: 20; max-height: calc(var(--sheet-h) + var(--dock-h, 64px)); border-bottom: 1.8px solid var(--outline); box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
+.picker.pet-sheet .picker-inner { padding-bottom: calc(12px + var(--dock-h, 64px)); max-height: calc(var(--sheet-h) + var(--dock-h, 64px) - 2px); }
 /* the scroll bar starts below the rounded corners instead of being clipped by them */
-.picker.pet-sheet:not(.dress-full):not(.fav-full) .picker-inner { margin-top: 12px; padding-top: 6px; max-height: calc(75vh + var(--dock-h, 64px) - 14px); scrollbar-width: thin; }
+.picker.pet-sheet:not(.dress-full):not(.fav-full) .picker-inner { margin-top: 12px; padding-top: 6px; max-height: calc(var(--sheet-h) + var(--dock-h, 64px) - 14px); scrollbar-width: thin; }
 .picker[open] { animation: sheet .3s cubic-bezier(.3, 1.3, .5, 1); }
 @keyframes sheet { from { transform: translateY(60px); opacity: .5; } to { transform: none; opacity: 1; } }
-.picker-inner { padding: 18px 16px calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; max-height: calc(75vh - 2px); }
+.picker-inner { padding: 18px 16px calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; max-height: calc(var(--sheet-h) - 2px); }
 .picker h2 { font-family: var(--font-display); font-weight: 500; font-size: 1.1rem; margin: 0; text-wrap: balance; }
 .picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 6px; overflow-y: auto; min-height: 0; padding: 2px; }
 .picker-grid button { aspect-ratio: 1; padding: 6px; cursor: pointer; max-width: 100%; }
@@ -963,10 +966,17 @@ button { font: inherit; color: inherit; }
 .leaf-stem { fill: none; stroke: #4f9a52; stroke-width: 2; stroke-linecap: round; }
 .leaf-blade { fill: #86d17f; stroke: var(--pet-ink); stroke-width: 1.6; stroke-linejoin: round; }
 .leaf-vein { fill: none; stroke: #4f9a52; stroke-width: 1.1; stroke-linecap: round; }
-.hay-line { fill: none; stroke: var(--pet-ink); stroke-width: 5.4; stroke-linecap: round; }
-.hay-stalk { fill: none; stroke: #f0cc62; stroke-width: 2.8; stroke-linecap: round; }
-.hay-thin { stroke-width: 1.6; }
+.hay-line { fill: none; stroke: var(--pet-ink); stroke-width: 3.9; stroke-linecap: round; }
+.hay-stalk { fill: none; stroke: #f0cc62; stroke-width: 1.6; stroke-linecap: round; }
+.hay-thin { stroke-width: 1.1; }
 .hay-seeds ellipse { fill: #f0cf70; stroke: var(--pet-ink); stroke-width: 1.2; }
+/* birds have a beak, which sits higher than the mouth other pets have: mouth items move up to it (the kiwi's long beak, down to its tip) */
+.pet.beaked .outfit-mouth { transform: translate(0, -7px); }
+.pet[data-skin="parrot"].beaked .outfit-mouth { transform: translate(0, -5px); }
+.pet[data-skin="kiwi"].beaked .outfit-mouth { transform: translate(0, 10px); }
+/* a stalk or a leaf is held at the corner of the beak, not over it */
+.pet.beaked :is(.mouth-hay, .mouth-leaf) { translate: 8px 0; }
+.pet[data-skin="parrot"].beaked :is(.mouth-hay, .mouth-leaf) { translate: 10px 0; }
 /* face bandage */
 .band-strip { fill: #f4c9a0; stroke: var(--pet-ink); stroke-width: 1.5; }
 .band-pad { fill: #fde9d6; stroke: #d9a77c; stroke-width: 1; }
@@ -1164,8 +1174,8 @@ button { font: inherit; color: inherit; }
 .fav-intro { margin: 0; color: var(--muted); font-size: .8rem; }
 
 /* treats: a low panel that leaves Nibble in view */
-.picker.treat-sheet { position: fixed; inset: auto 0 0 0; max-height: calc(62vh + var(--dock-h, 64px)); z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
-.picker.treat-sheet .picker-inner { max-height: calc(62vh + var(--dock-h, 64px) - 14px) !important; }
+.picker.treat-sheet { position: fixed; inset: auto 0 0 0; max-height: calc(var(--sheet-h-s) + var(--dock-h, 64px)); z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
+.picker.treat-sheet .picker-inner { max-height: calc(var(--sheet-h-s) + var(--dock-h, 64px) - 14px) !important; }
 .treat-grid button { padding: 6px 4px; }
 .treat-grid button img { width: 30px; height: 30px; }
 
