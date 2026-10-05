@@ -2234,6 +2234,7 @@ html.typing .page-fade { display: none; }
 .sk-stage[data-tool="erase"] .sk-draw { cursor: cell; }
 .sk-coords { margin: 0; min-height: 1.1em; font-size: .72rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: pre; }
 .sk-colours { gap: 6px; }
+.sk-eye { padding: 5px 10px; border: 1.5px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; }
 .sk-swatch { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--line); cursor: pointer; padding: 0; }
 .sk-swatch[aria-pressed="true"] { outline: 3px solid var(--accent); outline-offset: 1px; }
 #skPick { width: 34px; height: 30px; padding: 0; border: 1.5px solid var(--line); border-radius: 8px; background: none; }

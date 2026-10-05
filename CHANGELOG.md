@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 176 (5 Oct)
+- Sketchpad: pick a colour from anywhere on screen (desktop Chrome).
+
 ## Build 175 (5 Oct)
 - Sketchpad: lines always drawn on top of the pet.
 - Sketchpad: furniture mode.

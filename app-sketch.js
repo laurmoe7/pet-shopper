@@ -296,11 +296,23 @@ function skColourButtons() {
   var pick = document.createElement('input');
   pick.type = 'color'; pick.value = SK.color; pick.id = 'skPick'; pick.setAttribute('aria-label', 'Any colour');
   box.appendChild(pick);
+  if (window.EyeDropper) {   // Chrome and Edge on a computer: picks a colour from anywhere on the screen, even outside the browser
+    var eye = document.createElement('button');
+    eye.type = 'button'; eye.id = 'skEye'; eye.className = 'sk-eye'; eye.textContent = 'Pick from screen';
+    box.appendChild(eye);
+  }
 }
 function skUseColour(c) {
   SK.color = c;
   $('skColours').querySelectorAll('.sk-swatch').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.c === c)); });
   if (SK.tool === 'erase' || SK.tool === 'hand') { SK.tool = 'pen'; skPress($('skTools'), 'tool', 'pen'); skApplyLook(); }
+}
+function skEyedrop() {
+  new window.EyeDropper().open().then(function (r) {
+    skUseColour(r.sRGBHex);
+    $('skPick').value = r.sRGBHex;
+    skStatus.textContent = 'Picked ' + r.sRGBHex + '.';
+  }).catch(function () { /* cancelled with Esc */ });
 }
 function skOpen() {
   devSheet.close();
@@ -361,6 +373,7 @@ $('skClear').addEventListener('click', function () {
   skSave();
 });
 $('skColours').addEventListener('click', function (e) { var b = e.target.closest('.sk-swatch'); if (b) skUseColour(b.dataset.c); });
+$('skColours').addEventListener('click', function (e) { if (e.target.id === 'skEye') skEyedrop(); });
 $('skColours').addEventListener('input', function (e) { if (e.target.id === 'skPick') skUseColour(e.target.value); });
 $('skSizes').addEventListener('click', function (e) {
   var b = e.target.closest('button');
