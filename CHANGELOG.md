@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 186 (5 Oct)
+- Magnifying glass: the sparkle is enlarged in the glass.
+- Magnifying glass: thicker handle.
+- Nibble's hand moves with the pencil when writing.
+
 ## Build 185 (5 Oct)
 - Magnifying glass only shows when he uses it, and is attached to its handle.
 - Magnifying glass: no sparkle eye; he squints after a moment.

@@ -2036,12 +2036,15 @@ html[data-list="todo"] #pet.desk[data-prop="glass"]:not([data-state="sleepy"]) .
 @keyframes cb-squeeze { to { transform: scaleX(0); } }
 @keyframes cb-open { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .clipboard .cb-ink { fill: none; stroke: #5b4239; stroke-width: 1.5; stroke-linecap: round; stroke-dasharray: 9; stroke-dashoffset: 9; opacity: 0; }
-#pet.writing .arm-r .pencil { animation: pen-write .13s ease-in-out infinite alternate; }
+#pet.writing .arm-r > * { animation: pen-write .13s ease-in-out infinite alternate; }   /* the pencil and the hand holding it move together */
 @keyframes pen-write { from { translate: -.8px -2.4px; } to { translate: .8px 2.4px; } }
 .magnifier .mg-eye { display: none; }
 /* through the glass he never sparkles: an open eye, and after a moment a squint, both enlarged (app-todo.js inspectList) */
-#pet.inspecting .magnifier .mg-star, #pet.inspecting .magnifier .mg-happy, #pet.inspecting .magnifier .mg-closed { display: none !important; }
-#pet.inspecting .magnifier .mg-open { display: inline !important; }
+#pet.inspecting:not(.mg-aha) .magnifier :is(.mg-star, .mg-happy, .mg-closed) { display: none !important; }
+#pet.inspecting:not(.mg-aha) .magnifier .mg-open { display: inline !important; }
+/* the moment he finds it, the sparkle is enlarged in the glass like his other eyes */
+#pet.mg-aha .magnifier .mg-eye { animation: mg-aha .5s ease-out; }
+@keyframes mg-aha { 0% { scale: .7; } 60% { scale: 1.15; } 100% { scale: 1; } }
 .magnifier .mg-open { transform-box: fill-box; transform-origin: 50% 50%; }
 #pet.mg-squint .magnifier .mg-open { animation: mg-squint .35s ease-out forwards; }
 @keyframes mg-squint { to { transform: scale(1.08, .42); } }
@@ -2059,7 +2062,7 @@ html[data-list="todo"] #pet.desk[data-prop="glass"]:not([data-state="sleepy"]) .
 @keyframes mg-twinkle { 0%, 100% { opacity: .2; scale: .5; } 50% { opacity: 1; scale: 1.1; } }
 .magnifier .mg-glint { fill: #fff; }
 @keyframes mg-look { from { translate: -1.6px .6px; } to { translate: 1.2px 1px; } }
-@media (prefers-reduced-motion: reduce) { #pet.writing .arm-r .pencil, #pet.inspecting .magnifier .mg-eye, #pet.mg-squint .magnifier .mg-open { animation: none; } #pet.mg-squint .magnifier .mg-open { transform: scale(1.08, .42); } }
+@media (prefers-reduced-motion: reduce) { #pet.writing .arm-r > *, #pet.inspecting .magnifier .mg-eye, #pet.mg-aha .magnifier .mg-eye, #pet.mg-squint .magnifier .mg-open { animation: none; } #pet.mg-squint .magnifier .mg-open { transform: scale(1.08, .42); } }
 /* the right hand's props on the to-do list (app-todo.js): a chubby pencil for writing, a magnifying glass for inspecting.
    Both are drawn in the right arm so they move with it; the pet's `desk` pose brings both paws to the clipboard. */
 .arm .pencil, .arm .magnifier { display: none; }
@@ -2072,7 +2075,8 @@ html[data-list="todo"] #pet.desk[data-prop="glass"]:not([data-state="sleepy"]) .
 .pencil .pc-eraser { fill: #ff9fb7; stroke: var(--prop-ink); stroke-width: 1.4; }
 .pencil .pc-eye { fill: var(--prop-ink); }
 .pencil .pc-smile { fill: none; stroke: var(--prop-ink); stroke-width: .9; stroke-linecap: round; }
-.magnifier .mg-handle { stroke: #a8743c; stroke-width: 4; stroke-linecap: round; fill: none; }
+.magnifier .mg-handle { stroke: #c98f4f; stroke-width: 5.4; stroke-linecap: round; fill: none; }
+.magnifier .mg-handle-edge { stroke: var(--prop-ink); stroke-width: 8.2; stroke-linecap: round; fill: none; }
 .magnifier .mg-lens { fill: rgba(190, 232, 255, .5); stroke: var(--prop-ink); stroke-width: 2; }
 .magnifier .mg-shine { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; opacity: .85; }
 

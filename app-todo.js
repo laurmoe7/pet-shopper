@@ -236,7 +236,7 @@ function deskOn(prop) {
  * @returns {Promise<void>}
  */
 function deskOff() {
-  pet.classList.remove('desk', 'writing', 'inspecting', 'flipped');
+  pet.classList.remove('desk', 'writing', 'inspecting', 'mg-aha', 'mg-squint', 'flipped');
   pet.classList.add('flipback');
   delete pet.dataset.prop;
   return wait(340).then(function () { pet.classList.remove('flipback'); });
@@ -281,13 +281,19 @@ function inspectList() {
     eyesDo('squint');
     return wait(1200);
   }).then(function () {
-    pet.classList.remove('inspecting', 'mg-squint');
+    // found it: the sparkle stays in the glass, enlarged (mg-aha), until he puts the glass away
+    pet.classList.remove('mg-squint');
+    pet.classList.add('mg-aha');
     setFace({ eyes: 'sparkle', mouth: 'open', arms: 'idle', x: ['sparkles', 'cheeks'] });
+    eyesDo('wide');
     pulse('hopsmall', 400);
     sound('ooh');
     talk('inspectFound', ['aha! all in order!', 'found it!', 'looks good!', 'we can do this!'], 1300);
     return wait(1300);
-  }).then(deskOff);
+  }).then(function () {
+    pet.classList.remove('inspecting', 'mg-aha');
+    return deskOff();
+  });
 }
 /**
  * Leans over the clipboard with a thoughtful hum and looks it over.
