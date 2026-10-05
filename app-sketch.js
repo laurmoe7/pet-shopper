@@ -239,6 +239,20 @@ function skSend(mode) {
     skStatus.textContent = (mode === 'share' ? 'Sharing is not available here, so ' : '') + 'saved ' + files.map(function (x) { return x.name; }).join(' and ') + '.';
   });
 }
+/** Sends the drawing to the preview's shared database, where Claude reads it (only works inside the preview artifact). */
+function skToClaude() {
+  if (skEmpty()) return;
+  var f = skFiles();
+  var use = window.claude && window.claude.use;
+  if (!use) { skStatus.textContent = 'Sending only works in the preview artifact. Try Copy SVG.'; return; }
+  skStatus.textContent = 'Sending…';
+  window.claude.use('db').then(function (db) {
+    if (!db) throw new Error('not available');
+    var id = f.name + '-' + Date.now().toString(36);
+    return db.collection('sketches').doc(id).set({ id: id, at: Date.now(), kind: f.meta.kind, mode: f.meta.mode, note: f.meta.note, build: f.meta.build, meta: JSON.stringify(f.meta), svg: f.svg })
+      .then(function () { skStatus.textContent = 'Sent to Claude (' + id + '). Now tell me in the chat.'; });
+  }).catch(function (e) { skStatus.textContent = 'Could not send: ' + (e && e.message || e) + '. Try Copy SVG.'; });
+}
 function skCopy() {
   if (skEmpty()) return;
   var text = skFiles().svg;
@@ -286,7 +300,7 @@ function skOpen() {
     skColourButtons();
     skLoad();
   }
-  skStatus.textContent = 'Draw on the picture. Share sends your drawing to Claude.';
+  skStatus.textContent = 'Draw on the picture, then tap Send to Claude.';
   openDialog(skSheet);
   skBuild();
 }
@@ -348,4 +362,5 @@ $('skNote').addEventListener('input', skSave);
 $('skShare').addEventListener('click', function () { skSend('share'); });
 $('skSave').addEventListener('click', function () { skSend('save'); });
 $('skCopy').addEventListener('click', skCopy);
+$('skClaude').addEventListener('click', skToClaude);
 window.addEventListener('resize', function () { if (skSheet.open) skLayout(); });
