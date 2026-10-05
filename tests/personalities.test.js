@@ -169,3 +169,8 @@ test('the diva is earned with drinks only', () => {
   const diva = Personalities.find((p) => p.id === 'diva');
   assert.deepEqual(diva.earn.cats, ['drink']);
 });
+
+test('every personality icon has its emoji picture', () => {
+  const fs = require('node:fs'), path = require('node:path');
+  for (const p of Personalities) assert.ok(fs.existsSync(path.join(__dirname, '..', Foods.emojiFile(p.icon))), p.id + ' icon ' + p.icon);
+});

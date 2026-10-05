@@ -251,7 +251,7 @@
       }
     },
     {
-      id: 'joker', label: 'Joker', icon: '🎈',
+      id: 'joker', label: 'Joker', icon: '🃏',
       blurb: 'Super silly. Jokes and giggles all day.',
       text: 'Feed it 12 sweets or spicy foods',
       likes: ['sweets', 'spicy', 'fruit', 'drink', 'baked'],
@@ -280,7 +280,7 @@
       }
     },
     {
-      id: 'feisty', label: 'Feisty', icon: '🔥',
+      id: 'feisty', label: 'Feisty', icon: '💅',
       blurb: 'Sassy and stubborn. Never backs down.',
       text: 'Feed it 10 spicy or pantry foods',
       likes: ['spicy', 'pantry', 'sweets'],
