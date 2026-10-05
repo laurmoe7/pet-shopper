@@ -160,3 +160,19 @@ test('plans further than 10 days away are hidden from the to-do list', () => {
   assert.equal(L.isFarOff({ id: 'y', done: false }, today), false);   // no date: always shown
   assert.equal(L.isFarOff(at(-3), today), false);
 });
+
+test('a slot can hold several things at once', () => {
+  const o = { hat: 'none', face: 'shades' };
+  assert.deepEqual(L.wornIds(o, 'hat'), []);
+  assert.equal(L.toggleWorn(o, 'hat', 'tophat'), true);
+  assert.equal(L.toggleWorn(o, 'hat', 'butterflyclip'), true);
+  assert.deepEqual(L.wornIds(o, 'hat'), ['tophat', 'butterflyclip']);
+  assert.equal(L.toggleWorn(o, 'hat', 'tophat'), false);   // tapping again takes just that one off
+  assert.equal(o.hat, 'butterflyclip');
+  L.toggleWorn(o, 'hat', 'butterflyclip');
+  assert.equal(o.hat, 'none');
+  L.toggleWorn(o, 'hat', 'tophat'); L.toggleWorn(o, 'hat', 'cap');
+  L.toggleWorn(o, 'hat', 'none');                            // "nothing" clears the slot
+  assert.equal(o.hat, 'none');
+  assert.deepEqual(L.wornIds(o, 'face'), ['shades']);        // a saved single id still reads
+});

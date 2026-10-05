@@ -75,6 +75,30 @@
     }
     return o;
   }
+  /**
+   * The wardrobe ids worn in one slot. A slot can hold several things at once: its value is their ids joined by commas
+   * (or 'none'), so saves from before that still read fine.
+   * @param {Object<string, string>} outfit
+   * @param {string} slot
+   * @returns {string[]}
+   */
+  function wornIds(outfit, slot) {
+    return String((outfit && outfit[slot]) || '').split(',').filter(function (id) { return id && id !== 'none'; });
+  }
+  /**
+   * Puts something on or takes it off in its slot (others in the same slot stay on); 'none' takes the whole slot off.
+   * @param {Object<string, string>} outfit  Changed in place.
+   * @param {string} slot
+   * @param {string} id
+   * @returns {boolean} Whether it is worn now.
+   */
+  function toggleWorn(outfit, slot, id) {
+    if (id === 'none') { outfit[slot] = 'none'; return false; }
+    var ids = wornIds(outfit, slot), at = ids.indexOf(id);
+    if (at === -1) ids.push(id); else ids.splice(at, 1);
+    outfit[slot] = ids.length ? ids.join(',') : 'none';
+    return at === -1;
+  }
   var SAMPLE = ['Bananas', 'Oat milk', '500g Quark', 'Broccoli', 'Chili flakes', 'Dark chocolate', 'Toilet paper', "Oma's cake"];
 
   /**
@@ -977,7 +1001,8 @@
     if (!isUnlocked(profile, 'species', profile.species, achievements, free)) { profile.species = 'mochi'; profile.skin = ''; }
     else if (profile.skin && !isUnlocked(profile, 'skin', profile.skin, achievements, free)) profile.skin = '';
     OUTFIT_SLOTS.forEach(function (slot) {
-      if (!isUnlocked(profile, 'hat', profile.outfit[slot], achievements, free)) profile.outfit[slot] = 'none';
+      var kept = wornIds(profile.outfit, slot).filter(function (id) { return isUnlocked(profile, 'hat', id, achievements, free); });
+      profile.outfit[slot] = kept.length ? kept.join(',') : 'none';
     });
   }
 
@@ -1218,7 +1243,7 @@
     isUnlocked: isUnlocked,
     gateFor: gateFor,
     emojiFor: emojiFor,
-    splitSpoken: splitSpoken, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, REPEATS: REPEATS, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
+    splitSpoken: splitSpoken, wornIds: wornIds, toggleWorn: toggleWorn, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, REPEATS: REPEATS, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
     createItem: createItem,
     petProfile: petProfile,
     parseState: parseState,

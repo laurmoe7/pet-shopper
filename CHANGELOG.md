@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 167 (5 Oct)
+- Menus and the main lists fade out at the bottom when there is more, no scroll bars.
+- Glasses and Mouth are one Face tab.
+- Nibble can wear several things from one category at once.
+- Calendar is a bit more compact.
+
 ## Build 166 (5 Oct)
 - Pet page tabs have little icons and all fit in one row.
 - Removed the repeated titles on the Pet page.

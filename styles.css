@@ -776,12 +776,12 @@ button { font: inherit; color: inherit; }
 /* the stage and the tabs stay in place; only the panel under them scrolls */
 .picker.pet-sheet.dress-full .picker-inner { display: flex; flex-direction: column; overflow: hidden; gap: 8px; }
 .picker.dress-full h2 { flex: none; }
-.dress-tabs { flex: none; display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-.dress-tabs button { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 0; padding: 5px 0 4px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); color: var(--muted); font: inherit; font-size: .64rem; font-weight: 800; cursor: pointer; transition: transform .15s; }
+.dress-tabs { flex: none; display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
+.dress-tabs button { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 0; padding: 5px 0 4px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); color: var(--muted); font: inherit; font-size: .7rem; font-weight: 800; cursor: pointer; transition: transform .15s; }
 .dress-tabs button img { width: 22px; height: 22px; opacity: .75; }
 .dress-tabs button[aria-selected="true"] { background: var(--accent); color: #fff; border-color: transparent; transform: translateY(-1px); box-shadow: 0 2px 0 rgba(123, 90, 61, .3); }
 .dress-tabs button[aria-selected="true"] img { opacity: 1; }
-.dress-panels { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 22px; -webkit-mask-image: linear-gradient(#000 calc(100% - 22px), transparent); mask-image: linear-gradient(#000 calc(100% - 22px), transparent); }   /* the panel fades out at its bottom edge instead of showing a scroll bar */
+.dress-panels { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 22px; }
 .dress-panels > * + * { margin-top: 12px; }
 .dress-panel[hidden] { display: none; }
 .picker.dress-full .picker-inner > * + * { margin-top: 0; }
@@ -2116,10 +2116,10 @@ html:root .dock #stampBtn { --tilt: 3deg; --sticker: #c8e3f7; --sticker-ink: #3f
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
 /* the calendar sheet is always the same height: the month always has room for six weeks and the day's list a fixed box (it scrolls),
    so clicking through months never makes it jump */
-#calGrid { grid-template-rows: repeat(6, 31px); align-content: start; }
+#calGrid { grid-template-rows: repeat(6, 28px); align-content: start; }
 .cal-day h3 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cal-dow { font-size: .7rem; font-weight: 800; color: var(--muted); text-align: center; margin-bottom: -4px; }
-.cal-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; height: 31px; padding: 0; border: 1.5px solid transparent; border-radius: 10px; background: var(--surface); color: var(--ink); font: inherit; font-size: .85rem; font-weight: 700; cursor: pointer; }
+.cal-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; height: 28px; padding: 0; border: 1.5px solid transparent; border-radius: 10px; background: var(--surface); color: var(--ink); font: inherit; font-size: .85rem; font-weight: 700; cursor: pointer; }
 .cal-cell.out { opacity: .4; }
 .cal-cell.today { border-color: var(--accent); }
 .cal-cell.sel { background: var(--accent); color: #fff; }
@@ -2129,7 +2129,7 @@ html:root .dock #stampBtn { --tilt: 3deg; --sticker: #c8e3f7; --sticker-ink: #3f
 .cal-dots i.done { opacity: .35; }
 .cal-cell.sel .cal-dots i { background: #fff; }
 .cal-day h3 { margin: 2px 0 5px; font-size: .9rem; }
-.cal-list { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 5px; height: 110px; overflow-y: auto; align-content: flex-start; }
+.cal-list { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 5px; height: 80px; overflow-y: auto; align-content: flex-start; }
 .cal-list li { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 10px; background: var(--surface); font-weight: 700; font-size: .92rem; }
 .cal-list li img { width: 24px; height: 24px; flex: none; }
 .cal-list li span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
@@ -2167,3 +2167,12 @@ html:root .dock #stampBtn { --tilt: 3deg; --sticker: #c8e3f7; --sticker-ink: #3f
 /* no scroll bars inside the sheets: they scroll with a finger, and the bottom of a long one fades out */
 .picker, .picker * { scrollbar-width: none; }
 .picker *::-webkit-scrollbar, .picker::-webkit-scrollbar { display: none; }
+
+/* a menu that has more below fades out at its bottom edge (app-fade.js adds .fade-b), instead of showing a scroll bar */
+.fade-b { -webkit-mask-image: linear-gradient(#000 calc(100% - 28px), transparent); mask-image: linear-gradient(#000 calc(100% - 28px), transparent); }
+/* the main lists: no scroll bar either, with a soft fade above the bottom bar while there is more to scroll to */
+html { scrollbar-width: none; }
+html::-webkit-scrollbar { display: none; }
+.page-fade { position: fixed; left: 0; right: 0; bottom: var(--dock-h, 64px); height: 36px; z-index: 5; pointer-events: none; background: linear-gradient(to bottom, transparent, var(--bg)); opacity: 0; transition: opacity .25s; }
+.page-fade.on { opacity: 1; }
+html.typing .page-fade { display: none; }

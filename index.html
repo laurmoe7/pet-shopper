@@ -730,8 +730,7 @@
       <button type="button" role="tab" data-tab="pet" aria-selected="true"><img src="emoji/1F43E.svg" alt="" width="22" height="22"><span>Pet</span></button>
       <button type="button" role="tab" data-tab="hat" aria-selected="false"><img src="emoji/1F3A9.svg" alt="" width="22" height="22"><span>Hats</span></button>
       <button type="button" role="tab" data-tab="body" aria-selected="false"><img src="emoji/1F455.svg" alt="" width="22" height="22"><span>Clothes</span></button>
-      <button type="button" role="tab" data-tab="face" aria-selected="false"><img src="emoji/1F453.svg" alt="" width="22" height="22"><span>Glasses</span></button>
-      <button type="button" role="tab" data-tab="mouth" aria-selected="false"><img src="emoji/1F444.svg" alt="" width="22" height="22"><span>Mouth</span></button>
+      <button type="button" role="tab" data-tab="face" aria-selected="false"><img src="emoji/1F453.svg" alt="" width="22" height="22"><span>Face</span></button>
       <button type="button" role="tab" data-tab="neck" aria-selected="false"><img src="emoji/1F9E3.svg" alt="" width="22" height="22"><span>Neck</span></button>
       <button type="button" role="tab" data-tab="feet" aria-selected="false"><img src="emoji/1F45F.svg" alt="" width="22" height="22"><span>Feet</span></button>
     </div>
@@ -767,14 +766,16 @@
       <legend class="visually-hidden">Clothes</legend>
       <div class="hat-strip" id="bodyStrip"></div>
     </fieldset>
-    <fieldset class="species dress-panel" data-tab="face" hidden>
-      <legend class="visually-hidden">Glasses</legend>
-      <div class="hat-strip" id="faceStrip"></div>
-    </fieldset>
-    <fieldset class="species dress-panel" data-tab="mouth" hidden>
-      <legend class="visually-hidden">Mouth</legend>
-      <div class="hat-strip" id="mouthStrip"></div>
-    </fieldset>
+    <div class="dress-panel" data-tab="face" hidden>
+      <fieldset class="species">
+        <legend class="field-label">Glasses</legend>
+        <div class="hat-strip" id="faceStrip"></div>
+      </fieldset>
+      <fieldset class="species">
+        <legend class="field-label">Mouth</legend>
+        <div class="hat-strip" id="mouthStrip"></div>
+      </fieldset>
+    </div>
     <fieldset class="species dress-panel" data-tab="neck" hidden>
       <legend class="visually-hidden">Neck</legend>
       <div class="hat-strip" id="neckStrip"></div>
@@ -859,9 +860,8 @@
   </form>
 </dialog>
 
-<dialog class="picker pet-sheet cal-sheet" id="calSheet" aria-labelledby="calTitle">
+<dialog class="picker pet-sheet cal-sheet" id="calSheet" aria-label="Calendar">
   <form method="dialog" class="picker-inner">
-    <h2 id="calTitle">Calendar</h2>
     <div class="cal-head">
       <button type="button" class="pill-btn cal-nav" id="calPrev" aria-label="Previous month">‹</button>
       <span class="cal-month"><select id="calMonthSel" aria-label="Month"></select><select id="calYearSel" aria-label="Year"></select></span>
@@ -943,6 +943,7 @@
 <script src="app-idle.js"></script>
 <script src="app-toy.js"></script>
 <script src="app-bedtime.js"></script>
+<script src="app-fade.js"></script>
 <script src="app-start.js"></script>
 </body>
 </html>

@@ -15,25 +15,25 @@ function wardrobeItem(id) { return byId(Wardrobe, id); }
  * @param {{hat: string, body: string, face: string, mouth: string, neck: string, feet: string}} outfit
  */
 function dressUp(el, outfit) {
-  var clothes = wardrobeItem(outfit.body);
-  var hood = !!(clothes && clothes.hood);
-  var item = wardrobeItem(outfit.hat); // a hat can go on top of a hood
-  el.querySelector('.outfit-hat').innerHTML = item ? item.svg : '';
-  el.querySelector('.outfit-body').innerHTML = clothes ? clothes.svg : '';
-  if (hood) el.dataset.hood = clothes.id; else delete el.dataset.hood;
-  if (clothes) el.dataset.clothes = clothes.id; else delete el.dataset.clothes;
-  el.classList.toggle('sleeved', !!(clothes && clothes.sleeves)); // arms become sleeves with the hand peeking out
+  /** @returns {Object[]} The wardrobe items worn in a slot (it can be several). */
+  function worn(slot) { return L.wornIds(outfit, slot).map(wardrobeItem).filter(Boolean); }
+  var clothes = worn('body'), hats = worn('hat');
+  var hood = clothes.filter(function (c) { return c.hood; })[0], last = clothes[clothes.length - 1];
+  el.querySelector('.outfit-hat').innerHTML = hats.map(function (h) { return h.svg; }).join(''); // a hat can go on top of a hood
+  el.querySelector('.outfit-body').innerHTML = clothes.map(function (c) { return c.svg; }).join('');
+  if (hood) el.dataset.hood = hood.id; else delete el.dataset.hood;
+  if (last) el.dataset.clothes = last.id; else delete el.dataset.clothes;
+  el.classList.toggle('sleeved', clothes.some(function (c) { return c.sleeves; })); // arms become sleeves with the hand peeking out
   // mouth things (toast, mustache) are drawn in front of the face, so they can be worn with neckwear
   ['face', 'mouth', 'neck', 'feet'].forEach(function (slot) {
-    var w = wardrobeItem(outfit[slot]);
-    el.querySelector('.outfit-' + slot).innerHTML = w ? w.svg : '';
+    el.querySelector('.outfit-' + slot).innerHTML = worn(slot).map(function (w) { return w.svg; }).join('');
   });
   // with clothes on, neckwear is drawn over them instead of under the face
   var neck = el.querySelector('.outfit-neck'), over = el.querySelector('.outfit-neck-over');
-  if (clothes && over) { over.innerHTML = neck.innerHTML; neck.innerHTML = ''; } else if (over) over.innerHTML = '';
-  el.classList.toggle('hooded', hood);
-  el.classList.toggle('snug', !!(item && item.snug));
-  el.classList.toggle('shod', !!wardrobeItem(outfit.feet)); // shoes replace the pet's own feet
+  if (clothes.length && over) { over.innerHTML = neck.innerHTML; neck.innerHTML = ''; } else if (over) over.innerHTML = '';
+  el.classList.toggle('hooded', !!hood);
+  el.classList.toggle('snug', hats.some(function (h) { return h.snug; }));
+  el.classList.toggle('shod', worn('feet').length > 0); // shoes replace the pet's own feet
 }
 
 var dressSheet = $('dressSheet'), dressPreview = $('dressPreview');
@@ -66,7 +66,8 @@ function wearButtons() { return dressSheet.querySelectorAll('.hat-strip button')
 /** Marks what is worn in each slot in the dressing room and updates its preview. */
 function refreshDressRoom() {
   wearButtons().forEach(function (b) {
-    b.setAttribute('aria-pressed', b.dataset.hat === state.pet.outfit[b.dataset.slot] ? 'true' : 'false');
+    var on = L.wornIds(state.pet.outfit, b.dataset.slot);
+    b.setAttribute('aria-pressed', (b.dataset.hat === 'none' ? on.length === 0 : on.indexOf(b.dataset.hat) !== -1) ? 'true' : 'false');
   });
   var view = dressPreview.querySelector('.pet');
   if (view) dressUp(view, state.pet.outfit);
@@ -119,25 +120,25 @@ function onWearClick(e) {
   lastDressTouch = Date.now();
   if (!unlocked('hat', b.dataset.hat)) { lockHint(hatHint, 'hat', b.dataset.hat); return; }
   hatHint.hidden = true;
-  state.pet.outfit[b.dataset.slot] = b.dataset.hat;
+  var wearing = L.toggleWorn(state.pet.outfit, b.dataset.slot, b.dataset.hat);   // several things can be worn in one slot
   save();
   refreshDressRoom();
   dressUp(pet, state.pet.outfit);
-  sound(b.dataset.hat !== 'none' ? 'excited' : 'tap');
-  if (b.dataset.hat !== 'none' && Math.random() < 0.3) setTimeout(dressFlash, 650);   // sometimes it snaps a photo of the new look
+  sound(wearing ? 'excited' : 'tap');
+  if (wearing && Math.random() < 0.3) setTimeout(dressFlash, 650);   // sometimes it snaps a photo of the new look
   var pointed = hoveredHat === b.dataset.hat;
-  if (pointed && b.dataset.hat !== 'none') dressSay(line('look', ['how do I look?', 'I love it!', 'kawaii?', 'ta-da!']), 1600, true);
-  else dressSay(b.dataset.hat === 'none' ? 'fresh look!' : hatLine(b.dataset.hat), 1600);
+  if (pointed && wearing) dressSay(line('look', ['how do I look?', 'I love it!', 'kawaii?', 'ta-da!']), 1600, true);
+  else dressSay(wearing ? hatLine(b.dataset.hat) : 'fresh look!', 1600);
   var view = dressPreview.querySelector('.pet');
   if (view) {
     view.dataset.mouth = 'smile';
-    view.dataset.eyes = b.dataset.hat === 'none' ? 'open' : 'happy';
+    view.dataset.eyes = wearing ? 'happy' : 'open';
     // back to open eyes soon, so they can follow your finger again
     clearTimeout(sparkleTimer);
     sparkleTimer = setTimeout(function () { view.dataset.eyes = dressRest.eyes; }, 900);
     // the cheer has its own timer: tapping the next outfit starts a sparkle, which clears sparkleTimer,
     // and that used to leave the arms waving in the air for good
-    view.dataset.arms = b.dataset.hat === 'none' ? 'idle' : 'cheer';
+    view.dataset.arms = wearing ? 'cheer' : 'idle';
     clearTimeout(cheerTimer);
     cheerTimer = setTimeout(function () { view.dataset.arms = dressRest.arms; }, 900);
     view.classList.remove('hop'); void view.offsetWidth; view.classList.add('hop');
@@ -179,7 +180,7 @@ function onHatHover(e) {
   var b = e.target.closest && e.target.closest('.hat-strip button');
   if (!b || b.dataset.hat === hoveredHat) return;
   hoveredHat = b.dataset.hat;
-  if (!unlocked('hat', b.dataset.hat) || b.dataset.hat === state.pet.outfit[b.dataset.slot]) return;
+  if (!unlocked('hat', b.dataset.hat) || L.wornIds(state.pet.outfit, b.dataset.slot).indexOf(b.dataset.hat) !== -1) return;
   dressSay(hatLine(b.dataset.hat), 1600);
   var view = dressPreview.querySelector('.pet');
   if (view) sparkle(view);
@@ -219,7 +220,7 @@ dressSheet.addEventListener('close', function () {
   hoveredHat = null;
   if (!busy && petName() !== nameAtOpen) { pulse('hop', 500); talk('name', ["I'm {name}!"], 1500, { name: petName() }); return; }   // renamed: it says its new name
   if (!busy) {
-    var item = L.OUTFIT_SLOTS.some(function (slot) { return wardrobeItem(state.pet.outfit[slot]); });
+    var item = L.OUTFIT_SLOTS.some(function (slot) { return L.wornIds(state.pet.outfit, slot).some(wardrobeItem); });
     if (baseState() === 'sleepy') {
       // asleep: only a happy mumble
       pulse('rocksmall', 1300);
