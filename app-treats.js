@@ -1,40 +1,63 @@
-// Treats: three free snacks a day that you pick for Nibble. They count for goals and
-// personalities like shopping does (same daily limits), but never for the Top 10.
+// Treats: now and then Nibble asks for a snack (a little thought cloud with the food in it) and you feed it by tapping the cloud.
+// Up to three a day, each one once; they count for goals and personalities like shopping does (same daily limits),
+// but never for the Top 10. Nothing is lost by ignoring a wish: the cloud goes away by itself.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
-var treatSheet = $('treatSheet'), treatGrid = $('treatGrid'), treatLeft = $('treatLeft');
+var wishEl = $('wish'), wishCloud = $('wishCloud'), wishWord = '', wishTimer = 0, wishGone = 0;
+var WISH_FIRST_MS = [45000, 60000];      // the first ask after the app opens: between these
+var WISH_GAP_MS = [180000, 240000];      // later asks: a few minutes apart
+var WISH_STAYS_MS = 80000;               // how long the cloud waits to be noticed
+var WISH_NAME = { apple: 'an apple', strawberry: 'a strawberry', carrot: 'a carrot', broccoli: 'some broccoli', bread: 'some bread', cheese: 'some cheese', peanuts: 'some peanuts', fish: 'some fish', cookie: 'a cookie' };
 
-/** Fills the treat sheet: one button per treat, greyed out once fed today. */
-function renderTreats() {
-  var used = L.treatsToday(state.pet, new Date());
-  var left = L.TREATS_PER_DAY - used.length;
-  treatLeft.textContent = left > 0 ? left + ' of ' + L.TREATS_PER_DAY + ' left today' : 'All done for today. Come back tomorrow!';
-  treatGrid.replaceChildren.apply(treatGrid, L.TREAT_WORDS.map(function (word) {
-    var found = L.createItem(word, {}, 'treat');
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.dataset.word = word;
-    b.disabled = left <= 0 || used.indexOf(word) !== -1;
-    var label = document.createElement('span');
-    label.textContent = word.charAt(0).toUpperCase() + word.slice(1);
-    b.append(emojiImg(found.emoji, ''), label);
-    return b;
-  }));
+/** @returns {number} A random time in a [min, extra] range of milliseconds. */
+function wishDelay(range) { return range[0] + Math.random() * range[1]; }
+/** Waits, then asks for something (or tries again a little later if now is a bad moment). */
+function scheduleWish(ms) {
+  clearTimeout(wishTimer);
+  wishTimer = setTimeout(askForTreat, ms);
+}
+/** @returns {boolean} Whether it is a good moment to ask: awake, not busy, nothing open, not bedtime. */
+function mayWish() {
+  return !busy && !document.hidden && !wishWord && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') && !stage.classList.contains('night-lamp') &&
+    !document.querySelector('dialog[open]:not(#roomSheet)');
+}
+/** Nibble asks for a snack he has not had today. */
+function askForTreat() {
+  var word = L.nextWish(state.pet, new Date(), Math.random);
+  if (!word) { scheduleWish(wishDelay([30 * 60000, 10 * 60000])); return; }   // all treats used today: look again much later
+  if (!mayWish()) { scheduleWish(25000); return; }
+  var found = L.createItem(word, {}, 'treat');
+  wishWord = word;
+  wishCloud.replaceChildren(emojiImg(found.emoji, ''));
+  wishEl.setAttribute('aria-label', 'Nibble would like ' + word + '. Tap to feed it.');
+  wishEl.hidden = false;
+  sound('ooh');
+  say(pick(['could I have ' + (WISH_NAME[word] || word) + '?', 'ooh… ' + word + '?', 'I\'m peckish…', 'snack time?']), 1800);
+  clearTimeout(wishGone);
+  wishGone = setTimeout(function () { dropWish(false); }, WISH_STAYS_MS);
+}
+/** Takes the cloud away and plans the next ask. @param {boolean} fed He got what he asked for. */
+function dropWish(fed) {
+  clearTimeout(wishGone);
+  wishWord = '';
+  wishEl.hidden = true;
+  scheduleWish(wishDelay(fed ? WISH_GAP_MS : WISH_GAP_MS.map(function (n) { return n / 2; })));
 }
 
-treatGrid.addEventListener('click', function (e) {
-  var b = e.target.closest('button');
-  if (!b || b.disabled) return;
-  var now = new Date();
-  var given = L.giveTreat(state.pet, b.dataset.word, now);
+/** Feeds the wished-for snack. */
+wishEl.addEventListener('click', function (e) {
+  e.stopPropagation();
+  if (!wishWord) return;
+  var word = wishWord, now = new Date();
+  var given = L.giveTreat(state.pet, word, now);
+  var from = wishEl.getBoundingClientRect();
+  dropWish(given.ok);
   if (!given.ok) return;
-  var from = b.getBoundingClientRect();
-  var item = L.createItem(b.dataset.word, {}, 'treat');   // no added time: a free treat counts straight away
+  var item = L.createItem(word, {}, 'treat');   // no added time: a free treat counts straight away
   item.treat = true;
   var goals = creditEaten(item, now);
   save();
-  renderTreats();    // the sheet stays open until Done, so you can pick the next one
   if (baseState() === 'sleepy' && !busy && !reduceMotion) {
     // asleep: it wakes with a start for the treat, eats it happy but tired, then goes back to sleep
     busy++;
@@ -42,8 +65,4 @@ treatGrid.addEventListener('click', function (e) {
   } else eat(item, from, goals);
 });
 
-// a low panel that leaves Nibble in view, so you can watch it eat; only Done (or Escape) closes it
-$('treatBtn').addEventListener('click', function () {
-  renderTreats();
-  openDialog(treatSheet);
-});
+scheduleWish(wishDelay(WISH_FIRST_MS));

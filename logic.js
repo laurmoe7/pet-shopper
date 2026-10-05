@@ -1195,7 +1195,7 @@
   }
 
   // ---------- treats ----------
-  // Free snacks Nibble can be given without shopping. They count for goals and tastes
+  // Free snacks Nibble asks for now and then (up to three a day, each once) and you can feed him. They count for goals and tastes
   // under the same daily limits as shopping, but never for the Top 10.
 
   /** How many treats Nibble takes a day. */
@@ -1228,6 +1228,20 @@
     if (used.indexOf(word) !== -1) return { ok: false, why: 'used' };
     used.push(word);
     return { ok: true, left: TREATS_PER_DAY - used.length };
+  }
+
+  /**
+   * What Nibble could ask for next: a treat not yet fed today, or nothing once the day's treats are used up.
+   * @param {PetProfile} profile  A new day starts a fresh list.
+   * @param {Date} now
+   * @param {function(): number} rand  Like Math.random.
+   * @returns {?string} One of TREAT_WORDS.
+   */
+  function nextWish(profile, now, rand) {
+    var used = treatsToday(profile, now);
+    if (used.length >= TREATS_PER_DAY) return null;
+    var left = TREAT_WORDS.filter(function (w) { return used.indexOf(w) === -1; });
+    return left.length ? left[Math.min(left.length - 1, Math.floor(rand() * left.length))] : null;
   }
 
   // ---------- room decor ----------
@@ -1441,6 +1455,7 @@
     topFavourites: topFavourites,
     memoryLine: memoryLine,
     giveTreat: giveTreat,
+    nextWish: nextWish,
     treatsToday: treatsToday,
     TREATS_PER_DAY: TREATS_PER_DAY,
     TREAT_WORDS: TREAT_WORDS,

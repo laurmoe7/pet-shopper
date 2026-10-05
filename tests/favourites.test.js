@@ -117,6 +117,19 @@ test('treats: three different ones a day, each once, and a new day starts fresh'
   assert.equal(L.giveTreat(p, 'apple', at('2026-10-02T09:00')).left, 2, 'a new day');
 });
 
+test('wishes: Nibble asks for a treat not fed yet, and stops once the day is full', () => {
+  const p = pet();
+  const day = at('2026-10-01T09:00');
+  assert.ok(L.TREAT_WORDS.includes(L.nextWish(p, day, () => 0)));
+  L.giveTreat(p, L.nextWish(p, day, () => 0), day);
+  assert.notEqual(L.nextWish(p, day, () => 0), L.treatsToday(p, day)[0], 'never what was fed already');
+  assert.ok(L.TREAT_WORDS.includes(L.nextWish(p, day, () => 0.999)), 'the top of the random range still works');
+  L.giveTreat(p, L.nextWish(p, day, () => 0), day);
+  L.giveTreat(p, L.nextWish(p, day, () => 0), day);
+  assert.equal(L.nextWish(p, day, () => 0), null, 'three a day');
+  assert.ok(L.nextWish(p, at('2026-10-02T09:00'), () => 0), 'a new day');
+});
+
 test('every treat is a real food with an emoji, so it can count for goals', () => {
   for (const word of L.TREAT_WORDS) {
     const item = L.createItem(word, {}, 'x');

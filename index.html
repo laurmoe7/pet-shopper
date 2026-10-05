@@ -49,6 +49,8 @@
       </svg></button>
       <div class="bubble" id="bubble" role="status" aria-live="polite" hidden></div>
       <!-- a daydream: a thought cloud with something from the list -->
+      <!-- what Nibble is asking for (app-treats.js): tap it to feed him -->
+      <button type="button" class="wish" id="wish" hidden><span class="wish-cloud" id="wishCloud"></span><span class="wish-dot d1"></span><span class="wish-dot d2"></span></button>
       <div class="dream" id="dream" aria-hidden="true" hidden><span class="dream-dot d1"></span><span class="dream-dot d2"></span><span class="dream-cloud" id="dreamCloud"></span></div>
       <div class="pet" id="pet" data-state="sleepy" data-species="mochi" data-arms="rest" aria-label="Nibble, your pet">
         <div class="squash"><svg viewBox="0 0 160 150" class="pet-svg" aria-hidden="true">
@@ -670,7 +672,6 @@
   <nav class="dock" aria-label="Pet">
     <button type="button" id="dressBtn" aria-label="Pet and dress-up"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><g transform="translate(1.5 11.5) rotate(-14 5 5)"><g><path d="M5 5.2c-1.6 0-3 1.7-3 3.1 0 1.2.9 1.7 1.8 1.7.5 0 .8-.2 1.2-.2s.7.2 1.2.2c.9 0 1.8-.5 1.8-1.7 0-1.4-1.4-3.1-3-3.1z"/><ellipse cx="1.6" cy="4.3" rx=".95" ry="1.25"/><ellipse cx="3.7" cy="2.3" rx="1" ry="1.35"/><ellipse cx="6.3" cy="2.3" rx="1" ry="1.35"/><ellipse cx="8.4" cy="4.3" rx=".95" ry="1.25"/></g></g><g transform="translate(12.5 2) rotate(14 5 5)"><g><path d="M5 5.2c-1.6 0-3 1.7-3 3.1 0 1.2.9 1.7 1.8 1.7.5 0 .8-.2 1.2-.2s.7.2 1.2.2c.9 0 1.8-.5 1.8-1.7 0-1.4-1.4-3.1-3-3.1z"/><ellipse cx="1.6" cy="4.3" rx=".95" ry="1.25"/><ellipse cx="3.7" cy="2.3" rx="1" ry="1.35"/><ellipse cx="6.3" cy="2.3" rx="1" ry="1.35"/><ellipse cx="8.4" cy="4.3" rx=".95" ry="1.25"/></g></g></svg></span><span class="dock-label">Pet</span></button>
     <button type="button" id="roomBtn" aria-label="Room"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8 1.8 12h3v8.4h14.4V12h3z" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><rect x="9.6" y="13.6" width="4.8" height="6.8" rx="1" fill="#fff" opacity=".85"/></svg></span><span class="dock-label">Room</span></button>
-    <button type="button" id="treatBtn" aria-label="Treats: feed Nibble a free snack"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.6s-8.4-5.2-8.4-11.1a4.6 4.6 0 0 1 8.4-2.6 4.6 4.6 0 0 1 8.4 2.6c0 5.9-8.4 11.1-8.4 11.1z" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="dock-label">Treats</span></button>
     <button type="button" id="favBtn" aria-label="Top 10: what you buy most"><span class="dock-icon" aria-hidden="true">♛</span><span class="dock-label">Top 10</span></button>
     <button type="button" id="goalsBtn" aria-label="Goals: unlock new pets and hats"><span class="dock-icon" aria-hidden="true">★</span><span class="dock-label">Goals</span></button>
     <button type="button" id="calBtn" class="todo-only" aria-label="Calendar: birthdays and plans"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3.4" fill="currentColor"/><rect x="3" y="5" width="18" height="5.2" rx="2.6" fill="currentColor" stroke="currentColor" stroke-width="1"/><path d="M8 2.8v4M16 2.8v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><g fill="#fff" opacity=".9"><circle cx="8" cy="14" r="1.3"/><circle cx="12" cy="14" r="1.3"/><circle cx="16" cy="14" r="1.3"/><circle cx="8" cy="18" r="1.3"/><circle cx="12" cy="18" r="1.3"/></g></svg></span><span class="dock-label">Calendar</span></button>
@@ -870,16 +871,6 @@
     <p class="fav-empty" id="favEmpty" hidden><span class="pet-name">Nibble</span> hasn't seen you buy anything yet. Tick things off and your favourites show up here.</p>
   </form>
 </dialog>
-
-<dialog class="picker pet-sheet treat-sheet" id="treatSheet" aria-labelledby="treatTitle">
-  <form method="dialog" class="picker-inner">
-    <h2 id="treatTitle">Treats</h2>
-    <p class="goals-intro">Pick up to 3 free snacks a day for <span class="pet-name">Nibble</span>. They count towards goals, but not your Top 10.</p>
-    <div class="treat-grid" id="treatGrid"></div>
-    <p class="treat-left" id="treatLeft" aria-live="polite"></p>
-  </form>
-</dialog>
-
 <dialog class="picker pet-sheet cal-sheet" id="calSheet" aria-label="Calendar">
   <form method="dialog" class="picker-inner">
     <div class="cal-head">

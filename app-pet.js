@@ -208,7 +208,7 @@ function say(text, ms, own) {
   bubble.hidden = true;
   void bubble.offsetWidth;
   var line = own ? text : L.styleLine(personality(), text);
-  var menu = document.querySelector('dialog[open]:not(#roomSheet):not(#treatSheet):not(#devSheet)');
+  var menu = document.querySelector('dialog[open]:not(#roomSheet):not(#devSheet)');
   if (menu && menu.id === 'dressSheet') { dressSay(line, ms, true); return; }
   try {
     if (menu) { menu.appendChild(bubble); bubble.classList.add('in-sheet'); } else bubbleToStage();
