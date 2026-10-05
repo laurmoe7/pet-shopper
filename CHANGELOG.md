@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 171 (5 Oct)
+- Magnifying glass handle sticks out under the paw.
+- Sparkle eye is bigger under the glass.
+
 ## Build 170 (5 Oct)
 - Nibble and the pig back to normal size.
 - The munchkin cat is 20% smaller.
