@@ -214,15 +214,15 @@ dressSheet.addEventListener('click', function (e) { if (e.target === dressSheet)
 // so it only slides and rocks), then settles back. It waits while you are trying things on.
 var DRESS_MOVES = [
   { cls: 'wiggle', ms: 900, eyes: 'happy', mouth: 'smile', arms: 'idle', x: ['cheeks'] },
-  { cls: 'twirl', ms: 800, eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks', 'sparkles'] },
+  { cls: 'twirl', ms: 800, eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] },
   { cls: 'shuffle', ms: 1500, eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] },
-  { cls: 'boogie', ms: 1500, eyes: 'happy', mouth: 'smile', arms: 'reach', x: ['sparkles', 'cheeks'] },
+  { cls: 'boogie', ms: 1500, eyes: 'happy', mouth: 'smile', arms: 'reach', x: ['cheeks'] },
   { cls: 'rock', ms: 1900, eyes: 'happy', mouth: 'smile', arms: 'idle', x: ['cheeks'] },
   { cls: 'bob', ms: 1400, eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks'] },
-  { cls: '', ms: 1700, eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['sparkles', 'cheeks'] },    // ta-da pose
-  { cls: '', ms: 1700, eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['hearts', 'cheeks'] },         // blowing it a kiss
+  { cls: '', ms: 1700, eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['cheeks'] },    // ta-da pose
+  { cls: '', ms: 1700, eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] },         // pleased pat
   { cls: '', ms: 1700, eyes: 'closed', mouth: 'smile', arms: 'cover', x: ['cheeks'] },               // shy pose
-  { cls: '', ms: 1700, eyes: 'happy', mouth: 'open', arms: 'reach', x: ['sparkles'] }                // jazz hands
+  { cls: '', ms: 1700, eyes: 'happy', mouth: 'open', arms: 'reach', x: ['cheeks'] }                // jazz hands
 ];
 var DRESS_FX = ['zzz', 'steam', 'hearts', 'sparkles', 'question', 'sweat', 'shock', 'redface', 'cheeks'];
 var dressDanceTimer, dressLastMove = -1;

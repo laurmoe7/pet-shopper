@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 159 (5 Oct)
+- Dressing room sparkles and hearts only pulse gently, nothing drifts.
+
 ## Build 158 (5 Oct)
 - Late to-dos shake a bit more often.
 - Dressing room: spotlights and beams sway, sparkles pulse in place.
