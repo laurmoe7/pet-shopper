@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 163 (5 Oct)
+- Calendar menu stays the same height in every month.
+- Sassy Chef is now Grumpy Chef, grumpier and less sassy.
+- New personalities: Caring (motherly), Joker (very silly) and Feisty (sassy and stubborn).
+
 ## Build 162 (5 Oct)
 - Camera flash is gentler and may go off when you put something on.
 

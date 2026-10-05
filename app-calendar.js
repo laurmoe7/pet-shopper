@@ -61,7 +61,7 @@ function renderCalDay() {
     li.append(emojiImg(t.emoji, ''), text, del);
     return li;
   }) : [Object.assign(document.createElement('li'), { className: 'cal-empty', textContent: calSel < todayKey() ? 'Nothing was planned.' : 'Nothing planned yet.' })]);
-  $('calAdd').hidden = calSel < todayKey();
+  $('calAdd').classList.toggle('off', calSel < todayKey());   // hidden but still taking its room, so the sheet never changes height
 }
 /**
  * Puts a plan on the calendar: a task due on that day. It also joins the to-do list.

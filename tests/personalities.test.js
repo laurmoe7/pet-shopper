@@ -104,12 +104,12 @@ test('every personality has its own voice for every moment', () => {
 
 test('the tones Lauren asked for are all there', () => {
   const tones = Personalities.map((p) => p.voice.tone);
-  for (const t of ['sassy', 'sweet', 'sleepy', 'excited']) assert.ok(tones.includes(t), t);
+  for (const t of ['sassy', 'grumpy', 'caring', 'silly', 'sweet', 'sleepy', 'excited']) assert.ok(tones.includes(t), t);
   assert.equal(new Set(tones).size, tones.length, 'each personality sounds different');
 });
 
 test('a personality line fills in the item and keeps its own tone', () => {
-  const chef = Personalities.find((p) => p.voice.tone === 'sassy');
+  const chef = Personalities.find((p) => p.id === 'chef');
   const first = () => 0;
   assert.equal(L.voiceLine(chef, 'suggest', ['x'], { x: 'eggs' }, first), chef.voice.suggest[0].replace('{x}', 'eggs'));
   const plain = { id: 'plain', lines: [] };
@@ -119,12 +119,12 @@ test('a personality line fills in the item and keeps its own tone', () => {
 test('other lines pick up the tone: sleepy is quiet and lower case, sweet adds hearts', () => {
   const sleepy = Personalities.find((p) => p.voice.tone === 'sleepy');
   const sweet = Personalities.find((p) => p.voice.tone === 'sweet');
-  const sassy = Personalities.find((p) => p.voice.tone === 'sassy');
+  const sassy = Personalities.find((p) => p.id === 'feisty');
   const always = () => 0;
   const never = () => 0.99;
   assert.equal(L.styleLine(sleepy, 'HOT HOT HOT!', never), 'hot hot hot…');
   assert.equal(L.styleLine(sweet, 'yum yum!', always), 'aww, yum yum' + sweet.voice.style.endings[0]);
-  assert.match(L.styleLine(sassy, 'tasty!', always), /^tasty, obviously$|^ugh, tasty, obviously$/);
+  assert.match(L.styleLine(sassy, 'tasty!', always), /^tasty, obviously$|^nope, tasty, obviously$|^excuse me\? tasty, obviously$|^um, no\. tasty, obviously$/);
   assert.equal(L.styleLine(sweet, 'is it ok?', never), 'is it ok?', 'questions keep their ending');
   assert.equal(L.styleLine(sleepy, 'Zzz… tea…', never, true), 'zzz… tea…');
 });
@@ -150,7 +150,10 @@ test('each personality has a short description and a name that fits its quirk', 
   const byId = Object.fromEntries(Personalities.map((p) => [p.id, p]));
   assert.equal(byId.diva.voice.tone, 'diva');
   assert.equal(byId.nerd.voice.tone, 'nerdy');
-  assert.match(byId.chef.label, /Sassy/);
+  assert.match(byId.chef.label, /Grumpy/);
+  assert.equal(byId.caring.voice.tone, 'caring');
+  assert.equal(byId.joker.voice.tone, 'silly');
+  assert.equal(byId.feisty.voice.tone, 'sassy');
   assert.match(byId.sipper.label, /Sleepy/);
 });
 
