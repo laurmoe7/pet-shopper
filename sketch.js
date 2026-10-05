@@ -289,6 +289,7 @@ function skDown(e) {
     skStage.classList.add('panning');
     return;
   }
+  if (SK.tool === 'drop') { skPickInPage(e.clientX, e.clientY); return; }
   var pt = skPoint(e), v = SK_VIEW[SK.mode];
   if (SK.tool === 'imgmove') {
     var img = skSelected();
@@ -570,6 +571,81 @@ function skLayerEvent(e) {
   if (e.type === 'change' || (e.type === 'input')) skSaveImages();
 }
 
+// ---------- picking a colour from the picture itself (where the browser has no screen eyedropper) ----------
+function skHex(r, g, b) { return '#' + [r, g, b].map(function (n) { return ('0' + Math.round(n).toString(16)).slice(-2); }).join(''); }
+/** @returns {?string} A '#rrggbb' for a computed colour like "rgb(12, 34, 56)", or null if it is not a solid colour. */
+function skCssColour(value, opacity) {
+  var m = /^rgba?\(([^)]+)\)$/.exec(value || '');
+  if (!m || parseFloat(opacity) < 0.3) return null;
+  var n = m[1].split(/[ ,\/]+/).map(parseFloat);
+  if (n.length > 3 && n[3] < 0.3) return null;
+  return skHex(n[0], n[1], n[2]);
+}
+/** @returns {Promise<?string>} The colour of the pixel of a picture layer under the pointer. */
+function skImagePixel(el, cx, cy) {
+  return new Promise(function (done) {
+    var r = el.getBoundingClientRect(), img = new Image();
+    img.onload = function () {
+      var cv = document.createElement('canvas');
+      cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+      var g = cv.getContext('2d');
+      g.drawImage(img, 0, 0);
+      var d = g.getImageData(Math.min(cv.width - 1, Math.max(0, Math.floor((cx - r.left) / r.width * cv.width))), Math.min(cv.height - 1, Math.max(0, Math.floor((cy - r.top) / r.height * cv.height))), 1, 1).data;
+      done(d[3] < 80 ? null : skHex(d[0], d[1], d[2]));
+    };
+    img.onerror = function () { done(null); };
+    img.src = el.getAttribute('href');
+  });
+}
+/** @returns {?string} The colour of a gradient fill (url(#id)) at a screen point: the stops are blended along the gradient. */
+function skGradientAt(fill, el, cx, cy) {
+  var m = /url\(["']?#([^"')]+)["']?\)/.exec(fill || ''), g = m && document.getElementById(m[1]);
+  if (!g || !/gradient/i.test(g.tagName)) return null;
+  var stops = [].slice.call(g.querySelectorAll('stop')).map(function (st) {
+    var o = parseFloat(st.getAttribute('offset')) || 0, cs = getComputedStyle(st), c = /^rgba?\(([^)]+)\)$/.exec(cs.stopColor);
+    return c ? { o: /%/.test(st.getAttribute('offset') || '') ? o / 100 : o, c: c[1].split(/[ ,\/]+/).map(parseFloat) } : null;
+  }).filter(Boolean);
+  if (!stops.length) return null;
+  var r = el.getBoundingClientRect(), fx = r.width ? (cx - r.left) / r.width : 0, fy = r.height ? (cy - r.top) / r.height : 0, t;
+  if (/radial/i.test(g.tagName)) {
+    t = Math.hypot(fx - 0.5, fy - 0.5) / 0.5;
+  } else {
+    var x1 = parseFloat(g.getAttribute('x1')) || 0, y1 = parseFloat(g.getAttribute('y1')) || 0, x2 = g.getAttribute('x2') === null ? 1 : parseFloat(g.getAttribute('x2')), y2 = parseFloat(g.getAttribute('y2')) || 0;
+    var dx = x2 - x1, dy = y2 - y1, len2 = dx * dx + dy * dy || 1;
+    t = ((fx - x1) * dx + (fy - y1) * dy) / len2;
+  }
+  t = Math.max(0, Math.min(1, t));
+  var lo = stops[0], hi = stops[stops.length - 1];
+  for (var i = 0; i < stops.length - 1; i++) if (t >= stops[i].o && t <= stops[i + 1].o) { lo = stops[i]; hi = stops[i + 1]; break; }
+  var k = hi.o === lo.o ? 0 : Math.max(0, Math.min(1, (t - lo.o) / (hi.o - lo.o)));
+  return skHex(lo.c[0] + (hi.c[0] - lo.c[0]) * k, lo.c[1] + (hi.c[1] - lo.c[1]) * k, lo.c[2] + (hi.c[2] - lo.c[2]) * k);
+}
+/** Finds the colour of the topmost thing painted under a screen point: a stroke, a picture layer, then the pet, furniture and background. */
+function skSampleAt(cx, cy) {
+  skStage.classList.add('sampling');   // lets the pictures underneath answer too (they normally ignore the pointer)
+  var els = document.elementsFromPoint(cx, cy);
+  skStage.classList.remove('sampling');
+  var shapes = /^(path|circle|ellipse|rect|polygon|polyline|line)$/;
+  function next(i) {
+    if (i >= els.length) return Promise.resolve(null);
+    var el = els[i], tag = el.tagName.toLowerCase();
+    if (!skStage.contains(el) || el.closest('.sk-grid, .sk-sel')) return next(i + 1);
+    if (tag === 'image') return skImagePixel(el, cx, cy).then(function (c) { return c || next(i + 1); });
+    if (!shapes.test(tag)) return next(i + 1);
+    var cs = getComputedStyle(el), c = skCssColour(cs.fill, cs.fillOpacity) || skGradientAt(cs.fill, el, cx, cy) || skCssColour(cs.stroke, cs.strokeOpacity);
+    return c ? Promise.resolve(c) : next(i + 1);
+  }
+  return next(0);
+}
+function skPickInPage(cx, cy) {
+  skSampleAt(cx, cy).then(function (c) {
+    if (!c) { skStatus.textContent = 'Nothing to pick there. Try the pet, a background or your drawing.'; return; }
+    skUseColour(c);
+    skSetTool(SK.prevTool && SK.prevTool !== 'drop' ? SK.prevTool : 'pen');
+    skStatus.textContent = 'Picked ' + c + '. It is your pen colour now.';
+  });
+}
+
 // ---------- the controls ----------
 function skPress(group, attr, value) {
   group.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset[attr] === String(value))); });
@@ -611,7 +687,11 @@ function skEyedrop() {
   });
 }
 function skSetTool(t) {
-  if (t === 'drop') { skEyedrop(); return; }   // not a mode: it picks once, then you carry on with the tool you had
+  if (t === 'drop' && window.EyeDropper) { skEyedrop(); return; }   // the browser's own: picks once from anywhere on the screen
+  if (t === 'drop') {   // no screen eyedropper (Firefox): click on the picture instead, then carry on with the tool you had
+    if (SK.tool !== 'drop') SK.prevTool = SK.tool;
+    skStatus.textContent = 'Click the pet, the background or your drawing to pick its colour. Esc cancels.';
+  }
   SK.tool = t;
   skPress($('skTools'), 'tool', t);
   skApplyLook();
@@ -760,6 +840,7 @@ document.addEventListener('keydown', function (e) {
     return;
   }
   var k = e.key.toLowerCase();
+  if (e.key === 'Escape' && SK.tool === 'drop') { skSetTool(SK.prevTool && SK.prevTool !== 'drop' ? SK.prevTool : 'pen'); skStatus.textContent = 'Cancelled.'; return; }
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); if (e.shiftKey) skRedo(); else skUndo(); return; }
   if ((e.ctrlKey || e.metaKey) && k === 'y') { e.preventDefault(); skRedo(); return; }
   if (e.ctrlKey || e.metaKey || e.altKey) return;
@@ -776,14 +857,6 @@ window.addEventListener('blur', function () { SK.space = false; skStage.classLis
 // a drop-down that keeps the keyboard focus would swallow shortcuts like Ctrl+Z
 document.addEventListener('change', function (e) { if (e.target.tagName === 'SELECT') e.target.blur(); });
 window.addEventListener('resize', skLayout);
-
-// Firefox and Safari have no eyedropper for the screen: the button says so instead of looking like it works
-if (!window.EyeDropper) {
-  var dropBtn = document.querySelector('#skTools [data-tool="drop"]');
-  dropBtn.classList.add('unavailable');
-  dropBtn.title = 'Needs Chrome or Edge. In this browser, use the colour box or a swatch.';
-  dropBtn.querySelector('span').textContent = 'Chrome only';
-}
 
 // ---------- start ----------
 skColourButtons();
