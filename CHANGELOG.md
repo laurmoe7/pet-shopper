@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 175 (5 Oct)
+- Sketchpad: lines always drawn on top of the pet.
+- Sketchpad: furniture mode.
+
 ## Build 174 (5 Oct)
 - Sketchpad: Send to Claude button.
 

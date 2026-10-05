@@ -5,10 +5,10 @@
 
 var skSheet = $('sketchSheet'), skStage = $('skStage'), skView = $('skView'), skStatus = $('skStatus'), skCoords = $('skCoords');
 /** The drawing area of each mode, in the coordinates of what is underneath. The pet is 160 x 150 with room round it for hats. */
-var SK_VIEW = { pet: { x: -30, y: -50, w: 220, h: 220 }, scene: { x: 0, y: 0, w: 400, h: 160 }, toy: { x: 0, y: 0, w: 26, h: 26 } };
+var SK_VIEW = { pet: { x: -30, y: -50, w: 220, h: 220 }, scene: { x: 0, y: 0, w: 400, h: 160 }, toy: { x: 0, y: 0, w: 26, h: 26 }, room: { x: 0, y: 0, w: 400, h: 160 } };
 var SK_COLOURS = ['#5b4239', '#000000', '#ffffff', '#ff8fb1', '#ff6b6b', '#ffa94d', '#ffd166', '#7bd389', '#6ec6ff', '#b69cff'];
 var SK_SIZES = [0.004, 0.009, 0.017];   // line widths as a share of the drawing area's width
-var SK = { mode: 'pet', tool: 'pen', color: SK_COLOURS[0], size: 1, zoom: 1, strokes: { pet: [], scene: [], toy: [] }, hist: { pet: [], scene: [], toy: [] } };
+var SK = { mode: 'pet', tool: 'pen', color: SK_COLOURS[0], size: 1, zoom: 1, strokes: { pet: [], scene: [], toy: [], room: [] }, hist: { pet: [], scene: [], toy: [], room: [] } };
 var skDraw = null, skLive = null, skDrawing = false, skBackdrop = 'none';
 
 /** Keeps the work on this device, so closing the sheet (or the app) loses nothing. */
@@ -19,7 +19,7 @@ function skLoad() {
   try {
     var d = JSON.parse(localStorage.getItem('nibble-sketch') || 'null');
     if (!d) return;
-    ['pet', 'scene', 'toy'].forEach(function (m) { if (d.strokes && Array.isArray(d.strokes[m])) SK.strokes[m] = d.strokes[m]; });
+    ['pet', 'scene', 'toy', 'room'].forEach(function (m) { if (d.strokes && Array.isArray(d.strokes[m])) SK.strokes[m] = d.strokes[m]; });
     if (d.kind) $('skKind').value = d.kind;
     $('skNote').value = d.note || '';
   } catch (e) { /* nothing saved, or it could not be read */ }
@@ -72,7 +72,7 @@ function skBuild() {
     var p = skPet();
     skPlace(p, v, 0, 0, 160, 150);
     ref.appendChild(p);
-  } else if (SK.mode === 'scene') {
+  } else if (SK.mode === 'scene' || SK.mode === 'room') {
     var bd = BACKDROPS.filter(function (b) { return b.id === skBackdrop; })[0];
     if (bd && bd.draw) {
       var bg = document.createElement('div');
@@ -80,12 +80,23 @@ function skBuild() {
       bg.innerHTML = '<svg viewBox="0 0 400 160" preserveAspectRatio="xMidYMax slice">' + bd.draw(L.isNight(petNow())) + '</svg>';
       ref.appendChild(bg);
     }
+    if (SK.mode === 'room') {   // the furniture already in the room, behind the pet, as the room draws it (x, y = the centre as a share of the stage)
+      Decor.filter(function (d) { return state.pet.room[d.id]; }).forEach(function (d) {
+        var spot = state.pet.room[d.id], f = document.createElement('div');
+        f.appendChild(svgIcon(d.view, d.svg));
+        f.firstChild.style.cssText = 'width:100%;height:100%;display:block;overflow:visible';
+        skPlace(f, v, spot.x * v.w - d.w / 2, spot.y * v.h - d.h / 2, d.w, d.h);
+        ref.appendChild(f);
+      });
+    }
     var sp = skPet();
     skPlace(sp, v, 125, 18, 150, 140);   // where the pet stands on the real stage (about)
     ref.appendChild(sp);
-    var toy = skToy();
-    skPlace(toy, v, 295, 124, 26, 26);   // the toy's usual place, on the right
-    ref.appendChild(toy);
+    if (SK.mode === 'scene') {
+      var toy = skToy();
+      skPlace(toy, v, 295, 124, 26, 26);   // the toy's usual place, on the right
+      ref.appendChild(toy);
+    }
   } else {
     var t = skToy();
     skPlace(t, v, 0, 0, 26, 26);
@@ -122,7 +133,7 @@ function skApplyLook() {
   skStage.classList.toggle('no-grid', !$('skGrid').checked);
   skStage.classList.toggle('no-ref', !$('skRef').checked);
   skStage.style.setProperty('--sk-ghost', $('skGhost').value / 100);
-  $('skBdWrap').hidden = SK.mode !== 'scene';
+  $('skBdWrap').hidden = SK.mode !== 'scene' && SK.mode !== 'room';
   $('skRef').parentNode.lastChild.textContent = SK.mode === 'toy' ? ' Show toy' : ' Show pet';
 }
 
@@ -189,8 +200,8 @@ function skMeta() {
   return {
     build: BUILD, mode: SK.mode, kind: $('skKind').value, note: $('skNote').value.trim(), view: v,
     pet: { species: state.pet.species, skin: state.pet.skin || '', outfit: state.pet.outfit, personality: state.pet.personality || '' },
-    backdrop: SK.mode === 'scene' ? skBackdrop : undefined,
-    placement: SK.mode === 'scene' ? 'pet box x125 y18 w150 h140, toy x295 y124 w26' : SK.mode === 'pet' ? 'pet drawing is 160 x 150 at 0,0' : 'toy drawing is 26 x 26'
+    backdrop: SK.mode === 'scene' || SK.mode === 'room' ? skBackdrop : undefined,
+    placement: SK.mode === 'room' ? 'room 400 x 160 (about the stage): draw ONE new piece of furniture; the pet box is x125 y18 w150 h140, placed furniture is shown behind it; convert the piece to a decor.js entry (x, y = its centre / 400 and / 160, w, h in px, own view box)' : SK.mode === 'scene' ? 'pet box x125 y18 w150 h140, toy x295 y124 w26' : SK.mode === 'pet' ? 'pet drawing is 160 x 150 at 0,0' : 'toy drawing is 26 x 26'
   };
 }
 function skFiles() {
@@ -315,6 +326,8 @@ $('skModes').addEventListener('click', function (e) {
   var b = e.target.closest('button');
   if (!b || b.dataset.mode === SK.mode) return;
   SK.mode = b.dataset.mode;
+  var kind = { room: 'furniture', toy: 'toy', scene: 'background' }[SK.mode];
+  if (kind) $('skKind').value = kind;
   skPress($('skModes'), 'mode', SK.mode);
   skBuild();
 });
@@ -356,7 +369,7 @@ $('skSizes').addEventListener('click', function (e) {
   skPress($('skSizes'), 'size', SK.size);
 });
 ['skGrid', 'skRef', 'skGhost'].forEach(function (id) { $(id).addEventListener('input', skApplyLook); });
-$('skBd').addEventListener('change', function () { skBackdrop = $('skBd').value; if (SK.mode === 'scene') skBuild(); });
+$('skBd').addEventListener('change', function () { skBackdrop = $('skBd').value; if (SK.mode === 'scene' || SK.mode === 'room') skBuild(); });
 $('skKind').addEventListener('change', skSave);
 $('skNote').addEventListener('input', skSave);
 $('skShare').addEventListener('click', function () { skSend('share'); });
