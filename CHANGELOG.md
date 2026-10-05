@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 154 (5 Oct)
+- Bird wing tips removed.
+- Eye patch is smaller.
+
 ## Build 153 (5 Oct)
 - To-dos are ordered soonest first; tasks with no date sit right after today's.
 - Bird wing tips melt into the hands.
