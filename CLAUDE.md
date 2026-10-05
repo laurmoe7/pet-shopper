@@ -89,6 +89,14 @@ Plain web app, no build step, no dependencies. `npm test` runs Node's built-in t
 
 Lauren previews via a single-file build (styles and scripts inlined, emoji alongside) published as a claude.ai artifact; the repo is also served by GitHub Pages under `/pet-shopper/`. `npm run preview` builds `preview/index.html` plus `preview/emoji/`; `npm run preview:bump` raises `BUILD` and `CACHE` by one first. Publish `preview/index.html` to the existing artifact URL; emoji only need uploading on the first publish.
 
+## Open items (update this when you finish or add one)
+
+- Preview artifact: the single-file preview only carries emoji pictures that were uploaded to it. After adding emoji (`tools/copy-emoji.js`), publish the new files with the `files` option of the Artifact tool (`emoji/XXXX.svg` from `preview/emoji/`), or they show as broken images on her phone. The GitHub Pages copy serves the whole `emoji/` folder.
+- Not yet tested on her phone: voice input and the "Add by voice" icon shortcut (the claude.ai preview may block the microphone; the Pages copy installed from Chrome is the real test), the dressing-room camera shutter sound, the bottom-edge fades while scrolling, and walking, bed and lamp with the smaller munchkin cat.
+- Later, when she moves to the app stores: swap the `Voice` object for native speech recognition; an Android home-screen widget (voice add through a small inbox the app reads) and Siri / the Action Button on iPhone; a privacy policy (the web speech service sends audio to Google, native recognition can stay on the device); joker and feisty icons are already in `emoji/`.
+- Ideas she liked but hasn't asked for: a Focus timer for the to-do list; hiding far-off tasks only when they are plans (now every task dated over 10 days away is hidden); reactions for food in the animation player (needs a fake item so it doesn't count for goals).
+- Her preferences worth remembering: gentle motion only (nothing flashing, no scroll bars), kawaii style, honest feedback, always give the build number and publish to the preview, push to `main` only on "big push".
+
 ## Lessons learned
 
 - There are no scroll bars anywhere (sheets and the page): she dislikes them. `app-fade.js` fades the bottom edge of a scrolling menu (`.fade-b`, listed in `FADE_SELECTORS`) and of the page (`.page-fade`) while there is more to see; add any new scrolling menu to that list. Don't add `scrollbar-width: thin` or similar.
