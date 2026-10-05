@@ -90,7 +90,7 @@ Plain web app, no build step, no dependencies. `npm test` runs Node's built-in t
 
 ### Phone preview
 
-Lauren previews via a single-file build (styles and scripts inlined, emoji alongside) published as a claude.ai artifact; the repo is also served by GitHub Pages under `/pet-shopper/`. `npm run preview` builds `preview/index.html` plus `preview/emoji/`; `npm run preview:bump` raises `BUILD` and `CACHE` by one first. Publish `preview/index.html` to the existing artifact URL; emoji only need uploading on the first publish.
+Lauren previews via a single-file build (styles and scripts inlined, emoji alongside) published as a claude.ai artifact; the repo is also served by GitHub Pages under `/pet-shopper/`. `npm run preview` builds `preview/index.html` plus `preview/emoji/`; `npm run preview:bump` raises `BUILD` and `CACHE` by one first. Publish `preview/index.html` to the existing artifact URL; emoji only need uploading on the first publish and whenever the emoji files change (pass them in `files` with `root: preview`).
 
 ## Lessons learned
 
