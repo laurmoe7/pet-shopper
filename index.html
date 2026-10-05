@@ -645,6 +645,7 @@
 
     <ul class="items" id="todo" aria-label="To buy"></ul>
     <p class="empty" id="emptyHint"></p>
+    <button type="button" class="text-btn far-note" id="farNote" hidden></button>
 
     <section class="eaten" id="eatenSection" hidden>
       <div class="eaten-head">
@@ -839,7 +840,6 @@
 <dialog class="picker pet-sheet fav-full" id="favSheet" aria-labelledby="favTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="favTitle">Top 10</h2>
-    <p class="fav-intro">What you buy most. Counts once a day per item. Tap + to add one back to your list.</p>
     <ol class="fav-list" id="favList"></ol>
     <p class="fav-empty" id="favEmpty" hidden><span class="pet-name">Nibble</span> hasn't seen you buy anything yet. Tick things off and your favourites show up here.</p>
   </form>
@@ -859,7 +859,7 @@
     <h2 id="calTitle">Calendar</h2>
     <div class="cal-head">
       <button type="button" class="pill-btn cal-nav" id="calPrev" aria-label="Previous month">‹</button>
-      <strong class="cal-month" id="calMonth" aria-live="polite"></strong>
+      <span class="cal-month"><select id="calMonthSel" aria-label="Month"></select><select id="calYearSel" aria-label="Year"></select></span>
       <button type="button" class="pill-btn cal-nav" id="calNext" aria-label="Next month">›</button>
     </div>
     <div class="cal-grid cal-dow" aria-hidden="true"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
@@ -879,7 +879,6 @@
 <dialog class="picker pet-sheet stamp-sheet" id="stampSheet" aria-labelledby="stampTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="stampTitle">Stamp book</h2>
-    <p class="goals-intro" id="stampIntro"></p>
     <div class="stamp-grid" id="stampGrid"></div>
   </form>
 </dialog>

@@ -572,7 +572,7 @@ function dueNag(idle) {
 var tagSig = '';
 function timeCheck(quiet) {
   // a tag turns pink when its time passes, or says "today" after midnight: redraw when any tag changes
-  var sig = state.items.map(dueTagKey).join(';');
+  var sig = state.items.map(dueTagKey).join(';') + '|' + state.items.filter(function (i) { return L.isFarOff(i, todayKey()); }).length;   // a plan 10 days away joins the list
   if (sig !== tagSig) { var first = tagSig === ''; tagSig = sig; if (!first && !busy) render(); }
   var today = todayKey(), now = clockKey(), hit = [];
   state.items.concat(state.stash).forEach(function (i) {

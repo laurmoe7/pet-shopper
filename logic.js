@@ -407,6 +407,9 @@
     }
     return out;
   }
+  var PLAN_AHEAD_DAYS = 10;   // a plan further away than this stays in the calendar until it gets close
+  /** @returns {boolean} Whether this open task is further away than PLAN_AHEAD_DAYS (so the to-do list hides it). */
+  function isFarOff(item, today) { return !!item.due && !item.done && daysUntil(item.due, today) > PLAN_AHEAD_DAYS; }
   /** @returns {Item[]} The tasks due on this day, open ones first. */
   function tasksOn(items, day) {
     var on = items.filter(function (i) { return i.due === day; });
@@ -1215,7 +1218,7 @@
     isUnlocked: isUnlocked,
     gateFor: gateFor,
     emojiFor: emojiFor,
-    splitSpoken: splitSpoken, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, REPEATS: REPEATS, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
+    splitSpoken: splitSpoken, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, REPEATS: REPEATS, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
     createItem: createItem,
     petProfile: petProfile,
     parseState: parseState,

@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 161 (5 Oct)
+- Calendar: month and year drop-down menus.
+- Plans more than 10 days away stay in the calendar until they get close.
+- Removed the intro lines on the stamp book and Top 10, and the 24-hour time description.
+- In the dressing room Nibble keeps emoting while you point at outfits.
+
 ## Build 160 (5 Oct)
 - To-do list: Calendar and Stamps in the bottom bar (instead of Top 10 and Goals).
 - Calendar for birthdays and plans, with yearly repeats.

@@ -107,12 +107,12 @@ function onWearClick(e) {
     view.dataset.eyes = b.dataset.hat === 'none' ? 'open' : 'happy';
     // back to open eyes soon, so they can follow your finger again
     clearTimeout(sparkleTimer);
-    sparkleTimer = setTimeout(function () { view.dataset.eyes = 'open'; }, 900);
+    sparkleTimer = setTimeout(function () { view.dataset.eyes = dressRest.eyes; }, 900);
     // the cheer has its own timer: tapping the next outfit starts a sparkle, which clears sparkleTimer,
     // and that used to leave the arms waving in the air for good
     view.dataset.arms = b.dataset.hat === 'none' ? 'idle' : 'cheer';
     clearTimeout(cheerTimer);
-    cheerTimer = setTimeout(function () { view.dataset.arms = 'idle'; }, 900);
+    cheerTimer = setTimeout(function () { view.dataset.arms = dressRest.arms; }, 900);
     view.classList.remove('hop'); void view.offsetWidth; view.classList.add('hop');
   }
 }
@@ -165,11 +165,10 @@ var sparkleTimer, cheerTimer, lastDressTouch = 0;
  * @param {Element} view The preview pet.
  */
 function sparkle(view) {
-  lastDressTouch = Date.now();
   view.dataset.eyes = 'sparkle';
   view.dataset.mouth = 'open';
   clearTimeout(sparkleTimer);
-  sparkleTimer = setTimeout(function () { view.dataset.eyes = 'open'; view.dataset.mouth = 'smile'; }, 600);
+  sparkleTimer = setTimeout(function () { view.dataset.eyes = dressRest.eyes; view.dataset.mouth = dressRest.mouth; }, 600);
 }
 WEAR_ROWS.forEach(function (row) {
   var strip = row.strip;
@@ -180,7 +179,7 @@ WEAR_ROWS.forEach(function (row) {
 function onHatLeave() {
   hoveredHat = null;
   var view = dressPreview.querySelector('.pet');
-  if (view && view.dataset.eyes === 'sparkle') { view.dataset.eyes = 'open'; view.dataset.mouth = 'smile'; }
+  if (view && view.dataset.eyes === 'sparkle') { view.dataset.eyes = dressRest.eyes; view.dataset.mouth = dressRest.mouth; }
 }
 
 dressSheet.addEventListener('close', function () {
@@ -228,9 +227,12 @@ var DRESS_MOVES = [
 var PHOTO_MOVE = { cls: '', ms: 1900, eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'], photo: true };
 var DRESS_FX = ['zzz', 'steam', 'hearts', 'sparkles', 'question', 'sweat', 'shock', 'redface', 'cheeks'];
 var dressDanceTimer, dressLastMove = -1;
+/** The preview pet's resting face right now (what a hover or a tap goes back to, so it keeps emoting around them). */
+var dressRest = { eyes: 'open', mouth: 'smile', arms: 'idle' };
 /** Sets the preview pet's face, arms and little extras (hearts, sparkles, cheeks). */
 function dressFace(view, f) {
   view.dataset.eyes = f.eyes; view.dataset.mouth = f.mouth; view.dataset.arms = f.arms;
+  dressRest = { eyes: f.eyes, mouth: f.mouth, arms: f.arms };
   DRESS_FX.forEach(function (x) { view.classList.toggle('x-' + x, f.x.indexOf(x) !== -1); });
 }
 /** The camera goes off: a white flash over the stage and a shutter click. */
@@ -248,8 +250,8 @@ function dressDanceSoon() {
 function dressDance() {
   var view = dressPreview.querySelector('.pet');
   if (!dressSheet.open || !view) return;
-  // wait while you are trying things on or hovering one
-  if (Date.now() - lastDressTouch < 2000 || hoveredHat) { dressDanceSoon(); return; }
+  // wait only just after you pick an outfit; pointing at outfits doesn't stop it
+  if (Date.now() - lastDressTouch < 1500) { dressDanceSoon(); return; }
   var m, n = -1;
   if (Math.random() < 0.2) m = PHOTO_MOVE;
   else {
@@ -266,5 +268,5 @@ function dressDance() {
   }, m.ms);
   dressDanceSoon();
 }
-$('dressBtn').addEventListener('click', function () { setTimeout(dressDanceSoon, 0); });
+$('dressBtn').addEventListener('click', function () { dressRest = { eyes: 'open', mouth: 'smile', arms: 'idle' }; setTimeout(dressDanceSoon, 0); });
 dressSheet.addEventListener('close', function () { clearTimeout(dressDanceTimer); });

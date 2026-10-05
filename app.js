@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '160';
+var BUILD = '161';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -198,6 +198,7 @@ var freshIds = {};
 // rows that haven't changed are kept between renders, so ticking one thing off
 // doesn't rebuild every row and reload every emoji
 var rows = {};
+var farNote = $('farNote');
 
 /**
  * The shopping list grouped by aisle (a small label above each group), in shop order. Only how it is shown: the list's own order is untouched.
@@ -223,6 +224,9 @@ function aisleNodes(items, rowFor) {
 function render() {
   var todo = state.items.filter(function (i) { return !i.done; });
   var done = state.items.filter(function (i) { return i.done; });
+  // to-do list: plans more than 10 days away wait in the calendar until they get close
+  var far = state.mode === 'todo' ? todo.filter(function (i) { return L.isFarOff(i, todayKey()); }) : [];
+  var shown = far.length ? todo.filter(function (i) { return far.indexOf(i) === -1; }) : todo;
   var kept = {};
   function rowFor(item) {
     var key = (item.done ? 1 : 0) + item.emoji + '|' + item.text + '|' + dueTagKey(item);
@@ -231,12 +235,14 @@ function render() {
     kept[item.id] = { key: key, li: li };
     return li;
   }
-  todoEl.replaceChildren.apply(todoEl, state.mode !== 'todo' && state.settings.aisles ? aisleNodes(todo, rowFor) : todo.map(rowFor));
+  todoEl.replaceChildren.apply(todoEl, state.mode !== 'todo' && state.settings.aisles ? aisleNodes(shown, rowFor) : shown.map(rowFor));
   doneEl.replaceChildren.apply(doneEl, done.map(rowFor));
   rows = kept;
   eatenSection.hidden = done.length === 0;
   eatenCount.textContent = '(' + done.length + ')';
-  emptyHint.hidden = state.items.length > 0;
+  emptyHint.hidden = shown.length + done.length > 0;
+  farNote.hidden = !far.length;
+  farNote.textContent = far.length + (far.length === 1 ? ' plan' : ' plans') + ' further ahead in the calendar';
   updateEmptyHint();
   renderCart(todo, done);
   updateTodoExtras();

@@ -16,7 +16,16 @@ function calDayName(day) {
 /** Draws the month: a button per day, with a small dot for each plan that day. */
 function renderCalendar() {
   var today = todayKey();
-  $('calMonth').textContent = CAL_MONTHS[calMonth] + ' ' + calYear;
+  // the month and year are drop-down menus, to jump straight to a month
+  var ms = $('calMonthSel'), ys = $('calYearSel');
+  if (!ms.options.length) CAL_MONTHS.forEach(function (m, i) { ms.add(new Option(m, i)); });
+  var y0 = +today.slice(0, 4) - 1, y1 = Math.max(+today.slice(0, 4) + 8, calYear);
+  if (ys.options.length !== y1 - y0 + 1 || +ys.options[0].value !== y0) {
+    ys.replaceChildren();
+    for (var y = y0; y <= y1; y++) ys.add(new Option(y, y));
+  }
+  if (calYear < y0) ys.add(new Option(calYear, calYear), 0);
+  ms.value = calMonth; ys.value = calYear;
   calGrid.replaceChildren.apply(calGrid, L.monthGrid(calYear, calMonth).map(function (c) {
     var b = document.createElement('button');
     b.type = 'button';
@@ -83,15 +92,24 @@ function openCalendar() {
   renderCalendar();
   openDialog(calSheet);
 }
+/** After the month changes: the chosen day goes to today (in this month) or the 1st, so what's shown is what you add to. */
+function calPick() {
+  var today = todayKey(), key = calYear + '-' + (calMonth < 9 ? '0' : '') + (calMonth + 1);
+  calSel = today.slice(0, 7) === key ? today : key + '-01';
+}
 /** Moves the month shown by n. */
 function calStep(n) {
   calMonth += n;
   if (calMonth < 0) { calMonth = 11; calYear--; } else if (calMonth > 11) { calMonth = 0; calYear++; }
+  calPick();
   renderCalendar();
   sound('tap');
 }
 
 $('calBtn').addEventListener('click', openCalendar);
+$('calMonthSel').addEventListener('change', function () { calMonth = +this.value; calPick(); sound('tap'); renderCalendar(); });
+$('calYearSel').addEventListener('change', function () { calYear = +this.value; calPick(); sound('tap'); renderCalendar(); });
+$('farNote').addEventListener('click', openCalendar);
 $('calPrev').addEventListener('click', function () { calStep(-1); });
 $('calNext').addEventListener('click', function () { calStep(1); });
 calGrid.addEventListener('click', function (e) {

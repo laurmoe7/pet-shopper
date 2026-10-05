@@ -150,3 +150,13 @@ test('calendar months, tasks on a day and the stamp book', () => {
   assert.equal(L.addStamp(p, 'chore', -5), 0);          // never below zero, and an empty kind is dropped
   assert.deepEqual(Object.keys(p.stamps), ['call']);
 });
+
+test('plans further than 10 days away are hidden from the to-do list', () => {
+  const today = '2026-10-05';
+  const at = (n, done) => ({ id: 'x', done: !!done, due: L.addDays(today, n) });
+  assert.equal(L.isFarOff(at(10), today), false);
+  assert.equal(L.isFarOff(at(11), today), true);
+  assert.equal(L.isFarOff(at(40, true), today), false);   // a done one is never hidden
+  assert.equal(L.isFarOff({ id: 'y', done: false }, today), false);   // no date: always shown
+  assert.equal(L.isFarOff(at(-3), today), false);
+});
