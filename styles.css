@@ -2190,3 +2190,16 @@ html::-webkit-scrollbar { display: none; }
 .page-fade { position: fixed; left: 0; right: 0; bottom: var(--dock-h, 64px); height: 36px; z-index: 5; pointer-events: none; background: linear-gradient(to bottom, transparent, var(--bg)); opacity: 0; transition: opacity .25s; }
 .page-fade.on { opacity: 1; }
 html.typing .page-fade { display: none; }
+
+/* developer tool: the animation player (app-anims.js), a low panel that leaves Nibble in view */
+.picker.anim-sheet { position: fixed; inset: auto 0 0 0; max-height: calc(var(--sheet-h-s) + var(--dock-h, 64px)); z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
+.picker.anim-sheet .picker-inner { max-height: calc(var(--sheet-h-s) + var(--dock-h, 64px) - 14px) !important; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+.anim-bar { display: flex; align-items: center; gap: 8px; flex: none; }
+.anim-bar input[type="search"] { flex: 1; min-width: 0; padding: 7px 10px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: .9rem; }
+.anim-repeat { display: flex; align-items: center; gap: 4px; font-size: .8rem; font-weight: 700; white-space: nowrap; }
+#animStatus { flex: none; margin: 0; }
+.anim-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 20px; }
+.anim-list h3 { margin: 8px 0 5px; font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.anim-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.anim-chip { padding: 5px 10px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; }
+.anim-chip[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: transparent; }

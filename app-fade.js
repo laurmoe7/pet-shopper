@@ -3,7 +3,7 @@
 // above the bottom bar (.page-fade). Plain scripts sharing one scope, loaded in the order listed in index.html.
 'use strict';
 
-var FADE_SELECTORS = '.dress-panels, .pet-sheet .picker-inner, .options, .goal-list, .fav-list, .cal-list, .picker-grid, .stamp-grid';
+var FADE_SELECTORS = '.dress-panels, .pet-sheet .picker-inner, .options, .goal-list, .fav-list, .cal-list, .picker-grid, .stamp-grid, .anim-list';
 var pageFade = document.createElement('div');
 pageFade.className = 'page-fade';
 pageFade.setAttribute('aria-hidden', 'true');

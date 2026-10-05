@@ -895,6 +895,18 @@
   </form>
 </dialog>
 
+<dialog class="picker pet-sheet anim-sheet" id="animSheet" aria-label="Animation player (developer tool)">
+  <form method="dialog" class="picker-inner">
+    <div class="anim-bar">
+      <input id="animFilter" type="search" placeholder="Find an animation by name…" autocomplete="off" aria-label="Find an animation">
+      <label class="anim-repeat"><input type="checkbox" id="animRepeat"> Repeat</label>
+      <button type="button" class="pill-btn" id="animStop">Stop</button>
+    </div>
+    <p class="dev-status" id="animStatus" aria-live="polite"></p>
+    <div class="anim-list" id="animList"></div>
+  </form>
+</dialog>
+
 <dialog class="picker pet-sheet" id="optionsSheet" aria-labelledby="optionsTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="optionsTitle">Options</h2>
@@ -916,6 +928,7 @@
       <span class="option-text">Items count as soon as you tick them off. The once-a-day and daily limits still apply.</span>
     </label>
     <div class="dev-actions" id="devActions"></div>
+    <button type="button" class="pill-btn" id="animBtn">Animation player</button>
     <p class="dev-status" id="devStatus" aria-live="polite"></p>
   </form>
 </dialog>
@@ -945,6 +958,7 @@
 <script src="app-petting.js"></script>
 <script src="app-treats.js"></script>
 <script src="app-options.js"></script>
+<script src="app-anims.js"></script>
 <script src="app-voice.js"></script>
 <script src="app-backdrop.js"></script>
 <script src="app-idle.js"></script>
