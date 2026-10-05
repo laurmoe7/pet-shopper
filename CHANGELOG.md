@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 170 (5 Oct)
+- Nibble and the pig back to normal size.
+- The munchkin cat is 20% smaller.
+
 ## Build 169 (5 Oct)
 - Glasses and mouth things layer in the order you put them on.
 - Size test: Nibble 20% smaller, the pig 20% bigger.

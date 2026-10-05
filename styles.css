@@ -166,11 +166,10 @@ button { font: inherit; color: inherit; }
 }
 .pet { position: relative; width: 150px; height: 140px; z-index: 1; margin-bottom: 10px; cursor: pointer; touch-action: none; }
 .pet-svg { width: 100%; height: 100%; overflow: visible; display: block; }
-/* a species can be bigger or smaller (a test): --pet-size on the stage is its factor. It is the size of the pet's box, so the whole drawing
+/* a species or skin can be bigger or smaller: --pet-size on the stage is its factor. It is the size of the pet's box, so the whole drawing
    (clothes, props, faces) scales with it, and it is not a CSS scale on the drawing (see Lessons learned). The toy and the speech bubble keep clear of it. */
 .stage { --pet-size: 1; }
-.stage:has(#pet[data-species="mochi"]) { --pet-size: .8; }
-.stage:has(#pet[data-species="pig"]) { --pet-size: 1.2; }
+.stage:has(#pet[data-skin="munchkin"]) { --pet-size: .8; }   /* the munchkin cat is a short-legged little one */
 #pet { width: calc(150px * var(--pet-size)); height: calc(140px * var(--pet-size)); }
 
 /* speech bubble */
