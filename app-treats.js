@@ -19,7 +19,7 @@ function scheduleWish(ms) {
 }
 /** @returns {boolean} Whether it is a good moment to ask: awake, not busy, nothing open, not bedtime. */
 function mayWish() {
-  return !busy && !document.hidden && !wishWord && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') && !stage.classList.contains('night-lamp') &&
+  return !busy && !document.hidden && !wishWord && suggestEl.hidden && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') && !stage.classList.contains('night-lamp') &&
     !document.querySelector('dialog[open]:not(#roomSheet)');
 }
 /** Nibble asks for a snack he has not had today. @param {boolean} [force] Ask now whatever else is going on (the developer tool). */

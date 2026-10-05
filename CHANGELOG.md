@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 184 (5 Oct)
+- Suggestions wait while Nibble asks for a snack.
+- Suggestion chip floats instead of moving the list.
+- Toy outlines darker, like the pets'.
+- Magnifying glass: eye shows over a sleeve; handle lines up with the glass.
+
 ## Build 183 (5 Oct)
 - Snack request: "Tap to feed" label, pulsing ring and a hint line.
 

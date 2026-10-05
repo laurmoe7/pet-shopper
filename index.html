@@ -545,7 +545,10 @@
                   <path class="pc-smile" d="M12.6 6.4 Q13.9 7.7 15.2 6.4"/>
                 </g>
                 <g class="magnifier">
-                  <path class="mg-handle" d="M130.4 116.4 L141.5 134.5"/>
+                  <path class="mg-handle" d="M128.9 120.2 L141.5 134.5"/>
+                </g><ellipse cx="133" cy="117" rx="7" ry="9"/><path class="arm-cuff" d="M126.4 120.4 Q133 123.4 139.6 120.4"/><path class="arm-hand" d="M127.4 121.6 Q133 124 138.6 121.6 Q138 126 133 126 Q128 126 127.4 121.6 Z"/><path data-sp="frog" class="frog-web frog-web-hand" d="M127.2 122 Q125.4 133 129 132 Q131 128.5 133 132.5 Q135 128.5 137 132 Q140.6 133 138.8 122"/><g class="paw-part paw-hand"><path class="paw-line paw-toe-lines" d="M130.6 122 v3 M135.4 122 v3"/><g class="paw-beans"><path class="paw-bean" d="M130.7 119.8 a2.3 1.7 0 1 0 4.6 0 a2.3 1.7 0 1 0 -4.6 0 Z"/><circle class="paw-bean" cx="130" cy="122.8" r="1.05"/><circle class="paw-bean" cx="133" cy="123.7" r="1.05"/><circle class="paw-bean" cx="136" cy="122.8" r="1.05"/></g></g><g class="hoof-part hoof-hand"><path class="hoof" d="M126.3 119.6 Q133 122.8 139.7 119.6 Q139.2 126.2 133 126.2 Q126.8 126.2 126.3 119.6 Z"/><path class="hoof-split" d="M133 121.6 V126"/></g><ellipse class="arm-hi" cx="131" cy="114" rx="2.4" ry="3"/></g>
+                <!-- the lens is drawn after the hand, so a sleeve never covers the eye seen through the glass -->
+                <g class="magnifier">
                   <g transform="translate(120 110) scale(1.3) translate(-120 -110)">
                     <circle class="mg-lens" cx="120" cy="110" r="10.4"/>
                     <!-- the eye seen through the glass, enlarged: it shows the same eye the pet has (open, sparkling, happy or closed) -->
@@ -557,7 +560,7 @@
                     </g>
                     <path class="mg-shine" d="M112.6 107 Q113.8 102.6 118.4 101.6"/>
                   </g>
-                </g><ellipse cx="133" cy="117" rx="7" ry="9"/><path class="arm-cuff" d="M126.4 120.4 Q133 123.4 139.6 120.4"/><path class="arm-hand" d="M127.4 121.6 Q133 124 138.6 121.6 Q138 126 133 126 Q128 126 127.4 121.6 Z"/><path data-sp="frog" class="frog-web frog-web-hand" d="M127.2 122 Q125.4 133 129 132 Q131 128.5 133 132.5 Q135 128.5 137 132 Q140.6 133 138.8 122"/><g class="paw-part paw-hand"><path class="paw-line paw-toe-lines" d="M130.6 122 v3 M135.4 122 v3"/><g class="paw-beans"><path class="paw-bean" d="M130.7 119.8 a2.3 1.7 0 1 0 4.6 0 a2.3 1.7 0 1 0 -4.6 0 Z"/><circle class="paw-bean" cx="130" cy="122.8" r="1.05"/><circle class="paw-bean" cx="133" cy="123.7" r="1.05"/><circle class="paw-bean" cx="136" cy="122.8" r="1.05"/></g></g><g class="hoof-part hoof-hand"><path class="hoof" d="M126.3 119.6 Q133 122.8 139.7 119.6 Q139.2 126.2 133 126.2 Q126.8 126.2 126.3 119.6 Z"/><path class="hoof-split" d="M133 121.6 V126"/></g><ellipse class="arm-hi" cx="131" cy="114" rx="2.4" ry="3"/></g>
+                </g>
             </g>
             <!-- shoes go on the feet, in front of the bottom of the body -->
             <g class="outfit-feet"></g>
@@ -637,6 +640,7 @@
   </header>
 
   <main class="list-area">
+    <div class="add-wrap">
     <form class="add" id="addForm" autocomplete="off">
       <label class="visually-hidden" for="addInput" id="addLabel">Add an item</label>
       <input id="addInput" name="item" type="text" placeholder="Add an item, like bananas" enterkeyhint="done" maxlength="80">
@@ -650,6 +654,7 @@
       <span class="suggest-label"><span class="pet-name">Nibble</span> suggests</span>
       <button type="button" class="suggest-btn" id="suggestBtn"></button>
       <button type="button" class="text-btn suggest-no" id="suggestNo" aria-label="No thanks">✕</button>
+    </div>
     </div>
 
     <ul class="items" id="todo" aria-label="To buy"></ul>
