@@ -1,8 +1,7 @@
 // Photoshoot: the pet on its own, big, on a nice background with a pose and a frame, for cute screenshots.
-// Nothing is saved or sent anywhere: take the picture with the phone's own screenshot. The camera button hides the buttons
-// for a clean shot (and flashes); tap the picture to bring them back.
+// The Photo button takes the picture (app-photo.js); nothing is sent anywhere.
 // The Camera button puts the pet in front of the phone's camera, to take a picture of it "in real life": drag to move it, pinch to resize.
-// The camera picture is only shown on screen: nothing is recorded, saved or sent anywhere, and it stops when you leave.
+// The camera picture is only shown on screen: nothing is recorded or sent anywhere, and it stops when you leave.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
@@ -173,16 +172,6 @@ document.addEventListener('visibilitychange', function () { if (document.hidden 
 
 /** Closes it (the dressing room is still there underneath). */
 function closeShoot() { stopCamera(); shootEl.hidden = true; }
-/** The camera button: the buttons go, the screen flashes and clicks, and a tap brings the buttons back. */
-$('shootSnap').addEventListener('click', function (e) {
-  e.stopPropagation();
-  shootEl.classList.add('clean');
-  var f = $('shootFlash');
-  f.classList.remove('pop'); void f.offsetWidth; f.classList.add('pop');
-  sound('shutter');
-  $('shootHint').hidden = false;
-  setTimeout(function () { $('shootHint').hidden = true; }, 3200);
-});
 shootEl.addEventListener('click', function (e) {
   if (shootEl.classList.contains('clean')) { shootEl.classList.remove('clean'); $('shootHint').hidden = true; }
 });

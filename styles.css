@@ -2661,3 +2661,11 @@ html[data-list="todo"] .recipe-btn { display: none; }
 .recipe-units .pill-btn[aria-pressed="true"] { background: var(--paper-sel); border-color: #ec6a8f; }
 
 .cook-heart { color: #ec6a8f; font-size: .9em; }
+
+/* the finished photo (app-photo.js) */
+.photo-result { position: absolute; inset: 0; z-index: 6; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); background: rgba(60, 40, 34, .78); }
+.photo-result[hidden] { display: none; }
+.photo-result img { max-width: 100%; max-height: calc(100% - 90px); object-fit: contain; border-radius: 14px; box-shadow: 0 6px 20px rgba(0, 0, 0, .35); background: #fff; }
+.photo-actions { display: flex; gap: 10px; align-items: center; }
+.photo-btn { padding: 10px 22px; }
+.photo-btn[hidden] { display: none; }

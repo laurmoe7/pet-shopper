@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 231 (10 Oct)
+- Photoshoot: the Photo button takes the picture itself, to share or save. No screenshot needed.
+
 ## Build 230 (10 Oct)
 - Photoshoot: a Camera button puts the pet in front of your camera; drag to move, pinch to resize.
 

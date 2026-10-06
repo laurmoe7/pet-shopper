@@ -822,6 +822,14 @@
   <div class="shoot-pet" id="shootPet"></div>
   <div class="shoot-frame" id="shootFrame" aria-hidden="true"><span class="shoot-caption" id="shootCaption"></span></div>
   <div class="shoot-flash" id="shootFlash" aria-hidden="true"></div>
+  <div class="photo-result" id="photoResult" hidden>
+    <img id="photoImg" alt="Your photo">
+    <div class="photo-actions">
+      <button type="button" class="shoot-snap photo-btn" id="photoShare" hidden>Share</button>
+      <button type="button" class="shoot-snap photo-btn" id="photoSave">Save</button>
+      <button type="button" class="shoot-chip photo-btn" id="photoRetake">Retake</button>
+    </div>
+  </div>
   <p class="shoot-hint" id="shootHint" hidden>Take your screenshot! Tap to bring the buttons back.</p>
   <button type="button" class="shoot-x" id="shootClose" aria-label="Close the photoshoot">✕</button>
   <div class="shoot-ui" id="shootUi">
@@ -1100,6 +1108,7 @@
 <script src="app-dress.js"></script>
 <script src="app-closet.js"></script>
 <script src="app-shoot.js"></script>
+<script src="app-photo.js"></script>
 <script src="app-room.js"></script>
 <script src="app-goals.js"></script>
 <script src="app-events.js"></script>
