@@ -721,7 +721,7 @@ button { font: inherit; color: inherit; }
 /* ---------- suggestions ---------- */
 /* it floats just under the Add bar instead of pushing the list down when it appears */
 .add-wrap { position: relative; }
-.suggest { position: absolute; bottom: 72px; right: 4px; z-index: 6; display: flex; align-items: center; gap: 2px; margin: 0; padding: 2px 2px 2px 3px; font-size: .8rem; color: var(--muted); font-weight: 700; background: var(--surface); border-radius: 999px; opacity: .92; box-shadow: 0 2px 0 var(--shadow), 0 0 0 1.5px var(--cb-edge); animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); transform-origin: 50% 100%; }
+.suggest { position: absolute; bottom: 14px; right: 4px; z-index: 6; display: flex; align-items: center; gap: 2px; margin: 0; padding: 2px 2px 2px 3px; font-size: .8rem; color: var(--muted); font-weight: 700; background: var(--surface); border-radius: 999px; opacity: .92; box-shadow: 0 2px 0 var(--shadow), 0 0 0 1.5px var(--cb-edge); animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); transform-origin: 50% 100%; }
 .suggest[hidden] { display: none; }
 .suggest-btn {
   display: inline-flex; align-items: center; gap: 6px; border: 1.5px dashed var(--outline); background: var(--surface);
@@ -789,6 +789,8 @@ button { font: inherit; color: inherit; }
 .dress-tabs button img { width: 22px; height: 22px; opacity: .75; }
 .dress-tabs button[aria-selected="true"] { background: var(--accent); color: #fff; border-color: transparent; transform: translateY(-1px); box-shadow: 0 2px 0 rgba(123, 90, 61, .3); }
 .dress-tabs button[aria-selected="true"] img { opacity: 1; }
+.dress-panel.pet-filtering :is(.field, .mood-info, .decor-hint:not(#petSearchNone), .lock-hint) { display: none; }
+.search-empty { display: none !important; }
 .dress-search { flex: none; width: 100%; box-sizing: border-box; margin-top: 6px; padding: 6px 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: .85rem; }
 .dress-panels { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 5px 5px 22px; margin: -5px -5px 0; }   /* room round the tiles, so the ring on the one you picked is not cut off at the edge */
 .dress-panels > * + * { margin-top: 12px; }

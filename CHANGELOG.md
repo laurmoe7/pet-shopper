@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 193 (6 Oct)
+- Suggestion chip moved down, above the Add button.
+- Toy over his head: he jumps for it first, gets cross only after a few seconds, and less mad.
+- Dressing room search says just "Search" and works on the Pet tab too.
+
 ## Build 192 (6 Oct)
 - Suggestion chip moved up; no line under the x.
 - Nibble says thank you and dances after a treat.

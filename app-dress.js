@@ -100,7 +100,7 @@ function buildDressView() {
 var dressSearch = $('dressSearch'), dressTabs = $('dressTabs'), dressPanels = $('dressPanels'), nameAtOpen = '';
 /** Shows one tab's panel, from the top. @param {string} tab 'pet', 'hat', 'body', 'face', 'mouth', 'neck' or 'feet'. */
 function showDressTab(tab) {
-  if (tab !== 'search') dressSearch.value = '';
+  if (tab !== 'search') { dressSearch.value = ''; petFilter(''); }
   dressTabs.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === tab)); });
   dressPanels.querySelectorAll('.dress-panel').forEach(function (p) { p.hidden = p.dataset.tab !== tab; });
   dressPanels.scrollTop = 0;
@@ -167,8 +167,30 @@ WEAR_ROWS.forEach(function (row) { row.strip.addEventListener('click', onWearCli
 // search: typing shows every matching outfit from all tabs in one list; clearing it goes back to the last tab
 var SLOT_WORDS = { hat: 'hat cap', body: 'clothes top hoodie', face: 'glasses face', mouth: 'mouth', neck: 'neck scarf', feet: 'shoes feet boots' };
 var searchStrip = $('searchStrip'), tabBeforeSearch = 'pet';
+/** On the Pet tab the search narrows its own species, skins and personalities. @param {string} q Lower-case search text. */
+function petFilter(q) {
+  var panel = dressPanels.querySelector('.dress-panel[data-tab="pet"]');
+  panel.classList.toggle('pet-filtering', !!q);
+  var shown = 0;
+  [$('speciesGrid'), $('skinGrid'), $('personalityStrip')].forEach(function (grid) {
+    var any = 0;
+    grid.querySelectorAll('button').forEach(function (b) {
+      var words = Array.prototype.map.call(b.querySelectorAll('span'), function (sp) { return sp.textContent; }).join(' ');   // the labels only: the drawing inside holds text of its own
+      var text = (words + ' ' + (b.getAttribute('aria-label') || '') + ' ' + (b.dataset.species || b.dataset.skin || b.dataset.personality || '')).toLowerCase();
+      var hit = !q || text.indexOf(q) !== -1;
+      b.classList.toggle('search-empty', !hit);
+      if (hit) any++;
+    });
+    shown += any;
+    var box = grid.closest('fieldset');
+    if (box) box.classList.toggle('search-empty', !!q && !any);
+  });
+  $('petSearchNone').hidden = !q || shown > 0;
+}
 dressSearch.addEventListener('input', function () {
   var q = dressSearch.value.trim().toLowerCase();
+  var sel = dressTabs.querySelector('[aria-selected="true"]');
+  if (!sel ? tabBeforeSearch === 'pet' && dressPanels.querySelector('.dress-panel[data-tab="pet"]:not([hidden])') : sel.dataset.tab === 'pet') { petFilter(q); return; }
   if (!q) { showDressTab(tabBeforeSearch); return; }
   var current = dressTabs.querySelector('[aria-selected="true"]');
   if (current) tabBeforeSearch = current.dataset.tab;

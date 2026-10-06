@@ -222,21 +222,35 @@ toyEl.addEventListener('pointermove', function (e) {
     talk('toyHeld', ['throw it! throw it!', 'ooh! ooh!', 'I\'m ready!', 'over here!'], 1300);
   }
   var st = stage.getBoundingClientRect(), lim = toyLimits();
-  // dangling it over his head is rude: he gets annoyed until it comes back down
+  // dangling it over his head: he jumps for it, and after a few seconds of that he gets a little cross
   var pr = pet.getBoundingClientRect(), over = e.clientY < pr.top + pr.height * 0.25 && Math.abs(e.clientX - (pr.left + pr.width / 2)) < pr.width * 0.5;
-  if (over !== !!held.annoyed) {
-    held.annoyed = over;
-    if (over) { setFace(FACES.annoyed); say(pick(['hey! not over my head!', 'grr! give it!', 'too high!! >:(', 'that\'s not funny!']), 1300); }
-    else setFace({ eyes: 'sparkle', mouth: 'open', arms: 'reach', x: ['cheeks'] });
+  if (over && !held.over) {
+    held.over = true;
+    held.hopTimer = setInterval(function () { if (held && held.over && !held.annoyed) pulse('hop', 500); }, 1100);
+    held.crossTimer = setTimeout(function () {
+      if (!held || !held.over) return;
+      held.annoyed = true;
+      setFace(FACES.annoyed);
+      say(pick(['hey, that\'s too high!', 'hmph… give it?', 'no fair~', 'can I have it now?']), 1400);
+    }, 3500);
+  } else if (!over && held.over) {
+    stopOverHead(held);
+    setFace({ eyes: 'sparkle', mouth: 'open', arms: 'reach', x: ['cheeks'] });
   }
   held.y = Math.max(0, Math.min(lim.maxY, st.bottom - 19 - e.clientY));
   placeToy(Math.max(lim.minX, Math.min(lim.maxX, e.clientX - (st.left + st.width / 2))), held.y, 0);
   held.pts.push({ x: e.clientX, y: e.clientY, t: e.timeStamp });
   if (held.pts.length > 5) held.pts.shift();
 });
+/** Stops the jumping and the waiting to get cross. @param {Object} h The held-toy state. */
+function stopOverHead(h) {
+  clearInterval(h.hopTimer); clearTimeout(h.crossTimer);
+  h.over = false; h.annoyed = false;
+}
 function letGoToy() {
   if (!held) return;
   var h = held;
+  stopOverHead(h);
   held = null;
   if (!h.moved) return; // a tap: the click tosses it
   skipClick = true;

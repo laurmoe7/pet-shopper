@@ -16,7 +16,7 @@ var FACES = {
   tada: { eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['sparkles', 'cheeks'] },
   suspicious: { eyes: 'squint', mouth: 'wavy', arms: 'scratch', x: ['question'] },
   love: { eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['hearts', 'cheeks'] },
-  annoyed: { eyes: 'squint', mouth: 'wavy', arms: 'clench', x: ['redface'] },
+  annoyed: { eyes: 'squint', mouth: 'wavy', arms: 'idle', x: [] },
   dreamy: { eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks'] }
 };
 var CHEW = { eyes: 'happy', mouth: 'chew', arms: 'nom', x: ['cheeks'] };
