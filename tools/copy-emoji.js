@@ -14,8 +14,15 @@ const OUTLINE = '#5B4239';
 // small fixes to single emoji, kept here so they survive a re-copy
 const FIXES = {
   // the pretzel: drop the white fill behind the knot so its holes are see-through
-  '1F968.svg': (svg) => svg.replace(/\s*<path fill="#fff(?:fff)?" d="[^"]*"\/>/i, '')
+  '1F968.svg': (svg) => closeOutline(svg.replace(/\s*<path fill="#fff(?:fff)?" d="[^"]*"\/>/i, '')),
+  // the bacon: drop the white squiggle between the two slices (it shows as a white gap)
+  '1F953.svg': (svg) => svg.replace(/\s*<path fill="none" stroke="#fff(?:fff)?"[^>]*\/>/i, '')
 };
+/** Draws the fill's own edge as a line too, where the outline has gaps, so no colour shows outside the line (the pretzel). */
+function closeOutline(svg) {
+  const fill = svg.match(/<g id="color">\s*<path fill="#[0-9a-f]{3,6}" d="([^"]*)"/i);
+  return fill ? svg.replace(/(<g id="line">)/, '$1\n    <path fill="none" stroke="' + OUTLINE + '" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="' + fill[1] + '"/>') : svg;
+}
 fs.mkdirSync(out, { recursive: true });
 let missing = [];
 // the foods, the tasks, the personalities' icons

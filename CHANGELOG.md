@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 229 (10 Oct)
+- Smaller title, and a long name shrinks it to fit instead of being cut off.
+- Bacon has no white gap between the slices; the pretzel's colour stays inside its outline.
+
 ## Build 228 (10 Oct)
 - Recipe sheet is called "Let's cook", with a pink heart instead of the pan.
 - Recipes: metric uses the grams a page gives in brackets.

@@ -153,3 +153,21 @@ petNameInput.addEventListener('keydown', function (e) {
   else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finishRename(false); }
 });
 petNameInput.addEventListener('blur', function () { finishRename(true); });
+
+// ---------- the title always fits: a long name makes it a little smaller, never cut off ----------
+var brandFitting = false;
+/** Shrinks the title (in steps) until all of it shows, down to a readable minimum. */
+function fitBrand() {
+  if (brandFitting) return;
+  brandFitting = true;
+  var el = $('brand'), nm = $('brandName');
+  var cut = function () { return el.scrollWidth > el.clientWidth + 1 || nm.scrollWidth > nm.clientWidth + 1; };
+  el.style.fontSize = '';
+  var size = parseFloat(getComputedStyle(el).fontSize);
+  while (cut() && size > 12) { size -= 0.5; el.style.fontSize = size + 'px'; }
+  brandFitting = false;
+}
+new MutationObserver(function () { fitBrand(); }).observe($('brand'), { childList: true, characterData: true, subtree: true });
+window.addEventListener('resize', fitBrand);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitBrand);
+fitBrand();

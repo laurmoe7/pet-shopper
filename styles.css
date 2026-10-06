@@ -119,7 +119,7 @@ button { font: inherit; color: inherit; }
 /* ---------- stage ---------- */
 .scene { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; padding: 10px 16px 0; }
 .scene-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.brand { font-family: var(--font-display); font-weight: 500; font-size: 1.35rem; margin: 0; display: flex; align-items: center; white-space: nowrap; min-width: 0; overflow: hidden; }
+.brand { font-family: var(--font-display); font-weight: 500; font-size: 1.12rem; margin: 0; display: flex; align-items: center; white-space: nowrap; min-width: 0; overflow: hidden; }
 .brand .pet-name { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .brand-sub { color: var(--muted); }
 /* the title swaps between the shopping list and the to-do list when tapped (app-todo.js) */
@@ -131,7 +131,7 @@ button { font: inherit; color: inherit; }
 .brand.swapped .brand-swap { transform: rotate(180deg); }
 .scene-tools { display: flex; align-items: center; gap: 8px; flex: none; }
 @media (max-width: 370px) {
-  .brand { font-size: 1.1rem; }
+  .brand { font-size: 1rem; }
   .brand-swap { margin-left: 5px; }
   .scene-bar { gap: 6px; }
   .scene-tools { gap: 5px; }
