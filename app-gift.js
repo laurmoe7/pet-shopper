@@ -17,16 +17,16 @@ function giftSvg(colour, ribbon) {
 }
 /** Shows or hides the gift on the stage: it waits there while any box for today is still shut. */
 function refreshGift() {
-  var left = B.unopened(state.pet, giftDate(), state.pet.birthday).length;
-  var quiet = stage.classList.contains('bedtime') || stage.classList.contains('night-lamp');
+  var left = B.unopened(state.pet, giftDate(), state.player.birthday).length;
+  var st = giftEl.parentNode, quiet = st.classList.contains('bedtime') || st.classList.contains('night-lamp');   // (the stage; app-idle.js comes later)
   giftEl.hidden = !left || quiet;
   giftEl.querySelector('.gift-count').textContent = left > 1 ? String(left) : '';
   giftEl.setAttribute('aria-label', 'Gift: ' + left + (left === 1 ? ' box' : ' boxes') + ' to open');
 }
 /** Draws the sheet: today's boxes (shut ones to tap, open ones greyed), what is coming up, the collection and the birthday. */
 function renderGifts() {
-  var date = giftDate(), all = B.boxesFor(date, state.pet.birthday), shut = B.unopened(state.pet, date, state.pet.birthday).map(function (b) { return b.key; });
-  var specials = B.specialDays(date, state.pet.birthday);
+  var date = giftDate(), all = B.boxesFor(date, state.player.birthday), shut = B.unopened(state.pet, date, state.player.birthday).map(function (b) { return b.key; });
+  var specials = B.specialDays(date, state.player.birthday);
   $('giftDay').textContent = specials.length ? '✦ ' + specials.map(function (d) { return d.label; }).join(' & ') + ' ✦' : 'Come back every day for a new box.';
   giftBoxes.replaceChildren.apply(giftBoxes, all.map(function (b) {
     var btn = document.createElement('button'), kind = B.BOXES[b.box];
@@ -38,7 +38,7 @@ function renderGifts() {
     btn.lastChild.textContent = b.day ? b.label : kind.label;
     return btn;
   }));
-  var next = B.nextSpecial(date, state.pet.birthday);
+  var next = B.nextSpecial(date, state.player.birthday);
   $('giftNext').textContent = next ? 'Coming up: ' + next.day.label + ' ' + (next.inDays === 1 ? 'tomorrow' : 'in ' + next.inDays + ' days') : '';
   var prizes = state.pet.prizes || {}, known = {};
   Object.keys(B.PRIZES).forEach(function (t) { B.PRIZES[t].forEach(function (p) { known[p.id] = p; }); });
@@ -51,8 +51,7 @@ function renderGifts() {
     return chip;
   }));
   $('giftPrizesLabel').hidden = !got.length;
-  var bd = state.pet.birthday;
-  $('giftBirthday').value = bd ? '2000-' + bd : '';
+  $('giftBdayHint').hidden = !!state.player.birthday;
 }
 giftBoxes.addEventListener('click', function (e) {
   var btn = e.target.closest('.gift-box');
@@ -61,13 +60,14 @@ giftBoxes.addEventListener('click', function (e) {
   btn.classList.add('shaking');
   sound('ooh');
   setTimeout(function () {
-    var got = B.open(state.pet, btn.dataset.key, giftDate(), state.pet.birthday);
+    var got = B.open(state.pet, btn.dataset.key, giftDate(), state.player.birthday);
     if (!got) { renderGifts(); return; }
     save();
     btn.classList.remove('shaking');
     btn.classList.add('opened');
     btn.replaceChildren();
     btn.append(emojiImg(got.prize.emoji, got.prize.label), Object.assign(document.createElement('span'), { textContent: got.prize.label }));
+    if (!got.prize.real) btn.append(Object.assign(document.createElement('b'), { className: 'gift-placeholder', textContent: 'placeholder' }));   // until a prize has `real: true` (bonuses.js)
     sound('party');
     var day = got.box.day && B.DAYS.filter(function (d) { return d.id === got.box.day; })[0];
     if (!busy && baseState() !== 'sleepy') {
@@ -78,14 +78,6 @@ giftBoxes.addEventListener('click', function (e) {
   }, 600);
 });
 giftEl.addEventListener('click', function (e) { e.stopPropagation(); renderGifts(); openDialog(giftSheet); });
-$('giftBirthday').addEventListener('change', function () {
-  var v = $('giftBirthday').value;
-  state.pet.birthday = /^\d{4}-\d\d-\d\d$/.test(v) ? v.slice(5) : '';
-  save();
-  renderGifts();
-  refreshGift();
-});
-
 /** Developer tool: pretends it is the next special day in the calendar (and back to the real day after the last). @returns {string} What happened. */
 function devGiftCalendar() {
   var days = B.DAYS.filter(function (d) { return !d.birthday; }), cur = devGiftDay ? devGiftDay.getFullYear() * 10000 + devGiftDay.getMonth() * 100 + devGiftDay.getDate() : 0;

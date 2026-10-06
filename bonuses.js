@@ -7,14 +7,14 @@
  *   { month: 12, day: 25 }                       the same date every year (add `days: 3` to last several days)
  *   { easter: 0 }                                days from Easter Sunday (Good Friday is -2, Easter Monday 1)
  *   { nth: [11, 4, 4] }                          the 4th Thursday of November: [month, weekday 0=Sunday..6, which one; -1 is the last]
- *   { birthday: true }                           the birthday saved on the pet (pet.birthday, "MM-DD")
+ *   { birthday: true }                           the player's birthday (state.player.birthday, "MM-DD")
  * and may set: boxes (how many extra boxes, default 1), box (a key of BOXES, default 'special'), line (what Nibble says).
  * The prizes are placeholders for now: they are only counted in pet.prizes. Replace them (and give `kind` and more fields) when real ones exist.
  */
 (function (root) {
   'use strict';
 
-  /** Placeholder prizes. `emoji` is a character that has a file in emoji/. */
+  /** Placeholder prizes. `emoji` is a character that has a file in emoji/. A prize with `real: true` stops showing the "placeholder" stamp when its box is opened. */
   var PRIZES = {
     daily: [
       { id: 'star', label: 'Star sticker', emoji: '⭐', weight: 10 },

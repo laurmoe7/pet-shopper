@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 198 (7 Oct)
+- Profile button in the menu bar on both lists: your name and birthday.
+- Nibble says hello by name; the birthday brings the birthday boxes.
+- Opening a gift box pops out the word "placeholder" until real prizes exist.
+
 ## Build 196 (7 Oct)
 - Daily gift box, with extra boxes on special days and birthdays (placeholder prizes).
 - Sketchpad blank templates keep a skin's shapes (floppy ears) and a dashed blush.

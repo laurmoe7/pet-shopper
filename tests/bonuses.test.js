@@ -37,7 +37,8 @@ test('old days are forgotten and saved gifts survive parsing', () => {
   assert.ok(Object.keys(p.gifts).length <= 14);
   const again = L.petProfile(JSON.parse(JSON.stringify(p)));
   assert.deepEqual(again.gifts, p.gifts);
-  assert.equal(L.petProfile({ birthday: 'nonsense' }).birthday, '');
+  assert.deepEqual(L.parsePlayer({ name: ' Lauren ', birthday: 'nonsense' }), { name: 'Lauren', birthday: '' });
+  assert.equal(L.parsePlayer(null, '03-09').birthday, '03-09', 'a birthday from build 196 moves to the player');
 });
 test('prizes are picked by weight and the next special day is found', () => {
   assert.equal(B.rollPrize('daily', () => 0).id, B.PRIZES.daily[0].id);

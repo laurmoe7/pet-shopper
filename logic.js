@@ -188,10 +188,9 @@
       tastes: saved.tastes && typeof saved.tastes === 'object' ? saved.tastes : {},
       // check-mark stamps from ticked tasks, by task kind (the stamp book)
       stamps: saved.stamps && typeof saved.stamps === 'object' ? saved.stamps : {},
-      // daily gift boxes (bonuses.js): the boxes opened on each recent day, the prizes collected, and the birthday (MM-DD)
+      // daily gift boxes (bonuses.js): the boxes opened on each recent day and the prizes collected
       gifts: saved.gifts && typeof saved.gifts === 'object' ? saved.gifts : {},
       prizes: saved.prizes && typeof saved.prizes === 'object' ? saved.prizes : {},
-      birthday: typeof saved.birthday === 'string' && /^\d\d-\d\d$/.test(saved.birthday) ? saved.birthday : '',
       favourites: saved.favourites && typeof saved.favourites === 'object' ? saved.favourites : {},
       // the night it was put to bed (nightOf): asleep until something is checked off or the morning
       dozing: typeof saved.dozing === 'string' ? saved.dozing : '',
@@ -201,6 +200,21 @@
         words: (saved.guard && Array.isArray(saved.guard.words)) ? saved.guard.words : [],
         lastSeen: (saved.guard && saved.guard.lastSeen) || 0
       }
+    };
+  }
+
+  /**
+   * The player (the person, apart from the pet): a name and a birthday.
+   * @param {Object} [saved]
+   * @param {string} [oldBirthday] A birthday saved on the pet by an earlier build.
+   * @returns {{name: string, birthday: string}} birthday is "MM-DD" or empty.
+   */
+  function parsePlayer(saved, oldBirthday) {
+    saved = saved && typeof saved === 'object' ? saved : {};
+    var day = /^\d\d-\d\d$/;
+    return {
+      name: typeof saved.name === 'string' ? saved.name.trim().slice(0, 20) : '',
+      birthday: typeof saved.birthday === 'string' && day.test(saved.birthday) ? saved.birthday : (typeof oldBirthday === 'string' && day.test(oldBirthday) ? oldBirthday : '')
     };
   }
 
@@ -224,6 +238,7 @@
     if (!Array.isArray(data.stash)) data.stash = [];
     data.items.forEach(cleanTask);
     data.stash.forEach(cleanTask);
+    data.player = parsePlayer(data.player, data.pet && data.pet.birthday);   // build 196 kept the birthday on the pet
     data.pet = petProfile(data.pet);
     data.settings = settings(data.settings);
     // developer-only switches from the dev menu
@@ -1470,6 +1485,7 @@
     splitSpoken: splitSpoken, wornIds: wornIds, toggleWorn: toggleWorn, faceStack: faceStack, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, REPEATS: REPEATS, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
     createItem: createItem,
     petProfile: petProfile,
+    parsePlayer: parsePlayer,
     CLOSET_MAX: CLOSET_MAX,
     cleanOutfitName: cleanOutfitName,
     parseCloset: parseCloset,

@@ -2287,7 +2287,7 @@ html.typing .page-fade { display: none; }
 .gift-count { position: absolute; right: -4px; top: -4px; min-width: 18px; padding: 0 5px; border-radius: 999px; background: var(--accent); color: #fff; border: 1.5px solid #fff; font-size: .7rem; font-weight: 800; line-height: 1.35; text-align: center; }
 .gift-count:empty { display: none; }
 @keyframes gift-hop { 0%, 70%, 100% { translate: 0 0; rotate: 0deg; } 78% { translate: 0 -6px; rotate: -6deg; } 86% { translate: 0 0; rotate: 5deg; } 93% { translate: 0 -2px; rotate: -2deg; } }
-.gift-day { margin: 0; font-weight: 800; text-align: center; color: var(--accent); }
+.gift-day { margin: 0; font-weight: 800; text-align: center; color: var(--ink); }
 .gift-next, .gift-bday .field-label { color: var(--muted); font-size: .82rem; font-weight: 700; }
 .gift-next { margin: 0; text-align: center; }
 .gift-boxes { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
@@ -2301,3 +2301,11 @@ html.typing .page-fade { display: none; }
 .gift-chip { display: inline-flex; align-items: center; gap: 2px; padding: 2px 8px 2px 4px; border-radius: 999px; background: var(--surface); border: 1.5px solid var(--line); font-size: .78rem; font-weight: 800; }
 .gift-chip img { width: 22px; height: 22px; }
 @media (prefers-reduced-motion: reduce) { .gift, .gift-box.shaking svg { animation: none; } }
+
+/* profile (app-profile.js): the same fields as the pet's name; its dock sticker */
+html:root .dock #profileBtn { --tilt: -4deg; --sticker: #ffd9c2; --sticker-ink: #d9743f; }
+.profile-sheet .field input[type="date"] { font: inherit; }
+.gift-box { position: relative; }
+.gift-placeholder { position: absolute; left: 50%; top: -6px; translate: -50% 0; rotate: -6deg; padding: 1px 9px 2px; border-radius: 999px; background: var(--accent); color: #fff; border: 1.5px solid #fff; box-shadow: 0 2px 0 var(--shadow); font-size: .72rem; font-weight: 800; letter-spacing: .02em; white-space: nowrap; animation: gift-placeholder 2.2s cubic-bezier(.3, 1.8, .5, 1) both; }
+@keyframes gift-placeholder { 0% { scale: .2; opacity: 0; translate: -50% 18px; } 35% { scale: 1.25; opacity: 1; translate: -50% -4px; } 55% { scale: 1; } 100% { scale: 1; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .gift-placeholder { animation: none; } }
