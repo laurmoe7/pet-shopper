@@ -66,6 +66,7 @@
     s = s.replace(/(?:[$\u20ac\u00a3]\s?\d[\d.,]*|\b\d[\d.,]*\s?(?:euro|eur|dollars?|usd)\b)\**/gi, ' ');   // prices: "($1.24)", "\u20ac 2,50", "$2.69**"
     s = s.replace(/\([^)]*\)/g, ' ').replace(/\[[^\]]*\]/g, ' ').replace(/[()*]/g, ' ').replace(/\s+/g, ' ').trim();
     s = s.replace(/\bextra[- ]virgin\s+/gi, '').replace(/\b(?:freshly|fresh|vers)\s+(?:ground|gemalen)\s+/gi, '');
+    s = s.replace(/^(\d+)\s*[-\u2013]\s*(\d+\/\d+)/, '$1 $2');                                   // "1-3/4 cups" is one and three quarters
     s = s.replace(/^(\d+)\s+(?:and|&|en)\s+(\d+\/\d+)/i, '$1 $2');                    // "1 and 1/2 cups" -> "1 1/2 cups"
     s = s.replace(/^([\d\/\s\u00bd\u00bc\u00be.]*\d|[\u00bd\u00bc\u00be])\s*C\.?\s+(?=[a-z])/, '$1 cup ');       // "3/4 C. broth" (a capital C is a cup)
     s = s.replace(/^(?:half|een halve|halve)\s+(?:an?\s+|een\s+)?/i, '1/2 ');           // "half a lemon"

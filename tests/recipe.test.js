@@ -166,3 +166,11 @@ test('cooked chicken, uncooked rice, garnish lines and two-in-one lines', () => 
   assert.deepStrictEqual(R.cleanAll(['Sriracha sauce and soy sauce, for serving (optional)']).map((x) => [x.name, x.optional]), [['Sriracha sauce', true], ['Soy sauce', true]]);
   assert.strictEqual(R.cleanAll(['macaroni and cheese'])[0].name, 'Macaroni and cheese');
 });
+
+test('a mixed number with a hyphen: 1-3/4 cups', () => {
+  assert.deepStrictEqual(R.parseIngredient('1-3/4 cups sliced carrots'), { name: 'Carrots', qty: '1 3/4 cups' });
+  assert.deepStrictEqual(R.parseIngredient('1-1/2 cups whole milk'), { name: 'Whole milk', qty: '1 1/2 cups' });
+  assert.deepStrictEqual(R.parseIngredient('1-3/4 teaspoons salt'), { name: 'Salt', qty: '1 3/4 teaspoons' });
+  assert.deepStrictEqual(R.parseIngredient('2-3 ripe bananas'), { name: 'Bananas', qty: '2-3' });
+  assert.deepStrictEqual(R.parseIngredient('4 cups cubed cooked chicken'), { name: 'Chicken', qty: '4 cups' });
+});

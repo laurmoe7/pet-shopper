@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 224 (10 Oct)
+- Recipes: "1-3/4 cups" reads as one and three quarters.
+
 ## Build 223 (10 Oct)
 - Recipes: only lines saying "optional" are optional, not "for serving" or "for garnish".
 - Recipes: cooked chicken, uncooked rice and "X and Y" lines (green onions and sesame seeds) read right.
