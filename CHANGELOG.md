@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 234 (10 Oct)
+- Dragon: wing fingers back, curl removed, stiff horns.
+
 ## Build 233 (10 Oct)
 - New species: dragon.
 

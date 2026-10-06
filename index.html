@@ -70,7 +70,9 @@
             <pattern id="qPeachDots" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#fff0b0"/><circle cx="3" cy="3" r="1.2" fill="#ffb3a0"/></pattern>
             <pattern id="qGingham" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#e6f7ec"/><rect width="4" height="8" fill="#a8dfbe" opacity=".55"/><rect width="8" height="4" fill="#a8dfbe" opacity=".55"/></pattern>
             <pattern id="qStripes" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="6" height="6" fill="#d6ccf5"/><rect width="2.4" height="6" fill="#fff" opacity=".7"/></pattern>
-            <!-- the dragon's horn ring lines are cut off at the horn's outline -->
+            <!-- the dragon's horn rings and wing bones are cut off at their outlines -->
+            <clipPath id="dragonWingL"><path d="M26 86 Q10 70 -2 60 Q4 76 -8 86 Q6 88 2 102 Q16 98 26 98 Z"/></clipPath>
+            <clipPath id="dragonWingR"><path d="M134 86 Q150 70 162 60 Q156 76 168 86 Q154 88 158 102 Q144 98 134 98 Z"/></clipPath>
             <clipPath id="dragonHornL"><path d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/></clipPath>
             <clipPath id="dragonHornR"><path d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/></clipPath>
             <clipPath id="bodyClip"><path d="M80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 Z"/></clipPath>
@@ -149,10 +151,10 @@
                 </g>
               </g>
               <g data-sp="dragon">
-                <g class="ear-g ear-l"><path class="dragon-wing" d="M26 86 Q10 70 -2 60 Q4 76 -8 86 Q6 88 2 102 Q16 98 26 98 Z"/><path class="dragon-claw" d="M-2 60 Q-4 54 2 52"/></g>
-                <g class="ear-g ear-r"><path class="dragon-wing" d="M134 86 Q150 70 162 60 Q156 76 168 86 Q154 88 158 102 Q144 98 134 98 Z"/><path class="dragon-claw" d="M162 60 Q164 54 158 52"/></g>
-                <g class="ear-g ear-l"><path class="horn-fill" d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/><path class="horn-ring" clip-path="url(#dragonHornL)" d="M43 24 Q50 24 56 30 M40 36 Q48 36 56 42"/><path class="horn-edge" d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/></g>
-                <g class="ear-g ear-r"><path class="horn-fill" d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/><path class="horn-ring" clip-path="url(#dragonHornR)" d="M117 24 Q110 24 104 30 M120 36 Q112 36 104 42"/><path class="horn-edge" d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/></g>
+                <g class="ear-g ear-l"><path class="dragon-wing" d="M26 86 Q10 70 -2 60 Q4 76 -8 86 Q6 88 2 102 Q16 98 26 98 Z"/><path class="wing-bone" clip-path="url(#dragonWingL)" d="M26 90 L-2 60 M14 84 L-8 86 M14 92 L2 102"/><path class="wing-edge" d="M26 86 Q10 70 -2 60 Q4 76 -8 86 Q6 88 2 102 Q16 98 26 98 Z"/></g>
+                <g class="ear-g ear-r"><path class="dragon-wing" d="M134 86 Q150 70 162 60 Q156 76 168 86 Q154 88 158 102 Q144 98 134 98 Z"/><path class="wing-bone" clip-path="url(#dragonWingR)" d="M134 90 L162 60 M146 84 L168 86 M146 92 L158 102"/><path class="wing-edge" d="M134 86 Q150 70 162 60 Q156 76 168 86 Q154 88 158 102 Q144 98 134 98 Z"/></g>
+                <g class="dragon-horn"><path class="horn-fill" d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/><path class="horn-ring" clip-path="url(#dragonHornL)" d="M43 24 Q50 24 56 30 M40 36 Q48 36 56 42"/><path class="horn-edge" d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/></g>
+                <g class="dragon-horn"><path class="horn-fill" d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/><path class="horn-ring" clip-path="url(#dragonHornR)" d="M117 24 Q110 24 104 30 M120 36 Q112 36 104 42"/><path class="horn-edge" d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/></g>
               </g>
               <g data-sp="cow">
                 <g class="ear-g ear-l">

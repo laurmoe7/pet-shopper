@@ -577,9 +577,10 @@ button { font: inherit; color: inherit; }
 .pet:is([data-species="pig"], [data-species="cow"]) .hoof-part,
 .pet[data-species="birdie"] .bird-part { display: inline; }
 .pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="mouse"], [data-species="monkey"], [data-species="dragon"], [data-species="pig"], [data-species="cow"], [data-species="birdie"]) .foot { stroke: none; }
-/* the dragon: small bat wings and cream horns behind the body (both jiggle like ears), a cream snout, belly plate with lines and leafy head tufts in front */
-.dragon-wing { fill: #ffd1e0; stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
-.dragon-claw { fill: none; stroke: var(--pet-ink); stroke-width: 2.2; stroke-linecap: round; }
+/* the dragon: small bat wings (they jiggle like ears) and stiff cream horns behind the body, a cream snout, belly plate with lines and leafy head tufts in front */
+.dragon-wing { fill: #ffd1e0; stroke: none; }
+.wing-bone { fill: none; stroke: #f08fb0; stroke-width: 2.2; stroke-linecap: round; }
+.wing-edge { fill: none; stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
 .horn-fill { fill: #ecf5c8; stroke: none; }
 .horn-ring { fill: none; stroke: #c2d58f; stroke-width: 2; stroke-linecap: round; }
 .horn-edge { fill: none; stroke: var(--pet-ink); stroke-width: 2.4; stroke-linejoin: round; }
