@@ -18,7 +18,7 @@ var SLOTS = [['hat', 'Hat'], ['body', 'Clothes'], ['face', 'Glasses'], ['mouth',
 /** What the pet underneath looks like (kept on this computer). */
 var P = { species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, backdrop: 'meadow', night: false, room: {} };
 var SK = {
-  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], size: 1, zoom: 1, tidy: 6, space: false, sel: null,
+  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], size: 1, zoom: 1, tidy: 6, space: false, sel: null, mirror: false,
   strokes: { pet: [], scene: [], toy: [], room: [] }, hist: { pet: [], scene: [], toy: [], room: [] }, redo: { pet: [], scene: [], toy: [], room: [] },
   /** Pictures to trace, one layer each, in the same coordinates as the drawing: {id, name, src, cx, cy, bw, bh, scale, opacity, visible, behind} */
   images: { pet: [], scene: [], toy: [], room: [] }
@@ -77,7 +77,7 @@ function dressUp(el, outfit) {
 // ---------- keeping the work on this computer ----------
 function skSave() {
   try {
-    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, snap: $('skSnap').checked }));
+    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, snap: $('skSnap').checked, mirror: SK.mirror }));
   } catch (e) { /* storage not available */ }
 }
 function skLoad() {
@@ -95,6 +95,7 @@ function skLoad() {
     $('skNote').value = d.note || '';
     if (typeof d.tidy === 'number') SK.tidy = d.tidy;
     $('skSnap').checked = d.snap !== false;
+    SK.mirror = !!d.mirror;
   } catch (e) { /* nothing saved, or it could not be read */ }
 }
 
@@ -126,6 +127,10 @@ function skToy() {
 function skPlace(el, v, x, y, w, h) {
   el.style.cssText += ';position:absolute;margin:0;left:' + ((x - v.x) / v.w * 100) + '%;top:' + ((y - v.y) / v.h * 100) + '%;width:' + (w / v.w * 100) + '%;height:' + (h / v.h * 100) + '%';
 }
+/** @returns {number} The x of the line down the middle of the drawing (the pet's middle, the stage's middle) that Mirror folds along. */
+function skAxis() { return SK.mode === 'pet' ? 80 : SK_VIEW[SK.mode].x + SK_VIEW[SK.mode].w / 2; }
+/** @returns {number[]} A point on the other side of the middle line. */
+function skMirrorPt(p) { return [2 * skAxis() - p[0], p[1]]; }
 /** @returns {SVGSVGElement} The grid: faint lines every 10 (or 2) units, stronger every 50 (or 10), and the pet's middle line. */
 function skGrid(v) {
   var small = v.w > 100 ? 10 : 2, big = v.w > 100 ? 50 : 10, d = '', dBig = '';
@@ -135,7 +140,8 @@ function skGrid(v) {
   svg.setAttribute('viewBox', [v.x, v.y, v.w, v.h].join(' '));
   svg.setAttribute('class', 'sk-grid');
   svg.innerHTML = '<path d="' + d + '" class="g1"/><path d="' + dBig + '" class="g2"/>' +
-    (SK.mode === 'pet' ? '<path d="M80 ' + v.y + 'v' + v.h + '" class="g3"/>' : '');
+    (SK.mode === 'pet' ? '<path d="M80 ' + v.y + 'v' + v.h + '" class="g3"/>' : '') +
+    (SK.mirror ? '<path d="M' + skAxis() + ' ' + v.y + 'v' + v.h + '" class="g4"/>' : '');
   return svg;
 }
 /** Builds the stage for the current mode: the picture underneath, the grid and the drawing layer. */
@@ -206,7 +212,8 @@ function svgIcon(view, inner) {
 /** @returns {SVGPathElement} One stroke, drawn. */
 function skEl(s) {
   var el = document.createElementNS(SVGNS, 'path'), v = SK_VIEW[SK.mode];
-  el.setAttribute('d', L.sketchPath(s.pts, (s.fill || s.closed) && s.pts.length > 2, v.w > 100 ? 1 : 2));
+  el.setAttribute('d', s.d || L.sketchPath(s.pts, (s.fill || s.closed) && s.pts.length > 2, v.w > 100 ? 1 : 2));
+  if (s.d) el.setAttribute('fill-rule', 'evenodd');
   el.setAttribute('stroke', s.color);
   el.setAttribute('stroke-width', s.width);
   el.setAttribute('fill', s.fill ? s.color : 'none');
@@ -271,9 +278,21 @@ function skFlash(id) {
 function skRedraw() {
   skDraw.replaceChildren.apply(skDraw, SK.strokes[SK.mode].map(skEl));
 }
+var skFillPaths = new WeakMap();
+/** @returns {boolean} Whether a point is inside a paint-bucket fill. */
+function skInFill(s, pt) {
+  var path = skFillPaths.get(s);
+  if (!path) { path = new Path2D(s.d); skFillPaths.set(s, path); }
+  return skCtx.isPointInPath(path, pt[0], pt[1], 'evenodd');
+}
+var skCtx = document.createElement('canvas').getContext('2d');
 function skEraseAt(pt) {
   var v = SK_VIEW[SK.mode], r = v.w * 0.012, list = SK.strokes[SK.mode];
-  var keep = list.filter(function (s) { return !L.sketchHit(s.pts, pt, r + s.width / 2); });
+  var spots = SK.mirror ? [pt, skMirrorPt(pt)] : [pt];
+  var hitsLine = function (s) { return !s.bucket && spots.some(function (q) { return L.sketchHit(s.pts, q, r + s.width / 2); }); };
+  var lines = list.some(hitsLine);
+  // lines come first: only when no line is under the eraser does it take the colour fill there
+  var keep = list.filter(function (s) { return lines ? !hitsLine(s) : !(s.bucket && spots.some(function (q) { return skInFill(s, q); })); });
   if (keep.length === list.length) return;
   if (!skDrawing.erased) { skPushHistory(); skDrawing.erased = true; }
   SK.strokes[SK.mode] = keep;
@@ -291,6 +310,7 @@ function skDown(e) {
   }
   if (SK.tool === 'drop') { skPickInPage(e.clientX, e.clientY); return; }
   var pt = skPoint(e), v = SK_VIEW[SK.mode];
+  if (SK.tool === 'bucket') { skBucket(pt); return; }
   if (SK.tool === 'imgmove') {
     var img = skSelected();
     if (!img) { skStatus.textContent = 'Add or pick an image layer first.'; return; }
@@ -301,6 +321,13 @@ function skDown(e) {
   var s = { pts: [pt], color: SK.color, width: +(v.w * SK_SIZES[SK.size]).toFixed(2), fill: SK.tool === 'blob' };
   skDrawing = { stroke: s, el: skEl(s) };
   skDraw.appendChild(skDrawing.el);
+  if (SK.mirror) { skDrawing.el2 = skEl(skMirrored(s)); skDraw.appendChild(skDrawing.el2); }
+}
+/** @returns {Object} A copy of a stroke folded over the middle line. */
+function skMirrored(s) {
+  var m = JSON.parse(JSON.stringify(s));
+  m.pts = s.pts.map(skMirrorPt);
+  return m;
 }
 function skMove(e) {
   var pt = skPoint(e), v = SK_VIEW[SK.mode];
@@ -318,6 +345,7 @@ function skMove(e) {
   if (Math.hypot(pt[0] - last[0], pt[1] - last[1]) < v.w * 0.002) return;   // ignore tiny wobbles
   s.pts.push(pt);
   skDrawing.el.setAttribute('d', L.sketchPath(s.pts, s.fill && s.pts.length > 2, v.w > 100 ? 1 : 2));
+  if (skDrawing.el2) skDrawing.el2.setAttribute('d', L.sketchPath(s.pts.map(skMirrorPt), s.fill && s.pts.length > 2, v.w > 100 ? 1 : 2));
 }
 function skUp() {
   if (skPan) skStage.classList.remove('panning');
@@ -331,12 +359,18 @@ function skUp() {
     skPushHistory();
     SK.strokes[SK.mode].push(s);
     skDrawing.el.replaceWith(skEl(s));   // redrawn tidy
+    if (skDrawing.el2) {   // the other side is the same line folded over, so the two always match exactly
+      var m = skMirrored(s);
+      SK.strokes[SK.mode].push(m);
+      skDrawing.el2.replaceWith(skEl(m));
+    }
   }
   skDrawing = false;
   skSave();
 }
 function skCancel() {
   if (skDrawing && skDrawing.el) skDrawing.el.remove();
+  if (skDrawing && skDrawing.el2) skDrawing.el2.remove();
   skDrawing = false; skPan = null;
   skStage.classList.remove('panning');
 }
@@ -361,6 +395,58 @@ function skRedo() {
   skHistoryUI();
   skStatus.textContent = 'Redone.';
   skSave();
+}
+
+// ---------- the paint bucket ----------
+/**
+ * Fills the area under the pointer that your lines close in, with the pen colour. The lines are drawn on a hidden canvas (a little
+ * thicker, so tiny gaps do not leak), the area is spread over like a flood, and its outline is kept as a vector shape under your lines.
+ */
+function skBucket(pt) {
+  var v = SK_VIEW[SK.mode], scale = 900 / Math.max(v.w, v.h), W = Math.round(v.w * scale), H = Math.round(v.h * scale), GAP = 2.5;
+  var cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  var g = cv.getContext('2d', { willReadFrequently: true });
+  g.setTransform(scale, 0, 0, scale, -v.x * scale, -v.y * scale);
+  g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = g.fillStyle = '#000';
+  var list = SK.strokes[SK.mode];
+  list.forEach(function (s) {
+    if (s.bucket) return;
+    var path = new Path2D(L.sketchPath(s.pts, (s.fill || s.closed) && s.pts.length > 2, 2));
+    g.lineWidth = Math.max(s.width, 2 / scale) + 2 * GAP / scale;
+    g.stroke(path);
+    if (s.fill) g.fill(path);
+  });
+  var px = g.getImageData(0, 0, W, H).data, wall = new Uint8Array(W * H);
+  for (var i = 0; i < wall.length; i++) wall[i] = px[i * 4 + 3] > 40 ? 1 : 0;
+  var spots = SK.mirror ? [pt, skMirrorPt(pt)] : [pt], added = [], recoloured = false, why = '';
+  spots.forEach(function (q) {
+    var r = L.floodMask(wall, W, H, Math.floor((q[0] - v.x) * scale), Math.floor((q[1] - v.y) * scale));
+    if (!r) { why = why || 'line'; return; }
+    if (r.edge || r.count > 0.85 * W * H) { why = why || 'open'; return; }
+    var loops = L.traceLoops(r.mask, W, H).map(function (lp) {
+      var cut = L.simplifyLine(lp.concat([lp[0]]), 0.8).slice(0, -1);
+      return cut.map(function (p) { return [+(v.x + p[0] / scale).toFixed(2), +(v.y + p[1] / scale).toFixed(2)]; });
+    }).filter(function (lp) { return lp.length > 2; });
+    if (!loops.length) { why = why || 'line'; return; }
+    var d = loops.map(function (lp) { return 'M' + lp.map(function (p) { return p[0] + ' ' + p[1]; }).join('L') + 'Z'; }).join('');
+    var outer = loops.slice().sort(function (a, b) { return b.length - a.length; })[0];
+    var same = list.concat(added).filter(function (b) { return b.bucket && b.d === d; })[0];
+    if (same) { same.color = SK.color; recoloured = true; return; }
+    // wide enough to reach under the lines on every side, so no hairline shows between the fill and a line
+    added.push({ d: d, pts: outer, color: SK.color, width: +(2 * (GAP + 1.5) / scale).toFixed(2), fill: true, closed: true, bucket: true });
+  });
+  if (!added.length && !recoloured) {
+    skStatus.textContent = why === 'open' ? 'That area is not closed in. Finish the outline (or close the gap), then try again.' : 'Click inside an area between your lines, not on a line.';
+    return;
+  }
+  skPushHistory();
+  var at = list.findIndex(function (s) { return !s.bucket; });   // fills sit under all the lines
+  if (at < 0) at = list.length;
+  list.splice.apply(list, [at, 0].concat(added));
+  skRedraw();
+  skSave();
+  skStatus.textContent = 'Filled with ' + SK.color + '.';
 }
 
 // ---------- what Claude needs ----------
@@ -466,6 +552,7 @@ function skImgAttrs(el, im) {
   el.setAttribute('width', (im.bw * im.scale).toFixed(2));
   el.setAttribute('height', (im.bh * im.scale).toFixed(2));
   el.setAttribute('opacity', im.opacity / 100);
+  if (im.rot) el.setAttribute('transform', 'rotate(' + im.rot + ' ' + im.cx + ' ' + im.cy + ')'); else el.removeAttribute('transform');
 }
 /** Draws the picture layers (under the pet or over it, both under the drawing) and the dashed box round the selected one. */
 function skRenderImages() {
@@ -480,8 +567,9 @@ function skRenderImages() {
   });
   var sel = skSelected(), v = SK_VIEW[SK.mode];
   skSelBox.replaceChildren();
-  if (sel && sel.visible) {
+  if (sel && sel.visible && SK.tool === 'imgmove') {   // the dashed box only shows while you are moving an image
     var r = document.createElementNS(SVGNS, 'rect');
+    if (sel.rot) r.setAttribute('transform', 'rotate(' + sel.rot + ' ' + sel.cx + ' ' + sel.cy + ')');
     r.setAttribute('x', sel.cx - sel.bw * sel.scale / 2); r.setAttribute('y', sel.cy - sel.bh * sel.scale / 2);
     r.setAttribute('width', sel.bw * sel.scale); r.setAttribute('height', sel.bh * sel.scale);
     skSelBox.appendChild(r);
@@ -498,7 +586,8 @@ function skLayersUI() {
     body.innerHTML = '<div class="sk-row"><span class="skp-name"></span><button type="button" class="skp-x" data-act="del" title="Remove this image">Remove</button></div>' +
       '<div class="sk-row"><label><input type="checkbox" data-act="show"' + (im.visible ? ' checked' : '') + '> Show</label>' +
       '<label><input type="checkbox" data-act="behind"' + (im.behind ? ' checked' : '') + '> Behind the pet</label></div>' +
-      '<div class="skp-rng"><span>Opacity</span><input type="range" min="5" max="100" value="' + im.opacity + '" data-act="opacity" aria-label="Opacity">' +
+      '<div class="skp-rng"><span>Turn</span><div class="skp-rot"><button type="button" data-act="rotl" title="Turn left 90°">↺</button><input type="range" min="-180" max="180" value="' + (im.rot || 0) + '" data-act="rot" aria-label="Rotate"><button type="button" data-act="rotr" title="Turn right 90°">↻</button></div>' +
+      '<span>Opacity</span><input type="range" min="5" max="100" value="' + im.opacity + '" data-act="opacity" aria-label="Opacity">' +
       '<span>Size</span><input type="range" min="10" max="400" value="' + Math.round(im.scale * 100) + '" data-act="scale" aria-label="Size"></div>';
     body.querySelector('.skp-name').textContent = im.name;
     row.append(thumb, body);
@@ -529,7 +618,7 @@ function skAddImage(file) {
       cv.width = Math.max(1, Math.round(iw * k)); cv.height = Math.max(1, Math.round(ih * k));
       cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
       var v = SK_VIEW[SK.mode], fit = Math.min(v.w * 0.6 / iw, v.h * 0.6 / ih);
-      var im = { id: 'i' + Date.now().toString(36), name: file.name.slice(0, 28), src: cv.toDataURL(file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png', 0.9),
+      var im = { id: 'i' + Date.now().toString(36), name: file.name && !/^image\.(png|jpe?g|gif)$/i.test(file.name) ? file.name.slice(0, 28) : 'Pasted image', src: cv.toDataURL(file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png', 0.9),
         cx: v.x + v.w / 2, cy: v.y + v.h / 2, bw: iw * fit, bh: ih * fit, scale: 1, opacity: 60, visible: true, behind: false };
       SK.images[SK.mode].push(im);
       SK.sel = im.id;
@@ -553,13 +642,19 @@ function skLayerEvent(e) {
     skRenderImages(); skLayersUI(); skSaveImages();
     return;
   }
-  if (e.type === 'click' && !act && SK.sel !== im.id) {   // tapping a layer selects it
+  if (e.type === 'click' && (act === 'rotl' || act === 'rotr')) {
+    im.rot = (((im.rot || 0) + (act === 'rotr' ? 90 : -90) + 540) % 360) - 180;   // kept between -180 and 180
     SK.sel = im.id;
+    skRenderImages(); skLayersUI(); skSaveImages();
+    return;
+  }
+  if (e.type === 'click' && !act && e.target.matches('img, .skp-name')) {   // tapping a layer selects it, tapping it again lets go of it
+    SK.sel = SK.sel === im.id ? null : im.id;
     skLayersUI(); skRenderImages();
     return;
   }
-  if (e.type === 'input' && (act === 'opacity' || act === 'scale')) {
-    if (act === 'opacity') im.opacity = +e.target.value; else im.scale = +e.target.value / 100;
+  if (e.type === 'input' && (act === 'opacity' || act === 'scale' || act === 'rot')) {
+    if (act === 'opacity') im.opacity = +e.target.value; else if (act === 'rot') im.rot = +e.target.value; else im.scale = +e.target.value / 100;
     SK.sel = im.id;
     skRenderImages();
     row.setAttribute('aria-selected', 'true');
@@ -648,7 +743,7 @@ function skPickInPage(cx, cy) {
 
 // ---------- the controls ----------
 function skPress(group, attr, value) {
-  group.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset[attr] === String(value))); });
+  group.querySelectorAll('button[data-' + attr + ']').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset[attr] === String(value))); });
 }
 function skColourButtons() {
   var box = $('skColours');
@@ -692,9 +787,11 @@ function skSetTool(t) {
     if (SK.tool !== 'drop') SK.prevTool = SK.tool;
     skStatus.textContent = 'Click the pet, the background or your drawing to pick its colour. Esc cancels.';
   }
+  if (t === 'bucket') skStatus.textContent = 'Click inside an area your lines close in to fill it with the pen colour. Colour fills sit under your lines.';
   SK.tool = t;
   skPress($('skTools'), 'tool', t);
   skApplyLook();
+  if (skSelBox) skRenderImages();
 }
 function skOptions(select, list, value) {
   select.replaceChildren.apply(select, list.map(function (o) {
@@ -733,6 +830,7 @@ function skBuildPanels() {
     return lab;
   }));
   skPress($('skTidy'), 'tidy', SK.tidy);
+  $('skMirror').setAttribute('aria-pressed', String(SK.mirror));
 }
 
 skStage.addEventListener('pointerdown', function (e) { if (skDraw && e.target === skDraw) skDown(e); });
@@ -844,7 +942,8 @@ document.addEventListener('keydown', function (e) {
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); if (e.shiftKey) skRedo(); else skUndo(); return; }
   if ((e.ctrlKey || e.metaKey) && k === 'y') { e.preventDefault(); skRedo(); return; }
   if (e.ctrlKey || e.metaKey || e.altKey) return;
-  var tool = { p: 'pen', f: 'blob', e: 'erase', h: 'hand', i: 'drop', m: 'imgmove' }[k];
+  if (k === 'x') { skSetMirror(!SK.mirror); return; }
+  var tool = { p: 'pen', f: 'blob', e: 'erase', h: 'hand', i: 'drop', m: 'imgmove', b: 'bucket' }[k];
   if (tool) skSetTool(tool);
 });
 document.addEventListener('keyup', function (e) {
@@ -852,6 +951,32 @@ document.addEventListener('keyup', function (e) {
   if (!typing(e)) e.preventDefault();
   SK.space = false;
   skStage.classList.remove('space');
+});
+/** Mirror: everything drawn on one side is folded over the middle line onto the other. */
+function skSetMirror(on) {
+  SK.mirror = on;
+  $('skMirror').setAttribute('aria-pressed', String(on));
+  skStatus.textContent = on ? 'Mirror on: what you draw appears on the other side too, folded along the line in the middle.' : 'Mirror off.';
+  skSave();
+  skBuild();
+}
+$('skMirror').addEventListener('click', function () { skSetMirror(!SK.mirror); });
+// a picture copied from anywhere (a browser, a screenshot, a paint program) can be pasted in as a new image layer
+document.addEventListener('paste', function (e) {
+  if (typing(e)) return;
+  var items = (e.clipboardData && e.clipboardData.items) || [];
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].kind === 'file' && /^image\//.test(items[i].type)) {
+      var f = items[i].getAsFile();
+      if (f) { e.preventDefault(); skAddImage(f); return; }
+    }
+  }
+});
+// so can a picture file dragged onto the canvas
+skView.addEventListener('dragover', function (e) { if (e.dataTransfer && [].indexOf.call(e.dataTransfer.types || [], 'Files') !== -1) e.preventDefault(); });
+skView.addEventListener('drop', function (e) {
+  var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f && /^image\//.test(f.type)) { e.preventDefault(); skAddImage(f); }
 });
 window.addEventListener('blur', function () { SK.space = false; skStage.classList.remove('space'); });
 // a drop-down that keeps the keyboard focus would swallow shortcuts like Ctrl+Z

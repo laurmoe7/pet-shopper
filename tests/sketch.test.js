@@ -61,3 +61,42 @@ test('tidy: a dot or a tiny scribble is left alone', () => {
   assert.equal(L.tidyStroke([[5, 5]], 220, HOW).pts.length, 1);
   assert.equal(L.tidyStroke([[5, 5], [5.2, 5.1], [5.1, 5.2], [5.2, 5.2]], 220, HOW).pts.length, 4);
 });
+
+// the paint bucket: a 20 x 20 grid with a square line (wall) round the middle and a dot-shaped hole inside the filled part
+function grid(w, h, rows) { const wall = new Uint8Array(w * h); rows(wall, (x, y) => { wall[y * w + x] = 1; }); return wall; }
+
+test('bucket: fills inside a closed line and stops at it', () => {
+  const w = 20, h = 20;
+  const wall = grid(w, h, (a, set) => { for (let i = 5; i <= 14; i++) { set(i, 5); set(i, 14); set(5, i); set(14, i); } });
+  const inside = L.floodMask(wall, w, h, 10, 10);
+  assert.equal(inside.count, 8 * 8);
+  assert.equal(inside.edge, false);
+  assert.equal(inside.mask[10 * w + 10], 1);
+  assert.equal(inside.mask[2 * w + 2], 0);
+  const outside = L.floodMask(wall, w, h, 2, 2);
+  assert.equal(outside.edge, true, 'an open area is reported as not closed');
+  assert.equal(L.floodMask(wall, w, h, 5, 5), null, 'clicking on a line fills nothing');
+});
+
+test('bucket: an outline of the filled area comes back as one loop, and a hole as a second', () => {
+  const w = 20, h = 20;
+  const wall = grid(w, h, (a, set) => {
+    for (let i = 5; i <= 14; i++) { set(i, 5); set(i, 14); set(5, i); set(14, i); }
+    set(9, 9); set(10, 9); set(9, 10); set(10, 10);   // an island inside
+  });
+  const area = L.floodMask(wall, w, h, 7, 7);
+  const loops = L.traceLoops(area.mask, w, h);
+  assert.equal(loops.length, 2, 'the outside and the hole');
+  const outer = loops.find((l) => l.some((p) => p[0] === 6 && p[1] === 6));
+  assert.equal(outer.length, 4, 'a square has four corners');
+  assert.ok(outer.some((p) => p[0] === 14 && p[1] === 14));
+  const solid = L.traceLoops(L.floodMask(grid(w, h, () => {}), w, h, 1, 1).mask, w, h);
+  assert.equal(solid.length, 1);
+});
+
+test('a bucket fill is written to the file as its own outline, with holes cut out', () => {
+  const svg = L.sketchSvg([{ d: 'M0 0L10 0L10 10Z', pts: [[0, 0]], color: '#ff8fb1', width: 1, fill: true, closed: true, bucket: true }], { x: 0, y: 0, w: 100, h: 100 }, {});
+  assert.match(svg, /d="M0 0L10 0L10 10Z"/);
+  assert.match(svg, /fill-rule="evenodd"/);
+  assert.match(svg, /fill="#ff8fb1"/);
+});

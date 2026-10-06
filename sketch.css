@@ -5,7 +5,7 @@ body.skp { height: 100dvh; display: flex; flex-direction: column; overflow: hidd
 .skp-top h1 { margin: 0; font-size: 1.15rem; }
 .skp-wrap { flex: 1; min-height: 0; display: flex; gap: 12px; padding: 12px; }
 .skp-canvas { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
-.skp-panel { flex: none; width: 340px; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; gap: 10px; padding-bottom: 12px; }
+.skp-panel { flex: none; width: 360px; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; gap: 10px; padding-bottom: 12px; }
 .skp-panel::-webkit-scrollbar { display: none; }
 .skp-box { background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
 .skp-box[hidden] { display: none; }
@@ -100,3 +100,12 @@ body.skp { height: 100dvh; display: flex; flex-direction: column; overflow: hidd
 /* people the page is shared with can draw and save, but do not see the Claude upload at all (it also needs a token only the owner has) */
 .skp-guest .owner-only { display: none !important; }
 .skp-guest #skSaveFile { flex: 1 1 100%; background: var(--accent); color: #fff; border-color: transparent; padding: 10px; }
+
+.sk-seg.sk-wrap { flex-wrap: wrap; border-radius: 14px; }
+#skTidy button { padding: 6px 8px; }
+.skp-layer .skp-rot { display: flex; align-items: center; gap: 6px; }
+.skp-layer .skp-rot button { padding: 1px 8px; border: 1.5px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font: inherit; font-size: .8rem; font-weight: 800; cursor: pointer; }
+.skp-layer .skp-rot input[type="range"] { flex: 1; }
+.sk-grid .g4 { stroke: var(--accent); stroke-width: 1.6; opacity: .9; }
+.sk-stage[data-tool="bucket"] .sk-draw { cursor: cell; }
+.sk-tools button#skMirror[aria-pressed="true"] { background: var(--accent); color: #fff; }
