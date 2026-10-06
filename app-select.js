@@ -38,7 +38,7 @@ function openSelectPop(sel) {
   });
   document.body.appendChild(pop);
   selectPop = pop;
-  var r = sel.getBoundingClientRect(), width = Math.max(r.width, 150), below = innerHeight - r.bottom - 12, above = r.top - 12;
+  var r = sel.getBoundingClientRect(), width = r.width, below = innerHeight - r.bottom - 12, above = r.top - 12;
   pop.style.minWidth = width + 'px';
   pop.style.left = Math.max(8, Math.min(r.left, innerWidth - pop.offsetWidth - 8)) + 'px';
   var openUp = below < Math.min(pop.scrollHeight, 220) && above > below;

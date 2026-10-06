@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 212 (9 Oct)
+- Photoshoot stickers removed for now.
+- Drop-down lists are the same width as their button.
+
 ## Build 211 (8 Oct)
 - Drop-down menus open as a round, soft list instead of the plain box; the year arrow is fixed.
 - Photoshoot mode in the Pet menu: pose, background, frame and stickers for cute screenshots.

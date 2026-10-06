@@ -2563,8 +2563,6 @@ html:root .cal-month select { flex: none; }
 .shoot-pet { position: absolute; left: 50%; top: 40%; translate: -50% -50%; }
 .shoot-pet .pet.preview { width: min(84vw, 48vh * 1.07); height: min(78.4vw, 48vh); }
 .shoot-pet::after { content: ""; position: absolute; left: 12%; right: 12%; bottom: -8px; height: 18px; border-radius: 50%; background: rgba(90, 60, 50, .16); filter: blur(4px); z-index: -1; }
-.shoot-stickers { position: absolute; inset: 0; pointer-events: none; }
-.shoot-sticker { position: absolute; width: 46px; height: 46px; pointer-events: auto; touch-action: none; cursor: grab; filter: drop-shadow(0 2px 2px rgba(90, 60, 50, .3)); }
 .shoot-frame { position: absolute; inset: 0; pointer-events: none; }
 .shoot[data-frame="polaroid"] .shoot-frame { border: 16px solid #fffdf8; border-bottom-width: 70px; box-shadow: inset 0 0 0 1px rgba(90, 60, 50, .12); }
 .shoot[data-frame="polaroid"] .shoot-caption { position: absolute; left: 0; right: 0; bottom: -52px; text-align: center; font-family: var(--font-display); font-size: 1.15rem; color: #5b4239; }
@@ -2583,7 +2581,6 @@ html:root .cal-month select { flex: none; }
 .shoot-row::-webkit-scrollbar { display: none; }
 .shoot-chip { flex: none; padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--paper-cell); color: var(--ink); font: inherit; font-weight: 800; font-size: .82rem; cursor: pointer; box-shadow: 0 2px 0 var(--shadow); }
 .shoot-chip[aria-pressed="true"] { background: var(--paper-sel); border-color: #ec6a8f; }
-.shoot-sticker-btn { padding: 4px 8px; } .shoot-sticker-btn img { width: 24px; height: 24px; display: block; }
 .shoot-pick { align-items: center; justify-content: center; gap: 12px; }
 .shoot-bgname { min-width: 120px; text-align: center; font-family: var(--font-display); font-size: 1.05rem; }
 .shoot-arrow { width: 36px; height: 32px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-size: 1.3rem; line-height: 1; cursor: pointer; box-shadow: 0 2px 0 var(--shadow); }

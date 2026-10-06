@@ -1,10 +1,10 @@
-// Photoshoot: the pet on its own, big, on a nice background with a pose, a frame and stickers, for cute screenshots.
+// Photoshoot: the pet on its own, big, on a nice background with a pose and a frame, for cute screenshots.
 // Nothing is saved or sent anywhere: take the picture with the phone's own screenshot. The camera button hides the buttons
 // for a clean shot (and flashes); tap the picture to bring them back.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
-var shootEl = $('shoot'), shootPet = $('shootPet'), shootBg = $('shootBg'), shootStickers = $('shootStickers');
+var shootEl = $('shoot'), shootPet = $('shootPet'), shootBg = $('shootBg');
 var SHOOT_POSES = [
   { label: 'Smile', eyes: 'open', mouth: 'smile', arms: 'idle', x: ['cheeks'] },
   { label: 'Happy', eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] },
@@ -21,7 +21,6 @@ var SHOOT_STUDIOS = [
   { id: 's-lilac', name: 'Lilac studio', css: 'radial-gradient(circle at 50% 45%, #fbf7ff 0%, #e2d6f7 70%, #cfbff0 100%)' }
 ];
 var SHOOT_FRAMES = [['none', 'No frame'], ['polaroid', 'Polaroid'], ['hearts', 'Hearts'], ['ribbon', 'Ribbon']];
-var SHOOT_STICKERS = ['⭐', '🎀', '🍓', '🧁', '🍪', '🎉', '🎈', '🍬'];
 var shootState = { pose: 0, bg: 0, frame: 'none', night: false, shown: false };
 /** @returns {Object[]} Every background to choose from: the studios, then the room backgrounds. */
 function shootBackgrounds() { return SHOOT_STUDIOS.concat(BACKDROPS.filter(function (b) { return b.draw; })); }
@@ -58,28 +57,6 @@ SHOOT_FRAMES.forEach(function (f) {
   b.addEventListener('click', function () { shootState.frame = f[0]; sound('tap'); renderShoot(); });
   $('shootFrames').appendChild(b);
 });
-SHOOT_STICKERS.forEach(function (s) {
-  var b = document.createElement('button');
-  b.type = 'button'; b.className = 'shoot-chip shoot-sticker-btn'; b.setAttribute('aria-label', 'Add a sticker');
-  b.appendChild(emojiImg(s, ''));
-  b.addEventListener('click', function () { addShootSticker(s); });
-  $('shootStickerRow').appendChild(b);
-});
-/** Puts a sticker somewhere round the pet. It can be dragged about, and a double-tap takes it off. @param {string} emoji */
-function addShootSticker(emoji) {
-  var el = emojiImg(emoji, '');
-  el.className = 'shoot-sticker';
-  el.style.left = (14 + Math.random() * 72) + '%';
-  el.style.top = (12 + Math.random() * 42) + '%';
-  el.style.rotate = Math.round(Math.random() * 40 - 20) + 'deg';
-  var drag = null;
-  el.addEventListener('pointerdown', function (e) { el.setPointerCapture(e.pointerId); drag = { dx: e.clientX - el.offsetLeft, dy: e.clientY - el.offsetTop }; });
-  el.addEventListener('pointermove', function (e) { if (drag) { el.style.left = (e.clientX - drag.dx) + 'px'; el.style.top = (e.clientY - drag.dy) + 'px'; } });
-  el.addEventListener('pointerup', function () { drag = null; });
-  el.addEventListener('dblclick', function () { el.remove(); sound('remove'); });
-  shootStickers.appendChild(el);
-  sound('pick');
-}
 // a few twinkles drifting about the picture
 for (var si = 0; si < 9; si++) {
   var sp = document.createElement('span');
@@ -99,7 +76,6 @@ $('shootNext').addEventListener('click', function () { shootStep(1); });
 /** Opens the photoshoot. */
 function openShoot() {
   shootState.night = false;
-  shootStickers.replaceChildren();
   shootEl.hidden = false;
   shootEl.classList.remove('clean');
   $('shootHint').hidden = true;
