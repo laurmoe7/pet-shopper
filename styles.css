@@ -593,6 +593,7 @@ button { font: inherit; color: inherit; }
 /* its mouth sits a little lower, under the snout */
 .pet[data-species="dragon"] [data-mouth]:not(.smile-dragon) { translate: 0 3px; }
 .pet[data-species="dragon"][data-mouth="smile"] path[data-mouth="smile"].smile-dragon { display: inline; }
+.pet:not([data-species="dragon"]) path.smile-dragon { display: none; }
 /* the monkey's feet are long with a thumb-like big toe, in the same tone as its face */
 .monkey-part { display: none; }
 .pet[data-species="monkey"] .monkey-part { display: inline; }

@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 235 (10 Oct)
+- Fixed double mouths on pets.
+- Monkey big toe blends into the foot.
+
 ## Build 234 (10 Oct)
 - Dragon: wing fingers back, curl removed, stiff horns.
 
