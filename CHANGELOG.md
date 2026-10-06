@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 204 (7 Oct)
+- Dark mode: Stamp Book, Calendar and Profile are readable and softer.
+- Calendar: days no longer overlap.
+- Profile: cuter Top 10 and Stamp Book buttons.
+
 ## Build 203 (7 Oct)
 - Stamp Book: easier to read counts.
 - Stamp Book, Calendar and Profile open taller, to just below Nibble's mouth.

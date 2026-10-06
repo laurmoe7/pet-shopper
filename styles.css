@@ -2315,6 +2315,23 @@ html:root .picker .field-label.profile-top { display: none; }
 @keyframes gift-placeholder { 0% { scale: .2; opacity: 0; translate: -50% 18px; } 35% { scale: 1.25; opacity: 1; translate: -50% -4px; } 55% { scale: 1; } 100% { scale: 1; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .gift-placeholder { animation: none; } }
 
+
+/* colours for the newer cards (Stamp Book, Calendar, Profile): paper and pastel tints that follow light and dark mode */
+:root { --paper: #fffaf0; --paper-edge: #f1e3cf; --paper-cell: #fff; --paper-pink: #fff1f4; --paper-today: #ffe3ec; --paper-sel: #ffc2d4;
+  --tier1: #f1fbf4; --tier2: #fff3e6; --tier3: #fff9dc; --pill1: #c9efd9; --pill1-ink: #24603f; --pill2: #ffd9b3; --pill2-ink: #84440c; --pill3: #ffeb99; --pill3-ink: #6e5100;
+  --bub-purple: #e6dcfa; --bub-purple-ink: #7d5fcf; --bub-blue: #d6ebfa; --bub-blue-ink: #3f86c0; --link-tint: #f7f1fd; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+  --paper: #4b3b30; --paper-edge: #6a5444; --paper-cell: #5a483b; --paper-pink: #54404a; --paper-today: #66414f; --paper-sel: #a24d6c;
+  --tier1: #3f5145; --tier2: #594536; --tier3: #585130; --pill1: #2e5a45; --pill1-ink: #d3f3e1; --pill2: #7a4b22; --pill2-ink: #ffe2c2; --pill3: #6e5a14; --pill3-ink: #fff0b0;
+  --bub-purple: #4f4470; --bub-purple-ink: #d6c8fa; --bub-blue: #364d63; --bub-blue-ink: #b3d8f5; --link-tint: #53455f;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #4b3b30; --paper-edge: #6a5444; --paper-cell: #5a483b; --paper-pink: #54404a; --paper-today: #66414f; --paper-sel: #a24d6c;
+  --tier1: #3f5145; --tier2: #594536; --tier3: #585130; --pill1: #2e5a45; --pill1-ink: #d3f3e1; --pill2: #7a4b22; --pill2-ink: #ffe2c2; --pill3: #6e5a14; --pill3-ink: #fff0b0;
+  --bub-purple: #4f4470; --bub-purple-ink: #d6c8fa; --bub-blue: #364d63; --bub-blue-ink: #b3d8f5; --link-tint: #53455f;
+}
 /* the Stamp Book: stickers taped on a page, tilted a little, popping in one after another */
 .stamp-sub { margin: -2px 0 2px; text-align: center; font-size: .82rem; font-weight: 800; color: var(--muted); }
 .stamp-sheet .stamp-grid { gap: 12px 10px; padding-top: 6px; }
@@ -2324,7 +2341,7 @@ html:root .picker .field-label.profile-top { display: none; }
 .stamp:nth-child(n+7) { animation-delay: .24s; }
 .stamp::before { content: ""; position: absolute; left: 50%; top: -6px; translate: -50% 0; width: 30px; height: 11px; border-radius: 3px; background: rgba(170, 215, 195, .75); rotate: -3deg; }
 .stamp:nth-child(2n)::before { background: rgba(255, 200, 215, .8); rotate: 3deg; }
-.stamp.t1 { background: #f1fbf4; } .stamp.t2 { background: #fff3e6; } .stamp.t3 { background: #fff9dc; }
+.stamp.t1 { background: var(--tier1); } .stamp.t2 { background: var(--tier2); } .stamp.t3 { background: var(--tier3); }
 .stamp.t3::after { content: "✦"; position: absolute; right: 8px; top: 6px; color: #e0b01f; font-size: .85rem; animation: twinkle 1.6s ease-in-out infinite; }
 .stamp-count { padding: 0 8px; border-radius: 999px; background: var(--bg); }
 .stamp.t1 .stamp-count, .stamp.t2 .stamp-count, .stamp.t3 .stamp-count { background: var(--accent); color: #fff; }
@@ -2334,45 +2351,64 @@ html:root .picker .field-label.profile-top { display: none; }
 /* readable counts in the Stamp Book: dark text on a pastel pill, a different pastel for each stamp tier */
 .stamp-sub { color: var(--ink); opacity: .75; }
 .stamp-count { color: var(--ink); }
-.stamp.t1 .stamp-count { background: #c9efd9; color: #24603f; }
-.stamp.t2 .stamp-count { background: #ffd9b3; color: #84440c; }
-.stamp.t3 .stamp-count { background: #ffeb99; color: #6e5100; }
+.stamp.t1 .stamp-count { background: var(--pill1); color: var(--pill1-ink); }
+.stamp.t2 .stamp-count { background: var(--pill2); color: var(--pill2-ink); }
+.stamp.t3 .stamp-count { background: var(--pill3); color: var(--pill3-ink); }
 
 /* calendar: a paper page with taped corners, soft pastel days, a hopping heart on today (app-calendar.js) */
 .cal-sheet .cal-month select { border-radius: 999px; padding: 6px 12px; box-shadow: 0 2px 0 var(--shadow); }
-.cal-sheet #calGrid { position: relative; padding: 10px 8px 8px; margin-top: 4px; gap: 4px; border-radius: 18px; background: #fffaf0; border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--shadow); }
+.cal-sheet #calGrid { position: relative; padding: 10px 8px 8px; margin-top: 4px; gap: 4px; border-radius: 18px; background: var(--paper); border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--shadow); }
 .cal-sheet #calGrid::before, .cal-sheet #calGrid::after { content: ""; position: absolute; top: -7px; width: 38px; height: 12px; border-radius: 3px; background: rgba(170, 215, 195, .75); }
 .cal-sheet #calGrid::before { left: 18px; rotate: -4deg; } .cal-sheet #calGrid::after { right: 18px; rotate: 3deg; background: rgba(255, 200, 215, .8); }
 
 .cal-sheet .cal-dow span:nth-child(n+6) { color: #e0587c; }
-.cal-sheet .cal-cell { height: 34px; border-radius: 12px; background: #fff; border: 1.5px solid #f1e3cf; font-weight: 800; }
-.cal-sheet .cal-cell:nth-child(7n), .cal-sheet .cal-cell:nth-child(7n-1) { background: #fff1f4; }
-.cal-sheet .cal-cell.today { border: 2px solid #ff8fb1; background: #ffe3ec; }
+.cal-sheet .cal-cell { height: 34px; border-radius: 12px; background: var(--paper-cell); border: 1.5px solid var(--paper-edge); font-weight: 800; }
+.cal-sheet .cal-cell:nth-child(7n), .cal-sheet .cal-cell:nth-child(7n-1) { background: var(--paper-pink); }
+.cal-sheet .cal-cell.today { border: 2px solid #ff8fb1; background: var(--paper-today); }
 .cal-sheet .cal-cell.today::after { content: "♡"; position: absolute; top: -5px; right: -2px; font-size: .62rem; color: #ec6a8f; animation: cal-heart 1.8s ease-in-out infinite; }
 .cal-sheet .cal-cell { position: relative; }
-.cal-sheet .cal-cell.sel { background: #ffc2d4; color: var(--ink); border: 2px solid #ec6a8f; box-shadow: 0 2px 0 rgba(236, 106, 143, .35); }
+.cal-sheet .cal-cell.sel { background: var(--paper-sel); color: var(--ink); border: 2px solid #ec6a8f; box-shadow: 0 2px 0 rgba(236, 106, 143, .35); }
 .cal-sheet .cal-cell.sel .cal-dots i { background: #ec6a8f; }
 .cal-sheet .cal-dots i { width: 5px; height: 5px; }
 .cal-sheet .cal-list { height: auto; min-height: 96px; flex: 1 1 auto; }
-.cal-sheet .cal-list li { background: #fffaf0; border: 1.5px solid #f1e3cf; border-radius: 14px; }
+.cal-sheet .cal-list li { background: var(--paper); border: 1.5px solid var(--paper-edge); border-radius: 14px; }
 @keyframes cal-heart { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2px; } }
 @media (prefers-reduced-motion: reduce) { .cal-sheet .cal-cell.today::after { animation: none; } }
 
 /* profile: a friendly header, name and birthday as taped notes, round colour bubbles on the buttons */
-.profile-card { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 18px; background: #fffaf0; border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--shadow); }
-.profile-avatar { display: grid; place-items: center; width: 46px; height: 46px; flex: none; border-radius: 50%; background: #ffc2d4; border: 2.5px solid #fff; box-shadow: 0 0 0 1.5px #ec6a8f, 0 2px 0 var(--shadow); color: #b8325e; font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; rotate: -5deg; }
+.profile-card { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 18px; background: var(--paper); border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--shadow); }
+.profile-avatar { display: grid; place-items: center; width: 46px; height: 46px; flex: none; border-radius: 50%; background: #ffc2d4 !important; border: 2.5px solid #fff; box-shadow: 0 0 0 1.5px #ec6a8f, 0 2px 0 var(--shadow); color: #b8325e; font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; rotate: -5deg; }
 .profile-card b { font-family: var(--font-display); font-size: 1.15rem; color: var(--ink); }
-.profile-sheet .field { position: relative; padding: 12px 12px 10px; border-radius: 16px; background: #fffaf0; border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--shadow); gap: 6px; }
+.profile-sheet .field { position: relative; padding: 12px 12px 10px; border-radius: 16px; background: var(--paper); border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--shadow); gap: 6px; }
 .profile-sheet .field::before { content: ""; position: absolute; left: 50%; top: -6px; translate: -50% 0; width: 34px; height: 11px; border-radius: 3px; background: rgba(170, 215, 195, .75); rotate: -3deg; }
 .profile-sheet .field + .field::before { background: rgba(255, 200, 215, .8); rotate: 3deg; }
 .profile-link { box-shadow: 0 2px 0 var(--shadow); }
 .profile-link-icon { width: 34px; height: 34px; border-radius: 50%; font-size: 1.1rem; }
-#favBtn .profile-link-icon { background: #e6dcfa; color: #7d5fcf; }
-#stampBtn .profile-link-icon { background: #d6ebfa; color: #3f86c0; }
+#favBtn .profile-link-icon { background: var(--bub-purple); color: var(--bub-purple-ink); }
+#stampBtn .profile-link-icon { background: var(--bub-blue); color: var(--bub-blue-ink); }
 .profile-link-svg { width: 20px; height: 20px; }
 
 /* Top 10: rows like taped stickers */
-.fav:not(.fav-podium) { position: relative; box-shadow: 0 2px 0 var(--shadow); background: #fffaf0; }
+.fav:not(.fav-podium) { position: relative; box-shadow: 0 2px 0 var(--shadow); background: var(--paper); }
 .fav:not(.fav-podium):nth-child(2n) { rotate: .5deg; } .fav:not(.fav-podium):nth-child(2n+1) { rotate: -.5deg; }
 .fav:not(.fav-podium):nth-child(3n)::before { content: ""; position: absolute; left: 14px; top: -5px; width: 26px; height: 9px; border-radius: 3px; background: rgba(170, 215, 195, .75); rotate: -3deg; }
 .fav:not(.fav-podium):nth-child(3n+1)::before { content: ""; position: absolute; right: 54px; top: -5px; width: 26px; height: 9px; border-radius: 3px; background: rgba(255, 200, 215, .8); rotate: 3deg; }
+
+/* the calendar's days keep their size and their gaps (the sheet scrolls instead of squeezing them together) */
+.cal-sheet #calGrid { flex: none; }
+.cal-sheet .cal-dow { flex: none; }
+.cal-sheet .cal-cell { flex: none; min-height: 34px; }
+.cal-sheet .picker-inner > * { flex-shrink: 0; }
+.cal-sheet .cal-list { flex-shrink: 1; }
+
+/* Profile: Top 10 and Stamp Book as chunky sticker buttons */
+.profile-links { gap: 10px; }
+.profile-link { position: relative; gap: 12px; padding: 12px 14px; border-radius: 20px; background: var(--link-tint); border: 1.5px solid var(--line); box-shadow: 0 3px 0 var(--shadow); }
+.profile-link::before { content: ""; position: absolute; left: 14px; top: -6px; width: 30px; height: 10px; border-radius: 3px; background: rgba(170, 215, 195, .75); rotate: -4deg; }
+#stampBtn.profile-link::before { background: rgba(255, 200, 215, .8); rotate: 3deg; left: auto; right: 38px; }
+#stampBtn.profile-link { --link-tint: var(--paper-edge); background: var(--paper); }
+.profile-link-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.profile-link-text b { font-size: 1rem; }
+.profile-link-text small { font-size: .75rem; font-weight: 700; color: var(--muted); }
+.profile-link:active { translate: 0 2px; box-shadow: 0 1px 0 var(--shadow); }
+.profile-link-icon { width: 40px; height: 40px; border: 2px solid #fff3; }
