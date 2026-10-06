@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 215 (9 Oct)
+- Tap a shopping item to change its name or amount.
+
 ## Build 214 (9 Oct)
 - Recipe amounts stay: each item shows how much to buy.
 

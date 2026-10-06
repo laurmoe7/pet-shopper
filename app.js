@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '214';
+var BUILD = '215';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -134,7 +134,7 @@ document.querySelectorAll('dialog.pet-sheet').forEach(function (d) {
 });
 document.addEventListener('click', function (e) {
   if (!e.target.closest('.list-area, .scene-bar') || e.target.closest('button')) return;
-  if (state.mode === 'todo' && e.target.closest('.item:not(.done) .item-text, .due-tag')) return;   // that tap opens the task sheet
+  if (e.target.closest(state.mode === 'todo' ? '.item:not(.done) .item-text, .due-tag' : '.item:not(.done) .item-text, .qty-tag')) return;   // that tap opens the task or item sheet
   document.querySelectorAll('dialog[open]:not(#picker):not(#roomSheet)').forEach(function (d) { d.close(); });
 });
 // sticker buttons rock like a roly-poly when tapped (the look is in styles.css)

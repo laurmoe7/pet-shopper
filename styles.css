@@ -2622,3 +2622,5 @@ html[data-list="todo"] .recipe-btn { display: none; }
 .recipe-helper { font-size: .85rem; color: var(--muted); font-weight: 700; }
 .recipe-helper summary { cursor: pointer; margin-bottom: 6px; }
 .recipe-note { margin: 6px 0 0; font-size: .78rem; }
+.item-sheet .field-label { display: block; margin-top: 4px; }
+.item-sheet h2 + .field-label { margin-top: 10px; }

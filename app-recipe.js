@@ -1,4 +1,4 @@
-// Add from a recipe: paste a link (read through the recipe helper, worker/recipe-proxy.js) or the ingredients, tick what you
+// Add from a recipe (and change an item's name or amount, at the end): paste a link (read through the recipe helper, worker/recipe-proxy.js) or the ingredients, tick what you
 // need, and they join the shopping list. Reading the recipe is in recipe.js. Shopping list only.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
@@ -120,3 +120,35 @@ $('recipeProxy').addEventListener('change', function () {
   try { if (v) localStorage.setItem(RECIPE_HELPER_KEY, v); else localStorage.removeItem(RECIPE_HELPER_KEY); } catch (e) { /* storage not available */ }
   recipeSay(v ? 'Saved the helper address.' : '');
 });
+
+// ---------- change an item's name or amount ----------
+var itemSheet = $('itemSheet'), editingItem = '';
+/** Opens the small sheet for a shopping item. @param {string} id */
+function openItemSheet(id) {
+  var item = state.items.filter(function (i) { return i.id === id; })[0];
+  if (!item) return;
+  editingItem = id;
+  $('itemName').value = item.text;
+  $('itemQty').value = item.qty || '';
+  sheetUnderMouth(itemSheet);
+  openDialog(itemSheet);
+}
+/** Saves the name and amount (the emoji and aisle follow a new name, unless you picked an emoji for it yourself). */
+function saveItemSheet() {
+  var item = state.items.filter(function (i) { return i.id === editingItem; })[0];
+  var name = $('itemName').value.trim(), qty = $('itemQty').value.trim().slice(0, 20);
+  if (item && name) {
+    if (name !== item.text) {
+      var found = L.emojiFor(name, state.overrides);
+      item.text = name; item.emoji = found.emoji; item.cat = found.cat;
+    }
+    if (qty) item.qty = qty; else delete item.qty;
+    save();
+    render();
+    sound('pick');
+  }
+  itemSheet.close();
+}
+$('itemSave').addEventListener('click', saveItemSheet);
+$('itemCancel').addEventListener('click', function () { itemSheet.close(); });
+[$('itemName'), $('itemQty')].forEach(function (el) { el.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); saveItemSheet(); } }); });

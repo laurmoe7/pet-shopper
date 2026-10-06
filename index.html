@@ -912,6 +912,21 @@
   </form>
 </dialog>
 
+<!-- change a shopping item's name or amount (app-recipe.js) -->
+<dialog class="picker pet-sheet item-sheet" id="itemSheet" aria-labelledby="itemTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="itemTitle">Item</h2>
+    <label class="field-label" for="itemName">Name</label>
+    <input class="recipe-input" id="itemName" type="text" maxlength="80" autocomplete="off" enterkeyhint="done">
+    <label class="field-label" for="itemQty">Amount</label>
+    <input class="recipe-input" id="itemQty" type="text" maxlength="20" autocomplete="off" enterkeyhint="done" placeholder="like 2, or 500 g">
+    <div class="task-chips">
+      <button type="button" class="pill-btn" id="itemSave" aria-pressed="true">Save</button>
+      <button type="button" class="pill-btn" id="itemCancel">Cancel</button>
+    </div>
+  </form>
+</dialog>
+
 <!-- a warning when a task with a time is ticked off before that time (app-todo.js) -->
 <dialog class="picker pet-sheet early-sheet" id="earlySheet" aria-labelledby="earlyTitle">
   <form method="dialog" class="picker-inner">
