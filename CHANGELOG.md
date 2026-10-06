@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 233 (10 Oct)
+- New species: dragon.
+
 ## Build 232 (10 Oct)
 - New species: mouse and monkey.
 - New skin: snow monkey.

@@ -70,6 +70,9 @@
             <pattern id="qPeachDots" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#fff0b0"/><circle cx="3" cy="3" r="1.2" fill="#ffb3a0"/></pattern>
             <pattern id="qGingham" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#e6f7ec"/><rect width="4" height="8" fill="#a8dfbe" opacity=".55"/><rect width="8" height="4" fill="#a8dfbe" opacity=".55"/></pattern>
             <pattern id="qStripes" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="6" height="6" fill="#d6ccf5"/><rect width="2.4" height="6" fill="#fff" opacity=".7"/></pattern>
+            <!-- the dragon's horn ring lines are cut off at the horn's outline -->
+            <clipPath id="dragonHornL"><path d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/></clipPath>
+            <clipPath id="dragonHornR"><path d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/></clipPath>
             <clipPath id="bodyClip"><path d="M80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 Z"/></clipPath>
             <!-- the rainbow axolotl's pastel body and the pigeon's shiny neck -->
             <linearGradient id="axoRainbow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc9dc"/><stop offset=".25" stop-color="#ffe2bd"/><stop offset=".45" stop-color="#fff3b8"/><stop offset=".65" stop-color="#ccf2d8"/><stop offset=".82" stop-color="#c9e5ff"/><stop offset="1" stop-color="#e2d3ff"/></linearGradient>
@@ -144,6 +147,12 @@
                   <circle class="ear" cx="148" cy="80" r="16"/>
                   <circle class="ear-in" cx="148" cy="80" r="9"/>
                 </g>
+              </g>
+              <g data-sp="dragon">
+                <g class="ear-g ear-l"><path class="dragon-wing" d="M26 86 Q10 70 -2 60 Q4 76 -8 86 Q6 88 2 102 Q16 98 26 98 Z"/><path class="dragon-claw" d="M-2 60 Q-4 54 2 52"/></g>
+                <g class="ear-g ear-r"><path class="dragon-wing" d="M134 86 Q150 70 162 60 Q156 76 168 86 Q154 88 158 102 Q144 98 134 98 Z"/><path class="dragon-claw" d="M162 60 Q164 54 158 52"/></g>
+                <g class="ear-g ear-l"><path class="horn-fill" d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/><path class="horn-ring" clip-path="url(#dragonHornL)" d="M43 24 Q50 24 56 30 M40 36 Q48 36 56 42"/><path class="horn-edge" d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/></g>
+                <g class="ear-g ear-r"><path class="horn-fill" d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/><path class="horn-ring" clip-path="url(#dragonHornR)" d="M117 24 Q110 24 104 30 M120 36 Q112 36 104 42"/><path class="horn-edge" d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/></g>
               </g>
               <g data-sp="cow">
                 <g class="ear-g ear-l">
@@ -397,6 +406,15 @@
               <ellipse data-sp="mouse" class="belly mouse-belly" cx="80" cy="115" rx="40" ry="21"/>
               <ellipse data-sp="monkey" class="belly monkey-belly" cx="80" cy="115" rx="40" ry="21"/>
               <path data-sp="monkey" class="monkey-mask" d="M80 78 C70 62 46 66 46 90 C46 110 66 122 80 122 C94 122 114 110 114 90 C114 66 90 62 80 78 Z"/>
+              <g data-sp="dragon">
+                <path class="dragon-plate" d="M80 100 C58 100 44 112 46 126 C48 134 62 137 80 137 C98 137 112 134 114 126 C116 112 102 100 80 100 Z"/>
+                <path class="dragon-band" d="M56 112 Q80 120 104 112 M60 120 Q80 128 100 120 M66 128 Q80 134 94 128"/>
+                <ellipse class="dragon-muzzle" cx="80" cy="95" rx="13" ry="8.6"/>
+                <ellipse class="dragon-nostril" cx="75.6" cy="94" rx="1.7" ry="1.3"/>
+                <ellipse class="dragon-nostril" cx="84.4" cy="94" rx="1.7" ry="1.3"/>
+                <path class="dragon-tuft" d="M66 44 Q62 32 70 26 Q74 34 74 42 Z M74 42 Q74 24 80 16 Q86 24 86 42 Z M86 42 Q86 32 92 26 Q98 32 94 44 Z"/>
+                <circle class="dragon-dot" cx="40" cy="66" r="2.4"/><circle class="dragon-dot" cx="120" cy="66" r="2.4"/><circle class="dragon-dot" cx="50" cy="58" r="2.4"/><circle class="dragon-dot" cx="110" cy="58" r="2.4"/>
+              </g>
               <ellipse data-sp="frog" class="belly frog-belly" cx="80" cy="114" rx="46" ry="24"/>
               <ellipse data-sp="axolotl" class="belly axo-belly" cx="80" cy="114" rx="44" ry="23"/>
               <g data-sk="longhair" class="lh-face"><ellipse class="lh-muzzle" cx="80" cy="105" rx="25" ry="14"/></g>
@@ -483,6 +501,7 @@
               <!-- the :3 mouth: with a little lip, or for the bunny a bit lower with buck teeth -->
               <path data-mouth="smile" class="line cat-smile smile-lip" d="M80 100.6 V102.6 M74.2 101.8 Q76.8 105.6 80 102.6 Q83.2 105.6 85.8 101.8 M78.2 108.2 Q80 109.5 81.8 108.2"/>
               <g data-mouth="smile" class="cat-smile smile-bunny"><path class="line" d="M80 101 V104.6 M73.6 103.2 Q76.6 107.4 80 104.6 Q83.4 107.4 86.4 103.2"/><path class="buck-teeth" d="M76.6 105.2 H83.4 V108.8 Q83.4 110.2 82 110.2 H78 Q76.6 110.2 76.6 108.8 Z M80 105.2 V110.2"/></g>
+              <path data-mouth="smile" class="line cat-smile smile-dragon" d="M72 107 Q80 115 88 107"/>
               <path data-mouth="smile" class="line frog-smile" d="M57 101 Q80 116 103 101"/>
               <path data-mouth="smile" class="line axo-smile" d="M64 101 Q80 112 96 101"/>
               <g data-mouth="open">

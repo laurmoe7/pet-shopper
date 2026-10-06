@@ -241,6 +241,7 @@ button { font: inherit; color: inherit; }
 .pet[data-species="pig"] { --pet-skin: #ffe1e6; --pet-skin-shade: #ffc9d3; --pet-ear-in: #ff9fb2; }
 .pet[data-species="cow"] { --pet-skin: #fffdf9; --pet-skin-shade: #e9ddd6; --pet-ear-in: #ffc4cf; --pet-mark: #6f5850; }
 .pet[data-species="hamster"] { --pet-skin: #f8cf9f; --pet-skin-shade: #f1b97d; --pet-ear-in: #ffb8c4; }
+.pet[data-species="dragon"] { --pet-skin: #a5da96; --pet-skin-shade: #8ccb80; --pet-ear-in: #ecf5c8; }
 .pet[data-species="mouse"] { --pet-skin: #c9ccd6; --pet-skin-shade: #b2b6c4; --pet-ear-in: #ffb8c4; }
 .pet[data-species="monkey"] { --pet-skin: #c89466; --pet-skin-shade: #b07e52; --pet-ear-in: #ffc9b8; --monkey-face: #ffe3c4; }
 /* skins change the colours (and some parts) of a species */
@@ -257,6 +258,7 @@ button { font: inherit; color: inherit; }
 .pet[data-species="cow"] [data-sp="cow"],
 .pet[data-species="hamster"] [data-sp="hamster"],
 .pet[data-species="mouse"] [data-sp="mouse"],
+.pet[data-species="dragon"] [data-sp="dragon"],
 .pet[data-species="monkey"] [data-sp="monkey"] { display: inline; }
 .pet-svg [data-sk] { display: none; }
 .pet[data-skin="penguin"] [data-sk="penguin"],
@@ -571,10 +573,25 @@ button { font: inherit; color: inherit; }
 /* paws (bunny, cat, dog, hamster, hedgehog), hooves (pig, cow) and bird toes: they peek out under the feet like the
    frog's webs, and the hands get pink toe beans or a hoof. Shoes hide the feet ones, sleeves the hand ones. */
 .paw-part, .hoof-part, .bird-part { display: none; }
-.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="mouse"]) .paw-part,
+.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="mouse"], [data-species="dragon"]) .paw-part,
 .pet:is([data-species="pig"], [data-species="cow"]) .hoof-part,
 .pet[data-species="birdie"] .bird-part { display: inline; }
-.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="mouse"], [data-species="monkey"], [data-species="pig"], [data-species="cow"], [data-species="birdie"]) .foot { stroke: none; }
+.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="mouse"], [data-species="monkey"], [data-species="dragon"], [data-species="pig"], [data-species="cow"], [data-species="birdie"]) .foot { stroke: none; }
+/* the dragon: small bat wings and cream horns behind the body (both jiggle like ears), a cream snout, belly plate with lines and leafy head tufts in front */
+.dragon-wing { fill: #ffd1e0; stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
+.dragon-claw { fill: none; stroke: var(--pet-ink); stroke-width: 2.2; stroke-linecap: round; }
+.horn-fill { fill: #ecf5c8; stroke: none; }
+.horn-ring { fill: none; stroke: #c2d58f; stroke-width: 2; stroke-linecap: round; }
+.horn-edge { fill: none; stroke: var(--pet-ink); stroke-width: 2.4; stroke-linejoin: round; }
+.dragon-plate { fill: #f6f1c4; }
+.dragon-band { fill: none; stroke: #dcd696; stroke-width: 2.4; stroke-linecap: round; }
+.dragon-muzzle { fill: #f6f1c4; stroke: var(--pet-ink); stroke-width: 1.8; }
+.dragon-nostril { fill: #e79aa8; }
+.dragon-tuft { fill: #7cc271; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
+.dragon-dot { fill: var(--pet-skin-shade); }
+/* its mouth sits a little lower, under the snout */
+.pet[data-species="dragon"] [data-mouth]:not(.smile-dragon) { translate: 0 3px; }
+.pet[data-species="dragon"][data-mouth="smile"] path[data-mouth="smile"].smile-dragon { display: inline; }
 /* the monkey's feet are long with a thumb-like big toe, in the same tone as its face */
 .monkey-part { display: none; }
 .pet[data-species="monkey"] .monkey-part { display: inline; }
@@ -1925,7 +1942,7 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 .pet:is([data-species="puppy"], [data-species="hedgehog"], [data-species="monkey"]) .nose-dark { display: inline; }
 .nose-dark { fill: #3d2b24; stroke: #2a1d18; }
 .cat-smile { display: none; }
-.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="mouse"], [data-species="monkey"])[data-mouth="smile"] path[data-mouth="smile"]:not(.cat-smile) { display: none; }
+.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="mouse"], [data-species="monkey"], [data-species="dragon"])[data-mouth="smile"] path[data-mouth="smile"]:not(.cat-smile) { display: none; }
 .pet:is([data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="monkey"])[data-mouth="smile"] .smile-lip,
 .pet:is([data-species="bunny"], [data-species="mouse"])[data-mouth="smile"] .smile-bunny { display: inline; }
 .buck-teeth { fill: #fff; stroke: var(--pet-ink); stroke-width: 1; stroke-linejoin: round; }
