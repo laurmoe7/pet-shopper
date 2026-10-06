@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 228 (10 Oct)
+- Recipe sheet is called "Let's cook", with a pink heart instead of the pan.
+- Recipes: metric uses the grams a page gives in brackets.
+- Recipes: cheese in grams, "12 ounce can or jar" and "ears" of corn read right.
+
 ## Build 227 (10 Oct)
 - Nibble's lines use the name you gave him everywhere.
 - Recipe sheet: a small arrow in the corner instead of "more below".

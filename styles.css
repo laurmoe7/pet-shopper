@@ -2648,3 +2648,5 @@ html[data-list="todo"] .recipe-btn { display: none; }
 .recipe-units { display: flex; gap: 6px; margin: 0; }
 .recipe-units .pill-btn { flex: 1; justify-content: center; }
 .recipe-units .pill-btn[aria-pressed="true"] { background: var(--paper-sel); border-color: #ec6a8f; }
+
+.cook-heart { color: #ec6a8f; font-size: .9em; }

@@ -14,7 +14,7 @@
     'tablespoon', 'tablespoons', 'cup', 'cups', 'oz', 'ounce', 'ounces', 'lb', 'lbs', 'pound', 'pounds', 'pinch', 'pinches', 'dash', 'dashes', 'clove', 'cloves',
     'can', 'cans', 'tin', 'tins', 'jar', 'jars', 'pot', 'pots', 'bottle', 'bottles', 'carton', 'cartons', 'tub', 'tubs', 'tube', 'tubes', 'block', 'blocks', 'bar', 'bars', 'cube', 'cubes', 'sheet', 'sheets', 'pint', 'pints', 'quart', 'quarts', 'dozen',
     'slice', 'slices', 'bunch', 'bunches', 'handful', 'handfuls', 'sprig', 'sprigs', 'stick', 'sticks', 'package', 'packages',
-    'packet', 'packets', 'pkg', 'bag', 'bags', 'knob', 'piece', 'pieces', 'head', 'heads', 'stalk', 'stalks', 'el', 'tl', 'eetlepel', 'eetlepels', 'theelepel', 'theelepels',
+    'packet', 'packets', 'pkg', 'bag', 'bags', 'knob', 'piece', 'pieces', 'head', 'heads', 'stalk', 'stalks', 'ear', 'ears', 'el', 'tl', 'eetlepel', 'eetlepels', 'theelepel', 'theelepels',
     'snufje', 'teen', 'tenen', 'blik', 'blikje', 'blikjes', 'bosje', 'bosjes', 'plak', 'plakken', 'plakje', 'plakjes', 'stuk', 'stuks', 'zakje', 'zakjes', 'takje', 'takjes',
     'handvol', 'mespunt', 'scheut', 'beetje', 'bakje', 'pak', 'pakje', 'potje', 'fles', 'flesje', 'zak', 'pakket', 'rol', 'blokje', 'blokjes', 'tablet', 'tabletten', 'blikken', 'potten', 'flessen', 'zakken', 'pakken', 'stukken', 'teentje', 'teentjes'];
   // words that describe how it is prepared or how big it is: dropped from the front and the back of a name ("chopped fresh parsley", "parsley chopped")
@@ -63,6 +63,8 @@
     var optional = EXTRA.test(s);
     var label = s.match(/^([^:\d]{1,30}):\s*(\S.*)$/);                                  // "Optional: chopped nuts", "For serving: rice"
     if (label) s = label[2];
+    var alt = '', am = s.match(/\(\s*(?:about\s+|approx\.?\s+|~)?(\d[\d.,]*)\s*(g|grams?|kg|ml|l)?\s*(?:(?:-|\u2013|to)\s*(\d[\d.,]*)\s*(g|grams?|kg|ml|l))?\s*\)/i);
+    if (am && (am[4] || am[2]) && !/\beach\b/i.test(s)) alt = (am[1] + (am[3] ? '-' + am[3] : '') + ' ' + (am[4] || am[2]).toLowerCase().replace(/^grams?$/, 'g')).replace(/,/g, '.');   // the page's own metric amount: "(120g)", "(500g-688g)"
     s = s.replace(/(?:[$\u20ac\u00a3]\s?\d[\d.,]*|\b\d[\d.,]*\s?(?:euro|eur|dollars?|usd)\b)\**/gi, ' ');   // prices: "($1.24)", "\u20ac 2,50", "$2.69**"
     s = s.replace(/\([^)]*\)/g, ' ').replace(/\[[^\]]*\]/g, ' ').replace(/[()*]/g, ' ').replace(/\s+/g, ' ').trim();
     s = s.replace(/\bextra[- ]virgin\s+/gi, '').replace(/\b(?:freshly|fresh|vers)\s+(?:ground|gemalen)\s+/gi, '');
@@ -79,6 +81,11 @@
     }
     var alts = s.split(/\s+or\s+/i);                                                     // "butter or margarine" is butter, but "all-purpose or bread flour" keeps both
     var bareOf = function (t) { return t.split(' ').filter(function (x) { x = x.toLowerCase(); return !/^[\d.,\/\-\u2013]+$/.test(x) && UNITS.indexOf(x) < 0 && FILLER.indexOf(x) < 0 && !new RegExp('^[' + VULGAR_CLASS + ']+$').test(x); }); };
+    if (alts.length === 2 && !bareOf(alts[0]).length) {                                  // "1 12 ounce can or jar red enchilada sauce": the or is between containers
+      var rest = alts[1].split(' ');
+      while (rest.length > 1 && UNITS.indexOf(rest[0].toLowerCase()) >= 0) rest.shift();
+      alts = [alts[0] + ' ' + rest.join(' ')];
+    }
     s = alts.length === 2 && bareOf(alts[0]).length === 1 && alts[1].replace(TAIL, '').split(' ').length >= 2 ? alts[0] + ' or ' + alts[1] : alts[0];
     var untailed = s.replace(TAIL, '');
     if (bareOf(untailed).length) s = untailed;                                          // "3 cups cooked chicken": 'cooked' is part of the name when nothing else is left
@@ -88,6 +95,7 @@
     var amount = new RegExp('^(?:[\\d.,]+|[' + VULGAR_CLASS + '])(?:\\s*[\\u2013\\-/]\\s*[\\d.,]+)?(?:\\s*(?:to|tot)\\s*[\\d.,]+)?(?:\\s*[' + VULGAR_CLASS + '])?(?:\\s*\\d+\\/\\d+)?\\s*', 'i');
     var qty = [], words, prev;
     function takeAmount() { var m = s.match(amount); if (m && m[0].trim()) { qty.push(m[0].trim()); s = s.slice(m[0].length); } }
+    s = s.replace(/^(\d+)\s+(?=\d+(?:\.\d+)?\s*(?:ounces?|oz|g|grams?|ml|lbs?|pounds?)\b)/i, '$1 x ');          // "1 12 ounce can" is one 12 ounce can
     var times = s.match(/^(\d+)\s*[x×]\s*(?=\d)/i);                                     // "2 x 400g tin"
     if (times) { s = s.slice(times[0].length); if (+times[1] > 1) qty.push(times[1] + ' x'); }
     takeAmount();
@@ -120,6 +128,7 @@
     var names = two ? [pair[1], pair[2]] : [s];
     return names.filter(function (n) { return /[a-zÀ-ɏ]/i.test(n) && n.length >= 2 && n.split(' ').length <= 8; }).map(function (n, i) {
       var item = { name: cap(n), qty: i ? '' : q };
+      if (alt && !i && q) item.alt = alt;
       if (optional) item.optional = true;
       return item;
     });
@@ -159,6 +168,7 @@
         var k = p.name.toLowerCase(), old = seen[k];
         if (!old) { seen[k] = p; out.push(p); return; }
         if (!p.optional) delete old.optional;                                          // needed once means needed
+        if (p.qty && old.qty !== p.qty) delete old.alt;
         if (p.qty && old.qty !== p.qty) old.qty = (old.qty ? old.qty + ' + ' + p.qty : p.qty).slice(0, 20);
       });
     });
@@ -235,7 +245,7 @@
   /** @param {number} v @returns {string} Rounded to a tidy number, no trailing zeros (1.2, 450). */
   function fmtDecimal(v) { return String(Math.round(v * 10) / 10); }
   /** Grams per millilitre for things that are bought by weight but written in cups and spoons. First match wins. */
-  var DENSITY = [[/peanut butter|nut butter|almond butter|butter beans?|buttermilk|butternut/i, 0], [/butter|margarine|boter/i, .95], [/cream cheese|roomkaas/i, .96], [/shortening|lard|coconut oil/i, .92],
+  var DENSITY = [[/peanut butter|nut butter|almond butter|butter beans?|buttermilk|butternut/i, 0], [/butter|margarine|boter/i, .95], [/cream cheese|roomkaas/i, .96], [/shortening|lard|coconut oil/i, .92], [/ricotta|cottage|mascarpone|sour cream|zure room/i, 1], [/parmesan|parmezaan|pecorino/i, .4], [/cheese|kaas/i, .45],
     [/powdered sugar|icing sugar|confectioners|poedersuiker/i, .5], [/brown sugar|bruine suiker/i, .9], [/sugar|suiker/i, .83], [/flour|bloem|meel/i, .52], [/(?:^|\s)rice$|rijst$/i, .8], [/rolled oats|oats|havermout/i, .37], [/cocoa|cacao/i, .4],
     [/grated|shredded|geraspte/i, .45], [/honey|honing|maple syrup|syrup|stroop/i, 1.4]];
   /** Things that really are measured as a volume. Other cups and spoons ("2 cups diced potatoes") stay as written in metric. */
@@ -259,9 +269,14 @@
     return cups + (/^[1\u00bc\u00bd\u00be]$/.test(cups) ? ' cup' : ' cups');
   }
   /** Converts the amounts in a note like "200 g", "1\u00bd cups" or "1 tbsp + 1 tsp". Counts ("3 cloves") and amounts already in the wanted system stay as they are.
-   * @param {string} qty @param {'metric'|'us'|''} to  '' keeps it as written. @param {string} [name] The ingredient: in metric, cups and spoons of butter, flour and the like become grams. @returns {string} */
-  function convertQty(qty, to, name) {
+   * @param {string} qty @param {'metric'|'us'|''} to  '' keeps it as written. @param {string} [name] The ingredient: in metric, cups and spoons of butter, flour and the like become grams. @param {string} [alt] The page's own metric amount for it ("120 g"), used for metric when given. @returns {string} */
+  /** @param {string} qty @returns {boolean} Whether it is measured in cups, spoons, ounces or pounds. */
+  function usesUs(qty) {
+    return String(qty).split(/\s*\+\s*/).some(function (part) { var m = part.match(QTY_RE); return !!m && !!US_UNITS[m[3].toLowerCase()]; });
+  }
+  function convertQty(qty, to, name, alt) {
     if (!qty || (to !== 'metric' && to !== 'us')) return qty || '';
+    if (to === 'metric' && alt && usesUs(qty) && !(typeof name === 'string' && LIQUID.test(name) && !/ml$|l$/.test(alt))) return alt;   // the page's own metric amount, when it gives one
     var out = String(qty).split(/\s*\+\s*/).map(function (part) {
       var m = part.match(QTY_RE);
       if (!m) return part;

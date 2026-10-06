@@ -48,7 +48,7 @@ function showRecipe(title, found) {
     var text = document.createElement('span');
     text.textContent = n + (onList[n.toLowerCase()] ? ' (already on your list)' : why === 'optional' ? ' (optional)' : why === 'usual' ? ' (you probably have it)' : '');
     label.append(box, emojiImg(L.createItem(n, state.overrides, 'x', 0, 'shop').emoji, ''), text);
-    if (f.qty) { var q = document.createElement('b'); q.className = 'qty-tag'; q.textContent = Recipe.convertQty(f.qty, recipeUnits, f.name); label.append(q); }
+    if (f.qty) { var q = document.createElement('b'); q.className = 'qty-tag'; q.textContent = Recipe.convertQty(f.qty, recipeUnits, f.name, f.alt); label.append(q); }
     return label;
   }));
   $('recipeName').textContent = (title || 'Ingredients') + ' \u00b7 ' + found.length;
@@ -107,7 +107,7 @@ function recipeAddAll() {
   if (!names.length || isTodo()) return;
   names.forEach(function (n) {
     var item = L.createItem(n.name, state.overrides, newId(), Date.now(), 'shop');
-    var qty = Recipe.convertQty(n.qty, recipeUnits, n.name);
+    var qty = Recipe.convertQty(n.qty, recipeUnits, n.name, n.alt);
     if (qty) item.qty = qty;
     L.addToList(state.items, item);
     freshIds[item.id] = true;
@@ -179,7 +179,7 @@ function showUnits() {
   $('recipeUnits').querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.units === recipeUnits)); });
   recipeList.querySelectorAll('input').forEach(function (box) {
     var q = box.parentNode.querySelector('.qty-tag'), f = recipeFound[+box.dataset.i];
-    if (q && f) q.textContent = Recipe.convertQty(f.qty, recipeUnits, f.name);
+    if (q && f) q.textContent = Recipe.convertQty(f.qty, recipeUnits, f.name, f.alt);
   });
 }
 $('recipeUnits').addEventListener('click', function (e) {

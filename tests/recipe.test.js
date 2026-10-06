@@ -150,7 +150,7 @@ test('"C." is a cup, thyme leaves is thyme, low-sodium is dropped', () => {
 });
 
 test('"all-purpose or bread flour" keeps both, "butter or margarine" keeps the first', () => {
-  assert.deepStrictEqual(R.parseIngredient('4 - 5 1/2 cups all-purpose or bread flour*, (500g-688g)'), { name: 'All-purpose or bread flour', qty: '4 - 5 1/2 cups' });
+  assert.deepStrictEqual(R.parseIngredient('4 - 5 1/2 cups all-purpose or bread flour*, (500g-688g)'), { name: 'All-purpose or bread flour', qty: '4 - 5 1/2 cups', alt: '500-688 g' });
   assert.strictEqual(R.parseIngredient('1/4 cup honey or sugar, (85g honey, 50g sugar)').name, 'Honey');
   assert.strictEqual(R.parseIngredient('200g butter or margarine').name, 'Butter');
   assert.strictEqual(R.parseIngredient('1 cup milk or cream').name, 'Milk');
@@ -191,4 +191,22 @@ test('metric only turns cups and spoons into ml for liquids', () => {
   const c = [['2 cups', 'Potatoes', '2 cups'], ['1 3/4 cups', 'Carrots', '1 3/4 cups'], ['1 cup', 'Frozen peas', '1 cup'], ['4 cups', 'Chicken', '4 cups'], ['2/3 cup', 'Onion', '2/3 cup'],
     ['3 cups', 'Chicken broth', '725 ml'], ['1 1/2 cups', 'Whole milk', '360 ml'], ['2 tbsp', 'Olive oil', '30 ml'], ['2 cups', 'Water', '475 ml'], ['1 1/2 tsp', 'Salt', '1 1/2 tsp']];
   for (const [q, n, want] of c) assert.strictEqual(R.convertQty(q, 'metric', n), want, n);
+});
+
+test('the metric amount a page gives in brackets is used for metric', () => {
+  const f = (l) => R.cleanAll([l])[0];
+  const conv = (l, to) => { const x = f(l); return R.convertQty(x.qty, to || 'metric', x.name, x.alt); };
+  assert.strictEqual(conv('1 cup (120g) flour'), '120 g');
+  assert.strictEqual(conv('4 - 5 1/2 cups all-purpose or bread flour*, (500g-688g)'), '500-688 g');
+  assert.strictEqual(conv('2 cups warm water (105-115 degrees), (474g)'), '475 ml');          // water stays a volume
+  assert.strictEqual(conv('1 cup (120g) flour', 'us'), '1 cup');
+  assert.strictEqual(f('2 cans (400g each) tomatoes').alt, undefined);
+  assert.strictEqual(f('1 can (400ml) coconut milk').name, 'Coconut milk');
+});
+
+test('cans with a size, "or jar", ears and cheese by the cup', () => {
+  assert.deepStrictEqual(R.parseIngredient('1 12 ounce can or jar red enchilada sauce'), { name: 'Red enchilada sauce', qty: '12 ounce can' });
+  assert.deepStrictEqual(R.parseIngredient('4 ears corn, charred kernels, cut from the cob'), { name: 'Corn', qty: '4 ears' });
+  assert.strictEqual(R.convertQty('1 1/2 cups', 'metric', 'Mexican cheese'), '160 g');
+  assert.strictEqual(R.convertQty('1/4 cup', 'metric', 'Parmesan'), '25 g');
 });
