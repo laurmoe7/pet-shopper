@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 210 (7 Oct)
+- Calendar takes the whole page.
+- Drop-down menus are round and soft, like the buttons.
+- Pet menu: bubble tabs, tiles on a soft backing, a check on the chosen one, plainer headings.
+- Your name box says just "Your name".
+- Feisty Nibble no longer says "no" after good news.
+
 ## Build 209 (7 Oct)
 - Task editing has Save and Cancel buttons.
 - Repeats that make no sense (every year for 1 week) are blocked with a warning.

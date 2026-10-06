@@ -634,7 +634,7 @@ $('taskName').addEventListener('input', function () {
 $('taskName').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); $('taskName').blur(); } });
 taskSheet.addEventListener('close', function () {
   taskFor = null; taskBackup = '';
-  if (taskFromCal) { taskFromCal = false; renderCalendar(); sheetUnderMouth(calSheet); openDialog(calSheet); }   // back to the calendar
+  if (taskFromCal) { taskFromCal = false; renderCalendar(); openDialog(calSheet); }   // back to the calendar
 });
 
 // a task you tick off that repeats puts its next one back on the list (and un-ticking takes that one away again)

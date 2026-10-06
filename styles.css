@@ -2477,12 +2477,8 @@ html:root .picker .field-label.profile-top { display: none; }
 @keyframes tab-pop { from { scale: .88; } to { scale: 1; } }
 .dress-search { background: var(--paper); box-shadow: 0 2px 0 var(--shadow); }
 .dress-panel .field-label, .dress-panel legend.field-label { display: inline-block; align-self: flex-start; padding: 1px 10px 2px; border-radius: 999px; background: var(--paper); border: 1.5px solid var(--line); box-shadow: 0 1px 0 var(--shadow); color: var(--ink); font-size: .78rem; }
-.dress-panel .field-label::before { content: "✦ "; color: var(--accent); }
 .dress-panel .species-grid button, .dress-panel .hat-strip button { background: var(--paper); border-radius: 18px; box-shadow: 0 2px 0 var(--shadow); }
-.dress-panel .species-grid button:nth-child(3n+1), .dress-panel .hat-strip button:nth-child(4n+1) { rotate: -1deg; }
-.dress-panel .species-grid button:nth-child(3n), .dress-panel .hat-strip button:nth-child(4n+3) { rotate: .9deg; }
 .dress-panel .species-grid button[aria-pressed="true"], .dress-panel .hat-strip button[aria-pressed="true"] { background: var(--paper-today); border-color: #ec6a8f; box-shadow: 0 2px 0 rgba(236, 106, 143, .4); }
-.dress-panel .species-grid button[aria-pressed="true"]::after, .dress-panel .hat-strip button[aria-pressed="true"]::after { content: ""; position: absolute; left: 50%; top: -6px; translate: -50% 0; width: 26px; height: 9px; border-radius: 3px; background: rgba(170, 215, 195, .8); rotate: -3deg; }
 .dress-panel .mood-info { background: var(--paper); border: 1.5px dashed var(--line); border-radius: 14px; padding: 6px 12px; }
 .dress-panel[data-tab="pet"] .name-show { background: var(--paper); box-shadow: 0 2px 0 var(--shadow); }
 
@@ -2510,3 +2506,39 @@ html:root .picker .field-label.profile-top { display: none; }
 .cal-extra input[type="time"] { width: 104px; }
 .cal-extra select { max-width: 104px; }
 .cal-extra .cal-add-btn { padding: 7px 16px; }
+
+/* the whole-page calendar (like the Top 10): there is no pet animation for it, so it uses the room */
+.picker.pet-sheet.cal-full { max-width: none; width: 100%; max-height: none; margin: 0; border: 0; border-radius: 0; inset: 0; height: auto; }
+html:root .picker.pet-sheet.cal-full .picker-inner { display: flex; flex-direction: column; gap: 10px; height: 100%; max-height: 100%; box-sizing: border-box; overflow-y: auto; padding-top: calc(16px + env(safe-area-inset-top, 0px)); margin-top: 0; }
+.picker.cal-full .sheet-grab { display: none; }
+.cal-full .cal-cell { height: 46px; min-height: 46px; max-height: 46px; font-size: 1.05rem; }
+.cal-full #calGrid { grid-auto-rows: 46px; row-gap: 6px; }
+.cal-full .cal-dots i { width: 6px; height: 6px; }
+.cal-full .cal-list { min-height: 90px; flex: 1 1 auto; }
+html:root .picker.cal-full { border-radius: 0; }
+
+/* drop-down menus: round and soft, with a little chevron, like the buttons */
+html:root select { -webkit-appearance: none; appearance: none; font: inherit; font-weight: 800; color: var(--ink); background-color: var(--paper); border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 30px 6px 14px; box-shadow: 0 2px 0 var(--shadow); cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 17px) 55%, calc(100% - 12px) 55%; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
+html:root select:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
+html:root select option { background: var(--surface); color: var(--ink); font-weight: 700; }
+html:root select:disabled { opacity: .55; }
+
+/* the Pet menu, round two: bubble tabs, tiles that sit on a soft backing, a check on the chosen one, plain headings */
+.dress-tabs { gap: 6px; }
+.dress-tabs button { padding: 6px 0 5px; border-radius: 20px; background: var(--paper); gap: 3px; }
+.dress-tabs button img { box-sizing: content-box; width: 20px; height: 20px; padding: 5px; border-radius: 50%; opacity: 1; background: var(--bubA); }
+.dress-tabs button:nth-child(3n+2) img { background: var(--bubB); } .dress-tabs button:nth-child(3n) img { background: var(--bubC); }
+.dress-tabs button[aria-selected="true"] img { background: #fff; }
+.dress-panel .field-label, .dress-panel legend.field-label { display: block; padding: 0 2px 3px; background: none; border: 0; border-bottom: 2px dotted var(--line); border-radius: 0; box-shadow: none; font-family: var(--font-display); font-size: 1.05rem; color: var(--ink); }
+.dress-panel[data-tab="pet"] > .field:first-child .field-label { border-bottom: 0; padding: 0; }
+.dress-panel .species-grid button, .dress-panel .hat-strip button { border: 2px solid var(--paper-edge); border-radius: 22px; background: var(--paper); box-shadow: 0 3px 0 var(--shadow); padding: 8px 4px 7px; gap: 4px; font-size: .8rem; }
+.dress-panel .species-grid button:active, .dress-panel .hat-strip button:active { translate: 0 2px; box-shadow: 0 1px 0 var(--shadow); }
+.dress-panel .species-grid .pet.mini { background: radial-gradient(circle at 50% 55%, var(--paper-cell) 0 62%, transparent 64%); border-radius: 50%; }
+.dress-panel .hat-strip button > svg { box-sizing: border-box; width: 58px; max-width: none; height: 46px; padding: 3px 6px; border-radius: 16px; background: var(--paper-cell); }
+.dress-panel .species-grid button[aria-pressed="true"], .dress-panel .hat-strip button[aria-pressed="true"] { background: var(--paper-today); border-color: #ec6a8f; box-shadow: 0 3px 0 rgba(236, 106, 143, .45); }
+.dress-panel .species-grid button[aria-pressed="true"]::after, .dress-panel .hat-strip button[aria-pressed="true"]::after { content: "✓"; position: absolute; right: 6px; top: 5px; left: auto; translate: none; rotate: none; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; background: #ec6a8f; color: #fff; font-size: .72rem; font-weight: 800; }
+.dress-panel .species-grid button.locked, .dress-panel .hat-strip button.locked { border-style: dashed; }
+.cal-full .cal-list { flex: 0 0 auto; min-height: 90px; }
+html:root .cal-month select { flex: none; }
