@@ -134,3 +134,9 @@ test('prices on a line are not part of the name', () => {
     '250 g kaas \u20ac 2,50': ['Kaas', '250 g'], '1 can soup 1.99 euro': ['Soup', '1 can'] };
   for (const k of Object.keys(c)) assert.deepStrictEqual([R.parseIngredient(k).name, R.parseIngredient(k).qty], c[k], k);
 });
+
+test('metric shows butter, flour and the like in grams', () => {
+  const c = [['3 tbsp', 'Salted butter', '45 g'], ['1 cup', 'Butter', '230 g'], ['1 cup', 'Flour', '120 g'], ['1 cup', 'Brown sugar', '215 g'], ['1 cup', 'Milk', '240 ml'], ['1 tsp', 'Garlic powder', '5 ml'],
+    ['2 tbsp', 'Peanut butter', '30 ml'], ['1 cup', 'Butter', '1 cup', 'us'], ['200 g', 'Butter', '200 g']];
+  for (const [q, n, want, to] of c) assert.strictEqual(R.convertQty(q, to || 'metric', n), want, n);
+});

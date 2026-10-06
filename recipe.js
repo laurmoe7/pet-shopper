@@ -225,6 +225,15 @@
   }
   /** @param {number} v @returns {string} Rounded to a tidy number, no trailing zeros (1.2, 450). */
   function fmtDecimal(v) { return String(Math.round(v * 10) / 10); }
+  /** Grams per millilitre for things that are bought by weight but written in cups and spoons. First match wins. */
+  var DENSITY = [[/peanut butter|nut butter|almond butter|butter beans?|buttermilk|butternut/i, 0], [/butter|margarine|boter/i, .95], [/cream cheese|roomkaas/i, .96], [/shortening|lard|coconut oil/i, .92],
+    [/powdered sugar|icing sugar|confectioners|poedersuiker/i, .5], [/brown sugar|bruine suiker/i, .9], [/sugar|suiker/i, .83], [/flour|bloem|meel/i, .5], [/rolled oats|oats|havermout/i, .37], [/cocoa|cacao/i, .4],
+    [/grated|shredded|geraspte/i, .45], [/honey|honing|maple syrup|syrup|stroop/i, 1.4]];
+  /** @param {string} [name] @returns {number} Grams per ml for that ingredient, or 0 when it is kept in millilitres. */
+  function density(name) {
+    for (var i = 0; i < DENSITY.length; i++) if (DENSITY[i][0].test(name || '')) return DENSITY[i][1];
+    return 0;
+  }
   /** One amount in grams or millilitres, written the way the other system would. @param {number} base @param {'g'|'ml'} kind @param {'metric'|'us'} to */
   function writeAmount(base, kind, to) {
     var r5 = function (x) { return x < 10 ? Math.max(1, Math.round(x)) : x >= 400 ? Math.round(x / 25) * 25 : Math.round(x / 5) * 5; };
@@ -239,8 +248,8 @@
     return cups + (/^[1\u00bc\u00bd\u00be]$/.test(cups) ? ' cup' : ' cups');
   }
   /** Converts the amounts in a note like "200 g", "1\u00bd cups" or "1 tbsp + 1 tsp". Counts ("3 cloves") and amounts already in the wanted system stay as they are.
-   * @param {string} qty @param {'metric'|'us'|''} to  '' keeps it as written. @returns {string} */
-  function convertQty(qty, to) {
+   * @param {string} qty @param {'metric'|'us'|''} to  '' keeps it as written. @param {string} [name] The ingredient: in metric, cups and spoons of butter, flour and the like become grams. @returns {string} */
+  function convertQty(qty, to, name) {
     if (!qty || (to !== 'metric' && to !== 'us')) return qty || '';
     var out = String(qty).split(/\s*\+\s*/).map(function (part) {
       var m = part.match(QTY_RE);
@@ -249,9 +258,11 @@
       if (!c || (to === 'us' ? US_UNITS[unit] : METRIC_UNITS[unit])) return part;
       var a = readNum(m[1]), b = m[2] ? readNum(m[2]) : 0;
       if (!(a > 0) || (m[2] && !(b > 0))) return part;
-      var first = writeAmount(a * c[1], c[0], to);
+      var kind = c[0], dens = to === 'metric' && kind === 'ml' ? density(name) : 0, mul = dens || 1;
+      if (dens) kind = 'g';
+      var first = writeAmount(a * c[1] * mul, kind, to);
       if (!m[2]) return first;
-      var second = writeAmount(b * c[1], c[0], to), unitOf = function (t) { return t.replace(/^[\d.\u00bd\u00bc\u00be]+\s*/, ''); };
+      var second = writeAmount(b * c[1] * mul, kind, to), unitOf = function (t) { return t.replace(/^[\d.\u00bd\u00bc\u00be]+\s*/, ''); };
       return unitOf(first) === unitOf(second) ? first.replace(/\s*[a-z]+$/, '') + '-' + second : first + '-' + second;
     }).join(' + ');
     return out.slice(0, 20);

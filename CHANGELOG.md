@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 220 (10 Oct)
+- Recipes: butter, flour, sugar and the like show in grams in metric.
+
 ## Build 219 (10 Oct)
 - Recipes: prices no longer end up in ingredient names.
 
