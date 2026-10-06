@@ -51,6 +51,11 @@
       <!-- a daydream: a thought cloud with something from the list -->
       <!-- what Nibble is asking for (app-treats.js): tap it to feed him -->
       <button type="button" class="wish" id="wish" hidden><span class="wish-cloud" id="wishCloud"></span><span class="wish-tag" aria-hidden="true">Tap to feed</span><span class="wish-dot d1"></span><span class="wish-dot d2"></span></button>
+      <!-- what Nibble suggests buying: it stays on the stage, so it does not scroll with the list -->
+      <div class="suggest" id="suggest" hidden>
+        <button type="button" class="suggest-btn" id="suggestBtn"></button>
+        <button type="button" class="text-btn suggest-no" id="suggestNo" aria-label="No thanks">✕</button>
+      </div>
       <div class="dream" id="dream" aria-hidden="true" hidden><span class="dream-dot d1"></span><span class="dream-dot d2"></span><span class="dream-cloud" id="dreamCloud"></span></div>
       <div class="pet" id="pet" data-state="sleepy" data-species="mochi" data-arms="rest" aria-label="Nibble, your pet">
         <div class="squash"><svg viewBox="0 0 160 150" class="pet-svg" aria-hidden="true">
@@ -652,10 +657,6 @@
       </button>
       <button type="submit" class="add-btn" aria-label="Add item">Add</button>
     </form>
-    <div class="suggest" id="suggest" hidden>
-      <button type="button" class="suggest-btn" id="suggestBtn"></button>
-      <button type="button" class="text-btn suggest-no" id="suggestNo" aria-label="No thanks">✕</button>
-    </div>
     </div>
 
     <ul class="items" id="todo" aria-label="To buy"></ul>

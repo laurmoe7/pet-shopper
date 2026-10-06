@@ -392,7 +392,7 @@ function updateLook() {
   [pet, dressPreview.querySelector('.pet')].forEach(function (el) {
     if (!el) return;
     var eyes = el.querySelector('.pupils');
-    if (!eyes || !lookAt) {
+    if (!eyes || !lookAt || el.classList.contains('wishing')) {   // asking for a treat: his eyes stay on the cloud
       el.style.removeProperty('--look-x'); el.style.removeProperty('--look-y'); el.classList.remove('looking');
       return;
     }

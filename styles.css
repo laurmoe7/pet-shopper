@@ -721,7 +721,7 @@ button { font: inherit; color: inherit; }
 /* ---------- suggestions ---------- */
 /* it floats just under the Add bar instead of pushing the list down when it appears */
 .add-wrap { position: relative; }
-.suggest { position: absolute; bottom: 100%; right: 6px; z-index: 6; display: flex; align-items: center; gap: 2px; margin: 0 0 4px; padding: 2px 2px 2px 3px; font-size: .8rem; color: var(--muted); font-weight: 700; background: var(--surface); border-radius: 999px; opacity: .92; box-shadow: 0 2px 0 var(--shadow), 0 0 0 1.5px var(--cb-edge); animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); transform-origin: 50% 100%; }
+.suggest { position: absolute; bottom: 46px; right: 4px; z-index: 6; display: flex; align-items: center; gap: 2px; margin: 0; padding: 2px 2px 2px 3px; font-size: .8rem; color: var(--muted); font-weight: 700; background: var(--surface); border-radius: 999px; opacity: .92; box-shadow: 0 2px 0 var(--shadow), 0 0 0 1.5px var(--cb-edge); animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); transform-origin: 50% 100%; }
 .suggest[hidden] { display: none; }
 .suggest-btn {
   display: inline-flex; align-items: center; gap: 6px; border: 1.5px dashed var(--outline); background: var(--surface);
@@ -2071,7 +2071,8 @@ html[data-list="todo"] #pet.desk[data-prop="glass"]:not([data-state="sleepy"]) .
 /* the glass arrives quickly, so the big eye can show at once */
 html[data-list="todo"] #pet.desk[data-prop="glass"] .arm-r { transition: transform .2s ease-out, translate .2s ease-out; }
 /* he wants a treat: eyes up at the cloud and a paw stretched towards it (app-treats.js) */
-#pet.wishing { --look-x: -2px; --look-y: -3.2px; }
+#pet.wishing { --look-x: -2.6px; --look-y: -5px; }
+#pet.wishing .pupils { transform: translate(var(--look-x), var(--look-y)); }
 #pet.wishing[data-arms="idle"]:not(.desk):not(.tucked) .arm-l { transform: translate(6px, -30px) rotate(160deg); animation: wish-reach .7s ease-in-out infinite alternate; }
 html[data-list="todo"] #pet.wishing[data-arms="idle"]:not(.desk):not(.tucked) .arm-l { transform: none; animation: none; }
 html[data-list="todo"] #pet.wishing[data-arms="idle"]:not(.desk):not(.tucked) .arm-r { transform: translate(-6px, -30px) rotate(-160deg); animation: wish-reach .7s ease-in-out infinite alternate; }

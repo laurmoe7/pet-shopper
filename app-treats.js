@@ -50,7 +50,7 @@ function wishPose() {
   if (!wishWord || busy || baseState() === 'sleepy') return;
   pet.classList.add('wishing');
   setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: [] });
-  pulse('hopsmall', 400);
+  pulse('hop', 500);
 }
 /** Takes the cloud away and plans the next ask. @param {boolean} fed He got what he asked for. */
 function dropWish(fed) {

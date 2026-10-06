@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 191 (6 Oct)
+- Suggestion chip stays put on the stage instead of scrolling.
+- Treat ask: eyes look higher and ignore your finger, bigger hop.
+
 ## Build 190 (6 Oct)
 - Suggestion chip sits above the Add button.
 - Nibble opens his eyes, looks up and hops towards the treat cloud.
