@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 202 (7 Oct)
+- Calendar button is orange instead of purple.
+- Stamp Book: cuter, with taped stickers and a stamp count.
+- Profile: "Stamp Book" with a capital B.
+- Profile: your name and birthday need a double-tap to edit once they are set.
+
 ## Build 201 (7 Oct)
 - Top 10 and Stamp book are buttons inside Profile, no longer in the menu bar.
 - Stamp book: calls & chats are combined with social.

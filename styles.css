@@ -2141,7 +2141,7 @@ html[data-list="todo"] .dock .todo-only { display: flex; }
 html[data-list="todo"] .dock #goalsBtn { display: none; }
 /* the Shop is only a placeholder for now: greyed out */
 .dock #shopBtn:disabled { opacity: .45; filter: grayscale(1); cursor: default; }
-html:root .dock #calBtn { --tilt: -4deg; --sticker: #d9ccf5; --sticker-ink: #7d5fcf; }
+html:root .dock #calBtn { --tilt: -4deg; --sticker: #ffd9c2; --sticker-ink: #d9743f; }
 /* calendar */
 .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .cal-month { display: flex; gap: 6px; }
@@ -2314,3 +2314,19 @@ html:root .picker .field-label.profile-top { display: none; }
 .gift-placeholder { position: absolute; left: 50%; top: -6px; translate: -50% 0; rotate: -6deg; padding: 1px 9px 2px; border-radius: 999px; background: var(--accent); color: #fff; border: 1.5px solid #fff; box-shadow: 0 2px 0 var(--shadow); font-size: .72rem; font-weight: 800; letter-spacing: .02em; white-space: nowrap; animation: gift-placeholder 2.2s cubic-bezier(.3, 1.8, .5, 1) both; }
 @keyframes gift-placeholder { 0% { scale: .2; opacity: 0; translate: -50% 18px; } 35% { scale: 1.25; opacity: 1; translate: -50% -4px; } 55% { scale: 1; } 100% { scale: 1; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .gift-placeholder { animation: none; } }
+
+/* the Stamp Book: stickers taped on a page, tilted a little, popping in one after another */
+.stamp-sub { margin: -2px 0 2px; text-align: center; font-size: .82rem; font-weight: 800; color: var(--muted); }
+.stamp-sheet .stamp-grid { gap: 12px 10px; padding-top: 6px; }
+.stamp { position: relative; border: 1.5px solid var(--line); border-radius: 16px; background: var(--surface); box-shadow: 0 2px 0 var(--shadow); animation: stamp-pop .4s cubic-bezier(.3, 1.6, .5, 1) both; }
+.stamp:nth-child(3n+1) { rotate: -1.6deg; } .stamp:nth-child(3n+2) { rotate: 1.2deg; } .stamp:nth-child(3n) { rotate: -.8deg; }
+.stamp:nth-child(2) { animation-delay: .04s; } .stamp:nth-child(3) { animation-delay: .08s; } .stamp:nth-child(4) { animation-delay: .12s; } .stamp:nth-child(5) { animation-delay: .16s; } .stamp:nth-child(6) { animation-delay: .2s; }
+.stamp:nth-child(n+7) { animation-delay: .24s; }
+.stamp::before { content: ""; position: absolute; left: 50%; top: -6px; translate: -50% 0; width: 30px; height: 11px; border-radius: 3px; background: rgba(170, 215, 195, .75); rotate: -3deg; }
+.stamp:nth-child(2n)::before { background: rgba(255, 200, 215, .8); rotate: 3deg; }
+.stamp.t1 { background: #f1fbf4; } .stamp.t2 { background: #fff3e6; } .stamp.t3 { background: #fff9dc; }
+.stamp.t3::after { content: "✦"; position: absolute; right: 8px; top: 6px; color: #e0b01f; font-size: .85rem; animation: twinkle 1.6s ease-in-out infinite; }
+.stamp-count { padding: 0 8px; border-radius: 999px; background: var(--bg); }
+.stamp.t1 .stamp-count, .stamp.t2 .stamp-count, .stamp.t3 .stamp-count { background: var(--accent); color: #fff; }
+@keyframes stamp-pop { from { scale: .6; opacity: 0; } to { scale: 1; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .stamp, .stamp.t3::after { animation: none; } }

@@ -21,6 +21,8 @@ function stampCount(entry) {
 function stampTier(n) { return n >= 50 ? 3 : n >= 10 ? 2 : n >= 1 ? 1 : 0; }
 /** Draws the book: a round stamp for each kind, empty until the first task of that kind is ticked. */
 function renderStamps() {
+  var total = STAMP_KINDS.reduce(function (n, k) { return n + stampCount(k[0]); }, 0);
+  $('stampSub').textContent = total ? '✦ ' + total + (total === 1 ? ' stamp' : ' stamps') + ' so far ✦' : 'Tick off tasks to collect your first stamp ♡';
   stampGrid.replaceChildren.apply(stampGrid, STAMP_KINDS.map(function (k) {
     var n = stampCount(k[0]);
     var card = document.createElement('button');
