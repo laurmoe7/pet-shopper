@@ -222,6 +222,13 @@ toyEl.addEventListener('pointermove', function (e) {
     talk('toyHeld', ['throw it! throw it!', 'ooh! ooh!', 'I\'m ready!', 'over here!'], 1300);
   }
   var st = stage.getBoundingClientRect(), lim = toyLimits();
+  // dangling it over his head is rude: he gets annoyed until it comes back down
+  var pr = pet.getBoundingClientRect(), over = e.clientY < pr.top + pr.height * 0.25 && Math.abs(e.clientX - (pr.left + pr.width / 2)) < pr.width * 0.5;
+  if (over !== !!held.annoyed) {
+    held.annoyed = over;
+    if (over) { setFace(FACES.annoyed); say(pick(['hey! not over my head!', 'grr! give it!', 'too high!! >:(', 'that\'s not funny!']), 1300); }
+    else setFace({ eyes: 'sparkle', mouth: 'open', arms: 'reach', x: ['cheeks'] });
+  }
   held.y = Math.max(0, Math.min(lim.maxY, st.bottom - 19 - e.clientY));
   placeToy(Math.max(lim.minX, Math.min(lim.maxX, e.clientX - (st.left + st.width / 2))), held.y, 0);
   held.pts.push({ x: e.clientX, y: e.clientY, t: e.timeStamp });

@@ -80,8 +80,20 @@ wishEl.addEventListener('click', function (e) {
     // asleep: it wakes with a start for the treat, eats it happy but tired, then goes back to sleep
     busy++;
     setTimeout(function () { busy--; eat(item, from, goals); }, wakeForSnack());
-  } else eat(item, from, goals);
+    setTimeout(function () { thankForTreat(); }, 0);
+  } else { eat(item, from, goals); thankForTreat(); }
 });
+/** After the treat is eaten he says thank you and does a little dance. */
+function thankForTreat() {
+  enqueue(function () {
+    var tired = isTired(), m = tiredMove(['shuffle', 1500]);
+    setFace(tiredFace(FACES.tada));
+    pulse(m[0], m[1]);
+    sound('excited');
+    say(pick(tired ? ['thank you… *yawn*', 'thanks… so sweet ♡'] : ['thank you! ♡', 'yummy, thank you!', 'you\'re the best!', 'arigatou~!', 'that was perfect ♡']), 1800);
+    return wait(m[1] + 200).then(function () { if (!busy) settle(); });
+  });
+}
 
 scheduleWish(wishDelay(WISH_FIRST_MS));
 

@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 192 (6 Oct)
+- Suggestion chip moved up; no line under the x.
+- Nibble says thank you and dances after a treat.
+- Holding the toy above his head annoys him.
+- Dressing room: search box for outfits.
+
 ## Build 191 (6 Oct)
 - Suggestion chip stays put on the stage instead of scrolling.
 - Treat ask: eyes look higher and ignore your finger, bigger hop.
