@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 196 (7 Oct)
+- Daily gift box, with extra boxes on special days and birthdays (placeholder prizes).
+- Sketchpad blank templates keep a skin's shapes (floppy ears) and a dashed blush.
+
 ## Build 194 (6 Oct)
 - No squiggly line under the x in the suggestion chip.
 - Sketchpad: blank template of each pet (no colour) to draw skins on.

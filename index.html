@@ -56,6 +56,8 @@
         <button type="button" class="suggest-btn" id="suggestBtn"></button>
         <button type="button" class="text-btn suggest-no" id="suggestNo" aria-label="No thanks">✕</button>
       </div>
+      <!-- today's gift box (app-gift.js): tap to open it -->
+      <button type="button" class="gift" id="gift" hidden aria-label="Gift"><span class="gift-img" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="6" y="20" width="36" height="24" rx="5" fill="#ffb3c7" stroke="#5b4239" stroke-width="2.4"/><rect x="3" y="13" width="42" height="11" rx="4.5" fill="#ffb3c7" stroke="#5b4239" stroke-width="2.4"/><path d="M24 13 V44" stroke="#fff6ec" stroke-width="6"/><path d="M24 13 C16 3 8 8 15 13 M24 13 C32 3 40 8 33 13" fill="none" stroke="#5b4239" stroke-width="2.4" stroke-linecap="round"/></svg></span><span class="gift-count"></span></button>
       <div class="dream" id="dream" aria-hidden="true" hidden><span class="dream-dot d1"></span><span class="dream-dot d2"></span><span class="dream-cloud" id="dreamCloud"></span></div>
       <div class="pet" id="pet" data-state="sleepy" data-species="mochi" data-arms="rest" aria-label="Nibble, your pet">
         <div class="squash"><svg viewBox="0 0 160 150" class="pet-svg" aria-hidden="true">
@@ -914,6 +916,18 @@
   </form>
 </dialog>
 
+<dialog class="picker pet-sheet gift-sheet" id="giftSheet" aria-labelledby="giftTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="giftTitle">Daily gift</h2>
+    <p class="gift-day" id="giftDay"></p>
+    <div class="gift-boxes" id="giftBoxes"></div>
+    <p class="gift-next" id="giftNext"></p>
+    <p class="field-label" id="giftPrizesLabel" hidden>Collection</p>
+    <div class="gift-prizes" id="giftPrizes"></div>
+    <label class="field gift-bday"><span class="field-label">Birthday (a special day: extra boxes)</span><input type="date" id="giftBirthday"></label>
+  </form>
+</dialog>
+
 <dialog class="picker pet-sheet anim-sheet" id="animSheet" aria-label="Animation player (developer tool)">
   <form method="dialog" class="picker-inner">
     <div class="anim-bar">
@@ -957,6 +971,7 @@
 <script src="achievements.js"></script>
 <script src="wardrobe.js"></script>
 <script src="decor.js"></script>
+<script src="bonuses.js"></script>
 <script src="personalities.js"></script>
 <script src="skins.js"></script>
 <script src="sounds.js"></script>
@@ -976,6 +991,7 @@
 <script src="app-favourites.js"></script>
 <script src="app-petting.js"></script>
 <script src="app-treats.js"></script>
+<script src="app-gift.js"></script>
 <script src="app-options.js"></script>
 <script src="app-anims.js"></script>
 <script src="app-voice.js"></script>

@@ -94,6 +94,8 @@ var DEV_ACTIONS = [
   { label: 'Lock everything again', run: function () { L.lockAll(state.pet, Achievements, FreeUnlocks); return 'Progress wiped. Locked items are locked again.'; } },
   { label: 'Skip to tomorrow', run: function () { L.skipDays(state, 1); return 'A day has passed: daily limits are fresh.'; } },
   { label: 'Make Nibble ask for a snack', run: function () { return devWish(); } },
+  { label: 'Pretend it is the next special day (gifts)', run: function () { return devGiftCalendar(); } },
+  { label: 'Shut today\'s gift boxes again', run: function () { return devGiftReset(); } },
   { label: 'Make Nibble suggest an item', run: function () { return devSuggest(); } },
   { label: 'Fill with sample items', run: function () {
     if (isTodo()) { state.items = L.sortByDue(state.items.concat(sampleTodos()), todayKey()); return 'Sample to-dos added.'; }

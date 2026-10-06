@@ -2279,3 +2279,25 @@ html.typing .page-fade { display: none; }
 @keyframes wish-bob { 50% { translate: 0 -3px; } }
 @keyframes wish-ping { 0% { transform: scale(.96); opacity: .85; } 100% { transform: scale(1.35, 1.5); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .wish-cloud, .wish-cloud::after { animation: none; } }
+
+/* daily gift: a box on the stage while any of today's boxes is shut, and the sheet with the boxes (app-gift.js) */
+.gift { position: absolute; left: 10px; top: 8px; z-index: 4; width: 44px; height: 44px; padding: 0; border: 0; background: none; cursor: pointer; animation: gift-hop 2.6s ease-in-out infinite; }
+.gift[hidden] { display: none; }
+.gift-img svg { width: 44px; height: 44px; display: block; filter: drop-shadow(0 2px 0 var(--shadow)); }
+.gift-count { position: absolute; right: -4px; top: -4px; min-width: 18px; padding: 0 5px; border-radius: 999px; background: var(--accent); color: #fff; border: 1.5px solid #fff; font-size: .7rem; font-weight: 800; line-height: 1.35; text-align: center; }
+.gift-count:empty { display: none; }
+@keyframes gift-hop { 0%, 70%, 100% { translate: 0 0; rotate: 0deg; } 78% { translate: 0 -6px; rotate: -6deg; } 86% { translate: 0 0; rotate: 5deg; } 93% { translate: 0 -2px; rotate: -2deg; } }
+.gift-day { margin: 0; font-weight: 800; text-align: center; color: var(--accent); }
+.gift-next, .gift-bday .field-label { color: var(--muted); font-size: .82rem; font-weight: 700; }
+.gift-next { margin: 0; text-align: center; }
+.gift-boxes { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.gift-box { display: grid; justify-items: center; gap: 2px; width: 92px; padding: 8px 4px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: .75rem; font-weight: 800; cursor: pointer; }
+.gift-box svg, .gift-box img { width: 52px; height: 52px; display: block; }
+.gift-box.opened { cursor: default; background: var(--bg); }
+.gift-box.opened svg { filter: grayscale(1); opacity: .45; }
+.gift-box.shaking svg { animation: gift-shake .5s ease-in-out; }
+@keyframes gift-shake { 0%, 100% { rotate: 0deg; } 20% { rotate: -12deg; } 40% { rotate: 12deg; } 60% { rotate: -9deg; } 80% { rotate: 7deg; } }
+.gift-prizes { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.gift-chip { display: inline-flex; align-items: center; gap: 2px; padding: 2px 8px 2px 4px; border-radius: 999px; background: var(--surface); border: 1.5px solid var(--line); font-size: .78rem; font-weight: 800; }
+.gift-chip img { width: 22px; height: 22px; }
+@media (prefers-reduced-motion: reduce) { .gift, .gift-box.shaking svg { animation: none; } }

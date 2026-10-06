@@ -100,10 +100,12 @@ body.skp { height: 100dvh; display: flex; flex-direction: column; overflow: hidd
 /* Blank template (Pet mode only, never in the game): the pet as a colourless outline to draw skins on. Face, ears, hands and
    feet stay; every fill goes white, and markings, blush and shine are dropped. */
 .sk-blank .pet-svg :is(path, ellipse, circle, rect, polygon, polyline):not(.ink):not(.nose-round):not(.nose-cat):not(.nose-dark):not(.nostril):not(.nostril-dot):not(.cute-nose):not(.line) { fill: #fff !important; }
-.sk-blank .pet-svg :is(.cheek, .cheeks, .hatch, .redface, .arm-hi, .shine, .chunk-hi, .glint, .belly, .belly-under, .fur-blend, .urajiro, .spot, .toad-glands, .wart, .wart-hi, .hl-horn, .tabby-stripes) { display: none !important; }
+.sk-blank .pet-svg :is(.redface, .arm-hi, .shine, .chunk-hi, .glint, .belly, .belly-under, .fur-blend, .urajiro, .spot, .toad-glands, .wart, .wart-hi, .hl-horn, .tabby-stripes) { display: none !important; }
 .sk-blank .pet-svg .ear-in { stroke: #b9a79d; stroke-width: 1; stroke-dasharray: 3 2; }
 .sk-blank .pet-svg .line { fill: none !important; }
 .sk-blank .pet-svg :is(.hog-dash, .hog-fleck, .hog-edge, .hog-cap, .hog-blend, .frog-spots, .toad-bumps, .toad-warts, .dart, .tabby, .calico, .calico-orange, .calico-black, .dirty) { display: none !important; }
 .sk-blank .pet-svg :is(.nose-round, .nose-cat, .nose-dark, .cute-nose, .nostril, .nostril-dot) { fill: #5b4239 !important; }
 .sk-blank .pet-svg .gill-fill path { stroke: #fff !important; }
 .sk-blank .pet-svg .gill-line circle { fill: #5b4239 !important; }
+.sk-blank .pet-svg .cheek { fill: none !important; stroke: #b9a79d; stroke-width: 1; stroke-dasharray: 3 2; }
+.sk-blank .pet-svg .hatch { stroke: #b9a79d !important; }

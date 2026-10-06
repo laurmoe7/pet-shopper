@@ -104,7 +104,7 @@ function skPet(blank) {
   var v = document.createElement('div');
   v.className = 'pet preview x-cheeks' + (L.isBird(P.species) ? ' beaked' : '') + (blank ? ' sk-blank' : '');
   v.dataset.species = P.species;
-  v.dataset.skin = blank ? '' : P.skin || '';
+  v.dataset.skin = P.skin || '';   // a blank template keeps the skin's shapes (floppy ears and so on), just without colour
   v.dataset.state = 'curious';
   v.dataset.eyes = 'open';
   v.dataset.mouth = 'smile';
@@ -372,7 +372,7 @@ function skMeta() {
   return {
     page: 'sketchpad', mode: SK.mode, kind: $('skKind').value, note: $('skNote').value.trim(), view: v,
     tidy: SK.tidy ? 'smoothed' + ($('skSnap').checked ? ', lines and ovals snapped' : '') : 'as drawn',
-    pet: SK.mode === 'pet' && P.template ? { species: P.species, template: 'blank outline: no skin, no outfit' } : { species: P.species, skin: P.skin, outfit: P.outfit },
+    pet: SK.mode === 'pet' && P.template ? { species: P.species, skin: P.skin, template: 'blank outline of this skin: shapes kept, colour and outfit removed' } : { species: P.species, skin: P.skin, outfit: P.outfit },
     backdrop: scene ? P.backdrop + (P.night ? ' (night)' : '') : undefined,
     furniture: SK.mode === 'room' ? Object.keys(P.room).filter(function (k) { return P.room[k]; }) : undefined,
     placement: SK.mode === 'room' ? 'room 400 x 160 (about the stage): draw ONE new piece of furniture; the pet box is x125 y18 w150 h140, placed furniture is shown behind it; convert the piece to a decor.js entry (x, y = its centre / 400 and / 160, w, h in px, own view box)'

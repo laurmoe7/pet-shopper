@@ -188,6 +188,10 @@
       tastes: saved.tastes && typeof saved.tastes === 'object' ? saved.tastes : {},
       // check-mark stamps from ticked tasks, by task kind (the stamp book)
       stamps: saved.stamps && typeof saved.stamps === 'object' ? saved.stamps : {},
+      // daily gift boxes (bonuses.js): the boxes opened on each recent day, the prizes collected, and the birthday (MM-DD)
+      gifts: saved.gifts && typeof saved.gifts === 'object' ? saved.gifts : {},
+      prizes: saved.prizes && typeof saved.prizes === 'object' ? saved.prizes : {},
+      birthday: typeof saved.birthday === 'string' && /^\d\d-\d\d$/.test(saved.birthday) ? saved.birthday : '',
       favourites: saved.favourites && typeof saved.favourites === 'object' ? saved.favourites : {},
       // the night it was put to bed (nightOf): asleep until something is checked off or the morning
       dozing: typeof saved.dozing === 'string' ? saved.dozing : '',
