@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 227 (10 Oct)
+- Nibble's lines use the name you gave him everywhere.
+- Recipe sheet: a small arrow in the corner instead of "more below".
+- Recipes: only liquids turn into ml in metric; potatoes, carrots and the like stay in cups.
+- Speech bubble sits below the gear button when a menu is open.
+
 ## Build 226 (10 Oct)
 - Recipe sheet: Nibble stays in view above the ingredients.
 - Nibble comments on the recipe you read.

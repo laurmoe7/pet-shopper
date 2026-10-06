@@ -177,7 +177,7 @@ button { font: inherit; color: inherit; }
 /* in an open menu the bubble hangs at the top of the screen so it still shows over the sheet */
 /* it never takes a tap, so the lamp behind it can still be pulled */
 .stage .bubble { pointer-events: none; }
-.bubble.in-sheet { position: fixed; left: auto; right: 12px; top: calc(env(safe-area-inset-top, 0px) + 10px); max-width: min(68vw, 300px); z-index: 100; transform-origin: 100% 100%; }
+.bubble.in-sheet { position: fixed; left: auto; right: 12px; top: calc(env(safe-area-inset-top, 0px) + 58px); max-width: min(68vw, 300px); z-index: 100; transform-origin: 100% 100%; }
 @keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes twinkle { 0%, 100% { transform: scale(.6) rotate(0); opacity: .25; } 50% { transform: scale(1) rotate(20deg); opacity: .8; } }
 
@@ -2621,7 +2621,7 @@ html[data-list="todo"] .recipe-btn { display: none; }
 .recipe-head .recipe-name { flex: 1; min-width: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .recipe-back { flex: none; font-size: .78rem; padding: 6px 10px; }
 .recipe-listwrap { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
-.recipe-more { display: none; position: absolute; left: 50%; bottom: 6px; translate: -50% 0; padding: 4px 12px; border-radius: 999px; background: #ec6a8f; color: #fff; font-size: .74rem; font-weight: 800; pointer-events: none; box-shadow: 0 2px 4px var(--shadow); animation: recipeNudge 1.4s ease-in-out infinite; }
+.recipe-more { display: none; position: absolute; right: 10px; bottom: 8px; width: 26px; height: 26px; border-radius: 50%; background: #ec6a8f; color: #fff; font-size: .9rem; line-height: 26px; text-align: center; pointer-events: none; opacity: .9; box-shadow: 0 1px 3px var(--shadow); animation: recipeNudge 1.4s ease-in-out infinite; }
 .recipe-listwrap:has(.recipe-list.fade-b) .recipe-more { display: block; }
 @keyframes recipeNudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
 @media (prefers-reduced-motion: reduce) { .recipe-more { animation: none; } }

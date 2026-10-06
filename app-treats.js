@@ -31,7 +31,7 @@ function askForTreat(force) {
   var found = L.createItem(word, {}, 'treat');
   wishWord = word;
   wishCloud.replaceChildren(emojiImg(found.emoji, ''));
-  wishEl.setAttribute('aria-label', 'Nibble would like ' + word + '. Tap to feed it.');
+  wishEl.setAttribute('aria-label', petName() + ' would like ' + word + '. Tap to feed it.');
   wishEl.hidden = false;
   wishPose();
   clearInterval(wishHop);

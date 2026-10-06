@@ -206,6 +206,7 @@ function bubbleToStage() {
  */
 function say(text, ms, own) {
   if (!text) return;
+  text = text.replace(/\bNibble\b/g, petName());   // lines are written with his first name; use the one you gave him
   bubble.hidden = true;
   void bubble.offsetWidth;
   var line = own ? text : L.styleLine(personality(), text);

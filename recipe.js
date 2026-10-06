@@ -238,6 +238,8 @@
   var DENSITY = [[/peanut butter|nut butter|almond butter|butter beans?|buttermilk|butternut/i, 0], [/butter|margarine|boter/i, .95], [/cream cheese|roomkaas/i, .96], [/shortening|lard|coconut oil/i, .92],
     [/powdered sugar|icing sugar|confectioners|poedersuiker/i, .5], [/brown sugar|bruine suiker/i, .9], [/sugar|suiker/i, .83], [/flour|bloem|meel/i, .52], [/(?:^|\s)rice$|rijst$/i, .8], [/rolled oats|oats|havermout/i, .37], [/cocoa|cacao/i, .4],
     [/grated|shredded|geraspte/i, .45], [/honey|honing|maple syrup|syrup|stroop/i, 1.4]];
+  /** Things that really are measured as a volume. Other cups and spoons ("2 cups diced potatoes") stay as written in metric. */
+  var LIQUID = /water|milk|melk|broth|stock|bouillon|cream|room\b|oil|olie|juice|sap\b|wine|wijn|vinegar|azijn|sauce|saus|marinade|syrup|stroop|yogh?urt|beer|bier|coffee|koffie|\btea\b|extract|vanilla|vanille|soy|dressing|mayonnaise|ketchup|mustard|mosterd|rum|brandy|whisky|vodka|liqueur|lemonade|soda|cider|passata|puree/i;
   /** @param {string} [name] @returns {number} Grams per ml for that ingredient, or 0 when it is kept in millilitres. */
   function density(name) {
     for (var i = 0; i < DENSITY.length; i++) if (DENSITY[i][0].test(name || '')) return DENSITY[i][1];
@@ -268,6 +270,7 @@
       var a = readNum(m[1]), b = m[2] ? readNum(m[2]) : 0;
       if (!(a > 0) || (m[2] && !(b > 0))) return part;
       var kind = c[0], dens = to === 'metric' && kind === 'ml' ? density(name) : 0, mul = dens || 1;
+      if (to === 'metric' && kind === 'ml' && !dens && typeof name === 'string' && !LIQUID.test(name)) return part;   // "2 cups potatoes" is not a volume in ml
       if (dens) kind = 'g';
       var first = writeAmount(a * c[1] * mul, kind, to);
       if (!m[2]) return first;

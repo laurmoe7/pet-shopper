@@ -136,8 +136,8 @@ test('prices on a line are not part of the name', () => {
 });
 
 test('metric shows butter, flour and the like in grams', () => {
-  const c = [['3 tbsp', 'Salted butter', '45 g'], ['1 cup', 'Butter', '230 g'], ['1 cup', 'Flour', '125 g'], ['1 cup', 'Brown sugar', '215 g'], ['1 cup', 'Milk', '240 ml'], ['1 tsp', 'Garlic powder', '5 ml'],
-    ['2 tbsp', 'Peanut butter', '30 ml'], ['1 cup', 'Butter', '1 cup', 'us'], ['200 g', 'Butter', '200 g']];
+  const c = [['3 tbsp', 'Salted butter', '45 g'], ['1 cup', 'Butter', '230 g'], ['1 cup', 'Flour', '125 g'], ['1 cup', 'Brown sugar', '215 g'], ['1 cup', 'Milk', '240 ml'], ['1 tsp', 'Garlic powder', '1 tsp'],
+    ['2 tbsp', 'Peanut butter', '2 tbsp'], ['1 cup', 'Butter', '1 cup', 'us'], ['200 g', 'Butter', '200 g']];
   for (const [q, n, want, to] of c) assert.strictEqual(R.convertQty(q, to || 'metric', n), want, n);
 });
 
@@ -185,4 +185,10 @@ test('Nibble remarks on a recipe by its dish, then its food, then its size', () 
   assert.strictEqual(PetLogic.recipeRemark('', new Array(16).fill({ name: 'Thing' }), r), 'so many things! big cooking day');
   assert.ok(PetLogic.recipeRemark('', [{ name: 'Eggs' }], r).length > 3);
   assert.ok(PetLogic.recipeRemark('Mystery', [{ name: 'a' }, { name: 'b' }, { name: 'c' }, { name: 'd' }, { name: 'e' }, { name: 'f' }]).length > 3);
+});
+
+test('metric only turns cups and spoons into ml for liquids', () => {
+  const c = [['2 cups', 'Potatoes', '2 cups'], ['1 3/4 cups', 'Carrots', '1 3/4 cups'], ['1 cup', 'Frozen peas', '1 cup'], ['4 cups', 'Chicken', '4 cups'], ['2/3 cup', 'Onion', '2/3 cup'],
+    ['3 cups', 'Chicken broth', '725 ml'], ['1 1/2 cups', 'Whole milk', '360 ml'], ['2 tbsp', 'Olive oil', '30 ml'], ['2 cups', 'Water', '475 ml'], ['1 1/2 tsp', 'Salt', '1 1/2 tsp']];
+  for (const [q, n, want] of c) assert.strictEqual(R.convertQty(q, 'metric', n), want, n);
 });

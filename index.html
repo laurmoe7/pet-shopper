@@ -896,7 +896,7 @@
   <form method="dialog" class="picker-inner">
     <div id="recipeInputBox" class="recipe-inputbox">
       <h2 id="recipeTitle">Recipe time 🍳</h2>
-      <p class="stamp-sub">✦ Nibble will find the ingredients ✦</p>
+      <p class="stamp-sub">✦ <span class="pet-name">Nibble</span> will find the ingredients ✦</p>
       <textarea id="recipeInput" class="recipe-input" rows="4" placeholder="Paste a recipe link…&#10;or type one ingredient per line" maxlength="4000" enterkeyhint="go"></textarea>
       <button type="button" class="pill-btn recipe-go" id="recipeGo">Find ingredients</button>
       <p class="recipe-status" id="recipeStatus" role="status" aria-live="polite"></p>
@@ -918,7 +918,7 @@
       </div>
       <div class="recipe-listwrap">
         <ul class="recipe-list" id="recipeList"></ul>
-        <span class="recipe-more" aria-hidden="true">more below ▾</span>
+        <span class="recipe-more" aria-hidden="true">▾</span>
       </div>
       <button type="button" class="pill-btn recipe-add" id="recipeAdd">Add to list</button>
     </div>
