@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 206 (7 Oct)
+- To-do repeats can last for a while: a week, 2 months, or until a day you pick.
+- Goals moved into Profile, with a cuter look.
+- Calendar is on both lists, in the middle of the menu bar.
+- Calendar days no longer overlap.
+
 ## Build 204 (7 Oct)
 - Dark mode: Stamp Book, Calendar and Profile are readable and softer.
 - Calendar: days no longer overlap.

@@ -1769,7 +1769,6 @@ html:root .dock button:active .dock-icon { transform: rotate(var(--tilt, -4deg))
 html:root .dock #dressBtn { --tilt: 4deg; --sticker: #c9ecd8; --sticker-ink: #3f9a6c; }
 html:root .dock #roomBtn { --tilt: -3deg; --sticker: #ffd3dd; --sticker-ink: #e0587c; }
 html:root .dock #shopBtn { --tilt: -3deg; --sticker: #ffe6b8; --sticker-ink: #c98a2b; }
-html:root .dock #goalsBtn { --tilt: 3deg; --sticker: #c8e3f7; --sticker-ink: #3f86c0; }
 
 /* sheets: a card tucked into the box */
 html:root .picker {
@@ -2138,10 +2137,9 @@ html:root .item.late:not(.done) { animation: late-shake 3.6s ease-in-out infinit
 /* ---------- to-do mode: the calendar and stamp book replace Top 10 and Goals in the bottom bar ---------- */
 .dock .todo-only { display: none; }
 html[data-list="todo"] .dock .todo-only { display: flex; }
-html[data-list="todo"] .dock #goalsBtn { display: none; }
 /* the Shop is only a placeholder for now: greyed out */
 .dock #shopBtn:disabled { opacity: .45; filter: grayscale(1); cursor: default; }
-html:root .dock #calBtn { --tilt: -4deg; --sticker: #ffd9c2; --sticker-ink: #d9743f; }
+html:root .dock #calBtn { --tilt: 3deg; --sticker: #ffd9c2; --sticker-ink: #d9743f; }
 /* calendar */
 .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .cal-month { display: flex; gap: 6px; }
@@ -2171,7 +2169,7 @@ html:root .dock #calBtn { --tilt: -4deg; --sticker: #ffd9c2; --sticker-ink: #d97
 .cal-list li span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .cal-list li.done span { text-decoration: line-through; color: var(--muted); }
 .cal-list li.cal-empty { background: none; color: var(--muted); font-weight: 600; }
-.cal-del { padding: 2px 6px; }
+.cal-del, .cal-list .cal-del { padding: 2px 6px; text-decoration: none; }
 .cal-add { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .cal-add.off { visibility: hidden; }
 .cal-add input { flex: 1 1 140px; min-width: 0; padding: 8px 10px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: .92rem; }
@@ -2319,18 +2317,18 @@ html:root .picker .field-label.profile-top { display: none; }
 /* colours for the newer cards (Stamp Book, Calendar, Profile): paper and pastel tints that follow light and dark mode */
 :root { --paper: #fffaf0; --paper-edge: #f1e3cf; --paper-cell: #fff; --paper-pink: #fff1f4; --paper-today: #ffe3ec; --paper-sel: #ffc2d4;
   --tier1: #f1fbf4; --tier2: #fff3e6; --tier3: #fff9dc; --pill1: #c9efd9; --pill1-ink: #24603f; --pill2: #ffd9b3; --pill2-ink: #84440c; --pill3: #ffeb99; --pill3-ink: #6e5100;
-  --bub-purple: #e6dcfa; --bub-purple-ink: #7d5fcf; --bub-blue: #d6ebfa; --bub-blue-ink: #3f86c0; --link-tint: #f7f1fd; }
+  --bub-purple: #e6dcfa; --bub-purple-ink: #7d5fcf; --bub-blue: #d6ebfa; --bub-blue-ink: #3f86c0; --bub-yellow: #ffe8a8; --bub-yellow-ink: #a8780a; --link-tint: #f7f1fd; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
   --paper: #4b3b30; --paper-edge: #6a5444; --paper-cell: #5a483b; --paper-pink: #54404a; --paper-today: #66414f; --paper-sel: #a24d6c;
   --tier1: #3f5145; --tier2: #594536; --tier3: #585130; --pill1: #2e5a45; --pill1-ink: #d3f3e1; --pill2: #7a4b22; --pill2-ink: #ffe2c2; --pill3: #6e5a14; --pill3-ink: #fff0b0;
-  --bub-purple: #4f4470; --bub-purple-ink: #d6c8fa; --bub-blue: #364d63; --bub-blue-ink: #b3d8f5; --link-tint: #53455f;
+  --bub-purple: #4f4470; --bub-purple-ink: #d6c8fa; --bub-blue: #364d63; --bub-blue-ink: #b3d8f5; --bub-yellow: #695a22; --bub-yellow-ink: #ffe9a3; --link-tint: #53455f;
   }
 }
 :root[data-theme="dark"] {
   --paper: #4b3b30; --paper-edge: #6a5444; --paper-cell: #5a483b; --paper-pink: #54404a; --paper-today: #66414f; --paper-sel: #a24d6c;
   --tier1: #3f5145; --tier2: #594536; --tier3: #585130; --pill1: #2e5a45; --pill1-ink: #d3f3e1; --pill2: #7a4b22; --pill2-ink: #ffe2c2; --pill3: #6e5a14; --pill3-ink: #fff0b0;
-  --bub-purple: #4f4470; --bub-purple-ink: #d6c8fa; --bub-blue: #364d63; --bub-blue-ink: #b3d8f5; --link-tint: #53455f;
+  --bub-purple: #4f4470; --bub-purple-ink: #d6c8fa; --bub-blue: #364d63; --bub-blue-ink: #b3d8f5; --bub-yellow: #695a22; --bub-yellow-ink: #ffe9a3; --link-tint: #53455f;
 }
 /* the Stamp Book: stickers taped on a page, tilted a little, popping in one after another */
 .stamp-sub { margin: -2px 0 2px; text-align: center; font-size: .82rem; font-weight: 800; color: var(--muted); }
@@ -2412,3 +2410,21 @@ html:root .picker .field-label.profile-top { display: none; }
 .profile-link-text small { font-size: .75rem; font-weight: 700; color: var(--muted); }
 .profile-link:active { translate: 0 2px; box-shadow: 0 1px 0 var(--shadow); }
 .profile-link-icon { width: 40px; height: 40px; border: 2px solid #fff3; }
+
+/* the calendar's days: each cell has a fixed size, the plan dots sit inside it, so rows can never run into each other */
+.cal-sheet #calGrid { grid-auto-rows: 38px; gap: 6px 4px; }
+.cal-sheet .cal-cell { height: 38px; min-height: 38px; padding-bottom: 6px; }
+.cal-sheet .cal-dots { position: absolute; left: 0; right: 0; bottom: 4px; justify-content: center; height: 5px; }
+
+/* Goals in Profile, and the Goals sheet itself, like the other cards */
+#goalsBtn .profile-link-icon { background: var(--bub-yellow); color: var(--bub-yellow-ink); }
+#goalsBtn.profile-link::before { background: rgba(170, 200, 235, .8); left: auto; right: 38px; rotate: 4deg; }
+.goals-intro { color: var(--ink); }
+#goalsSheet .goal { position: relative; background: var(--paper); border: 1.5px solid var(--line); border-radius: 16px; box-shadow: 0 2px 0 var(--shadow); }
+#goalsSheet .goal:nth-child(2n) { rotate: .4deg; } #goalsSheet .goal:nth-child(2n+1) { rotate: -.4deg; }
+#goalsSheet .goal:nth-child(3n+1)::before { content: ""; position: absolute; left: 16px; top: -5px; width: 26px; height: 9px; border-radius: 3px; background: rgba(255, 200, 215, .8); rotate: -3deg; }
+#goalsSheet .goal.done { background: var(--tier1); }
+#goalsSheet .goal-bar { background: var(--paper-edge); height: 12px; }
+#goalsSheet .goal-bar span { background: linear-gradient(90deg, #ff9dba, #ff7fa6); }
+#goalsSheet .goal.done .goal-bar span { background: var(--mint); }
+.task-for { margin: 8px 0 4px; }

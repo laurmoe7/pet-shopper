@@ -442,7 +442,13 @@ function renderTaskSheet() {
   $('repeatChips').replaceChildren.apply($('repeatChips'), L.REPEATS.map(function (r) {
     return chip(r.label, (item.repeat || '') === r.id, function () { setTaskRepeat(r.id); });
   }));
-  $('repeatNote').textContent = item.due ? 'A repeating task comes back on its next day when you tick it off.' : 'Picking a repeat sets the date to today.';
+  var forWrap = $('untilField');
+  forWrap.hidden = !item.repeat;
+  $('untilChips').replaceChildren.apply($('untilChips'), L.REPEAT_SPANS.map(function (s) {
+    return chip(s.label, s.id ? item.until === L.untilFor(item.due, s.id) : !item.until, function () { setTaskUntil(s.id); });
+  }));
+  $('untilDate').value = item.until || '';
+  $('repeatNote').textContent = item.repeat && item.until ? 'Comes back ' + L.REPEATS.filter(function (r) { return r.id === item.repeat; })[0].label.toLowerCase() + ' until ' + L.dueInfo(item.until, '0000-00-00').label + '.' : item.due ? 'A repeating task comes back on its next day when you tick it off.' : 'Picking a repeat sets the date to today.';
 }
 /**
  * Gives the open task a due day (or none), and puts the tasks in due order.
@@ -467,12 +473,26 @@ function setTaskDue(due) {
 function setTaskRepeat(repeat) {
   var item = taskItem();
   if (!item) return;
-  if (repeat) { item.repeat = repeat; if (!item.due) item.due = todayKey(); } else delete item.repeat;
+  if (repeat) { item.repeat = repeat; if (!item.due) item.due = todayKey(); } else { delete item.repeat; delete item.until; }
   state.items = L.sortByDue(state.items, todayKey());
   save();
   render();
   renderTaskSheet();
 }
+/**
+ * Sets how long the open task keeps repeating: a span from its first day, or an exact last day.
+ * @param {string} span  A REPEAT_SPANS id ('' for forever), or a day (YYYY-MM-DD).
+ */
+function setTaskUntil(span) {
+  var item = taskItem();
+  if (!item || !item.repeat) return;
+  var until = L.isDayKey(span) ? span : L.untilFor(item.due, span);
+  if (until && until < item.due) return;   // it cannot end before it starts
+  if (until) item.until = until; else delete item.until;
+  save();
+  renderTaskSheet();
+}
+$('untilDate').addEventListener('change', function () { if ($('untilDate').value) setTaskUntil($('untilDate').value); else setTaskUntil(''); });
 $('dueDate').addEventListener('change', function () { setTaskDue($('dueDate').value); });
 /**
  * Gives the open task a time of day (which also gives it today as its day if it had none), or takes it off.
@@ -532,10 +552,11 @@ var repeatNote = {};   // task id -> when its next one is due, for Nibble to men
  * @param {Item} item  The task that was just ticked or un-ticked.
  */
 function repeatTask(item) {
-  if (item.done && item.repeat) {
+  if (item.done && item.repeat && !(item.until && L.nextDue(item.due, item.repeat, todayKey()) > item.until)) {   // a repeat with an end stops after its last day
     var due = L.nextDue(item.due, item.repeat, todayKey());
     var copy = L.createItem(item.text, state.overrides, newId(), Date.now(), 'todo');
     copy.emoji = item.emoji; copy.cat = item.cat; copy.due = due; copy.repeat = item.repeat;
+    if (item.until) copy.until = item.until;
     if (item.time) copy.time = item.time;
     item.spawned = copy.id;
     L.addToList(state.items, copy);

@@ -333,6 +333,16 @@
     { id: 'monthly', label: 'Every month', months: 1 },
     { id: 'yearly', label: 'Every year', months: 12 }
   ];
+  /** How long a repeating task goes on for (`weeks` or `months` counted from its first day). */
+  var REPEAT_SPANS = [
+    { id: '', label: 'Forever' },
+    { id: '1w', label: '1 week', weeks: 1 },
+    { id: '2w', label: '2 weeks', weeks: 2 },
+    { id: '1m', label: '1 month', months: 1 },
+    { id: '2m', label: '2 months', months: 2 },
+    { id: '3m', label: '3 months', months: 3 },
+    { id: '6m', label: '6 months', months: 6 }
+  ];
   /** @returns {boolean} Whether this is a due day in the form YYYY-MM-DD. */
   function isDayKey(s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s); }
   /** @returns {boolean} Whether this is a time of day in the form HH:MM (24 hours). */
@@ -364,6 +374,17 @@
     if (n === 0) return { days: n, state: at && clock && clock >= time ? 'overdue' : 'today', label: 'today' + at };
     if (n === 1) return { days: n, state: 'soon', label: 'tomorrow' + at };
     return { days: n, state: n <= 2 ? 'soon' : 'later', label: (n <= 6 ? WEEKDAYS[d.getDay()] : d.getDate() + ' ' + MONTHS[d.getMonth()]) + at };
+  }
+  /**
+   * The last day of a repeat that runs for a span: "a week" from Monday ends on Sunday, "2 months" from 5 Oct ends on 4 Dec.
+   * @param {string} start  The day it starts (its due day).
+   * @param {string} span  A REPEAT_SPANS id.
+   * @returns {string} YYYY-MM-DD, or '' for forever.
+   */
+  function untilFor(start, span) {
+    var s = REPEAT_SPANS.filter(function (x) { return x.id === span; })[0];
+    if (!s || !s.id || !isDayKey(start)) return '';
+    return s.weeks ? addDays(start, 7 * s.weeks - 1) : addDays(addMonths(start, s.months), -1);
   }
   /**
    * The next day a repeating task is due: one step after its due day, and always after today (a task that was
@@ -508,7 +529,9 @@
   function cleanTask(item) {
     if (item && item.due !== undefined && !isDayKey(item.due)) delete item.due;
     if (item && item.time !== undefined && (!item.due || !isTimeKey(item.time))) delete item.time;
+    if (item && item.until !== undefined && (!isDayKey(item.until) || !item.repeat || !item.due)) delete item.until;
     if (item && item.repeat !== undefined && (!item.due || !REPEATS.some(function (r) { return r.id && r.id === item.repeat; }))) delete item.repeat;
+    if (item && item.until !== undefined && !item.repeat) delete item.until;
     return item;
   }
 
@@ -1482,7 +1505,7 @@
     isUnlocked: isUnlocked,
     gateFor: gateFor,
     emojiFor: emojiFor,
-    splitSpoken: splitSpoken, wornIds: wornIds, toggleWorn: toggleWorn, faceStack: faceStack, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, REPEATS: REPEATS, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
+    splitSpoken: splitSpoken, wornIds: wornIds, toggleWorn: toggleWorn, faceStack: faceStack, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, cleanTask: cleanTask, REPEATS: REPEATS, REPEAT_SPANS: REPEAT_SPANS, untilFor: untilFor, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
     createItem: createItem,
     petProfile: petProfile,
     parsePlayer: parsePlayer,

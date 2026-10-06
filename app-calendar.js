@@ -14,6 +14,10 @@ function calDayName(day) {
   return CAL_DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + CAL_MONTHS[d.getMonth()];
 }
 /** Draws the month: a button per day, with a small dot for each plan that day. */
+/** @returns {Item[]} The to-do list, which holds the plans: on show in to-do mode, waiting in the stash otherwise. */
+function planList() { return isTodo() ? state.items : state.stash; }
+/** Replaces the to-do list wherever it is kept. @param {Item[]} list */
+function setPlanList(list) { if (isTodo()) state.items = list; else state.stash = list; }
 function renderCalendar() {
   var today = todayKey();
   // the month and year are drop-down menus, to jump straight to a month
@@ -36,7 +40,7 @@ function renderCalendar() {
     n.textContent = +c.day.slice(8, 10);
     var dots = document.createElement('span');
     dots.className = 'cal-dots';
-    L.tasksOn(state.items, c.day).slice(0, 3).forEach(function (t) {
+    L.tasksOn(planList(), c.day).slice(0, 3).forEach(function (t) {
       var dot = document.createElement('i');
       dot.className = (t.repeat === 'yearly' ? 'yearly' : '') + (t.done ? ' done' : '');
       dots.appendChild(dot);
@@ -49,7 +53,7 @@ function renderCalendar() {
 /** Shows the chosen day's plans, and the box to add one (not for days that are over). */
 function renderCalDay() {
   $('calDayTitle').textContent = calDayName(calSel) + (calSel === todayKey() ? ' (today)' : '');
-  var tasks = L.tasksOn(state.items, calSel);
+  var tasks = L.tasksOn(planList(), calSel);
   calList.replaceChildren.apply(calList, tasks.length ? tasks.map(function (t) {
     var li = document.createElement('li');
     li.className = t.done ? 'done' : '';
@@ -75,8 +79,9 @@ function addPlan(text, day, repeat) {
   var item = L.createItem(text, state.overrides, newId(), Date.now(), 'todo');
   item.due = day;
   if (repeat) item.repeat = repeat;
-  L.addToList(state.items, item);
-  state.items = L.sortByDue(state.items, todayKey());
+  var plans = planList();
+  L.addToList(plans, item);
+  setPlanList(L.sortByDue(plans, todayKey()));
   freshIds[item.id] = true;
   save();
   render();
@@ -135,7 +140,7 @@ calInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.p
 calList.addEventListener('click', function (e) {
   var del = e.target.closest('.cal-del');
   if (!del) return;
-  state.items = state.items.filter(function (i) { return i.id !== del.dataset.id; });
+  setPlanList(planList().filter(function (i) { return i.id !== del.dataset.id; }));
   save();
   render();
   renderCalendar();

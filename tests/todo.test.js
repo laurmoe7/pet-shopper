@@ -193,3 +193,13 @@ test('glasses and mouth things stack in the order they were put on', () => {
   L.toggleWorn(o, 'mouth', 'none');
   assert.deepEqual(L.faceStack(o).map((e) => e.id), ['eyepatch']);
 });
+
+test('a repeat can run for a span and then stops', () => {
+  assert.equal(L.untilFor('2026-10-05', '1w'), '2026-10-11');
+  assert.equal(L.untilFor('2026-10-05', '2m'), '2026-12-04');
+  assert.equal(L.untilFor('2026-10-05', ''), '');
+  const ok = L.cleanTask({ due: '2026-10-05', repeat: 'weekly', until: '2026-12-04' });
+  assert.equal(ok.until, '2026-12-04');
+  assert.equal(L.cleanTask({ due: '2026-10-05', until: '2026-12-04' }).until, undefined, 'no repeat, no end');
+  assert.equal(L.cleanTask({ due: '2026-10-05', repeat: 'weekly', until: 'soon' }).until, undefined);
+});

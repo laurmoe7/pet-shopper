@@ -37,7 +37,7 @@ test('there are dances for every pet', () => {
 
 test('the main pet buttons sit in a bar at the bottom of the screen', () => {
   const dock = html.match(/<nav class="dock"[\s\S]*?<\/nav>/)[0];
-  for (const id of ['dressBtn', 'roomBtn', 'goalsBtn', 'profileBtn']) assert.match(dock, new RegExp('id="' + id + '"'));
+  for (const id of ['dressBtn', 'roomBtn', 'calBtn', 'profileBtn']) assert.match(dock, new RegExp('id="' + id + '"'));
   assert.doesNotMatch(html, /petMenu/);
 });
 
