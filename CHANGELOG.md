@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 236 (10 Oct)
+- New hat: red ribbon.
+
 ## Build 235 (10 Oct)
 - Fixed double mouths on pets.
 - Monkey big toe blends into the foot.

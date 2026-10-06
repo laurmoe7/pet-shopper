@@ -121,6 +121,19 @@ function boa() {
         '</g>'
     },
     {
+      id: 'redribbon', slot: 'hat', label: 'Red ribbon', icon: '44 16 72 46',
+      lines: ['tied up nicely!', 'a present for me?', 'so dainty!'],
+      // a red bow on top of the head (drawn from Lauren's sketch): two loops, a knot and two tails
+      svg: '<g class="hat-ribbon">' +
+        '<path class="ribbon-red" d="M77 41 L69 57 L75 54 L78.5 59 L81 42 Z M83 41 L91 57 L85 54 L81.5 59 L79 42 Z"/>' +
+        '<path class="ribbon-red" d="M76 34 C66 19 47 21 48.5 34 C50 47 66 47 76 36 Z"/>' +
+        '<path class="ribbon-red" d="M84 34 C94 19 113 21 111.5 34 C110 47 94 47 84 36 Z"/>' +
+        '<path class="ribbon-fold" d="M72 34 C65 27 57 27 55 33 M88 34 C95 27 103 27 105 33"/>' +
+        '<ellipse class="ribbon-red" cx="80" cy="35.5" rx="6" ry="7"/>' +
+        '<path class="ribbon-shine" d="M78 32 Q80 30.4 82 32"/>' +
+        '</g>'
+    },
+    {
       id: 'maid', slot: 'hat', label: "Maid's hairband",
       lines: ['at your service!', 'so frilly!', 'I\'ll tidy the snacks'],
       svg: '<g class="hat-maid">' +
