@@ -330,6 +330,9 @@
     { id: 'daily', label: 'Every day', days: 1 },
     { id: 'every3', label: 'Every 3 days', days: 3 },
     { id: 'weekly', label: 'Every week', days: 7 },
+    { id: 'weekdays', label: 'Weekdays (Mon to Fri)', dow: [1, 2, 3, 4, 5] },
+    { id: 'weekends', label: 'Weekends', dow: [6, 0] },
+    { id: 'days', label: 'Certain days of the week…', dow: null },   // the days are on the task (item.days)
     { id: 'monthly', label: 'Every month', months: 1 },
     { id: 'yearly', label: 'Every year', months: 12 }
   ];
@@ -375,6 +378,17 @@
     if (n === 1) return { days: n, state: 'soon', label: 'tomorrow' + at };
     return { days: n, state: n <= 2 ? 'soon' : 'later', label: (n <= 6 ? WEEKDAYS[d.getDay()] : d.getDate() + ' ' + MONTHS[d.getMonth()]) + at };
   }
+  /** @returns {string} The first day from this one on that falls on one of the weekdays (0 is Sunday). */
+  function firstOnDays(from, set) {
+    var d = from;
+    for (var n = 0; n < 7 && set.indexOf(dayDate(d).getDay()) === -1; n++) d = addDays(d, 1);
+    return d;
+  }
+  /** @returns {?number[]} The weekdays (0 is Sunday) a repeating task comes back on, or null if it repeats by a count of days or months. */
+  function repeatDays(item) {
+    var r = REPEATS.filter(function (x) { return x.id === item.repeat; })[0];
+    return r && r.dow ? r.dow : item.repeat === 'days' ? item.days || [] : null;
+  }
   /**
    * The last day of a repeat that runs for a span: "a week" from Monday ends on Sunday, "2 months" from 5 Oct ends on 4 Dec.
    * @param {string} start  The day it starts (its due day).
@@ -394,10 +408,17 @@
    * @param {string} today
    * @returns {string}
    */
-  function nextDue(due, repeat, today) {
+  function nextDue(due, repeat, today, days) {
     var r = REPEATS.filter(function (x) { return x.id === repeat; })[0];
     var base = isDayKey(due) ? due : today;
     if (!r || !r.id) return base;
+    if (r.id === 'days' || r.dow) {   // certain days of the week: the next one after both its day and today
+      var set = r.dow || days || [];
+      if (!set.length) return base;
+      var d = addDays(base > today ? base : today, 1);
+      for (var n = 0; n < 7 && set.indexOf(dayDate(d).getDay()) === -1; n++) d = addDays(d, 1);
+      return d;
+    }
     var k = 1, next;
     do {
       next = r.months ? addMonths(base, r.months * k) : addDays(base, r.days * k);
@@ -530,6 +551,11 @@
     if (item && item.due !== undefined && !isDayKey(item.due)) delete item.due;
     if (item && item.time !== undefined && (!item.due || !isTimeKey(item.time))) delete item.time;
     if (item && item.until !== undefined && (!isDayKey(item.until) || !item.repeat || !item.due)) delete item.until;
+    if (item && item.days !== undefined) {   // the chosen weekdays of a 'certain days' repeat
+      var ds = Array.isArray(item.days) ? item.days.filter(function (n, i, a) { return n % 1 === 0 && n >= 0 && n <= 6 && a.indexOf(n) === i; }) : [];
+      if (item.repeat === 'days' && ds.length) item.days = ds; else delete item.days;
+    }
+    if (item && item.repeat === 'days' && !item.days) delete item.repeat;
     if (item && item.repeat !== undefined && (!item.due || !REPEATS.some(function (r) { return r.id && r.id === item.repeat; }))) delete item.repeat;
     if (item && item.until !== undefined && !item.repeat) delete item.until;
     return item;
@@ -1505,7 +1531,7 @@
     isUnlocked: isUnlocked,
     gateFor: gateFor,
     emojiFor: emojiFor,
-    splitSpoken: splitSpoken, wornIds: wornIds, toggleWorn: toggleWorn, faceStack: faceStack, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, cleanTask: cleanTask, REPEATS: REPEATS, REPEAT_SPANS: REPEAT_SPANS, untilFor: untilFor, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
+    splitSpoken: splitSpoken, wornIds: wornIds, toggleWorn: toggleWorn, faceStack: faceStack, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, cleanTask: cleanTask, firstOnDays: firstOnDays, repeatDays: repeatDays, REPEATS: REPEATS, REPEAT_SPANS: REPEAT_SPANS, untilFor: untilFor, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
     createItem: createItem,
     petProfile: petProfile,
     parsePlayer: parsePlayer,

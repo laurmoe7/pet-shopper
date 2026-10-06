@@ -760,9 +760,8 @@
     <div class="dress-panel" data-tab="pet" role="tabpanel">
       <div class="field">
         <span class="field-label" id="petNameLabel">Name</span>
-        <button type="button" class="name-show" id="petNameShow" aria-describedby="petNameHint"><span id="petNameText">Nibble</span><span class="name-pen" aria-hidden="true">✎</span></button>
+        <button type="button" class="name-show" id="petNameShow" aria-label="Name (double-tap to change)"><span id="petNameText">Nibble</span><span class="name-pen" aria-hidden="true">✎</span></button>
         <input id="petNameInput" type="text" maxlength="16" autocomplete="off" enterkeyhint="done" placeholder="Nibble" aria-labelledby="petNameLabel" hidden>
-        <span class="name-hint" id="petNameHint">Double-tap the name to change it</span>
       </div>
       <fieldset class="species">
         <legend class="field-label">Species</legend>
@@ -849,11 +848,11 @@
     </fieldset>
     <fieldset class="task-field">
       <legend class="field-label">Repeat</legend>
-      <div class="task-chips" id="repeatChips"></div>
+      <select id="repeatSel" class="task-date task-select" aria-label="Repeat"></select>
+      <div class="task-chips task-dow" id="dowChips" role="group" aria-label="Days of the week" hidden></div>
       <div id="untilField" hidden>
-        <p class="field-label task-for">For how long</p>
-        <div class="task-chips" id="untilChips"></div>
-        <label class="task-date-label">Or until <input type="date" id="untilDate" class="task-date"></label>
+        <label class="task-date-label">For how long <select id="untilSel" class="task-date task-select"></select></label>
+        <label class="task-date-label" id="untilDateWrap" hidden>Until <input type="date" id="untilDate" class="task-date"></label>
       </div>
       <p class="task-note" id="repeatNote">A repeating task comes back on its next day when you tick it off.</p>
     </fieldset>
@@ -926,6 +925,7 @@
   <form method="dialog" class="picker-inner" id="profileForm" autocomplete="off">
     <h2 id="profileTitle">Profile</h2>
     <div class="profile-card"><span class="profile-avatar" id="profileAvatar" aria-hidden="true">♡</span><b id="profileHello">Hello, friend!</b></div>
+    <div class="profile-fields">
     <div class="field">
       <span class="field-label" id="profileNameLabel">Your name</span>
       <button type="button" class="name-show" id="profileNameShow" hidden><span id="profileNameText"></span><span class="name-pen" aria-hidden="true">✎</span></button>
@@ -935,6 +935,7 @@
       <span class="field-label" id="profileBirthdayLabel">Your birthday</span>
       <button type="button" class="name-show" id="profileBirthdayShow" hidden><span id="profileBirthdayText"></span><span class="name-pen" aria-hidden="true">✎</span></button>
       <input id="profileBirthday" type="date" aria-labelledby="profileBirthdayLabel">
+    </div>
     </div>
     <div class="profile-links">
       <button type="button" class="profile-link" id="favBtn"><span class="profile-link-icon" aria-hidden="true">♛</span><span class="profile-link-text"><b>Top 10</b><small>what you buy most</small></span><span class="profile-link-go" aria-hidden="true">›</span></button>

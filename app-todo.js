@@ -439,16 +439,29 @@ function renderTaskSheet() {
   );
   $('dueDate').value = item.due || '';
   renderTimeSelects(item.time || '');
-  $('repeatChips').replaceChildren.apply($('repeatChips'), L.REPEATS.map(function (r) {
-    return chip(r.label, (item.repeat || '') === r.id, function () { setTaskRepeat(r.id); });
+  renderRepeat(item);
+}
+var DOW_ORDER = [1, 2, 3, 4, 5, 6, 0], DOW_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+/** Draws the repeat drop-downs (how it repeats, which weekdays, for how long) for a task. */
+function renderRepeat(item) {
+  var sel = $('repeatSel');
+  sel.replaceChildren.apply(sel, L.REPEATS.map(function (r) { return new Option(r.label, r.id); }));
+  sel.value = item.repeat || '';
+  var days = L.repeatDays(item);
+  $('dowChips').hidden = item.repeat !== 'days';
+  $('dowChips').replaceChildren.apply($('dowChips'), DOW_ORDER.map(function (n) {
+    return chip(DOW_NAMES[n], (item.days || []).indexOf(n) !== -1, function () { toggleTaskDay(n); });
   }));
-  var forWrap = $('untilField');
-  forWrap.hidden = !item.repeat;
-  $('untilChips').replaceChildren.apply($('untilChips'), L.REPEAT_SPANS.map(function (s) {
-    return chip(s.label, s.id ? item.until === L.untilFor(item.due, s.id) : !item.until, function () { setTaskUntil(s.id); });
-  }));
+  $('untilField').hidden = !item.repeat;
+  var us = $('untilSel');
+  us.replaceChildren.apply(us, L.REPEAT_SPANS.map(function (s) { return new Option(s.label, s.id); }).concat([new Option('Until a day I pick…', 'date')]));
+  var span = L.REPEAT_SPANS.filter(function (s) { return s.id && L.untilFor(item.due, s.id) === item.until; })[0];
+  us.value = !item.until ? '' : span ? span.id : 'date';
+  $('untilDateWrap').hidden = us.value !== 'date';
   $('untilDate').value = item.until || '';
-  $('repeatNote').textContent = item.repeat && item.until ? 'Comes back ' + L.REPEATS.filter(function (r) { return r.id === item.repeat; })[0].label.toLowerCase() + ' until ' + L.dueInfo(item.until, '0000-00-00').label + '.' : item.due ? 'A repeating task comes back on its next day when you tick it off.' : 'Picking a repeat sets the date to today.';
+  var r = L.REPEATS.filter(function (x) { return x.id === item.repeat; })[0];
+  var what = item.repeat === 'days' ? (days.length ? 'on ' + DOW_ORDER.filter(function (n) { return days.indexOf(n) !== -1; }).map(function (n) { return DOW_NAMES[n]; }).join(', ') : 'on the days you pick') : r && r.label ? r.label.toLowerCase().replace(/ \(.*/, '') : '';
+  $('repeatNote').textContent = item.repeat ? 'Comes back ' + what + (item.until ? ' until ' + L.dueInfo(item.until, '0000-00-00').label : '') + ', when you tick it off.' : item.due ? 'A repeating task comes back on its next day when you tick it off.' : 'Picking a repeat sets the date to today.';
 }
 /**
  * Gives the open task a due day (or none), and puts the tasks in due order.
@@ -473,7 +486,15 @@ function setTaskDue(due) {
 function setTaskRepeat(repeat) {
   var item = taskItem();
   if (!item) return;
-  if (repeat) { item.repeat = repeat; if (!item.due) item.due = todayKey(); } else { delete item.repeat; delete item.until; }
+  if (repeat) {
+    item.repeat = repeat;
+    if (!item.due) item.due = todayKey();
+    if (repeat === 'days' && !(item.days || []).length) item.days = [new Date(item.due + 'T12:00').getDay()];
+    if (repeat !== 'days') delete item.days;
+    var set = L.repeatDays(item);
+    if (set && set.length) item.due = L.firstOnDays(item.due < todayKey() ? todayKey() : item.due, set);   // it starts on the first chosen weekday
+    if (item.until && item.until < item.due) delete item.until;
+  } else { delete item.repeat; delete item.until; delete item.days; }
   state.items = L.sortByDue(state.items, todayKey());
   save();
   render();
@@ -492,7 +513,26 @@ function setTaskUntil(span) {
   save();
   renderTaskSheet();
 }
-$('untilDate').addEventListener('change', function () { if ($('untilDate').value) setTaskUntil($('untilDate').value); else setTaskUntil(''); });
+$('untilDate').addEventListener('change', function () { setTaskUntil($('untilDate').value); });
+$('repeatSel').addEventListener('change', function () { setTaskRepeat($('repeatSel').value); });
+$('untilSel').addEventListener('change', function () {
+  var v = $('untilSel').value;
+  if (v === 'date') { $('untilDateWrap').hidden = false; $('untilDate').focus(); return; }
+  setTaskUntil(v);
+});
+/** Turns one weekday on or off for a 'certain days' repeat. @param {number} n 0 (Sunday) to 6 */
+function toggleTaskDay(n) {
+  var item = taskItem();
+  if (!item || item.repeat !== 'days') return;
+  var days = item.days || [], at = days.indexOf(n);
+  if (at !== -1) { if (days.length === 1) return; days.splice(at, 1); } else days.push(n);   // at least one day stays
+  item.days = days;
+  item.due = L.firstOnDays(item.due < todayKey() ? todayKey() : item.due, days);
+  state.items = L.sortByDue(state.items, todayKey());
+  save();
+  render();
+  renderTaskSheet();
+}
 $('dueDate').addEventListener('change', function () { setTaskDue($('dueDate').value); });
 /**
  * Gives the open task a time of day (which also gives it today as its day if it had none), or takes it off.
@@ -552,11 +592,12 @@ var repeatNote = {};   // task id -> when its next one is due, for Nibble to men
  * @param {Item} item  The task that was just ticked or un-ticked.
  */
 function repeatTask(item) {
-  if (item.done && item.repeat && !(item.until && L.nextDue(item.due, item.repeat, todayKey()) > item.until)) {   // a repeat with an end stops after its last day
-    var due = L.nextDue(item.due, item.repeat, todayKey());
+  if (item.done && item.repeat && !(item.until && L.nextDue(item.due, item.repeat, todayKey(), item.days) > item.until)) {   // a repeat with an end stops after its last day
+    var due = L.nextDue(item.due, item.repeat, todayKey(), item.days);
     var copy = L.createItem(item.text, state.overrides, newId(), Date.now(), 'todo');
     copy.emoji = item.emoji; copy.cat = item.cat; copy.due = due; copy.repeat = item.repeat;
     if (item.until) copy.until = item.until;
+    if (item.days) copy.days = item.days.slice();
     if (item.time) copy.time = item.time;
     item.spawned = copy.id;
     L.addToList(state.items, copy);

@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 207 (7 Oct)
+- Calendar days really don't overlap now.
+- Nibble's name: the pencil wiggles until it is changed; no double-tap text; the name box takes less space.
+- To-do repeats: pick certain days of the week, weekdays or weekends; repeat and how long are drop-down menus.
+- Profile: smaller name and birthday boxes; Top 10, Goals and Stamp Book in alternating colours.
+
 ## Build 206 (7 Oct)
 - To-do repeats can last for a while: a week, 2 months, or until a day you pick.
 - Goals moved into Profile, with a cuter look.

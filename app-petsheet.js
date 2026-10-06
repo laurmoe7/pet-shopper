@@ -121,6 +121,7 @@ function showName() {
   $('petNameText').textContent = petName();
   petNameInput.hidden = true;
   petNameShow.hidden = false;
+  petNameShow.classList.toggle('unnamed', petName() === 'Nibble');   // still the first name: the pencil wiggles to show it can be changed
 }
 function startRename() {
   petNameInput.value = state.pet.name || '';

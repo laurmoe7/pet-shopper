@@ -2428,3 +2428,40 @@ html:root .picker .field-label.profile-top { display: none; }
 #goalsSheet .goal-bar span { background: linear-gradient(90deg, #ff9dba, #ff7fa6); }
 #goalsSheet .goal.done .goal-bar span { background: var(--mint); }
 .task-for { margin: 8px 0 4px; }
+
+/* calendar: sizes include the padding, so a day can never grow taller than its row (it overlapped on some screens) */
+.cal-sheet .cal-cell { box-sizing: border-box; height: 38px; min-height: 38px; max-height: 38px; padding: 0 0 4px; overflow: visible; }
+.cal-sheet #calGrid { grid-template-rows: none; grid-auto-rows: 38px; row-gap: 7px; align-items: stretch; }
+
+/* the pet's name: a compact row, and the pencil wiggles while it still has its first name */
+.dress-panel[data-tab="pet"] > .field:first-child { flex-direction: row; align-items: center; gap: 10px; }
+.dress-panel[data-tab="pet"] > .field:first-child .field-label { flex: none; }
+.dress-panel[data-tab="pet"] > .field:first-child :is(.name-show, input) { flex: 1; min-width: 0; min-height: 38px; padding-top: 6px; padding-bottom: 6px; }
+.name-show.unnamed .name-pen { display: inline-block; color: var(--accent); animation: pen-wiggle 1.8s ease-in-out infinite; transform-origin: 20% 90%; }
+@keyframes pen-wiggle { 0%, 55%, 100% { rotate: 0deg; } 62% { rotate: -22deg; } 70% { rotate: 18deg; } 78% { rotate: -14deg; } 86% { rotate: 8deg; } }
+@media (prefers-reduced-motion: reduce) { .name-show.unnamed .name-pen { animation: none; } }
+
+/* profile: name and birthday side by side and smaller, so the buttons below get the room */
+.profile-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.profile-sheet .profile-fields .field { padding: 6px 8px 8px; gap: 3px; border-radius: 14px; min-width: 0; }
+.profile-sheet .profile-fields .field::before { display: none; }
+.profile-sheet .profile-fields .field-label { font-size: .75rem; }
+.profile-sheet .profile-fields .name-show, .profile-sheet .profile-fields input { min-height: 34px; padding: 4px 10px; font-size: .92rem; width: 100%; box-sizing: border-box; }
+.profile-sheet .profile-fields .name-show { gap: 4px; }
+.profile-card { padding: 5px 12px; }
+.profile-avatar { width: 38px; height: 38px; font-size: 1.15rem; }
+
+/* the three Profile buttons take turns: lavender, butter, mint */
+:root { --tintA: #f1e9fc; --bubA: #e0d3f8; --inkA: #7d5fcf; --tintB: #fff4d6; --bubB: #ffe39a; --inkB: #a8780a; --tintC: #e5f6ec; --bubC: #c5ead4; --inkC: #2f8a58; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --tintA: #4a4163; --bubA: #62568a; --inkA: #dccdfb; --tintB: #5a5026; --bubB: #766a30; --inkB: #ffe9a3; --tintC: #34503f; --bubC: #44684f; --inkC: #c4f0d6; } }
+:root[data-theme="dark"] { --tintA: #4a4163; --bubA: #62568a; --inkA: #dccdfb; --tintB: #5a5026; --bubB: #766a30; --inkB: #ffe9a3; --tintC: #34503f; --bubC: #44684f; --inkC: #c4f0d6; }
+#favBtn.profile-link { background: var(--tintA); } #favBtn .profile-link-icon { background: var(--bubA); color: var(--inkA); }
+#goalsBtn.profile-link { background: var(--tintB); } #goalsBtn .profile-link-icon { background: var(--bubB); color: var(--inkB); }
+#stampBtn.profile-link { background: var(--tintC); } #stampBtn .profile-link-icon { background: var(--bubC); color: var(--inkC); }
+#favBtn.profile-link::before { background: rgba(255, 200, 215, .8); }
+#goalsBtn.profile-link::before { background: rgba(170, 215, 195, .8); left: 14px; right: auto; rotate: -4deg; }
+#stampBtn.profile-link::before { background: rgba(255, 200, 215, .8); }
+
+.task-select { width: 100%; box-sizing: border-box; padding: 8px 12px; }
+.task-dow { margin: 6px 0; gap: 5px; }
+.task-dow .pill-btn { padding: 6px 9px; font-size: .8rem; }
