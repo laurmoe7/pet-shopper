@@ -100,7 +100,7 @@ function offerSuggestion() {
   suggestEl.hidden = false;
   lastSuggestion = Date.now();
   clearTimeout(suggestTimer);
-  suggestTimer = setTimeout(function () { suggestEl.hidden = true; }, 15000);
+  suggestTimer = setTimeout(function () { suggestEl.hidden = true; }, 9000);
   talk('suggest', ['ooh, how about {x}?', 'can we get {x}?', '{x}, please?'], 1800, { x: text.toLowerCase() });
   return true;
 }

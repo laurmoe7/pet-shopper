@@ -270,7 +270,7 @@ function inspectList() {
   stopWalk();
   setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: [] });
   deskOn('glass');
-  return wait(650).then(function () {
+  return wait(330).then(function () {   // the paw takes .35s to bring the glass in front of the eye: magnify the moment it arrives
     pet.classList.add('inspecting');
     eyesDo('wide');
     talk('inspect', ['hmm… let me look…', 'inspecting the list…', 'detective Nibble!', 'what do we have here…'], 1500);

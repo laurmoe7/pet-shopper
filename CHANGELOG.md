@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 188 (6 Oct)
+- Magnifying glass: the big eye appears the moment the glass arrives.
+- Magnifying glass: the other eye closes while he squints.
+- Shop button in the menu bar (greyed out for now).
+- Suggestions: a small chip instead of a big box.
+
 ## Build 187 (5 Oct)
 - Magnifying glass: no more star eye; he closes his eyes and smiles after squinting.
 - Sketchpad: undo and redo react when pressed and grey out when empty.
