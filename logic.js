@@ -125,7 +125,7 @@
       .sort(function (a, b) { return rank(a.e) - rank(b.e) || a.n - b.n; })
       .map(function (x) { return x.e; });
   }
-  var SAMPLE = ['Bananas', 'Oat milk', '500g Quark', 'Broccoli', 'Chili flakes', 'Dark chocolate', 'Toilet paper', "Oma's cake"];
+  var SAMPLE = ['Bananas', ['Oat milk', '1 l'], ['Quark', '500 g'], 'Broccoli', 'Chili flakes', 'Dark chocolate', 'Toilet paper', "Oma's cake"];
 
   /**
    * Finds the emoji for an item, preferring one the person picked for that word before.
@@ -230,7 +230,11 @@
     try { data = JSON.parse(raw); } catch (e) { data = null; }
     if (!data || !Array.isArray(data.items)) {
       data = { items: [], overrides: {}, quiet: false, lastOpen: 0 };
-      SAMPLE.forEach(function (t) { data.items.push(createItem(t, data.overrides, nextId())); });
+      SAMPLE.forEach(function (t) {   // a sample can carry an amount: [name, amount]
+        var item = createItem(Array.isArray(t) ? t[0] : t, data.overrides, nextId());
+        if (Array.isArray(t)) item.qty = t[1];
+        data.items.push(item);
+      });
     }
     data.overrides = data.overrides || {};
     // the list on show (shopping or to-do) is state.items; the other one waits in state.stash

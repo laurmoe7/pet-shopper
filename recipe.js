@@ -3,6 +3,7 @@
  *   parseRecipeHtml(html)  finds the recipe the page describes for search engines (schema.org JSON-LD): { title, ingredients }
  *   parseIngredient(line)  "2 tbsp finely chopped fresh parsley, plus extra" becomes { name: 'Parsley', qty: '2 tbsp' }
  *   recipeFromText(text)   the same for pasted lines, one ingredient per line
+ *   convertQty(qty, 'metric'|'us')  "1 cup" becomes "240 ml" and "200 g" becomes "7 oz"
  * English and Dutch units and words are understood. The amount is kept as a short note on the item (`qty`).
  */
 (function (root) {
@@ -128,8 +129,70 @@
    */
   function recipeFromText(text) { return cleanAll(String(text || '').split(/\r?\n/)); }
 
+
+  // ---------- metric and US units ----------
+  var NUM = '(?:\\d+\\s+\\d+\\/\\d+|\\d+\\/\\d+|\\d+\\s*[\u00bd\u00bc\u00be\u2153\u2154\u215b]|[\u00bd\u00bc\u00be\u2153\u2154\u215b]|\\d+(?:[.,]\\d+)?)';
+  var FRACS = { '\u00bd': .5, '\u00bc': .25, '\u00be': .75, '\u2153': 1 / 3, '\u2154': 2 / 3, '\u215b': .125 };
+  var QTY_RE = new RegExp('^\\s*(' + NUM + ')(?:\\s*[\u2013\\-]\\s*(' + NUM + '))?\\s*([a-z]+)\\.?\\s*$', 'i');
+  // each unit we can convert: what kind it is and how many ml or g it is
+  var CONVERT = { g: ['g', 1], gram: ['g', 1], grams: ['g', 1], kg: ['g', 1000], oz: ['g', 28.35], ounce: ['g', 28.35], ounces: ['g', 28.35], lb: ['g', 453.6], lbs: ['g', 453.6], pound: ['g', 453.6], pounds: ['g', 453.6],
+    ml: ['ml', 1], cl: ['ml', 10], dl: ['ml', 100], l: ['ml', 1000], liter: ['ml', 1000], litre: ['ml', 1000], liters: ['ml', 1000], litres: ['ml', 1000],
+    tsp: ['ml', 5], teaspoon: ['ml', 5], teaspoons: ['ml', 5], tbsp: ['ml', 15], tablespoon: ['ml', 15], tablespoons: ['ml', 15], cup: ['ml', 240], cups: ['ml', 240] };
+  var US_UNITS = { oz: 1, ounce: 1, ounces: 1, lb: 1, lbs: 1, pound: 1, pounds: 1, tsp: 1, teaspoon: 1, teaspoons: 1, tbsp: 1, tablespoon: 1, tablespoons: 1, cup: 1, cups: 1 };
+  var METRIC_UNITS = { g: 1, gram: 1, grams: 1, kg: 1, ml: 1, cl: 1, dl: 1, l: 1, liter: 1, litre: 1, liters: 1, litres: 1 };
+
+  /** @param {string} s @returns {number} A number as written in a recipe: 2, 1.5, 1/2, 1 1/2, \u00bd, 1\u00bd. */
+  function readNum(s) {
+    s = s.trim();
+    var m = s.match(/^(\d+)\s*([\u00bd\u00bc\u00be\u2153\u2154\u215b])$/);
+    if (m) return +m[1] + FRACS[m[2]];
+    if (FRACS[s]) return FRACS[s];
+    m = s.match(/^(?:(\d+)\s+)?(\d+)\/(\d+)$/);
+    if (m) return (m[1] ? +m[1] : 0) + (+m[2]) / (+m[3] || 1);
+    return parseFloat(s.replace(',', '.'));
+  }
+  /** @param {number} v @param {number} step @returns {string} Rounded to the step and written like 2, \u00bd or 1\u00be. */
+  function fmtFraction(v, step) {
+    v = Math.max(step, Math.round(v / step) * step);
+    var whole = Math.floor(v + 1e-9), f = v - whole, sym = f > .6 ? '\u00be' : f > .4 ? '\u00bd' : f > .1 ? '\u00bc' : '';
+    return (whole ? String(whole) : '') + sym;
+  }
+  /** @param {number} v @returns {string} Rounded to a tidy number, no trailing zeros (1.2, 450). */
+  function fmtDecimal(v) { return String(Math.round(v * 10) / 10); }
+  /** One amount in grams or millilitres, written the way the other system would. @param {number} base @param {'g'|'ml'} kind @param {'metric'|'us'} to */
+  function writeAmount(base, kind, to) {
+    var r5 = function (x) { return x < 10 ? Math.max(1, Math.round(x)) : x >= 400 ? Math.round(x / 25) * 25 : Math.round(x / 5) * 5; };
+    if (to === 'metric') {
+      if (kind === 'g') return base >= 1000 ? fmtDecimal(base / 1000) + ' kg' : r5(base) + ' g';
+      return base >= 1000 ? fmtDecimal(base / 1000) + ' l' : r5(base) + ' ml';
+    }
+    if (kind === 'g') return base >= 450 ? fmtFraction(base / 453.6, .25) + ' lb' : fmtFraction(base / 28.35, .5) + ' oz';
+    if (base < 15) return fmtFraction(base / 5, .25) + ' tsp';
+    if (base < 60) return fmtFraction(base / 15, .5) + ' tbsp';
+    var cups = fmtFraction(base / 240, .25);
+    return cups + (/^[1\u00bc\u00bd\u00be]$/.test(cups) ? ' cup' : ' cups');
+  }
+  /** Converts the amounts in a note like "200 g", "1\u00bd cups" or "1 tbsp + 1 tsp". Counts ("3 cloves") and amounts already in the wanted system stay as they are.
+   * @param {string} qty @param {'metric'|'us'|''} to  '' keeps it as written. @returns {string} */
+  function convertQty(qty, to) {
+    if (!qty || (to !== 'metric' && to !== 'us')) return qty || '';
+    var out = String(qty).split(/\s*\+\s*/).map(function (part) {
+      var m = part.match(QTY_RE);
+      if (!m) return part;
+      var unit = m[3].toLowerCase(), c = CONVERT[unit];
+      if (!c || (to === 'us' ? US_UNITS[unit] : METRIC_UNITS[unit])) return part;
+      var a = readNum(m[1]), b = m[2] ? readNum(m[2]) : 0;
+      if (!(a > 0) || (m[2] && !(b > 0))) return part;
+      var first = writeAmount(a * c[1], c[0], to);
+      if (!m[2]) return first;
+      var second = writeAmount(b * c[1], c[0], to), unitOf = function (t) { return t.replace(/^[\d.\u00bd\u00bc\u00be]+\s*/, ''); };
+      return unitOf(first) === unitOf(second) ? first.replace(/\s*[a-z]+$/, '') + '-' + second : first + '-' + second;
+    }).join(' + ');
+    return out.slice(0, 20);
+  }
+
   /** @param {string} s @returns {boolean} Whether it looks like a web address to fetch (http or https, or www.). */
   function looksLikeUrl(s) { return /^\s*(https?:\/\/\S+|www\.\S+\.\S+)\s*$/i.test(String(s || '')); }
 
-  root.Recipe = { parseIngredient: parseIngredient, cleanIngredient: cleanIngredient, cleanAll: cleanAll, parseRecipeHtml: parseRecipeHtml, recipeFromText: recipeFromText, looksLikeUrl: looksLikeUrl };
+  root.Recipe = { convertQty: convertQty, parseIngredient: parseIngredient, cleanIngredient: cleanIngredient, cleanAll: cleanAll, parseRecipeHtml: parseRecipeHtml, recipeFromText: recipeFromText, looksLikeUrl: looksLikeUrl };
 })(typeof self !== 'undefined' ? self : globalThis);

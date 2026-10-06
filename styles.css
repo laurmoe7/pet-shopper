@@ -2624,3 +2624,5 @@ html[data-list="todo"] .recipe-btn { display: none; }
 .recipe-note { margin: 6px 0 0; font-size: .78rem; }
 .item-sheet .field-label { display: block; margin-top: 4px; }
 .item-sheet h2 + .field-label { margin-top: 10px; }
+.recipe-units { display: flex; gap: 6px; margin: 0 0 8px; }
+.recipe-units .pill-btn[aria-pressed="true"] { background: var(--paper-sel); border-color: #ec6a8f; }

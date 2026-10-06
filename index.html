@@ -901,6 +901,11 @@
     <p class="recipe-status" id="recipeStatus" role="status" aria-live="polite"></p>
     <div id="recipeResult" hidden>
       <p class="recipe-name" id="recipeName"></p>
+      <div class="recipe-units" id="recipeUnits" role="group" aria-label="Units">
+        <button type="button" class="pill-btn" data-units="">As written</button>
+        <button type="button" class="pill-btn" data-units="metric">Metric</button>
+        <button type="button" class="pill-btn" data-units="us">US</button>
+      </div>
       <ul class="recipe-list" id="recipeList"></ul>
       <button type="button" class="pill-btn recipe-add" id="recipeAdd">Add to list</button>
     </div>

@@ -7,7 +7,9 @@ var recipeSheet = $('recipeSheet'), recipeInput = $('recipeInput'), recipeStatus
 var RECIPE_HELPER_KEY = 'nibble-recipe-helper';
 /** The address of the recipe helper Worker. Put yours here once it is online, or paste it into the sheet (kept on the device). */
 var RECIPE_HELPER = 'https://pet-shopper-recipes.laurmoe.workers.dev';
-var recipeFound = [];
+var recipeFound = [], recipeUnits = '';
+try { recipeUnits = localStorage.getItem('nibble-units') || ''; } catch (e) { /* storage not available */ }
+if (recipeUnits !== 'metric' && recipeUnits !== 'us') recipeUnits = '';
 
 /** @returns {string} The helper's address, or "". */
 function recipeHelper() {
@@ -42,10 +44,11 @@ function showRecipe(title, found) {
     var text = document.createElement('span');
     text.textContent = n + (onList[n.toLowerCase()] ? ' (already on your list)' : '');
     label.append(box, emojiImg(L.createItem(n, state.overrides, 'x', 0, 'shop').emoji, ''), text);
-    if (f.qty) { var q = document.createElement('b'); q.className = 'qty-tag'; q.textContent = f.qty; label.append(q); }
+    if (f.qty) { var q = document.createElement('b'); q.className = 'qty-tag'; q.textContent = Recipe.convertQty(f.qty, recipeUnits); label.append(q); }
     return label;
   }));
   $('recipeName').textContent = title || 'Ingredients';
+  showUnits();
   $('recipeResult').hidden = !found.length;
   updateRecipeAdd();
 }
@@ -89,7 +92,8 @@ function recipeAddAll() {
   if (!names.length || isTodo()) return;
   names.forEach(function (n) {
     var item = L.createItem(n.name, state.overrides, newId(), Date.now(), 'shop');
-    if (n.qty) item.qty = n.qty;
+    var qty = Recipe.convertQty(n.qty, recipeUnits);
+    if (qty) item.qty = qty;
     L.addToList(state.items, item);
     freshIds[item.id] = true;
   });
@@ -153,3 +157,20 @@ function saveItemSheet() {
 $('itemSave').addEventListener('click', saveItemSheet);
 $('itemCancel').addEventListener('click', function () { itemSheet.close(); });
 [$('itemName'), $('itemQty')].forEach(function (el) { el.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); saveItemSheet(); } }); });
+
+/** Marks the chosen units button and rewrites the amounts shown (nothing else changes, so ticks stay). */
+function showUnits() {
+  $('recipeUnits').querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.units === recipeUnits)); });
+  recipeList.querySelectorAll('input').forEach(function (box) {
+    var q = box.parentNode.querySelector('.qty-tag'), f = recipeFound[+box.dataset.i];
+    if (q && f) q.textContent = Recipe.convertQty(f.qty, recipeUnits);
+  });
+}
+$('recipeUnits').addEventListener('click', function (e) {
+  var b = e.target.closest('button');
+  if (!b) return;
+  recipeUnits = b.dataset.units;
+  try { localStorage.setItem('nibble-units', recipeUnits); } catch (err) { /* storage not available */ }
+  sound('tap');
+  showUnits();
+});

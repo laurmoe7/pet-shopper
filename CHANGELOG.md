@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 217 (9 Oct)
+- Sample items use the amount pill (Quark 500 g) instead of writing it in the name.
+- Recipe amounts can be switched between metric and US units.
+
 ## Build 216 (9 Oct)
 - Recipe links work out of the box with the built-in recipe helper.
 

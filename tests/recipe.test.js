@@ -57,3 +57,11 @@ test('parseIngredient keeps the amount', () => {
 test('the same ingredient twice becomes one with both amounts', () => {
   assert.deepStrictEqual(R.cleanAll(['1 tbsp salt', '1 tsp salt', '2 eggs']), [{ name: 'Salt', qty: '1 tbsp + 1 tsp' }, { name: 'Eggs', qty: '2' }]);
 });
+
+test('convertQty goes between metric and US', () => {
+  const c = [['200 g', 'us', '7 oz'], ['1 kg', 'us', '2\u00bc lb'], ['500 ml', 'us', '2 cups'], ['100 ml', 'us', '\u00bd cup'], ['10 ml', 'us', '2 tsp'],
+    ['1 1/2 cups', 'metric', '360 ml'], ['2 tbsp', 'metric', '30 ml'], ['8 oz', 'metric', '225 g'], ['1 lb', 'metric', '450 g'], ['1 cup', 'metric', '240 ml'],
+    ['2-3 cups', 'metric', '475-725 ml'], ['1 tbsp + 1 tsp', 'metric', '15 ml + 5 ml'],
+    ['3 cloves', 'us', '3 cloves'], ['pinch', 'metric', 'pinch'], ['2 cups', 'us', '2 cups'], ['200 g', 'metric', '200 g'], ['200 g', '', '200 g'], ['', 'us', '']];
+  for (const [q, to, want] of c) assert.strictEqual(R.convertQty(q, to), want, q + ' -> ' + to);
+});
