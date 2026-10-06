@@ -19,15 +19,17 @@
     'handvol', 'mespunt', 'scheut', 'beetje', 'bakje', 'pak', 'pakje', 'potje', 'fles', 'flesje', 'zak', 'pakket', 'rol', 'blokje', 'blokjes', 'tablet', 'tabletten', 'blikken', 'potten', 'flessen', 'zakken', 'pakken', 'stukken', 'teentje', 'teentjes'];
   // words that describe how it is prepared or how big it is: dropped from the front and the back of a name ("chopped fresh parsley", "parsley chopped")
   var FILLER = ['fresh', 'freshly', 'finely', 'roughly', 'coarsely', 'thinly', 'chopped', 'minced', 'diced', 'sliced', 'grated', 'crushed', 'peeled', 'cubed', 'shredded',
-    'low-sodium', 'reduced-sodium', 'torn', 'toasted', 'sifted', 'melted', 'softened', 'cooled', 'beaten', 'drained', 'rinsed', 'trimmed', 'halved', 'quartered', 'mashed', 'pitted', 'seeded', 'deseeded', 'crumbled', 'packed', 'cooked', 'warm', 'lukewarm', 'boiling',
+    'low-sodium', 'reduced-sodium', 'torn', 'uncooked', 'toasted', 'sifted', 'melted', 'softened', 'cooled', 'beaten', 'drained', 'rinsed', 'trimmed', 'halved', 'quartered', 'mashed', 'pitted', 'seeded', 'deseeded', 'crumbled', 'packed', 'cooked', 'warm', 'lukewarm', 'boiling',
     'large', 'small', 'medium', 'big', 'ripe', 'extra', 'good', 'quality', 'organic', 'optional', 'about', 'approx', 'approximately', 'of', 'a', 'an', 'the', 'some',
     'vers', 'verse', 'fijngehakt', 'gehakte', 'gesneden', 'geraspte', 'gesmolten', 'geschild', 'gepeld', 'grote', 'kleine', 'middelgrote', 'ongeveer', 'een', 'van', 'wat', 'naar', 'smaak', 'to', 'taste'];
   // describing words that can be followed by a comma and still belong to the name ("boneless, skinless chicken thighs")
   var ADJECTIVES = ['boneless', 'skinless', 'unsalted', 'salted', 'lean', 'whole', 'dried', 'frozen', 'canned', 'sweet', 'plain', 'hot', 'cold', 'mild', 'smoked', 'raw', 'young', 'old'];
   // what comes after the name and is not part of it: "olive oil for frying", "chicken cut into pieces", "butter at room temperature", "boter om in te bakken"
   var TAIL = /\s+(?:for|plus|om|voor|cut|torn|divided|drained|rinsed|cooked|at room|room temperature|such as|according to|about|approx\.?|or so|zodat|in (?:ringen|blokjes|stukjes|plakjes|reepjes|partjes)|to (?:serve|garnish|taste|decorate))\b.*$/i;
-  // extras: "for serving", "to garnish" mean you can leave them out
-  var EXTRA = /\b(?:optional|optioneel|naar wens)\b|\bfor (?:serving|garnish|garnishing|topping|decorating|dusting|decoration)\b|\bto (?:serve|garnish|decorate)\b|\b(?:om te|voor het) (?:serveren|garneren|bestrooien)\b|\bvoor (?:de )?garnering\b/i;
+  // "green onions and sesame seeds", "oil and vinegar": two things when both sides end in one of these
+  var SPLIT_HEADS = ['seeds', 'sauce', 'onions', 'nuts', 'sprouts', 'oil', 'vinegar', 'herbs', 'spices', 'cheese', 'flakes', 'peppers', 'tomatoes', 'mushrooms', 'beans', 'zaad', 'zaden', 'saus', 'uien', 'noten', 'olie', 'azijn'];
+  // extras: only a line that says so is optional ("for serving" and "for garnish" are still things to buy)
+  var EXTRA = /\b(?:optional|optioneel|naar wens)\b/i;
   // lines that are about the recipe, not an ingredient
   var NOT_FOOD = /^(?:serves?|serving|servings|makes|yields?|prep|cook|total|equipment|special equipment|notes?|tips?|directions|instructions|ingredients?|porties|bereiding|voor \d+ (?:personen|porties))\b/i;
   var SEASONING = /\b(?:salt|pepper|zout|peper)\b/i;
@@ -77,7 +79,8 @@
     var alts = s.split(/\s+or\s+/i);                                                     // "butter or margarine" is butter, but "all-purpose or bread flour" keeps both
     var bareOf = function (t) { return t.split(' ').filter(function (x) { x = x.toLowerCase(); return !/^[\d.,\/\-\u2013]+$/.test(x) && UNITS.indexOf(x) < 0 && FILLER.indexOf(x) < 0 && !new RegExp('^[' + VULGAR_CLASS + ']+$').test(x); }); };
     s = alts.length === 2 && bareOf(alts[0]).length === 1 && alts[1].replace(TAIL, '').split(' ').length >= 2 ? alts[0] + ' or ' + alts[1] : alts[0];
-    s = s.replace(TAIL, '');
+    var untailed = s.replace(TAIL, '');
+    if (bareOf(untailed).length) s = untailed;                                          // "3 cups cooked chicken": 'cooked' is part of the name when nothing else is left
     var jz = s.match(/^(?:juice|zest|rind|peel|sap|rasp|schil)(?:\s+(?:and|&|en)\s+(?:juice|zest|rind|peel|sap|rasp|schil))?\s+(?:of|van)\s+(.+)$/i);
     if (jz) s = jz[1];                                                                  // "Juice of 1 lemon" is a lemon
     // leading amounts: 2, 1.5, 1/2, 1 1/2, 2-3, 2 to 3, and vulgar fractions like ½
@@ -112,7 +115,8 @@
     s = s.replace(/^((?:fresh |dried )?(?:thyme|basil|mint|sage|parsley|cilantro|oregano|rosemary|tarragon|dill|chives)) leaves$/i, '$1');   // "thyme leaves" is thyme
     var q = qty.join(' ').slice(0, 20);
     var pair = s.match(/^(.+?)\s+(?:and|&|en)\s+(.+)$/i);                               // "salt and pepper" is two things
-    var names = pair && SEASONING.test(pair[1]) && SEASONING.test(pair[2]) && pair[1].split(' ').length < 4 && pair[2].split(' ').length < 4 ? [pair[1], pair[2]] : [s];
+    var two = pair && pair[1].split(' ').length < 4 && pair[2].split(' ').length < 4 && (SEASONING.test(pair[1]) && SEASONING.test(pair[2]) || SPLIT_HEADS.indexOf(lastWord(pair[1])) >= 0 && SPLIT_HEADS.indexOf(lastWord(pair[2])) >= 0);
+    var names = two ? [pair[1], pair[2]] : [s];
     return names.filter(function (n) { return /[a-zÀ-ɏ]/i.test(n) && n.length >= 2 && n.split(' ').length <= 8; }).map(function (n, i) {
       var item = { name: cap(n), qty: i ? '' : q };
       if (optional) item.optional = true;
@@ -231,7 +235,7 @@
   function fmtDecimal(v) { return String(Math.round(v * 10) / 10); }
   /** Grams per millilitre for things that are bought by weight but written in cups and spoons. First match wins. */
   var DENSITY = [[/peanut butter|nut butter|almond butter|butter beans?|buttermilk|butternut/i, 0], [/butter|margarine|boter/i, .95], [/cream cheese|roomkaas/i, .96], [/shortening|lard|coconut oil/i, .92],
-    [/powdered sugar|icing sugar|confectioners|poedersuiker/i, .5], [/brown sugar|bruine suiker/i, .9], [/sugar|suiker/i, .83], [/flour|bloem|meel/i, .52], [/rolled oats|oats|havermout/i, .37], [/cocoa|cacao/i, .4],
+    [/powdered sugar|icing sugar|confectioners|poedersuiker/i, .5], [/brown sugar|bruine suiker/i, .9], [/sugar|suiker/i, .83], [/flour|bloem|meel/i, .52], [/(?:^|\s)rice$|rijst$/i, .8], [/rolled oats|oats|havermout/i, .37], [/cocoa|cacao/i, .4],
     [/grated|shredded|geraspte/i, .45], [/honey|honing|maple syrup|syrup|stroop/i, 1.4]];
   /** @param {string} [name] @returns {number} Grams per ml for that ingredient, or 0 when it is kept in millilitres. */
   function density(name) {

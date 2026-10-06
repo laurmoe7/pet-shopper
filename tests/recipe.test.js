@@ -112,7 +112,7 @@ test('lines about the recipe are not ingredients', () => {
 
 test('optional and for-serving lines are marked optional', () => {
   assert.deepStrictEqual(R.parseIngredient('Optional: chopped nuts for garnish'), { name: 'Nuts', qty: '', optional: true });
-  assert.deepStrictEqual(R.parseIngredient('For serving: rice'), { name: 'Rice', qty: '', optional: true });
+  assert.deepStrictEqual(R.parseIngredient('For serving: rice'), { name: 'Rice', qty: '' });   // serving and garnish are still things to buy
   assert.deepStrictEqual(R.parseIngredient('1 cup walnuts (optional)'), { name: 'Walnuts', qty: '1 cup', optional: true });
   assert.strictEqual(R.parseIngredient('2 eggs').optional, undefined);
   // listed twice, once as needed: needed
@@ -145,7 +145,7 @@ test('"C." is a cup, thyme leaves is thyme, low-sodium is dropped', () => {
   const c = { '3/4 C. low-sodium chicken broth': ['Chicken broth', '3/4 cup'], '1/2 C. finely chopped sun-dried tomatoes': ['Sun-dried tomatoes', '1/2 cup'], '1 Tbsp. fresh thyme leaves': ['Thyme', '1 Tbsp'],
     '3 Tbsp. extra-virgin olive oil, divided': ['Olive oil', '3 Tbsp'], '4 boneless, skinless chicken breasts': ['Boneless skinless chicken breasts', '4'], '2 bay leaves': ['Bay leaves', '2'] };
   for (const k of Object.keys(c)) assert.deepStrictEqual([R.parseIngredient(k).name, R.parseIngredient(k).qty], c[k], k);
-  assert.deepStrictEqual(R.parseIngredient('Torn fresh basil, for serving'), { name: 'Basil', qty: '', optional: true });
+  assert.deepStrictEqual(R.parseIngredient('Torn fresh basil, for serving'), { name: 'Basil', qty: '' });
   assert.strictEqual(R.convertQty('3/4 cup', 'metric', 'Chicken broth'), '180 ml');
 });
 
@@ -156,4 +156,13 @@ test('"all-purpose or bread flour" keeps both, "butter or margarine" keeps the f
   assert.strictEqual(R.parseIngredient('1 cup milk or cream').name, 'Milk');
   assert.strictEqual(R.parseIngredient('2 Tablespoons oil (canola or vegetable)').name, 'Oil');
   assert.strictEqual(R.convertQty('4-5 1/2 cups', 'metric', 'All-purpose or bread flour'), '500-675 g');
+});
+
+test('cooked chicken, uncooked rice, garnish lines and two-in-one lines', () => {
+  assert.deepStrictEqual(R.parseIngredient('3 cups cooked chicken, cut into bite-sized pieces'), { name: 'Chicken', qty: '3 cups' });
+  assert.deepStrictEqual(R.parseIngredient('1 1/2 cups uncooked sushi rice or short grain white rice, rinsed and drained'), { name: 'Sushi rice', qty: '1 1/2 cups' });
+  assert.deepStrictEqual(R.parseIngredient('1 cup teriyaki marinade and sauce, plus more for serving, such as Soy Vay Marinade and Sauce'), { name: 'Teriyaki marinade and sauce', qty: '1 cup' });
+  assert.deepStrictEqual(R.cleanAll(['sliced green onions and sesame seeds, for garnish']), [{ name: 'Green onions', qty: '' }, { name: 'Sesame seeds', qty: '' }]);
+  assert.deepStrictEqual(R.cleanAll(['Sriracha sauce and soy sauce, for serving (optional)']).map((x) => [x.name, x.optional]), [['Sriracha sauce', true], ['Soy sauce', true]]);
+  assert.strictEqual(R.cleanAll(['macaroni and cheese'])[0].name, 'Macaroni and cheese');
 });

@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 223 (10 Oct)
+- Recipes: only lines saying "optional" are optional, not "for serving" or "for garnish".
+- Recipes: cooked chicken, uncooked rice and "X and Y" lines (green onions and sesame seeds) read right.
+
 ## Build 222 (10 Oct)
 - Recipes: "all-purpose or bread flour" keeps both words.
 
