@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 216 (9 Oct)
+- Recipe links work out of the box with the built-in recipe helper.
+
 ## Build 215 (9 Oct)
 - Tap a shopping item to change its name or amount.
 

@@ -6,7 +6,7 @@
 var recipeSheet = $('recipeSheet'), recipeInput = $('recipeInput'), recipeStatus = $('recipeStatus'), recipeList = $('recipeList');
 var RECIPE_HELPER_KEY = 'nibble-recipe-helper';
 /** The address of the recipe helper Worker. Put yours here once it is online, or paste it into the sheet (kept on the device). */
-var RECIPE_HELPER = '';
+var RECIPE_HELPER = 'https://pet-shopper-recipes.laurmoe.workers.dev';
 var recipeFound = [];
 
 /** @returns {string} The helper's address, or "". */
@@ -109,6 +109,7 @@ $('recipeBtn').addEventListener('click', function () {
   recipeSay('');
   $('recipeResult').hidden = true;
   $('recipeProxy').value = recipeHelper();
+  $('recipeHelper').hidden = !!RECIPE_HELPER;   // everyone uses the built-in helper; the box is only for a build without one
   sheetUnderMouth(recipeSheet);
   openDialog(recipeSheet);
 });
