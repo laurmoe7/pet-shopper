@@ -894,26 +894,34 @@
 <!-- add the ingredients of a recipe to the shopping list (app-recipe.js) -->
 <dialog class="picker pet-sheet recipe-sheet" id="recipeSheet" aria-labelledby="recipeTitle">
   <form method="dialog" class="picker-inner">
-    <h2 id="recipeTitle">Recipe</h2>
-    <p class="stamp-sub">✦ paste a link or the ingredients ✦</p>
-    <textarea id="recipeInput" class="recipe-input" rows="3" placeholder="https://… or one ingredient per line" maxlength="4000"></textarea>
-    <button type="button" class="pill-btn recipe-go" id="recipeGo">Find ingredients</button>
-    <p class="recipe-status" id="recipeStatus" role="status" aria-live="polite"></p>
-    <div id="recipeResult" hidden>
-      <p class="recipe-name" id="recipeName"></p>
+    <div id="recipeInputBox" class="recipe-inputbox">
+      <h2 id="recipeTitle">Recipe time 🍳</h2>
+      <p class="stamp-sub">✦ Nibble will find the ingredients ✦</p>
+      <textarea id="recipeInput" class="recipe-input" rows="4" placeholder="Paste a recipe link…&#10;or type one ingredient per line" maxlength="4000" enterkeyhint="go"></textarea>
+      <button type="button" class="pill-btn recipe-go" id="recipeGo">Find ingredients</button>
+      <p class="recipe-status" id="recipeStatus" role="status" aria-live="polite"></p>
+      <details class="recipe-helper" id="recipeHelper">
+        <summary>Recipe helper address</summary>
+        <input id="recipeProxy" type="url" placeholder="https://pet-shopper-recipes.….workers.dev" autocomplete="off" spellcheck="false">
+        <p class="recipe-note">Links need a small helper online (see worker/README.md). Pasted ingredients work without it.</p>
+      </details>
+    </div>
+    <div id="recipeResult" class="recipe-result" hidden>
+      <div class="recipe-head">
+        <p class="recipe-name" id="recipeName"></p>
+        <button type="button" class="pill-btn recipe-back" id="recipeBack">New recipe</button>
+      </div>
       <div class="recipe-units" id="recipeUnits" role="group" aria-label="Units">
         <button type="button" class="pill-btn" data-units="">As written</button>
         <button type="button" class="pill-btn" data-units="metric">Metric</button>
         <button type="button" class="pill-btn" data-units="us">US</button>
       </div>
-      <ul class="recipe-list" id="recipeList"></ul>
+      <div class="recipe-listwrap">
+        <ul class="recipe-list" id="recipeList"></ul>
+        <span class="recipe-more" aria-hidden="true">more below ▾</span>
+      </div>
       <button type="button" class="pill-btn recipe-add" id="recipeAdd">Add to list</button>
     </div>
-    <details class="recipe-helper" id="recipeHelper">
-      <summary>Recipe helper address</summary>
-      <input id="recipeProxy" type="url" placeholder="https://pet-shopper-recipes.….workers.dev" autocomplete="off" spellcheck="false">
-      <p class="recipe-note">Links need a small helper online (see worker/README.md). Pasted ingredients work without it.</p>
-    </details>
   </form>
 </dialog>
 

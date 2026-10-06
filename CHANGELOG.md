@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 225 (10 Oct)
+- Recipe sheet: bigger and cuter, with the ingredients getting the whole sheet.
+- Recipe sheet: a "more below" tag and a fade show when the ingredients scroll.
+- Recipe sheet: the "Found 14 ingredients" text is gone.
+
 ## Build 224 (10 Oct)
 - Recipes: "1-3/4 cups" reads as one and three quarters.
 

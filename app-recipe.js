@@ -51,9 +51,10 @@ function showRecipe(title, found) {
     if (f.qty) { var q = document.createElement('b'); q.className = 'qty-tag'; q.textContent = Recipe.convertQty(f.qty, recipeUnits, f.name); label.append(q); }
     return label;
   }));
-  $('recipeName').textContent = title || 'Ingredients';
+  $('recipeName').textContent = (title || 'Ingredients') + ' \u00b7 ' + found.length;
   showUnits();
-  $('recipeResult').hidden = !found.length;
+  recipeStage(!!found.length);
+  recipeList.scrollTop = 0;
   updateRecipeAdd();
 }
 /** @returns {{name: string, qty: string}[]} The ingredients that are ticked. */
@@ -66,15 +67,17 @@ function updateRecipeAdd() {
   $('recipeAdd').disabled = !n;
 }
 
-/** @param {{name: string, optional?: boolean}[]} found @returns {string} The line under the button after reading a recipe. */
-function recipeFoundText(found) {
-  var skipped = found.filter(recipeSkipReason).length;
-  return 'Found ' + found.length + ' ingredients. Untick what you already have.' + (skipped ? ' Salt, water and optional things start unticked.' : '');
+/** Shows the input (a new recipe) or the ingredients found. @param {boolean} results */
+function recipeStage(results) {
+  recipeSheet.classList.toggle('results', results);
+  $('recipeInputBox').hidden = results;
+  $('recipeResult').hidden = !results;
+  if (results) recipeStatus.textContent = '';
 }
 
 function recipeGo() {
   var text = recipeInput.value.trim();
-  $('recipeResult').hidden = true;
+  recipeStage(false);
   if (!text) { recipeSay('Paste a recipe link or the ingredients first.', true); return; }
   if (Recipe.looksLikeUrl(text)) {
     recipeSay('Reading the recipe…');
@@ -82,7 +85,6 @@ function recipeGo() {
     recipeFetch(text).then(function (html) {
       var rec = Recipe.parseRecipeHtml(html);
       if (!rec) { recipeSay('I couldn\'t find a recipe on that page. Try pasting the ingredients instead.', true); return; }
-      recipeSay(recipeFoundText(rec.ingredients));
       showRecipe(rec.title, rec.ingredients);
     }).catch(function (e) {
       if (e && e.message === 'helper') { $('recipeHelper').open = true; recipeSay('Links need the recipe helper: add its address below. Or paste the ingredients.', true); }
@@ -92,7 +94,6 @@ function recipeGo() {
   }
   var names = Recipe.recipeFromText(text);
   if (!names.length) { recipeSay('I couldn\'t find ingredients in that.', true); return; }
-  recipeSay(recipeFoundText(names));
   showRecipe('', names);
 }
 
@@ -111,7 +112,7 @@ function recipeAddAll() {
   render();
   recipeSheet.close();
   recipeInput.value = '';
-  $('recipeResult').hidden = true;
+  recipeStage(false);
   recipeSay('');
   sound('pick');
   if (baseState() === 'sleepy') { say('mm… yum…', 1300); return; }
@@ -121,7 +122,7 @@ function recipeAddAll() {
 
 $('recipeBtn').addEventListener('click', function () {
   recipeSay('');
-  $('recipeResult').hidden = true;
+  recipeStage(false);
   $('recipeProxy').value = recipeHelper();
   $('recipeHelper').hidden = !!RECIPE_HELPER;   // everyone uses the built-in helper; the box is only for a build without one
   sheetUnderMouth(recipeSheet);
@@ -129,6 +130,7 @@ $('recipeBtn').addEventListener('click', function () {
 });
 $('recipeGo').addEventListener('click', recipeGo);
 $('recipeAdd').addEventListener('click', recipeAddAll);
+$('recipeBack').addEventListener('click', function () { sound('tap'); recipeStage(false); recipeInput.focus(); });
 recipeList.addEventListener('change', updateRecipeAdd);
 $('recipeProxy').addEventListener('change', function () {
   var v = this.value.trim();

@@ -2609,20 +2609,38 @@ html:root .cal-month select { padding-right: 36px; min-width: 100px; text-overfl
 .recipe-btn:active { transform: scale(.92); }
 html[data-list="todo"] .recipe-btn { display: none; }
 .recipe-input, .recipe-helper input { width: 100%; box-sizing: border-box; padding: 9px 12px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--paper); color: var(--ink); font: inherit; font-size: .92rem; resize: none; }
-.recipe-go, .recipe-add { align-self: flex-start; }
+.recipe-inputbox > * + * { margin-top: 12px; }
+.recipe-inputbox h2 { margin: 0; }
+.recipe-input { min-height: 104px; border: 2px dashed var(--paper-edge); border-radius: 18px; padding: 12px 14px; font-size: 1rem; line-height: 1.4; }
+.recipe-input:focus { outline: none; border-style: solid; border-color: #ec6a8f; }
+.recipe-go, .recipe-add { width: 100%; min-height: 48px; font-size: 1.02rem; justify-content: center; }
+.recipe-add { flex: none; background: #ffd7e3; border-color: #ec6a8f; }
+.recipe-add:disabled { opacity: .5; }
+.recipe-result { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+.recipe-head { display: flex; align-items: center; gap: 8px; }
+.recipe-head .recipe-name { flex: 1; min-width: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recipe-back { flex: none; font-size: .78rem; padding: 6px 10px; }
+.recipe-listwrap { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.recipe-more { display: none; position: absolute; left: 50%; bottom: 6px; translate: -50% 0; padding: 4px 12px; border-radius: 999px; background: #ec6a8f; color: #fff; font-size: .74rem; font-weight: 800; pointer-events: none; box-shadow: 0 2px 4px var(--shadow); animation: recipeNudge 1.4s ease-in-out infinite; }
+.recipe-listwrap:has(.recipe-list.fade-b) .recipe-more { display: block; }
+@keyframes recipeNudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+@media (prefers-reduced-motion: reduce) { .recipe-more { animation: none; } }
+.picker.pet-sheet.recipe-sheet.results:not(.dress-full):not(.fav-full) .picker-inner { display: flex; flex-direction: column; overflow: hidden; }
+.recipe-sheet.results .recipe-result { flex: 1; }
 .recipe-status { margin: 0; min-height: 1.2em; font-weight: 700; font-size: .85rem; color: var(--muted); }
 .recipe-status.bad { color: #d6456c; }
 .recipe-name { margin: 0 0 6px; font-family: var(--font-display); font-size: 1.05rem; }
-.recipe-list { list-style: none; margin: 0 0 10px; padding: 8px; border-radius: 18px; background: var(--paper); border: 2px solid var(--paper-edge); display: flex; flex-direction: column; gap: 2px; max-height: 38vh; overflow-y: auto; scrollbar-width: none; }
+.recipe-list { list-style: none; margin: 0; padding: 8px; border-radius: 18px; background: var(--paper); border: 2px solid var(--paper-edge); display: flex; flex-direction: column; gap: 2px; flex: 1; min-height: 120px; overflow-y: auto; scrollbar-width: none; overscroll-behavior: contain; }
 .recipe-list::-webkit-scrollbar { display: none; }
-.recipe-list label { display: flex; align-items: center; gap: 10px; padding: 5px 6px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+.recipe-list label { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 6px 8px; border-radius: 12px; font-weight: 800; cursor: pointer; }
 .recipe-list label:has(input:not(:checked)) { opacity: .5; }
-.recipe-list input { width: 20px; height: 20px; accent-color: #ec6a8f; flex: none; }
+.recipe-list input { width: 24px; height: 24px; accent-color: #ec6a8f; flex: none; }
 .recipe-list img { width: 26px; height: 26px; flex: none; }
 .recipe-helper { font-size: .85rem; color: var(--muted); font-weight: 700; }
 .recipe-helper summary { cursor: pointer; margin-bottom: 6px; }
 .recipe-note { margin: 6px 0 0; font-size: .78rem; }
 .item-sheet .field-label { display: block; margin-top: 4px; }
 .item-sheet h2 + .field-label { margin-top: 10px; }
-.recipe-units { display: flex; gap: 6px; margin: 0 0 8px; }
+.recipe-units { display: flex; gap: 6px; margin: 0; }
+.recipe-units .pill-btn { flex: 1; justify-content: center; }
 .recipe-units .pill-btn[aria-pressed="true"] { background: var(--paper-sel); border-color: #ec6a8f; }
