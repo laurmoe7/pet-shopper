@@ -65,3 +65,65 @@ test('convertQty goes between metric and US', () => {
     ['3 cloves', 'us', '3 cloves'], ['pinch', 'metric', 'pinch'], ['2 cups', 'us', '2 cups'], ['200 g', 'metric', '200 g'], ['200 g', '', '200 g'], ['', 'us', '']];
   for (const [q, to, want] of c) assert.strictEqual(R.convertQty(q, to), want, q + ' -> ' + to);
 });
+
+test('page-style lines: "1 and 1/2", "peeled and diced", whole wheat, extra virgin', () => {
+  const c = {
+    '2 and 1/4 cups (281g) all-purpose flour (spooned & leveled)': ['All-purpose flour', '2 1/4 cups'],
+    '1 and 1/2 teaspoons ground cinnamon': ['Ground cinnamon', '1 1/2 teaspoons'],
+    '2 cups peeled and diced apples (about 2 large apples)': ['Apples', '2 cups'],
+    '1 cup whole wheat flour': ['Whole wheat flour', '1 cup'],
+    '2 tbsp extra virgin olive oil': ['Olive oil', '2 tbsp'],
+    '1/2 cup (120ml) whole milk, at room temperature': ['Whole milk', '1/2 cup'],
+    'walnuts chopped and toasted': ['Walnuts', ''],
+    '1 cup, packed brown sugar': ['Brown sugar', '1 cup'],
+    '1 cup chopped, toasted walnuts': ['Walnuts', '1 cup'],
+  };
+  for (const k of Object.keys(c)) assert.deepStrictEqual([R.parseIngredient(k).name, R.parseIngredient(k).qty], c[k], k);
+});
+
+test('a comma after a describing word does not cut the name', () => {
+  assert.strictEqual(R.cleanIngredient('4 boneless, skinless chicken thighs'), 'Boneless skinless chicken thighs');
+  assert.strictEqual(R.cleanIngredient('2 large, ripe bananas'), 'Bananas');
+  assert.strictEqual(R.cleanIngredient('3 eggs, separated'), 'Eggs');
+});
+
+test('what comes after the name is dropped', () => {
+  const c = { '1 tablespoon olive oil, for frying': 'Olive oil', '2 chicken breasts, cut into bite-size pieces': 'Chicken breasts', '200 g spaghetti, cooked according to package directions': 'Spaghetti',
+    'boter om in te bakken': 'Boter', '150 gram rode uien, in ringen': 'Rode uien', '1 lemon, zested and juiced': 'Lemon', '3 cloves garlic, minced': 'Garlic' };
+  for (const k of Object.keys(c)) assert.strictEqual(R.cleanIngredient(k), c[k], k);
+});
+
+test('juice of a lemon is a lemon; half a lemon keeps the half', () => {
+  assert.deepStrictEqual(R.parseIngredient('Juice of 1 lemon'), { name: 'Lemon', qty: '1' });
+  assert.deepStrictEqual(R.parseIngredient('Juice and zest of 2 limes'), { name: 'Limes', qty: '2' });
+  assert.deepStrictEqual(R.parseIngredient('half a lemon'), { name: 'Lemon', qty: '1/2' });
+});
+
+test('multipacks and pots', () => {
+  assert.deepStrictEqual(R.parseIngredient('1 x 400g tin chickpeas, drained and rinsed'), { name: 'Chickpeas', qty: '400 g tin' });
+  assert.deepStrictEqual(R.parseIngredient('2 x 400g blikken tomaten'), { name: 'Tomaten', qty: '2 x 400 g blikken' });
+  assert.deepStrictEqual(R.parseIngredient('1 pot pesto'), { name: 'Pesto', qty: '1 pot' });
+  assert.deepStrictEqual(R.parseIngredient('2 teentjes knoflook'), { name: 'Knoflook', qty: '2 teentjes' });
+});
+
+test('lines about the recipe are not ingredients', () => {
+  for (const l of ['Serves 4', 'Makes 12 muffins', 'Yield: 1 loaf', 'Servings: 4', 'For the crust', 'For the sauce:', 'Special equipment: 9x5 loaf pan', 'Voor 4 personen', 'Mix everything well. Then bake it.']) assert.strictEqual(R.parseIngredient(l), null, l);
+});
+
+test('optional and for-serving lines are marked optional', () => {
+  assert.deepStrictEqual(R.parseIngredient('Optional: chopped nuts for garnish'), { name: 'Nuts', qty: '', optional: true });
+  assert.deepStrictEqual(R.parseIngredient('For serving: rice'), { name: 'Rice', qty: '', optional: true });
+  assert.deepStrictEqual(R.parseIngredient('1 cup walnuts (optional)'), { name: 'Walnuts', qty: '1 cup', optional: true });
+  assert.strictEqual(R.parseIngredient('2 eggs').optional, undefined);
+  // listed twice, once as needed: needed
+  assert.strictEqual(R.cleanAll(['1 cup walnuts (optional)', '1 cup walnuts'])[0].optional, undefined);
+});
+
+test('salt and pepper are two things, and staples are recognised', () => {
+  assert.deepStrictEqual(R.cleanAll(['Salt and pepper, to taste']), [{ name: 'Salt', qty: '' }, { name: 'Pepper', qty: '' }]);
+  assert.deepStrictEqual(R.cleanAll(['salt & freshly ground black pepper']).map((x) => x.name), ['Salt', 'Black pepper']);
+  assert.deepStrictEqual(R.cleanAll(['zout en peper']).map((x) => x.name), ['Zout', 'Peper']);
+  assert.deepStrictEqual(R.cleanAll(['peanut butter and jelly']).map((x) => x.name), ['Peanut butter and jelly']);
+  for (const n of ['Salt', 'Sea salt', 'Black pepper', 'Water', 'Ice water', 'Ice cubes', 'Cooking spray', 'Zout']) assert.ok(R.isStaple(n), n);
+  for (const n of ['Salted butter', 'Pepper jack cheese', 'Coconut water', 'Flour', 'Eggs', '']) assert.ok(!R.isStaple(n), n);
+});

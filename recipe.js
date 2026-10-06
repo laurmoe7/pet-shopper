@@ -1,8 +1,9 @@
 /* Recipes: turns a recipe web page (or pasted ingredient lines) into shopping list items.
  * Plain functions with no page code, like bonuses.js, so they can be tested:
  *   parseRecipeHtml(html)  finds the recipe the page describes for search engines (schema.org JSON-LD): { title, ingredients }
- *   parseIngredient(line)  "2 tbsp finely chopped fresh parsley, plus extra" becomes { name: 'Parsley', qty: '2 tbsp' }
+ *   parseIngredient(line)  "2 tbsp finely chopped fresh parsley, plus extra" becomes { name: 'Parsley', qty: '2 tbsp' } (`optional: true` for "optional" and "for serving" lines; "salt and pepper" is two items, see parseLine)
  *   recipeFromText(text)   the same for pasted lines, one ingredient per line
+ *   isStaple(name)         salt, pepper, water, ice, cooking spray: things the recipe sheet leaves unticked
  *   convertQty(qty, 'metric'|'us')  "1 cup" becomes "240 ml" and "200 g" becomes "7 oz"
  * English and Dutch units and words are understood. The amount is kept as a short note on the item (`qty`).
  */
@@ -11,13 +12,25 @@
 
   var UNITS = ['kg', 'g', 'gr', 'gram', 'grams', 'mg', 'l', 'liter', 'litre', 'liters', 'litres', 'dl', 'cl', 'ml', 'tsp', 'tsps', 'tbsp', 'tbsps', 'teaspoon', 'teaspoons',
     'tablespoon', 'tablespoons', 'cup', 'cups', 'oz', 'ounce', 'ounces', 'lb', 'lbs', 'pound', 'pounds', 'pinch', 'pinches', 'dash', 'dashes', 'clove', 'cloves',
-    'can', 'cans', 'tin', 'tins', 'jar', 'jars', 'slice', 'slices', 'bunch', 'bunches', 'handful', 'handfuls', 'sprig', 'sprigs', 'stick', 'sticks', 'package', 'packages',
+    'can', 'cans', 'tin', 'tins', 'jar', 'jars', 'pot', 'pots', 'bottle', 'bottles', 'carton', 'cartons', 'tub', 'tubs', 'tube', 'tubes', 'block', 'blocks', 'bar', 'bars', 'cube', 'cubes', 'sheet', 'sheets', 'pint', 'pints', 'quart', 'quarts', 'dozen',
+    'slice', 'slices', 'bunch', 'bunches', 'handful', 'handfuls', 'sprig', 'sprigs', 'stick', 'sticks', 'package', 'packages',
     'packet', 'packets', 'pkg', 'bag', 'bags', 'knob', 'piece', 'pieces', 'head', 'heads', 'stalk', 'stalks', 'el', 'tl', 'eetlepel', 'eetlepels', 'theelepel', 'theelepels',
     'snufje', 'teen', 'tenen', 'blik', 'blikje', 'blikjes', 'bosje', 'bosjes', 'plak', 'plakken', 'plakje', 'plakjes', 'stuk', 'stuks', 'zakje', 'zakjes', 'takje', 'takjes',
-    'handvol', 'mespunt', 'scheut', 'beetje', 'bakje', 'pak', 'pakje'];
+    'handvol', 'mespunt', 'scheut', 'beetje', 'bakje', 'pak', 'pakje', 'potje', 'fles', 'flesje', 'zak', 'pakket', 'rol', 'blokje', 'blokjes', 'tablet', 'tabletten', 'blikken', 'potten', 'flessen', 'zakken', 'pakken', 'stukken', 'teentje', 'teentjes'];
+  // words that describe how it is prepared or how big it is: dropped from the front and the back of a name ("chopped fresh parsley", "parsley chopped")
   var FILLER = ['fresh', 'freshly', 'finely', 'roughly', 'coarsely', 'thinly', 'chopped', 'minced', 'diced', 'sliced', 'grated', 'crushed', 'peeled', 'cubed', 'shredded',
-    'large', 'small', 'medium', 'big', 'ripe', 'whole', 'extra', 'good', 'quality', 'organic', 'optional', 'about', 'approx', 'approximately', 'of', 'a', 'an', 'the', 'some',
-    'vers', 'verse', 'fijngehakt', 'gehakte', 'gesneden', 'geraspte', 'grote', 'kleine', 'middelgrote', 'ongeveer', 'een', 'van', 'wat', 'naar', 'smaak', 'to', 'taste'];
+    'toasted', 'sifted', 'melted', 'softened', 'cooled', 'beaten', 'drained', 'rinsed', 'trimmed', 'halved', 'quartered', 'mashed', 'pitted', 'seeded', 'deseeded', 'crumbled', 'packed', 'cooked', 'warm', 'lukewarm', 'boiling',
+    'large', 'small', 'medium', 'big', 'ripe', 'extra', 'good', 'quality', 'organic', 'optional', 'about', 'approx', 'approximately', 'of', 'a', 'an', 'the', 'some',
+    'vers', 'verse', 'fijngehakt', 'gehakte', 'gesneden', 'geraspte', 'gesmolten', 'geschild', 'gepeld', 'grote', 'kleine', 'middelgrote', 'ongeveer', 'een', 'van', 'wat', 'naar', 'smaak', 'to', 'taste'];
+  // describing words that can be followed by a comma and still belong to the name ("boneless, skinless chicken thighs")
+  var ADJECTIVES = ['boneless', 'skinless', 'unsalted', 'salted', 'lean', 'whole', 'dried', 'frozen', 'canned', 'sweet', 'plain', 'hot', 'cold', 'mild', 'smoked', 'raw', 'young', 'old'];
+  // what comes after the name and is not part of it: "olive oil for frying", "chicken cut into pieces", "butter at room temperature", "boter om in te bakken"
+  var TAIL = /\s+(?:for|plus|om|voor|cut|torn|divided|drained|rinsed|cooked|at room|room temperature|such as|according to|about|approx\.?|or so|zodat|in (?:ringen|blokjes|stukjes|plakjes|reepjes|partjes)|to (?:serve|garnish|taste|decorate))\b.*$/i;
+  // extras: "for serving", "to garnish" mean you can leave them out
+  var EXTRA = /\b(?:optional|optioneel|naar wens)\b|\bfor (?:serving|garnish|garnishing|topping|decorating|dusting|decoration)\b|\bto (?:serve|garnish|decorate)\b|\b(?:om te|voor het) (?:serveren|garneren|bestrooien)\b|\bvoor (?:de )?garnering\b/i;
+  // lines that are about the recipe, not an ingredient
+  var NOT_FOOD = /^(?:serves?|serving|servings|makes|yields?|prep|cook|total|equipment|special equipment|notes?|tips?|directions|instructions|ingredients?|porties|bereiding|voor \d+ (?:personen|porties))\b/i;
+  var SEASONING = /\b(?:salt|pepper|zout|peper)\b/i;
   var VULGAR_CLASS = '½¼¾⅐-⅞';
 
   var ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', frac12: '½', frac14: '¼', frac34: '¾', eacute: 'é', egrave: 'è' };
@@ -32,29 +45,54 @@
     }).replace(/<[^>]*>/g, ' ');
   }
 
+  function lastWord(s) { return s.split(' ').pop().toLowerCase().replace(/[.,]$/, ''); }
+  function cap(s) { return (s.charAt(0).toUpperCase() + s.slice(1)).slice(0, 80); }
+
   /**
-   * Turns one ingredient line into a list item: the name, and the amount to buy.
+   * Turns one ingredient line into list items: the name, and the amount to buy. Usually one; "salt and pepper" is two.
    * @param {string} line  Like "2 tbsp finely chopped fresh parsley, plus extra".
-   * @returns {{name: string, qty: string}|null} Like { name: 'Parsley', qty: '2 tbsp' }; null for lines that are not an ingredient (headings, empty).
+   * @returns {{name: string, qty: string, optional?: boolean}[]} Like [{ name: 'Parsley', qty: '2 tbsp' }]; empty for lines that are not an ingredient (headings, "Serves 4", empty). `optional` is set for "optional" and "for serving" lines.
    */
-  function parseIngredient(line) {
+  function parseLine(line) {
     var s = decode(line).replace(/^[\s\-•*▢☐☑✓·]+/, '').replace(/\s+/g, ' ').trim();
-    if (!s || /:\s*$/.test(s)) return null;               // "For the sauce:"
+    if (!s || /:\s*$/.test(s) || NOT_FOOD.test(s)) return [];                          // "For the sauce:", "Serves 4"
+    if (/^(?:for|voor)\s+(?:the|a|an|de|het|een)\s+[^\d]{1,40}$/i.test(s)) return []; // "For the crust" without a colon
+    if (/[a-z]{3}[.!?]\s+[A-Z]/.test(s)) return [];                                    // a sentence, not an ingredient
+    var optional = EXTRA.test(s);
+    var label = s.match(/^([^:\d]{1,30}):\s*(\S.*)$/);                                  // "Optional: chopped nuts", "For serving: rice"
+    if (label) s = label[2];
     s = s.replace(/\([^)]*\)/g, ' ').replace(/\[[^\]]*\]/g, ' ').replace(/\s+/g, ' ').trim();
-    s = s.split(/\s*[,;]\s*/)[0];                          // ", plus extra" / ", to taste"
-    s = s.split(/\s+or\s+/i)[0];                          // "butter or margarine"
+    s = s.replace(/\bextra[- ]virgin\s+/gi, '').replace(/\b(?:freshly|fresh|vers)\s+(?:ground|gemalen)\s+/gi, '');
+    s = s.replace(/^(\d+)\s+(?:and|&|en)\s+(\d+\/\d+)/i, '$1 $2');                    // "1 and 1/2 cups" -> "1 1/2 cups"
+    s = s.replace(/^(?:half|een halve|halve)\s+(?:an?\s+|een\s+)?/i, '1/2 ');           // "half a lemon"
+    var segs = s.split(/\s*[,;]\s*/);                                                   // ", plus extra" / ", to taste"
+    s = segs.shift();
+    // a comma after a describing word or a unit is not the end of the name: "boneless, skinless chicken", "1 cup, packed brown sugar"
+    while (segs.length) {
+      var lw = lastWord(s), bare = s.split(' ').filter(function (x) { x = x.toLowerCase(); return !/^[\d.,\/]+$/.test(x) && UNITS.indexOf(x) < 0 && FILLER.indexOf(x) < 0 && !new RegExp('^[' + VULGAR_CLASS + ']+$').test(x); });
+      if (FILLER.indexOf(lw) >= 0 || ADJECTIVES.indexOf(lw) >= 0 || !bare.length) s += ' ' + segs.shift(); else break;   // (nothing but amounts and units before the comma)
+    }
+    s = s.split(/\s+or\s+/i)[0];                                                        // "butter or margarine"
+    s = s.replace(TAIL, '');
+    var jz = s.match(/^(?:juice|zest|rind|peel|sap|rasp|schil)(?:\s+(?:and|&|en)\s+(?:juice|zest|rind|peel|sap|rasp|schil))?\s+(?:of|van)\s+(.+)$/i);
+    if (jz) s = jz[1];                                                                  // "Juice of 1 lemon" is a lemon
     // leading amounts: 2, 1.5, 1/2, 1 1/2, 2-3, 2 to 3, and vulgar fractions like ½
     var amount = new RegExp('^(?:[\\d.,]+|[' + VULGAR_CLASS + '])(?:\\s*[\\u2013\\-/]\\s*[\\d.,]+)?(?:\\s*(?:to|tot)\\s*[\\d.,]+)?(?:\\s*[' + VULGAR_CLASS + '])?(?:\\s*\\d+\\/\\d+)?\\s*', 'i');
     var qty = [], words, prev;
     function takeAmount() { var m = s.match(amount); if (m && m[0].trim()) { qty.push(m[0].trim()); s = s.slice(m[0].length); } }
+    var times = s.match(/^(\d+)\s*[x×]\s*(?=\d)/i);                                     // "2 x 400g tin"
+    if (times) { s = s.slice(times[0].length); if (+times[1] > 1) qty.push(times[1] + ' x'); }
     takeAmount();
-    // units and filler words at the front, in any order ("2 large cloves fresh garlic")
+    // units and filler words at the front, in any order ("2 large cloves fresh garlic"); "and" between two of them goes too ("peeled and diced")
+    var lastFiller = false;
     do {
       prev = s;
       words = s.split(' ');
       var w = words[0].toLowerCase().replace(/[.,]$/, '');
-      if (words.length > 1 && (UNITS.indexOf(w) >= 0 || FILLER.indexOf(w) >= 0)) {
+      var joiner = lastFiller && (w === 'and' || w === 'en' || w === '&');
+      if (words.length > 1 && (UNITS.indexOf(w) >= 0 || FILLER.indexOf(w) >= 0 || joiner)) {
         if (UNITS.indexOf(w) >= 0) qty.push(words[0].replace(/[.,]$/, ''));
+        lastFiller = FILLER.indexOf(w) >= 0;
         s = words.slice(1).join(' ');
         takeAmount();
       }
@@ -64,28 +102,55 @@
       prev = s;
       words = s.split(' ');
       var last = words[words.length - 1].toLowerCase();
-      if (words.length > 1 && FILLER.indexOf(last) >= 0 && last !== 'a') s = words.slice(0, -1).join(' ');
+      if (words.length > 1 && (FILLER.indexOf(last) >= 0 && last !== 'a' || last === 'and' || last === '&' || last === 'en')) s = words.slice(0, -1).join(' ');
     } while (s !== prev);
     s = s.replace(/[.:;!]+$/, '').trim();
-    if (!/[a-zÀ-ɏ]/i.test(s) || s.length < 2) return null;
-    return { name: (s.charAt(0).toUpperCase() + s.slice(1)).slice(0, 80), qty: qty.join(' ').slice(0, 20) };
+    var q = qty.join(' ').slice(0, 20);
+    var pair = s.match(/^(.+?)\s+(?:and|&|en)\s+(.+)$/i);                               // "salt and pepper" is two things
+    var names = pair && SEASONING.test(pair[1]) && SEASONING.test(pair[2]) && pair[1].split(' ').length < 4 && pair[2].split(' ').length < 4 ? [pair[1], pair[2]] : [s];
+    return names.filter(function (n) { return /[a-zÀ-ɏ]/i.test(n) && n.length >= 2 && n.split(' ').length <= 8; }).map(function (n, i) {
+      var item = { name: cap(n), qty: i ? '' : q };
+      if (optional) item.optional = true;
+      return item;
+    });
   }
+  /**
+   * The first thing on an ingredient line.
+   * @param {string} line
+   * @returns {{name: string, qty: string, optional?: boolean}|null} Like { name: 'Parsley', qty: '2 tbsp' }; null for lines that are not an ingredient.
+   */
+  function parseIngredient(line) { return parseLine(line)[0] || null; }
   /** @param {string} line @returns {string} Just the name from parseIngredient, or "". */
   function cleanIngredient(line) { var p = parseIngredient(line); return p ? p.name : ''; }
+
+  var STAPLES = ['salt', 'pepper', 'water', 'zout', 'peper', 'ice', 'ice cubes', 'cooking spray', 'nonstick spray', 'non-stick spray', 'baking spray', 'oil spray', 'kookspray', 'bakspray', 'ijsblokjes', 'ijsklontjes'];
+  var STAPLE_WORDS = ['sea', 'kosher', 'flaky', 'table', 'fine', 'coarse', 'black', 'white', 'ground', 'himalayan', 'cold', 'ice', 'boiling', 'tap', 'warm', 'lukewarm', 'hot', 'fijn', 'grof', 'zwarte', 'witte', 'gemalen', 'zee', 'koud', 'warm', 'kokend', 'kraan'];
+  /**
+   * Things nearly everyone has at home (salt, pepper, water, ice, cooking spray): the recipe sheet leaves them unticked.
+   * @param {string} name A name from parseIngredient.
+   * @returns {boolean}
+   */
+  function isStaple(name) {
+    var n = String(name || '').toLowerCase().trim();
+    if (STAPLES.indexOf(n) >= 0) return true;
+    var rest = n.split(/\s+/).filter(function (w) { return STAPLE_WORDS.indexOf(w) < 0; }).join(' ');
+    return !!rest && STAPLES.indexOf(rest) >= 0;
+  }
 
   /**
    * Reads a list of ingredient lines into unique items. The same ingredient twice becomes one, with the amounts joined ("1 tbsp + 1 tsp").
    * @param {string[]} lines
-   * @returns {{name: string, qty: string}[]}
+   * @returns {{name: string, qty: string, optional?: boolean}[]}
    */
   function cleanAll(lines) {
     var seen = {}, out = [];
     lines.forEach(function (l) {
-      var p = parseIngredient(l);
-      if (!p) return;
-      var k = p.name.toLowerCase(), old = seen[k];
-      if (!old) { seen[k] = p; out.push(p); }
-      else if (p.qty && old.qty !== p.qty) old.qty = (old.qty ? old.qty + ' + ' + p.qty : p.qty).slice(0, 20);
+      parseLine(l).forEach(function (p) {
+        var k = p.name.toLowerCase(), old = seen[k];
+        if (!old) { seen[k] = p; out.push(p); return; }
+        if (!p.optional) delete old.optional;                                          // needed once means needed
+        if (p.qty && old.qty !== p.qty) old.qty = (old.qty ? old.qty + ' + ' + p.qty : p.qty).slice(0, 20);
+      });
     });
     return out.slice(0, 60);
   }
@@ -194,5 +259,5 @@
   /** @param {string} s @returns {boolean} Whether it looks like a web address to fetch (http or https, or www.). */
   function looksLikeUrl(s) { return /^\s*(https?:\/\/\S+|www\.\S+\.\S+)\s*$/i.test(String(s || '')); }
 
-  root.Recipe = { convertQty: convertQty, parseIngredient: parseIngredient, cleanIngredient: cleanIngredient, cleanAll: cleanAll, parseRecipeHtml: parseRecipeHtml, recipeFromText: recipeFromText, looksLikeUrl: looksLikeUrl };
+  root.Recipe = { convertQty: convertQty, parseIngredient: parseIngredient, cleanIngredient: cleanIngredient, cleanAll: cleanAll, isStaple: isStaple, parseRecipeHtml: parseRecipeHtml, recipeFromText: recipeFromText, looksLikeUrl: looksLikeUrl };
 })(typeof self !== 'undefined' ? self : globalThis);

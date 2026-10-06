@@ -32,17 +32,21 @@ function recipeFetch(url) {
   }, function (e) { clearTimeout(timer); throw e; });
 }
 
-/** Shows the ingredients found, each ticked, to untick the ones you have. @param {string} title @param {{name: string, qty: string}[]} found */
+/** Why an ingredient starts unticked: "usual" (salt, water...), "optional", or "" (needed). @param {{name: string, optional?: boolean}} f @returns {string} */
+function recipeSkipReason(f) { return f.optional ? 'optional' : Recipe.isStaple(f.name) ? 'usual' : ''; }
+
+/** Shows the ingredients found, each ticked, to untick the ones you have. Salt, water and optional things come last and start unticked. @param {string} title @param {{name: string, qty: string, optional?: boolean}[]} found */
 function showRecipe(title, found) {
   var onList = {};
   state.items.forEach(function (i) { if (!i.done) onList[i.text.toLowerCase()] = true; });
-  recipeFound = found;
-  recipeList.replaceChildren.apply(recipeList, found.map(function (f, i) {
-    var n = f.name;
+  var needed = found.filter(function (f) { return !recipeSkipReason(f); }), skipped = found.filter(recipeSkipReason);
+  recipeFound = needed.concat(skipped);
+  recipeList.replaceChildren.apply(recipeList, recipeFound.map(function (f, i) {
+    var n = f.name, why = recipeSkipReason(f);
     var label = document.createElement('label'), box = document.createElement('input');
-    box.type = 'checkbox'; box.checked = !onList[n.toLowerCase()]; box.dataset.i = i;
+    box.type = 'checkbox'; box.checked = !onList[n.toLowerCase()] && !why; box.dataset.i = i;
     var text = document.createElement('span');
-    text.textContent = n + (onList[n.toLowerCase()] ? ' (already on your list)' : '');
+    text.textContent = n + (onList[n.toLowerCase()] ? ' (already on your list)' : why === 'optional' ? ' (optional)' : why === 'usual' ? ' (you probably have it)' : '');
     label.append(box, emojiImg(L.createItem(n, state.overrides, 'x', 0, 'shop').emoji, ''), text);
     if (f.qty) { var q = document.createElement('b'); q.className = 'qty-tag'; q.textContent = Recipe.convertQty(f.qty, recipeUnits); label.append(q); }
     return label;
@@ -62,6 +66,12 @@ function updateRecipeAdd() {
   $('recipeAdd').disabled = !n;
 }
 
+/** @param {{name: string, optional?: boolean}[]} found @returns {string} The line under the button after reading a recipe. */
+function recipeFoundText(found) {
+  var skipped = found.filter(recipeSkipReason).length;
+  return 'Found ' + found.length + ' ingredients. Untick what you already have.' + (skipped ? ' Salt, water and optional things start unticked.' : '');
+}
+
 function recipeGo() {
   var text = recipeInput.value.trim();
   $('recipeResult').hidden = true;
@@ -72,7 +82,7 @@ function recipeGo() {
     recipeFetch(text).then(function (html) {
       var rec = Recipe.parseRecipeHtml(html);
       if (!rec) { recipeSay('I couldn\'t find a recipe on that page. Try pasting the ingredients instead.', true); return; }
-      recipeSay('Found ' + rec.ingredients.length + ' ingredients. Untick what you already have.');
+      recipeSay(recipeFoundText(rec.ingredients));
       showRecipe(rec.title, rec.ingredients);
     }).catch(function (e) {
       if (e && e.message === 'helper') { $('recipeHelper').open = true; recipeSay('Links need the recipe helper: add its address below. Or paste the ingredients.', true); }
@@ -82,7 +92,7 @@ function recipeGo() {
   }
   var names = Recipe.recipeFromText(text);
   if (!names.length) { recipeSay('I couldn\'t find ingredients in that.', true); return; }
-  recipeSay('Found ' + names.length + ' ingredients. Untick what you already have.');
+  recipeSay(recipeFoundText(names));
   showRecipe('', names);
 }
 

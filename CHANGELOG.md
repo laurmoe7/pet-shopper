@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 218 (9 Oct)
+- Recipes: "1 and 1/2 cups", "peeled and diced", whole wheat and extra virgin read right.
+- Recipes: notes, servings and "optional" lines no longer end up as ingredients.
+- Recipes: salt, pepper, water and optional things start unticked, at the bottom.
+
 ## Build 217 (9 Oct)
 - Sample items use the amount pill (Quark 500 g) instead of writing it in the name.
 - Recipe amounts can be switched between metric and US units.
