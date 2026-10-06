@@ -58,3 +58,10 @@ Each person owns a pet; lists can be shared. Avoid a pile of separate lists. Pro
 - This is a second product (installer, updates, code signing, support). Windows only at first.
 - Check that "Nibble" is free as an app name and trademark before a store release.
 - Other desktop pets exist (Shimeji, Desktop Goose); the new part is list + pet + phone-to-PC.
+
+## Name shortlist (not decided, not checked)
+
+- Pet name: **Fumufumu** (ふむふむ, Japanese "hmm, uh-huh"). Searches found no exact match, but the tool was weak: still check the App Store, Google Play, EUIPO TMview and J-PlatPat. Close neighbours: Fuwamuu (a pet-care game) and FumiFumi (a photo app).
+- App name idea: **FumuList**.
+- Other ideas: Nomlet, Snaffle, Munchlet, Gulpie.
+- Nibble stays the working name until one is chosen.
