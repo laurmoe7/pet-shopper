@@ -2063,9 +2063,20 @@ html[data-list="todo"] #pet.desk[data-prop="glass"]:not([data-state="sleepy"]) .
 @keyframes mg-twinkle { 0%, 100% { opacity: .2; scale: .5; } 50% { opacity: 1; scale: 1.1; } }
 .magnifier .mg-glint { fill: #fff; }
 @keyframes mg-look { from { translate: -1.6px .6px; } to { translate: 1.2px 1px; } }
-/* while he squints through the glass, the eye that is not behind it (his left) closes: a wink */
-#pet.mg-squint .eye-set .eyes-open :is(.eye-l) { transform-box: fill-box; transform-origin: 50% 50%; animation: eye-wink .25s ease-out forwards; }
-@keyframes eye-wink { to { scale: 1.1 .1; } }
+/* while he squints through the glass, the eye that is not behind it (his left) shows his usual closed, happy eye: a wink */
+#pet.mg-squint .eye-set .eyes-open .eye-l { display: none; }
+#pet.mg-squint .eye-set [data-eyes="closed"] { display: inline; }
+#pet.mg-squint .eye-set [data-eyes="closed"] .eye-r { display: none; }
+#pet.mg-squint .eye-set [data-eyes="closed"] .eye-l { animation: none; }
+/* the glass arrives quickly, so the big eye can show at once */
+html[data-list="todo"] #pet.desk[data-prop="glass"] .arm-r { transition: transform .2s ease-out, translate .2s ease-out; }
+/* he wants a treat: eyes up at the cloud and a paw stretched towards it (app-treats.js) */
+#pet.wishing { --look-x: -2px; --look-y: -3.2px; }
+#pet.wishing[data-arms="idle"]:not(.desk):not(.tucked) .arm-l { transform: translate(6px, -30px) rotate(160deg); animation: wish-reach .7s ease-in-out infinite alternate; }
+html[data-list="todo"] #pet.wishing[data-arms="idle"]:not(.desk):not(.tucked) .arm-l { transform: none; animation: none; }
+html[data-list="todo"] #pet.wishing[data-arms="idle"]:not(.desk):not(.tucked) .arm-r { transform: translate(-6px, -30px) rotate(-160deg); animation: wish-reach .7s ease-in-out infinite alternate; }
+@keyframes wish-reach { from { translate: 0 1px; } to { translate: 0 -3px; } }
+@media (prefers-reduced-motion: reduce) { #pet.wishing .arm { animation: none !important; } }
 @media (prefers-reduced-motion: reduce) { #pet.writing .arm-r > *, #pet.inspecting .magnifier .mg-eye, #pet.mg-aha .magnifier .mg-eye, #pet.mg-squint .magnifier .mg-open { animation: none; } #pet.mg-squint .magnifier .mg-open { transform: scale(1.08, .42); } }
 /* the right hand's props on the to-do list (app-todo.js): a chubby pencil for writing, a magnifying glass for inspecting.
    Both are drawn in the right arm so they move with it; the pet's `desk` pose brings both paws to the clipboard. */
@@ -2123,7 +2134,7 @@ html:root .item.late:not(.done) { animation: late-shake 3.6s ease-in-out infinit
 /* ---------- to-do mode: the calendar and stamp book replace Top 10 and Goals in the bottom bar ---------- */
 .dock .todo-only { display: none; }
 html[data-list="todo"] .dock .todo-only { display: flex; }
-html[data-list="todo"] .dock :is(#favBtn, #goalsBtn, #shopBtn) { display: none; }
+html[data-list="todo"] .dock :is(#favBtn, #goalsBtn) { display: none; }
 /* the Shop is only a placeholder for now: greyed out */
 .dock #shopBtn:disabled { opacity: .45; filter: grayscale(1); cursor: default; }
 html:root .dock #calBtn { --tilt: -4deg; --sticker: #d9ccf5; --sticker-ink: #7d5fcf; }

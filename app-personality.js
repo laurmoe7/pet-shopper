@@ -84,12 +84,13 @@ var suggestEl = $('suggest'), suggestBtn = $('suggestBtn'), suggestTimer;
 var SUGGEST_GAP_MS = 3 * 60 * 1000, lastSuggestion = 0; // at most one ask every three minutes
 /**
  * The pet asks for one of its favourites that isn't on the list yet.
+ * @param {boolean} [force] Ignore the options, the wait and a waiting snack wish (the developer tool).
  * @returns {boolean} False if there is nothing left to suggest.
  */
-function offerSuggestion() {
+function offerSuggestion(force) {
   // not too often: at most one ask every three minutes
-  if (isTodo() || !state.settings.suggestions || Date.now() - lastSuggestion < SUGGEST_GAP_MS) return false;
-  if (typeof wishWord !== 'undefined' && wishWord) return false;   // he is asking for a snack: that one first (app-treats.js)
+  if (isTodo() || (!force && (!state.settings.suggestions || Date.now() - lastSuggestion < SUGGEST_GAP_MS))) return false;
+  if (!force && typeof wishWord !== 'undefined' && wishWord) return false;   // he is asking for a snack: that one first (app-treats.js)
   var text = L.suggestion(personality(), state.items);
   if (!text) return false;
   var e = L.emojiFor(text, state.overrides).emoji;
@@ -113,3 +114,9 @@ $('suggestNo').addEventListener('click', function () {
   sound('off');
   if (!busy) { setFace(FACES.sheepish); talk('decline', ['ok, maybe next time', 'aww, fine'], 1200); setTimeout(function () { if (!busy) settle(); }, 1000); }
 });
+
+/** Developer tool: makes Nibble suggest an item right now. @returns {string} What happened. */
+function devSuggest() {
+  if (isTodo()) return 'Suggestions are only for the shopping list. Tap the title to switch.';
+  return offerSuggestion(true) ? 'Nibble is suggesting ' + suggestBtn.dataset.text + '. Close this sheet to see it.' : 'Nothing left to suggest: every favourite is already on the list.';
+}

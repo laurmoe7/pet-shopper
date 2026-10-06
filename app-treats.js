@@ -32,6 +32,7 @@ function askForTreat(force) {
   wishCloud.replaceChildren(emojiImg(found.emoji, ''));
   wishEl.setAttribute('aria-label', 'Nibble would like ' + word + '. Tap to feed it.');
   wishEl.hidden = false;
+  pet.classList.add('wishing');   // he looks up at the cloud and reaches for it
   sound('ooh');
   // the first few asks say how it works
   var asks = 0;
@@ -46,6 +47,7 @@ function dropWish(fed) {
   clearTimeout(wishGone);
   wishWord = '';
   wishEl.hidden = true;
+  pet.classList.remove('wishing');
   scheduleWish(wishDelay(fed ? WISH_GAP_MS : WISH_GAP_MS.map(function (n) { return n / 2; })));
 }
 

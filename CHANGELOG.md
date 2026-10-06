@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 189 (6 Oct)
+- Magnifying glass: the big eye shows even sooner.
+- Magnifying glass: the wink is his happy closed eye.
+- Shop button is now in the middle of the menu bar, on both lists.
+- Nibble looks up and reaches for the treat cloud.
+- Developer tool: make Nibble suggest an item.
+
 ## Build 188 (6 Oct)
 - Magnifying glass: the big eye appears the moment the glass arrives.
 - Magnifying glass: the other eye closes while he squints.
