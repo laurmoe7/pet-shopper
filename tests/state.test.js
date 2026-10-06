@@ -42,7 +42,7 @@ test('older saves without pet details get the defaults', () => {
 
 test('wardrobe hats have unique ids and a drawing', () => {
   const hatIds = Wardrobe.map((w) => w.id);
-  assert.deepEqual(hatIds, ['tophat', 'butterflyclip', 'redribbon', 'maid', 'sunhat', 'cap', 'hoodie', 'pighoodie', 'berrydress', 'hardhat', 'bandana', 'headphones', 'chefhat', 'knight', 'beret', 'bananapeel', 'trashlid', 'clownwig', 'jestercap', 'cowboyhat', 'sidecap', 'scarf', 'boa', 'toast', 'leaf', 'hay', 'necktie', 'uglytie', 'mustache', 'boots', 'featherslides', 'bunnyslippers', 'cowboyboots', 'clogs', 'clownshoes', 'shades', 'redspecs', 'eyepatch', 'nerdspecs', 'roundshades', 'bandage', 'clownnose']);
+  assert.deepEqual(hatIds, ['tophat', 'butterflyclip', 'maid', 'sunhat', 'cap', 'hoodie', 'pighoodie', 'berrydress', 'hardhat', 'bandana', 'headphones', 'chefhat', 'knight', 'beret', 'bananapeel', 'trashlid', 'clownwig', 'jestercap', 'cowboyhat', 'sidecap', 'scarf', 'boa', 'toast', 'leaf', 'hay', 'necktie', 'uglytie', 'mustache', 'boots', 'featherslides', 'bunnyslippers', 'cowboyboots', 'clogs', 'clownshoes', 'shades', 'redspecs', 'eyepatch', 'nerdspecs', 'roundshades', 'bandage', 'clownnose']);
   assert.equal(new Set(hatIds).size, hatIds.length);
   for (const w of Wardrobe) {
     assert.ok(PetLogic.OUTFIT_SLOTS.includes(w.slot), w.id);
@@ -153,7 +153,7 @@ test('clothes, mouth, neck and feet are their own slots, worn alongside a hat an
   const back = PetLogic.parseState(JSON.stringify(s), ids());
   assert.deepEqual(back.pet.outfit, { hat: 'chefhat', body: 'none', face: 'nerdspecs', mouth: 'mustache', neck: 'boa', feet: 'featherslides' });
   const { FreeUnlocks } = require('./load');
-  for (const id of ['scarf', 'boa', 'boots', 'featherslides', 'bunnyslippers', 'bananapeel', 'trashlid', 'beret', 'roundshades', 'toast', 'necktie', 'uglytie', 'mustache', 'clownwig', 'jestercap', 'cowboyhat', 'sidecap', 'cowboyboots', 'clogs', 'clownshoes', 'clownnose', 'leaf', 'hay', 'butterflyclip', 'redribbon', 'bandage']) assert.ok(FreeUnlocks.hat.includes(id), id);
+  for (const id of ['scarf', 'boa', 'boots', 'featherslides', 'bunnyslippers', 'bananapeel', 'trashlid', 'beret', 'roundshades', 'toast', 'necktie', 'uglytie', 'mustache', 'clownwig', 'jestercap', 'cowboyhat', 'sidecap', 'cowboyboots', 'clogs', 'clownshoes', 'clownnose', 'leaf', 'hay', 'butterflyclip', 'bandage']) assert.ok(FreeUnlocks.hat.includes(id), id);
 });
 
 test('saves from before skins: the chick becomes a birdie, the penguin a birdie in a penguin skin', () => {
