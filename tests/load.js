@@ -7,6 +7,7 @@ require('../sounds.js');
 require('../wardrobe.js');
 require('../decor.js');
 require('../bonuses.js');
+require('../recipe.js');
 require('../personalities.js');
 require('../skins.js');
 

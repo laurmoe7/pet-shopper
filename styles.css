@@ -2601,3 +2601,23 @@ html:root .cal-month select { flex: none; }
 @keyframes cs-in { from { scale: .92; opacity: 0; } to { scale: 1; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .cs-pop { animation: none; } }
 html:root .cal-month select { padding-right: 36px; min-width: 100px; text-overflow: clip; background-position: calc(100% - 19px) 55%, calc(100% - 14px) 55%; }
+
+/* recipe import (app-recipe.js): a small round button in the add bar (shopping list only) and its sheet */
+.recipe-btn { flex: none; width: 36px; height: 36px; padding: 0; border: 3px solid #fff; border-radius: 50%; background: #ffb86b; box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 2px 3px var(--shadow); cursor: pointer; display: grid; place-items: center; }
+.recipe-btn svg { width: 19px; height: 19px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.recipe-btn:active { transform: scale(.92); }
+html[data-list="todo"] .recipe-btn { display: none; }
+.recipe-input, .recipe-helper input { width: 100%; box-sizing: border-box; padding: 9px 12px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--paper); color: var(--ink); font: inherit; font-size: .92rem; resize: none; }
+.recipe-go, .recipe-add { align-self: flex-start; }
+.recipe-status { margin: 0; min-height: 1.2em; font-weight: 700; font-size: .85rem; color: var(--muted); }
+.recipe-status.bad { color: #d6456c; }
+.recipe-name { margin: 0 0 6px; font-family: var(--font-display); font-size: 1.05rem; }
+.recipe-list { list-style: none; margin: 0 0 10px; padding: 8px; border-radius: 18px; background: var(--paper); border: 2px solid var(--paper-edge); display: flex; flex-direction: column; gap: 2px; max-height: 38vh; overflow-y: auto; scrollbar-width: none; }
+.recipe-list::-webkit-scrollbar { display: none; }
+.recipe-list label { display: flex; align-items: center; gap: 10px; padding: 5px 6px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+.recipe-list label:has(input:not(:checked)) { opacity: .5; }
+.recipe-list input { width: 20px; height: 20px; accent-color: #ec6a8f; flex: none; }
+.recipe-list img { width: 26px; height: 26px; flex: none; }
+.recipe-helper { font-size: .85rem; color: var(--muted); font-weight: 700; }
+.recipe-helper summary { cursor: pointer; margin-bottom: 6px; }
+.recipe-note { margin: 6px 0 0; font-size: .78rem; }

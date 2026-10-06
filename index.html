@@ -657,6 +657,9 @@
       <button type="button" class="mic-btn" id="micBtn" aria-label="Add by voice" aria-pressed="false" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></svg>
       </button>
+      <button type="button" class="recipe-btn" id="recipeBtn" aria-label="Add from a recipe">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h9.5L19 7v13.5H6z"/><path d="M15 3.5V7.5h4M9 12h7M9 15.5h7"/></svg>
+      </button>
       <button type="submit" class="add-btn" aria-label="Add item">Add</button>
     </form>
     </div>
@@ -888,6 +891,27 @@
   </form>
 </dialog>
 
+<!-- add the ingredients of a recipe to the shopping list (app-recipe.js) -->
+<dialog class="picker pet-sheet recipe-sheet" id="recipeSheet" aria-labelledby="recipeTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="recipeTitle">Recipe</h2>
+    <p class="stamp-sub">✦ paste a link or the ingredients ✦</p>
+    <textarea id="recipeInput" class="recipe-input" rows="3" placeholder="https://… or one ingredient per line" maxlength="4000"></textarea>
+    <button type="button" class="pill-btn recipe-go" id="recipeGo">Find ingredients</button>
+    <p class="recipe-status" id="recipeStatus" role="status" aria-live="polite"></p>
+    <div id="recipeResult" hidden>
+      <p class="recipe-name" id="recipeName"></p>
+      <ul class="recipe-list" id="recipeList"></ul>
+      <button type="button" class="pill-btn recipe-add" id="recipeAdd">Add to list</button>
+    </div>
+    <details class="recipe-helper" id="recipeHelper">
+      <summary>Recipe helper address</summary>
+      <input id="recipeProxy" type="url" placeholder="https://pet-shopper-recipes.….workers.dev" autocomplete="off" spellcheck="false">
+      <p class="recipe-note">Links need a small helper online (see worker/README.md). Pasted ingredients work without it.</p>
+    </details>
+  </form>
+</dialog>
+
 <!-- a warning when a task with a time is ticked off before that time (app-todo.js) -->
 <dialog class="picker pet-sheet early-sheet" id="earlySheet" aria-labelledby="earlyTitle">
   <form method="dialog" class="picker-inner">
@@ -1033,6 +1057,7 @@
 <script src="wardrobe.js"></script>
 <script src="decor.js"></script>
 <script src="bonuses.js"></script>
+<script src="recipe.js"></script>
 <script src="personalities.js"></script>
 <script src="skins.js"></script>
 <script src="sounds.js"></script>
@@ -1058,6 +1083,7 @@
 <script src="app-options.js"></script>
 <script src="app-anims.js"></script>
 <script src="app-voice.js"></script>
+<script src="app-recipe.js"></script>
 <script src="backdrops.js"></script>
 <script src="app-backdrop.js"></script>
 <script src="app-idle.js"></script>
