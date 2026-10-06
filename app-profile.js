@@ -7,7 +7,6 @@ var profileNameAtOpen = '', profileBirthdayAtOpen = '';
 var profileSheet = $('profileSheet'), profileName = $('profileName'), profileBirthday = $('profileBirthday');
 /** Fills the sheet from what is saved. */
 function renderProfile() {
-  renderFavourites();
   profileNameAtOpen = state.player.name;
   profileBirthdayAtOpen = state.player.birthday;
   profileName.value = state.player.name;

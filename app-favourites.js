@@ -1,8 +1,8 @@
-// The Top 10 (shown in the Profile sheet): what you buy most, with a quick way to put it back on the list.
+// The Top 10 sheet (opened from the Profile sheet): what you buy most, with a quick way to put it back on the list.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
-var favList = $('favList'), favEmpty = $('favEmpty');
+var favSheet = $('favSheet'), favList = $('favList'), favEmpty = $('favEmpty');
 
 /** @returns {boolean} Whether an unticked item with this favourite's word is already on the list. */
 function onList(fav) {
@@ -117,5 +117,8 @@ function renderFavourites() {
   }));
 }
 
-// the Top 10 lives in the Profile sheet (app-profile.js draws it when the sheet opens)
+$('favBtn').addEventListener('click', function () {   // the button is in the Profile sheet
+  renderFavourites();
+  openDialog(favSheet);
+});
 

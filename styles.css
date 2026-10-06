@@ -2142,7 +2142,6 @@ html[data-list="todo"] .dock #goalsBtn { display: none; }
 /* the Shop is only a placeholder for now: greyed out */
 .dock #shopBtn:disabled { opacity: .45; filter: grayscale(1); cursor: default; }
 html:root .dock #calBtn { --tilt: -4deg; --sticker: #d9ccf5; --sticker-ink: #7d5fcf; }
-html:root .dock #stampBtn { --tilt: 3deg; --sticker: #c8e3f7; --sticker-ink: #3f86c0; }
 /* calendar */
 .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .cal-month { display: flex; gap: 6px; }
@@ -2305,7 +2304,12 @@ html.typing .page-fade { display: none; }
 /* profile (app-profile.js): the same fields as the pet's name; its dock sticker */
 html:root .dock #profileBtn { --tilt: 5deg; --sticker: #d9ccf5; --sticker-ink: #7d5fcf; }
 .profile-sheet .field input[type="date"] { font: inherit; }
-.profile-top { margin: 14px 0 0; }
+html:root .picker .field-label.profile-top { display: none; }
+.profile-links { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.profile-link { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-weight: 800; text-align: left; cursor: pointer; }
+.profile-link-icon { width: 24px; display: grid; place-items: center; font-size: 1.2rem; color: #7d5fcf; }
+.profile-link-svg { width: 22px; height: 22px; display: block; }
+.profile-link-go { margin-left: auto; color: var(--muted); font-size: 1.3rem; line-height: 1; }
 .gift-box { position: relative; }
 .gift-placeholder { position: absolute; left: 50%; top: -6px; translate: -50% 0; rotate: -6deg; padding: 1px 9px 2px; border-radius: 999px; background: var(--accent); color: #fff; border: 1.5px solid #fff; box-shadow: 0 2px 0 var(--shadow); font-size: .72rem; font-weight: 800; letter-spacing: .02em; white-space: nowrap; animation: gift-placeholder 2.2s cubic-bezier(.3, 1.8, .5, 1) both; }
 @keyframes gift-placeholder { 0% { scale: .2; opacity: 0; translate: -50% 18px; } 35% { scale: 1.25; opacity: 1; translate: -50% -4px; } 55% { scale: 1; } 100% { scale: 1; opacity: 1; } }

@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 201 (7 Oct)
+- Top 10 and Stamp book are buttons inside Profile, no longer in the menu bar.
+- Stamp book: calls & chats are combined with social.
+
 ## Build 199 (7 Oct)
 - Top 10 moved into the Profile menu.
 - Teddy's outline is darker, like Nibble's.
