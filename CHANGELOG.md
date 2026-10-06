@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 221 (10 Oct)
+- Recipes: "3/4 C." reads as a cup, thyme leaves is thyme, low-sodium and torn are dropped.
+
 ## Build 220 (10 Oct)
 - Recipes: butter, flour, sugar and the like show in grams in metric.
 

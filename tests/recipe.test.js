@@ -140,3 +140,11 @@ test('metric shows butter, flour and the like in grams', () => {
     ['2 tbsp', 'Peanut butter', '30 ml'], ['1 cup', 'Butter', '1 cup', 'us'], ['200 g', 'Butter', '200 g']];
   for (const [q, n, want, to] of c) assert.strictEqual(R.convertQty(q, to || 'metric', n), want, n);
 });
+
+test('"C." is a cup, thyme leaves is thyme, low-sodium is dropped', () => {
+  const c = { '3/4 C. low-sodium chicken broth': ['Chicken broth', '3/4 cup'], '1/2 C. finely chopped sun-dried tomatoes': ['Sun-dried tomatoes', '1/2 cup'], '1 Tbsp. fresh thyme leaves': ['Thyme', '1 Tbsp'],
+    '3 Tbsp. extra-virgin olive oil, divided': ['Olive oil', '3 Tbsp'], '4 boneless, skinless chicken breasts': ['Boneless skinless chicken breasts', '4'], '2 bay leaves': ['Bay leaves', '2'] };
+  for (const k of Object.keys(c)) assert.deepStrictEqual([R.parseIngredient(k).name, R.parseIngredient(k).qty], c[k], k);
+  assert.deepStrictEqual(R.parseIngredient('Torn fresh basil, for serving'), { name: 'Basil', qty: '', optional: true });
+  assert.strictEqual(R.convertQty('3/4 cup', 'metric', 'Chicken broth'), '180 ml');
+});

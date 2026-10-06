@@ -19,7 +19,7 @@
     'handvol', 'mespunt', 'scheut', 'beetje', 'bakje', 'pak', 'pakje', 'potje', 'fles', 'flesje', 'zak', 'pakket', 'rol', 'blokje', 'blokjes', 'tablet', 'tabletten', 'blikken', 'potten', 'flessen', 'zakken', 'pakken', 'stukken', 'teentje', 'teentjes'];
   // words that describe how it is prepared or how big it is: dropped from the front and the back of a name ("chopped fresh parsley", "parsley chopped")
   var FILLER = ['fresh', 'freshly', 'finely', 'roughly', 'coarsely', 'thinly', 'chopped', 'minced', 'diced', 'sliced', 'grated', 'crushed', 'peeled', 'cubed', 'shredded',
-    'toasted', 'sifted', 'melted', 'softened', 'cooled', 'beaten', 'drained', 'rinsed', 'trimmed', 'halved', 'quartered', 'mashed', 'pitted', 'seeded', 'deseeded', 'crumbled', 'packed', 'cooked', 'warm', 'lukewarm', 'boiling',
+    'low-sodium', 'reduced-sodium', 'torn', 'toasted', 'sifted', 'melted', 'softened', 'cooled', 'beaten', 'drained', 'rinsed', 'trimmed', 'halved', 'quartered', 'mashed', 'pitted', 'seeded', 'deseeded', 'crumbled', 'packed', 'cooked', 'warm', 'lukewarm', 'boiling',
     'large', 'small', 'medium', 'big', 'ripe', 'extra', 'good', 'quality', 'organic', 'optional', 'about', 'approx', 'approximately', 'of', 'a', 'an', 'the', 'some',
     'vers', 'verse', 'fijngehakt', 'gehakte', 'gesneden', 'geraspte', 'gesmolten', 'geschild', 'gepeld', 'grote', 'kleine', 'middelgrote', 'ongeveer', 'een', 'van', 'wat', 'naar', 'smaak', 'to', 'taste'];
   // describing words that can be followed by a comma and still belong to the name ("boneless, skinless chicken thighs")
@@ -65,6 +65,7 @@
     s = s.replace(/\([^)]*\)/g, ' ').replace(/\[[^\]]*\]/g, ' ').replace(/[()*]/g, ' ').replace(/\s+/g, ' ').trim();
     s = s.replace(/\bextra[- ]virgin\s+/gi, '').replace(/\b(?:freshly|fresh|vers)\s+(?:ground|gemalen)\s+/gi, '');
     s = s.replace(/^(\d+)\s+(?:and|&|en)\s+(\d+\/\d+)/i, '$1 $2');                    // "1 and 1/2 cups" -> "1 1/2 cups"
+    s = s.replace(/^([\d\/\s\u00bd\u00bc\u00be.]*\d|[\u00bd\u00bc\u00be])\s*C\.?\s+(?=[a-z])/, '$1 cup ');       // "3/4 C. broth" (a capital C is a cup)
     s = s.replace(/^(?:half|een halve|halve)\s+(?:an?\s+|een\s+)?/i, '1/2 ');           // "half a lemon"
     var segs = s.split(/\s*[,;]\s*/);                                                   // ", plus extra" / ", to taste"
     s = segs.shift();
@@ -106,6 +107,7 @@
       if (words.length > 1 && (FILLER.indexOf(last) >= 0 && last !== 'a' || last === 'and' || last === '&' || last === 'en')) s = words.slice(0, -1).join(' ');
     } while (s !== prev);
     s = s.replace(/[.:;!]+$/, '').trim();
+    s = s.replace(/^((?:fresh |dried )?(?:thyme|basil|mint|sage|parsley|cilantro|oregano|rosemary|tarragon|dill|chives)) leaves$/i, '$1');   // "thyme leaves" is thyme
     var q = qty.join(' ').slice(0, 20);
     var pair = s.match(/^(.+?)\s+(?:and|&|en)\s+(.+)$/i);                               // "salt and pepper" is two things
     var names = pair && SEASONING.test(pair[1]) && SEASONING.test(pair[2]) && pair[1].split(' ').length < 4 && pair[2].split(' ').length < 4 ? [pair[1], pair[2]] : [s];
