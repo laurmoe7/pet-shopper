@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 190 (6 Oct)
+- Suggestion chip sits above the Add button.
+- Nibble opens his eyes, looks up and hops towards the treat cloud.
+
 ## Build 189 (6 Oct)
 - Magnifying glass: the big eye shows even sooner.
 - Magnifying glass: the wink is his happy closed eye.
