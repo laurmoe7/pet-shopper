@@ -61,7 +61,8 @@
     var optional = EXTRA.test(s);
     var label = s.match(/^([^:\d]{1,30}):\s*(\S.*)$/);                                  // "Optional: chopped nuts", "For serving: rice"
     if (label) s = label[2];
-    s = s.replace(/\([^)]*\)/g, ' ').replace(/\[[^\]]*\]/g, ' ').replace(/\s+/g, ' ').trim();
+    s = s.replace(/(?:[$\u20ac\u00a3]\s?\d[\d.,]*|\b\d[\d.,]*\s?(?:euro|eur|dollars?|usd)\b)\**/gi, ' ');   // prices: "($1.24)", "\u20ac 2,50", "$2.69**"
+    s = s.replace(/\([^)]*\)/g, ' ').replace(/\[[^\]]*\]/g, ' ').replace(/[()*]/g, ' ').replace(/\s+/g, ' ').trim();
     s = s.replace(/\bextra[- ]virgin\s+/gi, '').replace(/\b(?:freshly|fresh|vers)\s+(?:ground|gemalen)\s+/gi, '');
     s = s.replace(/^(\d+)\s+(?:and|&|en)\s+(\d+\/\d+)/i, '$1 $2');                    // "1 and 1/2 cups" -> "1 1/2 cups"
     s = s.replace(/^(?:half|een halve|halve)\s+(?:an?\s+|een\s+)?/i, '1/2 ');           // "half a lemon"

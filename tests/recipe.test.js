@@ -127,3 +127,10 @@ test('salt and pepper are two things, and staples are recognised', () => {
   for (const n of ['Salt', 'Sea salt', 'Black pepper', 'Water', 'Ice water', 'Ice cubes', 'Cooking spray', 'Zout']) assert.ok(R.isStaple(n), n);
   for (const n of ['Salted butter', 'Pepper jack cheese', 'Coconut water', 'Flour', 'Eggs', '']) assert.ok(!R.isStaple(n), n);
 });
+
+test('prices on a line are not part of the name', () => {
+  const c = { '1 lb elbow macaroni ($1.24)': ['Elbow macaroni', '1 lb'], '2 cups sharp cheddar cheese ($2.69**)': ['Sharp cheddar cheese', '2 cups'],
+    '1 lb elbow macaroni $1.24)': ['Elbow macaroni', '1 lb'], '8 oz sharp cheddar $2.69**)': ['Sharp cheddar', '8 oz'], '3 Tbsp salted butter ($0.30)': ['Salted butter', '3 Tbsp'],
+    '250 g kaas \u20ac 2,50': ['Kaas', '250 g'], '1 can soup 1.99 euro': ['Soup', '1 can'] };
+  for (const k of Object.keys(c)) assert.deepStrictEqual([R.parseIngredient(k).name, R.parseIngredient(k).qty], c[k], k);
+});

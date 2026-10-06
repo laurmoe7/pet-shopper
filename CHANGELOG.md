@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 219 (10 Oct)
+- Recipes: prices no longer end up in ingredient names.
+
 ## Build 218 (9 Oct)
 - Recipes: "1 and 1/2 cups", "peeled and diced", whole wheat and extra virgin read right.
 - Recipes: notes, servings and "optional" lines no longer end up as ingredients.
