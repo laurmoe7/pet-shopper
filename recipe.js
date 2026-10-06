@@ -74,7 +74,9 @@
       var lw = lastWord(s), bare = s.split(' ').filter(function (x) { x = x.toLowerCase(); return !/^[\d.,\/]+$/.test(x) && UNITS.indexOf(x) < 0 && FILLER.indexOf(x) < 0 && !new RegExp('^[' + VULGAR_CLASS + ']+$').test(x); });
       if (FILLER.indexOf(lw) >= 0 || ADJECTIVES.indexOf(lw) >= 0 || !bare.length) s += ' ' + segs.shift(); else break;   // (nothing but amounts and units before the comma)
     }
-    s = s.split(/\s+or\s+/i)[0];                                                        // "butter or margarine"
+    var alts = s.split(/\s+or\s+/i);                                                     // "butter or margarine" is butter, but "all-purpose or bread flour" keeps both
+    var bareOf = function (t) { return t.split(' ').filter(function (x) { x = x.toLowerCase(); return !/^[\d.,\/\-\u2013]+$/.test(x) && UNITS.indexOf(x) < 0 && FILLER.indexOf(x) < 0 && !new RegExp('^[' + VULGAR_CLASS + ']+$').test(x); }); };
+    s = alts.length === 2 && bareOf(alts[0]).length === 1 && alts[1].replace(TAIL, '').split(' ').length >= 2 ? alts[0] + ' or ' + alts[1] : alts[0];
     s = s.replace(TAIL, '');
     var jz = s.match(/^(?:juice|zest|rind|peel|sap|rasp|schil)(?:\s+(?:and|&|en)\s+(?:juice|zest|rind|peel|sap|rasp|schil))?\s+(?:of|van)\s+(.+)$/i);
     if (jz) s = jz[1];                                                                  // "Juice of 1 lemon" is a lemon
@@ -229,7 +231,7 @@
   function fmtDecimal(v) { return String(Math.round(v * 10) / 10); }
   /** Grams per millilitre for things that are bought by weight but written in cups and spoons. First match wins. */
   var DENSITY = [[/peanut butter|nut butter|almond butter|butter beans?|buttermilk|butternut/i, 0], [/butter|margarine|boter/i, .95], [/cream cheese|roomkaas/i, .96], [/shortening|lard|coconut oil/i, .92],
-    [/powdered sugar|icing sugar|confectioners|poedersuiker/i, .5], [/brown sugar|bruine suiker/i, .9], [/sugar|suiker/i, .83], [/flour|bloem|meel/i, .5], [/rolled oats|oats|havermout/i, .37], [/cocoa|cacao/i, .4],
+    [/powdered sugar|icing sugar|confectioners|poedersuiker/i, .5], [/brown sugar|bruine suiker/i, .9], [/sugar|suiker/i, .83], [/flour|bloem|meel/i, .52], [/rolled oats|oats|havermout/i, .37], [/cocoa|cacao/i, .4],
     [/grated|shredded|geraspte/i, .45], [/honey|honing|maple syrup|syrup|stroop/i, 1.4]];
   /** @param {string} [name] @returns {number} Grams per ml for that ingredient, or 0 when it is kept in millilitres. */
   function density(name) {

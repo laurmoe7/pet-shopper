@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 222 (10 Oct)
+- Recipes: "all-purpose or bread flour" keeps both words.
+
 ## Build 221 (10 Oct)
 - Recipes: "3/4 C." reads as a cup, thyme leaves is thyme, low-sodium and torn are dropped.
 

@@ -136,7 +136,7 @@ test('prices on a line are not part of the name', () => {
 });
 
 test('metric shows butter, flour and the like in grams', () => {
-  const c = [['3 tbsp', 'Salted butter', '45 g'], ['1 cup', 'Butter', '230 g'], ['1 cup', 'Flour', '120 g'], ['1 cup', 'Brown sugar', '215 g'], ['1 cup', 'Milk', '240 ml'], ['1 tsp', 'Garlic powder', '5 ml'],
+  const c = [['3 tbsp', 'Salted butter', '45 g'], ['1 cup', 'Butter', '230 g'], ['1 cup', 'Flour', '125 g'], ['1 cup', 'Brown sugar', '215 g'], ['1 cup', 'Milk', '240 ml'], ['1 tsp', 'Garlic powder', '5 ml'],
     ['2 tbsp', 'Peanut butter', '30 ml'], ['1 cup', 'Butter', '1 cup', 'us'], ['200 g', 'Butter', '200 g']];
   for (const [q, n, want, to] of c) assert.strictEqual(R.convertQty(q, to || 'metric', n), want, n);
 });
@@ -147,4 +147,13 @@ test('"C." is a cup, thyme leaves is thyme, low-sodium is dropped', () => {
   for (const k of Object.keys(c)) assert.deepStrictEqual([R.parseIngredient(k).name, R.parseIngredient(k).qty], c[k], k);
   assert.deepStrictEqual(R.parseIngredient('Torn fresh basil, for serving'), { name: 'Basil', qty: '', optional: true });
   assert.strictEqual(R.convertQty('3/4 cup', 'metric', 'Chicken broth'), '180 ml');
+});
+
+test('"all-purpose or bread flour" keeps both, "butter or margarine" keeps the first', () => {
+  assert.deepStrictEqual(R.parseIngredient('4 - 5 1/2 cups all-purpose or bread flour*, (500g-688g)'), { name: 'All-purpose or bread flour', qty: '4 - 5 1/2 cups' });
+  assert.strictEqual(R.parseIngredient('1/4 cup honey or sugar, (85g honey, 50g sugar)').name, 'Honey');
+  assert.strictEqual(R.parseIngredient('200g butter or margarine').name, 'Butter');
+  assert.strictEqual(R.parseIngredient('1 cup milk or cream').name, 'Milk');
+  assert.strictEqual(R.parseIngredient('2 Tablespoons oil (canola or vegetable)').name, 'Oil');
+  assert.strictEqual(R.convertQty('4-5 1/2 cups', 'metric', 'All-purpose or bread flour'), '500-675 g');
 });
