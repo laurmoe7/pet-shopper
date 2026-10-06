@@ -1492,7 +1492,41 @@
     return { pts: skSimplify(rs, w * 0.0012), closed: closed };
   }
 
+  /**
+   * What Nibble says about a recipe he has just read: by the dish in its title, else by what is in it, else by how big it is.
+   * @param {string} title  The recipe's name ("" for pasted ingredients).
+   * @param {{name: string}[]} found  The ingredients found.
+   * @param {function(): number} [random]
+   * @returns {string} A short line.
+   */
+  function recipeRemark(title, found, random) {
+    var rnd = random || Math.random;
+    var pick = function (a) { return a[Math.floor(rnd() * a.length)]; };
+    var t = String(title || '').toLowerCase();
+    var names = (found || []).map(function (f) { return String(f.name || '').toLowerCase(); }).join(' | ');
+    var dishes = [
+      [/mac(?:aroni)?\b.*cheese|\bcheesy\b/, ['cheesy!! yes please', 'so much cheese… I love it']],
+      [/chicken/, ['ooh, chicken!', 'chicken night? yum!']],
+      [/pasta|spaghetti|lasagn|noodle|ramen|pizza|pizzoc/, ['carbs!! my favourite', 'ooh, comfy food!']],
+      [/cookie|cake|brownie|muffin|cupcake|pie\b|tart\b|dessert|pudding|ice cream|cheesecake/, ['a sweet one!! can I try?', 'ooh, treat time!']],
+      [/bread|loaf|bun\b|rolls?\b|dough|bagel/, ['fresh bread… I can smell it', 'baking day! yay!']],
+      [/soup|stew|chili|casserole|curry|potpie|pot pie|hotpot/, ['cosy and warm…', 'ooh, a big warm pot!']],
+      [/salad|bowl|veggie|vegetable/, ['fresh and crunchy!', 'so healthy! good job']],
+      [/taco|burrito|nacho|quesadilla|fajita/, ['taco time!', 'ooh, spicy and yummy']],
+      [/pancake|waffle|crepe|french toast|breakfast|oat/, ['breakfast!! yay', 'ooh, a yummy morning']],
+      [/fish|salmon|shrimp|tuna|sushi/, ['ooh, fishy!', 'splashy and yummy']]
+    ];
+    for (var i = 0; i < dishes.length; i++) if (dishes[i][0].test(t)) return pick(dishes[i][1]);
+    var byFood = [[/chocolate|cocoa|cacao/, 'chocolate?? lucky you!'], [/cheese/, 'ooh, cheese!'], [/bacon/, 'bacon!! I smell it already'], [/butter/, 'mmm, buttery…'], [/chili|cayenne|sriracha|jalape/, 'ooh, a bit spicy!']];
+    for (var j = 0; j < byFood.length; j++) if (byFood[j][0].test(names)) return byFood[j][1];
+    var n = (found || []).length;
+    if (n >= 15) return 'so many things! big cooking day';
+    if (n && n <= 5) return pick(['easy one! just a few things', 'quick and simple, I like it']);
+    return pick(['ooh, that looks yummy!', 'yum! what are we making?', 'sounds tasty!']);
+  }
+
   root.PetLogic = {
+    recipeRemark: recipeRemark,
     unlockAll: unlockAll,
     lockAll: lockAll,
     skipDays: skipDays,

@@ -55,6 +55,10 @@ function showRecipe(title, found) {
   showUnits();
   recipeStage(!!found.length);
   recipeList.scrollTop = 0;
+  if (found.length) {
+    if (!busy && baseState() !== 'sleepy') { pulse('hop', 460); setFace(FACES.happy); setTimeout(function () { if (!busy) settle(); }, 1400); }
+    say(L.recipeRemark(title, found), 3200);
+  }
   updateRecipeAdd();
 }
 /** @returns {{name: string, qty: string}[]} The ingredients that are ticked. */

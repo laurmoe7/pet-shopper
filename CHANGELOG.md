@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 226 (10 Oct)
+- Recipe sheet: Nibble stays in view above the ingredients.
+- Nibble comments on the recipe you read.
+
 ## Build 225 (10 Oct)
 - Recipe sheet: bigger and cuter, with the ingredients getting the whole sheet.
 - Recipe sheet: a "more below" tag and a fade show when the ingredients scroll.

@@ -174,3 +174,15 @@ test('a mixed number with a hyphen: 1-3/4 cups', () => {
   assert.deepStrictEqual(R.parseIngredient('2-3 ripe bananas'), { name: 'Bananas', qty: '2-3' });
   assert.deepStrictEqual(R.parseIngredient('4 cups cubed cooked chicken'), { name: 'Chicken', qty: '4 cups' });
 });
+
+test('Nibble remarks on a recipe by its dish, then its food, then its size', () => {
+  const { PetLogic } = require('./load');
+  const r = () => 0;
+  assert.strictEqual(PetLogic.recipeRemark('Crockpot Mac and Cheese', [], r), 'cheesy!! yes please');
+  assert.strictEqual(PetLogic.recipeRemark('Chicken Potpie', [], r), 'ooh, chicken!');
+  assert.strictEqual(PetLogic.recipeRemark('Homemade Bread', [], r), 'fresh bread\u2026 I can smell it');
+  assert.strictEqual(PetLogic.recipeRemark('', [{ name: 'Dark chocolate' }, { name: 'Eggs' }], r), 'chocolate?? lucky you!');
+  assert.strictEqual(PetLogic.recipeRemark('', new Array(16).fill({ name: 'Thing' }), r), 'so many things! big cooking day');
+  assert.ok(PetLogic.recipeRemark('', [{ name: 'Eggs' }], r).length > 3);
+  assert.ok(PetLogic.recipeRemark('Mystery', [{ name: 'a' }, { name: 'b' }, { name: 'c' }, { name: 'd' }, { name: 'e' }, { name: 'f' }]).length > 3);
+});

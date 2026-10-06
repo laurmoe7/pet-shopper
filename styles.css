@@ -2627,6 +2627,10 @@ html[data-list="todo"] .recipe-btn { display: none; }
 @media (prefers-reduced-motion: reduce) { .recipe-more { animation: none; } }
 .picker.pet-sheet.recipe-sheet.results:not(.dress-full):not(.fav-full) .picker-inner { display: flex; flex-direction: column; overflow: hidden; }
 .recipe-sheet.results .recipe-result { flex: 1; }
+/* with ingredients showing, the sheet is kept low so Nibble stays in view above it */
+.picker.pet-sheet.recipe-sheet.results { max-height: calc(var(--recipe-h) + var(--dock-h, 64px)); }
+.picker.pet-sheet.recipe-sheet.results:not(.dress-full):not(.fav-full) .picker-inner { max-height: calc(var(--recipe-h) + var(--dock-h, 64px) - 14px); }
+.recipe-sheet { --recipe-h: max(260px, min(62vh, calc(100dvh - 345px))); }
 .recipe-status { margin: 0; min-height: 1.2em; font-weight: 700; font-size: .85rem; color: var(--muted); }
 .recipe-status.bad { color: #d6456c; }
 .recipe-name { margin: 0 0 6px; font-family: var(--font-display); font-size: 1.05rem; }
