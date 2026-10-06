@@ -90,6 +90,7 @@ function openCalendar() {
   calYear = +now.slice(0, 4); calMonth = +now.slice(5, 7) - 1; calSel = now;
   calInput.value = ''; calYearly.setAttribute('aria-pressed', 'false');
   renderCalendar();
+  sheetUnderMouth(calSheet);
   openDialog(calSheet);
 }
 /** After the month changes: the chosen day goes to today (in this month) or the 1st, so what's shown is what you add to. */

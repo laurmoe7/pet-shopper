@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 203 (7 Oct)
+- Stamp Book: easier to read counts.
+- Stamp Book, Calendar and Profile open taller, to just below Nibble's mouth.
+- Calendar, Profile and Top 10: cuter.
+- Profile: no double-tap text.
+
 ## Build 202 (7 Oct)
 - Calendar button is orange instead of purple.
 - Stamp Book: cuter, with taped stickers and a stamp count.

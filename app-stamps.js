@@ -50,4 +50,4 @@ stampGrid.addEventListener('click', function (e) {
   sound(n ? 'stamp' : 'tap');
   if (!busy && baseState() !== 'sleepy') say(n ? pick(['look at all those!', 'so many stamps!', n + ' of those, wow!']) : pick(['not yet… soon?', 'an empty spot!']), 1500);
 });
-$('stampBtn').addEventListener('click', function () { renderStamps(); openDialog(stampSheet); });
+$('stampBtn').addEventListener('click', function () { renderStamps(); sheetUnderMouth(stampSheet); openDialog(stampSheet); });

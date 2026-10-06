@@ -18,7 +18,8 @@ function showProfile() {
   $('profileBirthdayText').textContent = p.birthday ? birthdayText(p.birthday) : '';
   profileNameShow.hidden = !p.name; profileName.hidden = !!p.name;
   profileBirthdayShow.hidden = !p.birthday; profileBirthday.hidden = !!p.birthday;
-  $('profileHint').hidden = !p.name && !p.birthday;
+  $('profileAvatar').textContent = p.name ? p.name.charAt(0).toUpperCase() : '♡';
+  $('profileHello').textContent = p.name ? 'Hi, ' + p.name + '!' : 'Hello, friend!';
 }
 /** Fills the sheet from what is saved. */
 function renderProfile() {
@@ -59,7 +60,7 @@ profileBirthday.addEventListener('blur', showProfile);
 $('profileForm').addEventListener('submit', function (e) { e.preventDefault(); });
 profileName.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); profileName.blur(); } });
 profileBirthday.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); profileBirthday.blur(); } });
-$('profileBtn').addEventListener('click', function () { renderProfile(); openDialog(profileSheet); });
+$('profileBtn').addEventListener('click', function () { renderProfile(); sheetUnderMouth(profileSheet); openDialog(profileSheet); });
 // Nibble only reacts once, when the sheet closes and something changed (not while you are still typing it in)
 profileSheet.addEventListener('close', function () {
   if (busy || baseState() === 'sleepy') return;
