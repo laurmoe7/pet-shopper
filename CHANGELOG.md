@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 211 (8 Oct)
+- Drop-down menus open as a round, soft list instead of the plain box; the year arrow is fixed.
+- Photoshoot mode in the Pet menu: pose, background, frame and stickers for cute screenshots.
+- Pet menu: highlighter headings instead of dotted lines, a dotted paper backing.
+
 ## Build 210 (7 Oct)
 - Calendar takes the whole page.
 - Drop-down menus are round and soft, like the buttons.

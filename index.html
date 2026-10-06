@@ -741,7 +741,7 @@
         <use class="ht h2" href="#dfHeart" x="284" y="152" fill="#ff7d9f"/>
         <use class="ht h3" href="#dfHeart" x="204" y="100" fill="#ffb3c6"/>
       </g>
-    </svg><div class="dress-preview" id="dressPreview"></div><div class="dress-flash" id="dressFlash" aria-hidden="true"></div><div class="dress-bubble" id="dressBubble" aria-live="polite" hidden></div><button type="button" class="closet-btn" id="closetBtn" aria-label="Closet: saved outfits"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.4a2.3 2.3 0 1 1 2.3 2.3c-1 0-2.3.8-2.3 2v1M12 11.7l8.6 6.1a1.2 1.2 0 0 1-.7 2.2H4.1a1.2 1.2 0 0 1-.7-2.2z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Closet</span></button></div>
+    </svg><div class="dress-preview" id="dressPreview"></div><div class="dress-flash" id="dressFlash" aria-hidden="true"></div><div class="dress-bubble" id="dressBubble" aria-live="polite" hidden></div><button type="button" class="closet-btn shoot-btn" id="shootBtn" aria-label="Photoshoot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.2h3l1.5-2.2h7L17 8.2h3a1.6 1.6 0 0 1 1.6 1.6v8.4a1.6 1.6 0 0 1-1.6 1.6H4a1.6 1.6 0 0 1-1.6-1.6V9.8A1.6 1.6 0 0 1 4 8.2z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="12" cy="13.6" r="3.6" fill="none" stroke="currentColor" stroke-width="1.9"/></svg><span>Photo</span></button><button type="button" class="closet-btn" id="closetBtn" aria-label="Closet: saved outfits"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.4a2.3 2.3 0 1 1 2.3 2.3c-1 0-2.3.8-2.3 2v1M12 11.7l8.6 6.1a1.2 1.2 0 0 1-.7 2.2H4.1a1.2 1.2 0 0 1-.7-2.2z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Closet</span></button></div>
     <div class="dress-tabs" id="dressTabs" role="tablist" aria-label="Pet and outfits">
       <button type="button" role="tab" data-tab="pet" aria-selected="true"><img src="emoji/1F43E.svg" alt="" width="22" height="22"><span>Pet</span></button>
       <button type="button" role="tab" data-tab="hat" aria-selected="false"><img src="emoji/1F3A9.svg" alt="" width="22" height="22"><span>Hats</span></button>
@@ -810,6 +810,29 @@
     </div>
   </form>
 </dialog>
+
+<!-- the photoshoot (app-shoot.js): the pet on its own on a nice background, to take cute screenshots of -->
+<div class="shoot" id="shoot" hidden role="dialog" aria-label="Photoshoot">
+  <div class="shoot-bg" id="shootBg"></div>
+  <div class="shoot-sparkles" id="shootSparkles" aria-hidden="true"></div>
+  <div class="shoot-stickers" id="shootStickers"></div>
+  <div class="shoot-pet" id="shootPet"></div>
+  <div class="shoot-frame" id="shootFrame" aria-hidden="true"><span class="shoot-caption" id="shootCaption"></span></div>
+  <div class="shoot-flash" id="shootFlash" aria-hidden="true"></div>
+  <p class="shoot-hint" id="shootHint" hidden>Take your screenshot! Tap to bring the buttons back.</p>
+  <button type="button" class="shoot-x" id="shootClose" aria-label="Close the photoshoot">✕</button>
+  <div class="shoot-ui" id="shootUi">
+    <div class="shoot-row" id="shootPoses" role="group" aria-label="Pose"></div>
+    <div class="shoot-row shoot-pick">
+      <button type="button" class="shoot-arrow" id="shootPrev" aria-label="Previous background">‹</button>
+      <span class="shoot-bgname" id="shootBgName"></span>
+      <button type="button" class="shoot-arrow" id="shootNext" aria-label="Next background">›</button>
+    </div>
+    <div class="shoot-row" id="shootFrames" role="group" aria-label="Frame"></div>
+    <div class="shoot-row" id="shootStickerRow" role="group" aria-label="Stickers"></div>
+    <button type="button" class="shoot-snap" id="shootSnap"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="5" fill="currentColor"/></svg><span>Photo</span></button>
+  </div>
+</div>
 
 <!-- the closet: outfits saved by name, over the dressing room (app-closet.js) -->
 <dialog class="picker pet-sheet closet-sheet" id="closetSheet" aria-labelledby="closetTitle">
@@ -1021,6 +1044,7 @@
 <script src="app-petsheet.js"></script>
 <script src="app-dress.js"></script>
 <script src="app-closet.js"></script>
+<script src="app-shoot.js"></script>
 <script src="app-room.js"></script>
 <script src="app-goals.js"></script>
 <script src="app-events.js"></script>
@@ -1042,6 +1066,7 @@
 <script src="app-toy.js"></script>
 <script src="app-bedtime.js"></script>
 <script src="app-fade.js"></script>
+<script src="app-select.js"></script>
 <script src="app-start.js"></script>
 </body>
 </html>
