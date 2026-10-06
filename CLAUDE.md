@@ -18,7 +18,7 @@ A grocery list with a tamagotchi-like pet that "eats" items as you check them of
 
 - Free, usable, no ads. Monetization later via paid pet customization (the dressing room tests that idea; no payments yet).
 - Deals/price data are dropped for now (store data is US-centric and not useful in Europe). Research is parked in `docs/research/competitors-and-deal-data.md`.
-- A shared household pet is planned later, so all pet data stays in one object (`state.pet`, via `PetLogic.petProfile`). Keep it that way.
+- Each person gets their own pet; only lists would be shared (not a household pet). All pet data stays in one object (`state.pet`, via `PetLogic.petProfile`) so it can sync per person. Keep it that way. A desktop companion and account sync are planned but not started: see `docs/design/desktop-companion-and-sync.md` (no AI chat, desktop awareness never reads window titles).
 - No known app combines a list with a pet. Real rivals are shared-list apps (AnyList, Bring!, OurGroceries, Listonic); Finch, Otto and Habbie are pet habit apps.
 
 ## How the code is organised
