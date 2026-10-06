@@ -548,6 +548,7 @@
   }
   /** Drops a due day or repeat that isn't valid (from old or damaged saves). */
   function cleanTask(item) {
+    if (item && item.qty !== undefined) { var q = typeof item.qty === 'string' ? item.qty.trim().slice(0, 20) : ''; if (q) item.qty = q; else delete item.qty; }   // the amount to buy, like "2 tbsp"
     if (item && item.due !== undefined && !isDayKey(item.due)) delete item.due;
     if (item && item.time !== undefined && (!item.due || !isTimeKey(item.time))) delete item.time;
     if (item && item.until !== undefined && (!isDayKey(item.until) || !item.repeat || !item.due)) delete item.until;

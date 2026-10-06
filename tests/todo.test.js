@@ -215,3 +215,10 @@ test('a repeat on certain weekdays comes back on the next chosen one', () => {
   assert.deepEqual(L.cleanTask({ due: '2026-10-06', repeat: 'days', days: [4, 4, 9, 'x'] }).days, [4]);
   assert.equal(L.cleanTask({ due: '2026-10-06', repeat: 'days' }).repeat, undefined, 'certain days needs at least one day');
 });
+
+test('cleanTask keeps a short amount and drops a bad one', () => {
+  const L = require('./load.js').PetLogic;
+  assert.strictEqual(L.cleanTask({ id: 'a', text: 'x', qty: '  2 tbsp ' }).qty, '2 tbsp');
+  assert.strictEqual(L.cleanTask({ id: 'a', text: 'x', qty: 5 }).qty, undefined);
+  assert.strictEqual(L.cleanTask({ id: 'a', text: 'x', qty: '' }).qty, undefined);
+});

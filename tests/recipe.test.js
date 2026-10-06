@@ -28,7 +28,7 @@ test('parseRecipeHtml reads JSON-LD, also inside @graph and arrays', () => {
   const page = (data) => '<html><script type="application/ld+json">' + JSON.stringify(data) + '</script></html>';
   for (const data of [rec, [rec], { '@graph': [{ '@type': 'WebPage' }, rec] }, { '@type': ['Recipe', 'Thing'], name: 'x', recipeIngredient: rec.recipeIngredient }]) {
     const r = R.parseRecipeHtml(page(data));
-    assert.deepStrictEqual(r.ingredients, ['Flour', 'Eggs', 'Milk']);
+    assert.deepStrictEqual(r.ingredients, [{ name: 'Flour', qty: '200 g' }, { name: 'Eggs', qty: '2' }, { name: 'Milk', qty: '1 cup' }]);
   }
   assert.strictEqual(R.parseRecipeHtml(page(rec)).title, 'Pancakes & syrup');
 });
@@ -41,9 +41,19 @@ test('parseRecipeHtml gives null when there is no recipe', () => {
 });
 
 test('recipeFromText and looksLikeUrl', () => {
-  assert.deepStrictEqual(R.recipeFromText('- 2 eggs\n• 1 cup milk\r\n\n3 tbsp sugar'), ['Eggs', 'Milk', 'Sugar']);
+  assert.deepStrictEqual(R.recipeFromText('- 2 eggs\n\u2022 1 cup milk\r\n\n3 tbsp sugar'), [{ name: 'Eggs', qty: '2' }, { name: 'Milk', qty: '1 cup' }, { name: 'Sugar', qty: '3 tbsp' }]);
   assert.ok(R.looksLikeUrl('https://example.com/recipe'));
   assert.ok(R.looksLikeUrl(' www.example.com/x '));
   assert.ok(!R.looksLikeUrl('2 eggs'));
   assert.ok(!R.looksLikeUrl('https://a.com b'));
+});
+
+test('parseIngredient keeps the amount', () => {
+  const c = { '2 tbsp finely chopped fresh parsley, plus extra': ['Parsley', '2 tbsp'], '3 large cloves garlic, minced': ['Garlic', '3 cloves'], '\u00bd tsp salt': ['Salt', '\u00bd tsp'], 'Eggs': ['Eggs', ''], '1 1/2 cups flour': ['Flour', '1 1/2 cups'] };
+  for (const k of Object.keys(c)) assert.deepStrictEqual([R.parseIngredient(k).name, R.parseIngredient(k).qty], c[k], k);
+  assert.strictEqual(R.parseIngredient('For the sauce:'), null);
+});
+
+test('the same ingredient twice becomes one with both amounts', () => {
+  assert.deepStrictEqual(R.cleanAll(['1 tbsp salt', '1 tsp salt', '2 eggs']), [{ name: 'Salt', qty: '1 tbsp + 1 tsp' }, { name: 'Eggs', qty: '2' }]);
 });

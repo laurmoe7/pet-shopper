@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '213';
+var BUILD = '214';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -229,7 +229,7 @@ function render() {
   var shown = far.length ? todo.filter(function (i) { return far.indexOf(i) === -1; }) : todo;
   var kept = {};
   function rowFor(item) {
-    var key = (item.done ? 1 : 0) + item.emoji + '|' + item.text + '|' + dueTagKey(item);
+    var key = (item.done ? 1 : 0) + item.emoji + '|' + item.text + '|' + (item.qty || '') + '|' + dueTagKey(item);
     var old = rows[item.id];
     var li = old && old.key === key && !freshIds[item.id] ? old.li : row(item);
     kept[item.id] = { key: key, li: li };
@@ -357,6 +357,12 @@ function row(item) {
   text.textContent = item.text;
 
   li.append(check, eb, text);
+  if (item.qty && !item.done) {   // the amount to buy, from a recipe
+    var qty = document.createElement('span');
+    qty.className = 'qty-tag';
+    qty.textContent = item.qty;
+    li.append(qty);
+  }
   if (state.mode === 'todo' && item.due && !item.done) {
     var when = infoOf(item);
     if (when.days > 0) li.classList.add('later');   // not for today

@@ -22,7 +22,7 @@ function applyListMode(animate) {
     setTimeout(function () { brandKind.textContent = kind; }, 190);
   } else brandKind.textContent = kind;
   brandEl.classList.toggle('swapped', todo);
-  addInput.placeholder = todo ? 'Add a to-do, like call mum' : 'Add an item, like bananas';
+  addInput.placeholder = todo ? 'Add a to-do, like call mum' : 'Add an item…';
   $('addLabel').textContent = todo ? 'Add a to-do' : 'Add an item';
   addForm.querySelector('.add-btn').setAttribute('aria-label', todo ? 'Add to-do' : 'Add item');
   todoEl.setAttribute('aria-label', todo ? 'To do' : 'To buy');

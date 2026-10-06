@@ -1988,6 +1988,7 @@ html[data-list="todo"] .cart, html[data-list="todo"] .receipt, html[data-list="t
 .task-stamp path { fill: none; stroke: #fff; stroke-width: 4.6; stroke-linecap: round; stroke-linejoin: round; }
 
 /* to-do dates and the clipboard (app-todo.js) */
+.qty-tag { flex: none; align-self: center; font-size: .72rem; font-weight: 800; line-height: 1; padding: 4px 8px; border-radius: 999px; background: var(--paper-pink, #ffe3ea); color: var(--muted); border: 1.5px solid var(--line); white-space: nowrap; }
 .due-tag { flex: none; align-self: center; font-size: .72rem; font-weight: 800; line-height: 1; padding: 4px 8px; border-radius: 999px; background: rgba(212, 182, 138, .25); color: var(--muted); border: 1.5px solid var(--line); white-space: nowrap; }
 .due-tag.due-soon { background: #fff0c2; color: #8a6420; border-color: #e8cf86; }
 .due-tag.due-today { background: #ffe19a; color: #6e4a0c; border-color: #e0b24c; }

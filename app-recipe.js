@@ -30,24 +30,26 @@ function recipeFetch(url) {
   }, function (e) { clearTimeout(timer); throw e; });
 }
 
-/** Shows the ingredients found, each ticked, to untick the ones you have. @param {string} title @param {string[]} names */
-function showRecipe(title, names) {
+/** Shows the ingredients found, each ticked, to untick the ones you have. @param {string} title @param {{name: string, qty: string}[]} found */
+function showRecipe(title, found) {
   var onList = {};
   state.items.forEach(function (i) { if (!i.done) onList[i.text.toLowerCase()] = true; });
-  recipeFound = names;
-  recipeList.replaceChildren.apply(recipeList, names.map(function (n, i) {
+  recipeFound = found;
+  recipeList.replaceChildren.apply(recipeList, found.map(function (f, i) {
+    var n = f.name;
     var label = document.createElement('label'), box = document.createElement('input');
     box.type = 'checkbox'; box.checked = !onList[n.toLowerCase()]; box.dataset.i = i;
     var text = document.createElement('span');
     text.textContent = n + (onList[n.toLowerCase()] ? ' (already on your list)' : '');
     label.append(box, emojiImg(L.createItem(n, state.overrides, 'x', 0, 'shop').emoji, ''), text);
+    if (f.qty) { var q = document.createElement('b'); q.className = 'qty-tag'; q.textContent = f.qty; label.append(q); }
     return label;
   }));
   $('recipeName').textContent = title || 'Ingredients';
-  $('recipeResult').hidden = !names.length;
+  $('recipeResult').hidden = !found.length;
   updateRecipeAdd();
 }
-/** @returns {string[]} The ingredients that are ticked. */
+/** @returns {{name: string, qty: string}[]} The ingredients that are ticked. */
 function recipeChosen() {
   return Array.prototype.filter.call(recipeList.querySelectorAll('input'), function (b) { return b.checked; }).map(function (b) { return recipeFound[+b.dataset.i]; });
 }
@@ -86,7 +88,8 @@ function recipeAddAll() {
   var names = recipeChosen();
   if (!names.length || isTodo()) return;
   names.forEach(function (n) {
-    var item = L.createItem(n, state.overrides, newId(), Date.now(), 'shop');
+    var item = L.createItem(n.name, state.overrides, newId(), Date.now(), 'shop');
+    if (n.qty) item.qty = n.qty;
     L.addToList(state.items, item);
     freshIds[item.id] = true;
   });

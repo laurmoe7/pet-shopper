@@ -1,9 +1,9 @@
 /* Recipes: turns a recipe web page (or pasted ingredient lines) into shopping list items.
  * Plain functions with no page code, like bonuses.js, so they can be tested:
  *   parseRecipeHtml(html)  finds the recipe the page describes for search engines (schema.org JSON-LD): { title, ingredients }
- *   cleanIngredient(line)  "2 tbsp finely chopped fresh parsley, plus extra" becomes "Parsley"
+ *   parseIngredient(line)  "2 tbsp finely chopped fresh parsley, plus extra" becomes { name: 'Parsley', qty: '2 tbsp' }
  *   recipeFromText(text)   the same for pasted lines, one ingredient per line
- * English and Dutch units and words are understood. Amounts are dropped: the list only holds names.
+ * English and Dutch units and words are understood. The amount is kept as a short note on the item (`qty`).
  */
 (function (root) {
   'use strict';
@@ -32,26 +32,31 @@
   }
 
   /**
-   * Turns one ingredient line into a list item name.
+   * Turns one ingredient line into a list item: the name, and the amount to buy.
    * @param {string} line  Like "2 tbsp finely chopped fresh parsley, plus extra".
-   * @returns {string} Like "Parsley", or "" for lines that are not an ingredient (headings, empty).
+   * @returns {{name: string, qty: string}|null} Like { name: 'Parsley', qty: '2 tbsp' }; null for lines that are not an ingredient (headings, empty).
    */
-  function cleanIngredient(line) {
+  function parseIngredient(line) {
     var s = decode(line).replace(/^[\s\-•*▢☐☑✓·]+/, '').replace(/\s+/g, ' ').trim();
-    if (!s || /:\s*$/.test(s)) return '';                 // "For the sauce:"
-    s = s.replace(/\([^)]*\)/g, ' ').replace(/\[[^\]]*\]/g, ' ');
+    if (!s || /:\s*$/.test(s)) return null;               // "For the sauce:"
+    s = s.replace(/\([^)]*\)/g, ' ').replace(/\[[^\]]*\]/g, ' ').replace(/\s+/g, ' ').trim();
     s = s.split(/\s*[,;]\s*/)[0];                          // ", plus extra" / ", to taste"
-    s = s.split(/\s+or\s+/i)[0];                         // "butter or margarine"
+    s = s.split(/\s+or\s+/i)[0];                          // "butter or margarine"
     // leading amounts: 2, 1.5, 1/2, 1 1/2, 2-3, 2 to 3, and vulgar fractions like ½
-    var amount = new RegExp('^(?:[\\d.,]+|[' + VULGAR_CLASS + '])(?:\\s*[\\u2013\\-/]\\s*[\\d.,]+)?(?:\\s*(?:to|tot)\\s*[\\d.,]+)?(?:\\s*[' + VULGAR_CLASS + '])?\\s*', 'i');
-    var words, prev;
-    s = s.replace(amount, '').replace(new RegExp('^[' + VULGAR_CLASS + ']\\s*'), '').replace(/^\d+\/\d+\s*/, '');
+    var amount = new RegExp('^(?:[\\d.,]+|[' + VULGAR_CLASS + '])(?:\\s*[\\u2013\\-/]\\s*[\\d.,]+)?(?:\\s*(?:to|tot)\\s*[\\d.,]+)?(?:\\s*[' + VULGAR_CLASS + '])?(?:\\s*\\d+\\/\\d+)?\\s*', 'i');
+    var qty = [], words, prev;
+    function takeAmount() { var m = s.match(amount); if (m && m[0].trim()) { qty.push(m[0].trim()); s = s.slice(m[0].length); } }
+    takeAmount();
     // units and filler words at the front, in any order ("2 large cloves fresh garlic")
     do {
       prev = s;
       words = s.split(' ');
       var w = words[0].toLowerCase().replace(/[.,]$/, '');
-      if (words.length > 1 && (UNITS.indexOf(w) >= 0 || FILLER.indexOf(w) >= 0)) s = words.slice(1).join(' ').replace(amount, '');
+      if (words.length > 1 && (UNITS.indexOf(w) >= 0 || FILLER.indexOf(w) >= 0)) {
+        if (UNITS.indexOf(w) >= 0) qty.push(words[0].replace(/[.,]$/, ''));
+        s = words.slice(1).join(' ');
+        takeAmount();
+      }
     } while (s !== prev);
     // filler words at the back ("garlic, minced" was cut at the comma; "parsley chopped" is not)
     do {
@@ -61,20 +66,25 @@
       if (words.length > 1 && FILLER.indexOf(last) >= 0 && last !== 'a') s = words.slice(0, -1).join(' ');
     } while (s !== prev);
     s = s.replace(/[.:;!]+$/, '').trim();
-    if (!/[a-zÀ-ɏ]/i.test(s) || s.length < 2) return '';
-    return (s.charAt(0).toUpperCase() + s.slice(1)).slice(0, 80);
+    if (!/[a-zÀ-ɏ]/i.test(s) || s.length < 2) return null;
+    return { name: (s.charAt(0).toUpperCase() + s.slice(1)).slice(0, 80), qty: qty.join(' ').slice(0, 20) };
   }
+  /** @param {string} line @returns {string} Just the name from parseIngredient, or "". */
+  function cleanIngredient(line) { var p = parseIngredient(line); return p ? p.name : ''; }
 
   /**
-   * Cleans a list of ingredient lines into unique item names (first of any repeats wins).
+   * Reads a list of ingredient lines into unique items. The same ingredient twice becomes one, with the amounts joined ("1 tbsp + 1 tsp").
    * @param {string[]} lines
-   * @returns {string[]}
+   * @returns {{name: string, qty: string}[]}
    */
   function cleanAll(lines) {
     var seen = {}, out = [];
     lines.forEach(function (l) {
-      var n = cleanIngredient(l), k = n.toLowerCase();
-      if (n && !seen[k]) { seen[k] = true; out.push(n); }
+      var p = parseIngredient(l);
+      if (!p) return;
+      var k = p.name.toLowerCase(), old = seen[k];
+      if (!old) { seen[k] = p; out.push(p); }
+      else if (p.qty && old.qty !== p.qty) old.qty = (old.qty ? old.qty + ' + ' + p.qty : p.qty).slice(0, 20);
     });
     return out.slice(0, 60);
   }
@@ -94,7 +104,7 @@
   /**
    * Reads the recipe a page describes for search engines.
    * @param {string} html  The page's HTML.
-   * @returns {{title: string, ingredients: string[]}|null} null when the page has no readable recipe.
+   * @returns {{title: string, ingredients: {name: string, qty: string}[]}|null} null when the page has no readable recipe.
    */
   function parseRecipeHtml(html) {
     var re = /<script[^>]+type\s*=\s*["']?application\/ld\+json["']?[^>]*>([\s\S]*?)<\/script>/gi, m;
@@ -114,12 +124,12 @@
   /**
    * Reads pasted ingredient lines, one per line.
    * @param {string} text
-   * @returns {string[]}
+   * @returns {{name: string, qty: string}[]}
    */
   function recipeFromText(text) { return cleanAll(String(text || '').split(/\r?\n/)); }
 
   /** @param {string} s @returns {boolean} Whether it looks like a web address to fetch (http or https, or www.). */
   function looksLikeUrl(s) { return /^\s*(https?:\/\/\S+|www\.\S+\.\S+)\s*$/i.test(String(s || '')); }
 
-  root.Recipe = { cleanIngredient: cleanIngredient, cleanAll: cleanAll, parseRecipeHtml: parseRecipeHtml, recipeFromText: recipeFromText, looksLikeUrl: looksLikeUrl };
+  root.Recipe = { parseIngredient: parseIngredient, cleanIngredient: cleanIngredient, cleanAll: cleanAll, parseRecipeHtml: parseRecipeHtml, recipeFromText: recipeFromText, looksLikeUrl: looksLikeUrl };
 })(typeof self !== 'undefined' ? self : globalThis);

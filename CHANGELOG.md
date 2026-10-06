@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 214 (9 Oct)
+- Recipe amounts stay: each item shows how much to buy.
+
 ## Build 213 (9 Oct)
 - Add from a recipe: paste a link or ingredients, tick what you need, add them to the shopping list.
 
