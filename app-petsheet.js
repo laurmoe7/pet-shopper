@@ -14,7 +14,9 @@ var SPECIES = [
   { id: 'hamster', label: 'Hamster' },
   { id: 'frog', label: 'Frog' },
   { id: 'hedgehog', label: 'Hedgehog' },
-  { id: 'axolotl', label: 'Axolotl' }
+  { id: 'axolotl', label: 'Axolotl' },
+  { id: 'mouse', label: 'Mouse' },
+  { id: 'monkey', label: 'Monkey' }
 ];
 var petNameInput = $('petNameInput'), speciesGrid = $('speciesGrid');
 

@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 232 (10 Oct)
+- New species: mouse and monkey.
+- New skin: snow monkey.
+
 ## Build 231 (10 Oct)
 - Photoshoot: the Photo button takes the picture itself, to share or save. No screenshot needed.
 
