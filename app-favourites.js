@@ -1,4 +1,4 @@
-// The Top 10 sheet: what you buy most, with a quick way to put it back on the list.
+// The Top 10 sheet (opened from the Profile sheet): what you buy most, with a quick way to put it back on the list.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
@@ -117,7 +117,7 @@ function renderFavourites() {
   }));
 }
 
-$('favBtn').addEventListener('click', function () {
+$('favBtn').addEventListener('click', function () {   // the button is in the Profile sheet
   renderFavourites();
   openDialog(favSheet);
 });

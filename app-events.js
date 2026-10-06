@@ -84,7 +84,9 @@ function onListClick(e) {
   if (!li) return;
   if (e.target.closest('.check')) { if (!warnIfEarly(li.dataset.id)) toggle(li.dataset.id); }
   else if (e.target.closest('.emoji-btn')) openPicker(li.dataset.id);
-  else if (isTodo() && !li.classList.contains('done')) openTaskSheet(li.dataset.id);   // the task's words or date tag
+  else if (li.classList.contains('done')) return;
+  else if (isTodo()) openTaskSheet(li.dataset.id);   // the task's words or date tag
+  else openItemSheet(li.dataset.id);                 // the item's words or amount
 }
 todoEl.addEventListener('click', onListClick);
 doneEl.addEventListener('click', onListClick);

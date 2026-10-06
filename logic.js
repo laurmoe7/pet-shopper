@@ -125,7 +125,7 @@
       .sort(function (a, b) { return rank(a.e) - rank(b.e) || a.n - b.n; })
       .map(function (x) { return x.e; });
   }
-  var SAMPLE = ['Bananas', 'Oat milk', '500g Quark', 'Broccoli', 'Chili flakes', 'Dark chocolate', 'Toilet paper', "Oma's cake"];
+  var SAMPLE = ['Bananas', ['Oat milk', '1 l'], ['Quark', '500 g'], 'Broccoli', 'Chili flakes', 'Dark chocolate', 'Toilet paper', "Oma's cake"];
 
   /**
    * Finds the emoji for an item, preferring one the person picked for that word before.
@@ -188,6 +188,9 @@
       tastes: saved.tastes && typeof saved.tastes === 'object' ? saved.tastes : {},
       // check-mark stamps from ticked tasks, by task kind (the stamp book)
       stamps: saved.stamps && typeof saved.stamps === 'object' ? saved.stamps : {},
+      // daily gift boxes (bonuses.js): the boxes opened on each recent day and the prizes collected
+      gifts: saved.gifts && typeof saved.gifts === 'object' ? saved.gifts : {},
+      prizes: saved.prizes && typeof saved.prizes === 'object' ? saved.prizes : {},
       favourites: saved.favourites && typeof saved.favourites === 'object' ? saved.favourites : {},
       // the night it was put to bed (nightOf): asleep until something is checked off or the morning
       dozing: typeof saved.dozing === 'string' ? saved.dozing : '',
@@ -197,6 +200,21 @@
         words: (saved.guard && Array.isArray(saved.guard.words)) ? saved.guard.words : [],
         lastSeen: (saved.guard && saved.guard.lastSeen) || 0
       }
+    };
+  }
+
+  /**
+   * The player (the person, apart from the pet): a name and a birthday.
+   * @param {Object} [saved]
+   * @param {string} [oldBirthday] A birthday saved on the pet by an earlier build.
+   * @returns {{name: string, birthday: string}} birthday is "MM-DD" or empty.
+   */
+  function parsePlayer(saved, oldBirthday) {
+    saved = saved && typeof saved === 'object' ? saved : {};
+    var day = /^\d\d-\d\d$/;
+    return {
+      name: typeof saved.name === 'string' ? saved.name.trim().slice(0, 20) : '',
+      birthday: typeof saved.birthday === 'string' && day.test(saved.birthday) ? saved.birthday : (typeof oldBirthday === 'string' && day.test(oldBirthday) ? oldBirthday : '')
     };
   }
 
@@ -212,7 +230,11 @@
     try { data = JSON.parse(raw); } catch (e) { data = null; }
     if (!data || !Array.isArray(data.items)) {
       data = { items: [], overrides: {}, quiet: false, lastOpen: 0 };
-      SAMPLE.forEach(function (t) { data.items.push(createItem(t, data.overrides, nextId())); });
+      SAMPLE.forEach(function (t) {   // a sample can carry an amount: [name, amount]
+        var item = createItem(Array.isArray(t) ? t[0] : t, data.overrides, nextId());
+        if (Array.isArray(t)) item.qty = t[1];
+        data.items.push(item);
+      });
     }
     data.overrides = data.overrides || {};
     // the list on show (shopping or to-do) is state.items; the other one waits in state.stash
@@ -220,6 +242,7 @@
     if (!Array.isArray(data.stash)) data.stash = [];
     data.items.forEach(cleanTask);
     data.stash.forEach(cleanTask);
+    data.player = parsePlayer(data.player, data.pet && data.pet.birthday);   // build 196 kept the birthday on the pet
     data.pet = petProfile(data.pet);
     data.settings = settings(data.settings);
     // developer-only switches from the dev menu
@@ -311,8 +334,21 @@
     { id: 'daily', label: 'Every day', days: 1 },
     { id: 'every3', label: 'Every 3 days', days: 3 },
     { id: 'weekly', label: 'Every week', days: 7 },
+    { id: 'weekdays', label: 'Weekdays (Mon to Fri)', dow: [1, 2, 3, 4, 5] },
+    { id: 'weekends', label: 'Weekends', dow: [6, 0] },
+    { id: 'days', label: 'Certain days of the week…', dow: null },   // the days are on the task (item.days)
     { id: 'monthly', label: 'Every month', months: 1 },
     { id: 'yearly', label: 'Every year', months: 12 }
+  ];
+  /** How long a repeating task goes on for (`weeks` or `months` counted from its first day). */
+  var REPEAT_SPANS = [
+    { id: '', label: 'Forever' },
+    { id: '1w', label: '1 week', weeks: 1 },
+    { id: '2w', label: '2 weeks', weeks: 2 },
+    { id: '1m', label: '1 month', months: 1 },
+    { id: '2m', label: '2 months', months: 2 },
+    { id: '3m', label: '3 months', months: 3 },
+    { id: '6m', label: '6 months', months: 6 }
   ];
   /** @returns {boolean} Whether this is a due day in the form YYYY-MM-DD. */
   function isDayKey(s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s); }
@@ -346,6 +382,28 @@
     if (n === 1) return { days: n, state: 'soon', label: 'tomorrow' + at };
     return { days: n, state: n <= 2 ? 'soon' : 'later', label: (n <= 6 ? WEEKDAYS[d.getDay()] : d.getDate() + ' ' + MONTHS[d.getMonth()]) + at };
   }
+  /** @returns {string} The first day from this one on that falls on one of the weekdays (0 is Sunday). */
+  function firstOnDays(from, set) {
+    var d = from;
+    for (var n = 0; n < 7 && set.indexOf(dayDate(d).getDay()) === -1; n++) d = addDays(d, 1);
+    return d;
+  }
+  /** @returns {?number[]} The weekdays (0 is Sunday) a repeating task comes back on, or null if it repeats by a count of days or months. */
+  function repeatDays(item) {
+    var r = REPEATS.filter(function (x) { return x.id === item.repeat; })[0];
+    return r && r.dow ? r.dow : item.repeat === 'days' ? item.days || [] : null;
+  }
+  /**
+   * The last day of a repeat that runs for a span: "a week" from Monday ends on Sunday, "2 months" from 5 Oct ends on 4 Dec.
+   * @param {string} start  The day it starts (its due day).
+   * @param {string} span  A REPEAT_SPANS id.
+   * @returns {string} YYYY-MM-DD, or '' for forever.
+   */
+  function untilFor(start, span) {
+    var s = REPEAT_SPANS.filter(function (x) { return x.id === span; })[0];
+    if (!s || !s.id || !isDayKey(start)) return '';
+    return s.weeks ? addDays(start, 7 * s.weeks - 1) : addDays(addMonths(start, s.months), -1);
+  }
   /**
    * The next day a repeating task is due: one step after its due day, and always after today (a task that was
    * ticked weeks late comes back on its next regular day, not in the past).
@@ -354,10 +412,17 @@
    * @param {string} today
    * @returns {string}
    */
-  function nextDue(due, repeat, today) {
+  function nextDue(due, repeat, today, days) {
     var r = REPEATS.filter(function (x) { return x.id === repeat; })[0];
     var base = isDayKey(due) ? due : today;
     if (!r || !r.id) return base;
+    if (r.id === 'days' || r.dow) {   // certain days of the week: the next one after both its day and today
+      var set = r.dow || days || [];
+      if (!set.length) return base;
+      var d = addDays(base > today ? base : today, 1);
+      for (var n = 0; n < 7 && set.indexOf(dayDate(d).getDay()) === -1; n++) d = addDays(d, 1);
+      return d;
+    }
     var k = 1, next;
     do {
       next = r.months ? addMonths(base, r.months * k) : addDays(base, r.days * k);
@@ -487,9 +552,17 @@
   }
   /** Drops a due day or repeat that isn't valid (from old or damaged saves). */
   function cleanTask(item) {
+    if (item && item.qty !== undefined) { var q = typeof item.qty === 'string' ? item.qty.trim().slice(0, 20) : ''; if (q) item.qty = q; else delete item.qty; }   // the amount to buy, like "2 tbsp"
     if (item && item.due !== undefined && !isDayKey(item.due)) delete item.due;
     if (item && item.time !== undefined && (!item.due || !isTimeKey(item.time))) delete item.time;
+    if (item && item.until !== undefined && (!isDayKey(item.until) || !item.repeat || !item.due)) delete item.until;
+    if (item && item.days !== undefined) {   // the chosen weekdays of a 'certain days' repeat
+      var ds = Array.isArray(item.days) ? item.days.filter(function (n, i, a) { return n % 1 === 0 && n >= 0 && n <= 6 && a.indexOf(n) === i; }) : [];
+      if (item.repeat === 'days' && ds.length) item.days = ds; else delete item.days;
+    }
+    if (item && item.repeat === 'days' && !item.days) delete item.repeat;
     if (item && item.repeat !== undefined && (!item.due || !REPEATS.some(function (r) { return r.id && r.id === item.repeat; }))) delete item.repeat;
+    if (item && item.until !== undefined && !item.repeat) delete item.until;
     return item;
   }
 
@@ -1485,7 +1558,41 @@
     return { pts: skSimplify(rs, w * 0.0012), closed: closed };
   }
 
+  /**
+   * What Nibble says about a recipe he has just read: by the dish in its title, else by what is in it, else by how big it is.
+   * @param {string} title  The recipe's name ("" for pasted ingredients).
+   * @param {{name: string}[]} found  The ingredients found.
+   * @param {function(): number} [random]
+   * @returns {string} A short line.
+   */
+  function recipeRemark(title, found, random) {
+    var rnd = random || Math.random;
+    var pick = function (a) { return a[Math.floor(rnd() * a.length)]; };
+    var t = String(title || '').toLowerCase();
+    var names = (found || []).map(function (f) { return String(f.name || '').toLowerCase(); }).join(' | ');
+    var dishes = [
+      [/mac(?:aroni)?\b.*cheese|\bcheesy\b/, ['cheesy!! yes please', 'so much cheese… I love it']],
+      [/chicken/, ['ooh, chicken!', 'chicken night? yum!']],
+      [/pasta|spaghetti|lasagn|noodle|ramen|pizza|pizzoc/, ['carbs!! my favourite', 'ooh, comfy food!']],
+      [/cookie|cake|brownie|muffin|cupcake|pie\b|tart\b|dessert|pudding|ice cream|cheesecake/, ['a sweet one!! can I try?', 'ooh, treat time!']],
+      [/bread|loaf|bun\b|rolls?\b|dough|bagel/, ['fresh bread… I can smell it', 'baking day! yay!']],
+      [/soup|stew|chili|casserole|curry|potpie|pot pie|hotpot/, ['cosy and warm…', 'ooh, a big warm pot!']],
+      [/salad|bowl|veggie|vegetable/, ['fresh and crunchy!', 'so healthy! good job']],
+      [/taco|burrito|nacho|quesadilla|fajita/, ['taco time!', 'ooh, spicy and yummy']],
+      [/pancake|waffle|crepe|french toast|breakfast|oat/, ['breakfast!! yay', 'ooh, a yummy morning']],
+      [/fish|salmon|shrimp|tuna|sushi/, ['ooh, fishy!', 'splashy and yummy']]
+    ];
+    for (var i = 0; i < dishes.length; i++) if (dishes[i][0].test(t)) return pick(dishes[i][1]);
+    var byFood = [[/chocolate|cocoa|cacao/, 'chocolate?? lucky you!'], [/cheese/, 'ooh, cheese!'], [/bacon/, 'bacon!! I smell it already'], [/butter/, 'mmm, buttery…'], [/chili|cayenne|sriracha|jalape/, 'ooh, a bit spicy!']];
+    for (var j = 0; j < byFood.length; j++) if (byFood[j][0].test(names)) return byFood[j][1];
+    var n = (found || []).length;
+    if (n >= 15) return 'so many things! big cooking day';
+    if (n && n <= 5) return pick(['easy one! just a few things', 'quick and simple, I like it']);
+    return pick(['ooh, that looks yummy!', 'yum! what are we making?', 'sounds tasty!']);
+  }
+
   root.PetLogic = {
+    recipeRemark: recipeRemark,
     unlockAll: unlockAll,
     lockAll: lockAll,
     skipDays: skipDays,
@@ -1529,9 +1636,10 @@
     isUnlocked: isUnlocked,
     gateFor: gateFor,
     emojiFor: emojiFor,
-    splitSpoken: splitSpoken, wornIds: wornIds, toggleWorn: toggleWorn, faceStack: faceStack, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, REPEATS: REPEATS, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
+    splitSpoken: splitSpoken, wornIds: wornIds, toggleWorn: toggleWorn, faceStack: faceStack, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, cleanTask: cleanTask, firstOnDays: firstOnDays, repeatDays: repeatDays, REPEATS: REPEATS, REPEAT_SPANS: REPEAT_SPANS, untilFor: untilFor, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
     createItem: createItem,
     petProfile: petProfile,
+    parsePlayer: parsePlayer,
     CLOSET_MAX: CLOSET_MAX,
     cleanOutfitName: cleanOutfitName,
     parseCloset: parseCloset,

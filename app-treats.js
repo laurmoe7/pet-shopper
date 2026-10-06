@@ -4,6 +4,7 @@
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
+var wishHop = 0;
 var wishEl = $('wish'), wishCloud = $('wishCloud'), wishWord = '', wishTimer = 0, wishGone = 0;
 var WISH_FIRST_MS = [45000, 60000];      // the first ask after the app opens: between these
 var WISH_GAP_MS = [180000, 240000];      // later asks: a few minutes apart
@@ -30,8 +31,11 @@ function askForTreat(force) {
   var found = L.createItem(word, {}, 'treat');
   wishWord = word;
   wishCloud.replaceChildren(emojiImg(found.emoji, ''));
-  wishEl.setAttribute('aria-label', 'Nibble would like ' + word + '. Tap to feed it.');
+  wishEl.setAttribute('aria-label', petName() + ' would like ' + word + '. Tap to feed it.');
   wishEl.hidden = false;
+  wishPose();
+  clearInterval(wishHop);
+  wishHop = setInterval(wishPose, 5000);
   sound('ooh');
   // the first few asks say how it works
   var asks = 0;
@@ -41,11 +45,21 @@ function askForTreat(force) {
   clearTimeout(wishGone);
   wishGone = setTimeout(function () { dropWish(false); }, WISH_STAYS_MS);
 }
+/** He looks up at the cloud with open eyes, reaches for it and hops a little towards it (again now and then while it waits). */
+function wishPose() {
+  if (!wishWord || busy || baseState() === 'sleepy') return;
+  pet.classList.add('wishing');
+  setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: [] });
+  pulse('hop', 500);
+}
 /** Takes the cloud away and plans the next ask. @param {boolean} fed He got what he asked for. */
 function dropWish(fed) {
   clearTimeout(wishGone);
   wishWord = '';
   wishEl.hidden = true;
+  pet.classList.remove('wishing');
+  clearInterval(wishHop);
+  if (!fed && !busy) settle();
   scheduleWish(wishDelay(fed ? WISH_GAP_MS : WISH_GAP_MS.map(function (n) { return n / 2; })));
 }
 
@@ -66,8 +80,20 @@ wishEl.addEventListener('click', function (e) {
     // asleep: it wakes with a start for the treat, eats it happy but tired, then goes back to sleep
     busy++;
     setTimeout(function () { busy--; eat(item, from, goals); }, wakeForSnack());
-  } else eat(item, from, goals);
+    setTimeout(function () { thankForTreat(); }, 0);
+  } else { eat(item, from, goals); thankForTreat(); }
 });
+/** After the treat is eaten he says thank you and does a little dance. */
+function thankForTreat() {
+  enqueue(function () {
+    var tired = isTired(), m = tiredMove(['shuffle', 1500]);
+    setFace(tiredFace(FACES.tada));
+    pulse(m[0], m[1]);
+    sound('excited');
+    say(pick(tired ? ['thank you… *yawn*', 'thanks… so sweet ♡'] : ['thank you! ♡', 'yummy, thank you!', 'you\'re the best!', 'arigatou~!', 'that was perfect ♡']), 1800);
+    return wait(m[1] + 200).then(function () { if (!busy) settle(); });
+  });
+}
 
 scheduleWish(wishDelay(WISH_FIRST_MS));
 

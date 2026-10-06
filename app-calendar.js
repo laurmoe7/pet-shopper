@@ -3,7 +3,7 @@
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
-var calSheet = $('calSheet'), calGrid = $('calGrid'), calList = $('calList'), calInput = $('calInput'), calYearly = $('calYearly');
+var calSheet = $('calSheet'), calGrid = $('calGrid'), calList = $('calList'), calInput = $('calInput'), calKind = 'plan';
 var calYear = 0, calMonth = 0, calSel = '';
 var CAL_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 var CAL_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -14,6 +14,10 @@ function calDayName(day) {
   return CAL_DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + CAL_MONTHS[d.getMonth()];
 }
 /** Draws the month: a button per day, with a small dot for each plan that day. */
+/** @returns {Item[]} The to-do list, which holds the plans: on show in to-do mode, waiting in the stash otherwise. */
+function planList() { return isTodo() ? state.items : state.stash; }
+/** Replaces the to-do list wherever it is kept. @param {Item[]} list */
+function setPlanList(list) { if (isTodo()) state.items = list; else state.stash = list; }
 function renderCalendar() {
   var today = todayKey();
   // the month and year are drop-down menus, to jump straight to a month
@@ -36,7 +40,7 @@ function renderCalendar() {
     n.textContent = +c.day.slice(8, 10);
     var dots = document.createElement('span');
     dots.className = 'cal-dots';
-    L.tasksOn(state.items, c.day).slice(0, 3).forEach(function (t) {
+    L.tasksOn(planList(), c.day).slice(0, 3).forEach(function (t) {
       var dot = document.createElement('i');
       dot.className = (t.repeat === 'yearly' ? 'yearly' : '') + (t.done ? ' done' : '');
       dots.appendChild(dot);
@@ -49,16 +53,21 @@ function renderCalendar() {
 /** Shows the chosen day's plans, and the box to add one (not for days that are over). */
 function renderCalDay() {
   $('calDayTitle').textContent = calDayName(calSel) + (calSel === todayKey() ? ' (today)' : '');
-  var tasks = L.tasksOn(state.items, calSel);
+  var tasks = L.tasksOn(planList(), calSel);
   calList.replaceChildren.apply(calList, tasks.length ? tasks.map(function (t) {
     var li = document.createElement('li');
     li.className = t.done ? 'done' : '';
     var text = document.createElement('span');
-    text.textContent = t.text + (t.time ? ' · ' + fmtTime(t.time) : '') + (t.repeat === 'yearly' ? ' ↻' : '');
+    text.textContent = t.text + (t.time ? ' · ' + fmtTime(t.time) : '') + (t.repeat ? ' ↻' : '');
+    text.className = 'cal-text';
+    text.dataset.id = t.id;
+    text.title = 'Tap to edit';
     var del = document.createElement('button');
     del.type = 'button'; del.className = 'text-btn cal-del'; del.dataset.id = t.id;
     del.setAttribute('aria-label', 'Remove ' + t.text); del.textContent = '✕';
-    li.append(emojiImg(t.emoji, ''), text, del);
+    var pen = document.createElement('span');
+    pen.className = 'cal-pen'; pen.setAttribute('aria-hidden', 'true'); pen.textContent = '✎';
+    li.append(emojiImg(t.emoji, ''), text, pen, del);
     return li;
   }) : [Object.assign(document.createElement('li'), { className: 'cal-empty', textContent: calSel < todayKey() ? 'Nothing was planned.' : 'Nothing planned yet.' })]);
   $('calAdd').classList.toggle('off', calSel < todayKey());   // hidden but still taking its room, so the sheet never changes height
@@ -69,14 +78,18 @@ function renderCalDay() {
  * @param {string} day
  * @param {string} [repeat]  A repeat id ('yearly' for birthdays).
  */
-function addPlan(text, day, repeat) {
+function addPlan(text, day, repeat, time, birthday) {
   text = text.trim();
   if (!text || day < todayKey()) return;
+  if (birthday && !/birthday|bday|verjaardag/i.test(text)) text += "'s birthday";
   var item = L.createItem(text, state.overrides, newId(), Date.now(), 'todo');
+  if (birthday) item.emoji = '🎂';
   item.due = day;
+  if (time) item.time = time;
   if (repeat) item.repeat = repeat;
-  L.addToList(state.items, item);
-  state.items = L.sortByDue(state.items, todayKey());
+  var plans = planList();
+  L.addToList(plans, item);
+  setPlanList(L.sortByDue(plans, todayKey()));
   freshIds[item.id] = true;
   save();
   render();
@@ -88,7 +101,7 @@ function addPlan(text, day, repeat) {
 function openCalendar() {
   var now = L.dayKey(petNow());
   calYear = +now.slice(0, 4); calMonth = +now.slice(5, 7) - 1; calSel = now;
-  calInput.value = ''; calYearly.setAttribute('aria-pressed', 'false');
+  resetCalForm();
   renderCalendar();
   openDialog(calSheet);
 }
@@ -120,21 +133,40 @@ calGrid.addEventListener('click', function (e) {
   sound('tap');
   renderCalendar();
 });
-calYearly.addEventListener('click', function () { calYearly.setAttribute('aria-pressed', String(calYearly.getAttribute('aria-pressed') !== 'true')); });
+/** Fills the repeat menu and puts the add form back to a plain plan. */
+function resetCalForm() {
+  var rs = $('calRepeat');
+  if (!rs.options.length) rs.replaceChildren.apply(rs, L.REPEATS.filter(function (r) { return r.id !== 'days'; }).map(function (r) { return new Option(r.label, r.id); }));
+  calInput.value = ''; $('calTime').value = ''; rs.value = ''; setCalKind('plan');
+}
+/** Picks what is being added: a plan (no repeat) or a birthday (every year, with a cake). @param {'plan'|'birthday'} kind */
+function setCalKind(kind) {
+  calKind = kind;
+  $('calKinds').querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.kind === kind)); });
+  $('calRepeat').value = kind === 'birthday' ? 'yearly' : $('calRepeat').value === 'yearly' ? '' : $('calRepeat').value;
+  calInput.placeholder = kind === 'birthday' ? 'Whose birthday?' : 'Add a plan…';
+}
+$('calKinds').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { setCalKind(b.dataset.kind); sound('tap'); } });
 // a birthday (or an anniversary) is probably yearly: switch it on as it is typed
 calInput.addEventListener('input', function () {
-  if (/birthday|bday|verjaardag|anniversary|jubileum/i.test(calInput.value)) calYearly.setAttribute('aria-pressed', 'true');
+  if (/birthday|bday|verjaardag/i.test(calInput.value) && calKind !== 'birthday') setCalKind('birthday');
 });
 function submitPlan() {
-  addPlan(calInput.value, calSel, calYearly.getAttribute('aria-pressed') === 'true' ? 'yearly' : '');
-  calInput.value = ''; calYearly.setAttribute('aria-pressed', 'false');
+  addPlan(calInput.value, calSel, $('calRepeat').value, $('calTime').value, calKind === 'birthday');
+  resetCalForm();
 }
 $('calAddBtn').addEventListener('click', submitPlan);
 calInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); submitPlan(); } });
 calList.addEventListener('click', function (e) {
+  var edit = e.target.closest('.cal-text, .cal-pen, img');
+  if (edit && !e.target.closest('.cal-del')) {   // tap a plan to change its day, time, repeat, name or emoji (the task sheet; the calendar comes back after)
+    var id = (edit.dataset && edit.dataset.id) || (edit.closest('li').querySelector('.cal-text') || {dataset: {}}).dataset.id;
+    if (id) { taskFromCal = true; openTaskSheet(id); }
+    return;
+  }
   var del = e.target.closest('.cal-del');
   if (!del) return;
-  state.items = state.items.filter(function (i) { return i.id !== del.dataset.id; });
+  setPlanList(planList().filter(function (i) { return i.id !== del.dataset.id; }));
   save();
   render();
   renderCalendar();

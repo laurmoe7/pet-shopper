@@ -193,3 +193,32 @@ test('glasses and mouth things stack in the order they were put on', () => {
   L.toggleWorn(o, 'mouth', 'none');
   assert.deepEqual(L.faceStack(o).map((e) => e.id), ['eyepatch']);
 });
+
+test('a repeat can run for a span and then stops', () => {
+  assert.equal(L.untilFor('2026-10-05', '1w'), '2026-10-11');
+  assert.equal(L.untilFor('2026-10-05', '2m'), '2026-12-04');
+  assert.equal(L.untilFor('2026-10-05', ''), '');
+  const ok = L.cleanTask({ due: '2026-10-05', repeat: 'weekly', until: '2026-12-04' });
+  assert.equal(ok.until, '2026-12-04');
+  assert.equal(L.cleanTask({ due: '2026-10-05', until: '2026-12-04' }).until, undefined, 'no repeat, no end');
+  assert.equal(L.cleanTask({ due: '2026-10-05', repeat: 'weekly', until: 'soon' }).until, undefined);
+});
+
+test('a repeat on certain weekdays comes back on the next chosen one', () => {
+  // 2026-10-06 is a Tuesday
+  assert.equal(L.nextDue('2026-10-06', 'days', '2026-10-06', [2, 4]), '2026-10-08');
+  assert.equal(L.nextDue('2026-10-08', 'days', '2026-10-08', [2, 4]), '2026-10-13');
+  assert.equal(L.nextDue('2026-10-09', 'weekdays', '2026-10-09'), '2026-10-12', 'Friday to Monday');
+  assert.equal(L.nextDue('2026-10-10', 'weekends', '2026-10-10'), '2026-10-11');
+  assert.equal(L.nextDue('2026-09-01', 'days', '2026-10-06', [1]), '2026-10-12', 'ticked late: the next one is after today');
+  assert.equal(L.firstOnDays('2026-10-06', [4]), '2026-10-08');
+  assert.deepEqual(L.cleanTask({ due: '2026-10-06', repeat: 'days', days: [4, 4, 9, 'x'] }).days, [4]);
+  assert.equal(L.cleanTask({ due: '2026-10-06', repeat: 'days' }).repeat, undefined, 'certain days needs at least one day');
+});
+
+test('cleanTask keeps a short amount and drops a bad one', () => {
+  const L = require('./load.js').PetLogic;
+  assert.strictEqual(L.cleanTask({ id: 'a', text: 'x', qty: '  2 tbsp ' }).qty, '2 tbsp');
+  assert.strictEqual(L.cleanTask({ id: 'a', text: 'x', qty: 5 }).qty, undefined);
+  assert.strictEqual(L.cleanTask({ id: 'a', text: 'x', qty: '' }).qty, undefined);
+});

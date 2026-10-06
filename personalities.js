@@ -289,7 +289,7 @@
       lines: ['fine, it\'s good. don\'t get smug.', 'I liked it. once. don\'t push it.', 'obviously the best pick. mine.'],
       voice: {
         tone: 'sassy',
-        style: { endings: [', obviously', ', whatever', '. no.', ', so there'], prefixes: ['nope, ', 'excuse me? ', 'um, no. '], lower: false, bang: '!' },
+        style: { endings: [', obviously', ', whatever', ', so there'], prefixes: ['hmph, ', 'obviously, ', 'excuse me? '], lower: false, bang: '!' },
         hi: ['oh. you again.', 'I wasn\'t waiting. obviously.'],
         tap: ['hey! I said no touching.', 'ugh, fine. one pat.', 'did I ask for pats? …don\'t stop.'],
         sleepy: ['I\'m NOT asleep… zzz', 'zzz… I said no… zzz'],

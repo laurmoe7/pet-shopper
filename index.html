@@ -51,6 +51,13 @@
       <!-- a daydream: a thought cloud with something from the list -->
       <!-- what Nibble is asking for (app-treats.js): tap it to feed him -->
       <button type="button" class="wish" id="wish" hidden><span class="wish-cloud" id="wishCloud"></span><span class="wish-tag" aria-hidden="true">Tap to feed</span><span class="wish-dot d1"></span><span class="wish-dot d2"></span></button>
+      <!-- what Nibble suggests buying: it stays on the stage, so it does not scroll with the list -->
+      <div class="suggest" id="suggest" hidden>
+        <button type="button" class="suggest-btn" id="suggestBtn"></button>
+        <button type="button" class="text-btn suggest-no" id="suggestNo" aria-label="No thanks">✕</button>
+      </div>
+      <!-- today's gift box (app-gift.js): tap to open it -->
+      <button type="button" class="gift" id="gift" hidden aria-label="Gift"><span class="gift-img" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="6" y="20" width="36" height="24" rx="5" fill="#ffb3c7" stroke="#5b4239" stroke-width="2.4"/><rect x="3" y="13" width="42" height="11" rx="4.5" fill="#ffb3c7" stroke="#5b4239" stroke-width="2.4"/><path d="M24 13 V44" stroke="#fff6ec" stroke-width="6"/><path d="M24 13 C16 3 8 8 15 13 M24 13 C32 3 40 8 33 13" fill="none" stroke="#5b4239" stroke-width="2.4" stroke-linecap="round"/></svg></span><span class="gift-count"></span></button>
       <div class="dream" id="dream" aria-hidden="true" hidden><span class="dream-dot d1"></span><span class="dream-dot d2"></span><span class="dream-cloud" id="dreamCloud"></span></div>
       <div class="pet" id="pet" data-state="sleepy" data-species="mochi" data-arms="rest" aria-label="Nibble, your pet">
         <div class="squash"><svg viewBox="0 0 160 150" class="pet-svg" aria-hidden="true">
@@ -63,6 +70,11 @@
             <pattern id="qPeachDots" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#fff0b0"/><circle cx="3" cy="3" r="1.2" fill="#ffb3a0"/></pattern>
             <pattern id="qGingham" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#e6f7ec"/><rect width="4" height="8" fill="#a8dfbe" opacity=".55"/><rect width="8" height="4" fill="#a8dfbe" opacity=".55"/></pattern>
             <pattern id="qStripes" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="6" height="6" fill="#d6ccf5"/><rect width="2.4" height="6" fill="#fff" opacity=".7"/></pattern>
+            <!-- the dragon's horn rings and wing bones are cut off at their outlines -->
+            <clipPath id="dragonWingL"><path d="M26 86 Q10 70 -2 60 Q4 76 -8 86 Q6 88 2 102 Q16 98 26 98 Z"/></clipPath>
+            <clipPath id="dragonWingR"><path d="M134 86 Q150 70 162 60 Q156 76 168 86 Q154 88 158 102 Q144 98 134 98 Z"/></clipPath>
+            <clipPath id="dragonHornL"><path d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/></clipPath>
+            <clipPath id="dragonHornR"><path d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/></clipPath>
             <clipPath id="bodyClip"><path d="M80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 Z"/></clipPath>
             <!-- the rainbow axolotl's pastel body and the pigeon's shiny neck -->
             <linearGradient id="axoRainbow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc9dc"/><stop offset=".25" stop-color="#ffe2bd"/><stop offset=".45" stop-color="#fff3b8"/><stop offset=".65" stop-color="#ccf2d8"/><stop offset=".82" stop-color="#c9e5ff"/><stop offset="1" stop-color="#e2d3ff"/></linearGradient>
@@ -73,8 +85,8 @@
           <g class="pet-body">
             <!-- each foot is its own group so it can step, tap and tuck (styles.css). Paws, hooves and bird toes peek out
                  under the feet (which species gets which is set in styles.css) -->
-            <g class="foot-side foot-l"><g data-sp="frog" class="frog-feet"><path class="frog-web" d="M47 138 Q47 149 51.5 147.5 Q54.5 143.5 58 148 Q61.5 143.5 64.5 147.5 Q69 149 69 138 Z"/></g><g class="paw-part paw-feet"><path class="paw-toes" d="M47 137 Q47 144.6 50.6 144.6 Q52.5 146.6 54.4 144.9 Q58 147 61.6 144.9 Q63.5 146.6 65.4 144.6 Q69 144.6 69 137 Z"/><path class="paw-line" d="M54.4 143 v1.8 M61.6 143 v1.8"/></g><g class="hoof-part hoof-feet"><path class="hoof" d="M47.2 137.6 L47.8 144.4 Q52.6 146.4 57.1 144.8 L58 142.4 L58.9 144.8 Q63.4 146.4 68.2 144.4 L68.8 137.6 Z"/></g><g class="bird-part bird-feet"><ellipse class="bird-toe" cx="51.6" cy="143.2" rx="3.4" ry="2.4" transform="rotate(-28 51.6 143.2)"/><ellipse class="bird-toe" cx="64.4" cy="143.2" rx="3.4" ry="2.4" transform="rotate(28 64.4 143.2)"/><ellipse class="bird-toe" cx="58" cy="144.6" rx="3.2" ry="2.6"/></g><ellipse class="foot" cx="58" cy="137" rx="11" ry="6"/></g>
-            <g class="foot-side foot-r"><g data-sp="frog" class="frog-feet"><path class="frog-web" d="M91 138 Q91 149 95.5 147.5 Q98.5 143.5 102 148 Q105.5 143.5 108.5 147.5 Q113 149 113 138 Z"/></g><g class="paw-part paw-feet"><path class="paw-toes" d="M91 137 Q91 144.6 94.6 144.6 Q96.5 146.6 98.4 144.9 Q102 147 105.6 144.9 Q107.5 146.6 109.4 144.6 Q113 144.6 113 137 Z"/><path class="paw-line" d="M98.4 143 v1.8 M105.6 143 v1.8"/></g><g class="hoof-part hoof-feet"><path class="hoof" d="M91.2 137.6 L91.8 144.4 Q96.6 146.4 101.1 144.8 L102 142.4 L102.9 144.8 Q107.4 146.4 112.2 144.4 L112.8 137.6 Z"/></g><g class="bird-part bird-feet"><ellipse class="bird-toe" cx="95.6" cy="143.2" rx="3.4" ry="2.4" transform="rotate(-28 95.6 143.2)"/><ellipse class="bird-toe" cx="108.4" cy="143.2" rx="3.4" ry="2.4" transform="rotate(28 108.4 143.2)"/><ellipse class="bird-toe" cx="102" cy="144.6" rx="3.2" ry="2.6"/></g><ellipse class="foot" cx="102" cy="137" rx="11" ry="6"/></g>
+            <g class="foot-side foot-l"><g data-sp="frog" class="frog-feet"><path class="frog-web" d="M47 138 Q47 149 51.5 147.5 Q54.5 143.5 58 148 Q61.5 143.5 64.5 147.5 Q69 149 69 138 Z"/></g><g class="paw-part paw-feet"><path class="paw-toes" d="M47 137 Q47 144.6 50.6 144.6 Q52.5 146.6 54.4 144.9 Q58 147 61.6 144.9 Q63.5 146.6 65.4 144.6 Q69 144.6 69 137 Z"/><path class="paw-line" d="M54.4 143 v1.8 M61.6 143 v1.8"/></g><g class="hoof-part hoof-feet"><path class="hoof" d="M47.2 137.6 L47.8 144.4 Q52.6 146.4 57.1 144.8 L58 142.4 L58.9 144.8 Q63.4 146.4 68.2 144.4 L68.8 137.6 Z"/></g><g class="bird-part bird-feet"><ellipse class="bird-toe" cx="51.6" cy="143.2" rx="3.4" ry="2.4" transform="rotate(-28 51.6 143.2)"/><ellipse class="bird-toe" cx="64.4" cy="143.2" rx="3.4" ry="2.4" transform="rotate(28 64.4 143.2)"/><ellipse class="bird-toe" cx="58" cy="144.6" rx="3.2" ry="2.6"/></g><g class="monkey-part monkey-feet"><path class="monkey-toes" d="M70 136 L70 138 Q69 144 65 144.4 Q62 147 59 144.8 Q56 147 53 144.4 Q50 146 47 144.4 Q42 145 40.5 141 Q40 137 46 136 Z"/><path class="paw-line" d="M53 143 v1.6 M59 143.6 v1.6 M65 143 v1.6"/></g><ellipse class="foot" cx="58" cy="137" rx="11" ry="6"/></g>
+            <g class="foot-side foot-r"><g data-sp="frog" class="frog-feet"><path class="frog-web" d="M91 138 Q91 149 95.5 147.5 Q98.5 143.5 102 148 Q105.5 143.5 108.5 147.5 Q113 149 113 138 Z"/></g><g class="paw-part paw-feet"><path class="paw-toes" d="M91 137 Q91 144.6 94.6 144.6 Q96.5 146.6 98.4 144.9 Q102 147 105.6 144.9 Q107.5 146.6 109.4 144.6 Q113 144.6 113 137 Z"/><path class="paw-line" d="M98.4 143 v1.8 M105.6 143 v1.8"/></g><g class="hoof-part hoof-feet"><path class="hoof" d="M91.2 137.6 L91.8 144.4 Q96.6 146.4 101.1 144.8 L102 142.4 L102.9 144.8 Q107.4 146.4 112.2 144.4 L112.8 137.6 Z"/></g><g class="bird-part bird-feet"><ellipse class="bird-toe" cx="95.6" cy="143.2" rx="3.4" ry="2.4" transform="rotate(-28 95.6 143.2)"/><ellipse class="bird-toe" cx="108.4" cy="143.2" rx="3.4" ry="2.4" transform="rotate(28 108.4 143.2)"/><ellipse class="bird-toe" cx="102" cy="144.6" rx="3.2" ry="2.6"/></g><g class="monkey-part monkey-feet"><path class="monkey-toes" d="M90 136 L90 138 Q91 144 95 144.4 Q98 147 101 144.8 Q104 147 107 144.4 Q110 146 113 144.4 Q118 145 119.5 141 Q120 137 114 136 Z"/><path class="paw-line" d="M107 143 v1.6 M101 143.6 v1.6 M95 143 v1.6"/></g><ellipse class="foot" cx="102" cy="137" rx="11" ry="6"/></g>
             <g class="squish">
               <!-- species parts drawn behind the body -->
               <g data-sp="axolotl"><g class="ear-g ear-l"><g class="gill-line"><path d="M24 78 Q12 74 6 62"/><path d="M20 89 Q8 89 2 81"/><path d="M26 68 Q18 60 16 48"/><circle cx="6" cy="62" r="4.6"/><circle cx="2" cy="81" r="4.6"/><circle cx="16" cy="48" r="4.6"/></g><g class="gill-fill"><path d="M24 78 Q12 74 6 62"/><path d="M20 89 Q8 89 2 81"/><path d="M26 68 Q18 60 16 48"/><circle cx="6" cy="62" r="3.2"/><circle cx="2" cy="81" r="3.2"/><circle cx="16" cy="48" r="3.2"/></g></g><g class="ear-g ear-r"><g class="gill-line"><path d="M136 78 Q148 74 154 62"/><path d="M140 89 Q152 89 158 81"/><path d="M134 68 Q142 60 144 48"/><circle cx="154" cy="62" r="4.6"/><circle cx="158" cy="81" r="4.6"/><circle cx="144" cy="48" r="4.6"/></g><g class="gill-fill"><path d="M136 78 Q148 74 154 62"/><path d="M140 89 Q152 89 158 81"/><path d="M134 68 Q142 60 144 48"/><circle cx="154" cy="62" r="3.2"/><circle cx="158" cy="81" r="3.2"/><circle cx="144" cy="48" r="3.2"/></g></g></g>
@@ -117,6 +129,32 @@
                   <circle class="ear" cx="110" cy="48" r="11"/>
                   <circle class="ear-in" cx="110" cy="48" r="6"/>
                 </g>
+              </g>
+              <g data-sp="mouse">
+                <g class="ear-g ear-l">
+                  <circle class="ear" cx="34" cy="50" r="24"/>
+                  <circle class="ear-in" cx="34" cy="50" r="15"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <circle class="ear" cx="126" cy="50" r="24"/>
+                  <circle class="ear-in" cx="126" cy="50" r="15"/>
+                </g>
+              </g>
+              <g data-sp="monkey">
+                <g class="ear-g ear-l">
+                  <circle class="ear" cx="12" cy="80" r="16"/>
+                  <circle class="ear-in" cx="12" cy="80" r="9"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <circle class="ear" cx="148" cy="80" r="16"/>
+                  <circle class="ear-in" cx="148" cy="80" r="9"/>
+                </g>
+              </g>
+              <g data-sp="dragon">
+                <g class="ear-g ear-l"><path class="dragon-wing" d="M26 86 Q10 70 -2 60 Q4 76 -8 86 Q6 88 2 102 Q16 98 26 98 Z"/><path class="wing-bone" clip-path="url(#dragonWingL)" d="M26 90 L-2 60 M14 84 L-8 86 M14 92 L2 102"/><path class="wing-edge" d="M26 86 Q10 70 -2 60 Q4 76 -8 86 Q6 88 2 102 Q16 98 26 98 Z"/></g>
+                <g class="ear-g ear-r"><path class="dragon-wing" d="M134 86 Q150 70 162 60 Q156 76 168 86 Q154 88 158 102 Q144 98 134 98 Z"/><path class="wing-bone" clip-path="url(#dragonWingR)" d="M134 90 L162 60 M146 84 L168 86 M146 92 L158 102"/><path class="wing-edge" d="M134 86 Q150 70 162 60 Q156 76 168 86 Q154 88 158 102 Q144 98 134 98 Z"/></g>
+                <g class="dragon-horn"><path class="horn-fill" d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/><path class="horn-ring" clip-path="url(#dragonHornL)" d="M43 24 Q50 24 56 30 M40 36 Q48 36 56 42"/><path class="horn-edge" d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/></g>
+                <g class="dragon-horn"><path class="horn-fill" d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/><path class="horn-ring" clip-path="url(#dragonHornR)" d="M117 24 Q110 24 104 30 M120 36 Q112 36 104 42"/><path class="horn-edge" d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/></g>
               </g>
               <g data-sp="cow">
                 <g class="ear-g ear-l">
@@ -367,6 +405,18 @@
               </g>
 
               <ellipse data-sp="hamster" class="belly" cx="80" cy="110" rx="50" ry="28"/>
+              <ellipse data-sp="mouse" class="belly mouse-belly" cx="80" cy="115" rx="40" ry="21"/>
+              <ellipse data-sp="monkey" class="belly monkey-belly" cx="80" cy="115" rx="40" ry="21"/>
+              <path data-sp="monkey" class="monkey-mask" d="M80 78 C70 62 46 66 46 90 C46 110 66 122 80 122 C94 122 114 110 114 90 C114 66 90 62 80 78 Z"/>
+              <g data-sp="dragon">
+                <path class="dragon-plate" d="M80 100 C58 100 44 112 46 126 C48 134 62 137 80 137 C98 137 112 134 114 126 C116 112 102 100 80 100 Z"/>
+                <path class="dragon-band" d="M56 112 Q80 120 104 112 M60 120 Q80 128 100 120 M66 128 Q80 134 94 128"/>
+                <ellipse class="dragon-muzzle" cx="80" cy="95" rx="13" ry="8.6"/>
+                <ellipse class="dragon-nostril" cx="75.6" cy="94" rx="1.7" ry="1.3"/>
+                <ellipse class="dragon-nostril" cx="84.4" cy="94" rx="1.7" ry="1.3"/>
+                <path class="dragon-tuft" d="M66 44 Q62 32 70 26 Q74 34 74 42 Z M74 42 Q74 24 80 16 Q86 24 86 42 Z M86 42 Q86 32 92 26 Q98 32 94 44 Z"/>
+                <circle class="dragon-dot" cx="40" cy="66" r="2.4"/><circle class="dragon-dot" cx="120" cy="66" r="2.4"/><circle class="dragon-dot" cx="50" cy="58" r="2.4"/><circle class="dragon-dot" cx="110" cy="58" r="2.4"/>
+              </g>
               <ellipse data-sp="frog" class="belly frog-belly" cx="80" cy="114" rx="46" ry="24"/>
               <ellipse data-sp="axolotl" class="belly axo-belly" cx="80" cy="114" rx="44" ry="23"/>
               <g data-sk="longhair" class="lh-face"><ellipse class="lh-muzzle" cx="80" cy="105" rx="25" ry="14"/></g>
@@ -443,6 +493,7 @@
 
               <!-- animal faces (bunny, cat, dog, hamster, hedgehog): a :3 mouth with a little nose (drawn after the mouths,
                    below); which species gets which nose is set in styles.css. The hedgehog also has a light muzzle, like a hedgehog print. -->
+              <path data-sp="mouse" class="whiskers" d="M30 100 L10 94 M30 106 L8 108 M130 100 L150 94 M130 106 L152 108"/>
               <ellipse class="hog-muzzle" cx="80" cy="101.4" rx="12.6" ry="9.4"/>
               <path data-mouth="smile" class="line" d="M75 103 Q80 108 85 103"/>
               <!-- a little lower lip under the smile for the mochi, pig and cow, the frog and the axolotl -->
@@ -452,6 +503,7 @@
               <!-- the :3 mouth: with a little lip, or for the bunny a bit lower with buck teeth -->
               <path data-mouth="smile" class="line cat-smile smile-lip" d="M80 100.6 V102.6 M74.2 101.8 Q76.8 105.6 80 102.6 Q83.2 105.6 85.8 101.8 M78.2 108.2 Q80 109.5 81.8 108.2"/>
               <g data-mouth="smile" class="cat-smile smile-bunny"><path class="line" d="M80 101 V104.6 M73.6 103.2 Q76.6 107.4 80 104.6 Q83.4 107.4 86.4 103.2"/><path class="buck-teeth" d="M76.6 105.2 H83.4 V108.8 Q83.4 110.2 82 110.2 H78 Q76.6 110.2 76.6 108.8 Z M80 105.2 V110.2"/></g>
+              <path data-mouth="smile" class="line cat-smile smile-dragon" d="M72 107 Q80 115 88 107"/>
               <path data-mouth="smile" class="line frog-smile" d="M57 101 Q80 116 103 101"/>
               <path data-mouth="smile" class="line axo-smile" d="M64 101 Q80 112 96 101"/>
               <g data-mouth="open">
@@ -645,18 +697,16 @@
     <div class="add-wrap">
     <form class="add" id="addForm" autocomplete="off">
       <label class="visually-hidden" for="addInput" id="addLabel">Add an item</label>
-      <input id="addInput" name="item" type="text" placeholder="Add an item, like bananas" enterkeyhint="done" maxlength="80">
+      <input id="addInput" name="item" type="text" placeholder="Add an item…" enterkeyhint="done" maxlength="80">
       <span class="add-preview" id="addPreview" aria-hidden="true"></span>
       <button type="button" class="mic-btn" id="micBtn" aria-label="Add by voice" aria-pressed="false" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></svg>
       </button>
+      <button type="button" class="recipe-btn" id="recipeBtn" aria-label="Add from a recipe">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h9.5L19 7v13.5H6z"/><path d="M15 3.5V7.5h4M9 12h7M9 15.5h7"/></svg>
+      </button>
       <button type="submit" class="add-btn" aria-label="Add item">Add</button>
     </form>
-    <div class="suggest" id="suggest" hidden>
-      <span class="suggest-label"><span class="pet-name">Nibble</span> suggests</span>
-      <button type="button" class="suggest-btn" id="suggestBtn"></button>
-      <button type="button" class="text-btn suggest-no" id="suggestNo" aria-label="No thanks">✕</button>
-    </div>
     </div>
 
     <ul class="items" id="todo" aria-label="To buy"></ul>
@@ -679,10 +729,9 @@
   <nav class="dock" aria-label="Pet">
     <button type="button" id="dressBtn" aria-label="Pet and dress-up"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><g transform="translate(1.5 11.5) rotate(-14 5 5)"><g><path d="M5 5.2c-1.6 0-3 1.7-3 3.1 0 1.2.9 1.7 1.8 1.7.5 0 .8-.2 1.2-.2s.7.2 1.2.2c.9 0 1.8-.5 1.8-1.7 0-1.4-1.4-3.1-3-3.1z"/><ellipse cx="1.6" cy="4.3" rx=".95" ry="1.25"/><ellipse cx="3.7" cy="2.3" rx="1" ry="1.35"/><ellipse cx="6.3" cy="2.3" rx="1" ry="1.35"/><ellipse cx="8.4" cy="4.3" rx=".95" ry="1.25"/></g></g><g transform="translate(12.5 2) rotate(14 5 5)"><g><path d="M5 5.2c-1.6 0-3 1.7-3 3.1 0 1.2.9 1.7 1.8 1.7.5 0 .8-.2 1.2-.2s.7.2 1.2.2c.9 0 1.8-.5 1.8-1.7 0-1.4-1.4-3.1-3-3.1z"/><ellipse cx="1.6" cy="4.3" rx=".95" ry="1.25"/><ellipse cx="3.7" cy="2.3" rx="1" ry="1.35"/><ellipse cx="6.3" cy="2.3" rx="1" ry="1.35"/><ellipse cx="8.4" cy="4.3" rx=".95" ry="1.25"/></g></g></svg></span><span class="dock-label">Pet</span></button>
     <button type="button" id="roomBtn" aria-label="Room"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8 1.8 12h3v8.4h14.4V12h3z" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><rect x="9.6" y="13.6" width="4.8" height="6.8" rx="1" fill="#fff" opacity=".85"/></svg></span><span class="dock-label">Room</span></button>
-    <button type="button" id="favBtn" aria-label="Top 10: what you buy most"><span class="dock-icon" aria-hidden="true">♛</span><span class="dock-label">Top 10</span></button>
-    <button type="button" id="goalsBtn" aria-label="Goals: unlock new pets and hats"><span class="dock-icon" aria-hidden="true">★</span><span class="dock-label">Goals</span></button>
-    <button type="button" id="calBtn" class="todo-only" aria-label="Calendar: birthdays and plans"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3.4" fill="currentColor"/><rect x="3" y="5" width="18" height="5.2" rx="2.6" fill="currentColor" stroke="currentColor" stroke-width="1"/><path d="M8 2.8v4M16 2.8v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><g fill="#fff" opacity=".9"><circle cx="8" cy="14" r="1.3"/><circle cx="12" cy="14" r="1.3"/><circle cx="16" cy="14" r="1.3"/><circle cx="8" cy="18" r="1.3"/><circle cx="12" cy="18" r="1.3"/></g></svg></span><span class="dock-label">Calendar</span></button>
-    <button type="button" id="stampBtn" class="todo-only" aria-label="Stamps: your stamp book"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c-1.2 0-2.2.8-2.2 2 0 1.6 1.2 2.2 1.2 3.8H8.6c-1.7 0-3 1.3-3 3v1.4h12.8v-1.4c0-1.7-1.3-3-3-3H13c0-1.6 1.2-2.2 1.2-3.8 0-1.2-1-2-2.2-2z" fill="currentColor"/><rect x="4" y="13.4" width="16" height="3.2" rx="1.4" fill="currentColor"/><path d="M5.4 20.2h13.2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M9.6 19.2l1.6 1.6 3.4-3.6" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0"/></svg></span><span class="dock-label">Stamps</span></button>
+    <button type="button" id="shopBtn" class="shop-only" disabled aria-label="Shop: coming soon"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8.4h14l-1 11.6a1.6 1.6 0 0 1-1.6 1.4H7.6A1.6 1.6 0 0 1 6 20z" fill="currentColor"/><path d="M8.8 10.4V7.2a3.2 3.2 0 0 1 6.4 0v3.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="dock-label">Shop</span></button>
+    <button type="button" id="calBtn" aria-label="Calendar: birthdays and plans"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3.4" fill="currentColor"/><rect x="3" y="5" width="18" height="5.2" rx="2.6" fill="currentColor" stroke="currentColor" stroke-width="1"/><path d="M8 2.8v4M16 2.8v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><g fill="#fff" opacity=".9"><circle cx="8" cy="14" r="1.3"/><circle cx="12" cy="14" r="1.3"/><circle cx="16" cy="14" r="1.3"/><circle cx="8" cy="18" r="1.3"/><circle cx="12" cy="18" r="1.3"/></g></svg></span><span class="dock-label">Calendar</span></button>
+          <button type="button" id="profileBtn" aria-label="Profile: your name and birthday"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4.6" fill="currentColor"/><path d="M3.6 21c0-4.6 3.8-7.4 8.4-7.4s8.4 2.8 8.4 7.4z" fill="currentColor"/></svg></span><span class="dock-label">Profile</span></button>
   </nav>
 </div>
 
@@ -740,7 +789,7 @@
         <use class="ht h2" href="#dfHeart" x="284" y="152" fill="#ff7d9f"/>
         <use class="ht h3" href="#dfHeart" x="204" y="100" fill="#ffb3c6"/>
       </g>
-    </svg><div class="dress-preview" id="dressPreview"></div><div class="dress-flash" id="dressFlash" aria-hidden="true"></div><div class="dress-bubble" id="dressBubble" aria-live="polite" hidden></div><button type="button" class="closet-btn" id="closetBtn" aria-label="Closet: saved outfits"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.4a2.3 2.3 0 1 1 2.3 2.3c-1 0-2.3.8-2.3 2v1M12 11.7l8.6 6.1a1.2 1.2 0 0 1-.7 2.2H4.1a1.2 1.2 0 0 1-.7-2.2z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Closet</span></button></div>
+    </svg><div class="dress-preview" id="dressPreview"></div><div class="dress-flash" id="dressFlash" aria-hidden="true"></div><div class="dress-bubble" id="dressBubble" aria-live="polite" hidden></div><button type="button" class="closet-btn shoot-btn" id="shootBtn" aria-label="Photoshoot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.2h3l1.5-2.2h7L17 8.2h3a1.6 1.6 0 0 1 1.6 1.6v8.4a1.6 1.6 0 0 1-1.6 1.6H4a1.6 1.6 0 0 1-1.6-1.6V9.8A1.6 1.6 0 0 1 4 8.2z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="12" cy="13.6" r="3.6" fill="none" stroke="currentColor" stroke-width="1.9"/></svg><span>Photo</span></button><button type="button" class="closet-btn" id="closetBtn" aria-label="Closet: saved outfits"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.4a2.3 2.3 0 1 1 2.3 2.3c-1 0-2.3.8-2.3 2v1M12 11.7l8.6 6.1a1.2 1.2 0 0 1-.7 2.2H4.1a1.2 1.2 0 0 1-.7-2.2z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Closet</span></button></div>
     <div class="dress-tabs" id="dressTabs" role="tablist" aria-label="Pet and outfits">
       <button type="button" role="tab" data-tab="pet" aria-selected="true"><img src="emoji/1F43E.svg" alt="" width="22" height="22"><span>Pet</span></button>
       <button type="button" role="tab" data-tab="hat" aria-selected="false"><img src="emoji/1F3A9.svg" alt="" width="22" height="22"><span>Hats</span></button>
@@ -749,13 +798,18 @@
       <button type="button" role="tab" data-tab="neck" aria-selected="false"><img src="emoji/1F9E3.svg" alt="" width="22" height="22"><span>Neck</span></button>
       <button type="button" role="tab" data-tab="feet" aria-selected="false"><img src="emoji/1F45F.svg" alt="" width="22" height="22"><span>Feet</span></button>
     </div>
+    <input type="search" class="dress-search" id="dressSearch" placeholder="Search" aria-label="Search" autocomplete="off" enterkeyhint="search" maxlength="30">
     <div class="dress-panels" id="dressPanels">
+    <fieldset class="species dress-panel" data-tab="search" hidden>
+      <legend class="visually-hidden">Search results</legend>
+      <div class="hat-strip" id="searchStrip"></div>
+      <p class="decor-hint" id="searchNone" hidden>Nothing like that in the wardrobe yet.</p>
+    </fieldset>
     <div class="dress-panel" data-tab="pet" role="tabpanel">
       <div class="field">
         <span class="field-label" id="petNameLabel">Name</span>
-        <button type="button" class="name-show" id="petNameShow" aria-describedby="petNameHint"><span id="petNameText">Nibble</span><span class="name-pen" aria-hidden="true">✎</span></button>
+        <button type="button" class="name-show" id="petNameShow" aria-label="Name (double-tap to change)"><span id="petNameText">Nibble</span><span class="name-pen" aria-hidden="true">✎</span></button>
         <input id="petNameInput" type="text" maxlength="16" autocomplete="off" enterkeyhint="done" placeholder="Nibble" aria-labelledby="petNameLabel" hidden>
-        <span class="name-hint" id="petNameHint">Double-tap the name to change it</span>
       </div>
       <fieldset class="species">
         <legend class="field-label">Species</legend>
@@ -772,6 +826,7 @@
         <p class="decor-hint">Earned by what you feed it. Each one has its own favourite foods and way of talking. Tap one to read about it.</p>
       </fieldset>
       <p class="lock-hint" id="speciesHint" aria-live="polite" hidden></p>
+      <p class="decor-hint" id="petSearchNone" hidden>Nothing like that here.</p>
     </div>
     <fieldset class="species dress-panel" data-tab="hat" hidden>
       <legend class="visually-hidden">Hats</legend>
@@ -804,6 +859,39 @@
   </form>
 </dialog>
 
+<!-- the photoshoot (app-shoot.js): the pet on its own on a nice background, to take cute screenshots of -->
+<div class="shoot" id="shoot" hidden role="dialog" aria-label="Photoshoot">
+  <div class="shoot-bg" id="shootBg"></div>
+  <video class="shoot-cam" id="shootCam" playsinline muted autoplay hidden></video>
+  <div class="shoot-sparkles" id="shootSparkles" aria-hidden="true"></div>
+  <div class="shoot-pet" id="shootPet"></div>
+  <div class="shoot-frame" id="shootFrame" aria-hidden="true"><span class="shoot-caption" id="shootCaption"></span></div>
+  <div class="shoot-flash" id="shootFlash" aria-hidden="true"></div>
+  <div class="photo-result" id="photoResult" hidden>
+    <img id="photoImg" alt="Your photo">
+    <div class="photo-actions">
+      <button type="button" class="shoot-snap photo-btn" id="photoShare" hidden>Share</button>
+      <button type="button" class="shoot-snap photo-btn" id="photoSave">Save</button>
+      <button type="button" class="shoot-chip photo-btn" id="photoRetake">Retake</button>
+    </div>
+  </div>
+  <p class="shoot-hint" id="shootHint" hidden>Take your screenshot! Tap to bring the buttons back.</p>
+  <button type="button" class="shoot-x" id="shootClose" aria-label="Close the photoshoot">✕</button>
+  <div class="shoot-ui" id="shootUi">
+    <div class="shoot-row" id="shootPoses" role="group" aria-label="Pose"></div>
+    <div class="shoot-row shoot-pick">
+      <button type="button" class="shoot-arrow" id="shootPrev" aria-label="Previous background">‹</button>
+      <span class="shoot-bgname" id="shootBgName"></span>
+      <button type="button" class="shoot-arrow" id="shootNext" aria-label="Next background">›</button>
+      <button type="button" class="shoot-chip shoot-camchip" id="shootCamBtn" aria-pressed="false">📷 Camera</button>
+      <button type="button" class="shoot-arrow" id="shootFlip" aria-label="Turn the camera round" hidden>⟲</button>
+    </div>
+    <p class="shoot-camnote" id="shootCamNote" hidden></p>
+    <div class="shoot-row" id="shootFrames" role="group" aria-label="Frame"></div>
+    <button type="button" class="shoot-snap" id="shootSnap"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="5" fill="currentColor"/></svg><span>Photo</span></button>
+  </div>
+</div>
+
 <!-- the closet: outfits saved by name, over the dressing room (app-closet.js) -->
 <dialog class="picker pet-sheet closet-sheet" id="closetSheet" aria-labelledby="closetTitle">
   <form method="dialog" class="picker-inner">
@@ -830,7 +918,7 @@
 <dialog class="picker pet-sheet task-sheet" id="taskSheet" aria-labelledby="taskTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="taskTitle">Task</h2>
-    <p class="task-name" id="taskName"></p>
+    <input class="task-name task-name-input" id="taskName" type="text" maxlength="80" autocomplete="off" enterkeyhint="done" aria-label="Task">
     <fieldset class="task-field">
       <legend class="field-label">Due</legend>
       <div class="task-chips" id="dueChips"></div>
@@ -841,12 +929,70 @@
     </fieldset>
     <fieldset class="task-field">
       <legend class="field-label">Repeat</legend>
-      <div class="task-chips" id="repeatChips"></div>
+      <select id="repeatSel" class="task-date task-select" aria-label="Repeat"></select>
+      <div class="task-chips task-dow" id="dowChips" role="group" aria-label="Days of the week" hidden></div>
+      <div id="untilField" hidden>
+        <label class="task-date-label">For how long <select id="untilSel" class="task-date task-select"></select></label>
+        <label class="task-date-label" id="untilDateWrap" hidden>Until <input type="date" id="untilDate" class="task-date"></label>
+      </div>
       <p class="task-note" id="repeatNote">A repeating task comes back on its next day when you tick it off.</p>
     </fieldset>
+    <div class="task-confirm">
+      <button type="button" class="pill-btn" id="taskCancel">Cancel</button>
+      <button type="button" class="pill-btn task-save" id="taskSave">Save</button>
+    </div>
     <div class="task-actions">
       <button type="button" class="text-btn" id="taskEmoji">Change emoji</button>
       <button type="button" class="text-btn task-delete" id="taskDelete">Delete</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- add the ingredients of a recipe to the shopping list (app-recipe.js) -->
+<dialog class="picker pet-sheet recipe-sheet" id="recipeSheet" aria-labelledby="recipeTitle">
+  <form method="dialog" class="picker-inner">
+    <div id="recipeInputBox" class="recipe-inputbox">
+      <h2 id="recipeTitle">Let's cook <span class="cook-heart" aria-hidden="true">♥</span></h2>
+      <p class="stamp-sub">✦ <span class="pet-name">Nibble</span> will find the ingredients ✦</p>
+      <textarea id="recipeInput" class="recipe-input" rows="4" placeholder="Paste a recipe link…&#10;or type one ingredient per line" maxlength="4000" enterkeyhint="go"></textarea>
+      <button type="button" class="pill-btn recipe-go" id="recipeGo">Find ingredients</button>
+      <p class="recipe-status" id="recipeStatus" role="status" aria-live="polite"></p>
+      <details class="recipe-helper" id="recipeHelper">
+        <summary>Recipe helper address</summary>
+        <input id="recipeProxy" type="url" placeholder="https://pet-shopper-recipes.….workers.dev" autocomplete="off" spellcheck="false">
+        <p class="recipe-note">Links need a small helper online (see worker/README.md). Pasted ingredients work without it.</p>
+      </details>
+    </div>
+    <div id="recipeResult" class="recipe-result" hidden>
+      <div class="recipe-head">
+        <p class="recipe-name" id="recipeName"></p>
+        <button type="button" class="pill-btn recipe-back" id="recipeBack">New recipe</button>
+      </div>
+      <div class="recipe-units" id="recipeUnits" role="group" aria-label="Units">
+        <button type="button" class="pill-btn" data-units="">As written</button>
+        <button type="button" class="pill-btn" data-units="metric">Metric</button>
+        <button type="button" class="pill-btn" data-units="us">US</button>
+      </div>
+      <div class="recipe-listwrap">
+        <ul class="recipe-list" id="recipeList"></ul>
+        <span class="recipe-more" aria-hidden="true">▾</span>
+      </div>
+      <button type="button" class="pill-btn recipe-add" id="recipeAdd">Add to list</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- change a shopping item's name or amount (app-recipe.js) -->
+<dialog class="picker pet-sheet item-sheet" id="itemSheet" aria-labelledby="itemTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="itemTitle">Item</h2>
+    <label class="field-label" for="itemName">Name</label>
+    <input class="recipe-input" id="itemName" type="text" maxlength="80" autocomplete="off" enterkeyhint="done">
+    <label class="field-label" for="itemQty">Amount</label>
+    <input class="recipe-input" id="itemQty" type="text" maxlength="20" autocomplete="off" enterkeyhint="done" placeholder="like 2, or 500 g">
+    <div class="task-chips">
+      <button type="button" class="pill-btn" id="itemSave" aria-pressed="true">Save</button>
+      <button type="button" class="pill-btn" id="itemCancel">Cancel</button>
     </div>
   </form>
 </dialog>
@@ -866,6 +1012,7 @@
 <dialog class="picker pet-sheet" id="goalsSheet" aria-labelledby="goalsTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="goalsTitle">Goals</h2>
+    <p class="stamp-sub">✦ little things to work towards ✦</p>
     <p class="goals-intro"><span id="goalsFeed">Feed <span class="pet-name">Nibble</span></span><span id="goalsIntroText"> to unlock new friends and hats. Only a few count each day, so come back tomorrow for more.</span><span id="goalsFairPlay"> Items count once they've been on your list for 15 minutes, and each item once a day.</span></p>
     <ul class="goal-list" id="goalList"></ul>
   </form>
@@ -874,11 +1021,12 @@
 <dialog class="picker pet-sheet fav-full" id="favSheet" aria-labelledby="favTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="favTitle">Top 10</h2>
+    <p class="stamp-sub">✦ the things you love most ✦</p>
     <ol class="fav-list" id="favList"></ol>
     <p class="fav-empty" id="favEmpty" hidden><span class="pet-name">Nibble</span> hasn't seen you buy anything yet. Tick things off and your favourites show up here.</p>
   </form>
 </dialog>
-<dialog class="picker pet-sheet cal-sheet" id="calSheet" aria-label="Calendar">
+<dialog class="picker pet-sheet cal-sheet cal-full" id="calSheet" aria-label="Calendar">
   <form method="dialog" class="picker-inner">
     <div class="cal-head">
       <button type="button" class="pill-btn cal-nav" id="calPrev" aria-label="Previous month">‹</button>
@@ -891,9 +1039,16 @@
       <h3 id="calDayTitle"></h3>
       <ul class="cal-list" id="calList"></ul>
       <div class="cal-add" id="calAdd">
-        <input id="calInput" type="text" maxlength="80" placeholder="Add a birthday or plan…" autocomplete="off" enterkeyhint="done" aria-label="Add to this day">
-        <button type="button" class="pill-btn" id="calYearly" aria-pressed="false">🎂 every year</button>
-        <button type="button" class="add-btn cal-add-btn" id="calAddBtn">Add</button>
+        <div class="cal-kinds" id="calKinds" role="group" aria-label="What is it?">
+          <button type="button" class="pill-btn" data-kind="plan" aria-pressed="true">📌 Plan</button>
+          <button type="button" class="pill-btn" data-kind="birthday" aria-pressed="false">🎂 Birthday</button>
+        </div>
+        <input id="calInput" type="text" maxlength="80" placeholder="Add a plan or birthday…" autocomplete="off" enterkeyhint="done" aria-label="Add to this day">
+        <div class="cal-extra">
+          <label title="Time"><span aria-hidden="true">🕘</span> <input type="time" id="calTime" aria-label="Time (optional)"></label>
+          <label title="Repeat"><span aria-hidden="true">↻</span> <select id="calRepeat" aria-label="Repeat"></select></label>
+          <button type="button" class="add-btn cal-add-btn" id="calAddBtn">Add</button>
+        </div>
       </div>
     </div>
   </form>
@@ -901,8 +1056,45 @@
 
 <dialog class="picker pet-sheet stamp-sheet" id="stampSheet" aria-labelledby="stampTitle">
   <form method="dialog" class="picker-inner">
-    <h2 id="stampTitle">Stamp book</h2>
+    <h2 id="stampTitle">Stamp Book</h2>
+    <p class="stamp-sub" id="stampSub"></p>
     <div class="stamp-grid" id="stampGrid"></div>
+  </form>
+</dialog>
+
+<dialog class="picker pet-sheet profile-sheet" id="profileSheet" aria-labelledby="profileTitle">
+  <form method="dialog" class="picker-inner" id="profileForm" autocomplete="off">
+    <h2 id="profileTitle">Profile</h2>
+    <div class="profile-card"><span class="profile-avatar" id="profileAvatar" aria-hidden="true">♡</span><b id="profileHello">Hello, friend!</b></div>
+    <div class="profile-fields">
+    <div class="field">
+      <span class="field-label" id="profileNameLabel">Your name</span>
+      <button type="button" class="name-show" id="profileNameShow" hidden><span id="profileNameText"></span><span class="name-pen" aria-hidden="true">✎</span></button>
+      <input id="profileName" type="text" maxlength="20" placeholder="Your name" enterkeyhint="done" aria-labelledby="profileNameLabel">
+    </div>
+    <div class="field">
+      <span class="field-label" id="profileBirthdayLabel">Your birthday</span>
+      <button type="button" class="name-show" id="profileBirthdayShow" hidden><span id="profileBirthdayText"></span><span class="name-pen" aria-hidden="true">✎</span></button>
+      <input id="profileBirthday" type="date" aria-labelledby="profileBirthdayLabel">
+    </div>
+    </div>
+    <div class="profile-links">
+      <button type="button" class="profile-link" id="favBtn"><span class="profile-link-icon" aria-hidden="true">♛</span><span class="profile-link-text"><b>Top 10</b><small>what you buy most</small></span><span class="profile-link-go" aria-hidden="true">›</span></button>
+      <button type="button" class="profile-link" id="goalsBtn"><span class="profile-link-icon" aria-hidden="true">★</span><span class="profile-link-text"><b>Goals</b><small>unlock new pets and hats</small></span><span class="profile-link-go" aria-hidden="true">›</span></button>
+      <button type="button" class="profile-link" id="stampBtn"><span class="profile-link-icon" aria-hidden="true"><svg class="profile-link-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c-1.2 0-2.2.8-2.2 2 0 1.6 1.2 2.2 1.2 3.8H8.6c-1.7 0-3 1.3-3 3v1.4h12.8v-1.4c0-1.7-1.3-3-3-3H13c0-1.6 1.2-2.2 1.2-3.8 0-1.2-1-2-2.2-2z" fill="currentColor"/><rect x="4" y="13.4" width="16" height="3.2" rx="1.4" fill="currentColor"/><path d="M5.4 20.2h13.2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M9.6 19.2l1.6 1.6 3.4-3.6" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0"/></svg></span><span class="profile-link-text"><b>Stamp Book</b><small>your task stickers</small></span><span class="profile-link-go" aria-hidden="true">›</span></button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="picker pet-sheet gift-sheet" id="giftSheet" aria-labelledby="giftTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="giftTitle">Daily gift</h2>
+    <p class="gift-day" id="giftDay"></p>
+    <div class="gift-boxes" id="giftBoxes"></div>
+    <p class="gift-next" id="giftNext"></p>
+    <p class="field-label" id="giftPrizesLabel" hidden>Collection</p>
+    <div class="gift-prizes" id="giftPrizes"></div>
+    <p class="gift-next" id="giftBdayHint">Add your birthday in your profile for extra boxes on the day.</p>
   </form>
 </dialog>
 
@@ -949,6 +1141,8 @@
 <script src="achievements.js"></script>
 <script src="wardrobe.js"></script>
 <script src="decor.js"></script>
+<script src="bonuses.js"></script>
+<script src="recipe.js"></script>
 <script src="personalities.js"></script>
 <script src="skins.js"></script>
 <script src="sounds.js"></script>
@@ -958,6 +1152,8 @@
 <script src="app-petsheet.js"></script>
 <script src="app-dress.js"></script>
 <script src="app-closet.js"></script>
+<script src="app-shoot.js"></script>
+<script src="app-photo.js"></script>
 <script src="app-room.js"></script>
 <script src="app-goals.js"></script>
 <script src="app-events.js"></script>
@@ -968,15 +1164,19 @@
 <script src="app-favourites.js"></script>
 <script src="app-petting.js"></script>
 <script src="app-treats.js"></script>
+<script src="app-gift.js"></script>
+<script src="app-profile.js"></script>
 <script src="app-options.js"></script>
 <script src="app-anims.js"></script>
 <script src="app-voice.js"></script>
+<script src="app-recipe.js"></script>
 <script src="backdrops.js"></script>
 <script src="app-backdrop.js"></script>
 <script src="app-idle.js"></script>
 <script src="app-toy.js"></script>
 <script src="app-bedtime.js"></script>
 <script src="app-fade.js"></script>
+<script src="app-select.js"></script>
 <script src="app-start.js"></script>
 </body>
 </html>

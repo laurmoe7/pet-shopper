@@ -124,7 +124,7 @@ test('other lines pick up the tone: sleepy is quiet and lower case, sweet adds h
   const never = () => 0.99;
   assert.equal(L.styleLine(sleepy, 'HOT HOT HOT!', never), 'hot hot hot…');
   assert.equal(L.styleLine(sweet, 'yum yum!', always), 'aww, yum yum' + sweet.voice.style.endings[0]);
-  assert.match(L.styleLine(sassy, 'tasty!', always), /^tasty, obviously$|^nope, tasty, obviously$|^excuse me\? tasty, obviously$|^um, no\. tasty, obviously$/);
+  assert.match(L.styleLine(sassy, 'tasty!', always), /^tasty, obviously$|^hmph, tasty, obviously$|^obviously, tasty, obviously$|^excuse me\? tasty, obviously$/);
   assert.equal(L.styleLine(sweet, 'is it ok?', never), 'is it ok?', 'questions keep their ending');
   assert.equal(L.styleLine(sleepy, 'Zzz… tea…', never, true), 'zzz… tea…');
 });
@@ -173,4 +173,11 @@ test('the diva is earned with drinks only', () => {
 test('every personality icon has its emoji picture', () => {
   const fs = require('node:fs'), path = require('node:path');
   for (const p of Personalities) assert.ok(fs.existsSync(path.join(__dirname, '..', Foods.emojiFile(p.icon))), p.id + ' icon ' + p.icon);
+});
+
+test('no personality adds a "no" to its lines (it would contradict good news like "on the calendar!")', () => {
+  for (const p of Personalities) {
+    const st = p.voice.style;
+    for (const bit of st.endings.concat(st.prefixes)) assert.doesNotMatch(bit, /\bno\b|\bnope\b/i, p.id + ': ' + bit);
+  }
 });

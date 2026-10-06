@@ -16,6 +16,7 @@ var FACES = {
   tada: { eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['sparkles', 'cheeks'] },
   suspicious: { eyes: 'squint', mouth: 'wavy', arms: 'scratch', x: ['question'] },
   love: { eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['hearts', 'cheeks'] },
+  annoyed: { eyes: 'squint', mouth: 'wavy', arms: 'idle', x: [] },
   dreamy: { eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks'] }
 };
 var CHEW = { eyes: 'happy', mouth: 'chew', arms: 'nom', x: ['cheeks'] };
@@ -205,6 +206,7 @@ function bubbleToStage() {
  */
 function say(text, ms, own) {
   if (!text) return;
+  text = text.replace(/\bNibble\b/g, petName());   // lines are written with his first name; use the one you gave him
   bubble.hidden = true;
   void bubble.offsetWidth;
   var line = own ? text : L.styleLine(personality(), text);
@@ -249,6 +251,11 @@ function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 function mouthPoint() {
   var r = petSvg.getBoundingClientRect();
   return { x: r.left + r.width * (80 / 160), y: r.top + r.height * (107 / 150) };
+}
+/** Makes a sheet as tall as it can be while still leaving the pet's face in view: it opens to just below the pet's mouth. */
+function sheetUnderMouth(dlg) {
+  var dock = document.querySelector('.dock'), room = innerHeight - (dock ? dock.offsetHeight : 64) - (mouthPoint().y + 16);
+  dlg.style.setProperty('--sheet-h', Math.max(240, Math.round(room)) + 'px');
 }
 /** @returns {{x: number, y: number}} A spot at the pet's side, where non-food gets tucked away. */
 function sidePoint() {

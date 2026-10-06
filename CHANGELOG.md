@@ -2,6 +2,198 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 235 (10 Oct)
+- Fixed double mouths on pets.
+- Monkey big toe blends into the foot.
+
+## Build 234 (10 Oct)
+- Dragon: wing fingers back, curl removed, stiff horns.
+
+## Build 233 (10 Oct)
+- New species: dragon.
+
+## Build 232 (10 Oct)
+- New species: mouse and monkey.
+- New skin: snow monkey.
+
+## Build 231 (10 Oct)
+- Photoshoot: the Photo button takes the picture itself, to share or save. No screenshot needed.
+
+## Build 230 (10 Oct)
+- Photoshoot: a Camera button puts the pet in front of your camera; drag to move, pinch to resize.
+
+## Build 229 (10 Oct)
+- Smaller title, and a long name shrinks it to fit instead of being cut off.
+- Bacon has no white gap between the slices; the pretzel's colour stays inside its outline.
+
+## Build 228 (10 Oct)
+- Recipe sheet is called "Let's cook", with a pink heart instead of the pan.
+- Recipes: metric uses the grams a page gives in brackets.
+- Recipes: cheese in grams, "12 ounce can or jar" and "ears" of corn read right.
+
+## Build 227 (10 Oct)
+- Nibble's lines use the name you gave him everywhere.
+- Recipe sheet: a small arrow in the corner instead of "more below".
+- Recipes: only liquids turn into ml in metric; potatoes, carrots and the like stay in cups.
+- Speech bubble sits below the gear button when a menu is open.
+
+## Build 226 (10 Oct)
+- Recipe sheet: Nibble stays in view above the ingredients.
+- Nibble comments on the recipe you read.
+
+## Build 225 (10 Oct)
+- Recipe sheet: bigger and cuter, with the ingredients getting the whole sheet.
+- Recipe sheet: a "more below" tag and a fade show when the ingredients scroll.
+- Recipe sheet: the "Found 14 ingredients" text is gone.
+
+## Build 224 (10 Oct)
+- Recipes: "1-3/4 cups" reads as one and three quarters.
+
+## Build 223 (10 Oct)
+- Recipes: only lines saying "optional" are optional, not "for serving" or "for garnish".
+- Recipes: cooked chicken, uncooked rice and "X and Y" lines (green onions and sesame seeds) read right.
+
+## Build 222 (10 Oct)
+- Recipes: "all-purpose or bread flour" keeps both words.
+
+## Build 221 (10 Oct)
+- Recipes: "3/4 C." reads as a cup, thyme leaves is thyme, low-sodium and torn are dropped.
+
+## Build 220 (10 Oct)
+- Recipes: butter, flour, sugar and the like show in grams in metric.
+
+## Build 219 (10 Oct)
+- Recipes: prices no longer end up in ingredient names.
+
+## Build 218 (9 Oct)
+- Recipes: "1 and 1/2 cups", "peeled and diced", whole wheat and extra virgin read right.
+- Recipes: notes, servings and "optional" lines no longer end up as ingredients.
+- Recipes: salt, pepper, water and optional things start unticked, at the bottom.
+
+## Build 217 (9 Oct)
+- Sample items use the amount pill (Quark 500 g) instead of writing it in the name.
+- Recipe amounts can be switched between metric and US units.
+
+## Build 216 (9 Oct)
+- Recipe links work out of the box with the built-in recipe helper.
+
+## Build 215 (9 Oct)
+- Tap a shopping item to change its name or amount.
+
+## Build 214 (9 Oct)
+- Recipe amounts stay: each item shows how much to buy.
+
+## Build 213 (9 Oct)
+- Add from a recipe: paste a link or ingredients, tick what you need, add them to the shopping list.
+
+## Build 212 (9 Oct)
+- Photoshoot stickers removed for now.
+- Drop-down lists are the same width as their button.
+
+## Build 211 (8 Oct)
+- Drop-down menus open as a round, soft list instead of the plain box; the year arrow is fixed.
+- Photoshoot mode in the Pet menu: pose, background, frame and stickers for cute screenshots.
+- Pet menu: highlighter headings instead of dotted lines, a dotted paper backing.
+
+## Build 210 (7 Oct)
+- Calendar takes the whole page.
+- Drop-down menus are round and soft, like the buttons.
+- Pet menu: bubble tabs, tiles on a soft backing, a check on the chosen one, plainer headings.
+- Your name box says just "Your name".
+- Feisty Nibble no longer says "no" after good news.
+
+## Build 209 (7 Oct)
+- Task editing has Save and Cancel buttons.
+- Repeats that make no sense (every year for 1 week) are blocked with a warning.
+- Pet menu: cuter paper-card look like the other menus.
+- Developer tool: reset your name, birthday and Nibble's name.
+- Calendar: a fuller add form (plan or birthday, time, repeat) and tap a plan to edit it.
+- Task sheet: the task's name can be changed.
+
+## Build 207 (7 Oct)
+- Calendar days really don't overlap now.
+- Nibble's name: the pencil wiggles until it is changed; no double-tap text; the name box takes less space.
+- To-do repeats: pick certain days of the week, weekdays or weekends; repeat and how long are drop-down menus.
+- Profile: smaller name and birthday boxes; Top 10, Goals and Stamp Book in alternating colours.
+
+## Build 206 (7 Oct)
+- To-do repeats can last for a while: a week, 2 months, or until a day you pick.
+- Goals moved into Profile, with a cuter look.
+- Calendar is on both lists, in the middle of the menu bar.
+- Calendar days no longer overlap.
+
+## Build 204 (7 Oct)
+- Dark mode: Stamp Book, Calendar and Profile are readable and softer.
+- Calendar: days no longer overlap.
+- Profile: cuter Top 10 and Stamp Book buttons.
+
+## Build 203 (7 Oct)
+- Stamp Book: easier to read counts.
+- Stamp Book, Calendar and Profile open taller, to just below Nibble's mouth.
+- Calendar, Profile and Top 10: cuter.
+- Profile: no double-tap text.
+
+## Build 202 (7 Oct)
+- Calendar button is orange instead of purple.
+- Stamp Book: cuter, with taped stickers and a stamp count.
+- Profile: "Stamp Book" with a capital B.
+- Profile: your name and birthday need a double-tap to edit once they are set.
+
+## Build 201 (7 Oct)
+- Top 10 and Stamp book are buttons inside Profile, no longer in the menu bar.
+- Stamp book: calls & chats are combined with social.
+
+## Build 199 (7 Oct)
+- Top 10 moved into the Profile menu.
+- Teddy's outline is darker, like Nibble's.
+- Profile: no extra text at the bottom.
+- Nibble only comments on your name or birthday once you close Profile.
+
+## Build 198 (7 Oct)
+- Profile button in the menu bar on both lists: your name and birthday.
+- Nibble says hello by name; the birthday brings the birthday boxes.
+- Opening a gift box pops out the word "placeholder" until real prizes exist.
+
+## Build 196 (7 Oct)
+- Daily gift box, with extra boxes on special days and birthdays (placeholder prizes).
+- Sketchpad blank templates keep a skin's shapes (floppy ears) and a dashed blush.
+
+## Build 194 (6 Oct)
+- No squiggly line under the x in the suggestion chip.
+- Sketchpad: blank template of each pet (no colour) to draw skins on.
+
+## Build 193 (6 Oct)
+- Suggestion chip moved down, above the Add button.
+- Toy over his head: he jumps for it first, gets cross only after a few seconds, and less mad.
+- Dressing room search says just "Search" and works on the Pet tab too.
+
+## Build 192 (6 Oct)
+- Suggestion chip moved up; no line under the x.
+- Nibble says thank you and dances after a treat.
+- Holding the toy above his head annoys him.
+- Dressing room: search box for outfits.
+
+## Build 191 (6 Oct)
+- Suggestion chip stays put on the stage instead of scrolling.
+- Treat ask: eyes look higher and ignore your finger, bigger hop.
+
+## Build 190 (6 Oct)
+- Suggestion chip sits above the Add button.
+- Nibble opens his eyes, looks up and hops towards the treat cloud.
+
+## Build 189 (6 Oct)
+- Magnifying glass: the big eye shows even sooner.
+- Magnifying glass: the wink is his happy closed eye.
+- Shop button is now in the middle of the menu bar, on both lists.
+- Nibble looks up and reaches for the treat cloud.
+- Developer tool: make Nibble suggest an item.
+
+## Build 188 (6 Oct)
+- Magnifying glass: the big eye appears the moment the glass arrives.
+- Magnifying glass: the other eye closes while he squints.
+- Shop button in the menu bar (greyed out for now).
+- Suggestions: a small chip instead of a big box.
+
 ## Build 187 (5 Oct)
 - Magnifying glass: no more star eye; he closes his eyes and smiles after squinting.
 - Sketchpad: undo and redo react when pressed and grey out when empty.

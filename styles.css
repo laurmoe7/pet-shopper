@@ -119,7 +119,7 @@ button { font: inherit; color: inherit; }
 /* ---------- stage ---------- */
 .scene { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; padding: 10px 16px 0; }
 .scene-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.brand { font-family: var(--font-display); font-weight: 500; font-size: 1.35rem; margin: 0; display: flex; align-items: center; white-space: nowrap; min-width: 0; overflow: hidden; }
+.brand { font-family: var(--font-display); font-weight: 500; font-size: 1.12rem; margin: 0; display: flex; align-items: center; white-space: nowrap; min-width: 0; overflow: hidden; }
 .brand .pet-name { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .brand-sub { color: var(--muted); }
 /* the title swaps between the shopping list and the to-do list when tapped (app-todo.js) */
@@ -131,7 +131,7 @@ button { font: inherit; color: inherit; }
 .brand.swapped .brand-swap { transform: rotate(180deg); }
 .scene-tools { display: flex; align-items: center; gap: 8px; flex: none; }
 @media (max-width: 370px) {
-  .brand { font-size: 1.1rem; }
+  .brand { font-size: 1rem; }
   .brand-swap { margin-left: 5px; }
   .scene-bar { gap: 6px; }
   .scene-tools { gap: 5px; }
@@ -177,7 +177,7 @@ button { font: inherit; color: inherit; }
 /* in an open menu the bubble hangs at the top of the screen so it still shows over the sheet */
 /* it never takes a tap, so the lamp behind it can still be pulled */
 .stage .bubble { pointer-events: none; }
-.bubble.in-sheet { position: fixed; left: auto; right: 12px; top: calc(env(safe-area-inset-top, 0px) + 10px); max-width: min(68vw, 300px); z-index: 100; transform-origin: 100% 100%; }
+.bubble.in-sheet { position: fixed; left: auto; right: 12px; top: calc(env(safe-area-inset-top, 0px) + 58px); max-width: min(68vw, 300px); z-index: 100; transform-origin: 100% 100%; }
 @keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes twinkle { 0%, 100% { transform: scale(.6) rotate(0); opacity: .25; } 50% { transform: scale(1) rotate(20deg); opacity: .8; } }
 
@@ -241,6 +241,9 @@ button { font: inherit; color: inherit; }
 .pet[data-species="pig"] { --pet-skin: #ffe1e6; --pet-skin-shade: #ffc9d3; --pet-ear-in: #ff9fb2; }
 .pet[data-species="cow"] { --pet-skin: #fffdf9; --pet-skin-shade: #e9ddd6; --pet-ear-in: #ffc4cf; --pet-mark: #6f5850; }
 .pet[data-species="hamster"] { --pet-skin: #f8cf9f; --pet-skin-shade: #f1b97d; --pet-ear-in: #ffb8c4; }
+.pet[data-species="dragon"] { --pet-skin: #a5da96; --pet-skin-shade: #8ccb80; --pet-ear-in: #ecf5c8; }
+.pet[data-species="mouse"] { --pet-skin: #c9ccd6; --pet-skin-shade: #b2b6c4; --pet-ear-in: #ffb8c4; }
+.pet[data-species="monkey"] { --pet-skin: #c89466; --pet-skin-shade: #b07e52; --pet-ear-in: #ffc9b8; --monkey-face: #ffe3c4; }
 /* skins change the colours (and some parts) of a species */
 .pet[data-skin="penguin"] { --pet-skin: #6b7890; --pet-skin-shade: #ffb259; }
 .pet[data-skin="parrot"] { --pet-skin: #a6e7a0; --pet-skin-shade: #ffd25a; }
@@ -253,7 +256,10 @@ button { font: inherit; color: inherit; }
 .pet[data-species="puppy"] [data-sp="puppy"],
 .pet[data-species="pig"] [data-sp="pig"],
 .pet[data-species="cow"] [data-sp="cow"],
-.pet[data-species="hamster"] [data-sp="hamster"] { display: inline; }
+.pet[data-species="hamster"] [data-sp="hamster"],
+.pet[data-species="mouse"] [data-sp="mouse"],
+.pet[data-species="dragon"] [data-sp="dragon"],
+.pet[data-species="monkey"] [data-sp="monkey"] { display: inline; }
 .pet-svg [data-sk] { display: none; }
 .pet[data-skin="penguin"] [data-sk="penguin"],
 .pet[data-skin="parrot"] [data-sk="parrot"] { display: inline; }
@@ -567,10 +573,36 @@ button { font: inherit; color: inherit; }
 /* paws (bunny, cat, dog, hamster, hedgehog), hooves (pig, cow) and bird toes: they peek out under the feet like the
    frog's webs, and the hands get pink toe beans or a hoof. Shoes hide the feet ones, sleeves the hand ones. */
 .paw-part, .hoof-part, .bird-part { display: none; }
-.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"]) .paw-part,
+.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="mouse"], [data-species="dragon"]) .paw-part,
 .pet:is([data-species="pig"], [data-species="cow"]) .hoof-part,
 .pet[data-species="birdie"] .bird-part { display: inline; }
-.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="pig"], [data-species="cow"], [data-species="birdie"]) .foot { stroke: none; }
+.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="mouse"], [data-species="monkey"], [data-species="dragon"], [data-species="pig"], [data-species="cow"], [data-species="birdie"]) .foot { stroke: none; }
+/* the dragon: small bat wings (they jiggle like ears) and stiff cream horns behind the body, a cream snout, belly plate with lines and leafy head tufts in front */
+.dragon-wing { fill: #ffd1e0; stroke: none; }
+.wing-bone { fill: none; stroke: #f08fb0; stroke-width: 2.2; stroke-linecap: round; }
+.wing-edge { fill: none; stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
+.horn-fill { fill: #ecf5c8; stroke: none; }
+.horn-ring { fill: none; stroke: #c2d58f; stroke-width: 2; stroke-linecap: round; }
+.horn-edge { fill: none; stroke: var(--pet-ink); stroke-width: 2.4; stroke-linejoin: round; }
+.dragon-plate { fill: #f6f1c4; }
+.dragon-band { fill: none; stroke: #dcd696; stroke-width: 2.4; stroke-linecap: round; }
+.dragon-muzzle { fill: #f6f1c4; stroke: var(--pet-ink); stroke-width: 1.8; }
+.dragon-nostril { fill: #e79aa8; }
+.dragon-tuft { fill: #7cc271; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
+.dragon-dot { fill: var(--pet-skin-shade); }
+/* its mouth sits a little lower, under the snout */
+.pet[data-species="dragon"] [data-mouth]:not(.smile-dragon) { translate: 0 3px; }
+.pet[data-species="dragon"][data-mouth="smile"] path[data-mouth="smile"].smile-dragon { display: inline; }
+.pet:not([data-species="dragon"]) path.smile-dragon { display: none; }
+/* the monkey's feet are long with a thumb-like big toe, in the same tone as its face */
+.monkey-part { display: none; }
+.pet[data-species="monkey"] .monkey-part { display: inline; }
+.pet.shod .monkey-feet { display: none !important; }
+.monkey-toes { fill: var(--monkey-face, #ffe3c4); stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
+.monkey-mask { fill: var(--monkey-face, #ffe3c4); stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
+.pet[data-species="monkey"] .monkey-belly { fill: #e8c9a0; }
+.pet[data-species="mouse"] .mouse-belly { fill: #eceef3; }
+.whiskers { fill: none; stroke: var(--pet-ink); stroke-width: 1.8; stroke-linecap: round; opacity: .75; }
 .pet.shod .paw-feet, .pet.shod .hoof-feet, .pet.shod .bird-feet, .pet.sleeved .paw-hand, .pet.sleeved .hoof-hand { display: none !important; }
 .paw-toes { fill: var(--pet-skin-shade); stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
 .paw-line { fill: none; stroke: var(--pet-ink); stroke-width: 1.3; stroke-linecap: round; }
@@ -721,14 +753,14 @@ button { font: inherit; color: inherit; }
 /* ---------- suggestions ---------- */
 /* it floats just under the Add bar instead of pushing the list down when it appears */
 .add-wrap { position: relative; }
-.suggest { position: absolute; top: 100%; left: 6px; right: 6px; z-index: 6; display: flex; align-items: center; gap: 8px; margin: 8px 0 0; padding: 6px 8px 6px 14px; font-size: .85rem; color: var(--muted); font-weight: 700; flex-wrap: wrap; background: var(--surface); border-radius: 14px; box-shadow: 0 3px 0 var(--shadow), 0 0 0 1.5px var(--cb-edge); animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); transform-origin: 50% 0; }
+.suggest { position: absolute; bottom: 14px; right: 4px; z-index: 6; display: flex; align-items: center; gap: 2px; margin: 0; padding: 2px 2px 2px 3px; font-size: .8rem; color: var(--muted); font-weight: 700; background: var(--surface); border-radius: 999px; opacity: .92; box-shadow: 0 2px 0 var(--shadow), 0 0 0 1.5px var(--cb-edge); animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); transform-origin: 50% 100%; }
 .suggest[hidden] { display: none; }
 .suggest-btn {
   display: inline-flex; align-items: center; gap: 6px; border: 1.5px dashed var(--outline); background: var(--surface);
   border-radius: 999px; padding: 4px 12px 4px 6px; font-weight: 800; color: var(--ink); cursor: pointer;
 }
-.suggest-btn img { width: 22px; height: 22px; }
-.suggest-no { padding: 4px 8px; }
+.suggest-btn img { width: 18px; height: 18px; }
+.suggest .suggest-no { padding: 2px 8px; font-size: .75rem; text-decoration: none; }
 
 /* ---------- room decor, behind the pet ---------- */
 .room { position: absolute; inset: 0; z-index: 0; }
@@ -789,6 +821,9 @@ button { font: inherit; color: inherit; }
 .dress-tabs button img { width: 22px; height: 22px; opacity: .75; }
 .dress-tabs button[aria-selected="true"] { background: var(--accent); color: #fff; border-color: transparent; transform: translateY(-1px); box-shadow: 0 2px 0 rgba(123, 90, 61, .3); }
 .dress-tabs button[aria-selected="true"] img { opacity: 1; }
+.dress-panel.pet-filtering :is(.field, .mood-info, .decor-hint:not(#petSearchNone), .lock-hint) { display: none; }
+.search-empty { display: none !important; }
+.dress-search { flex: none; width: 100%; box-sizing: border-box; margin-top: 6px; padding: 6px 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: .85rem; }
 .dress-panels { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 5px 5px 22px; margin: -5px -5px 0; }   /* room round the tiles, so the ring on the one you picked is not cut off at the edge */
 .dress-panels > * + * { margin-top: 12px; }
 /* a clear gap between the headings (Species, Skin, Personality; Glasses, Mouth) */
@@ -1212,7 +1247,7 @@ button { font: inherit; color: inherit; }
 .fav-intro { margin: 0; color: var(--muted); font-size: .8rem; }
 
 /* the main pet buttons, always at the bottom of the screen */
-.dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px)); }
+.dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; max-width: 560px; margin: 0 auto; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px)); }
 .dock button {
   display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 0; padding: 4px 0;
   border: 0; border-radius: 12px; background: none; color: var(--ink); font: inherit; cursor: pointer; touch-action: manipulation;
@@ -1237,6 +1272,9 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="dirty"] { --pet-skin: #ffd6dc; --pet-skin-shade: #ffc2cc; }
 .pet[data-skin="boar"] { --pet-skin: #8f6c57; --pet-skin-shade: #70503f; --pet-ear-in: #e0a0a8; }
 .pet[data-skin="floppybunny"] { --pet-skin: #fffafb; --pet-skin-shade: #f7e3ea; }
+.pet[data-skin="snowmonkey"] { --pet-skin: #cfd3dc; --pet-skin-shade: #b7bcc8; --pet-ear-in: #ffc9c9; --monkey-face: #ff9f9f; }
+.pet[data-skin="snowmonkey"] [data-sp="monkey"] .ear { fill: #ff9f9f; }
+.pet[data-skin="snowmonkey"] .monkey-belly { fill: #eceef3; }
 .pet[data-skin="whitehamster"] { --pet-skin: #fffaf6; --pet-skin-shade: #efe3da; --pet-ear-in: #ffc4cf; }
 .pet[data-skin="longhair"] { --pet-skin: #57525f; --pet-skin-shade: #403b49; --pet-ear-in: #e7a3b0; }
 .pet[data-skin="kiwi"] { --pet-skin: #b68f63; --pet-skin-shade: #dcaa5c; --pet-mark: #7a5a38; }
@@ -1574,12 +1612,13 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
 .pet.has-teddy.hugging .teddy-hug { translate: 0 0; }
 .pet.tucked .arm-r { transition: transform .55s ease-in-out, translate .55s ease-in-out; }
 .pet.tucked[data-arms="grab"] .arm-r { transform: translate(36px, -12px) rotate(-18deg); translate: -6px -4px; }
-.teddy-fur { fill: #b9814f; stroke: var(--prop-ink); stroke-width: 1.5; stroke-linejoin: round; }
+/* the teddy's lines are Nibble's own dark brown, so he does not look faded next to him */
+.teddy-fur { fill: #b9814f; stroke: #5b4239; stroke-width: 1.8; stroke-linejoin: round; }
 .teddy-in { fill: #dfae80; }
-.teddy-muzzle { fill: #f0d2ad; stroke: var(--prop-ink); stroke-width: 1.2; }
-.teddy-nose, .teddy-eye { fill: var(--prop-ink); }
-.teddy-line { fill: none; stroke: var(--prop-ink); stroke-width: 1.1; stroke-linecap: round; }
-.teddy-bow { fill: #ff8fae; stroke: var(--prop-ink); stroke-width: 1; stroke-linejoin: round; }
+.teddy-muzzle { fill: #f0d2ad; stroke: #5b4239; stroke-width: 1.2; }
+.teddy-nose, .teddy-eye { fill: #5b4239; }
+.teddy-line { fill: none; stroke: #5b4239; stroke-width: 1.1; stroke-linecap: round; }
+.teddy-bow { fill: #ff8fae; stroke: #5b4239; stroke-width: 1; stroke-linejoin: round; }
 .teddy-blush { fill: #ffb3c1; opacity: .8; }
 .pet .blanket { display: none; }
 .pet.tucked .blanket { display: inline; animation: blanket-in .6s cubic-bezier(.3, 1.4, .5, 1); }
@@ -1764,8 +1803,7 @@ html:root .dock-icon::after {
 html:root .dock button:active .dock-icon { transform: rotate(var(--tilt, -4deg)) translateY(2px); box-shadow: 0 0 0 1.5px var(--cb-edge-strong); }
 html:root .dock #dressBtn { --tilt: 4deg; --sticker: #c9ecd8; --sticker-ink: #3f9a6c; }
 html:root .dock #roomBtn { --tilt: -3deg; --sticker: #ffd3dd; --sticker-ink: #e0587c; }
-html:root .dock #favBtn { --tilt: 5deg; --sticker: #d9ccf5; --sticker-ink: #7d5fcf; }
-html:root .dock #goalsBtn { --tilt: 3deg; --sticker: #c8e3f7; --sticker-ink: #3f86c0; }
+html:root .dock #shopBtn { --tilt: -3deg; --sticker: #ffe6b8; --sticker-ink: #c98a2b; }
 
 /* sheets: a card tucked into the box */
 html:root .picker {
@@ -1781,7 +1819,7 @@ html:root .eaten h2 { color: var(--muted); }
    outline ring exactly (a circle, so nothing pokes out past the button). Past a straight fold line the sticker is gone and
    the board shows; just inside the fold, the lifted piece lies folded over, cream back up (the mirror of the missing piece). */
 html:root .dock #dressBtn .dock-icon::before,
-html:root .dock #favBtn .dock-icon::before {
+html:root .dock #profileBtn .dock-icon::before {
   content: ""; position: absolute; z-index: 2; pointer-events: none; border-radius: 50%;
   left: -4.5px; top: -4.5px; width: 43px; height: 43px;
 }
@@ -1791,8 +1829,8 @@ html:root .dock #dressBtn .dock-icon::before {
     linear-gradient(135deg, transparent 74.6%, var(--cb-dock-b) 74.6%),
     radial-gradient(circle 21.5px at 42.7px 42.7px, #cdb48a 14.6px, #e9d6b3 16px, var(--cb-back) 20.4px, #b89c74 20.6px, transparent 21.5px);
 }
-/* Top 10: a bigger lift at the upper left */
-html:root .dock #favBtn .dock-icon::before {
+/* Profile: a bigger lift at the upper left */
+html:root .dock #profileBtn .dock-icon::before {
   background:
     linear-gradient(315deg, transparent 71.4%, var(--cb-dock-a) 71.4%),
     radial-gradient(circle 21.5px at 3.1px 3.1px, #cdb48a 12.6px, #e9d6b3 14px, var(--cb-back) 20.4px, #b89c74 20.6px, transparent 21.5px);
@@ -1901,22 +1939,22 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 
 /* animal faces: a little nose over a :3 mouth (with a lip, or buck teeth for the bunny), eyes a little wider and lower */
 .cute-nose { display: none; fill: #ff9fb5; stroke: var(--pet-ink); stroke-width: 1.2; stroke-linejoin: round; }
-.pet:is([data-species="bunny"], [data-species="hamster"]) .nose-round,
+.pet:is([data-species="bunny"], [data-species="hamster"], [data-species="mouse"]) .nose-round,
 .pet[data-species="kitty"] .nose-cat,
-.pet:is([data-species="puppy"], [data-species="hedgehog"]) .nose-dark { display: inline; }
+.pet:is([data-species="puppy"], [data-species="hedgehog"], [data-species="monkey"]) .nose-dark { display: inline; }
 .nose-dark { fill: #3d2b24; stroke: #2a1d18; }
 .cat-smile { display: none; }
-.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"])[data-mouth="smile"] path[data-mouth="smile"]:not(.cat-smile) { display: none; }
-.pet:is([data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"])[data-mouth="smile"] .smile-lip,
-.pet[data-species="bunny"][data-mouth="smile"] .smile-bunny { display: inline; }
+.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="mouse"], [data-species="monkey"], [data-species="dragon"])[data-mouth="smile"] path[data-mouth="smile"]:not(.cat-smile) { display: none; }
+.pet:is([data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="monkey"])[data-mouth="smile"] .smile-lip,
+.pet:is([data-species="bunny"], [data-species="mouse"])[data-mouth="smile"] .smile-bunny { display: inline; }
 .buck-teeth { fill: #fff; stroke: var(--pet-ink); stroke-width: 1; stroke-linejoin: round; }
 .lip-extra { display: none; }
 .pet:is([data-species="mochi"], [data-species="pig"], [data-species="cow"])[data-mouth="smile"] .lip-snout,
 .pet[data-species="frog"][data-mouth="smile"] .lip-frog,
 .pet[data-species="axolotl"][data-mouth="smile"] .lip-axo { display: inline; }
 .pet:not([data-species="mochi"]):not([data-species="pig"]):not([data-species="cow"]) .lip-snout, .pet:not([data-species="frog"]) .lip-frog, .pet:not([data-species="axolotl"]) .lip-axo { display: none; }
-.pet:not([data-species="bunny"]) .smile-bunny,
-.pet:not([data-species="kitty"]):not([data-species="puppy"]):not([data-species="hamster"]):not([data-species="hedgehog"]) .smile-lip { display: none; }
+.pet:not([data-species="bunny"]):not([data-species="mouse"]) .smile-bunny,
+.pet:not([data-species="kitty"]):not([data-species="puppy"]):not([data-species="hamster"]):not([data-species="hedgehog"]):not([data-species="monkey"]) .smile-lip { display: none; }
 /* every pet's eyes sit a little wider apart and lower than drawn (moved with translate so blinks still work) */
 .pet .eye-l { translate: -3px 1.6px; }
 /* glasses follow the eyes: a little wider apart and lower (the frames stretch round the middle of the face) */
@@ -1985,6 +2023,7 @@ html[data-list="todo"] .cart, html[data-list="todo"] .receipt, html[data-list="t
 .task-stamp path { fill: none; stroke: #fff; stroke-width: 4.6; stroke-linecap: round; stroke-linejoin: round; }
 
 /* to-do dates and the clipboard (app-todo.js) */
+.qty-tag { flex: none; align-self: center; font-size: .72rem; font-weight: 800; line-height: 1; padding: 4px 8px; border-radius: 999px; background: var(--paper-pink, #ffe3ea); color: var(--muted); border: 1.5px solid var(--line); white-space: nowrap; }
 .due-tag { flex: none; align-self: center; font-size: .72rem; font-weight: 800; line-height: 1; padding: 4px 8px; border-radius: 999px; background: rgba(212, 182, 138, .25); color: var(--muted); border: 1.5px solid var(--line); white-space: nowrap; }
 .due-tag.due-soon { background: #fff0c2; color: #8a6420; border-color: #e8cf86; }
 .due-tag.due-today { background: #ffe19a; color: #6e4a0c; border-color: #e0b24c; }
@@ -2062,6 +2101,21 @@ html[data-list="todo"] #pet.desk[data-prop="glass"]:not([data-state="sleepy"]) .
 @keyframes mg-twinkle { 0%, 100% { opacity: .2; scale: .5; } 50% { opacity: 1; scale: 1.1; } }
 .magnifier .mg-glint { fill: #fff; }
 @keyframes mg-look { from { translate: -1.6px .6px; } to { translate: 1.2px 1px; } }
+/* while he squints through the glass, the eye that is not behind it (his left) shows his usual closed, happy eye: a wink */
+#pet.mg-squint .eye-set .eyes-open .eye-l { display: none; }
+#pet.mg-squint .eye-set [data-eyes="closed"] { display: inline; }
+#pet.mg-squint .eye-set [data-eyes="closed"] .eye-r { display: none; }
+#pet.mg-squint .eye-set [data-eyes="closed"] .eye-l { animation: none; }
+/* the glass arrives quickly, so the big eye can show at once */
+html[data-list="todo"] #pet.desk[data-prop="glass"] .arm-r { transition: transform .2s ease-out, translate .2s ease-out; }
+/* he wants a treat: eyes up at the cloud and a paw stretched towards it (app-treats.js) */
+#pet.wishing { --look-x: -2.6px; --look-y: -5px; }
+#pet.wishing .pupils { transform: translate(var(--look-x), var(--look-y)); }
+#pet.wishing[data-arms="idle"]:not(.desk):not(.tucked) .arm-l { transform: translate(6px, -30px) rotate(160deg); animation: wish-reach .7s ease-in-out infinite alternate; }
+html[data-list="todo"] #pet.wishing[data-arms="idle"]:not(.desk):not(.tucked) .arm-l { transform: none; animation: none; }
+html[data-list="todo"] #pet.wishing[data-arms="idle"]:not(.desk):not(.tucked) .arm-r { transform: translate(-6px, -30px) rotate(-160deg); animation: wish-reach .7s ease-in-out infinite alternate; }
+@keyframes wish-reach { from { translate: 0 1px; } to { translate: 0 -3px; } }
+@media (prefers-reduced-motion: reduce) { #pet.wishing .arm { animation: none !important; } }
 @media (prefers-reduced-motion: reduce) { #pet.writing .arm-r > *, #pet.inspecting .magnifier .mg-eye, #pet.mg-aha .magnifier .mg-eye, #pet.mg-squint .magnifier .mg-open { animation: none; } #pet.mg-squint .magnifier .mg-open { transform: scale(1.08, .42); } }
 /* the right hand's props on the to-do list (app-todo.js): a chubby pencil for writing, a magnifying glass for inspecting.
    Both are drawn in the right arm so they move with it; the pet's `desk` pose brings both paws to the clipboard. */
@@ -2119,9 +2173,9 @@ html:root .item.late:not(.done) { animation: late-shake 3.6s ease-in-out infinit
 /* ---------- to-do mode: the calendar and stamp book replace Top 10 and Goals in the bottom bar ---------- */
 .dock .todo-only { display: none; }
 html[data-list="todo"] .dock .todo-only { display: flex; }
-html[data-list="todo"] .dock #favBtn, html[data-list="todo"] .dock #goalsBtn { display: none; }
-html:root .dock #calBtn { --tilt: -4deg; --sticker: #d9ccf5; --sticker-ink: #7d5fcf; }
-html:root .dock #stampBtn { --tilt: 3deg; --sticker: #c8e3f7; --sticker-ink: #3f86c0; }
+/* the Shop is only a placeholder for now: greyed out */
+.dock #shopBtn:disabled { opacity: .45; filter: grayscale(1); cursor: default; }
+html:root .dock #calBtn { --tilt: 3deg; --sticker: #ffd9c2; --sticker-ink: #d9743f; }
 /* calendar */
 .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .cal-month { display: flex; gap: 6px; }
@@ -2151,7 +2205,7 @@ html:root .dock #stampBtn { --tilt: 3deg; --sticker: #c8e3f7; --sticker-ink: #3f
 .cal-list li span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .cal-list li.done span { text-decoration: line-through; color: var(--muted); }
 .cal-list li.cal-empty { background: none; color: var(--muted); font-weight: 600; }
-.cal-del { padding: 2px 6px; }
+.cal-del, .cal-list .cal-del { padding: 2px 6px; text-decoration: none; }
 .cal-add { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .cal-add.off { visibility: hidden; }
 .cal-add input { flex: 1 1 140px; min-width: 0; padding: 8px 10px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: .92rem; }
@@ -2258,3 +2312,395 @@ html.typing .page-fade { display: none; }
 @keyframes wish-bob { 50% { translate: 0 -3px; } }
 @keyframes wish-ping { 0% { transform: scale(.96); opacity: .85; } 100% { transform: scale(1.35, 1.5); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .wish-cloud, .wish-cloud::after { animation: none; } }
+
+/* daily gift: a box on the stage while any of today's boxes is shut, and the sheet with the boxes (app-gift.js) */
+.gift { position: absolute; left: 10px; top: 8px; z-index: 4; width: 44px; height: 44px; padding: 0; border: 0; background: none; cursor: pointer; animation: gift-hop 2.6s ease-in-out infinite; }
+.gift[hidden] { display: none; }
+.gift-img svg { width: 44px; height: 44px; display: block; filter: drop-shadow(0 2px 0 var(--shadow)); }
+.gift-count { position: absolute; right: -4px; top: -4px; min-width: 18px; padding: 0 5px; border-radius: 999px; background: var(--accent); color: #fff; border: 1.5px solid #fff; font-size: .7rem; font-weight: 800; line-height: 1.35; text-align: center; }
+.gift-count:empty { display: none; }
+@keyframes gift-hop { 0%, 70%, 100% { translate: 0 0; rotate: 0deg; } 78% { translate: 0 -6px; rotate: -6deg; } 86% { translate: 0 0; rotate: 5deg; } 93% { translate: 0 -2px; rotate: -2deg; } }
+.gift-day { margin: 0; font-weight: 800; text-align: center; color: var(--ink); }
+.gift-next, .gift-bday .field-label { color: var(--muted); font-size: .82rem; font-weight: 700; }
+.gift-next { margin: 0; text-align: center; }
+.gift-boxes { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.gift-box { display: grid; justify-items: center; gap: 2px; width: 92px; padding: 8px 4px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: .75rem; font-weight: 800; cursor: pointer; }
+.gift-box svg, .gift-box img { width: 52px; height: 52px; display: block; }
+.gift-box.opened { cursor: default; background: var(--bg); }
+.gift-box.opened svg { filter: grayscale(1); opacity: .45; }
+.gift-box.shaking svg { animation: gift-shake .5s ease-in-out; }
+@keyframes gift-shake { 0%, 100% { rotate: 0deg; } 20% { rotate: -12deg; } 40% { rotate: 12deg; } 60% { rotate: -9deg; } 80% { rotate: 7deg; } }
+.gift-prizes { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.gift-chip { display: inline-flex; align-items: center; gap: 2px; padding: 2px 8px 2px 4px; border-radius: 999px; background: var(--surface); border: 1.5px solid var(--line); font-size: .78rem; font-weight: 800; }
+.gift-chip img { width: 22px; height: 22px; }
+@media (prefers-reduced-motion: reduce) { .gift, .gift-box.shaking svg { animation: none; } }
+
+/* profile (app-profile.js): the same fields as the pet's name; its dock sticker */
+html:root .dock #profileBtn { --tilt: 5deg; --sticker: #d9ccf5; --sticker-ink: #7d5fcf; }
+.profile-sheet .field input[type="date"] { font: inherit; }
+html:root .picker .field-label.profile-top { display: none; }
+.profile-links { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.profile-link { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-weight: 800; text-align: left; cursor: pointer; }
+.profile-link-icon { width: 24px; display: grid; place-items: center; font-size: 1.2rem; color: #7d5fcf; }
+.profile-link-svg { width: 22px; height: 22px; display: block; }
+.profile-link-go { margin-left: auto; color: var(--muted); font-size: 1.3rem; line-height: 1; }
+.gift-box { position: relative; }
+.gift-placeholder { position: absolute; left: 50%; top: -6px; translate: -50% 0; rotate: -6deg; padding: 1px 9px 2px; border-radius: 999px; background: var(--accent); color: #fff; border: 1.5px solid #fff; box-shadow: 0 2px 0 var(--shadow); font-size: .72rem; font-weight: 800; letter-spacing: .02em; white-space: nowrap; animation: gift-placeholder 2.2s cubic-bezier(.3, 1.8, .5, 1) both; }
+@keyframes gift-placeholder { 0% { scale: .2; opacity: 0; translate: -50% 18px; } 35% { scale: 1.25; opacity: 1; translate: -50% -4px; } 55% { scale: 1; } 100% { scale: 1; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .gift-placeholder { animation: none; } }
+
+
+/* colours for the newer cards (Stamp Book, Calendar, Profile): paper and pastel tints that follow light and dark mode */
+:root { --paper: #fffaf0; --paper-edge: #f1e3cf; --paper-cell: #fff; --paper-pink: #fff1f4; --paper-today: #ffe3ec; --paper-sel: #ffc2d4;
+  --tier1: #f1fbf4; --tier2: #fff3e6; --tier3: #fff9dc; --pill1: #c9efd9; --pill1-ink: #24603f; --pill2: #ffd9b3; --pill2-ink: #84440c; --pill3: #ffeb99; --pill3-ink: #6e5100;
+  --bub-purple: #e6dcfa; --bub-purple-ink: #7d5fcf; --bub-blue: #d6ebfa; --bub-blue-ink: #3f86c0; --bub-yellow: #ffe8a8; --bub-yellow-ink: #a8780a; --link-tint: #f7f1fd; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+  --paper: #4b3b30; --paper-edge: #6a5444; --paper-cell: #5a483b; --paper-pink: #54404a; --paper-today: #66414f; --paper-sel: #a24d6c;
+  --tier1: #3f5145; --tier2: #594536; --tier3: #585130; --pill1: #2e5a45; --pill1-ink: #d3f3e1; --pill2: #7a4b22; --pill2-ink: #ffe2c2; --pill3: #6e5a14; --pill3-ink: #fff0b0;
+  --bub-purple: #4f4470; --bub-purple-ink: #d6c8fa; --bub-blue: #364d63; --bub-blue-ink: #b3d8f5; --bub-yellow: #695a22; --bub-yellow-ink: #ffe9a3; --link-tint: #53455f;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #4b3b30; --paper-edge: #6a5444; --paper-cell: #5a483b; --paper-pink: #54404a; --paper-today: #66414f; --paper-sel: #a24d6c;
+  --tier1: #3f5145; --tier2: #594536; --tier3: #585130; --pill1: #2e5a45; --pill1-ink: #d3f3e1; --pill2: #7a4b22; --pill2-ink: #ffe2c2; --pill3: #6e5a14; --pill3-ink: #fff0b0;
+  --bub-purple: #4f4470; --bub-purple-ink: #d6c8fa; --bub-blue: #364d63; --bub-blue-ink: #b3d8f5; --bub-yellow: #695a22; --bub-yellow-ink: #ffe9a3; --link-tint: #53455f;
+}
+/* the Stamp Book: stickers taped on a page, tilted a little, popping in one after another */
+.stamp-sub { margin: -2px 0 2px; text-align: center; font-size: .82rem; font-weight: 800; color: var(--muted); }
+.stamp-sheet .stamp-grid { gap: 12px 10px; padding-top: 6px; }
+.stamp { position: relative; border: 1.5px solid var(--line); border-radius: 16px; background: var(--surface); box-shadow: 0 2px 0 var(--shadow); animation: stamp-pop .4s cubic-bezier(.3, 1.6, .5, 1) both; }
+.stamp:nth-child(3n+1) { rotate: -1.6deg; } .stamp:nth-child(3n+2) { rotate: 1.2deg; } .stamp:nth-child(3n) { rotate: -.8deg; }
+.stamp:nth-child(2) { animation-delay: .04s; } .stamp:nth-child(3) { animation-delay: .08s; } .stamp:nth-child(4) { animation-delay: .12s; } .stamp:nth-child(5) { animation-delay: .16s; } .stamp:nth-child(6) { animation-delay: .2s; }
+.stamp:nth-child(n+7) { animation-delay: .24s; }
+.stamp::before { content: ""; position: absolute; left: 50%; top: -6px; translate: -50% 0; width: 30px; height: 11px; border-radius: 3px; background: rgba(170, 215, 195, .75); rotate: -3deg; }
+.stamp:nth-child(2n)::before { background: rgba(255, 200, 215, .8); rotate: 3deg; }
+.stamp.t1 { background: var(--tier1); } .stamp.t2 { background: var(--tier2); } .stamp.t3 { background: var(--tier3); }
+.stamp.t3::after { content: "✦"; position: absolute; right: 8px; top: 6px; color: #e0b01f; font-size: .85rem; animation: twinkle 1.6s ease-in-out infinite; }
+.stamp-count { padding: 0 8px; border-radius: 999px; background: var(--bg); }
+.stamp.t1 .stamp-count, .stamp.t2 .stamp-count, .stamp.t3 .stamp-count { background: var(--accent); color: #fff; }
+@keyframes stamp-pop { from { scale: .6; opacity: 0; } to { scale: 1; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .stamp, .stamp.t3::after { animation: none; } }
+
+/* readable counts in the Stamp Book: dark text on a pastel pill, a different pastel for each stamp tier */
+.stamp-sub { color: var(--ink); opacity: .75; }
+.stamp-count { color: var(--ink); }
+.stamp.t1 .stamp-count { background: var(--pill1); color: var(--pill1-ink); }
+.stamp.t2 .stamp-count { background: var(--pill2); color: var(--pill2-ink); }
+.stamp.t3 .stamp-count { background: var(--pill3); color: var(--pill3-ink); }
+
+/* calendar: a paper page with taped corners, soft pastel days, a hopping heart on today (app-calendar.js) */
+.cal-sheet .cal-month select { border-radius: 999px; padding: 6px 12px; box-shadow: 0 2px 0 var(--shadow); }
+.cal-sheet #calGrid { position: relative; padding: 10px 8px 8px; margin-top: 4px; gap: 4px; border-radius: 18px; background: var(--paper); border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--shadow); }
+.cal-sheet #calGrid::before, .cal-sheet #calGrid::after { content: ""; position: absolute; top: -7px; width: 38px; height: 12px; border-radius: 3px; background: rgba(170, 215, 195, .75); }
+.cal-sheet #calGrid::before { left: 18px; rotate: -4deg; } .cal-sheet #calGrid::after { right: 18px; rotate: 3deg; background: rgba(255, 200, 215, .8); }
+
+.cal-sheet .cal-dow span:nth-child(n+6) { color: #e0587c; }
+.cal-sheet .cal-cell { height: 34px; border-radius: 12px; background: var(--paper-cell); border: 1.5px solid var(--paper-edge); font-weight: 800; }
+.cal-sheet .cal-cell:nth-child(7n), .cal-sheet .cal-cell:nth-child(7n-1) { background: var(--paper-pink); }
+.cal-sheet .cal-cell.today { border: 2px solid #ff8fb1; background: var(--paper-today); }
+.cal-sheet .cal-cell.today::after { content: "♡"; position: absolute; top: -5px; right: -2px; font-size: .62rem; color: #ec6a8f; animation: cal-heart 1.8s ease-in-out infinite; }
+.cal-sheet .cal-cell { position: relative; }
+.cal-sheet .cal-cell.sel { background: var(--paper-sel); color: var(--ink); border: 2px solid #ec6a8f; box-shadow: 0 2px 0 rgba(236, 106, 143, .35); }
+.cal-sheet .cal-cell.sel .cal-dots i { background: #ec6a8f; }
+.cal-sheet .cal-dots i { width: 5px; height: 5px; }
+.cal-sheet .cal-list { height: auto; min-height: 96px; flex: 1 1 auto; }
+.cal-sheet .cal-list li { background: var(--paper); border: 1.5px solid var(--paper-edge); border-radius: 14px; }
+@keyframes cal-heart { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2px; } }
+@media (prefers-reduced-motion: reduce) { .cal-sheet .cal-cell.today::after { animation: none; } }
+
+/* profile: a friendly header, name and birthday as taped notes, round colour bubbles on the buttons */
+.profile-card { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 18px; background: var(--paper); border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--shadow); }
+.profile-avatar { display: grid; place-items: center; width: 46px; height: 46px; flex: none; border-radius: 50%; background: #ffc2d4 !important; border: 2.5px solid #fff; box-shadow: 0 0 0 1.5px #ec6a8f, 0 2px 0 var(--shadow); color: #b8325e; font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; rotate: -5deg; }
+.profile-card b { font-family: var(--font-display); font-size: 1.15rem; color: var(--ink); }
+.profile-sheet .field { position: relative; padding: 12px 12px 10px; border-radius: 16px; background: var(--paper); border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--shadow); gap: 6px; }
+.profile-sheet .field::before { content: ""; position: absolute; left: 50%; top: -6px; translate: -50% 0; width: 34px; height: 11px; border-radius: 3px; background: rgba(170, 215, 195, .75); rotate: -3deg; }
+.profile-sheet .field + .field::before { background: rgba(255, 200, 215, .8); rotate: 3deg; }
+.profile-link { box-shadow: 0 2px 0 var(--shadow); }
+.profile-link-icon { width: 34px; height: 34px; border-radius: 50%; font-size: 1.1rem; }
+#favBtn .profile-link-icon { background: var(--bub-purple); color: var(--bub-purple-ink); }
+#stampBtn .profile-link-icon { background: var(--bub-blue); color: var(--bub-blue-ink); }
+.profile-link-svg { width: 20px; height: 20px; }
+
+/* Top 10: rows like taped stickers */
+.fav:not(.fav-podium) { position: relative; box-shadow: 0 2px 0 var(--shadow); background: var(--paper); }
+.fav:not(.fav-podium):nth-child(2n) { rotate: .5deg; } .fav:not(.fav-podium):nth-child(2n+1) { rotate: -.5deg; }
+.fav:not(.fav-podium):nth-child(3n)::before { content: ""; position: absolute; left: 14px; top: -5px; width: 26px; height: 9px; border-radius: 3px; background: rgba(170, 215, 195, .75); rotate: -3deg; }
+.fav:not(.fav-podium):nth-child(3n+1)::before { content: ""; position: absolute; right: 54px; top: -5px; width: 26px; height: 9px; border-radius: 3px; background: rgba(255, 200, 215, .8); rotate: 3deg; }
+
+/* the calendar's days keep their size and their gaps (the sheet scrolls instead of squeezing them together) */
+.cal-sheet #calGrid { flex: none; }
+.cal-sheet .cal-dow { flex: none; }
+.cal-sheet .cal-cell { flex: none; min-height: 34px; }
+.cal-sheet .picker-inner > * { flex-shrink: 0; }
+.cal-sheet .cal-list { flex-shrink: 1; }
+
+/* Profile: Top 10 and Stamp Book as chunky sticker buttons */
+.profile-links { gap: 10px; }
+.profile-link { position: relative; gap: 12px; padding: 12px 14px; border-radius: 20px; background: var(--link-tint); border: 1.5px solid var(--line); box-shadow: 0 3px 0 var(--shadow); }
+.profile-link::before { content: ""; position: absolute; left: 14px; top: -6px; width: 30px; height: 10px; border-radius: 3px; background: rgba(170, 215, 195, .75); rotate: -4deg; }
+#stampBtn.profile-link::before { background: rgba(255, 200, 215, .8); rotate: 3deg; left: auto; right: 38px; }
+#stampBtn.profile-link { --link-tint: var(--paper-edge); background: var(--paper); }
+.profile-link-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.profile-link-text b { font-size: 1rem; }
+.profile-link-text small { font-size: .75rem; font-weight: 700; color: var(--muted); }
+.profile-link:active { translate: 0 2px; box-shadow: 0 1px 0 var(--shadow); }
+.profile-link-icon { width: 40px; height: 40px; border: 2px solid #fff3; }
+
+/* the calendar's days: each cell has a fixed size, the plan dots sit inside it, so rows can never run into each other */
+.cal-sheet #calGrid { grid-auto-rows: 38px; gap: 6px 4px; }
+.cal-sheet .cal-cell { height: 38px; min-height: 38px; padding-bottom: 6px; }
+.cal-sheet .cal-dots { position: absolute; left: 0; right: 0; bottom: 4px; justify-content: center; height: 5px; }
+
+/* Goals in Profile, and the Goals sheet itself, like the other cards */
+#goalsBtn .profile-link-icon { background: var(--bub-yellow); color: var(--bub-yellow-ink); }
+#goalsBtn.profile-link::before { background: rgba(170, 200, 235, .8); left: auto; right: 38px; rotate: 4deg; }
+.goals-intro { color: var(--ink); }
+#goalsSheet .goal { position: relative; background: var(--paper); border: 1.5px solid var(--line); border-radius: 16px; box-shadow: 0 2px 0 var(--shadow); }
+#goalsSheet .goal:nth-child(2n) { rotate: .4deg; } #goalsSheet .goal:nth-child(2n+1) { rotate: -.4deg; }
+#goalsSheet .goal:nth-child(3n+1)::before { content: ""; position: absolute; left: 16px; top: -5px; width: 26px; height: 9px; border-radius: 3px; background: rgba(255, 200, 215, .8); rotate: -3deg; }
+#goalsSheet .goal.done { background: var(--tier1); }
+#goalsSheet .goal-bar { background: var(--paper-edge); height: 12px; }
+#goalsSheet .goal-bar span { background: linear-gradient(90deg, #ff9dba, #ff7fa6); }
+#goalsSheet .goal.done .goal-bar span { background: var(--mint); }
+.task-for { margin: 8px 0 4px; }
+
+/* calendar: sizes include the padding, so a day can never grow taller than its row (it overlapped on some screens) */
+.cal-sheet .cal-cell { box-sizing: border-box; height: 38px; min-height: 38px; max-height: 38px; padding: 0 0 4px; overflow: visible; }
+.cal-sheet #calGrid { grid-template-rows: none; grid-auto-rows: 38px; row-gap: 7px; align-items: stretch; }
+
+/* the pet's name: a compact row, and the pencil wiggles while it still has its first name */
+.dress-panel[data-tab="pet"] > .field:first-child { flex-direction: row; align-items: center; gap: 10px; }
+.dress-panel[data-tab="pet"] > .field:first-child .field-label { flex: none; }
+.dress-panel[data-tab="pet"] > .field:first-child :is(.name-show, input) { flex: 1; min-width: 0; min-height: 38px; padding-top: 6px; padding-bottom: 6px; }
+.name-show.unnamed .name-pen { display: inline-block; color: var(--accent); animation: pen-wiggle 1.8s ease-in-out infinite; transform-origin: 20% 90%; }
+@keyframes pen-wiggle { 0%, 55%, 100% { rotate: 0deg; } 62% { rotate: -22deg; } 70% { rotate: 18deg; } 78% { rotate: -14deg; } 86% { rotate: 8deg; } }
+@media (prefers-reduced-motion: reduce) { .name-show.unnamed .name-pen { animation: none; } }
+
+/* profile: name and birthday side by side and smaller, so the buttons below get the room */
+.profile-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.profile-sheet .profile-fields .field { padding: 6px 8px 8px; gap: 3px; border-radius: 14px; min-width: 0; }
+.profile-sheet .profile-fields .field::before { display: none; }
+.profile-sheet .profile-fields .field-label { font-size: .75rem; }
+.profile-sheet .profile-fields .name-show, .profile-sheet .profile-fields input { min-height: 34px; padding: 4px 10px; font-size: .92rem; width: 100%; box-sizing: border-box; }
+.profile-sheet .profile-fields .name-show { gap: 4px; }
+.profile-card { padding: 5px 12px; }
+.profile-avatar { width: 38px; height: 38px; font-size: 1.15rem; }
+
+/* the three Profile buttons take turns: lavender, butter, mint */
+:root { --tintA: #f1e9fc; --bubA: #e0d3f8; --inkA: #7d5fcf; --tintB: #fff4d6; --bubB: #ffe39a; --inkB: #a8780a; --tintC: #e5f6ec; --bubC: #c5ead4; --inkC: #2f8a58; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --tintA: #4a4163; --bubA: #62568a; --inkA: #dccdfb; --tintB: #5a5026; --bubB: #766a30; --inkB: #ffe9a3; --tintC: #34503f; --bubC: #44684f; --inkC: #c4f0d6; } }
+:root[data-theme="dark"] { --tintA: #4a4163; --bubA: #62568a; --inkA: #dccdfb; --tintB: #5a5026; --bubB: #766a30; --inkB: #ffe9a3; --tintC: #34503f; --bubC: #44684f; --inkC: #c4f0d6; }
+#favBtn.profile-link { background: var(--tintA); } #favBtn .profile-link-icon { background: var(--bubA); color: var(--inkA); }
+#goalsBtn.profile-link { background: var(--tintB); } #goalsBtn .profile-link-icon { background: var(--bubB); color: var(--inkB); }
+#stampBtn.profile-link { background: var(--tintC); } #stampBtn .profile-link-icon { background: var(--bubC); color: var(--inkC); }
+#favBtn.profile-link::before { background: rgba(255, 200, 215, .8); }
+#goalsBtn.profile-link::before { background: rgba(170, 215, 195, .8); left: 14px; right: auto; rotate: -4deg; }
+#stampBtn.profile-link::before { background: rgba(255, 200, 215, .8); }
+
+.task-select { width: 100%; box-sizing: border-box; padding: 8px 12px; }
+.task-dow { margin: 6px 0; gap: 5px; }
+.task-dow .pill-btn { padding: 6px 9px; font-size: .8rem; }
+
+.task-note.warn { color: var(--danger); font-weight: 800; }
+.task-confirm { display: flex; gap: 10px; }
+.task-confirm .pill-btn { flex: 1; padding: 10px 14px; }
+.task-save { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 800; }
+
+/* the Pet menu (dressing room) gets the same paper-card look as the other menus */
+.dress-tabs button { border-radius: 16px; box-shadow: 0 2px 0 var(--shadow); }
+.dress-tabs button[aria-selected="true"] { animation: tab-pop .3s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes tab-pop { from { scale: .88; } to { scale: 1; } }
+.dress-search { background: var(--paper); box-shadow: 0 2px 0 var(--shadow); }
+.dress-panel .species-grid button, .dress-panel .hat-strip button { background: var(--paper); border-radius: 18px; box-shadow: 0 2px 0 var(--shadow); }
+.dress-panel .species-grid button[aria-pressed="true"], .dress-panel .hat-strip button[aria-pressed="true"] { background: var(--paper-today); border-color: #ec6a8f; box-shadow: 0 2px 0 rgba(236, 106, 143, .4); }
+.dress-panel .mood-info { background: var(--paper); border: 1.5px dashed var(--line); border-radius: 14px; padding: 6px 12px; }
+.dress-panel[data-tab="pet"] .name-show { background: var(--paper); box-shadow: 0 2px 0 var(--shadow); }
+
+/* calendar: a fuller add form, and plans that open for editing */
+.cal-add { flex-direction: column; align-items: stretch; gap: 6px; }
+.cal-add input#calInput { flex: none; width: 100%; box-sizing: border-box; padding: 8px 12px; border-radius: 999px; background: var(--paper); }
+.cal-kinds { display: flex; gap: 6px; }
+.cal-kinds .pill-btn { padding: 5px 12px; font-size: .82rem; }
+.cal-kinds .pill-btn[aria-pressed="true"] { background: var(--paper-sel); color: var(--ink); border-color: #ec6a8f; }
+.cal-extra { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cal-extra label { display: flex; align-items: center; gap: 4px; font-size: .78rem; font-weight: 800; color: var(--muted); min-width: 0; }
+.cal-extra input[type="time"], .cal-extra select { font: inherit; font-size: .85rem; color: var(--ink); background: var(--paper); border: 1.5px solid var(--line); border-radius: 10px; padding: 5px 6px; min-width: 0; }
+.cal-extra select { max-width: 120px; }
+.cal-extra .cal-add-btn { margin-left: auto; }
+.cal-list li .cal-text { cursor: pointer; }
+.cal-pen { color: var(--muted); font-size: .8rem; flex: none; }
+.task-name-input { width: 100%; box-sizing: border-box; font: inherit; font-weight: 800; font-size: 1.05rem; color: var(--ink); background: var(--paper); border: 1.5px solid var(--line); border-radius: 12px; padding: 6px 10px; margin: 0; }
+/* make room for the fuller add form inside the calendar sheet */
+.cal-sheet .cal-cell { height: 33px; min-height: 33px; max-height: 33px; padding-bottom: 3px; }
+.cal-sheet #calGrid { grid-auto-rows: 33px; row-gap: 5px; padding: 8px 8px 6px; }
+.cal-sheet .cal-list { min-height: 46px; }
+.cal-sheet .cal-dots { bottom: 3px; }
+.cal-sheet .picker-inner { gap: 6px; }
+.cal-extra { flex-wrap: nowrap; gap: 6px; }
+.cal-extra input[type="time"] { width: 104px; }
+.cal-extra select { max-width: 104px; }
+.cal-extra .cal-add-btn { padding: 7px 16px; }
+
+/* the whole-page calendar (like the Top 10): there is no pet animation for it, so it uses the room */
+.picker.pet-sheet.cal-full { max-width: none; width: 100%; max-height: none; margin: 0; border: 0; border-radius: 0; inset: 0; height: auto; }
+html:root .picker.pet-sheet.cal-full .picker-inner { display: flex; flex-direction: column; gap: 10px; height: 100%; max-height: 100%; box-sizing: border-box; overflow-y: auto; padding-top: calc(16px + env(safe-area-inset-top, 0px)); margin-top: 0; }
+.picker.cal-full .sheet-grab { display: none; }
+.cal-full .cal-cell { height: 46px; min-height: 46px; max-height: 46px; font-size: 1.05rem; }
+.cal-full #calGrid { grid-auto-rows: 46px; row-gap: 6px; }
+.cal-full .cal-dots i { width: 6px; height: 6px; }
+.cal-full .cal-list { min-height: 90px; flex: 1 1 auto; }
+html:root .picker.cal-full { border-radius: 0; }
+
+/* drop-down menus: round and soft, with a little chevron, like the buttons */
+html:root select { -webkit-appearance: none; appearance: none; font: inherit; font-weight: 800; color: var(--ink); background-color: var(--paper); border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 30px 6px 14px; box-shadow: 0 2px 0 var(--shadow); cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 17px) 55%, calc(100% - 12px) 55%; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
+html:root select:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
+html:root select option { background: var(--surface); color: var(--ink); font-weight: 700; }
+html:root select:disabled { opacity: .55; }
+
+/* the Pet menu, round two: bubble tabs, tiles that sit on a soft backing, a check on the chosen one, plain headings */
+.dress-tabs { gap: 6px; }
+.dress-tabs button { padding: 6px 0 5px; border-radius: 20px; background: var(--paper); gap: 3px; }
+.dress-tabs button img { box-sizing: content-box; width: 20px; height: 20px; padding: 5px; border-radius: 50%; opacity: 1; background: var(--bubA); }
+.dress-tabs button:nth-child(3n+2) img { background: var(--bubB); } .dress-tabs button:nth-child(3n) img { background: var(--bubC); }
+.dress-tabs button[aria-selected="true"] img { background: #fff; }
+.dress-panel .field-label, .dress-panel legend.field-label { display: block; padding: 0 2px 3px; background: none; border: 0; border-bottom: 2px dotted var(--line); border-radius: 0; box-shadow: none; font-family: var(--font-display); font-size: 1.05rem; color: var(--ink); }
+.dress-panel[data-tab="pet"] > .field:first-child .field-label { border-bottom: 0; padding: 0; }
+.dress-panel .species-grid button, .dress-panel .hat-strip button { border: 2px solid var(--paper-edge); border-radius: 22px; background: var(--paper); box-shadow: 0 3px 0 var(--shadow); padding: 8px 4px 7px; gap: 4px; font-size: .8rem; }
+.dress-panel .species-grid button:active, .dress-panel .hat-strip button:active { translate: 0 2px; box-shadow: 0 1px 0 var(--shadow); }
+.dress-panel .species-grid .pet.mini { background: radial-gradient(circle at 50% 55%, var(--paper-cell) 0 62%, transparent 64%); border-radius: 50%; }
+.dress-panel .hat-strip button > svg { box-sizing: border-box; width: 58px; max-width: none; height: 46px; padding: 3px 6px; border-radius: 16px; background: var(--paper-cell); }
+.dress-panel .species-grid button[aria-pressed="true"], .dress-panel .hat-strip button[aria-pressed="true"] { background: var(--paper-today); border-color: #ec6a8f; box-shadow: 0 3px 0 rgba(236, 106, 143, .45); }
+.dress-panel .species-grid button[aria-pressed="true"]::after, .dress-panel .hat-strip button[aria-pressed="true"]::after { content: "✓"; position: absolute; right: 6px; top: 5px; left: auto; translate: none; rotate: none; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; background: #ec6a8f; color: #fff; font-size: .72rem; font-weight: 800; }
+.dress-panel .species-grid button.locked, .dress-panel .hat-strip button.locked { border-style: dashed; }
+.cal-full .cal-list { flex: 0 0 auto; min-height: 90px; }
+html:root .cal-month select { flex: none; }
+
+/* the Pet menu, round three: headings with a soft highlighter stripe (no lines to be cut off), a dotted paper backing, tiles pop when chosen */
+.dress-panel .field-label, .dress-panel legend.field-label { display: inline-block; align-self: flex-start; padding: 0 8px; margin-left: -2px; border: 0; border-radius: 6px; box-shadow: none; background: linear-gradient(transparent 52%, var(--bubA) 52%); font-family: var(--font-display); font-size: 1.05rem; color: var(--ink); }
+.dress-panel fieldset:nth-of-type(2) .field-label, .dress-panel fieldset:nth-of-type(2) legend { background: linear-gradient(transparent 52%, var(--bubB) 52%); }
+.dress-panel fieldset:nth-of-type(3) .field-label, .dress-panel fieldset:nth-of-type(3) legend { background: linear-gradient(transparent 52%, var(--bubC) 52%); }
+.dress-panel[data-tab="pet"] > .field:first-child .field-label { padding: 0 8px; }
+.dress-panels { background-image: radial-gradient(circle, var(--paper-edge) 1.1px, transparent 1.4px); background-size: 18px 18px; border-radius: 16px; }
+.dress-panel .species-grid button[aria-pressed="true"], .dress-panel .hat-strip button[aria-pressed="true"] { animation: tile-pop .4s cubic-bezier(.3, 1.7, .5, 1); }
+@keyframes tile-pop { 0% { scale: .9; } 100% { scale: 1; } }
+.dress-panel .species-grid button:hover, .dress-panel .hat-strip button:hover { translate: 0 -2px; }
+.dress-preview::after { content: ""; }
+
+/* the photoshoot: full screen, the pet big in the middle, buttons that tuck away for a clean screenshot */
+.shoot { position: fixed; inset: 0; z-index: 80; overflow: hidden; touch-action: manipulation; color: var(--ink); }
+.shoot[hidden] { display: none; }
+.shoot-bg { position: absolute; inset: 0; }
+.shoot-bg svg { display: block; width: 100%; height: 100%; }
+.shoot-sparkles span { position: absolute; color: #fff; text-shadow: 0 0 6px rgba(255, 150, 190, .9); opacity: 0; animation: shoot-twinkle 2.8s ease-in-out infinite; pointer-events: none; }
+@keyframes shoot-twinkle { 0%, 100% { opacity: 0; scale: .5; } 50% { opacity: .95; scale: 1.1; } }
+.shoot-pet { position: absolute; left: 50%; top: 40%; translate: calc(-50% + var(--shoot-dx, 0px)) calc(-50% + var(--shoot-dy, 0px)); scale: var(--shoot-s, 1); }
+.shoot-pet .pet.preview { width: min(84vw, 48vh * 1.07); height: min(78.4vw, 48vh); }
+.shoot-pet::after { content: ""; position: absolute; left: 12%; right: 12%; bottom: -8px; height: 18px; border-radius: 50%; background: rgba(90, 60, 50, .16); filter: blur(4px); z-index: -1; }
+.shoot-frame { position: absolute; inset: 0; pointer-events: none; }
+.shoot[data-frame="polaroid"] .shoot-frame { border: 16px solid #fffdf8; border-bottom-width: 70px; box-shadow: inset 0 0 0 1px rgba(90, 60, 50, .12); }
+.shoot[data-frame="polaroid"] .shoot-caption { position: absolute; left: 0; right: 0; bottom: -52px; text-align: center; font-family: var(--font-display); font-size: 1.15rem; color: #5b4239; }
+.shoot[data-frame="hearts"] .shoot-frame { border: 14px solid transparent; border-image: radial-gradient(circle at 7px 7px, #ff9fbd 4px, transparent 5px) 14 round; box-shadow: inset 0 0 0 6px rgba(255, 190, 210, .55); }
+.shoot[data-frame="ribbon"] .shoot-frame { box-shadow: inset 0 0 0 8px #fff, inset 0 0 0 12px #ffb3c7; }
+.shoot[data-frame="ribbon"] .shoot-caption { position: absolute; left: 50%; top: 22px; translate: -50% 0; padding: 4px 22px; border-radius: 999px; background: #ff9fbd; color: #fff; font-family: var(--font-display); font-size: 1.1rem; border: 3px solid #fff; box-shadow: 0 2px 0 rgba(90, 60, 50, .2); white-space: nowrap; }
+.shoot:not([data-frame="polaroid"]):not([data-frame="ribbon"]) .shoot-caption { display: none; }
+.shoot-flash { position: absolute; inset: 0; background: #fff8ee; opacity: 0; pointer-events: none; }
+.shoot-flash.pop { animation: shoot-flash .9s ease-out; }
+@keyframes shoot-flash { 0% { opacity: 0; } 18% { opacity: .75; } 100% { opacity: 0; } }
+.shoot-hint { position: absolute; left: 50%; top: calc(18px + env(safe-area-inset-top, 0px)); translate: -50% 0; margin: 0; padding: 6px 14px; border-radius: 999px; background: rgba(255, 255, 255, .85); color: #5b4239; font-weight: 800; font-size: .8rem; z-index: 3; animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); }
+.shoot-ui { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; display: flex; flex-direction: column; gap: 8px; padding: 12px 12px calc(14px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to top, var(--paper) 72%, transparent); transition: opacity .25s, translate .25s; }
+.shoot.clean .shoot-ui, .shoot.clean .shoot-x { opacity: 0; pointer-events: none; translate: 0 30px; }
+.shoot-x { position: absolute; left: 12px; top: calc(12px + env(safe-area-inset-top, 0px)); z-index: 3; width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-size: 1rem; font-weight: 800; cursor: pointer; box-shadow: 0 2px 0 var(--shadow); transition: opacity .25s; }
+.shoot-row { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 4px; scrollbar-width: none; }
+.shoot-row::-webkit-scrollbar { display: none; }
+.shoot-chip { flex: none; padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--paper-cell); color: var(--ink); font: inherit; font-weight: 800; font-size: .82rem; cursor: pointer; box-shadow: 0 2px 0 var(--shadow); }
+.shoot-chip[aria-pressed="true"] { background: var(--paper-sel); border-color: #ec6a8f; }
+.shoot-pick { align-items: center; justify-content: center; gap: 8px 12px; flex-wrap: wrap; }
+.shoot-bgname { min-width: 120px; text-align: center; font-family: var(--font-display); font-size: 1.05rem; }
+.shoot-arrow { width: 36px; height: 32px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-size: 1.3rem; line-height: 1; cursor: pointer; box-shadow: 0 2px 0 var(--shadow); }
+.shoot-snap { align-self: center; display: flex; align-items: center; gap: 8px; padding: 10px 28px; border-radius: 999px; border: 3px solid #fff; background: var(--accent); color: var(--accent-ink); font: inherit; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 3px 0 var(--shadow); }
+.shoot-snap svg { width: 22px; height: 22px; }
+.shoot-btn { bottom: 62px; }
+/* the camera behind the pet (app-shoot.js) */
+.shoot-cam { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #2a1f1b; }
+.shoot-cam[hidden] { display: none; }
+.shoot-cam.mirror { transform: scaleX(-1); }
+.shoot.cam .shoot-bg, .shoot.cam .shoot-sparkles { display: none; }
+.shoot.cam .shoot-pet { touch-action: none; cursor: grab; }
+.shoot-camchip { align-self: center; }
+.shoot.cam #shootPrev, .shoot.cam #shootNext, .shoot.cam .shoot-bgname { display: none; }
+.shoot-camnote { margin: 0; text-align: center; font-size: .8rem; font-weight: 800; color: var(--ink); text-shadow: 0 1px 0 rgba(255, 255, 255, .7); }
+.shoot.cam .shoot-camnote { background: rgba(255, 253, 248, .85); border-radius: 999px; padding: 4px 12px; align-self: center; text-shadow: none; }
+.shoot.clean .shoot-camnote { display: none; }
+@media (prefers-reduced-motion: reduce) { .shoot-sparkles span { animation: none; opacity: .6; } .shoot-flash.pop { animation: none; } }
+
+/* the open drop-down list (app-select.js): round, soft and in the app's colours */
+.cs-pop { position: fixed; z-index: 120; overflow-y: auto; padding: 6px; border-radius: 20px; background: var(--paper); border: 2px solid var(--paper-edge); box-shadow: 0 4px 0 var(--shadow), 0 10px 24px rgba(0, 0, 0, .25); scrollbar-width: none; animation: cs-in .16s cubic-bezier(.3, 1.5, .5, 1); transform-origin: 50% 0; display: flex; flex-direction: column; gap: 2px; }
+.cs-pop::-webkit-scrollbar { display: none; }
+.cs-opt { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 14px; border: 0; border-radius: 14px; background: transparent; color: var(--ink); font: inherit; font-weight: 800; font-size: .95rem; text-align: left; cursor: pointer; white-space: nowrap; }
+.cs-opt:hover, .cs-opt:focus-visible { background: var(--paper-edge); outline: 0; }
+.cs-opt[aria-selected="true"] { background: var(--paper-sel); }
+.cs-opt[aria-selected="true"]::after { content: "✓"; margin-left: auto; color: #ec6a8f; font-size: .85rem; }
+.cs-opt:disabled { opacity: .4; cursor: default; }
+.cs-opt:disabled:hover { background: transparent; }
+@keyframes cs-in { from { scale: .92; opacity: 0; } to { scale: 1; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .cs-pop { animation: none; } }
+html:root .cal-month select { padding-right: 36px; min-width: 100px; text-overflow: clip; background-position: calc(100% - 19px) 55%, calc(100% - 14px) 55%; }
+
+/* recipe import (app-recipe.js): a small round button in the add bar (shopping list only) and its sheet */
+.recipe-btn { flex: none; width: 36px; height: 36px; padding: 0; border: 3px solid #fff; border-radius: 50%; background: #ffb86b; box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 2px 3px var(--shadow); cursor: pointer; display: grid; place-items: center; }
+.recipe-btn svg { width: 19px; height: 19px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.recipe-btn:active { transform: scale(.92); }
+html[data-list="todo"] .recipe-btn { display: none; }
+.recipe-input, .recipe-helper input { width: 100%; box-sizing: border-box; padding: 9px 12px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--paper); color: var(--ink); font: inherit; font-size: .92rem; resize: none; }
+.recipe-inputbox > * + * { margin-top: 12px; }
+.recipe-inputbox h2 { margin: 0; }
+.recipe-input { min-height: 104px; border: 2px dashed var(--paper-edge); border-radius: 18px; padding: 12px 14px; font-size: 1rem; line-height: 1.4; }
+.recipe-input:focus { outline: none; border-style: solid; border-color: #ec6a8f; }
+.recipe-go, .recipe-add { width: 100%; min-height: 48px; font-size: 1.02rem; justify-content: center; }
+.recipe-add { flex: none; background: #ffd7e3; border-color: #ec6a8f; }
+.recipe-add:disabled { opacity: .5; }
+.recipe-result { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+.recipe-head { display: flex; align-items: center; gap: 8px; }
+.recipe-head .recipe-name { flex: 1; min-width: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recipe-back { flex: none; font-size: .78rem; padding: 6px 10px; }
+.recipe-listwrap { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.recipe-more { display: none; position: absolute; right: 10px; bottom: 8px; width: 26px; height: 26px; border-radius: 50%; background: #ec6a8f; color: #fff; font-size: .9rem; line-height: 26px; text-align: center; pointer-events: none; opacity: .9; box-shadow: 0 1px 3px var(--shadow); animation: recipeNudge 1.4s ease-in-out infinite; }
+.recipe-listwrap:has(.recipe-list.fade-b) .recipe-more { display: block; }
+@keyframes recipeNudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+@media (prefers-reduced-motion: reduce) { .recipe-more { animation: none; } }
+.picker.pet-sheet.recipe-sheet.results:not(.dress-full):not(.fav-full) .picker-inner { display: flex; flex-direction: column; overflow: hidden; }
+.recipe-sheet.results .recipe-result { flex: 1; }
+/* with ingredients showing, the sheet is kept low so Nibble stays in view above it */
+.picker.pet-sheet.recipe-sheet.results { max-height: calc(var(--recipe-h) + var(--dock-h, 64px)); }
+.picker.pet-sheet.recipe-sheet.results:not(.dress-full):not(.fav-full) .picker-inner { max-height: calc(var(--recipe-h) + var(--dock-h, 64px) - 14px); }
+.recipe-sheet { --recipe-h: max(260px, min(62vh, calc(100dvh - 345px))); }
+.recipe-status { margin: 0; min-height: 1.2em; font-weight: 700; font-size: .85rem; color: var(--muted); }
+.recipe-status.bad { color: #d6456c; }
+.recipe-name { margin: 0 0 6px; font-family: var(--font-display); font-size: 1.05rem; }
+.recipe-list { list-style: none; margin: 0; padding: 8px; border-radius: 18px; background: var(--paper); border: 2px solid var(--paper-edge); display: flex; flex-direction: column; gap: 2px; flex: 1; min-height: 120px; overflow-y: auto; scrollbar-width: none; overscroll-behavior: contain; }
+.recipe-list::-webkit-scrollbar { display: none; }
+.recipe-list label { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 6px 8px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+.recipe-list label:has(input:not(:checked)) { opacity: .5; }
+.recipe-list input { width: 24px; height: 24px; accent-color: #ec6a8f; flex: none; }
+.recipe-list img { width: 26px; height: 26px; flex: none; }
+.recipe-helper { font-size: .85rem; color: var(--muted); font-weight: 700; }
+.recipe-helper summary { cursor: pointer; margin-bottom: 6px; }
+.recipe-note { margin: 6px 0 0; font-size: .78rem; }
+.item-sheet .field-label { display: block; margin-top: 4px; }
+.item-sheet h2 + .field-label { margin-top: 10px; }
+.recipe-units { display: flex; gap: 6px; margin: 0; }
+.recipe-units .pill-btn { flex: 1; justify-content: center; }
+.recipe-units .pill-btn[aria-pressed="true"] { background: var(--paper-sel); border-color: #ec6a8f; }
+
+.cook-heart { color: #ec6a8f; font-size: .9em; }
+
+/* the finished photo (app-photo.js) */
+.photo-result { position: absolute; inset: 0; z-index: 6; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); background: rgba(60, 40, 34, .78); }
+.photo-result[hidden] { display: none; }
+.photo-result img { max-width: 100%; max-height: calc(100% - 90px); object-fit: contain; border-radius: 14px; box-shadow: 0 6px 20px rgba(0, 0, 0, .35); background: #fff; }
+.photo-actions { display: flex; gap: 10px; align-items: center; }
+.photo-btn { padding: 10px 22px; }
+.photo-btn[hidden] { display: none; }
