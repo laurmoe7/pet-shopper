@@ -1577,12 +1577,13 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
 .pet.has-teddy.hugging .teddy-hug { translate: 0 0; }
 .pet.tucked .arm-r { transition: transform .55s ease-in-out, translate .55s ease-in-out; }
 .pet.tucked[data-arms="grab"] .arm-r { transform: translate(36px, -12px) rotate(-18deg); translate: -6px -4px; }
-.teddy-fur { fill: #b9814f; stroke: var(--prop-ink); stroke-width: 1.5; stroke-linejoin: round; }
+/* the teddy's lines are Nibble's own dark brown, so he does not look faded next to him */
+.teddy-fur { fill: #b9814f; stroke: #5b4239; stroke-width: 1.8; stroke-linejoin: round; }
 .teddy-in { fill: #dfae80; }
-.teddy-muzzle { fill: #f0d2ad; stroke: var(--prop-ink); stroke-width: 1.2; }
-.teddy-nose, .teddy-eye { fill: var(--prop-ink); }
-.teddy-line { fill: none; stroke: var(--prop-ink); stroke-width: 1.1; stroke-linecap: round; }
-.teddy-bow { fill: #ff8fae; stroke: var(--prop-ink); stroke-width: 1; stroke-linejoin: round; }
+.teddy-muzzle { fill: #f0d2ad; stroke: #5b4239; stroke-width: 1.2; }
+.teddy-nose, .teddy-eye { fill: #5b4239; }
+.teddy-line { fill: none; stroke: #5b4239; stroke-width: 1.1; stroke-linecap: round; }
+.teddy-bow { fill: #ff8fae; stroke: #5b4239; stroke-width: 1; stroke-linejoin: round; }
 .teddy-blush { fill: #ffb3c1; opacity: .8; }
 .pet .blanket { display: none; }
 .pet.tucked .blanket { display: inline; animation: blanket-in .6s cubic-bezier(.3, 1.4, .5, 1); }
@@ -1767,7 +1768,6 @@ html:root .dock-icon::after {
 html:root .dock button:active .dock-icon { transform: rotate(var(--tilt, -4deg)) translateY(2px); box-shadow: 0 0 0 1.5px var(--cb-edge-strong); }
 html:root .dock #dressBtn { --tilt: 4deg; --sticker: #c9ecd8; --sticker-ink: #3f9a6c; }
 html:root .dock #roomBtn { --tilt: -3deg; --sticker: #ffd3dd; --sticker-ink: #e0587c; }
-html:root .dock #favBtn { --tilt: 5deg; --sticker: #d9ccf5; --sticker-ink: #7d5fcf; }
 html:root .dock #shopBtn { --tilt: -3deg; --sticker: #ffe6b8; --sticker-ink: #c98a2b; }
 html:root .dock #goalsBtn { --tilt: 3deg; --sticker: #c8e3f7; --sticker-ink: #3f86c0; }
 
@@ -1785,7 +1785,7 @@ html:root .eaten h2 { color: var(--muted); }
    outline ring exactly (a circle, so nothing pokes out past the button). Past a straight fold line the sticker is gone and
    the board shows; just inside the fold, the lifted piece lies folded over, cream back up (the mirror of the missing piece). */
 html:root .dock #dressBtn .dock-icon::before,
-html:root .dock #favBtn .dock-icon::before {
+html:root .dock #profileBtn .dock-icon::before {
   content: ""; position: absolute; z-index: 2; pointer-events: none; border-radius: 50%;
   left: -4.5px; top: -4.5px; width: 43px; height: 43px;
 }
@@ -1795,8 +1795,8 @@ html:root .dock #dressBtn .dock-icon::before {
     linear-gradient(135deg, transparent 74.6%, var(--cb-dock-b) 74.6%),
     radial-gradient(circle 21.5px at 42.7px 42.7px, #cdb48a 14.6px, #e9d6b3 16px, var(--cb-back) 20.4px, #b89c74 20.6px, transparent 21.5px);
 }
-/* Top 10: a bigger lift at the upper left */
-html:root .dock #favBtn .dock-icon::before {
+/* Profile: a bigger lift at the upper left */
+html:root .dock #profileBtn .dock-icon::before {
   background:
     linear-gradient(315deg, transparent 71.4%, var(--cb-dock-a) 71.4%),
     radial-gradient(circle 21.5px at 3.1px 3.1px, #cdb48a 12.6px, #e9d6b3 14px, var(--cb-back) 20.4px, #b89c74 20.6px, transparent 21.5px);
@@ -2138,7 +2138,7 @@ html:root .item.late:not(.done) { animation: late-shake 3.6s ease-in-out infinit
 /* ---------- to-do mode: the calendar and stamp book replace Top 10 and Goals in the bottom bar ---------- */
 .dock .todo-only { display: none; }
 html[data-list="todo"] .dock .todo-only { display: flex; }
-html[data-list="todo"] .dock :is(#favBtn, #goalsBtn) { display: none; }
+html[data-list="todo"] .dock #goalsBtn { display: none; }
 /* the Shop is only a placeholder for now: greyed out */
 .dock #shopBtn:disabled { opacity: .45; filter: grayscale(1); cursor: default; }
 html:root .dock #calBtn { --tilt: -4deg; --sticker: #d9ccf5; --sticker-ink: #7d5fcf; }
@@ -2303,8 +2303,9 @@ html.typing .page-fade { display: none; }
 @media (prefers-reduced-motion: reduce) { .gift, .gift-box.shaking svg { animation: none; } }
 
 /* profile (app-profile.js): the same fields as the pet's name; its dock sticker */
-html:root .dock #profileBtn { --tilt: -4deg; --sticker: #ffd9c2; --sticker-ink: #d9743f; }
+html:root .dock #profileBtn { --tilt: 5deg; --sticker: #d9ccf5; --sticker-ink: #7d5fcf; }
 .profile-sheet .field input[type="date"] { font: inherit; }
+.profile-top { margin: 14px 0 0; }
 .gift-box { position: relative; }
 .gift-placeholder { position: absolute; left: 50%; top: -6px; translate: -50% 0; rotate: -6deg; padding: 1px 9px 2px; border-radius: 999px; background: var(--accent); color: #fff; border: 1.5px solid #fff; box-shadow: 0 2px 0 var(--shadow); font-size: .72rem; font-weight: 800; letter-spacing: .02em; white-space: nowrap; animation: gift-placeholder 2.2s cubic-bezier(.3, 1.8, .5, 1) both; }
 @keyframes gift-placeholder { 0% { scale: .2; opacity: 0; translate: -50% 18px; } 35% { scale: 1.25; opacity: 1; translate: -50% -4px; } 55% { scale: 1; } 100% { scale: 1; opacity: 1; } }

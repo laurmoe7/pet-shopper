@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 199 (7 Oct)
+- Top 10 moved into the Profile menu.
+- Teddy's outline is darker, like Nibble's.
+- Profile: no extra text at the bottom.
+- Nibble only comments on your name or birthday once you close Profile.
+
 ## Build 198 (7 Oct)
 - Profile button in the menu bar on both lists: your name and birthday.
 - Nibble says hello by name; the birthday brings the birthday boxes.
