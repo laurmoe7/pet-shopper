@@ -407,14 +407,19 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
 
 var taskSheet = $('taskSheet'), taskFor = null;
 /** @returns {?Item} The task the sheet is for. */
-function taskItem() { return taskFor ? find(taskFor) : null; }
+function taskItem() { return taskFor ? taskFind(taskFor) : null; }
+/** @returns {?Item} A task by id, from the list on show or (when the shopping list shows) the to-do list waiting in the stash. */
+function taskFind(id) { return find(id) || state.stash.filter(function (i) { return i.id === id; })[0] || null; }
+var taskBackup = '', repeatWarn = '', taskFromCal = false;   // taskFromCal: opened from the calendar, which comes back when it closes
 /**
  * Opens the sheet for a task's due day and repeat.
  * @param {string} id
  */
 function openTaskSheet(id) {
-  if (!find(id)) return;
+  if (!taskFind(id)) return;
   taskFor = id;
+  taskBackup = JSON.stringify(taskFind(id));   // Cancel puts the task back the way it was
+  repeatWarn = '';
   renderTaskSheet();
   openDialog(taskSheet);
 }
@@ -430,7 +435,7 @@ function renderTaskSheet() {
   var item = taskItem();
   if (!item) return;
   var today = todayKey(), tomorrow = L.addDays(today, 1), week = L.addDays(today, 7);
-  $('taskName').textContent = item.text;
+  $('taskName').value = item.text;
   $('dueChips').replaceChildren(
     chip('No date', !item.due, function () { setTaskDue(''); }),
     chip('Today', item.due === today, function () { setTaskDue(today); }),
@@ -443,6 +448,17 @@ function renderTaskSheet() {
 }
 var DOW_ORDER = [1, 2, 3, 4, 5, 6, 0], DOW_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 /** Draws the repeat drop-downs (how it repeats, which weekdays, for how long) for a task. */
+/** @returns {boolean} Whether a repeat that ends on this day happens at least twice (one repeat after the first day). */
+function untilFits(item, until) {
+  return !until || !item.repeat || L.nextDue(item.due, item.repeat, item.due, item.days) <= until;
+}
+/** Drops an end day that no longer fits the repeat (every year for 1 week), and says so. */
+function fixUntil(item) {
+  if (item.until && !untilFits(item, item.until)) {
+    delete item.until;
+    repeatWarn = 'That repeat is longer than the time you chose, so it would only happen once. "For how long" went back to Forever.';
+  }
+}
 function renderRepeat(item) {
   var sel = $('repeatSel');
   sel.replaceChildren.apply(sel, L.REPEATS.map(function (r) { return new Option(r.label, r.id); }));
@@ -454,14 +470,21 @@ function renderRepeat(item) {
   }));
   $('untilField').hidden = !item.repeat;
   var us = $('untilSel');
-  us.replaceChildren.apply(us, L.REPEAT_SPANS.map(function (s) { return new Option(s.label, s.id); }).concat([new Option('Until a day I pick…', 'date')]));
+  us.replaceChildren.apply(us, L.REPEAT_SPANS.map(function (s) {
+    var short = s.id && !untilFits(item, L.untilFor(item.due, s.id));   // too short for this repeat: it could not happen again
+    var o = new Option(s.label + (short ? ' (too short)' : ''), s.id);
+    o.disabled = short;
+    return o;
+  }).concat([new Option('Until a day I pick…', 'date')]));
   var span = L.REPEAT_SPANS.filter(function (s) { return s.id && L.untilFor(item.due, s.id) === item.until; })[0];
   us.value = !item.until ? '' : span ? span.id : 'date';
   $('untilDateWrap').hidden = us.value !== 'date';
   $('untilDate').value = item.until || '';
   var r = L.REPEATS.filter(function (x) { return x.id === item.repeat; })[0];
   var what = item.repeat === 'days' ? (days.length ? 'on ' + DOW_ORDER.filter(function (n) { return days.indexOf(n) !== -1; }).map(function (n) { return DOW_NAMES[n]; }).join(', ') : 'on the days you pick') : r && r.label ? r.label.toLowerCase().replace(/ \(.*/, '') : '';
-  $('repeatNote').textContent = item.repeat ? 'Comes back ' + what + (item.until ? ' until ' + L.dueInfo(item.until, '0000-00-00').label : '') + ', when you tick it off.' : item.due ? 'A repeating task comes back on its next day when you tick it off.' : 'Picking a repeat sets the date to today.';
+  $('repeatNote').classList.toggle('warn', !!repeatWarn);
+  var warn = repeatWarn; repeatWarn = '';
+  $('repeatNote').textContent = warn ? warn : item.repeat ? 'Comes back ' + what + (item.until ? ' until ' + L.dueInfo(item.until, '0000-00-00').label : '') + ', when you tick it off.' : item.due ? 'A repeating task comes back on its next day when you tick it off.' : 'Picking a repeat sets the date to today.';
 }
 /**
  * Gives the open task a due day (or none), and puts the tasks in due order.
@@ -473,6 +496,7 @@ function setTaskDue(due) {
   if (due && !L.isDayKey(due)) return;
   if (due) item.due = due; else { delete item.due; delete item.repeat; delete item.time; }
   delete alerted[item.id];
+  fixUntil(item);
   state.items = L.sortByDue(state.items, todayKey());
   save();
   render();
@@ -494,6 +518,7 @@ function setTaskRepeat(repeat) {
     var set = L.repeatDays(item);
     if (set && set.length) item.due = L.firstOnDays(item.due < todayKey() ? todayKey() : item.due, set);   // it starts on the first chosen weekday
     if (item.until && item.until < item.due) delete item.until;
+    fixUntil(item);
   } else { delete item.repeat; delete item.until; delete item.days; }
   state.items = L.sortByDue(state.items, todayKey());
   save();
@@ -508,7 +533,8 @@ function setTaskUntil(span) {
   var item = taskItem();
   if (!item || !item.repeat) return;
   var until = L.isDayKey(span) ? span : L.untilFor(item.due, span);
-  if (until && until < item.due) return;   // it cannot end before it starts
+  if (until && until < item.due) { repeatWarn = 'It cannot end before it starts.'; renderTaskSheet(); return; }
+  if (until && !untilFits(item, until)) { repeatWarn = 'That is too soon: it would only happen once. Pick a later day.'; renderTaskSheet(); return; }
   if (until) item.until = until; else delete item.until;
   save();
   renderTaskSheet();
@@ -528,6 +554,7 @@ function toggleTaskDay(n) {
   if (at !== -1) { if (days.length === 1) return; days.splice(at, 1); } else days.push(n);   // at least one day stays
   item.days = days;
   item.due = L.firstOnDays(item.due < todayKey() ? todayKey() : item.due, days);
+  fixUntil(item);
   state.items = L.sortByDue(state.items, todayKey());
   save();
   render();
@@ -577,14 +604,38 @@ $('clearTime').addEventListener('click', function () { setTaskTime(''); });
 $('taskDelete').addEventListener('click', function () {
   var id = taskFor;
   taskSheet.close();
-  if (id) { sound('remove'); removeItem(id); }
+  if (id && !find(id)) { state.stash = state.stash.filter(function (i) { return i.id !== id; }); save(); render(); sound('remove'); }   // a plan opened from the calendar while the shopping list shows
+  else if (id) { sound('remove'); removeItem(id); }
 });
 $('taskEmoji').addEventListener('click', function () {
   var id = taskFor;
+  taskFromCal = false;
   taskSheet.close();
   if (id) openPicker(id);
 });
-taskSheet.addEventListener('close', function () { taskFor = null; });
+$('taskSave').addEventListener('click', function () { taskSheet.close(); sound('pick'); });
+$('taskCancel').addEventListener('click', function () {
+  var item = taskItem();
+  if (item && taskBackup) {
+    var snap = JSON.parse(taskBackup);
+    Object.keys(item).forEach(function (k) { if (!(k in snap)) delete item[k]; });
+    Object.assign(item, snap);
+    state.items = L.sortByDue(state.items, todayKey());
+    save();
+    render();
+  }
+  taskSheet.close();
+  sound('tap');
+});
+$('taskName').addEventListener('input', function () {
+  var item = taskItem(), v = $('taskName').value.trim();
+  if (item && v) { item.text = v; save(); render(); }
+});
+$('taskName').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); $('taskName').blur(); } });
+taskSheet.addEventListener('close', function () {
+  taskFor = null; taskBackup = '';
+  if (taskFromCal) { taskFromCal = false; renderCalendar(); sheetUnderMouth(calSheet); openDialog(calSheet); }   // back to the calendar
+});
 
 // a task you tick off that repeats puts its next one back on the list (and un-ticking takes that one away again)
 var repeatNote = {};   // task id -> when its next one is due, for Nibble to mention

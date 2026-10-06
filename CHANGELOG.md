@@ -2,6 +2,14 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 209 (7 Oct)
+- Task editing has Save and Cancel buttons.
+- Repeats that make no sense (every year for 1 week) are blocked with a warning.
+- Pet menu: cuter paper-card look like the other menus.
+- Developer tool: reset your name, birthday and Nibble's name.
+- Calendar: a fuller add form (plan or birthday, time, repeat) and tap a plan to edit it.
+- Task sheet: the task's name can be changed.
+
 ## Build 207 (7 Oct)
 - Calendar days really don't overlap now.
 - Nibble's name: the pencil wiggles until it is changed; no double-tap text; the name box takes less space.

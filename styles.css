@@ -2465,3 +2465,48 @@ html:root .picker .field-label.profile-top { display: none; }
 .task-select { width: 100%; box-sizing: border-box; padding: 8px 12px; }
 .task-dow { margin: 6px 0; gap: 5px; }
 .task-dow .pill-btn { padding: 6px 9px; font-size: .8rem; }
+
+.task-note.warn { color: var(--danger); font-weight: 800; }
+.task-confirm { display: flex; gap: 10px; }
+.task-confirm .pill-btn { flex: 1; padding: 10px 14px; }
+.task-save { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 800; }
+
+/* the Pet menu (dressing room) gets the same paper-card look as the other menus */
+.dress-tabs button { border-radius: 16px; box-shadow: 0 2px 0 var(--shadow); }
+.dress-tabs button[aria-selected="true"] { animation: tab-pop .3s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes tab-pop { from { scale: .88; } to { scale: 1; } }
+.dress-search { background: var(--paper); box-shadow: 0 2px 0 var(--shadow); }
+.dress-panel .field-label, .dress-panel legend.field-label { display: inline-block; align-self: flex-start; padding: 1px 10px 2px; border-radius: 999px; background: var(--paper); border: 1.5px solid var(--line); box-shadow: 0 1px 0 var(--shadow); color: var(--ink); font-size: .78rem; }
+.dress-panel .field-label::before { content: "✦ "; color: var(--accent); }
+.dress-panel .species-grid button, .dress-panel .hat-strip button { background: var(--paper); border-radius: 18px; box-shadow: 0 2px 0 var(--shadow); }
+.dress-panel .species-grid button:nth-child(3n+1), .dress-panel .hat-strip button:nth-child(4n+1) { rotate: -1deg; }
+.dress-panel .species-grid button:nth-child(3n), .dress-panel .hat-strip button:nth-child(4n+3) { rotate: .9deg; }
+.dress-panel .species-grid button[aria-pressed="true"], .dress-panel .hat-strip button[aria-pressed="true"] { background: var(--paper-today); border-color: #ec6a8f; box-shadow: 0 2px 0 rgba(236, 106, 143, .4); }
+.dress-panel .species-grid button[aria-pressed="true"]::after, .dress-panel .hat-strip button[aria-pressed="true"]::after { content: ""; position: absolute; left: 50%; top: -6px; translate: -50% 0; width: 26px; height: 9px; border-radius: 3px; background: rgba(170, 215, 195, .8); rotate: -3deg; }
+.dress-panel .mood-info { background: var(--paper); border: 1.5px dashed var(--line); border-radius: 14px; padding: 6px 12px; }
+.dress-panel[data-tab="pet"] .name-show { background: var(--paper); box-shadow: 0 2px 0 var(--shadow); }
+
+/* calendar: a fuller add form, and plans that open for editing */
+.cal-add { flex-direction: column; align-items: stretch; gap: 6px; }
+.cal-add input#calInput { flex: none; width: 100%; box-sizing: border-box; padding: 8px 12px; border-radius: 999px; background: var(--paper); }
+.cal-kinds { display: flex; gap: 6px; }
+.cal-kinds .pill-btn { padding: 5px 12px; font-size: .82rem; }
+.cal-kinds .pill-btn[aria-pressed="true"] { background: var(--paper-sel); color: var(--ink); border-color: #ec6a8f; }
+.cal-extra { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cal-extra label { display: flex; align-items: center; gap: 4px; font-size: .78rem; font-weight: 800; color: var(--muted); min-width: 0; }
+.cal-extra input[type="time"], .cal-extra select { font: inherit; font-size: .85rem; color: var(--ink); background: var(--paper); border: 1.5px solid var(--line); border-radius: 10px; padding: 5px 6px; min-width: 0; }
+.cal-extra select { max-width: 120px; }
+.cal-extra .cal-add-btn { margin-left: auto; }
+.cal-list li .cal-text { cursor: pointer; }
+.cal-pen { color: var(--muted); font-size: .8rem; flex: none; }
+.task-name-input { width: 100%; box-sizing: border-box; font: inherit; font-weight: 800; font-size: 1.05rem; color: var(--ink); background: var(--paper); border: 1.5px solid var(--line); border-radius: 12px; padding: 6px 10px; margin: 0; }
+/* make room for the fuller add form inside the calendar sheet */
+.cal-sheet .cal-cell { height: 33px; min-height: 33px; max-height: 33px; padding-bottom: 3px; }
+.cal-sheet #calGrid { grid-auto-rows: 33px; row-gap: 5px; padding: 8px 8px 6px; }
+.cal-sheet .cal-list { min-height: 46px; }
+.cal-sheet .cal-dots { bottom: 3px; }
+.cal-sheet .picker-inner { gap: 6px; }
+.cal-extra { flex-wrap: nowrap; gap: 6px; }
+.cal-extra input[type="time"] { width: 104px; }
+.cal-extra select { max-width: 104px; }
+.cal-extra .cal-add-btn { padding: 7px 16px; }

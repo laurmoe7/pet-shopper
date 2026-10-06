@@ -837,7 +837,7 @@
 <dialog class="picker pet-sheet task-sheet" id="taskSheet" aria-labelledby="taskTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="taskTitle">Task</h2>
-    <p class="task-name" id="taskName"></p>
+    <input class="task-name task-name-input" id="taskName" type="text" maxlength="80" autocomplete="off" enterkeyhint="done" aria-label="Task">
     <fieldset class="task-field">
       <legend class="field-label">Due</legend>
       <div class="task-chips" id="dueChips"></div>
@@ -856,6 +856,10 @@
       </div>
       <p class="task-note" id="repeatNote">A repeating task comes back on its next day when you tick it off.</p>
     </fieldset>
+    <div class="task-confirm">
+      <button type="button" class="pill-btn" id="taskCancel">Cancel</button>
+      <button type="button" class="pill-btn task-save" id="taskSave">Save</button>
+    </div>
     <div class="task-actions">
       <button type="button" class="text-btn" id="taskEmoji">Change emoji</button>
       <button type="button" class="text-btn task-delete" id="taskDelete">Delete</button>
@@ -905,9 +909,16 @@
       <h3 id="calDayTitle"></h3>
       <ul class="cal-list" id="calList"></ul>
       <div class="cal-add" id="calAdd">
-        <input id="calInput" type="text" maxlength="80" placeholder="Add a birthday or plan…" autocomplete="off" enterkeyhint="done" aria-label="Add to this day">
-        <button type="button" class="pill-btn" id="calYearly" aria-pressed="false">🎂 every year</button>
-        <button type="button" class="add-btn cal-add-btn" id="calAddBtn">Add</button>
+        <div class="cal-kinds" id="calKinds" role="group" aria-label="What is it?">
+          <button type="button" class="pill-btn" data-kind="plan" aria-pressed="true">📌 Plan</button>
+          <button type="button" class="pill-btn" data-kind="birthday" aria-pressed="false">🎂 Birthday</button>
+        </div>
+        <input id="calInput" type="text" maxlength="80" placeholder="Add a plan or birthday…" autocomplete="off" enterkeyhint="done" aria-label="Add to this day">
+        <div class="cal-extra">
+          <label title="Time"><span aria-hidden="true">🕘</span> <input type="time" id="calTime" aria-label="Time (optional)"></label>
+          <label title="Repeat"><span aria-hidden="true">↻</span> <select id="calRepeat" aria-label="Repeat"></select></label>
+          <button type="button" class="add-btn cal-add-btn" id="calAddBtn">Add</button>
+        </div>
       </div>
     </div>
   </form>
