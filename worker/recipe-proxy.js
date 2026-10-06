@@ -39,6 +39,6 @@ export default {
     if (!/html|xml|json/i.test(type)) return reply('That is not a web page', 415);
     const html = (await res.text()).slice(0, MAX_BYTES);
     const blocks = html.match(/<script[^>]+type\s*=\s*["']?application\/ld\+json["']?[^>]*>[\s\S]*?<\/script>/gi) || [];
-    return reply(blocks.join('\n') || '<!-- no recipe data -->', 200, 'text/html; charset=utf-8');
+    return reply(blocks.join('\n') || '<!-- no recipe data -->', 200, 'text/plain; charset=utf-8');
   },
 };

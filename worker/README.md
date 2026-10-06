@@ -11,7 +11,7 @@ Worker does the fetching. It is free (Cloudflare's free plan allows 100,000 requ
 4. Copy the address it shows (like `https://pet-shopper-recipes.yourname.workers.dev`).
 5. In the app: Shopping list → the recipe button → **Recipe helper address** → paste it. Done.
 
-Test it in a browser: `https://<your-address>/?url=https://www.bbcgoodfood.com/recipes/easy-pancakes` should show some `<script type="application/ld+json">` text.
+Test it in a browser: `https://<your-address>/?url=https://www.bbcgoodfood.com/recipes/easy-pancakes` should show text containing `application/ld+json` (not a blank page). A blank page means that site has no recipe data: try another recipe.
 
 ## With the command line instead
 
