@@ -817,6 +817,7 @@
 <!-- the photoshoot (app-shoot.js): the pet on its own on a nice background, to take cute screenshots of -->
 <div class="shoot" id="shoot" hidden role="dialog" aria-label="Photoshoot">
   <div class="shoot-bg" id="shootBg"></div>
+  <video class="shoot-cam" id="shootCam" playsinline muted autoplay hidden></video>
   <div class="shoot-sparkles" id="shootSparkles" aria-hidden="true"></div>
   <div class="shoot-pet" id="shootPet"></div>
   <div class="shoot-frame" id="shootFrame" aria-hidden="true"><span class="shoot-caption" id="shootCaption"></span></div>
@@ -829,7 +830,10 @@
       <button type="button" class="shoot-arrow" id="shootPrev" aria-label="Previous background">‹</button>
       <span class="shoot-bgname" id="shootBgName"></span>
       <button type="button" class="shoot-arrow" id="shootNext" aria-label="Next background">›</button>
+      <button type="button" class="shoot-chip shoot-camchip" id="shootCamBtn" aria-pressed="false">📷 Camera</button>
+      <button type="button" class="shoot-arrow" id="shootFlip" aria-label="Turn the camera round" hidden>⟲</button>
     </div>
+    <p class="shoot-camnote" id="shootCamNote" hidden></p>
     <div class="shoot-row" id="shootFrames" role="group" aria-label="Frame"></div>
     <button type="button" class="shoot-snap" id="shootSnap"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="5" fill="currentColor"/></svg><span>Photo</span></button>
   </div>

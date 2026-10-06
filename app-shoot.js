@@ -1,6 +1,8 @@
 // Photoshoot: the pet on its own, big, on a nice background with a pose and a frame, for cute screenshots.
 // Nothing is saved or sent anywhere: take the picture with the phone's own screenshot. The camera button hides the buttons
 // for a clean shot (and flashes); tap the picture to bring them back.
+// The Camera button puts the pet in front of the phone's camera, to take a picture of it "in real life": drag to move it, pinch to resize.
+// The camera picture is only shown on screen: nothing is recorded, saved or sent anywhere, and it stops when you leave.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
@@ -75,6 +77,7 @@ $('shootPrev').addEventListener('click', function () { shootStep(-1); });
 $('shootNext').addEventListener('click', function () { shootStep(1); });
 /** Opens the photoshoot. */
 function openShoot() {
+  stopCamera();
   shootState.night = false;
   shootEl.hidden = false;
   shootEl.classList.remove('clean');
@@ -82,8 +85,94 @@ function openShoot() {
   renderShoot();
   sound('open');
 }
+// ---------- the camera ----------
+var camStream = null, camFacing = 'environment', camPos = { x: 0, y: 0, s: 1 };
+/** Moves and resizes the pet over the camera picture. */
+function applyCamPos() {
+  shootPet.style.setProperty('--shoot-dx', camPos.x + 'px');
+  shootPet.style.setProperty('--shoot-dy', camPos.y + 'px');
+  shootPet.style.setProperty('--shoot-s', String(camPos.s));
+}
+/** Says something under the picker, or nothing. @param {string} text */
+function camNote(text) { $('shootCamNote').textContent = text; $('shootCamNote').hidden = !text; }
+/** Turns the camera off and shows the normal background again. */
+function stopCamera() {
+  if (camStream) camStream.getTracks().forEach(function (t) { t.stop(); });
+  camStream = null;
+  var v = $('shootCam');
+  v.srcObject = null; v.hidden = true;
+  shootEl.classList.remove('cam');
+  $('shootCamBtn').setAttribute('aria-pressed', 'false');
+  $('shootFlip').hidden = true;
+  camPos = { x: 0, y: 0, s: 1 };
+  applyCamPos();
+  camNote('');
+}
+/** Turns the camera on behind the pet (asks the phone for permission the first time). */
+function startCamera() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { camNote('This phone or browser has no camera for Nibble to use.'); return; }
+  camNote('Waking the camera\u2026');
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: camFacing } }, audio: false }).then(function (stream) {
+    if (shootEl.hidden) { stream.getTracks().forEach(function (t) { t.stop(); }); return; }
+    if (camStream) camStream.getTracks().forEach(function (t) { t.stop(); });
+    camStream = stream;
+    var v = $('shootCam');
+    v.srcObject = stream; v.hidden = false;
+    v.classList.toggle('mirror', camFacing === 'user');
+    var play = v.play(); if (play && play.catch) play.catch(function () { /* autoplay is already on */ });
+    shootEl.classList.add('cam');
+    $('shootCamBtn').setAttribute('aria-pressed', 'true');
+    $('shootFlip').hidden = false;
+    camNote('Drag ' + petName() + ' to move him, pinch to make him bigger or smaller.');
+  }).catch(function () {
+    stopCamera();
+    camNote('The camera is off. Allow it in the browser\u2019s settings for this page to try again.');
+  });
+}
+$('shootCamBtn').addEventListener('click', function () { sound('tap'); if (camStream) stopCamera(); else startCamera(); });
+$('shootFlip').addEventListener('click', function () { sound('tap'); camFacing = camFacing === 'environment' ? 'user' : 'environment'; startCamera(); });
+// drag to move, two fingers to resize, double-tap to put him back in the middle (only over the camera)
+var camPointers = {}, camPinch = 0, camMoved = false, camLastTap = 0;
+shootPet.addEventListener('pointerdown', function (e) {
+  if (!camStream) return;
+  camPointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+  shootPet.setPointerCapture(e.pointerId);
+  camMoved = false;
+  var ids = Object.keys(camPointers);
+  if (ids.length === 2) camPinch = Math.hypot(camPointers[ids[0]].x - camPointers[ids[1]].x, camPointers[ids[0]].y - camPointers[ids[1]].y);
+});
+shootPet.addEventListener('pointermove', function (e) {
+  var pt = camPointers[e.pointerId];
+  if (!camStream || !pt) return;
+  var ids = Object.keys(camPointers);
+  if (ids.length >= 2) {
+    camPointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+    var d = Math.hypot(camPointers[ids[0]].x - camPointers[ids[1]].x, camPointers[ids[0]].y - camPointers[ids[1]].y);
+    if (camPinch > 10 && d > 10) camPos.s = Math.max(.35, Math.min(2.6, camPos.s * d / camPinch));
+    camPinch = d; camMoved = true;
+  } else {
+    var dx = e.clientX - pt.x, dy = e.clientY - pt.y;
+    if (Math.abs(dx) + Math.abs(dy) > 0) camMoved = true;
+    camPos.x += dx; camPos.y += dy;
+    camPointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+  }
+  applyCamPos();
+});
+function camPointerEnd(e) { delete camPointers[e.pointerId]; camPinch = 0; }
+shootPet.addEventListener('pointerup', camPointerEnd);
+shootPet.addEventListener('pointercancel', camPointerEnd);
+shootPet.addEventListener('click', function (e) {
+  if (!camStream) return;
+  if (camMoved) { e.stopPropagation(); camMoved = false; return; }
+  var now = Date.now();
+  if (now - camLastTap < 350) { camPos = { x: 0, y: 0, s: 1 }; applyCamPos(); sound('tap'); }
+  camLastTap = now;
+});
+// the camera never keeps running when you leave
+document.addEventListener('visibilitychange', function () { if (document.hidden && camStream) stopCamera(); });
+
 /** Closes it (the dressing room is still there underneath). */
-function closeShoot() { shootEl.hidden = true; }
+function closeShoot() { stopCamera(); shootEl.hidden = true; }
 /** The camera button: the buttons go, the screen flashes and clicks, and a tap brings the buttons back. */
 $('shootSnap').addEventListener('click', function (e) {
   e.stopPropagation();

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 230 (10 Oct)
+- Photoshoot: a Camera button puts the pet in front of your camera; drag to move, pinch to resize.
+
 ## Build 229 (10 Oct)
 - Smaller title, and a long name shrinks it to fit instead of being cut off.
 - Bacon has no white gap between the slices; the pretzel's colour stays inside its outline.

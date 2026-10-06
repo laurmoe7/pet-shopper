@@ -2561,7 +2561,7 @@ html:root .cal-month select { flex: none; }
 .shoot-bg svg { display: block; width: 100%; height: 100%; }
 .shoot-sparkles span { position: absolute; color: #fff; text-shadow: 0 0 6px rgba(255, 150, 190, .9); opacity: 0; animation: shoot-twinkle 2.8s ease-in-out infinite; pointer-events: none; }
 @keyframes shoot-twinkle { 0%, 100% { opacity: 0; scale: .5; } 50% { opacity: .95; scale: 1.1; } }
-.shoot-pet { position: absolute; left: 50%; top: 40%; translate: -50% -50%; }
+.shoot-pet { position: absolute; left: 50%; top: 40%; translate: calc(-50% + var(--shoot-dx, 0px)) calc(-50% + var(--shoot-dy, 0px)); scale: var(--shoot-s, 1); }
 .shoot-pet .pet.preview { width: min(84vw, 48vh * 1.07); height: min(78.4vw, 48vh); }
 .shoot-pet::after { content: ""; position: absolute; left: 12%; right: 12%; bottom: -8px; height: 18px; border-radius: 50%; background: rgba(90, 60, 50, .16); filter: blur(4px); z-index: -1; }
 .shoot-frame { position: absolute; inset: 0; pointer-events: none; }
@@ -2582,12 +2582,23 @@ html:root .cal-month select { flex: none; }
 .shoot-row::-webkit-scrollbar { display: none; }
 .shoot-chip { flex: none; padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--paper-cell); color: var(--ink); font: inherit; font-weight: 800; font-size: .82rem; cursor: pointer; box-shadow: 0 2px 0 var(--shadow); }
 .shoot-chip[aria-pressed="true"] { background: var(--paper-sel); border-color: #ec6a8f; }
-.shoot-pick { align-items: center; justify-content: center; gap: 12px; }
+.shoot-pick { align-items: center; justify-content: center; gap: 8px 12px; flex-wrap: wrap; }
 .shoot-bgname { min-width: 120px; text-align: center; font-family: var(--font-display); font-size: 1.05rem; }
 .shoot-arrow { width: 36px; height: 32px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-size: 1.3rem; line-height: 1; cursor: pointer; box-shadow: 0 2px 0 var(--shadow); }
 .shoot-snap { align-self: center; display: flex; align-items: center; gap: 8px; padding: 10px 28px; border-radius: 999px; border: 3px solid #fff; background: var(--accent); color: var(--accent-ink); font: inherit; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 3px 0 var(--shadow); }
 .shoot-snap svg { width: 22px; height: 22px; }
 .shoot-btn { bottom: 62px; }
+/* the camera behind the pet (app-shoot.js) */
+.shoot-cam { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #2a1f1b; }
+.shoot-cam[hidden] { display: none; }
+.shoot-cam.mirror { transform: scaleX(-1); }
+.shoot.cam .shoot-bg, .shoot.cam .shoot-sparkles { display: none; }
+.shoot.cam .shoot-pet { touch-action: none; cursor: grab; }
+.shoot-camchip { align-self: center; }
+.shoot.cam #shootPrev, .shoot.cam #shootNext, .shoot.cam .shoot-bgname { display: none; }
+.shoot-camnote { margin: 0; text-align: center; font-size: .8rem; font-weight: 800; color: var(--ink); text-shadow: 0 1px 0 rgba(255, 255, 255, .7); }
+.shoot.cam .shoot-camnote { background: rgba(255, 253, 248, .85); border-radius: 999px; padding: 4px 12px; align-self: center; text-shadow: none; }
+.shoot.clean .shoot-camnote { display: none; }
 @media (prefers-reduced-motion: reduce) { .shoot-sparkles span { animation: none; opacity: .6; } .shoot-flash.pop { animation: none; } }
 
 /* the open drop-down list (app-select.js): round, soft and in the app's colours */
