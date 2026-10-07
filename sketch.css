@@ -383,3 +383,4 @@ html:root body.skp .skp-main::after { content: ""; position: absolute; inset: 0;
 /* the Shape menu glows while the Shape tool is on */
 body.skp:has(.sk-stage[data-tool="shape"]) #skShape { border-color: #ff8fab; box-shadow: 0 0 0 2px rgba(255, 143, 171, .35), 0 0 12px rgba(255, 143, 171, .55); }
 .sk-tools button[hidden] { display: none; }
+html:root body.skp .cs-pop::after { background: linear-gradient(transparent, var(--sk-panel) 85%); border-radius: 0 0 16px 16px; }
