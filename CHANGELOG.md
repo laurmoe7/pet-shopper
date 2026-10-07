@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 232 (11 Oct)
+- Swipe an item sideways to delete it; no goals, no clean-up list, and the pet comments.
+- The eyes no longer follow your finger or cursor.
+- Tapping an outfit gives its line (no more hover lines).
+- The pet is happy about veggies now.
+
 ## Build 231 (10 Oct)
 - Photoshoot: the Photo button takes the picture itself, to share or save. No screenshot needed.
 

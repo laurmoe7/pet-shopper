@@ -123,6 +123,53 @@ function onPressMove(e) {
 ['pointerup', 'pointercancel', 'scroll'].forEach(function (ev) { document.addEventListener(ev, cancelPress, { capture: true, passive: true }); });
 document.querySelector('.list-area').addEventListener('contextmenu', function (e) { if (e.target.closest('.item')) e.preventDefault(); });
 
+// swipe a row sideways to delete it: no eating, nothing counts for goals, and it never reaches the clean-up list
+var SWIPE_LINES = ['poof, gone!', 'bye bye~', 'changed your mind?', 'swish!', 'okay, off the list'];
+var TODO_SWIPE_LINES = ['poof, gone!', 'task? what task?', 'swish!', 'okay, off the list'];
+var swipe = null;
+document.querySelector('.list-area').addEventListener('pointerdown', function (e) {
+  var li = e.target.closest('.item');
+  if (!li || e.button > 0 || e.target.closest('.check, .emoji-btn')) return;
+  swipe = { li: li, x: e.clientX, y: e.clientY, id: e.pointerId, on: false };
+});
+document.addEventListener('pointermove', function (e) {
+  if (!swipe || e.pointerId !== swipe.id) return;
+  var dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
+  if (!swipe.on) {
+    if (Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx)) { swipe = null; return; }   // scrolling
+    if (Math.abs(dx) < 14 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    swipe.on = true;
+    cancelPress();
+    swipe.li.classList.add('swiping');
+  }
+  swipe.li.style.translate = dx + 'px 0';
+  swipe.li.style.opacity = String(Math.max(0.25, 1 - Math.abs(dx) / (swipe.li.offsetWidth * 0.9)));
+}, { passive: true });
+/** Lets go of a swipe: far enough deletes the row, otherwise it springs back. */
+function endSwipe(e) {
+  if (!swipe || e.pointerId !== swipe.id) return;
+  var s = swipe; swipe = null;
+  if (!s.on) return;
+  var li = s.li, dx = e.clientX - s.x, id = li.dataset.id;
+  suppressClick = true;
+  setTimeout(function () { suppressClick = false; }, 400);
+  li.classList.remove('swiping');
+  if (e.type === 'pointerup' && Math.abs(dx) > Math.min(110, li.offsetWidth * 0.35)) {
+    li.style.translate = (dx > 0 ? 1 : -1) * li.offsetWidth + 'px 0';
+    li.style.opacity = '0';
+    buzz(12);
+    sound('remove');
+    setTimeout(function () {
+      removeItem(id);
+      if (!busy) { pulse('hop', 460); talk('swipe', isTodo() ? TODO_SWIPE_LINES : SWIPE_LINES, 1400); }
+    }, 180);
+  } else {
+    li.style.translate = ''; li.style.opacity = '';
+  }
+}
+document.addEventListener('pointerup', endSwipe);
+document.addEventListener('pointercancel', endSwipe);
+
 clearBtn.addEventListener('click', function () {
   state.items = state.items.filter(function (i) { return !i.done; });
   sound('remove');
