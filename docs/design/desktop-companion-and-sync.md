@@ -29,11 +29,12 @@ Decisions from the design talk. Do not start building until Lauren says so.
 - Known limits: items merge whole (two devices changing different parts of one item at once keep only the later change); counters never go down through syncing and two devices counting different things at once keep the larger count, not the sum (so un-ticking a task on one device doesn't lower the stamps on another); a device off for more than 30 days may bring back an item deleted meanwhile; a device with a clock far in the future makes the others' changes sort after it.
 - To decide in step 4: a brand new device joining an account must adopt the account's data and drop its own sample list (those records have time 0, so they are easy to spot).
 
-## Built: sync server (not online yet)
+## Built: sync server and Backup & sync (online, build 247, tested by Lauren on phone and PC)
 
 - `worker/sync/` (server.js, schema.sql, wrangler.toml, README.md with the Cloudflare steps) and `dist/worker.js` (made by `npm run build:worker` from `sync.js` + `server.js`, so it can be pasted in the dashboard). Tested in `tests/syncserver.test.js` (memory store plus real SQL on Node 22).
 - Account = recovery code (25 symbols, ~124 bits); the server stores only its hash. One document per account; the server joins what a device sends with the stored copy using `Sync.merge`, with compare-and-swap writes. The pet syncs between the person's own devices; the shopping list is the only list that does.
-- Next: put it online (Lauren, dashboard steps in the README), then the app part: sign-in sheet (make code / enter code / scan QR), a sync status, retry and the "new device adopts the account" rule.
+- App part (`app-account.js`): Options > Backup & sync: start a backup (code), join with a code or a `#join=` link, sync status, automatic syncing, sign out, delete. A joining device drops its sample list. No QR code (the link does the job).
+- Still to do: rate limit on `POST /v1/account` before other people use it; privacy policy; an export button; a way to get back in if the code is lost (email link, later); shared shopping list between people (needs a separate shared document); the desktop shell.
 
 ## Shared lists (open, see below)
 
