@@ -1399,6 +1399,23 @@ window.addEventListener('resize', skLayout);
   SK_OWNER = owner;
 })();
 
+// ---------- fireflies in the header (only for looks) ----------
+(function () {
+  var box = $('skFlies'), n = 14;
+  for (var i = 0; i < n; i++) {
+    var f = document.createElement('span');
+    f.className = 'sk-fly';
+    f.style.left = (3 + (i * 97 / n) + Math.random() * 5) + '%';
+    f.style.top = (12 + Math.random() * 70) + '%';
+    f.style.setProperty('--x', (Math.random() * 60 - 30).toFixed(0) + 'px');
+    f.style.setProperty('--y', (Math.random() * 24 - 12).toFixed(0) + 'px');
+    f.style.setProperty('--t', (5 + Math.random() * 6).toFixed(1) + 's');
+    f.style.setProperty('--b', (2.4 + Math.random() * 3).toFixed(1) + 's');
+    f.style.setProperty('--d', '-' + (Math.random() * 8).toFixed(1) + 's');
+    box.appendChild(f);
+  }
+})();
+
 // ---------- start ----------
 skColourButtons();
 skUseColour(SK.color);
