@@ -2,12 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
-## Build 240 (11 Oct)
+## Build 241 (11 Oct)
 - Much smoother on Chrome with many items, and when sliding an item away.
-
-## Build 239 (11 Oct)
 - The gift box sits at Nibble's bottom left, clear of speech bubbles.
 - Photoshoot: no tutorial text, no Turn buttons (twist still works), no fade at the bottom.
+- New hat: red ribbon.
+- New hat: goggles.
 
 ## Build 238 (11 Oct)
 - Smoother with a long list: the Bought list shows its latest rows, with a button for the rest.
@@ -32,6 +32,10 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 ## Build 235 (10 Oct)
 - Sketchpad: dark night theme, fireflies in the header.
 - Sketchpad: blinking Nibble in the header, twinkling stars, tape on boxes.
+- Sketchpad: layer names can be typed, eye icons, pig mascot, slower fireflies.
+- Sketchpad: double-tap a layer to rename it.
+- Sketchpad: the eraser only works on ticked layers.
+- Sketchpad: Select works only on ticked layers; messages moved to the top; outlined sliders.
 - Sketchpad: layers, flip, duplicate, copy and paste, game colours, pen reset.
 - Sketchpad: pen thickness slider, cuter look, no coordinates.
 - Sketchpad: Select and Lasso tools for moving, turning and resizing many lines.
