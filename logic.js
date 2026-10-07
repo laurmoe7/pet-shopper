@@ -228,7 +228,8 @@
   function parseState(raw, nextId) {
     var data = null;
     try { data = JSON.parse(raw); } catch (e) { data = null; }
-    if (!data || !Array.isArray(data.items)) {
+    var fresh = !data || !Array.isArray(data.items);
+    if (fresh) {
       data = { items: [], overrides: {}, quiet: false, lastOpen: 0 };
       SAMPLE.forEach(function (t) {   // a sample can carry an amount: [name, amount]
         var item = createItem(Array.isArray(t) ? t[0] : t, data.overrides, nextId());
@@ -245,6 +246,11 @@
     data.player = parsePlayer(data.player, data.pet && data.pet.birthday);   // build 196 kept the birthday on the pet
     data.pet = petProfile(data.pet);
     data.settings = settings(data.settings);
+    // when each thing last changed, for syncing devices (sync.js); a first launch counts as never edited (time 0), so anything a person did wins
+    if (root.Sync) {
+      data.sync = root.Sync.parse(data.sync);
+      if (fresh) root.Sync.stamp(data, 0, true);
+    }
     // developer-only switches from the dev menu
     data.dev = { noWait: !!(data.dev && data.dev.noWait) };
     return data;

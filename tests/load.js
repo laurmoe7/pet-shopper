@@ -2,6 +2,7 @@
 require('../foods.js');
 require('../tasks.js');
 require('../logic.js');
+require('../sync.js');
 require('../achievements.js');
 require('../sounds.js');
 require('../wardrobe.js');
@@ -13,4 +14,4 @@ require('../skins.js');
 
 module.exports = { Foods: globalThis.Foods, Tasks: globalThis.Tasks, PetLogic: globalThis.PetLogic, Sounds: globalThis.Sounds, Wardrobe: globalThis.Wardrobe,
   Achievements: globalThis.Achievements, FreeUnlocks: globalThis.FreeUnlocks, Decor: globalThis.Decor, Bonuses: globalThis.Bonuses,
-  Personalities: globalThis.Personalities, Skins: globalThis.Skins };
+  Personalities: globalThis.Personalities, Skins: globalThis.Skins, Sync: globalThis.Sync };

@@ -22,6 +22,12 @@ Decisions from the design talk. Do not start building until Lauren says so.
 - Needs: privacy policy, account export and delete, EU hosting. Backup ("your Nibble is safe if you lose your phone") is a feature.
 - A synced web page on the PC can prove sync before the desktop app exists.
 
+## Built so far (build 232)
+
+- Step 1 and 2 of the order of work, local part only: `sync.js` (merge rules, tested) and the saved format (`state.sync`, device name, ids ending in `-<device>`), plus the Developer tools sync log. No server, no account, nothing is sent anywhere.
+- Known limits: items merge whole (two devices changing different parts of one item at once keep only the later change); counters never go down through syncing and two devices counting different things at once keep the larger count, not the sum (so un-ticking a task on one device doesn't lower the stamps on another); a device off for more than 30 days may bring back an item deleted meanwhile; a device with a clock far in the future makes the others' changes sort after it.
+- To decide in step 4: a brand new device joining an account must adopt the account's data and drop its own sample list (those records have time 0, so they are easy to spot).
+
 ## Shared lists (open, see below)
 
 Each person owns a pet; lists can be shared. Avoid a pile of separate lists. Proposed shape (not decided):

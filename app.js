@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '231';
+var BUILD = '232';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -14,7 +14,7 @@ var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: red
 var L = PetLogic;
 var nextId = Date.now();
 /** @returns {string} A new unique item id. */
-function newId() { return String(nextId++); }
+function newId() { return String(nextId++) + (state && state.sync ? '-' + state.sync.device : ''); }   // the device name keeps ids apart when devices sync
 var state = load();
 
 /** Reads saved state from the phone, or starts fresh with the sample list. */
@@ -23,8 +23,12 @@ function load() {
   try { raw = localStorage.getItem(STORE_KEY); } catch (e) { /* storage blocked */ }
   return L.parseState(raw, newId);
 }
+/** Called after each save with what changed since the last one, for the sync log (app-sync.js sets it). */
+var syncHook = null;
 /** Saves the whole state on the phone. Fails quietly if storage is blocked. */
 function save() {
+  var found = Sync.stamp(state, Date.now());   // notes what changed, for syncing devices later (sync.js)
+  if (syncHook && (found.items || found.deleted || found.fields.length)) syncHook(found);
   try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* storage blocked */ }
 }
 

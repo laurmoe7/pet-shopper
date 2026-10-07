@@ -2219,6 +2219,13 @@ html.typing .page-fade { display: none; }
 .anim-bar input[type="search"] { flex: 1; min-width: 0; padding: 7px 10px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: .9rem; }
 .anim-repeat { display: flex; align-items: center; gap: 4px; font-size: .8rem; font-weight: 700; white-space: nowrap; }
 #animStatus { flex: none; margin: 0; }
+.picker.sync-sheet { position: fixed; inset: auto 0 0 0; max-height: calc(var(--sheet-h-s) + var(--dock-h, 64px)); z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
+.picker.sync-sheet .picker-inner { max-height: calc(var(--sheet-h-s) + var(--dock-h, 64px) - 14px) !important; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+.sync-bar { display: flex; gap: 8px; flex: none; }
+.sync-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 20px; }
+.sync-row { display: flex; gap: 8px; padding: 5px 0; border-bottom: 1px dashed var(--line); font-size: .82rem; font-weight: 700; }
+.sync-row.error { color: var(--danger); }
+.sync-time { flex: none; color: var(--muted); font-variant-numeric: tabular-nums; }
 .anim-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 20px; }
 .anim-list h3 { margin: 8px 0 5px; font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
 .anim-chips { display: flex; flex-wrap: wrap; gap: 5px; }

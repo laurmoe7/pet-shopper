@@ -1064,6 +1064,17 @@
     <div class="anim-list" id="animList"></div>
   </form>
 </dialog>
+<dialog class="picker pet-sheet sync-sheet" id="syncSheet" aria-labelledby="syncTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="syncTitle">Sync log</h2>
+    <p class="dev-status" id="syncSummary"></p>
+    <div class="sync-bar">
+      <button type="button" class="pill-btn" id="syncCheck">Check merging</button>
+      <button type="button" class="pill-btn" id="syncClear">Clear the log</button>
+    </div>
+    <div class="sync-list" id="syncList"></div>
+  </form>
+</dialog>
 <dialog class="picker pet-sheet" id="optionsSheet" aria-labelledby="optionsTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="optionsTitle">Options</h2>
@@ -1086,6 +1097,7 @@
     </label>
     <div class="dev-actions" id="devActions"></div>
     <button type="button" class="pill-btn" id="animBtn">Animation player</button>
+    <button type="button" class="pill-btn" id="syncBtn">Sync log</button>
     <p class="dev-status" id="devStatus" aria-live="polite"></p>
   </form>
 </dialog>
@@ -1093,6 +1105,7 @@
 <script src="foods.js"></script>
 <script src="tasks.js"></script>
 <script src="logic.js"></script>
+<script src="sync.js"></script>
 <script src="achievements.js"></script>
 <script src="wardrobe.js"></script>
 <script src="decor.js"></script>
@@ -1122,6 +1135,7 @@
 <script src="app-gift.js"></script>
 <script src="app-profile.js"></script>
 <script src="app-options.js"></script>
+<script src="app-sync.js"></script>
 <script src="app-anims.js"></script>
 <script src="app-voice.js"></script>
 <script src="app-recipe.js"></script>
