@@ -187,3 +187,20 @@ body.skp { background-image: radial-gradient(circle at 12px 12px, rgba(255, 143,
 .skp-status { color: #b0667f; }
 .sk-zoomtext { color: #d9547f; }
 @media (prefers-reduced-motion: reduce) { .skp-top h1 span { animation: none; } }
+
+/* picked-lines buttons, game colours, layers, pen reset */
+.sk-seltools { margin-top: -2px; }
+.sk-seltools button { height: 32px; }
+.sk-seltools button svg { width: 17px; height: 17px; }
+.sk-gamerow { gap: 6px; flex-wrap: nowrap; }
+.sk-game { flex: none; width: 18px; text-align: center; color: #ff8fab; font-weight: 800; }
+.sk-gamerow .sk-swatch { width: 19px; height: 19px; border-width: 2px; }
+.sk-mini { flex: none; min-width: 24px; height: 24px; padding: 0 5px; border: 2px solid #f6d3dc; border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: .7rem; font-weight: 800; cursor: pointer; line-height: 1; }
+.sk-mini:hover:not(:disabled) { border-color: #ff8fab; }
+.sk-mini:disabled { opacity: .35; cursor: default; }
+.sk-mini[aria-pressed="false"] { color: var(--muted); }
+.skp-lines { display: flex; flex-direction: column; gap: 4px; }
+.skp-line { display: flex; align-items: center; gap: 4px; padding: 3px 4px; border: 2px solid #f6d3dc; border-radius: 14px; background: #fff; cursor: pointer; }
+.skp-line[aria-selected="true"] { border-color: #ff8fab; box-shadow: 0 0 0 2px #ffd3df; }
+.skp-line input[type="text"] { flex: 1; min-width: 0; padding: 2px 6px; border-radius: 8px; font-size: .8rem; font-weight: 700; border-color: transparent; background: transparent; }
+.skp-line input[type="text"]:focus { border-color: #f6d3dc; background: #fff; }

@@ -1396,7 +1396,7 @@
     strokes.forEach(function (s) {
       // a paint-bucket fill carries its own outline (`d`, with holes)
       var d = s.d || sketchPath(s.pts, (s.fill || s.closed) && s.pts.length > 2, dp);
-      out.push('<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + esc(s.color) + '"' : '') + (s.d ? ' fill-rule="evenodd"' : '') + '/>');
+      out.push('<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + esc(s.color) + '"' : '') + (s.d ? ' fill-rule="evenodd"' : '') + (s.layer ? ' data-layer="' + esc(s.layer) + '"' : '') + '/>');
     });
     out.push('</svg>');
     return out.join('\n');
@@ -1482,14 +1482,15 @@
    * Moves, resizes or turns a drawn line (the transform tool). The original is not changed, so a drag can always be worked out from
    * how the line looked when it began.
    * @param {{pts: number[][], d: ?string, width: number}} stroke
-   * @param {{kind: 'move', dx: number, dy: number}|{kind: 'scale', ax: number, ay: number, sx: number, sy: number}|{kind: 'rotate', cx: number, cy: number, a: number}} op
-   *   scale grows the line away from the anchor (ax, ay); rotate turns it round (cx, cy) by `a` radians.
+   * @param {{kind: 'move', dx: number, dy: number}|{kind: 'scale', ax: number, ay: number, sx: number, sy: number}|{kind: 'rotate', cx: number, cy: number, a: number}|{kind: 'flip', axis: 'x'|'y', c: number}} op
+   *   scale grows the line away from the anchor (ax, ay); rotate turns it round (cx, cy) by `a` radians; flip mirrors it across the vertical (axis 'x') or horizontal (axis 'y') line at `c`.
    * @returns {{pts: number[][], d: ?string, width: number}}
    */
   function sketchXform(stroke, op) {
     var cos = Math.cos(op.a || 0), sin = Math.sin(op.a || 0);
     function at(x, y) {
       if (op.kind === 'move') return [x + op.dx, y + op.dy];
+      if (op.kind === 'flip') return op.axis === 'x' ? [2 * op.c - x, y] : [x, 2 * op.c - y];
       if (op.kind === 'scale') return [op.ax + (x - op.ax) * op.sx, op.ay + (y - op.ay) * op.sy];
       return [op.cx + (x - op.cx) * cos - (y - op.cy) * sin, op.cy + (x - op.cx) * sin + (y - op.cy) * cos];
     }

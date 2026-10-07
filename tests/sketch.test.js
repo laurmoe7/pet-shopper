@@ -125,3 +125,16 @@ test('lasso: a point is inside a loop only when the loop encloses it', () => {
   assert.equal(L.inPolygon(notch, [5, 8]), false, 'the gap of a U shape is outside');
   assert.equal(L.inPolygon(notch, [5, 2]), true);
 });
+
+test('flip mirrors lines (and fills) across a line and keeps the width', () => {
+  const line = { pts: [[10, 2], [14, 6]], d: null, width: 2 };
+  assert.deepEqual(L.sketchXform(line, { kind: 'flip', axis: 'x', c: 10 }).pts, [[10, 2], [6, 6]]);
+  assert.deepEqual(L.sketchXform(line, { kind: 'flip', axis: 'y', c: 5 }).pts, [[10, 8], [14, 4]]);
+  assert.equal(L.sketchXform(line, { kind: 'flip', axis: 'x', c: 0 }).width, 2);
+  assert.equal(L.sketchXform({ pts: [[0, 0]], width: 1, d: 'M0 0L4 0L4 4Z' }, { kind: 'flip', axis: 'x', c: 5 }).d, 'M10 0L6 0L6 4Z');
+});
+
+test('the saved SVG says which layer each line is on', () => {
+  const svg = L.sketchSvg([{ pts: [[0, 0], [5, 5]], color: '#000', width: 1, layer: 'Shading' }], { x: 0, y: 0, w: 26, h: 26 }, {});
+  assert.match(svg, /data-layer="Shading"/);
+});
