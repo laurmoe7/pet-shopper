@@ -301,7 +301,7 @@ function dressFace(view, f) {
 }
 /** The camera goes off: a white flash over the stage and a shutter click. */
 function dressFlash() {
-  if (!dressSheet.open || Date.now() - lastFlash < 3500) return;   // never in quick succession
+  if (!dressSheet.open || !$('shoot').hidden || Date.now() - lastFlash < 3500) return;   // not while the photoshoot is on top   // never in quick succession
   lastFlash = Date.now();
   var f = $('dressFlash');
   f.classList.remove('pop'); void f.offsetWidth; f.classList.add('pop');
@@ -315,6 +315,7 @@ function dressDanceSoon() {
 function dressDance() {
   var view = dressPreview.querySelector('.pet');
   if (!dressSheet.open || !view) return;
+  if (!$('shoot').hidden) { dressDanceSoon(); return; }   // the photoshoot is on top: the dressing room keeps quiet
   // wait only just after you pick an outfit; pointing at outfits doesn't stop it
   if (Date.now() - lastDressTouch < 1500) { dressDanceSoon(); return; }
   var m, n = -1;

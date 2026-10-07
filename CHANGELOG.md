@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 235 (11 Oct)
+- Photoshoot: twist with two fingers (or use the Turn buttons) to rotate the pet; drag and pinch work in every background.
+- Photoshoot: the dressing room underneath stays quiet.
+- All props (bed, quilt, clipboard, toy, tongue) have the darker outline.
+- The magnifying glass is always put away in bed.
+
 ## Build 234 (11 Oct)
 - Profile: the Edit pencils sit by the field names, so your name and birthday have all the room.
 - Nibble puts the magnifying glass away once he is in bed with his blanket or asleep.

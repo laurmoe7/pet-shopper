@@ -1,6 +1,6 @@
 // Photoshoot: the pet on its own, big, on a nice background with a pose and a frame, for cute screenshots.
 // The Photo button takes the picture (app-photo.js); nothing is sent anywhere.
-// The Camera button puts the pet in front of the phone's camera, to take a picture of it "in real life": drag to move it, pinch to resize.
+// The Camera button puts the pet in front of the phone's camera, to take a picture of it "in real life": drag to move it, pinch to resize, twist to turn.
 // The camera picture is only shown on screen: nothing is recorded or sent anywhere, and it stops when you leave.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
@@ -77,6 +77,8 @@ $('shootNext').addEventListener('click', function () { shootStep(1); });
 /** Opens the photoshoot. */
 function openShoot() {
   stopCamera();
+  camPos = { x: 0, y: 0, s: 1, r: 0 };
+  applyCamPos();
   shootState.night = false;
   shootEl.hidden = false;
   shootEl.classList.remove('clean');
@@ -85,12 +87,13 @@ function openShoot() {
   sound('open');
 }
 // ---------- the camera ----------
-var camStream = null, camFacing = 'environment', camPos = { x: 0, y: 0, s: 1 };
+var camStream = null, camFacing = 'environment', camPos = { x: 0, y: 0, s: 1, r: 0 };   // r: turn in degrees
 /** Moves and resizes the pet over the camera picture. */
 function applyCamPos() {
   shootPet.style.setProperty('--shoot-dx', camPos.x + 'px');
   shootPet.style.setProperty('--shoot-dy', camPos.y + 'px');
   shootPet.style.setProperty('--shoot-s', String(camPos.s));
+  shootPet.style.setProperty('--shoot-r', camPos.r + 'deg');
 }
 /** Says something under the picker, or nothing. @param {string} text */
 function camNote(text) { $('shootCamNote').textContent = text; $('shootCamNote').hidden = !text; }
@@ -103,8 +106,6 @@ function stopCamera() {
   shootEl.classList.remove('cam');
   $('shootCamBtn').setAttribute('aria-pressed', 'false');
   $('shootFlip').hidden = true;
-  camPos = { x: 0, y: 0, s: 1 };
-  applyCamPos();
   camNote('');
 }
 /** Turns the camera on behind the pet (asks the phone for permission the first time). */
@@ -122,7 +123,7 @@ function startCamera() {
     shootEl.classList.add('cam');
     $('shootCamBtn').setAttribute('aria-pressed', 'true');
     $('shootFlip').hidden = false;
-    camNote('Drag ' + petName() + ' to move him, pinch to make him bigger or smaller.');
+    camNote('Drag ' + petName() + ' to move him, pinch to make him bigger or smaller, twist to turn him.');
   }).catch(function () {
     stopCamera();
     camNote('The camera is off. Allow it in the browser\u2019s settings for this page to try again.');
@@ -130,25 +131,29 @@ function startCamera() {
 }
 $('shootCamBtn').addEventListener('click', function () { sound('tap'); if (camStream) stopCamera(); else startCamera(); });
 $('shootFlip').addEventListener('click', function () { sound('tap'); camFacing = camFacing === 'environment' ? 'user' : 'environment'; startCamera(); });
-// drag to move, two fingers to resize, double-tap to put him back in the middle (only over the camera)
-var camPointers = {}, camPinch = 0, camMoved = false, camLastTap = 0;
+// drag to move, two fingers to resize and turn, double-tap to put him back in the middle
+var camPointers = {}, camPinch = 0, camAngle = 0, camMoved = false, camLastTap = 0;
+/** @returns {number[]} The two fingers' distance and the angle between them (degrees). */
+function camTwo() {
+  var ids = Object.keys(camPointers), a = camPointers[ids[0]], b = camPointers[ids[1]];
+  return [Math.hypot(a.x - b.x, a.y - b.y), Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI];
+}
 shootPet.addEventListener('pointerdown', function (e) {
-  if (!camStream) return;
   camPointers[e.pointerId] = { x: e.clientX, y: e.clientY };
   shootPet.setPointerCapture(e.pointerId);
   camMoved = false;
-  var ids = Object.keys(camPointers);
-  if (ids.length === 2) camPinch = Math.hypot(camPointers[ids[0]].x - camPointers[ids[1]].x, camPointers[ids[0]].y - camPointers[ids[1]].y);
+  if (Object.keys(camPointers).length === 2) { var t = camTwo(); camPinch = t[0]; camAngle = t[1]; }
 });
 shootPet.addEventListener('pointermove', function (e) {
   var pt = camPointers[e.pointerId];
-  if (!camStream || !pt) return;
-  var ids = Object.keys(camPointers);
-  if (ids.length >= 2) {
+  if (!pt) return;
+  if (Object.keys(camPointers).length >= 2) {
     camPointers[e.pointerId] = { x: e.clientX, y: e.clientY };
-    var d = Math.hypot(camPointers[ids[0]].x - camPointers[ids[1]].x, camPointers[ids[0]].y - camPointers[ids[1]].y);
-    if (camPinch > 10 && d > 10) camPos.s = Math.max(.35, Math.min(2.6, camPos.s * d / camPinch));
-    camPinch = d; camMoved = true;
+    var t = camTwo(), turn = t[1] - camAngle;
+    if (turn > 180) turn -= 360; else if (turn < -180) turn += 360;
+    if (camPinch > 10 && t[0] > 10) camPos.s = Math.max(.35, Math.min(2.6, camPos.s * t[0] / camPinch));
+    camPos.r = Math.round((camPos.r + turn) * 10) / 10;
+    camPinch = t[0]; camAngle = t[1]; camMoved = true;
   } else {
     var dx = e.clientX - pt.x, dy = e.clientY - pt.y;
     if (Math.abs(dx) + Math.abs(dy) > 0) camMoved = true;
@@ -161,12 +166,15 @@ function camPointerEnd(e) { delete camPointers[e.pointerId]; camPinch = 0; }
 shootPet.addEventListener('pointerup', camPointerEnd);
 shootPet.addEventListener('pointercancel', camPointerEnd);
 shootPet.addEventListener('click', function (e) {
-  if (!camStream) return;
   if (camMoved) { e.stopPropagation(); camMoved = false; return; }
   var now = Date.now();
-  if (now - camLastTap < 350) { camPos = { x: 0, y: 0, s: 1 }; applyCamPos(); sound('tap'); }
+  if (now - camLastTap < 350) { camPos = { x: 0, y: 0, s: 1, r: 0 }; applyCamPos(); sound('tap'); }
   camLastTap = now;
 });
+/** Turns him a little (for the Turn buttons and people without two fingers). @param {number} deg */
+function shootTurn(deg) { camPos.r = ((camPos.r + deg + 540) % 360) - 180; applyCamPos(); sound('tap'); }
+$('shootTurnL').addEventListener('click', function () { shootTurn(-15); });
+$('shootTurnR').addEventListener('click', function () { shootTurn(15); });
 // the camera never keeps running when you leave
 document.addEventListener('visibilitychange', function () { if (document.hidden && camStream) stopCamera(); });
 
