@@ -6,7 +6,7 @@ A grocery list with a tamagotchi-like pet that "eats" items as you check them of
 
 - She wants honest, unflattering feedback. Don't flatter; say when something looks bad or is a weak idea.
 - Priority is cute and appealing. Style is kawaii, inspired by Chiikawa but original (don't copy characters). Keep all pet species.
-- She tests on her phone (Chrome) and reports by build number (shown in Options, `BUILD` in `app.js`). Always bump the build when you change app files.
+- She mainly tests on her laptop and only uses her phone (Chrome) to check for phone-specific issues. She reports by build number (shown in Options, `BUILD` in `app.js`). Always bump the build when you change app files.
 - Work on the session branch and publish each build to her preview artifact. Changes go live only when she says "big push": run `npm test`, then push to `main` (no pull request); the Pages workflow tests and deploys.
 - Add to `CHANGELOG.md` for each build: a heading per build and one short line per change (a few words, no explanations or technical detail).
 - She wants people to use the list legitimately, not game it for unlocks (hence the fair-play rules).
