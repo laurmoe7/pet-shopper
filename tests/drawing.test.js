@@ -13,8 +13,8 @@ test('the pet outline is drawn smooth, without the wobbly displacement filter', 
 });
 
 test('every ear is in a left or right group so it can jiggle', () => {
-  // the axolotl's gills (.gill-fill) are its ears
-  const ears = html.match(/<path class="ear"|<circle class="ear"|<ellipse class="ear"|<g class="gill-fill"/g) || [];
+  // the axolotl's gills (.gill-fill) are its ears; the dragon's wings jiggle like ears too
+  const ears = html.match(/<path class="ear"|<circle class="ear"|<ellipse class="ear"|<g class="gill-fill"|<path class="dragon-wing"/g) || [];
   const groups = html.match(/<g class="ear-g ear-[lr]">/g) || [];
   assert.ok(ears.length > 0);
   assert.equal(groups.length, ears.length);

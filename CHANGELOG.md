@@ -2,35 +2,45 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
-## Build 237 (11 Oct)
+## Build 238 (11 Oct)
 - Smoother with a long list: the Bought list shows its latest rows, with a button for the rest.
 - Tidied unused files.
-
-## Build 236 (11 Oct)
 - His arm relaxes when the glass goes away at bedtime.
-
-## Build 235 (11 Oct)
 - Photoshoot: twist with two fingers (or use the Turn buttons) to rotate the pet; drag and pinch work in every background.
 - Photoshoot: the dressing room underneath stays quiet.
 - All props (bed, quilt, clipboard, toy, tongue) have the darker outline.
 - The magnifying glass is always put away in bed.
-
-## Build 234 (11 Oct)
 - Profile: the Edit pencils sit by the field names, so your name and birthday have all the room.
 - Nibble puts the magnifying glass away once he is in bed with his blanket or asleep.
 - He sweeps the glass less, and his own eyes follow the one in the lens.
 - The lamp's outline is the pet's dark brown.
-
-## Build 233 (11 Oct)
 - Name, your name and your birthday have an Edit button; double-tap to edit is gone.
 - Nibble searches with the magnifying glass while the recipe helper is open.
 - A repeat's end date shows the year when it isn't this year.
-
-## Build 232 (11 Oct)
 - Swipe an item sideways to delete it; no goals, no clean-up list, and the pet comments.
 - The eyes no longer follow your finger or cursor.
 - Tapping an outfit gives its line (no more hover lines).
 - The pet is happy about veggies now.
+
+## Build 235 (10 Oct)
+- Sketchpad: dark night theme, fireflies in the header.
+- Sketchpad: blinking Nibble in the header, twinkling stars, tape on boxes.
+- Sketchpad: layers, flip, duplicate, copy and paste, game colours, pen reset.
+- Sketchpad: pen thickness slider, cuter look, no coordinates.
+- Sketchpad: Select and Lasso tools for moving, turning and resizing many lines.
+- Sketchpad: neater, shorter panel; Ctrl+V reminder for images.
+- Fixed double mouths on pets.
+- Monkey big toe blends into the foot.
+
+## Build 234 (10 Oct)
+- Dragon: wing fingers back, curl removed, stiff horns.
+
+## Build 233 (10 Oct)
+- New species: dragon.
+
+## Build 232 (10 Oct)
+- New species: mouse and monkey.
+- New skin: snow monkey.
 
 ## Build 231 (10 Oct)
 - Photoshoot: the Photo button takes the picture itself, to share or save. No screenshot needed.
