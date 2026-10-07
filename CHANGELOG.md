@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 240 (11 Oct)
+- Much smoother on Chrome with many items, and when sliding an item away.
+
 ## Build 239 (11 Oct)
 - The gift box sits at Nibble's bottom left, clear of speech bubbles.
 - Photoshoot: no tutorial text, no Turn buttons (twist still works), no fade at the bottom.

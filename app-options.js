@@ -9,6 +9,7 @@ var THEMES = [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']];
 function applyTheme(t) {
   if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
   else delete document.documentElement.dataset.theme;
+  setTimeout(function () { if (typeof refreshStickers === 'function') refreshStickers(); }, 50);   // the list's stickers are drawn in the new colours
 }
 var savedTheme = 'auto';
 try { savedTheme = localStorage.getItem('nibble-theme') || 'auto'; } catch (e) { /* storage not available */ }

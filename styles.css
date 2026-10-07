@@ -1776,15 +1776,9 @@ html:root .check::before {
 }
 html:root .item.done .check::before { background-color: var(--accent); }
 /* food emoji as die-cut stickers: a cream-white edge like the bottom bar's stickers, a thin cocoa line just outside it, and a soft shadow */
-html:root .emoji-btn img {
-  filter: drop-shadow(1.6px 0 0 #fffaf0) drop-shadow(-1.6px 0 0 #fffaf0) drop-shadow(0 1.6px 0 #fffaf0) drop-shadow(0 -1.6px 0 #fffaf0)
-    drop-shadow(.9px 0 0 var(--cb-edge-strong)) drop-shadow(-.9px 0 0 var(--cb-edge-strong)) drop-shadow(0 .9px 0 var(--cb-edge-strong)) drop-shadow(0 -.9px 0 var(--cb-edge-strong))
-    drop-shadow(0 2px 1.5px var(--shadow));
-}
-html:root .item.done .emoji-btn img {
-  filter: grayscale(.5) drop-shadow(1.6px 0 0 #fffaf0) drop-shadow(-1.6px 0 0 #fffaf0) drop-shadow(0 1.6px 0 #fffaf0) drop-shadow(0 -1.6px 0 #fffaf0)
-    drop-shadow(.9px 0 0 var(--cb-edge-strong)) drop-shadow(-.9px 0 0 var(--cb-edge-strong)) drop-shadow(0 .9px 0 var(--cb-edge-strong)) drop-shadow(0 -.9px 0 var(--cb-edge-strong));
-}
+html:root .emoji-btn img:not(.sticker) { filter: drop-shadow(0 0 1.2px var(--cb-edge-strong)); }   /* until its sticker is drawn (or if it cannot be) */
+html:root .emoji-btn img.sticker { width: 44px; height: 44px; max-width: none; margin: -5px; }   /* the sticker picture has its edge drawn in (app.js stickerize) */
+html:root .item.done .emoji-btn img, html:root .item.done .emoji-btn img:not(.sticker) { filter: grayscale(.5); }
 
 /* the bottom bar: a strip of board with sticker buttons */
 html:root .dock {
