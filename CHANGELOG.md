@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 234 (11 Oct)
+- Profile: the Edit pencils sit by the field names, so your name and birthday have all the room.
+- Nibble puts the magnifying glass away once he is in bed with his blanket or asleep.
+- He sweeps the glass less, and his own eyes follow the one in the lens.
+- The lamp's outline is the pet's dark brown.
+
 ## Build 233 (11 Oct)
 - Name, your name and your birthday have an Edit button; double-tap to edit is gone.
 - Nibble searches with the magnifying glass while the recipe helper is open.

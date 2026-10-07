@@ -487,7 +487,6 @@ button { font: inherit; color: inherit; }
   -webkit-user-select: none; user-select: none;
 }
 .name-show[hidden] { display: none; }
-.name-show { padding-right: 8px; }
 .name-show .name-pen { font-size: .9rem; }
 .name-edit { display: inline-flex; align-items: center; gap: 4px; flex: none; min-height: 30px; padding: 3px 12px; border: 0; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font: inherit; font-size: .85rem; font-weight: 800; cursor: pointer; touch-action: manipulation; }
 .name-show.nudge { animation: name-nudge .35s ease; }
@@ -1537,21 +1536,21 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
   56% { rotate: -10deg; } 62% { rotate: 8deg; } 68% { rotate: -5deg; } 74% { rotate: 2deg; }
   80% { rotate: 0deg; --pull: 0; } 85% { --pull: 8; } 90% { --pull: 0; } 94% { --pull: 6; } 98% { --pull: 0; }
 }
-.lamp-cord, .lamp-chain { fill: var(--prop-ink); }
+.lamp-cord, .lamp-chain { fill: #5b4239; }
 .lamp-chain { transform-box: view-box; transform-origin: 34px 24px; scale: 1 calc(1 + var(--pull) / 22); }
 .lamp-bead { translate: 0 calc(var(--pull) * 1px); }
 .lamp:not(.pulling) .lamp-chain, .lamp:not(.pulling) .lamp-bead { transition: scale .45s cubic-bezier(.3, 1.8, .5, 1), translate .45s cubic-bezier(.3, 1.8, .5, 1); }
 .lamp.pulling { cursor: grabbing; }
-.lamp-bead circle { fill: #ff9fb8; stroke: var(--prop-ink); stroke-width: 1.5; }
+.lamp-bead circle { fill: #ff9fb8; stroke: #5b4239; stroke-width: 1.5; }
 .lamp-hint { fill: none; stroke: #fff2b8; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; animation: lamp-hint 1.4s ease-in-out infinite; }
 @keyframes lamp-hint { 0%, 100% { opacity: .2; translate: 0 -2px; } 50% { opacity: 1; translate: 0 2px; } }
 .stage.lights-off .lamp-hint { display: none; }
-.lamp-top { fill: #f6d7a8; stroke: var(--prop-ink); stroke-width: 1.5; stroke-linejoin: round; }
-.lamp-dome { fill: #ffc4d3; stroke: var(--prop-ink); stroke-width: 1.8; stroke-linejoin: round; }
-.lamp-trim { fill: #fff3dc; stroke: var(--prop-ink); stroke-width: 1.5; stroke-linejoin: round; }
+.lamp-top { fill: #f6d7a8; stroke: #5b4239; stroke-width: 1.5; stroke-linejoin: round; }
+.lamp-dome { fill: #ffc4d3; stroke: #5b4239; stroke-width: 1.8; stroke-linejoin: round; }
+.lamp-trim { fill: #fff3dc; stroke: #5b4239; stroke-width: 1.5; stroke-linejoin: round; }
 .lamp-heart { fill: #ff8fae; }
 .lamp-shine { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; opacity: .7; }
-.lamp-bulb { fill: #fff3a6; stroke: var(--prop-ink); stroke-width: 1.5; transition: fill .3s; }
+.lamp-bulb { fill: #fff3a6; stroke: #5b4239; stroke-width: 1.5; transition: fill .3s; }
 .lamp-glow { fill: #fff2b0; opacity: .6; transition: opacity .3s; }
 .stage.lights-off .lamp-glow { opacity: 0; }
 .stage.lights-off .lamp-bulb { fill: #d9d2e6; }
@@ -2675,8 +2674,14 @@ html[data-list="todo"] .recipe-btn { display: none; }
 .photo-btn[hidden] { display: none; }
 
 /* the recipe helper is open: Nibble searches with the magnifying glass (app-recipe.js), sweeping it and his eyes about */
-#pet.searching:not([data-state="sleepy"]) .arm-r { transform: rotate(0deg); translate: -15px -16px; animation: search-sweep 1.8s ease-in-out infinite alternate; }
-#pet.searching:not([data-state="sleepy"]) .pupils { animation: search-look 1.8s ease-in-out infinite alternate; }
-@keyframes search-sweep { from { translate: -22px -15px; } to { translate: -6px -17px; } }
-@keyframes search-look { from { translate: -2.4px 0; } to { translate: 2.4px 0; } }
-@media (prefers-reduced-motion: reduce) { #pet.searching .arm-r, #pet.searching .pupils { animation: none; } }
+#pet.searching:not([data-state="sleepy"]) .arm-r { transform: rotate(0deg); translate: -15px -16px; animation: search-sweep 2.6s ease-in-out infinite alternate; }
+#pet.searching:not([data-state="sleepy"]) .pupils { animation: search-look 2.6s ease-in-out infinite alternate; }
+#pet.searching.inspecting:not(.mg-aha) .magnifier .mg-eye { animation: mg-look 2.6s ease-in-out infinite alternate; }
+@keyframes search-sweep { from { translate: -17px -15.5px; } to { translate: -11px -16.5px; } }
+@keyframes search-look { from { translate: -3.6px .4px; } to { translate: 3px .8px; } }
+@media (prefers-reduced-motion: reduce) { #pet.searching .arm-r, #pet.searching .pupils, #pet.searching .magnifier .mg-eye { animation: none; } }
+
+/* the profile's Edit pencils sit in the corner of their field, next to its label, so the text keeps all its room */
+.profile-sheet .profile-fields .field { position: relative; }
+.profile-sheet .field-edit { position: absolute; top: -3px; right: 0; min-height: 24px; padding: 0 9px; font-size: .8rem; }
+.profile-sheet .field-edit[hidden] { display: none; }

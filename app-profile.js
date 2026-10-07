@@ -18,6 +18,7 @@ function showProfile() {
   $('profileBirthdayText').textContent = p.birthday ? birthdayText(p.birthday) : '';
   profileNameShow.hidden = !p.name; profileName.hidden = !!p.name;
   profileBirthdayShow.hidden = !p.birthday; profileBirthday.hidden = !!p.birthday;
+  $('profileNameEdit').hidden = !p.name; $('profileBirthdayEdit').hidden = !p.birthday;
   $('profileAvatar').textContent = p.name ? p.name.charAt(0).toUpperCase() : '♡';
   $('profileHello').textContent = p.name ? 'Hi, ' + p.name + '!' : 'Hello, friend!';
 }
@@ -36,7 +37,7 @@ function editProfile(which) {
   if (input.select) try { input.select(); } catch (e) { /* date boxes cannot select */ }
 }
 [['name', profileNameShow], ['birthday', profileBirthdayShow]].forEach(function (f) {
-  f[1].querySelector('.name-edit').addEventListener('click', function () { editProfile(f[0]); });
+  $(f[0] === 'name' ? 'profileNameEdit' : 'profileBirthdayEdit').addEventListener('click', function () { editProfile(f[0]); });
 });
 profileName.addEventListener('input', function () {
   state.player.name = profileName.value.trim().slice(0, 20);

@@ -73,7 +73,7 @@ function updateRecipeAdd() {
 
 /** While the recipe helper is open Nibble searches with his magnifying glass; when ingredients turn up he finds them. @param {boolean} [found] */
 function recipeSearch(found) {
-  var on = recipeSheet.open && baseState() !== 'sleepy';
+  var on = recipeSheet.open && baseState() !== 'sleepy' && !pet.classList.contains('tucked');   // asleep or under the blanket: the glass is put away
   pet.classList.toggle('searching', on);
   pet.classList.toggle('inspecting', on);
   pet.classList.toggle('mg-aha', on && !!found);
