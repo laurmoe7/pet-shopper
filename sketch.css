@@ -358,3 +358,25 @@ html:root body.skp .cs-opt[aria-selected="true"]::after { color: #3b1f2b; }
 #skNote:focus { outline: 0; border-color: #ff8fab; }
 #skNote::placeholder { color: var(--muted); }
 .sk-kindrow { flex-direction: column; align-items: stretch; }
+
+/* more cute flair */
+.skp-toolbar { position: relative; }
+.skp-toolbar::before { content: "♡"; position: absolute; top: -9px; left: 50%; translate: -50% 0; padding: 0 6px; font-size: .9rem; line-height: 1; color: #ff8fab; background: var(--sk-bg); border-radius: 999px; animation: sk-beat 2.6s ease-in-out infinite; }
+.skp-box, .skp-toolbar { position: relative; }
+.skp-box::after { content: ""; position: absolute; top: -5px; right: 18px; width: 34px; height: 11px; border-radius: 3px; background: rgba(255, 179, 196, .5); rotate: 4deg; pointer-events: none; }
+.skp-box:nth-child(even)::after { right: auto; left: 18px; rotate: -4deg; background: rgba(190, 170, 255, .45); }
+.sk-tools button[aria-pressed="true"]::before { content: "✦"; position: absolute; top: -5px; left: -3px; font-size: .7rem; line-height: 1; color: #fff3f6; text-shadow: 0 0 6px #ff8fab; animation: sk-star 2.4s ease-in-out infinite; }
+.sk-tools button:not(:disabled):active { animation: sk-pop .25s ease-out; }
+@keyframes sk-pop { 40% { transform: scale(1.12) rotate(-4deg); } }
+.skp-tabs button[aria-selected="true"] { animation: sk-pop .3s ease-out; }
+.sk-swatch[aria-pressed="true"], .sk-swatch.on { animation: sk-beat 2.6s ease-in-out infinite; }
+html:root body.skp .skp-main { background-size: 200% 100%; position: relative; overflow: hidden; }
+html:root body.skp .skp-main::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, .45) 50%, transparent 65%); translate: -120% 0; animation: sk-shine 4s ease-in-out infinite; pointer-events: none; }
+@keyframes sk-shine { 0%, 60% { translate: -120% 0; } 100% { translate: 120% 0; } }
+.skp-hint, #skLayers:empty + *, .skp-layers .skp-hint { text-align: center; }
+.skp-layers .skp-hint::before { content: "🖼️ "; }
+.skp-sent-title::before { content: "♡ "; color: #ff8fab; }
+.skp-sent:hover { border-color: #ff8fab; }
+.cs-pop .cs-opt { transition: padding-left .1s; }
+.cs-pop .cs-opt:hover { padding-left: 16px; }
+@media (prefers-reduced-motion: reduce) { .skp-toolbar::before, .sk-tools button::before, .skp-tabs button, .sk-swatch, .skp-main::after { animation: none !important; } }
