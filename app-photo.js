@@ -18,13 +18,20 @@ function inlineLook(from, to) {
     inlineLook(a[i], b[i]);
   }
 }
+/** @returns {DOMRect} Where the pet is on screen without its turn (a turned pet's box is bigger than the pet). */
+function petBox() {
+  shootPet.style.setProperty('--shoot-r', '0deg');
+  var r = shootPet.querySelector('svg').getBoundingClientRect();
+  shootPet.style.setProperty('--shoot-r', camPos.r + 'deg');
+  return r;
+}
 /**
  * The pet as a picture, drawn the way it looks on screen right now.
  * @param {number} pad  Room round it (in px) for hats and things that stick out.
  * @returns {Promise<HTMLImageElement>}
  */
 function petImage(pad) {
-  var src = shootPet.querySelector('svg'), r = src.getBoundingClientRect(), w = r.width, h = r.height;
+  var src = shootPet.querySelector('svg'), r = petBox(), w = r.width, h = r.height;
   var clone = src.cloneNode(true);
   inlineLook(src, clone);
   var inner = clone.getAttribute('viewBox') || '0 0 160 150';
@@ -108,18 +115,20 @@ function makePhoto() {
   var cv = document.createElement('canvas');
   cv.width = W; cv.height = H;
   var ctx = cv.getContext('2d');
-  var pr = shootPet.querySelector('svg').getBoundingClientRect(), pad = Math.max(pr.width, pr.height) * 0.4;
+  var pr = petBox(), pad = Math.max(pr.width, pr.height) * 0.4;
   return Promise.all([paintBackground(ctx, W, H), petImage(pad)]).then(function (res) {
-    var s = shootPet.getBoundingClientRect();
-    // the soft shadow under the pet
+    ctx.save();   // turned about its middle, like on screen (the shadow turns with it)
+    ctx.translate((pr.left - rect.left + pr.width / 2) * k, (pr.top - rect.top + pr.height / 2) * k);
+    ctx.rotate(camPos.r * Math.PI / 180);
     ctx.save();
     ctx.filter = 'blur(' + 4 * k + 'px)';
-    ctx.fillStyle = 'rgba(90,60,50,.16)';
+    ctx.fillStyle = 'rgba(90,60,50,.16)';   // the soft shadow under the pet
     ctx.beginPath();
-    ctx.ellipse((s.left - rect.left + s.width / 2) * k, (s.bottom - rect.top - 2) * k, s.width * 0.38 * k, 8 * k, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, (pr.height / 2 - 2) * k, pr.width * 0.38 * k, 8 * k, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
-    ctx.drawImage(res[1], (pr.left - rect.left - pad) * k, (pr.top - rect.top - pad) * k, (pr.width + 2 * pad) * k, (pr.height + 2 * pad) * k);
+    ctx.drawImage(res[1], -(pr.width / 2 + pad) * k, -(pr.height / 2 + pad) * k, (pr.width + 2 * pad) * k, (pr.height + 2 * pad) * k);
+    ctx.restore();
     paintFrame(ctx, W, H, k);
     return new Promise(function (resolve, reject) { cv.toBlob(function (b) { if (b) resolve(b); else reject(new Error('blob')); }, 'image/png'); });
   });

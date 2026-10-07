@@ -22,7 +22,7 @@ var FACES = {
 var CHEW = { eyes: 'happy', mouth: 'chew', arms: 'nom', x: ['cheeks'] };
 var REACTIONS = {
   fruit: { face: { eyes: 'happy', mouth: 'chew', arms: 'cheer', x: ['hearts', 'cheeks'] }, lines: ['so juicy!', 'fruity ♡', 'yum yum!', 'amai~ (sweet!)'] },
-  veg: { face: { eyes: 'teary', mouth: 'wavy', arms: 'clench', x: [] }, then: CHEW, look: 'squint', lines: ['b-brave face…', 'crunchy. fine!', 'for my health…', 'okay… not bad'] },
+  veg: { face: { eyes: 'open', mouth: 'chew', arms: 'nom', x: ['cheeks'] }, lines: ['crunchy!', 'fresh & healthy', 'veggies ♡', 'good for me!', 'mogu mogu'] },
   sweets: { face: { eyes: 'open', mouth: 'chew', arms: 'cheer', x: ['sparkles', 'cheeks'] }, look: 'wide', lines: ['kira kira!', 'treat time ♡', 'SUGAR!', 'one more?'] },
   spicy: { face: { eyes: 'squint', mouth: 'open', arms: 'fan', x: ['steam', 'redface', 'shock'] }, look: 'wide', lines: ['HOT HOT HOT', 'hii~ spicy!', 'fire! fire!', 'water?!'] },
   drink: { face: { eyes: 'happy', mouth: 'o', arms: 'hold', x: ['cheeks'] }, lines: ['gokun gokun', 'sluuurp', 'refreshing!', 'puhaa~'] },

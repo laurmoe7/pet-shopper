@@ -45,6 +45,7 @@
     { id: 'brandt', base: 'hedgehog', label: "Brandt's hedgehog" },
     { id: 'rainbowaxo', base: 'axolotl', label: 'Rainbow' },
     { id: 'whitehamster', base: 'hamster', label: 'White hamster' },
-    { id: 'longhair', base: 'hamster', label: 'Long-haired' }
+    { id: 'longhair', base: 'hamster', label: 'Long-haired' },
+    { id: 'snowmonkey', base: 'monkey', label: 'Snow monkey' }
   ];
 })(typeof self !== 'undefined' ? self : globalThis);

@@ -70,6 +70,11 @@
             <pattern id="qPeachDots" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#fff0b0"/><circle cx="3" cy="3" r="1.2" fill="#ffb3a0"/></pattern>
             <pattern id="qGingham" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#e6f7ec"/><rect width="4" height="8" fill="#a8dfbe" opacity=".55"/><rect width="8" height="4" fill="#a8dfbe" opacity=".55"/></pattern>
             <pattern id="qStripes" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="6" height="6" fill="#d6ccf5"/><rect width="2.4" height="6" fill="#fff" opacity=".7"/></pattern>
+            <!-- the dragon's horn rings and wing bones are cut off at their outlines -->
+            <clipPath id="dragonWingL"><path d="M26 86 Q10 70 -2 60 Q4 76 -8 86 Q6 88 2 102 Q16 98 26 98 Z"/></clipPath>
+            <clipPath id="dragonWingR"><path d="M134 86 Q150 70 162 60 Q156 76 168 86 Q154 88 158 102 Q144 98 134 98 Z"/></clipPath>
+            <clipPath id="dragonHornL"><path d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/></clipPath>
+            <clipPath id="dragonHornR"><path d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/></clipPath>
             <clipPath id="bodyClip"><path d="M80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 Z"/></clipPath>
             <!-- the rainbow axolotl's pastel body and the pigeon's shiny neck -->
             <linearGradient id="axoRainbow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc9dc"/><stop offset=".25" stop-color="#ffe2bd"/><stop offset=".45" stop-color="#fff3b8"/><stop offset=".65" stop-color="#ccf2d8"/><stop offset=".82" stop-color="#c9e5ff"/><stop offset="1" stop-color="#e2d3ff"/></linearGradient>
@@ -80,8 +85,8 @@
           <g class="pet-body">
             <!-- each foot is its own group so it can step, tap and tuck (styles.css). Paws, hooves and bird toes peek out
                  under the feet (which species gets which is set in styles.css) -->
-            <g class="foot-side foot-l"><g data-sp="frog" class="frog-feet"><path class="frog-web" d="M47 138 Q47 149 51.5 147.5 Q54.5 143.5 58 148 Q61.5 143.5 64.5 147.5 Q69 149 69 138 Z"/></g><g class="paw-part paw-feet"><path class="paw-toes" d="M47 137 Q47 144.6 50.6 144.6 Q52.5 146.6 54.4 144.9 Q58 147 61.6 144.9 Q63.5 146.6 65.4 144.6 Q69 144.6 69 137 Z"/><path class="paw-line" d="M54.4 143 v1.8 M61.6 143 v1.8"/></g><g class="hoof-part hoof-feet"><path class="hoof" d="M47.2 137.6 L47.8 144.4 Q52.6 146.4 57.1 144.8 L58 142.4 L58.9 144.8 Q63.4 146.4 68.2 144.4 L68.8 137.6 Z"/></g><g class="bird-part bird-feet"><ellipse class="bird-toe" cx="51.6" cy="143.2" rx="3.4" ry="2.4" transform="rotate(-28 51.6 143.2)"/><ellipse class="bird-toe" cx="64.4" cy="143.2" rx="3.4" ry="2.4" transform="rotate(28 64.4 143.2)"/><ellipse class="bird-toe" cx="58" cy="144.6" rx="3.2" ry="2.6"/></g><ellipse class="foot" cx="58" cy="137" rx="11" ry="6"/></g>
-            <g class="foot-side foot-r"><g data-sp="frog" class="frog-feet"><path class="frog-web" d="M91 138 Q91 149 95.5 147.5 Q98.5 143.5 102 148 Q105.5 143.5 108.5 147.5 Q113 149 113 138 Z"/></g><g class="paw-part paw-feet"><path class="paw-toes" d="M91 137 Q91 144.6 94.6 144.6 Q96.5 146.6 98.4 144.9 Q102 147 105.6 144.9 Q107.5 146.6 109.4 144.6 Q113 144.6 113 137 Z"/><path class="paw-line" d="M98.4 143 v1.8 M105.6 143 v1.8"/></g><g class="hoof-part hoof-feet"><path class="hoof" d="M91.2 137.6 L91.8 144.4 Q96.6 146.4 101.1 144.8 L102 142.4 L102.9 144.8 Q107.4 146.4 112.2 144.4 L112.8 137.6 Z"/></g><g class="bird-part bird-feet"><ellipse class="bird-toe" cx="95.6" cy="143.2" rx="3.4" ry="2.4" transform="rotate(-28 95.6 143.2)"/><ellipse class="bird-toe" cx="108.4" cy="143.2" rx="3.4" ry="2.4" transform="rotate(28 108.4 143.2)"/><ellipse class="bird-toe" cx="102" cy="144.6" rx="3.2" ry="2.6"/></g><ellipse class="foot" cx="102" cy="137" rx="11" ry="6"/></g>
+            <g class="foot-side foot-l"><g data-sp="frog" class="frog-feet"><path class="frog-web" d="M47 138 Q47 149 51.5 147.5 Q54.5 143.5 58 148 Q61.5 143.5 64.5 147.5 Q69 149 69 138 Z"/></g><g class="paw-part paw-feet"><path class="paw-toes" d="M47 137 Q47 144.6 50.6 144.6 Q52.5 146.6 54.4 144.9 Q58 147 61.6 144.9 Q63.5 146.6 65.4 144.6 Q69 144.6 69 137 Z"/><path class="paw-line" d="M54.4 143 v1.8 M61.6 143 v1.8"/></g><g class="hoof-part hoof-feet"><path class="hoof" d="M47.2 137.6 L47.8 144.4 Q52.6 146.4 57.1 144.8 L58 142.4 L58.9 144.8 Q63.4 146.4 68.2 144.4 L68.8 137.6 Z"/></g><g class="bird-part bird-feet"><ellipse class="bird-toe" cx="51.6" cy="143.2" rx="3.4" ry="2.4" transform="rotate(-28 51.6 143.2)"/><ellipse class="bird-toe" cx="64.4" cy="143.2" rx="3.4" ry="2.4" transform="rotate(28 64.4 143.2)"/><ellipse class="bird-toe" cx="58" cy="144.6" rx="3.2" ry="2.6"/></g><g class="monkey-part monkey-feet"><path class="monkey-toes" d="M70 136 L70 138 Q69 144 65 144.4 Q62 147 59 144.8 Q56 147 53 144.4 Q50 146 47 144.4 Q42 145 40.5 141 Q40 137 46 136 Z"/><path class="paw-line" d="M53 143 v1.6 M59 143.6 v1.6 M65 143 v1.6"/></g><ellipse class="foot" cx="58" cy="137" rx="11" ry="6"/></g>
+            <g class="foot-side foot-r"><g data-sp="frog" class="frog-feet"><path class="frog-web" d="M91 138 Q91 149 95.5 147.5 Q98.5 143.5 102 148 Q105.5 143.5 108.5 147.5 Q113 149 113 138 Z"/></g><g class="paw-part paw-feet"><path class="paw-toes" d="M91 137 Q91 144.6 94.6 144.6 Q96.5 146.6 98.4 144.9 Q102 147 105.6 144.9 Q107.5 146.6 109.4 144.6 Q113 144.6 113 137 Z"/><path class="paw-line" d="M98.4 143 v1.8 M105.6 143 v1.8"/></g><g class="hoof-part hoof-feet"><path class="hoof" d="M91.2 137.6 L91.8 144.4 Q96.6 146.4 101.1 144.8 L102 142.4 L102.9 144.8 Q107.4 146.4 112.2 144.4 L112.8 137.6 Z"/></g><g class="bird-part bird-feet"><ellipse class="bird-toe" cx="95.6" cy="143.2" rx="3.4" ry="2.4" transform="rotate(-28 95.6 143.2)"/><ellipse class="bird-toe" cx="108.4" cy="143.2" rx="3.4" ry="2.4" transform="rotate(28 108.4 143.2)"/><ellipse class="bird-toe" cx="102" cy="144.6" rx="3.2" ry="2.6"/></g><g class="monkey-part monkey-feet"><path class="monkey-toes" d="M90 136 L90 138 Q91 144 95 144.4 Q98 147 101 144.8 Q104 147 107 144.4 Q110 146 113 144.4 Q118 145 119.5 141 Q120 137 114 136 Z"/><path class="paw-line" d="M107 143 v1.6 M101 143.6 v1.6 M95 143 v1.6"/></g><ellipse class="foot" cx="102" cy="137" rx="11" ry="6"/></g>
             <g class="squish">
               <!-- species parts drawn behind the body -->
               <g data-sp="axolotl"><g class="ear-g ear-l"><g class="gill-line"><path d="M24 78 Q12 74 6 62"/><path d="M20 89 Q8 89 2 81"/><path d="M26 68 Q18 60 16 48"/><circle cx="6" cy="62" r="4.6"/><circle cx="2" cy="81" r="4.6"/><circle cx="16" cy="48" r="4.6"/></g><g class="gill-fill"><path d="M24 78 Q12 74 6 62"/><path d="M20 89 Q8 89 2 81"/><path d="M26 68 Q18 60 16 48"/><circle cx="6" cy="62" r="3.2"/><circle cx="2" cy="81" r="3.2"/><circle cx="16" cy="48" r="3.2"/></g></g><g class="ear-g ear-r"><g class="gill-line"><path d="M136 78 Q148 74 154 62"/><path d="M140 89 Q152 89 158 81"/><path d="M134 68 Q142 60 144 48"/><circle cx="154" cy="62" r="4.6"/><circle cx="158" cy="81" r="4.6"/><circle cx="144" cy="48" r="4.6"/></g><g class="gill-fill"><path d="M136 78 Q148 74 154 62"/><path d="M140 89 Q152 89 158 81"/><path d="M134 68 Q142 60 144 48"/><circle cx="154" cy="62" r="3.2"/><circle cx="158" cy="81" r="3.2"/><circle cx="144" cy="48" r="3.2"/></g></g></g>
@@ -124,6 +129,32 @@
                   <circle class="ear" cx="110" cy="48" r="11"/>
                   <circle class="ear-in" cx="110" cy="48" r="6"/>
                 </g>
+              </g>
+              <g data-sp="mouse">
+                <g class="ear-g ear-l">
+                  <circle class="ear" cx="34" cy="50" r="24"/>
+                  <circle class="ear-in" cx="34" cy="50" r="15"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <circle class="ear" cx="126" cy="50" r="24"/>
+                  <circle class="ear-in" cx="126" cy="50" r="15"/>
+                </g>
+              </g>
+              <g data-sp="monkey">
+                <g class="ear-g ear-l">
+                  <circle class="ear" cx="12" cy="80" r="16"/>
+                  <circle class="ear-in" cx="12" cy="80" r="9"/>
+                </g>
+                <g class="ear-g ear-r">
+                  <circle class="ear" cx="148" cy="80" r="16"/>
+                  <circle class="ear-in" cx="148" cy="80" r="9"/>
+                </g>
+              </g>
+              <g data-sp="dragon">
+                <g class="ear-g ear-l"><path class="dragon-wing" d="M26 86 Q10 70 -2 60 Q4 76 -8 86 Q6 88 2 102 Q16 98 26 98 Z"/><path class="wing-bone" clip-path="url(#dragonWingL)" d="M26 90 L-2 60 M14 84 L-8 86 M14 92 L2 102"/><path class="wing-edge" d="M26 86 Q10 70 -2 60 Q4 76 -8 86 Q6 88 2 102 Q16 98 26 98 Z"/></g>
+                <g class="ear-g ear-r"><path class="dragon-wing" d="M134 86 Q150 70 162 60 Q156 76 168 86 Q154 88 158 102 Q144 98 134 98 Z"/><path class="wing-bone" clip-path="url(#dragonWingR)" d="M134 90 L162 60 M146 84 L168 86 M146 92 L158 102"/><path class="wing-edge" d="M134 86 Q150 70 162 60 Q156 76 168 86 Q154 88 158 102 Q144 98 134 98 Z"/></g>
+                <g class="dragon-horn"><path class="horn-fill" d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/><path class="horn-ring" clip-path="url(#dragonHornL)" d="M43 24 Q50 24 56 30 M40 36 Q48 36 56 42"/><path class="horn-edge" d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/></g>
+                <g class="dragon-horn"><path class="horn-fill" d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/><path class="horn-ring" clip-path="url(#dragonHornR)" d="M117 24 Q110 24 104 30 M120 36 Q112 36 104 42"/><path class="horn-edge" d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/></g>
               </g>
               <g data-sp="cow">
                 <g class="ear-g ear-l">
@@ -374,6 +405,18 @@
               </g>
 
               <ellipse data-sp="hamster" class="belly" cx="80" cy="110" rx="50" ry="28"/>
+              <ellipse data-sp="mouse" class="belly mouse-belly" cx="80" cy="115" rx="40" ry="21"/>
+              <ellipse data-sp="monkey" class="belly monkey-belly" cx="80" cy="115" rx="40" ry="21"/>
+              <path data-sp="monkey" class="monkey-mask" d="M80 78 C70 62 46 66 46 90 C46 110 66 122 80 122 C94 122 114 110 114 90 C114 66 90 62 80 78 Z"/>
+              <g data-sp="dragon">
+                <path class="dragon-plate" d="M80 100 C58 100 44 112 46 126 C48 134 62 137 80 137 C98 137 112 134 114 126 C116 112 102 100 80 100 Z"/>
+                <path class="dragon-band" d="M56 112 Q80 120 104 112 M60 120 Q80 128 100 120 M66 128 Q80 134 94 128"/>
+                <ellipse class="dragon-muzzle" cx="80" cy="95" rx="13" ry="8.6"/>
+                <ellipse class="dragon-nostril" cx="75.6" cy="94" rx="1.7" ry="1.3"/>
+                <ellipse class="dragon-nostril" cx="84.4" cy="94" rx="1.7" ry="1.3"/>
+                <path class="dragon-tuft" d="M66 44 Q62 32 70 26 Q74 34 74 42 Z M74 42 Q74 24 80 16 Q86 24 86 42 Z M86 42 Q86 32 92 26 Q98 32 94 44 Z"/>
+                <circle class="dragon-dot" cx="40" cy="66" r="2.4"/><circle class="dragon-dot" cx="120" cy="66" r="2.4"/><circle class="dragon-dot" cx="50" cy="58" r="2.4"/><circle class="dragon-dot" cx="110" cy="58" r="2.4"/>
+              </g>
               <ellipse data-sp="frog" class="belly frog-belly" cx="80" cy="114" rx="46" ry="24"/>
               <ellipse data-sp="axolotl" class="belly axo-belly" cx="80" cy="114" rx="44" ry="23"/>
               <g data-sk="longhair" class="lh-face"><ellipse class="lh-muzzle" cx="80" cy="105" rx="25" ry="14"/></g>
@@ -450,6 +493,7 @@
 
               <!-- animal faces (bunny, cat, dog, hamster, hedgehog): a :3 mouth with a little nose (drawn after the mouths,
                    below); which species gets which nose is set in styles.css. The hedgehog also has a light muzzle, like a hedgehog print. -->
+              <path data-sp="mouse" class="whiskers" d="M30 100 L10 94 M30 106 L8 108 M130 100 L150 94 M130 106 L152 108"/>
               <ellipse class="hog-muzzle" cx="80" cy="101.4" rx="12.6" ry="9.4"/>
               <path data-mouth="smile" class="line" d="M75 103 Q80 108 85 103"/>
               <!-- a little lower lip under the smile for the mochi, pig and cow, the frog and the axolotl -->
@@ -459,6 +503,7 @@
               <!-- the :3 mouth: with a little lip, or for the bunny a bit lower with buck teeth -->
               <path data-mouth="smile" class="line cat-smile smile-lip" d="M80 100.6 V102.6 M74.2 101.8 Q76.8 105.6 80 102.6 Q83.2 105.6 85.8 101.8 M78.2 108.2 Q80 109.5 81.8 108.2"/>
               <g data-mouth="smile" class="cat-smile smile-bunny"><path class="line" d="M80 101 V104.6 M73.6 103.2 Q76.6 107.4 80 104.6 Q83.4 107.4 86.4 103.2"/><path class="buck-teeth" d="M76.6 105.2 H83.4 V108.8 Q83.4 110.2 82 110.2 H78 Q76.6 110.2 76.6 108.8 Z M80 105.2 V110.2"/></g>
+              <path data-mouth="smile" class="line cat-smile smile-dragon" d="M72 107 Q80 115 88 107"/>
               <path data-mouth="smile" class="line frog-smile" d="M57 101 Q80 116 103 101"/>
               <path data-mouth="smile" class="line axo-smile" d="M64 101 Q80 112 96 101"/>
               <g data-mouth="open">
@@ -674,6 +719,7 @@
         <button type="button" class="text-btn" id="clearBtn">Clear list</button>
       </div>
       <ul class="items" id="done" aria-label="Bought"></ul>
+      <button type="button" class="text-btn done-more" id="doneMore" hidden></button>
     </section>
 
     <p class="hint" id="listHint">Tap an item's emoji, or long-press the item, to pick a different one.</p>
@@ -763,7 +809,7 @@
     <div class="dress-panel" data-tab="pet" role="tabpanel">
       <div class="field">
         <span class="field-label" id="petNameLabel">Name</span>
-        <button type="button" class="name-show" id="petNameShow" aria-label="Name (double-tap to change)"><span id="petNameText">Nibble</span><span class="name-pen" aria-hidden="true">✎</span></button>
+        <div class="name-show" id="petNameShow"><span id="petNameText">Nibble</span><button type="button" class="name-edit" id="petNameEdit" aria-label="Edit name"><span class="name-pen" aria-hidden="true">✎</span> Edit</button></div>
         <input id="petNameInput" type="text" maxlength="16" autocomplete="off" enterkeyhint="done" placeholder="Nibble" aria-labelledby="petNameLabel" hidden>
       </div>
       <fieldset class="species">
@@ -830,7 +876,6 @@
       <button type="button" class="shoot-chip photo-btn" id="photoRetake">Retake</button>
     </div>
   </div>
-  <p class="shoot-hint" id="shootHint" hidden>Take your screenshot! Tap to bring the buttons back.</p>
   <button type="button" class="shoot-x" id="shootClose" aria-label="Close the photoshoot">✕</button>
   <div class="shoot-ui" id="shootUi">
     <div class="shoot-row" id="shootPoses" role="group" aria-label="Pose"></div>
@@ -1023,13 +1068,13 @@
     <div class="profile-card"><span class="profile-avatar" id="profileAvatar" aria-hidden="true">♡</span><b id="profileHello">Hello, friend!</b></div>
     <div class="profile-fields">
     <div class="field">
-      <span class="field-label" id="profileNameLabel">Your name</span>
-      <button type="button" class="name-show" id="profileNameShow" hidden><span id="profileNameText"></span><span class="name-pen" aria-hidden="true">✎</span></button>
+      <span class="field-label" id="profileNameLabel">Your name</span><button type="button" class="name-edit field-edit" id="profileNameEdit" aria-label="Edit your name" hidden>✎</button>
+      <div class="name-show" id="profileNameShow" hidden><span id="profileNameText"></span></div>
       <input id="profileName" type="text" maxlength="20" placeholder="Your name" enterkeyhint="done" aria-labelledby="profileNameLabel">
     </div>
     <div class="field">
-      <span class="field-label" id="profileBirthdayLabel">Your birthday</span>
-      <button type="button" class="name-show" id="profileBirthdayShow" hidden><span id="profileBirthdayText"></span><span class="name-pen" aria-hidden="true">✎</span></button>
+      <span class="field-label" id="profileBirthdayLabel">Your birthday</span><button type="button" class="name-edit field-edit" id="profileBirthdayEdit" aria-label="Edit your birthday" hidden>✎</button>
+      <div class="name-show" id="profileBirthdayShow" hidden><span id="profileBirthdayText"></span></div>
       <input id="profileBirthday" type="date" aria-labelledby="profileBirthdayLabel">
     </div>
     </div>

@@ -383,3 +383,12 @@ test('a long list stamps quickly', () => {
   const ms = Number(process.hrtime.bigint() - t0) / 1e6 / 20;
   assert.ok(ms < 50, 'one stamp took ' + ms.toFixed(1) + ' ms');
 });
+
+// ---------- keeping the list of synced things complete ----------
+
+test('every piece of pet data is either synced or deliberately left on the device', () => {
+  const synced = ['name', 'species', 'skin', 'outfit', 'personality', 'room', 'closet'].concat(Sync.COUNTERS);
+  const local = ['dozing'];   // tonight's sleep belongs to this device
+  const keys = Object.keys(L.petProfile({})).sort();
+  assert.deepEqual(keys, synced.concat(local).sort(), 'new pet data needs a rule in sync.js (FIELDS or COUNTERS), or a place in this test\'s local list');
+});

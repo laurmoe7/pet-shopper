@@ -46,6 +46,8 @@ function openSelectPop(sel) {
   if (openUp) pop.style.bottom = (innerHeight - r.top + 6) + 'px'; else pop.style.top = (r.bottom + 6) + 'px';
   var cur = pop.querySelector('[aria-selected="true"]');
   if (cur) pop.scrollTop = cur.offsetTop - pop.clientHeight / 2 + cur.offsetHeight / 2;
+  var fade = function () { pop.classList.toggle('more', pop.scrollHeight - pop.scrollTop - pop.clientHeight > 4); };   // a soft fade at the bottom while there is more to scroll to
+  fade(); pop.addEventListener('scroll', fade);
   sound('tap');
 }
 // take over the opening of every menu (also the ones the page makes later)
