@@ -10,6 +10,7 @@
   <path d="M33 78 L29 31 L67 53 Z" fill="#ffb3c4" stroke="#5b4239" stroke-width="3.4" stroke-linejoin="round"/>
   <path d="M123 78 L127 31 L89 53 Z" fill="#ffb3c4" stroke="#5b4239" stroke-width="3.4" stroke-linejoin="round"/>
   <path d="M37 68 L35 43 L55 56 Z" fill="#ff8fab" opacity=".8"/>
+  <path d="M119 68 L121 43 L101 56 Z" fill="#ff8fab" opacity=".8"/>
   <ellipse cx="78" cy="94" rx="54" ry="44" fill="#ffc9d6" stroke="#5b4239" stroke-width="3.6"/>
   <ellipse cx="42" cy="104" rx="11" ry="6.500" fill="#ff8fab" opacity=".75"/>
   <ellipse cx="114" cy="104" rx="11" ry="6.500" fill="#ff8fab" opacity=".75"/>

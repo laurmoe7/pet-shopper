@@ -1720,10 +1720,10 @@
   /** @returns {string} The SVG for a blur filter (room round the line so the soft edge is not cut off). */
   function sketchBlurDef(sd) { return '<filter id="' + sketchBlurId(sd) + '" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="' + sd + '"/></filter>'; }
 
-  /** The outline of the pet's body (the same as the game's #bodyClip), shrunk a little so a clipped drawing stops inside the pet's own outline. */
+  /** The outline of the pet's body (the same as the game's #bodyClip), shrunk a hair so a clipped line meets the pet's brown outline with no gap. */
   var SKETCH_BODY_PATH = 'M80 139C41 139 13 129 13 102C13 70 36 38 80 38C124 38 147 70 147 102C147 129 119 139 80 139Z';
   /** @returns {string} The SVG clip path that keeps a drawing inside the pet's body. */
-  function sketchClipDef() { return '<clipPath id="bodyclip"><path transform="translate(80 90) scale(.965) translate(-80 -90)" d="' + SKETCH_BODY_PATH + '"/></clipPath>'; }
+  function sketchClipDef() { return '<clipPath id="bodyclip"><path transform="translate(80 90) scale(.99) translate(-80 -90)" d="' + SKETCH_BODY_PATH + '"/></clipPath>'; }
   /**
    * Turns a line drawn with a pressure-sensitive pen into a filled outline: the line is as wide at each point as the pen was pressed.
    * @param {number[][]} pts
