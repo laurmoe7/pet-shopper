@@ -239,3 +239,27 @@ html:root body.skp::before, html:root body.skp::after { display: none; }
 html:root body.skp select, html:root body.skp input[type="text"], html:root body.skp input[type="password"] { background: var(--sk-field); color: var(--ink); box-shadow: none; }
 html:root body.skp .skp-box, html:root body.skp .skp-top { background-color: var(--sk-panel); }
 html:root body.skp .skp-top { background-image: linear-gradient(90deg, #41294a, #2e2a4c 55%, #232b48); }
+
+/* a little more cute flair */
+.skp-top h1 { display: flex; align-items: center; gap: 8px; }
+.sk-mascot { width: 40px; height: 34px; flex: none; animation: sk-bob 3.2s ease-in-out infinite; filter: drop-shadow(0 0 6px rgba(255, 155, 184, .45)); }
+.sk-mascot .me { transform-box: fill-box; transform-origin: center; animation: sk-blink 4.5s infinite; }
+.sk-mascot .me ellipse { transform-box: fill-box; transform-origin: center; animation: sk-blink 4.5s infinite; }
+.sk-mascot .mt { transform-origin: 18px 8px; animation: sk-sway 2.8s ease-in-out infinite; }
+@keyframes sk-bob { 50% { transform: translateY(-2px) rotate(-3deg); } }
+@keyframes sk-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+.skp-box h2::before { display: inline-block; animation: sk-beat 2.6s ease-in-out infinite; }
+@keyframes sk-beat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.25); } 30% { transform: scale(1); } }
+.sk-tools button:not(:disabled):hover svg { animation: sk-wiggle .35s ease-out; }
+.sk-view::before, .sk-view::after { content: "✦"; position: sticky; display: block; width: 0; height: 0; z-index: 7; color: #ffd6e3; font-size: 14px; text-shadow: 0 0 8px rgba(255, 155, 184, .9); pointer-events: none; animation: sk-star 3s ease-in-out infinite; }
+.sk-view::before { top: 4px; left: 6px; }
+.sk-view::after { top: calc(100% - 22px); left: calc(100% - 20px); animation-delay: -1.4s; }
+@keyframes sk-star { 0%, 100% { opacity: .25; transform: scale(.7) rotate(0); } 50% { opacity: 1; transform: scale(1.1) rotate(25deg); } }
+.skp input[type="range"] { height: 18px; }
+.skp input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #ff8fab; border: 2.5px solid #fff3f6; box-shadow: 0 0 8px rgba(255, 143, 171, .7); }
+.skp input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: #ff8fab; border: 2.5px solid #fff3f6; box-shadow: 0 0 8px rgba(255, 143, 171, .7); }
+.skp-status:not(:empty)::before { content: "✧ "; color: #ff9bb8; }
+.skp-box { position: relative; }
+.skp-box::after { content: ""; position: absolute; right: 12px; top: -4px; width: 22px; height: 8px; border-radius: 4px; background: rgba(255, 190, 210, .35); transform: rotate(4deg); pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .sk-mascot, .sk-mascot *, .skp-box h2::before, .sk-view::before, .sk-view::after { animation: none !important; } }
+.skp-box h2::before { margin-right: 4px; }
