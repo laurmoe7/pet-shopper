@@ -418,10 +418,10 @@ var skCtx = document.createElement('canvas').getContext('2d');
 function skEraseAt(pt) {
   var v = SK_VIEW[SK.mode], r = v.w * 0.012, list = SK.strokes[SK.mode];
   var spots = SK.mirror ? [pt, skMirrorPt(pt)] : [pt];
-  var hitsLine = function (s) { return !s.bucket && skLive(s) && spots.some(function (q) { return L.sketchHit(s.pts, q, r + s.width / 2); }); };
+  var hitsLine = function (s) { return !s.bucket && skSelectable(s) && spots.some(function (q) { return L.sketchHit(s.pts, q, r + s.width / 2); }); };
   var lines = list.some(hitsLine);
   // lines come first: only when no line is under the eraser does it take the colour fill there
-  var keep = list.filter(function (s) { return lines ? !hitsLine(s) : !(s.bucket && skLive(s) && spots.some(function (q) { return skInFill(s, q); })); });
+  var keep = list.filter(function (s) { return lines ? !hitsLine(s) : !(s.bucket && skSelectable(s) && spots.some(function (q) { return skInFill(s, q); })); });
   if (keep.length === list.length) return;
   if (!skDrawing.erased) { skPushHistory(); skDrawing.erased = true; }
   SK.strokes[SK.mode] = keep;
