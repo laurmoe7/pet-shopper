@@ -2689,3 +2689,5 @@ html[data-list="todo"] .recipe-btn { display: none; }
 /* a glass never stays in his hand in bed: asleep or under the blanket (app-recipe.js puts it away; this makes sure) */
 #pet.tucked .arm-r .magnifier, #pet[data-state="sleepy"] .arm-r .magnifier { display: none !important; }
 .shoot-turn { display: flex; gap: 8px; justify-content: center; }
+.done-more { display: block; margin: 4px auto 0; font-size: .85rem; }
+.done-more[hidden] { display: none; }

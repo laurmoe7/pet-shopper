@@ -81,8 +81,12 @@ function recipeSearch(found) {
   if (on && !found && !busy) setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: [] });
 }
 // if he gets tucked in or falls asleep while the sheet is open, the glass goes away and the arm relaxes
-setInterval(function () { if (pet.classList.contains('searching') && (pet.classList.contains('tucked') || baseState() === 'sleepy')) recipeSearch(); }, 400);
-recipeSheet.addEventListener('close', function () { recipeSearch(); if (!busy) settle(); });
+var searchWatch = 0;
+function watchSearch() {
+  clearInterval(searchWatch); searchWatch = 0;
+  if (recipeSheet.open) searchWatch = setInterval(function () { if (pet.classList.contains('searching') && (pet.classList.contains('tucked') || baseState() === 'sleepy')) recipeSearch(); }, 400);
+}
+recipeSheet.addEventListener('close', function () { watchSearch(); recipeSearch(); if (!busy) settle(); });
 
 /** Shows the input (a new recipe) or the ingredients found. @param {boolean} results */
 function recipeStage(results) {
@@ -146,6 +150,7 @@ $('recipeBtn').addEventListener('click', function () {
   sheetUnderMouth(recipeSheet);
   openDialog(recipeSheet);
   recipeSearch();
+  watchSearch();
 });
 $('recipeGo').addEventListener('click', recipeGo);
 $('recipeAdd').addEventListener('click', recipeAddAll);

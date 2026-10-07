@@ -170,7 +170,9 @@ function endSwipe(e) {
 document.addEventListener('pointerup', endSwipe);
 document.addEventListener('pointercancel', endSwipe);
 
+doneMore.addEventListener('click', function () { doneExpanded = !doneExpanded; render(); });
 clearBtn.addEventListener('click', function () {
+  doneExpanded = false;
   state.items = state.items.filter(function (i) { return !i.done; });
   sound('remove');
   save();

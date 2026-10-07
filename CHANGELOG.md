@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 237 (11 Oct)
+- Smoother with a long list: the Bought list shows its latest rows, with a button for the rest.
+- Tidied unused files.
+
 ## Build 236 (11 Oct)
 - His arm relaxes when the glass goes away at bedtime.
 
