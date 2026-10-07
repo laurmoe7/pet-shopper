@@ -103,7 +103,7 @@ function skLoad() {
     SK.fillMode = ['none', 'flat', 'v', 'h', 'r'].indexOf(d.fillMode) !== -1 ? d.fillMode : (d.shapeFill ? 'flat' : 'none');
     if (/^#[0-9a-f]{6}$/i.test(d.colour2 || '')) SK.colour2 = d.colour2;
     if (d.clean === false) SK.clean = false;
-    if (['draw', 'images', 'under', 'send'].indexOf(d.tab) !== -1) SK.tab = d.tab;
+    if (['draw', 'images', 'under', 'send', 'sent'].indexOf(d.tab) !== -1) SK.tab = d.tab;
     ['pet', 'scene', 'toy', 'room'].forEach(function (m) {
       if (d.layers && Array.isArray(d.layers[m])) SK.layers[m] = d.layers[m].filter(function (l) { return l && l.id; }).map(function (l) { return { id: String(l.id), name: String(l.name || 'Layer').slice(0, 24), show: l.show !== false }; });
       if (d.active && d.active[m]) SK.active[m] = d.active[m];
@@ -292,6 +292,7 @@ function skApplyLook() {
 var SK_ITEM_SLOTS = { hat: 'hat', clothes: 'body', face: 'face', mouth: 'mouth', neck: 'neck', feet: 'feet' };
 /** Shows one of the panel's pages (Draw, Images, Pet or Room, Send). */
 function skTab(name) {
+  if (name === 'sent' && !SK_OWNER) name = 'draw';
   SK.tab = name;
   document.querySelectorAll('#skTabs [data-tab]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === name)); });
   document.querySelectorAll('.skp-pane').forEach(function (p) { p.hidden = p.dataset.pane !== name; });
@@ -1308,6 +1309,11 @@ function ghEnsureBranch() {
       .then(function (ref) { return ghReq('POST', base + '/git/refs', { ref: 'refs/heads/' + g.branch, sha: ref.object.sha }); });
   });
 }
+/** @returns {Object} Everything needed to open the drawing again exactly as it was (the lines as drawn, layers, what was underneath). */
+function skOriginal() {
+  return { v: 1, mode: SK.mode, kind: $('skKind').value, note: $('skNote').value.trim(), tidy: SK.tidy, strokes: skOrdered(), layers: skLays(), active: SK.active[SK.mode],
+    pet: { species: P.species, skin: P.skin, outfit: P.outfit, backdrop: P.backdrop, night: P.night, room: P.room, template: P.template } };
+}
 function skUpload() {
   if (skEmpty()) return;
   var g = ghSettings(), f = skFiles();
@@ -1315,15 +1321,135 @@ function skUpload() {
   ghSaveSettings();
   skStatus.textContent = 'Uploading…';
   var put = function (path, text) { return ghReq('PUT', '/repos/' + g.repo + '/contents/drawings/' + path, { message: 'Drawing: ' + f.meta.kind + (f.meta.note ? ' - ' + f.meta.note.slice(0, 60) : ''), content: btoa(unescape(encodeURIComponent(text))), branch: g.branch }); };
-  var item = $('skItemName').value.trim() && !$('skItemRow').hidden ? skItemCode() : null;
+  var item = $('skItemName').value.trim() && !$('skItemRow').hidden ? skItemCode() : null, keep = JSON.stringify(skOriginal());
   ghEnsureBranch().then(function () {
     return put(f.name + '.svg', f.svg);
-  }).then(function () { return item ? put(f.name + '.item.js', item.code + '\n') : null; }).then(function () {
+  }).then(function () { return put(f.name + '.strokes.json', keep); }).then(function () { return item ? put(f.name + '.item.js', item.code + '\n') : null; }).then(function () {
     skStatus.textContent = 'Uploaded drawings/' + f.name + '.svg' + (item ? ' and its item code' : '') + '. Tell me in the chat.';
+    if (SK.tab === 'sent') skSentLoad();
   }).catch(function (e) {
     skStatus.textContent = 'Could not upload: ' + e.message + (e.status === 401 || e.status === 403 || e.status === 404 ? ' (check the token and that it can write to this repository).' : '') + ' You can still use Save SVG.';
   });
 }
+
+// ---------- what has been sent ----------
+var skSentAll = [], skSentShown = 0, SK_SENT_STEP = 8;
+/** @returns {Promise<string>} The text of a file on the drawings branch. */
+function ghFile(path) {
+  var g = ghSettings();
+  return fetch('https://api.github.com/repos/' + g.repo + '/contents/' + path + '?ref=' + encodeURIComponent(g.branch), { headers: { Authorization: 'Bearer ' + g.token, Accept: 'application/vnd.github.raw+json', 'X-GitHub-Api-Version': '2022-11-28' } })
+    .then(function (r) { if (!r.ok) { var e = new Error('GitHub said ' + r.status); e.status = r.status; throw e; } return r.text(); });
+}
+/** @returns {Object} The notes saved in a drawing's first comment (what it is, its note, the pet it was drawn on). */
+function skSvgMeta(svg) {
+  var m = /<!-- (.*?) -->/.exec(svg);
+  if (!m) return {};
+  try { return JSON.parse(m[1].replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')); } catch (e) { return {}; }
+}
+function skSentLoad() {
+  var g = ghSettings(), note = $('skSentNote');
+  if (!g.token || !g.repo) { note.textContent = 'Connect to GitHub first (Send page, GitHub connection).'; return; }
+  note.textContent = 'Looking…';
+  ghReq('GET', '/repos/' + g.repo + '/contents/drawings?ref=' + encodeURIComponent(g.branch)).then(function (files) {
+    var by = {};
+    files.forEach(function (f) {
+      var m = /^(.*?)\.(svg|strokes\.json|item\.js)$/.exec(f.name);
+      if (!m) return;
+      by[m[1]] = by[m[1]] || { base: m[1] };
+      by[m[1]][m[2] === 'svg' ? 'svg' : m[2] === 'item.js' ? 'item' : 'strokes'] = f;
+    });
+    skSentAll = Object.keys(by).map(function (k) { return by[k]; }).filter(function (e) { return e.svg; }).sort(function (a, b) {
+      var sa = (/(\d{8}-\d{6})$/.exec(a.base) || [0, a.base])[1], sb = (/(\d{8}-\d{6})$/.exec(b.base) || [0, b.base])[1];
+      return sa < sb ? 1 : -1;
+    });
+    skSentShown = 0;
+    $('skSentList').replaceChildren();
+    note.textContent = skSentAll.length ? skSentAll.length + ' sent, newest first.' : 'Nothing sent yet.';
+    skSentMore();
+  }).catch(function (e) { note.textContent = e.status === 404 ? 'Nothing sent yet (no drawings folder).' : 'Could not look: ' + e.message; });
+}
+function skSentMore() {
+  var list = $('skSentList');
+  skSentAll.slice(skSentShown, skSentShown + SK_SENT_STEP).forEach(function (e) { list.appendChild(skSentCard(e)); });
+  skSentShown = Math.min(skSentAll.length, skSentShown + SK_SENT_STEP);
+  $('skSentMore').hidden = skSentShown >= skSentAll.length;
+}
+function skSentCard(e) {
+  var card = document.createElement('div');
+  card.className = 'skp-sent';
+  card.innerHTML = '<img alt="" width="64" height="64"><div class="skp-sent-body"><b class="skp-sent-title"></b><span class="skp-sent-note"></span><div class="sk-row"><button type="button" class="skp-btn skp-small" data-act="show" title="Put it over the picture underneath, as an image layer">Show</button><button type="button" class="skp-btn skp-small" data-act="edit" title="Open the lines as you drew them, to keep working">Edit</button><button type="button" class="skp-btn skp-small skp-x" data-act="del" title="Delete this upload from GitHub">✕</button></div></div>';
+  var stamp = /(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})/.exec(e.base);
+  card.querySelector('.skp-sent-title').textContent = e.base.replace(/-\d{8}-\d{6}$/, '').replace(/-/g, ' · ');
+  card.querySelector('.skp-sent-note').textContent = stamp ? stamp[3] + '/' + stamp[2] + '/' + stamp[1] + ' ' + stamp[4] + ':' + stamp[5] : '';
+  card.querySelector('[data-act=edit]').disabled = !e.strokes;
+  if (!e.strokes) card.querySelector('[data-act=edit]').title = 'Sent before the original lines were kept, so it can only be shown';
+  ghFile('drawings/' + e.svg.name).then(function (svg) {
+    e.text = svg;
+    card.querySelector('img').src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    var meta = skSvgMeta(svg);
+    if (meta.note) card.querySelector('.skp-sent-note').textContent += ' · ' + meta.note;
+    e.meta = meta;
+  }).catch(function () { card.querySelector('.skp-sent-note').textContent += ' (could not open it)'; });
+  card.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-act]');
+    if (!b || b.disabled) return;
+    if (b.dataset.act === 'show') skSentShow(e);
+    else if (b.dataset.act === 'edit') skSentEdit(e);
+    else skSentDelete(e, card);
+  });
+  return card;
+}
+/** Switches to the area a drawing was made for. */
+function skGoMode(mode) {
+  if (mode && mode !== SK.mode && SK_VIEW[mode]) $('skModes').querySelector('[data-mode="' + mode + '"]').click();
+}
+/** Shows a sent drawing over the picture underneath, as an image layer (it is never part of what you send). */
+function skSentShow(e) {
+  if (!e.text) { skStatus.textContent = 'It is still loading.'; return; }
+  skGoMode((e.meta || {}).mode);
+  var v = SK_VIEW[SK.mode], im = { id: 'i' + Date.now().toString(36), name: e.base.slice(0, 28), src: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(e.text), cx: v.x + v.w / 2, cy: v.y + v.h / 2, bw: v.w, bh: v.h, scale: 1, opacity: 100, visible: true, behind: false };
+  SK.images[SK.mode].push(im); SK.sel = im.id;
+  skRenderImages(); skLayersUI(); skSaveImages(); skTab('draw'); skSave();
+  skStatus.textContent = 'Shown over the picture as an image layer (Images page). Remove it there when you are done.';
+}
+/** Opens a sent drawing's own lines on the canvas to keep working on them (Undo brings back what was there). */
+function skSentEdit(e) {
+  if (!e.strokes) return;
+  skStatus.textContent = 'Opening…';
+  ghFile('drawings/' + e.strokes.name).then(function (text) {
+    var d = JSON.parse(text);
+    if (!d || !Array.isArray(d.strokes)) throw new Error('that file is not a drawing');
+    skGoMode(d.mode);
+    if (SK.strokes[SK.mode].length && !window.confirm('Replace what is drawn on ' + SK.mode + ' with this drawing? Undo brings it back.')) { skStatus.textContent = 'Cancelled.'; return; }
+    skPushHistory();
+    SK.strokes[SK.mode] = d.strokes;
+    SK.layers[SK.mode] = Array.isArray(d.layers) ? d.layers.map(function (l) { return { id: String(l.id), name: String(l.name || 'Layer'), show: l.show !== false }; }) : [];
+    if (d.active) SK.active[SK.mode] = d.active;
+    SK.layerSet[SK.mode] = []; SK.pick = [];
+    if (d.pet) {
+      P.species = d.pet.species || P.species; P.skin = d.pet.skin || ''; P.backdrop = d.pet.backdrop || P.backdrop; P.night = !!d.pet.night; P.room = d.pet.room || {}; P.template = !!d.pet.template;
+      Object.keys(P.outfit).forEach(function (s) { P.outfit[s] = (d.pet.outfit && d.pet.outfit[s]) || 'none'; });
+    }
+    if (d.kind) { $('skKind').value = d.kind; }
+    $('skNote').value = d.note || '';
+    skBuildPanels(); skBuild(); skLinesUI(); skTab('draw'); skSave();
+    skStatus.textContent = 'Opened ' + e.base + '. Undo brings back what was there before.';
+  }).catch(function (err) { skStatus.textContent = 'Could not open it: ' + err.message; });
+}
+function skSentDelete(e, card) {
+  if (!window.confirm('Delete this upload from GitHub? Claude will not be able to see it any more.')) return;
+  var g = ghSettings(), files = [e.svg, e.strokes, e.item].filter(Boolean);
+  skStatus.textContent = 'Deleting…';
+  files.reduce(function (p, f) {
+    return p.then(function () { return ghReq('DELETE', '/repos/' + g.repo + '/contents/' + f.path, { message: 'Remove drawing ' + e.base, sha: f.sha, branch: g.branch }); });
+  }, Promise.resolve()).then(function () {
+    card.remove(); skSentAll = skSentAll.filter(function (x) { return x !== e; }); skSentShown = Math.max(0, skSentShown - 1);
+    skStatus.textContent = 'Deleted.';
+  }).catch(function (err) { skStatus.textContent = 'Could not delete: ' + err.message; });
+}
+$('skSentRefresh').addEventListener('click', skSentLoad);
+$('skSentMore').addEventListener('click', skSentMore);
+$('skTabs').addEventListener('click', function (ev) { if (ev.target.closest('[data-tab="sent"]') && !skSentAll.length) skSentLoad(); });
 
 // ---------- picture layers (to trace over) ----------
 /** @returns {?Object} The selected image layer of the current area. */
@@ -1837,6 +1963,12 @@ window.addEventListener('resize', skLayout);
   } catch (e) { /* storage blocked: treated as a visitor */ }
   document.body.classList.toggle('skp-guest', !owner);
   SK_OWNER = owner;
+  $('skOwnerLink').addEventListener('click', function () {   // on a new browser: turn the upload tools on without the ?owner=1 address
+    try { localStorage.setItem('nibble-sketchpad-owner', '1'); } catch (e) { /* storage blocked: it lasts until the page closes */ }
+    SK_OWNER = true; document.body.classList.remove('skp-guest');
+    $('skSettings').open = true;
+    skStatus.textContent = 'Uploads are on. Paste your GitHub token in the box under Send.';
+  });
 })();
 
 // ---------- fireflies in the header (only for looks) ----------

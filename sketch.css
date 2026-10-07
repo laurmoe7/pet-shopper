@@ -319,3 +319,16 @@ html:root body.skp.skp-guest #skSaveFile { color: #fff; text-shadow: 0 1px 2px r
 #skItemRow input { flex: 1; min-width: 0; }
 #skItemRow[hidden] { display: none; }
 html:root body.skp .skp-main { background: linear-gradient(180deg, #ffa3bb, #ff8fab); border-color: transparent; box-shadow: 0 3px 0 #c9577f; }
+
+/* the Sent page and the owner link */
+.skp-link { align-self: flex-start; padding: 2px 0; border: 0; background: none; color: var(--muted); font: inherit; font-size: .76rem; font-weight: 700; text-decoration: underline; cursor: pointer; }
+body:not(.skp-guest) .guest-only { display: none; }
+.skp-sent-list { display: flex; flex-direction: column; gap: 6px; }
+.skp-sent { display: flex; gap: 8px; align-items: center; padding: 6px; border: 2px solid var(--sk-edge); border-radius: 14px; background: var(--sk-field); }
+.skp-sent img { flex: none; width: 64px; height: 64px; object-fit: contain; border-radius: 8px; background: var(--sk-paper); }
+.skp-sent-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.skp-sent-title { font-size: .84rem; text-transform: capitalize; }
+.skp-sent-note { font-size: .72rem; color: var(--muted); overflow-wrap: anywhere; }
+.skp-sent .sk-row { gap: 4px; flex-wrap: nowrap; }
+.skp-sent .skp-btn:disabled { opacity: .4; cursor: default; }
+.skp-tabs button { font-size: .78rem; }

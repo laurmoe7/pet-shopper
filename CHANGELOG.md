@@ -47,6 +47,7 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 - Sketchpad: fades, glow fills and a soft brush.
 - Sketchpad: new app icon, a pig with a pencil on a rainbow.
 - Sketchpad: clean curve export, game item code, join and cut shapes, tidier tabbed panel.
+- Sketchpad: Sent page to view, reopen and delete uploads; easy upload setup in a new browser.
 - Sketchpad: double-tap a layer to rename it.
 - Sketchpad: the eraser only works on ticked layers.
 - Sketchpad: Select works only on ticked layers; messages moved to the top; outlined sliders.

@@ -46,6 +46,7 @@
       <button type="button" role="tab" data-tab="images" aria-selected="false">Images</button>
       <button type="button" role="tab" data-tab="under" id="skTabUnder" aria-selected="false">Pet</button>
       <button type="button" role="tab" data-tab="send" aria-selected="false">Send</button>
+      <button type="button" role="tab" data-tab="sent" class="owner-only" aria-selected="false">Sent</button>
     </nav>
     <div class="skp-pane" data-pane="draw">
     <section class="skp-box">
@@ -157,6 +158,7 @@
         <button type="button" class="skp-btn" id="skSaveFile">Save SVG</button>
         <button type="button" class="skp-btn" id="skCopy">Copy SVG</button>
       </div>
+      <button type="button" class="skp-link guest-only" id="skOwnerLink" title="Only needed on your own computer: turns on the upload buttons so you can add your GitHub token">Owner? Turn on uploads</button>
       <details class="skp-help owner-only" id="skSettings">
         <summary>GitHub connection</summary>
         <ol>
@@ -171,6 +173,14 @@
       </details>
     </section>
     </div>
+    <div class="skp-pane" data-pane="sent" hidden>
+    <section class="skp-box">
+      <div class="skp-head"><h2>Sent to Claude</h2><button type="button" class="skp-btn skp-small" id="skSentRefresh">Refresh</button></div>
+      <p class="skp-hint" id="skSentNote">Your uploads, newest first.</p>
+      <div class="skp-sent-list" id="skSentList"></div>
+      <button type="button" class="skp-btn skp-small" id="skSentMore" hidden>Show older</button>
+    </section>
+  </div>
   </aside>
 </div>
 
