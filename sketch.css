@@ -28,7 +28,7 @@ body.skp { height: 100dvh; display: flex; flex-direction: column; overflow: hidd
 .sk-seg button, .sk-tools button { padding: 6px 11px; border: 0; background: var(--surface); color: var(--ink); font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; }
 .sk-seg button[aria-pressed="true"], .sk-tools button[aria-pressed="true"] { background: var(--accent); color: #fff; }
 .sk-tools { gap: 5px; }
-.sk-tools button { display: flex; flex-direction: column; align-items: center; gap: 1px; width: 58px; padding: 5px 2px 4px; border: 1.5px solid var(--line); border-radius: 12px; font-size: .68rem; line-height: 1.15; }
+.sk-tools button { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 58px; padding: 5px 4px 4px; white-space: nowrap; border: 1.5px solid var(--line); border-radius: 12px; font-size: .68rem; line-height: 1.15; }
 .sk-tools button svg { width: 22px; height: 22px; display: block; }
 .sk-tools button:disabled { opacity: .4; cursor: default; }
 .sk-zoomtext { font-size: .8rem; font-weight: 700; color: var(--muted); min-width: 3.2em; font-variant-numeric: tabular-nums; }
@@ -122,3 +122,14 @@ body.skp { height: 100dvh; display: flex; flex-direction: column; overflow: hidd
 .sk-blank .pet-svg .gill-line circle { fill: #5b4239 !important; }
 .sk-blank .pet-svg .cheek { fill: none !important; stroke: #b9a79d; stroke-width: 1; stroke-dasharray: 3 2; }
 .sk-blank .pet-svg .hatch { stroke: #b9a79d !important; }
+
+/* the transform tool: a box with corner handles to resize and a round handle to turn (sketch.js, skXfRender) */
+.sk-xf { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 6; pointer-events: none; }
+.sk-xf .xb { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 5 3; vector-effect: non-scaling-stroke; }
+.sk-xf .xr { fill: rgba(224, 86, 138, .12); stroke: var(--accent); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.sk-xf .xstem { stroke: var(--accent); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.sk-xf .xh { fill: #fff; stroke: var(--accent); stroke-width: 1.8; vector-effect: non-scaling-stroke; pointer-events: all; }
+.sk-xf .xh[data-h="nw"], .sk-xf .xh[data-h="se"] { cursor: nwse-resize; }
+.sk-xf .xh[data-h="ne"], .sk-xf .xh[data-h="sw"] { cursor: nesw-resize; }
+.sk-xf .xh[data-h="rot"] { cursor: grab; fill: var(--accent); }
+.sk-stage[data-tool="select"] .sk-draw { cursor: default; }

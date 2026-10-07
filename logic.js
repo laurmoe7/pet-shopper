@@ -1468,6 +1468,30 @@
     return loops;
   }
 
+  /**
+   * Moves, resizes or turns a drawn line (the transform tool). The original is not changed, so a drag can always be worked out from
+   * how the line looked when it began.
+   * @param {{pts: number[][], d: ?string, width: number}} stroke
+   * @param {{kind: 'move', dx: number, dy: number}|{kind: 'scale', ax: number, ay: number, sx: number, sy: number}|{kind: 'rotate', cx: number, cy: number, a: number}} op
+   *   scale grows the line away from the anchor (ax, ay); rotate turns it round (cx, cy) by `a` radians.
+   * @returns {{pts: number[][], d: ?string, width: number}}
+   */
+  function sketchXform(stroke, op) {
+    var cos = Math.cos(op.a || 0), sin = Math.sin(op.a || 0);
+    function at(x, y) {
+      if (op.kind === 'move') return [x + op.dx, y + op.dy];
+      if (op.kind === 'scale') return [op.ax + (x - op.ax) * op.sx, op.ay + (y - op.ay) * op.sy];
+      return [op.cx + (x - op.cx) * cos - (y - op.cy) * sin, op.cy + (x - op.cx) * sin + (y - op.cy) * cos];
+    }
+    function r2(n) { return Math.round(n * 100) / 100; }
+    var out = { pts: stroke.pts.map(function (p) { var q = at(p[0], p[1]); return [r2(q[0]), r2(q[1])]; }), width: stroke.width, d: stroke.d };
+    if (op.kind === 'scale') out.width = r2(stroke.width * Math.sqrt(Math.abs(op.sx * op.sy)));
+    if (stroke.d) {   // a paint-bucket fill keeps its outline as path text made of "x y" pairs
+      out.d = stroke.d.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g, function (m, x, y) { var q = at(+x, +y); return r2(q[0]) + ' ' + r2(q[1]); });
+    }
+    return out;
+  }
+
   /** @returns {number} Distance between two points. */
   function skDist(a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); }
   /** @returns {number[][]} The line redrawn with a point every `step` along it (the last point is kept). */
@@ -1652,6 +1676,6 @@
     toggleDone: toggleDone,
     pickEmoji: pickEmoji,
     soundFor: soundFor,
-    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, traceLoops: traceLoops, simplifyLine: skSimplify
+    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, traceLoops: traceLoops, simplifyLine: skSimplify
   };
 })(typeof self !== 'undefined' ? self : globalThis);

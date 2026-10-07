@@ -100,3 +100,19 @@ test('a bucket fill is written to the file as its own outline, with holes cut ou
   assert.match(svg, /fill-rule="evenodd"/);
   assert.match(svg, /fill="#ff8fb1"/);
 });
+
+test('transform tool: moving, resizing and turning leave the original alone and carry fills along', () => {
+  const line = { pts: [[10, 0], [20, 0]], d: null, width: 2 };
+  const moved = L.sketchXform(line, { kind: 'move', dx: 5, dy: -3 });
+  assert.deepEqual(moved.pts, [[15, -3], [25, -3]]);
+  assert.deepEqual(line.pts, [[10, 0], [20, 0]], 'the original is untouched');
+  const big = L.sketchXform(line, { kind: 'scale', ax: 10, ay: 0, sx: 2, sy: 2 });
+  assert.deepEqual(big.pts, [[10, 0], [30, 0]]);
+  assert.equal(big.width, 4, 'the line gets thicker with the drawing');
+  const turned = L.sketchXform(line, { kind: 'rotate', cx: 10, cy: 0, a: Math.PI / 2 });
+  assert.deepEqual(turned.pts.map((p) => p.map((n) => Math.round(n))), [[10, 0], [10, 10]]);
+  assert.equal(turned.width, 2);
+  const fill = { pts: [[0, 0]], width: 1, d: 'M0 0L10 0L10 10Z' };
+  assert.equal(L.sketchXform(fill, { kind: 'scale', ax: 0, ay: 0, sx: 2, sy: 3 }).d, 'M0 0L20 0L20 30Z');
+  assert.equal(L.sketchXform(fill, { kind: 'move', dx: 1, dy: 1 }).d, 'M1 1L11 1L11 11Z');
+});

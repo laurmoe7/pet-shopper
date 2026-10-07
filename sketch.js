@@ -18,12 +18,12 @@ var SLOTS = [['hat', 'Hat'], ['body', 'Clothes'], ['face', 'Glasses'], ['mouth',
 /** What the pet underneath looks like (kept on this computer). */
 var P = { species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, backdrop: 'meadow', night: false, room: {} };
 var SK = {
-  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], size: 1, zoom: 1, tidy: 6, space: false, sel: null, mirror: false,
+  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], size: 1, zoom: 1, tidy: 6, space: false, sel: null, mirror: false, pick: [],
   strokes: { pet: [], scene: [], toy: [], room: [] }, hist: { pet: [], scene: [], toy: [], room: [] }, redo: { pet: [], scene: [], toy: [], room: [] },
   /** Pictures to trace, one layer each, in the same coordinates as the drawing: {id, name, src, cx, cy, bw, bh, scale, opacity, visible, behind} */
   images: { pet: [], scene: [], toy: [], room: [] }
 };
-var SK_OWNER = false, skDraw = null, skDrawing = false, skPan = null, skPetSvg = null, skToys = null, skImgUnder = null, skImgOver = null, skSelBox = null;
+var SK_OWNER = false, skDraw = null, skDrawing = false, skPan = null, skPetSvg = null, skToys = null, skImgUnder = null, skImgOver = null, skSelBox = null, skXf = null;
 
 // ---------- borrowing the pet from the game ----------
 /** Fetches the game's page and keeps its pet drawing (with its gradients and clip) and its toys, hidden, to copy from. */
@@ -186,11 +186,13 @@ function skBuild() {
   skDraw.setAttribute('viewBox', [v.x, v.y, v.w, v.h].join(' '));
   skDraw.setAttribute('class', 'sk-draw');
   skStage.dataset.mode = SK.mode;
-  skImgUnder = skLayerSvg('sk-imgs under'); skImgOver = skLayerSvg('sk-imgs over'); skSelBox = skLayerSvg('sk-sel');
-  skStage.replaceChildren(skImgUnder, ref, skImgOver, skGrid(v), skDraw, skSelBox);
+  skImgUnder = skLayerSvg('sk-imgs under'); skImgOver = skLayerSvg('sk-imgs over'); skSelBox = skLayerSvg('sk-sel'); skXf = skLayerSvg('sk-xf');
+  skXf.addEventListener('pointerdown', skXfDown);
+  skStage.replaceChildren(skImgUnder, ref, skImgOver, skGrid(v), skDraw, skSelBox, skXf);
   skRenderImages();
   SK.strokes[SK.mode].forEach(function (s) { skDraw.appendChild(skEl(s)); });
   skHistoryUI();
+  skXfRender();
   skApplyLook();
   skLayout();
 }
@@ -228,6 +230,7 @@ function skLayout() {
   skStage.style.width = w + 'px';
   skStage.style.height = (w / aspect) + 'px';
   $('skZoomText').textContent = Math.round(SK.zoom * 100) + '%';
+  if (skXf) skXfRender();
   skPress($('skZoom'), 'zoom', Math.abs(SK.zoom - Math.round(SK.zoom)) < 0.01 ? Math.round(SK.zoom) : '');
 }
 /** Zooms to z, keeping the point under (cx, cy) on the screen where it is (the middle of the view if not given). */
@@ -313,6 +316,7 @@ function skDown(e) {
   if (SK.tool === 'drop') { skPickInPage(e.clientX, e.clientY); return; }
   var pt = skPoint(e), v = SK_VIEW[SK.mode];
   if (SK.tool === 'bucket') { skBucket(pt); return; }
+  if (SK.tool === 'select') { skSelDown(e, pt); return; }
   if (SK.tool === 'imgmove') {
     var img = skSelected();
     if (!img) { skStatus.textContent = 'Add or pick an image layer first.'; return; }
@@ -333,9 +337,17 @@ function skMirrored(s) {
 }
 function skMove(e) {
   var pt = skPoint(e), v = SK_VIEW[SK.mode];
+  skLastPt = pt;
   skCoords.textContent = 'x ' + pt[0].toFixed(v.w > 100 ? 0 : 1) + '   y ' + pt[1].toFixed(v.w > 100 ? 0 : 1);
   if (skPan) { skView.scrollLeft = skPan.left - (e.clientX - skPan.x); skView.scrollTop = skPan.top - (e.clientY - skPan.y); return; }
   if (!skDrawing || !e.isPrimary) return;
+  if (skDrawing.xf) { skXfMove(pt, e); return; }
+  if (skDrawing.band) {
+    var bd = skDrawing.band;
+    skDrawing.band.el.setAttribute('x', Math.min(bd.x, pt[0])); skDrawing.band.el.setAttribute('y', Math.min(bd.y, pt[1]));
+    skDrawing.band.el.setAttribute('width', Math.abs(pt[0] - bd.x)); skDrawing.band.el.setAttribute('height', Math.abs(pt[1] - bd.y));
+    return;
+  }
   if (skDrawing.image) {
     skDrawing.image.cx += pt[0] - skDrawing.last[0]; skDrawing.image.cy += pt[1] - skDrawing.last[1];
     skDrawing.last = pt; skDrawing.moved = true;
@@ -353,6 +365,8 @@ function skUp() {
   if (skPan) skStage.classList.remove('panning');
   skPan = null;
   if (skDrawing && skDrawing.image) { skDrawing = false; skSaveImages(); return; }
+  if (skDrawing && skDrawing.xf) { skDrawing = false; skSave(); skXfRender(); return; }
+  if (skDrawing && skDrawing.band) { skBandEnd(skLastPt || [skDrawing.band.x, skDrawing.band.y]); skDrawing = false; skXfRender(); return; }
   if (!skDrawing) return;
   if (skDrawing.stroke) {
     var s = skDrawing.stroke, t = L.tidyStroke(s.pts, SK_VIEW[SK.mode].w, { passes: SK.tidy, snap: $('skSnap').checked });
@@ -377,6 +391,7 @@ function skCancel() {
   skStage.classList.remove('panning');
 }
 function skUndo() {
+  SK.pick = []; skXfRender();
   var h = SK.hist[SK.mode];
   if (!h.length) { skStatus.textContent = 'Nothing to undo.'; return; }
   skFlash('skUndo');
@@ -388,6 +403,7 @@ function skUndo() {
   skSave();
 }
 function skRedo() {
+  SK.pick = []; skXfRender();
   var r = SK.redo[SK.mode];
   if (!r.length) { skStatus.textContent = 'Nothing to redo.'; return; }
   skFlash('skRedo');
@@ -397,6 +413,139 @@ function skRedo() {
   skHistoryUI();
   skStatus.textContent = 'Redone.';
   skSave();
+}
+
+// ---------- the transform tool: pick lines, then resize, turn or move them ----------
+var skShapePaths = new WeakMap(), skLastPt = null;
+/** @returns {{x0: number, y0: number, x1: number, y1: number}} The box round a stroke (its points and half its width). */
+function skStrokeBox(s) {
+  var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity, w = (s.width || 0) / 2;
+  s.pts.forEach(function (p) { x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]); });
+  return { x0: x0 - w, y0: y0 - w, x1: x1 + w, y1: y1 + w };
+}
+/** @returns {?Object} The box round everything picked, or null if nothing is. */
+function skPickBox() {
+  if (!SK.pick.length) return null;
+  var b = null;
+  SK.pick.forEach(function (s) {
+    var q = skStrokeBox(s);
+    b = b ? { x0: Math.min(b.x0, q.x0), y0: Math.min(b.y0, q.y0), x1: Math.max(b.x1, q.x1), y1: Math.max(b.y1, q.y1) } : q;
+  });
+  return b;
+}
+/** @returns {boolean} Whether a point is inside a "Filled" shape. */
+function skInShape(s, pt) {
+  var path = skShapePaths.get(s);
+  if (!path) { path = new Path2D(L.sketchPath(s.pts, true, 2)); skShapePaths.set(s, path); }
+  return skCtx.isPointInPath(path, pt[0], pt[1]);
+}
+/** @returns {?Object} The topmost stroke under a point: lines first, then filled shapes and colour fills. */
+function skStrokeAt(pt) {
+  var r = SK_VIEW[SK.mode].w * 0.012, list = SK.strokes[SK.mode], i, s;
+  for (i = list.length - 1; i >= 0; i--) { s = list[i]; if (!s.bucket && L.sketchHit(s.pts, pt, r + s.width / 2)) return s; }
+  for (i = list.length - 1; i >= 0; i--) { s = list[i]; if (s.bucket ? skInFill(s, pt) : (s.fill && skInShape(s, pt))) return s; }
+  return null;
+}
+/** Draws the box, the four corner handles and the round turning handle round whatever is picked. */
+function skXfRender() {
+  if (!skXf) return;
+  skXf.replaceChildren();
+  var box = skPickBox();
+  if (SK.tool !== 'select' || !box) return;
+  var v = SK_VIEW[SK.mode], upp = v.w / (skStage.getBoundingClientRect().width || v.w), hs = 5.5 * upp;
+  function add(tag, attrs) {
+    var n = document.createElementNS(SVGNS, tag);
+    Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    skXf.appendChild(n);
+  }
+  var cx = (box.x0 + box.x1) / 2, ry = box.y0 - 28 * upp;
+  add('rect', { 'class': 'xb', x: box.x0, y: box.y0, width: box.x1 - box.x0, height: box.y1 - box.y0 });
+  add('line', { 'class': 'xstem', x1: cx, y1: box.y0, x2: cx, y2: ry });
+  [['nw', box.x0, box.y0], ['ne', box.x1, box.y0], ['sw', box.x0, box.y1], ['se', box.x1, box.y1]].forEach(function (h) {
+    add('rect', { 'class': 'xh', 'data-h': h[0], x: h[1] - hs, y: h[2] - hs, width: hs * 2, height: hs * 2 });
+  });
+  add('circle', { 'class': 'xh', 'data-h': 'rot', cx: cx, cy: ry, r: hs * 1.2 });
+}
+/** @returns {Object[]} How each picked line looks now, so a drag is always worked out from where it began. */
+function skPickSnap() {
+  return SK.pick.map(function (s) { return { s: s, pts: s.pts.map(function (p) { return p.slice(); }), d: s.d, width: s.width }; });
+}
+/** Pressing on a corner (resize) or the round handle (turn). */
+function skXfDown(e) {
+  var h = e.target.dataset && e.target.dataset.h;
+  if (!h || !e.isPrimary || e.button > 0 || !SK.pick.length) return;
+  e.preventDefault(); e.stopPropagation();
+  skXf.setPointerCapture(e.pointerId);
+  var b = skPickBox();
+  var corner = { nw: [b.x0, b.y0], ne: [b.x1, b.y0], sw: [b.x0, b.y1], se: [b.x1, b.y1] }[h];
+  var anchor = { nw: [b.x1, b.y1], ne: [b.x0, b.y1], sw: [b.x1, b.y0], se: [b.x0, b.y0] }[h];
+  skDrawing = { xf: { kind: h === 'rot' ? 'rotate' : 'scale', corner: corner, anchor: anchor, centre: [(b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2], start: skPoint(e), snap: skPickSnap(), pushed: false } };
+}
+/** Pressing on the drawing with the transform tool: pick a line, start a box round some, or move what is picked. */
+function skSelDown(e, pt) {
+  var hit = skStrokeAt(pt), box = skPickBox();
+  var inBox = box && pt[0] >= box.x0 && pt[0] <= box.x1 && pt[1] >= box.y0 && pt[1] <= box.y1;
+  if (hit && e.shiftKey) {   // Shift adds a line to the pick, or takes it out
+    var at = SK.pick.indexOf(hit);
+    if (at === -1) SK.pick.push(hit); else SK.pick.splice(at, 1);
+    skXfRender();
+    return;
+  }
+  if (hit && SK.pick.indexOf(hit) === -1) SK.pick = [hit];
+  else if (!hit && !inBox) {
+    if (!e.shiftKey) SK.pick = [];
+    skXfRender();
+    var el = document.createElementNS(SVGNS, 'rect');
+    el.setAttribute('class', 'xr');
+    skXf.appendChild(el);
+    skDrawing = { band: { x: pt[0], y: pt[1], el: el, shift: e.shiftKey } };
+    return;
+  }
+  skDrawing = { xf: { kind: 'move', start: pt, snap: skPickSnap(), pushed: false } };
+  skXfRender();
+}
+/** The drag in progress: works out the move, resize or turn from where the pointer began. */
+function skXfMove(pt, e) {
+  var x = skDrawing.xf, op, v = SK_VIEW[SK.mode];
+  if (x.kind === 'move') {
+    op = { kind: 'move', dx: pt[0] - x.start[0], dy: pt[1] - x.start[1] };
+    if (!x.pushed && Math.hypot(op.dx, op.dy) < v.w * 0.003) return;   // a plain click does not count as a change
+  } else if (x.kind === 'scale') {
+    var ax = x.anchor[0], ay = x.anchor[1], cw = x.corner[0] - ax, ch = x.corner[1] - ay, sx, sy;
+    if (e.shiftKey) { sx = (pt[0] - ax) / (cw || 1e-6); sy = (pt[1] - ay) / (ch || 1e-6); }   // Shift: stretch each way on its own
+    else { var d2 = (cw * cw + ch * ch) || 1e-6; sx = sy = ((pt[0] - ax) * cw + (pt[1] - ay) * ch) / d2; }   // along the corner's diagonal, keeping the shape
+    op = { kind: 'scale', ax: ax, ay: ay, sx: Math.max(0.05, sx), sy: Math.max(0.05, sy) };
+  } else {
+    var c = x.centre, a = Math.atan2(pt[1] - c[1], pt[0] - c[0]) - Math.atan2(x.start[1] - c[1], x.start[0] - c[0]);
+    if (e.shiftKey) a = Math.round(a / (Math.PI / 12)) * (Math.PI / 12);   // Shift: in steps of 15 degrees
+    op = { kind: 'rotate', cx: c[0], cy: c[1], a: a };
+  }
+  if (!x.pushed) { x.pushed = true; skPushHistory(); }   // the undo step is how it looked before the first change
+  x.snap.forEach(function (o) {
+    var r = L.sketchXform({ pts: o.pts, d: o.d, width: o.width }, op);
+    o.s.pts = r.pts; o.s.width = r.width;
+    if (o.d) o.s.d = r.d;
+    skFillPaths.delete(o.s); skShapePaths.delete(o.s);
+  });
+  skRedraw();
+  skXfRender();
+}
+/** Lets go of a box drawn round lines: picks the ones it touches. */
+function skBandEnd(pt) {
+  var b = skDrawing.band, x0 = Math.min(b.x, pt[0]), x1 = Math.max(b.x, pt[0]), y0 = Math.min(b.y, pt[1]), y1 = Math.max(b.y, pt[1]);
+  SK.strokes[SK.mode].forEach(function (s) {
+    var q = skStrokeBox(s);
+    if (q.x0 <= x1 && q.x1 >= x0 && q.y0 <= y1 && q.y1 >= y0 && SK.pick.indexOf(s) === -1) SK.pick.push(s);
+  });
+}
+/** Removes the picked lines (Delete). */
+function skDeletePick() {
+  if (!SK.pick.length) return;
+  skPushHistory();
+  SK.strokes[SK.mode] = SK.strokes[SK.mode].filter(function (s) { return SK.pick.indexOf(s) === -1; });
+  SK.pick = [];
+  skRedraw(); skXfRender(); skSave();
+  skStatus.textContent = 'Removed. Undo brings it back.';
 }
 
 // ---------- the paint bucket ----------
@@ -789,11 +938,14 @@ function skSetTool(t) {
     if (SK.tool !== 'drop') SK.prevTool = SK.tool;
     skStatus.textContent = 'Click the pet, the background or your drawing to pick its colour. Esc cancels.';
   }
+  if (t !== 'select') SK.pick = [];
+  if (t === 'select') skStatus.textContent = 'Click a line, or drag a box round some. Corners resize, the round handle turns, drag the middle to move. Delete removes.';
   if (t === 'bucket') skStatus.textContent = 'Click inside an area your lines close in to fill it with the pen colour. Colour fills sit under your lines.';
   SK.tool = t;
   skPress($('skTools'), 'tool', t);
   skApplyLook();
   if (skSelBox) skRenderImages();
+  skXfRender();
 }
 function skOptions(select, list, value) {
   select.replaceChildren.apply(select, list.map(function (o) {
@@ -846,6 +998,7 @@ $('skModes').addEventListener('click', function (e) {
   var kind = { room: 'furniture', toy: 'toy', scene: 'background' }[SK.mode];
   if (kind) $('skKind').value = kind;
   skPress($('skModes'), 'mode', SK.mode);
+  SK.pick = [];
   var imgs = SK.images[SK.mode];
   SK.sel = imgs.length ? imgs[imgs.length - 1].id : null;
   skLayersUI();
@@ -878,6 +1031,7 @@ $('skFile').addEventListener('change', function () {
 $('skClear').addEventListener('click', function () {
   if (!SK.strokes[SK.mode].length) return;
   if (!window.confirm('Clear everything drawn on ' + SK.mode + '?')) return;
+  SK.pick = []; skXfRender();
   skPushHistory();
   SK.strokes[SK.mode] = [];
   skRedraw();
@@ -943,10 +1097,13 @@ document.addEventListener('keydown', function (e) {
   var k = e.key.toLowerCase();
   if (e.key === 'Escape' && SK.tool === 'drop') { skSetTool(SK.prevTool && SK.prevTool !== 'drop' ? SK.prevTool : 'pen'); skStatus.textContent = 'Cancelled.'; return; }
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); if (e.shiftKey) skRedo(); else skUndo(); return; }
+  if ((e.ctrlKey || e.metaKey) && k === 'a' && SK.tool === 'select') { e.preventDefault(); SK.pick = SK.strokes[SK.mode].slice(); skXfRender(); return; }
   if ((e.ctrlKey || e.metaKey) && k === 'y') { e.preventDefault(); skRedo(); return; }
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   if (k === 'x') { skSetMirror(!SK.mirror); return; }
-  var tool = { p: 'pen', f: 'blob', e: 'erase', h: 'hand', i: 'drop', m: 'imgmove', b: 'bucket' }[k];
+  if ((k === 'delete' || k === 'backspace') && SK.tool === 'select' && SK.pick.length) { e.preventDefault(); skDeletePick(); return; }
+  if (e.key === 'Escape' && SK.tool === 'select' && SK.pick.length) { SK.pick = []; skXfRender(); return; }
+  var tool = { p: 'pen', f: 'blob', e: 'erase', h: 'hand', i: 'drop', m: 'imgmove', b: 'bucket', s: 'select' }[k];
   if (tool) skSetTool(tool);
 });
 document.addEventListener('keyup', function (e) {
