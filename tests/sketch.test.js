@@ -116,3 +116,12 @@ test('transform tool: moving, resizing and turning leave the original alone and 
   assert.equal(L.sketchXform(fill, { kind: 'scale', ax: 0, ay: 0, sx: 2, sy: 3 }).d, 'M0 0L20 0L20 30Z');
   assert.equal(L.sketchXform(fill, { kind: 'move', dx: 1, dy: 1 }).d, 'M1 1L11 1L11 11Z');
 });
+
+test('lasso: a point is inside a loop only when the loop encloses it', () => {
+  const loop = [[0, 0], [10, 0], [10, 10], [0, 10]];
+  assert.equal(L.inPolygon(loop, [5, 5]), true);
+  assert.equal(L.inPolygon(loop, [15, 5]), false);
+  const notch = [[0, 0], [10, 0], [10, 10], [6, 10], [6, 4], [4, 4], [4, 10], [0, 10]];
+  assert.equal(L.inPolygon(notch, [5, 8]), false, 'the gap of a U shape is outside');
+  assert.equal(L.inPolygon(notch, [5, 2]), true);
+});

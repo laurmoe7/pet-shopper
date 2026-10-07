@@ -1468,6 +1468,16 @@
     return loops;
   }
 
+  /** @returns {boolean} Whether a point is inside a closed shape (the lasso), given as a list of [x, y] corners. */
+  function inPolygon(poly, pt) {
+    var inside = false, i, j;
+    for (i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      var a = poly[i], b = poly[j];
+      if ((a[1] > pt[1]) !== (b[1] > pt[1]) && pt[0] < (b[0] - a[0]) * (pt[1] - a[1]) / (b[1] - a[1]) + a[0]) inside = !inside;
+    }
+    return inside;
+  }
+
   /**
    * Moves, resizes or turns a drawn line (the transform tool). The original is not changed, so a drag can always be worked out from
    * how the line looked when it began.
@@ -1676,6 +1686,6 @@
     toggleDone: toggleDone,
     pickEmoji: pickEmoji,
     soundFor: soundFor,
-    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, traceLoops: traceLoops, simplifyLine: skSimplify
+    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, traceLoops: traceLoops, simplifyLine: skSimplify
   };
 })(typeof self !== 'undefined' ? self : globalThis);

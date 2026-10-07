@@ -254,7 +254,7 @@ function skApplyLook() {
   $('skRoomWrap').hidden = SK.mode !== 'room';
   $('skTemplateWrap').hidden = SK.mode !== 'pet';
   $('skTemplate').checked = !!P.template;
-  $('skRefLabel').textContent = SK.mode === 'toy' ? 'Show toy' : 'Show pet';
+  $('skRefLabel').textContent = SK.mode === 'toy' ? 'Toy' : 'Pet';
 }
 
 // ---------- drawing ----------
@@ -316,10 +316,10 @@ function skDown(e) {
   if (SK.tool === 'drop') { skPickInPage(e.clientX, e.clientY); return; }
   var pt = skPoint(e), v = SK_VIEW[SK.mode];
   if (SK.tool === 'bucket') { skBucket(pt); return; }
-  if (SK.tool === 'select') { skSelDown(e, pt); return; }
+  if (skIsSel()) { skSelDown(e, pt); return; }
   if (SK.tool === 'imgmove') {
     var img = skSelected();
-    if (!img) { skStatus.textContent = 'Add or pick an image layer first.'; return; }
+    if (!img) { skStatus.textContent = 'Add an image first (Ctrl+V pastes one).'; return; }
     skDrawing = { image: img, last: pt, moved: false };
     return;
   }
@@ -342,6 +342,13 @@ function skMove(e) {
   if (skPan) { skView.scrollLeft = skPan.left - (e.clientX - skPan.x); skView.scrollTop = skPan.top - (e.clientY - skPan.y); return; }
   if (!skDrawing || !e.isPrimary) return;
   if (skDrawing.xf) { skXfMove(pt, e); return; }
+  if (skDrawing.lasso) {
+    var lp = skDrawing.lasso.pts;
+    if (Math.hypot(pt[0] - lp[lp.length - 1][0], pt[1] - lp[lp.length - 1][1]) < v.w * 0.003) return;
+    lp.push(pt);
+    skDrawing.lasso.el.setAttribute('d', 'M' + lp.map(function (q) { return q[0].toFixed(1) + ' ' + q[1].toFixed(1); }).join('L') + 'Z');
+    return;
+  }
   if (skDrawing.band) {
     var bd = skDrawing.band;
     skDrawing.band.el.setAttribute('x', Math.min(bd.x, pt[0])); skDrawing.band.el.setAttribute('y', Math.min(bd.y, pt[1]));
@@ -366,6 +373,7 @@ function skUp() {
   skPan = null;
   if (skDrawing && skDrawing.image) { skDrawing = false; skSaveImages(); return; }
   if (skDrawing && skDrawing.xf) { skDrawing = false; skSave(); skXfRender(); return; }
+  if (skDrawing && skDrawing.lasso) { skLassoEnd(); skDrawing = false; skXfRender(); return; }
   if (skDrawing && skDrawing.band) { skBandEnd(skLastPt || [skDrawing.band.x, skDrawing.band.y]); skDrawing = false; skXfRender(); return; }
   if (!skDrawing) return;
   if (skDrawing.stroke) {
@@ -387,6 +395,7 @@ function skUp() {
 function skCancel() {
   if (skDrawing && skDrawing.el) skDrawing.el.remove();
   if (skDrawing && skDrawing.el2) skDrawing.el2.remove();
+  if (skDrawing && (skDrawing.lasso || skDrawing.band)) { (skDrawing.lasso || skDrawing.band).el.remove(); }
   skDrawing = false; skPan = null;
   skStage.classList.remove('panning');
 }
@@ -417,6 +426,8 @@ function skRedo() {
 
 // ---------- the transform tool: pick lines, then resize, turn or move them ----------
 var skShapePaths = new WeakMap(), skLastPt = null;
+/** @returns {boolean} Whether the Select or Lasso tool is on (they share the same box of handles). */
+function skIsSel() { return SK.tool === 'select' || SK.tool === 'lasso'; }
 /** @returns {{x0: number, y0: number, x1: number, y1: number}} The box round a stroke (its points and half its width). */
 function skStrokeBox(s) {
   var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity, w = (s.width || 0) / 2;
@@ -451,7 +462,7 @@ function skXfRender() {
   if (!skXf) return;
   skXf.replaceChildren();
   var box = skPickBox();
-  if (SK.tool !== 'select' || !box) return;
+  if (!skIsSel() || !box) return;
   var v = SK_VIEW[SK.mode], upp = v.w / (skStage.getBoundingClientRect().width || v.w), hs = 5.5 * upp;
   function add(tag, attrs) {
     var n = document.createElementNS(SVGNS, tag);
@@ -495,10 +506,10 @@ function skSelDown(e, pt) {
   else if (!hit && !inBox) {
     if (!e.shiftKey) SK.pick = [];
     skXfRender();
-    var el = document.createElementNS(SVGNS, 'rect');
+    var lasso = SK.tool === 'lasso', el = document.createElementNS(SVGNS, lasso ? 'path' : 'rect');
     el.setAttribute('class', 'xr');
     skXf.appendChild(el);
-    skDrawing = { band: { x: pt[0], y: pt[1], el: el, shift: e.shiftKey } };
+    skDrawing = lasso ? { lasso: { pts: [pt], el: el } } : { band: { x: pt[0], y: pt[1], el: el, shift: e.shiftKey } };
     return;
   }
   skDrawing = { xf: { kind: 'move', start: pt, snap: skPickSnap(), pushed: false } };
@@ -537,6 +548,21 @@ function skBandEnd(pt) {
     var q = skStrokeBox(s);
     if (q.x0 <= x1 && q.x1 >= x0 && q.y0 <= y1 && q.y1 >= y0 && SK.pick.indexOf(s) === -1) SK.pick.push(s);
   });
+}
+/** Lets go of a lasso: picks every line with a point inside the loop (points are checked along the line too, not just its corners). */
+function skLassoEnd() {
+  var poly = skDrawing.lasso.pts, step = SK_VIEW[SK.mode].w * 0.01;
+  if (poly.length < 3) return;
+  function inside(s) {
+    var b = skStrokeBox(s), c = [(b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2];
+    if (L.inPolygon(poly, c)) return true;
+    for (var i = 0; i < s.pts.length; i++) {
+      var p = s.pts[i], q = s.pts[i - 1] || p, n = Math.max(1, Math.ceil(Math.hypot(p[0] - q[0], p[1] - q[1]) / step));
+      for (var k = 1; k <= n; k++) if (L.inPolygon(poly, [q[0] + (p[0] - q[0]) * k / n, q[1] + (p[1] - q[1]) * k / n])) return true;
+    }
+    return false;
+  }
+  SK.strokes[SK.mode].forEach(function (s) { if (SK.pick.indexOf(s) === -1 && inside(s)) SK.pick.push(s); });
 }
 /** Removes the picked lines (Delete). */
 function skDeletePick() {
@@ -633,12 +659,12 @@ function skSaveFile() {
   a.download = f.name + '.svg';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
-  skStatus.textContent = 'Saved ' + f.name + '.svg to your Downloads.';
+  skStatus.textContent = 'Saved ' + f.name + '.svg.';
 }
 function skCopy() {
   if (skEmpty()) return;
   var text = skFiles().svg;
-  navigator.clipboard.writeText(text).then(function () { skStatus.textContent = 'Copied the SVG. Paste it in the chat.'; },
+  navigator.clipboard.writeText(text).then(function () { skStatus.textContent = 'Copied. Paste it in the chat.'; },
     function () { skStatus.textContent = 'Could not copy. Try Save SVG.'; });
 }
 
@@ -681,14 +707,14 @@ function ghEnsureBranch() {
 function skUpload() {
   if (skEmpty()) return;
   var g = ghSettings(), f = skFiles();
-  if (!g.token || !g.repo) { $('skSettings').open = true; skStatus.textContent = 'Connect to GitHub first (see below).'; return; }
+  if (!g.token || !g.repo) { $('skSettings').open = true; skStatus.textContent = 'Connect to GitHub first.'; return; }
   ghSaveSettings();
   skStatus.textContent = 'Uploading…';
   var content = btoa(unescape(encodeURIComponent(f.svg)));
   ghEnsureBranch().then(function () {
     return ghReq('PUT', '/repos/' + g.repo + '/contents/drawings/' + f.name + '.svg', { message: 'Drawing: ' + f.meta.kind + (f.meta.note ? ' - ' + f.meta.note.slice(0, 60) : ''), content: content, branch: g.branch });
   }).then(function () {
-    skStatus.textContent = 'Uploaded drawings/' + f.name + '.svg. Now tell me in the chat.';
+    skStatus.textContent = 'Uploaded drawings/' + f.name + '.svg. Tell me in the chat.';
   }).catch(function (e) {
     skStatus.textContent = 'Could not upload: ' + e.message + (e.status === 401 || e.status === 403 || e.status === 404 ? ' (check the token and that it can write to this repository).' : '') + ' You can still use Save SVG.';
   });
@@ -734,16 +760,16 @@ function skLayersUI() {
     row.className = 'skp-layer'; row.dataset.id = im.id; row.setAttribute('aria-selected', String(im.id === SK.sel));
     var thumb = document.createElement('img'); thumb.src = im.src; thumb.alt = '';
     var body = document.createElement('div'); body.className = 'skp-body';
-    body.innerHTML = '<div class="sk-row"><span class="skp-name"></span><button type="button" class="skp-x" data-act="del" title="Remove this image">Remove</button></div>' +
+    body.innerHTML = '<div class="sk-row"><span class="skp-name"></span><button type="button" class="skp-x" data-act="del" title="Remove this image">✕</button></div>' +
       '<div class="sk-row"><label><input type="checkbox" data-act="show"' + (im.visible ? ' checked' : '') + '> Show</label>' +
-      '<label><input type="checkbox" data-act="behind"' + (im.behind ? ' checked' : '') + '> Behind the pet</label></div>' +
+      '<label><input type="checkbox" data-act="behind"' + (im.behind ? ' checked' : '') + '> Behind</label></div>' +
       '<div class="skp-rng"><span>Turn</span><div class="skp-rot"><button type="button" data-act="rotl" title="Turn left 90°">↺</button><input type="range" min="-180" max="180" value="' + (im.rot || 0) + '" data-act="rot" aria-label="Rotate"><button type="button" data-act="rotr" title="Turn right 90°">↻</button></div>' +
       '<span>Opacity</span><input type="range" min="5" max="100" value="' + im.opacity + '" data-act="opacity" aria-label="Opacity">' +
       '<span>Size</span><input type="range" min="10" max="400" value="' + Math.round(im.scale * 100) + '" data-act="scale" aria-label="Size"></div>';
     body.querySelector('.skp-name').textContent = im.name;
     row.append(thumb, body);
     return row;
-  }) : [Object.assign(document.createElement('p'), { className: 'skp-hint', textContent: 'No images here yet.' })]);
+  }) : [Object.assign(document.createElement('p'), { className: 'skp-hint', textContent: 'Paste a picture with Ctrl+V, or drop one on the canvas.' })]);
 }
 function skSaveImages() {
   try {
@@ -774,7 +800,7 @@ function skAddImage(file) {
       SK.images[SK.mode].push(im);
       SK.sel = im.id;
       skRenderImages(); skLayersUI(); skSaveImages();
-      skStatus.textContent = 'Image added. Drag it with the Move image tool (M); the sliders change its opacity and size.';
+      skStatus.textContent = 'Image added. Move it with the Move image tool (M).';
     };
     img.onerror = function () { skStatus.textContent = 'That file could not be read as an image.'; };
     img.src = reader.result;
@@ -885,10 +911,10 @@ function skSampleAt(cx, cy) {
 }
 function skPickInPage(cx, cy) {
   skSampleAt(cx, cy).then(function (c) {
-    if (!c) { skStatus.textContent = 'Nothing to pick there. Try the pet, a background or your drawing.'; return; }
+    if (!c) { skStatus.textContent = 'Nothing to pick there.'; return; }
     skUseColour(c);
     skSetTool(SK.prevTool && SK.prevTool !== 'drop' ? SK.prevTool : 'pen');
-    skStatus.textContent = 'Picked ' + c + '. It is your pen colour now.';
+    skStatus.textContent = 'Picked ' + c + '.';
   });
 }
 
@@ -912,7 +938,7 @@ function skColourButtons() {
 function skUseColour(c) {
   SK.color = c;
   $('skCur').style.background = c;
-  $('skCurText').textContent = 'Pen colour ' + c;
+  $('skCur').title = 'Pen colour ' + c;
   $('skColours').querySelectorAll('.sk-swatch').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.c === c)); });
   var pick = $('skPick');
   if (pick && /^#[0-9a-f]{6}$/i.test(c)) pick.value = c;
@@ -921,13 +947,13 @@ function skUseColour(c) {
 /** The eyedropper tool: pick a colour from anywhere on the screen (Chrome and Edge on a computer). */
 function skEyedrop() {
   if (!window.EyeDropper) { skStatus.textContent = 'The eyedropper needs Chrome or Edge on a computer.'; return; }
-  skStatus.textContent = 'Click anywhere on the screen to pick a colour. Esc cancels.';
+  skStatus.textContent = 'Click anywhere on screen. Esc cancels.';
   var open;
   try { open = new window.EyeDropper().open(); } catch (e) { skStatus.textContent = 'The eyedropper could not start: ' + e.message; return; }
   open.then(function (r) {
     skUseColour(r.sRGBHex);
     if (SK.tool === 'erase' || SK.tool === 'hand' || SK.tool === 'imgmove') skSetTool('pen');
-    skStatus.textContent = 'Picked ' + r.sRGBHex + '. It is your pen colour now.';
+    skStatus.textContent = 'Picked ' + r.sRGBHex + '.';
   }).catch(function (e) {
     skStatus.textContent = e && e.name === 'AbortError' ? 'Eyedropper cancelled.' : 'The eyedropper did not work: ' + (e && (e.message || e.name) || 'unknown error') + '. Use the colour box or a swatch instead.';
   });
@@ -936,11 +962,12 @@ function skSetTool(t) {
   if (t === 'drop' && window.EyeDropper) { skEyedrop(); return; }   // the browser's own: picks once from anywhere on the screen
   if (t === 'drop') {   // no screen eyedropper (Firefox): click on the picture instead, then carry on with the tool you had
     if (SK.tool !== 'drop') SK.prevTool = SK.tool;
-    skStatus.textContent = 'Click the pet, the background or your drawing to pick its colour. Esc cancels.';
+    skStatus.textContent = 'Click the picture to pick a colour. Esc cancels.';
   }
-  if (t !== 'select') SK.pick = [];
-  if (t === 'select') skStatus.textContent = 'Click a line, or drag a box round some. Corners resize, the round handle turns, drag the middle to move. Delete removes.';
-  if (t === 'bucket') skStatus.textContent = 'Click inside an area your lines close in to fill it with the pen colour. Colour fills sit under your lines.';
+  if (t !== 'select' && t !== 'lasso') SK.pick = [];
+  if (t === 'select') skStatus.textContent = 'Click a line or drag a box over some. Shift adds. Corners resize, the round handle turns, the middle moves.';
+  if (t === 'lasso') skStatus.textContent = 'Draw a loop round what you want. Shift adds. Then resize, turn or move it.';
+  if (t === 'bucket') skStatus.textContent = 'Click inside a closed area to fill it with the pen colour.';
   SK.tool = t;
   skPress($('skTools'), 'tool', t);
   skApplyLook();
@@ -1097,13 +1124,13 @@ document.addEventListener('keydown', function (e) {
   var k = e.key.toLowerCase();
   if (e.key === 'Escape' && SK.tool === 'drop') { skSetTool(SK.prevTool && SK.prevTool !== 'drop' ? SK.prevTool : 'pen'); skStatus.textContent = 'Cancelled.'; return; }
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); if (e.shiftKey) skRedo(); else skUndo(); return; }
-  if ((e.ctrlKey || e.metaKey) && k === 'a' && SK.tool === 'select') { e.preventDefault(); SK.pick = SK.strokes[SK.mode].slice(); skXfRender(); return; }
+  if ((e.ctrlKey || e.metaKey) && k === 'a' && skIsSel()) { e.preventDefault(); SK.pick = SK.strokes[SK.mode].slice(); skXfRender(); return; }
   if ((e.ctrlKey || e.metaKey) && k === 'y') { e.preventDefault(); skRedo(); return; }
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   if (k === 'x') { skSetMirror(!SK.mirror); return; }
-  if ((k === 'delete' || k === 'backspace') && SK.tool === 'select' && SK.pick.length) { e.preventDefault(); skDeletePick(); return; }
-  if (e.key === 'Escape' && SK.tool === 'select' && SK.pick.length) { SK.pick = []; skXfRender(); return; }
-  var tool = { p: 'pen', f: 'blob', e: 'erase', h: 'hand', i: 'drop', m: 'imgmove', b: 'bucket', s: 'select' }[k];
+  if ((k === 'delete' || k === 'backspace') && skIsSel() && SK.pick.length) { e.preventDefault(); skDeletePick(); return; }
+  if (e.key === 'Escape' && skIsSel() && SK.pick.length) { SK.pick = []; skXfRender(); return; }
+  var tool = { p: 'pen', f: 'blob', e: 'erase', h: 'hand', i: 'drop', m: 'imgmove', b: 'bucket', s: 'select', l: 'lasso' }[k];
   if (tool) skSetTool(tool);
 });
 document.addEventListener('keyup', function (e) {
@@ -1116,7 +1143,7 @@ document.addEventListener('keyup', function (e) {
 function skSetMirror(on) {
   SK.mirror = on;
   $('skMirror').setAttribute('aria-pressed', String(on));
-  skStatus.textContent = on ? 'Mirror on: what you draw appears on the other side too, folded along the line in the middle.' : 'Mirror off.';
+  skStatus.textContent = on ? 'Mirror on: drawing is copied to the other side.' : 'Mirror off.';
   skSave();
   skBuild();
 }
@@ -1166,11 +1193,11 @@ skLoadImages();
 { var im0 = SK.images[SK.mode]; SK.sel = im0.length ? im0[im0.length - 1].id : null; }
 skLayersUI();
 skBuildPanels();
-skStatus.textContent = 'Loading the pet…';
+skStatus.textContent = 'Loading…';
 skLoadSource().then(function () {
-  skStatus.textContent = SK_OWNER ? 'Draw on the picture, then press Upload to Claude.' : 'Draw on the picture, then press Save SVG to keep your drawing.';
+  skStatus.textContent = SK_OWNER ? 'Draw, then Upload to Claude.' : 'Draw, then Save SVG.';
   skBuild();
 }).catch(function (e) {
-  skStatus.textContent = 'Could not load the pet from index.html (' + e.message + '). This page has to be opened from the website, not as a file.';
+  skStatus.textContent = 'Could not load the pet (' + e.message + '). Open this page from the website, not as a file.';
 });
 ghLoadSettings();
