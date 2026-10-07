@@ -80,6 +80,8 @@ function recipeSearch(found) {
   if (on) pet.dataset.prop = 'glass'; else if (pet.dataset.prop === 'glass') delete pet.dataset.prop;
   if (on && !found && !busy) setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: [] });
 }
+// if he gets tucked in or falls asleep while the sheet is open, the glass goes away and the arm relaxes
+setInterval(function () { if (pet.classList.contains('searching') && (pet.classList.contains('tucked') || baseState() === 'sleepy')) recipeSearch(); }, 400);
 recipeSheet.addEventListener('close', function () { recipeSearch(); if (!busy) settle(); });
 
 /** Shows the input (a new recipe) or the ingredients found. @param {boolean} results */

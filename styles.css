@@ -2674,8 +2674,8 @@ html[data-list="todo"] .recipe-btn { display: none; }
 .photo-btn[hidden] { display: none; }
 
 /* the recipe helper is open: Nibble searches with the magnifying glass (app-recipe.js), sweeping it and his eyes about */
-#pet.searching:not([data-state="sleepy"]) .arm-r { transform: rotate(0deg); translate: -15px -16px; animation: search-sweep 2.6s ease-in-out infinite alternate; }
-#pet.searching:not([data-state="sleepy"]) .pupils { animation: search-look 2.6s ease-in-out infinite alternate; }
+#pet.searching:not([data-state="sleepy"], .tucked) .arm-r { transform: rotate(0deg); translate: -15px -16px; animation: search-sweep 2.6s ease-in-out infinite alternate; }
+#pet.searching:not([data-state="sleepy"], .tucked) .pupils { animation: search-look 2.6s ease-in-out infinite alternate; }
 #pet.searching.inspecting:not(.mg-aha) .magnifier .mg-eye { animation: mg-look 2.6s ease-in-out infinite alternate; }
 @keyframes search-sweep { from { translate: -17px -15.5px; } to { translate: -11px -16.5px; } }
 @keyframes search-look { from { translate: -3.6px .4px; } to { translate: 3px .8px; } }

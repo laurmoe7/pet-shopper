@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 236 (11 Oct)
+- His arm relaxes when the glass goes away at bedtime.
+
 ## Build 235 (11 Oct)
 - Photoshoot: twist with two fingers (or use the Turn buttons) to rotate the pet; drag and pinch work in every background.
 - Photoshoot: the dressing room underneath stays quiet.
