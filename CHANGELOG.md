@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 245 (11 Oct)
+- New birdie skin: thrush.
+
 ## Build 244 (11 Oct)
 - Cat friend: thinner outline.
 
