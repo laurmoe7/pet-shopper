@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 244 (11 Oct)
+- Drop-down menus fade at the bottom when they scroll.
+
 ## Build 243 (11 Oct)
 - New hat: cat friend.
 - New clothes: overalls dress.
