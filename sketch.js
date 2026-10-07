@@ -18,7 +18,7 @@ var SLOTS = [['hat', 'Hat'], ['body', 'Clothes'], ['face', 'Glasses'], ['mouth',
 /** What the pet underneath looks like (kept on this computer). */
 var P = { species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, backdrop: 'meadow', night: false, room: {} };
 var SK = {
-  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, clip: [], pasteN: 0, tidy: 6, space: false, sel: null, mirror: false, pick: [],
+  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, style: 'solid', shape: 'heart', shapeFill: false, clip: [], pasteN: 0, tidy: 6, space: false, sel: null, mirror: false, pick: [],
   strokes: { pet: [], scene: [], toy: [], room: [] }, hist: { pet: [], scene: [], toy: [], room: [] }, redo: { pet: [], scene: [], toy: [], room: [] },
   /** Pictures to trace, one layer each, in the same coordinates as the drawing: {id, name, src, cx, cy, bw, bh, scale, opacity, visible, behind} */
   images: { pet: [], scene: [], toy: [], room: [] },
@@ -80,7 +80,7 @@ function dressUp(el, outfit) {
 // ---------- keeping the work on this computer ----------
 function skSave() {
   try {
-    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, layers: SK.layers, active: SK.active, snap: $('skSnap').checked, mirror: SK.mirror }));
+    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, style: SK.style, shape: SK.shape, shapeFill: SK.shapeFill, layers: SK.layers, active: SK.active, snap: $('skSnap').checked, mirror: SK.mirror }));
   } catch (e) { /* storage not available */ }
 }
 function skLoad() {
@@ -98,6 +98,9 @@ function skLoad() {
     $('skNote').value = d.note || '';
     if (typeof d.tidy === 'number') SK.tidy = d.tidy;
     if (d.pen >= 1 && d.pen <= 40) SK.pen = d.pen;
+    if (L.SKETCH_STYLES[d.style] !== undefined || d.style === 'wavy') SK.style = d.style;
+    if (L.SKETCH_SHAPES.some(function (x) { return x[0] === d.shape; })) SK.shape = d.shape;
+    SK.shapeFill = !!d.shapeFill;
     ['pet', 'scene', 'toy', 'room'].forEach(function (m) {
       if (d.layers && Array.isArray(d.layers[m])) SK.layers[m] = d.layers[m].filter(function (l) { return l && l.id; }).map(function (l) { return { id: String(l.id), name: String(l.name || 'Layer').slice(0, 24), show: l.show !== false }; });
       if (d.active && d.active[m]) SK.active[m] = d.active[m];
@@ -228,7 +231,9 @@ function skEl(s) {
   el.setAttribute('stroke', s.color);
   el.setAttribute('stroke-width', s.width);
   el.setAttribute('fill', s.fill ? s.color : 'none');
-  el.setAttribute('stroke-linecap', 'round');
+  var dd = L.sketchDash(s.style, s.width);
+  if (dd.array) el.setAttribute('stroke-dasharray', dd.array);
+  el.setAttribute('stroke-linecap', dd.cap);
   el.setAttribute('stroke-linejoin', 'round');
   return el;
 }
@@ -443,6 +448,7 @@ function skDown(e) {
   if (SK.tool === 'bucket') { skBucket(pt); return; }
   if (skIsSel()) { skSelDown(e, pt); return; }
   if (SK.tool === 'curve') { skCurveDown(e, pt); return; }
+  if (SK.tool === 'shape') { skShapeDown(pt); return; }
   if (SK.tool === 'imgmove') {
     var img = skSelected();
     if (!img) { skStatus.textContent = 'Add an image first (Ctrl+V pastes one).'; return; }
@@ -452,7 +458,7 @@ function skDown(e) {
   if (SK.tool === 'erase') { skDrawing = { erased: false }; skEraseAt(pt); return; }
   var act = skLays().filter(function (x) { return x.id === SK.active[SK.mode]; })[0];
   if (act && !act.show) { act.show = true; skLinesUI(); skRedraw(); }   // drawing on a hidden layer shows it, so the line is not invisible
-  var s = { pts: [pt], color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: SK.tool === 'blob', lay: SK.active[SK.mode] };
+  var s = { pts: [pt], color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: SK.tool === 'blob', lay: SK.active[SK.mode], style: SK.style };
   skDrawing = { stroke: s, el: skEl(s) };
   skDraw.appendChild(skDrawing.el);
   if (SK.mirror) { skDrawing.el2 = skEl(skMirrored(s)); skDraw.appendChild(skDrawing.el2); }
@@ -477,6 +483,7 @@ function skMove(e) {
   if (!skDrawing || !e.isPrimary) return;
   if (skDrawing.curve) { skCurveDrag(pt); return; }
   if (skDrawing.curveEdit) { skCurveEditDrag(pt); return; }
+  if (skDrawing.shape) { skShapeDrag(pt, e.shiftKey); return; }
   if (skDrawing.xf) { skXfMove(pt, e); return; }
   if (skDrawing.lasso) {
     var lp = skDrawing.lasso.pts;
@@ -508,6 +515,7 @@ function skUp() {
   if (skPan) skStage.classList.remove('panning');
   skPan = null;
   if (skDrawing && skDrawing.image) { skDrawing = false; skSaveImages(); return; }
+  if (skDrawing && skDrawing.shape) { skShapeEnd(); return; }
   if (skDrawing && skDrawing.curve) { skDrawing = false; skCurveRender(skLastPt); return; }
   if (skDrawing && skDrawing.curveEdit) { skDrawing = false; skSave(); skCurveRender(null); return; }
   if (skDrawing && skDrawing.xf) { skDrawing = false; skSave(); skXfRender(); return; }
@@ -518,6 +526,7 @@ function skUp() {
     var s = skDrawing.stroke, t = L.tidyStroke(s.pts, SK_VIEW[SK.mode].w, { passes: SK.tidy, snap: $('skSnap').checked });
     s.pts = t.pts;
     if (t.closed) s.closed = true;
+    if (s.style === 'wavy' && !s.fill) s.pts = skWavy(s.pts, s.width);
     skPushHistory();
     SK.strokes[SK.mode].push(s);
     if (skDrawing.el2) SK.strokes[SK.mode].push(skMirrored(s));   // the other side is the same line folded over, so the two always match exactly
@@ -559,6 +568,46 @@ function skRedo() {
   skSave();
 }
 
+// ---------- special lines and shapes ----------
+/** @returns {number[][]} The points of a wavy version of a line (the wave grows with the line's thickness). */
+function skWavy(pts, width) {
+  var v = SK_VIEW[SK.mode];
+  return L.sketchWave(pts, Math.max(width * 1.2, v.w * 0.005), Math.max(width * 6, v.w * 0.028));
+}
+/** Pressing with the shape tool: the shape grows from this corner as you drag. */
+function skShapeDown(pt) {
+  var el = document.createElementNS(SVGNS, 'path'), v = SK_VIEW[SK.mode];
+  el.setAttribute('fill', SK.shapeFill ? SK.color : 'none'); el.setAttribute('stroke', SK.color); el.setAttribute('stroke-width', v.w * SK_PEN * SK.pen);
+  el.setAttribute('stroke-linejoin', 'round'); el.setAttribute('stroke-linecap', 'round'); el.setAttribute('opacity', '.8');
+  skDraw.appendChild(el);
+  skDrawing = { shape: { a: pt, el: el, pts: null } };
+}
+/** @returns {number[][]} The shape stretched to the box from the press to the pointer (Shift: an even box). */
+function skShapeBox(a, pt, even) {
+  var dx = pt[0] - a[0], dy = pt[1] - a[1];
+  if (even) { var m = Math.max(Math.abs(dx), Math.abs(dy)); dx = (dx < 0 ? -m : m); dy = (dy < 0 ? -m : m); }
+  var x0 = Math.min(a[0], a[0] + dx), y0 = Math.min(a[1], a[1] + dy), w = Math.abs(dx), h = Math.abs(dy);
+  return L.sketchShape(SK.shape).map(function (p) { return [+(x0 + p[0] * w).toFixed(2), +(y0 + p[1] * h).toFixed(2)]; });
+}
+function skShapeDrag(pt, even) {
+  var d = skDrawing.shape;
+  d.pts = skShapeBox(d.a, pt, even);
+  d.el.setAttribute('d', L.sketchPath(d.pts, true, 2));
+}
+function skShapeEnd() {
+  var d = skDrawing.shape, v = SK_VIEW[SK.mode];
+  skDrawing = false; d.el.remove();
+  var xs = (d.pts || []).map(function (p) { return p[0]; }), ys = (d.pts || []).map(function (p) { return p[1]; });
+  if (!d.pts || Math.max.apply(null, xs) - Math.min.apply(null, xs) < v.w * 0.01 || Math.max.apply(null, ys) - Math.min.apply(null, ys) < v.w * 0.01) { skRedraw(); return; }   // a plain click draws nothing
+  var s = { pts: d.pts, color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: SK.shapeFill, closed: true, lay: SK.active[SK.mode], style: SK.style === 'wavy' ? 'solid' : SK.style };
+  var act = skLays().filter(function (x) { return x.id === SK.active[SK.mode]; })[0];
+  if (act && !act.show) { act.show = true; skLinesUI(); }
+  skPushHistory();
+  SK.strokes[SK.mode].push(s);
+  if (SK.mirror) SK.strokes[SK.mode].push(skMirrored(s));
+  skRedraw(); skSave();
+}
+
 // ---------- the curve tool: place points, drag to bend, and the line follows them smoothly ----------
 // A curve is kept as its points (`cv`: anchors {p, o, i?} where `o` is the handle going on and `i` the one coming in, which is the
 // mirror of `o` unless it is given) beside the ordinary line (`pts`) that is drawn from them. Click a curve with the Curve tool to
@@ -584,6 +633,7 @@ function skCurvePts(anchors, closed, step) {
 function skCurveRebuild(s, noTwin) {
   var v = SK_VIEW[SK.mode];
   s.pts = L.simplifyLine(skCurvePts(s.cv.a, s.cv.closed, v.w * 0.004), v.w * 0.0008);
+  if (s.style === 'wavy') s.pts = skWavy(s.pts, s.width);
   skFillPaths.delete(s); skShapePaths.delete(s);
   if (SK.mirror && s.pair && !noTwin) {   // with Mirror on, the other half of a mirrored curve follows
     var twin = SK.strokes[SK.mode].filter(function (t) { return t !== s && t.pair === s.pair && t.cv; })[0];
@@ -738,7 +788,7 @@ function skCurveFinish(close) {
   skCurve = null; skDrawing = false;
   skCurveRender(null);
   if (!c || c.pts.length < 2) return;
-  var s = { pts: [], color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: false, lay: SK.active[SK.mode], cv: { closed: !!close, a: c.pts.map(function (a) { return { p: a.p.slice(), o: a.o.slice() }; }) } };
+  var s = { pts: [], color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: false, lay: SK.active[SK.mode], style: SK.style, cv: { closed: !!close, a: c.pts.map(function (a) { return { p: a.p.slice(), o: a.o.slice() }; }) } };
   if (close) s.closed = true;
   skCurveRebuild(s);
   var act = skLays().filter(function (x) { return x.id === SK.active[SK.mode]; })[0];
@@ -1420,6 +1470,7 @@ function skSetTool(t) {
   if (t !== 'select' && t !== 'lasso') SK.pick = [];
   if (t === 'select') skStatus.textContent = 'Click a line or drag a box over some. Shift adds. Corners resize, the round handle turns, the middle moves.';
   if (t === 'curve') skStatus.textContent = 'Click to place points, drag to bend. Double-click or Enter finishes, the first point closes, Esc cancels.';
+  if (t === 'shape') skStatus.textContent = 'Drag to draw the shape. Shift keeps it even. Pick the shape in the list; Fill colours it in.';
   if (t === 'lasso') skStatus.textContent = 'Draw a loop round what you want. Shift adds. Then resize, turn or move it.';
   if (t === 'bucket') skStatus.textContent = 'Click inside a closed area to fill it with the pen colour.';
   SK.tool = t;
@@ -1464,6 +1515,9 @@ function skBuildPanels() {
     cb.addEventListener('change', function () { P.room[d.id] = cb.checked; skSave(); skBuild(); });
     return lab;
   }));
+  var sh = $('skShape');
+  sh.replaceChildren.apply(sh, L.SKETCH_SHAPES.map(function (x) { var o = document.createElement('option'); o.value = x[0]; o.textContent = x[1]; return o; }));
+  sh.value = SK.shape; $('skStyle').value = SK.style; $('skShapeFill').checked = SK.shapeFill;
   skPress($('skTidy'), 'tidy', SK.tidy);
   $('skMirror').setAttribute('aria-pressed', String(SK.mirror));
 }
@@ -1550,6 +1604,18 @@ $('skTidy').addEventListener('click', function (e) {
   skSave();
 });
 $('skSnap').addEventListener('change', skSave);
+$('skShape').addEventListener('change', function () { SK.shape = $('skShape').value; skSave(); skSetTool('shape'); });
+$('skShapeFill').addEventListener('change', function () { SK.shapeFill = $('skShapeFill').checked; skSave(); });
+$('skStyle').addEventListener('change', function () {
+  SK.style = $('skStyle').value; skSave();
+  var picked = SK.pick.filter(function (s) { return !s.bucket; });
+  if (skIsSel() && picked.length) {   // lines that are picked change too (a wave can only be given while drawing)
+    if (SK.style === 'wavy') { skStatus.textContent = 'Wavy is added while you draw, so it cannot change lines you already drew.'; return; }
+    skPushHistory();
+    picked.forEach(function (s) { s.style = SK.style; });
+    skRedraw(); skXfRender(); skSave();
+  }
+});
 ['skGrid', 'skRef', 'skGhost'].forEach(function (id) { $(id).addEventListener('input', skApplyLook); });
 $('skSpecies').addEventListener('change', function () { P.species = $('skSpecies').value; P.skin = ''; skSkins(); skSave(); skBuild(); });
 $('skSkin').addEventListener('change', function () { P.skin = $('skSkin').value; skSave(); skBuild(); });
@@ -1600,7 +1666,7 @@ document.addEventListener('keydown', function (e) {
   if (k === 'x') { skSetMirror(!SK.mirror); return; }
   if ((k === 'delete' || k === 'backspace') && skIsSel() && SK.pick.length) { e.preventDefault(); skDeletePick(); return; }
   if (e.key === 'Escape' && skIsSel() && SK.pick.length) { SK.pick = []; skXfRender(); return; }
-  var tool = { p: 'pen', f: 'blob', e: 'erase', h: 'hand', i: 'drop', m: 'imgmove', b: 'bucket', s: 'select', l: 'lasso', c: 'curve' }[k];
+  var tool = { p: 'pen', f: 'blob', e: 'erase', h: 'hand', i: 'drop', m: 'imgmove', b: 'bucket', s: 'select', l: 'lasso', c: 'curve', g: 'shape' }[k];
   if (tool) skSetTool(tool);
 });
 document.addEventListener('keyup', function (e) {

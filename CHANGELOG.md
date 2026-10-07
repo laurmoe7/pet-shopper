@@ -42,6 +42,8 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 - Sketchpad: layer names can be typed, eye icons, pig mascot, slower fireflies.
 - Sketchpad: curve tool; click a curve to drag its points and handles.
 - Sketchpad: curves mirror while drawing and when tweaked.
+- Sketchpad: dotted, dashed, stitched and wavy lines.
+- Sketchpad: shape tool with hearts, stars, clouds and more.
 - Sketchpad: double-tap a layer to rename it.
 - Sketchpad: the eraser only works on ticked layers.
 - Sketchpad: Select works only on ticked layers; messages moved to the top; outlined sliders.

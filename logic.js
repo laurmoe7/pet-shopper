@@ -1396,7 +1396,7 @@
     strokes.forEach(function (s) {
       // a paint-bucket fill carries its own outline (`d`, with holes)
       var d = s.d || sketchPath(s.pts, (s.fill || s.closed) && s.pts.length > 2, dp);
-      out.push('<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + esc(s.color) + '"' : '') + (s.d ? ' fill-rule="evenodd"' : '') + (s.layer ? ' data-layer="' + esc(s.layer) + '"' : '') + '/>');
+      out.push('<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + esc(s.color) + '"' : '') + (sketchDash(s.style, s.width).array ? ' stroke-dasharray="' + sketchDash(s.style, s.width).array + '"' + (sketchDash(s.style, s.width).cap === 'butt' ? ' stroke-linecap="butt"' : '') : '') + (s.d ? ' fill-rule="evenodd"' : '') + (s.layer ? ' data-layer="' + esc(s.layer) + '"' : '') + '/>');
     });
     out.push('</svg>');
     return out.join('\n');
@@ -1468,6 +1468,118 @@
     return loops;
   }
 
+  /** The special line styles of the sketchpad: dash and gap lengths in line widths (a dot is a very short dash with round ends). */
+  var SKETCH_STYLES = {
+    solid: null, dotted: [0.01, 2.2], dashed: [3, 2.2], long: [6, 3], dashdot: [4, 2, 0.01, 2], stitch: [1.6, 1.6]
+  };
+  /** @returns {{array: ?string, cap: string}} The stroke-dasharray (null for a solid line) and the line end to draw a style with. */
+  function sketchDash(style, width) {
+    var d = SKETCH_STYLES[style];
+    if (!d) return { array: null, cap: 'round' };
+    return { array: d.map(function (n) { return Math.max(0.01, +(n * width).toFixed(3)); }).join(' '), cap: style === 'stitch' ? 'butt' : 'round' };
+  }
+  /**
+   * Turns a line into a wavy one: the points are spread evenly along it and pushed sideways in a sine wave.
+   * @param {number[][]} pts
+   * @param {number} amp  How far the wave swings to each side.
+   * @param {number} len  Wavelength.
+   * @returns {number[][]}
+   */
+  function sketchWave(pts, amp, len) {
+    if (pts.length < 2) return pts.slice();
+    var rs = skResample(pts, len / 10), out = [], s = 0, i;
+    for (i = 0; i < rs.length; i++) {
+      var a = rs[Math.max(0, i - 1)], b = rs[Math.min(rs.length - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy) || 1;
+      if (i) s += Math.hypot(rs[i][0] - rs[i - 1][0], rs[i][1] - rs[i - 1][1]);
+      var k = Math.sin(2 * Math.PI * s / len) * amp * Math.min(1, s / (len / 2), Math.max(0, (rs.length - 1 - i) * len / 10) / (len / 2));   // eases in and out so the ends stay on the line
+      out.push([+(rs[i][0] - dy / d * k).toFixed(2), +(rs[i][1] + dx / d * k).toFixed(2)]);
+    }
+    return out;
+  }
+  /** @returns {number[][]} A polygon with its corners rounded (each corner is cut `r` back along both edges and joined with a curve). */
+  function skRoundPoly(poly, r, steps) {
+    var out = [], n = poly.length, i, k;
+    for (i = 0; i < n; i++) {
+      var p = poly[i], a = poly[(i + n - 1) % n], b = poly[(i + 1) % n];
+      var la = Math.hypot(a[0] - p[0], a[1] - p[1]), lb = Math.hypot(b[0] - p[0], b[1] - p[1]), ra = Math.min(r, la / 2) / la, rb = Math.min(r, lb / 2) / lb;
+      var s = [p[0] + (a[0] - p[0]) * ra, p[1] + (a[1] - p[1]) * ra], e = [p[0] + (b[0] - p[0]) * rb, p[1] + (b[1] - p[1]) * rb];
+      for (k = 0; k <= steps; k++) {   // a curve from s to e that bends towards the corner
+        var t = k / steps, u = 1 - t;
+        out.push([u * u * s[0] + 2 * u * t * p[0] + t * t * e[0], u * u * s[1] + 2 * u * t * p[1] + t * t * e[1]]);
+      }
+    }
+    return out;
+  }
+  /** @returns {number[][]} A line along the polygon with a point every `step`, so sharp corners stay sharp when the line is smoothed. */
+  function skDense(poly, step) {
+    var out = [], n = poly.length, i, k;
+    for (i = 0; i < n; i++) {
+      var a = poly[i], b = poly[(i + 1) % n], m = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / step));
+      for (k = 0; k < m; k++) out.push([a[0] + (b[0] - a[0]) * k / m, a[1] + (b[1] - a[1]) * k / m]);
+    }
+    return out;
+  }
+  /** @returns {number[][]} Points scaled to fill the box 0..1 in both directions. */
+  function skFit(pts) {
+    var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    pts.forEach(function (p) { x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]); });
+    return pts.map(function (p) { return [(p[0] - x0) / ((x1 - x0) || 1), (p[1] - y0) / ((y1 - y0) || 1)]; });
+  }
+  var SKETCH_SHAPES = [['circle', 'Circle'], ['square', 'Square'], ['triangle', 'Triangle'], ['diamond', 'Diamond'], ['hexagon', 'Hexagon'], ['heart', 'Heart'], ['star', 'Star'], ['sparkle', 'Sparkle'], ['cloud', 'Cloud'], ['flower', 'Flower'], ['moon', 'Moon'], ['drop', 'Drop']];
+  /**
+   * The outline of a common cute shape, as points filling the box 0..1 x 0..1 (to be stretched to wherever it is drawn).
+   * @param {string} id  One of SKETCH_SHAPES.
+   * @returns {number[][]}
+   */
+  function sketchShape(id) {
+    var i, pts = [], T = Math.PI * 2;
+    function polar(n, f) { var o = []; for (i = 0; i < n; i++) { var a = T * i / n - Math.PI / 2, r = f(a, i); o.push([0.5 + Math.cos(a) * r, 0.5 + Math.sin(a) * r]); } return o; }
+    if (id === 'circle') return polar(48, function () { return 0.5; });
+    if (id === 'square') return skFit(skRoundPoly([[0, 0], [1, 0], [1, 1], [0, 1]], 0.22, 8));
+    if (id === 'triangle') return skFit(skRoundPoly([[0.5, 0.02], [1, 0.95], [0, 0.95]], 0.14, 10));
+    if (id === 'diamond') return skFit(skRoundPoly([[0.5, 0], [1, 0.5], [0.5, 1], [0, 0.5]], 0.14, 8));
+    if (id === 'hexagon') return skFit(skRoundPoly(polar(6, function () { return 0.5; }), 0.14, 6));
+    if (id === 'heart') {
+      for (i = 0; i < 64; i++) { var t = T * i / 64; pts.push([16 * Math.pow(Math.sin(t), 3), -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t))]); }
+      return skFit(pts);
+    }
+    if (id === 'star') return skFit(skRoundPoly(polar(10, function (a, k) { return k % 2 ? 0.24 : 0.5; }), 0.07, 5));
+    if (id === 'sparkle') return skFit(skRoundPoly(polar(8, function (a, k) { return k % 2 ? 0.13 : 0.5; }), 0.09, 5));
+    if (id === 'flower') return skFit(polar(80, function (a) { return 0.7 + 0.3 * Math.cos(5 * (a + Math.PI / 2)); }));
+    if (id === 'cloud') {   // a few round bumps: for each direction, the farthest edge of any of them
+      var cs = [[0.27, 0.62, 0.2], [0.5, 0.42, 0.28], [0.74, 0.56, 0.22], [0.5, 0.66, 0.22]], cx = 0.5, cy = 0.58, o = [];
+      for (i = 0; i < 90; i++) {
+        var a2 = T * i / 90, dx = Math.cos(a2), dy = Math.sin(a2), far = 0;
+        cs.forEach(function (c) {
+          var fx = cx - c[0], fy = cy - c[1], b = fx * dx + fy * dy, d = b * b - (fx * fx + fy * fy - c[2] * c[2]);
+          if (d >= 0) far = Math.max(far, -b + Math.sqrt(d));
+        });
+        o.push([cx + dx * far, Math.min(0.84, cy + dy * far)]);   // the bottom is flat
+      }
+      return skFit(o);
+    }
+    if (id === 'moon') {
+      var outer = [], inner = [], oc = [0.5, 0.5, 0.5], ic = [0.74, 0.42, 0.4];
+      for (i = 0; i < 120; i++) {
+        var a3 = T * i / 120, op = [oc[0] + Math.cos(a3) * oc[2], oc[1] + Math.sin(a3) * oc[2]], ip = [ic[0] + Math.cos(a3) * ic[2], ic[1] + Math.sin(a3) * ic[2]];
+        if (Math.hypot(op[0] - ic[0], op[1] - ic[1]) > ic[2]) outer.push(op);
+        if (Math.hypot(ip[0] - oc[0], ip[1] - oc[1]) < oc[2]) inner.push(ip);
+      }
+      var cut = outer.findIndex(function (p, k) { return Math.hypot(p[0] - outer[(k + 1) % outer.length][0], p[1] - outer[(k + 1) % outer.length][1]) > 0.1; });
+      if (cut >= 0) outer = outer.slice(cut + 1).concat(outer.slice(0, cut + 1));
+      var cut2 = inner.findIndex(function (p, k) { return Math.hypot(p[0] - inner[(k + 1) % inner.length][0], p[1] - inner[(k + 1) % inner.length][1]) > 0.1; });
+      if (cut2 >= 0) inner = inner.slice(cut2 + 1).concat(inner.slice(0, cut2 + 1));
+      var end = outer[outer.length - 1];
+      if (Math.hypot(inner[0][0] - end[0], inner[0][1] - end[1]) > Math.hypot(inner[inner.length - 1][0] - end[0], inner[inner.length - 1][1] - end[1])) inner.reverse();
+      return skFit(outer.concat(inner));
+    }
+    if (id === 'drop') {
+      var r = 0.34, d = 0.66, al = Math.acos(r / d), arc = [];
+      for (i = 0; i <= 50; i++) { var f = -Math.PI / 2 + al + (T - 2 * al) * i / 50; arc.push([0.5 + Math.cos(f) * r, 0.66 + Math.sin(f) * r]); }
+      return skFit(skDense([[0.5, 0]].concat(arc), 0.03));
+    }
+    return polar(48, function () { return 0.5; });
+  }
   /** @returns {boolean} Whether a point is inside a closed shape (the lasso), given as a list of [x, y] corners. */
   function inPolygon(poly, pt) {
     var inside = false, i, j;
@@ -1687,6 +1799,6 @@
     toggleDone: toggleDone,
     pickEmoji: pickEmoji,
     soundFor: soundFor,
-    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, traceLoops: traceLoops, simplifyLine: skSimplify
+    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, sketchDash: sketchDash, sketchShape: sketchShape, SKETCH_SHAPES: SKETCH_SHAPES, sketchWave: sketchWave, SKETCH_STYLES: SKETCH_STYLES, traceLoops: traceLoops, simplifyLine: skSimplify
   };
 })(typeof self !== 'undefined' ? self : globalThis);

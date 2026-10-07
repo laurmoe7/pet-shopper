@@ -138,3 +138,24 @@ test('the saved SVG says which layer each line is on', () => {
   const svg = L.sketchSvg([{ pts: [[0, 0], [5, 5]], color: '#000', width: 1, layer: 'Shading' }], { x: 0, y: 0, w: 26, h: 26 }, {});
   assert.match(svg, /data-layer="Shading"/);
 });
+
+test('every cute shape fills its box and has enough points to draw smoothly', () => {
+  assert.ok(L.SKETCH_SHAPES.length >= 12);
+  L.SKETCH_SHAPES.forEach(([id]) => {
+    const pts = L.sketchShape(id);
+    assert.ok(pts.length >= 24, id + ' has points');
+    pts.forEach((p) => { assert.ok(p[0] > -1e-9 && p[0] < 1 + 1e-9 && p[1] > -1e-9 && p[1] < 1 + 1e-9, id + ' stays in the box'); });
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    assert.ok(Math.max(...xs) - Math.min(...xs) > 0.99 && Math.max(...ys) - Math.min(...ys) > 0.99, id + ' fills the box');
+  });
+});
+
+test('special lines: dash patterns scale with the width, and waves stay on the line', () => {
+  assert.equal(L.sketchDash('solid', 2).array, null);
+  assert.equal(L.sketchDash('dashed', 2).array, '6 4.4');
+  assert.equal(L.sketchDash('stitch', 1).cap, 'butt');
+  const svg = L.sketchSvg([{ pts: [[0, 0], [9, 9]], color: '#000', width: 1, style: 'dotted' }], { x: 0, y: 0, w: 26, h: 26 }, {});
+  assert.match(svg, /stroke-dasharray="0.01 2.2"/);
+  const wave = L.sketchWave([[0, 0], [30, 0]], 2, 10);
+  assert.ok(Math.max(...wave.map((p) => Math.abs(p[1]))) > 1.5 && Math.abs(wave[0][1]) < 0.01 && Math.abs(wave[wave.length - 1][1]) < 0.2);
+});

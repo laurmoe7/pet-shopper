@@ -27,7 +27,7 @@ body.skp { height: 100dvh; display: flex; flex-direction: column; overflow: hidd
 .sk-seg { display: inline-flex; border: 1.5px solid var(--line); border-radius: 999px; overflow: hidden; }
 .sk-seg button, .sk-tools button { padding: 6px 11px; border: 0; background: var(--surface); color: var(--ink); font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; }
 .sk-seg button[aria-pressed="true"], .sk-tools button[aria-pressed="true"] { background: var(--accent); color: #fff; }
-.sk-tools { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.sk-tools { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
 .sk-tools button { position: relative; display: flex; align-items: center; justify-content: center; height: 38px; padding: 0; border: 1.5px solid var(--line); border-radius: 10px; }
 .sk-tools button[data-key]::after { content: attr(data-key); position: absolute; right: 3px; bottom: 1px; font-size: .55rem; font-weight: 800; opacity: .5; }
 .sk-tools button svg { width: 20px; height: 20px; display: block; }
@@ -296,3 +296,10 @@ html:root body.skp.skp-guest #skSaveFile { color: #fff; text-shadow: 0 1px 2px r
 .sk-cv .cvh { stroke: var(--accent); stroke-width: 1.2; vector-effect: non-scaling-stroke; opacity: .8; }
 .sk-cv .cvk { fill: var(--accent); stroke: #fff; stroke-width: 1; vector-effect: non-scaling-stroke; }
 .sk-stage[data-tool="curve"] .sk-draw { cursor: crosshair; }
+
+.sk-tools:not(.sk-seltools) button { height: 36px; }
+.sk-seltools { grid-template-columns: repeat(7, 1fr); }
+.sk-styles { flex-wrap: nowrap; gap: 6px; }
+.sk-pick { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; font-size: .75rem; font-weight: 700; color: var(--muted); }
+.sk-pick select { flex: 1; min-width: 0; padding: 4px 6px; font-size: .78rem; }
+.sk-stage[data-tool="shape"] .sk-draw { cursor: crosshair; }
