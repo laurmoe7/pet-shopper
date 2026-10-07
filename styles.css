@@ -2742,6 +2742,13 @@ html[data-list="todo"] .recipe-btn { display: none; }
 #pet.tucked .arm-r .magnifier, #pet[data-state="sleepy"] .arm-r .magnifier { display: none !important; }
 .done-more { display: block; margin: 4px auto 0; font-size: .85rem; }
 .done-more[hidden] { display: none; }
+/* thrush: warm brown with a cream belly, dark teardrop spots on the breast, a dark beak and pink-tan feet; no tuft */
+.pet[data-skin="thrush"] { --pet-skin: #a98256; --pet-skin-shade: #e5bda6; }
+.pet[data-skin="thrush"] [data-sk~="thrush"] { display: inline; }
+.pet[data-skin="thrush"] .beak { fill: #6d5646; }
+.pet[data-skin="thrush"] .arm ellipse { fill: #9a6b41; }
+.pet[data-skin="thrush"] .tuft { display: none; }
+.pet[data-skin="thrush"] .bird-part .bird-toe { fill: #e8b9a4; }
 
 /* Backup & sync sheet */
 .account-sheet .account-field { display: flex; flex-direction: column; gap: 4px; margin: 10px 0 4px; }

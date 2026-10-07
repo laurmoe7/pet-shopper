@@ -303,7 +303,7 @@ function skEl(s) {
   el.setAttribute('fill', s.fill ? s.color : 'none');
   if (s.fill && s.grad) el.setAttribute('fill', 'url(#' + skDef(L.sketchGradId(s.grad), L.sketchGradDef(s.grad)) + ')');
   if (s.style === 'soft') { var sd = L.sketchSoftBlur(s.width); el.setAttribute('filter', 'url(#' + skDef(L.sketchBlurId(sd), L.sketchBlurDef(sd)) + ')'); el.setAttribute('opacity', '.7'); }
-  if (s.clip) el.setAttribute('clip-path', 'url(#' + skDef('bodyclip', L.sketchClipDef()) + ')');
+  if (s.clip) el.setAttribute('mask', 'url(#' + skDef('bodyclip', L.sketchClipDef()) + ')');
   var dd = L.sketchDash(s.style, s.width);
   if (dd.array) el.setAttribute('stroke-dasharray', dd.array);
   el.setAttribute('stroke-linecap', dd.cap);

@@ -4,13 +4,13 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 
 ## Build 247 (13 Oct)
 - Backup & sync in Options: a code keeps your shopping list and Nibble the same on all your devices.
-
-## Build 246 (12 Oct)
 - Syncing keeps to-do lists private; only the shopping list is shared.
-
-## Build 245 (11 Oct)
 - Sync log in Developer tools.
 - Saved data prepared for syncing between devices.
+
+## Build 246 (11 Oct)
+- New birdie skin: thrush.
+- Cat friend: thinner outline.
 
 ## Build 244 (11 Oct)
 - Drop-down menus fade at the bottom when they scroll.
@@ -50,6 +50,8 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 - The pet is happy about veggies now.
 
 ## Build 235 (10 Oct)
+- Sketchpad: Clip lines stop flush with the outline.
+- Sketchpad: icon has both ear insides and rounded corners, Clip lines meet the edge.
 - Sketchpad: game outline, pen pressure, pattern fills, clip to body, spin copies, make a curve.
 - Sketchpad: pig icon ears sit behind the head.
 - Sketchpad: five more line styles, Move tool moves a whole layer, Shape menu glows.
