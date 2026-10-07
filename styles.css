@@ -9,8 +9,8 @@
   --muted: #8a6f55;
   --line: #d4b68a;
   --outline: #7b5a3d;
-  /* outlines of the toy, lamp, bed, quilt and teddy: the same dark brown in light and dark mode */
-  --prop-ink: #7b5a3d;
+  /* outlines of the toy, lamp, bed, quilt, clipboard and teddy: the pet's own dark brown, in light and dark mode */
+  --prop-ink: #5b4239;
   /* how tall a bottom sheet may be: short enough that Nibble stays in view above it */
   --sheet-h: max(240px, min(75vh, calc(100dvh - 320px)));
   --sheet-h-s: max(220px, min(62vh, calc(100dvh - 320px)));
@@ -489,11 +489,12 @@ button { font: inherit; color: inherit; }
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   width: 100%; min-height: 46px; padding: 10px 16px; border-radius: 999px;
   border: 1.8px dashed var(--outline); background: var(--surface-2); color: var(--ink);
-  font: inherit; font-size: 1.05rem; font-weight: 800; text-align: left; cursor: pointer;
-  touch-action: manipulation; -webkit-user-select: none; user-select: none;
+  font: inherit; font-size: 1.05rem; font-weight: 800; text-align: left;
+  -webkit-user-select: none; user-select: none;
 }
 .name-show[hidden] { display: none; }
-.name-show .name-pen { color: var(--muted); font-size: .9rem; }
+.name-show .name-pen { font-size: .9rem; }
+.name-edit { display: inline-flex; align-items: center; gap: 4px; flex: none; min-height: 30px; padding: 3px 12px; border: 0; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font: inherit; font-size: .85rem; font-weight: 800; cursor: pointer; touch-action: manipulation; }
 .name-show.nudge { animation: name-nudge .35s ease; }
 @keyframes name-nudge { 30% { transform: translateX(-3px); } 60% { transform: translateX(3px); } }
 .mood-info { margin: 2px 0 0; font-size: .9rem; color: var(--ink); min-height: 2.6em; }
@@ -934,11 +935,13 @@ button { font: inherit; color: inherit; }
 .add-btn { color: var(--accent-ink); font-weight: 800; cursor: pointer; flex: none; }
 
 .items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
-.item { display: flex; align-items: center; gap: 8px; padding: 2px 14px 2px 4px; min-height: 48px; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
+.item { display: flex; align-items: center; gap: 8px; padding: 2px 14px 2px 4px; min-height: 48px; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: pan-y; }
 .item:nth-child(3n+2) { --tab: var(--mint); }
 .item:nth-child(3n+3) { --tab: var(--butter); }
 
 .item.pressing { transition: transform .3s; }
+.item { transition: translate .18s ease-out, opacity .18s; }
+.item.swiping { transition: none; }
 @keyframes slide-in { from { opacity: 0; transform: translateY(-8px) scale(.96); } to { opacity: 1; transform: none; } }
 
 .check {
@@ -1582,21 +1585,21 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
   56% { rotate: -10deg; } 62% { rotate: 8deg; } 68% { rotate: -5deg; } 74% { rotate: 2deg; }
   80% { rotate: 0deg; --pull: 0; } 85% { --pull: 8; } 90% { --pull: 0; } 94% { --pull: 6; } 98% { --pull: 0; }
 }
-.lamp-cord, .lamp-chain { fill: var(--prop-ink); }
+.lamp-cord, .lamp-chain { fill: #5b4239; }
 .lamp-chain { transform-box: view-box; transform-origin: 34px 24px; scale: 1 calc(1 + var(--pull) / 22); }
 .lamp-bead { translate: 0 calc(var(--pull) * 1px); }
 .lamp:not(.pulling) .lamp-chain, .lamp:not(.pulling) .lamp-bead { transition: scale .45s cubic-bezier(.3, 1.8, .5, 1), translate .45s cubic-bezier(.3, 1.8, .5, 1); }
 .lamp.pulling { cursor: grabbing; }
-.lamp-bead circle { fill: #ff9fb8; stroke: var(--prop-ink); stroke-width: 1.5; }
+.lamp-bead circle { fill: #ff9fb8; stroke: #5b4239; stroke-width: 1.5; }
 .lamp-hint { fill: none; stroke: #fff2b8; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; animation: lamp-hint 1.4s ease-in-out infinite; }
 @keyframes lamp-hint { 0%, 100% { opacity: .2; translate: 0 -2px; } 50% { opacity: 1; translate: 0 2px; } }
 .stage.lights-off .lamp-hint { display: none; }
-.lamp-top { fill: #f6d7a8; stroke: var(--prop-ink); stroke-width: 1.5; stroke-linejoin: round; }
-.lamp-dome { fill: #ffc4d3; stroke: var(--prop-ink); stroke-width: 1.8; stroke-linejoin: round; }
-.lamp-trim { fill: #fff3dc; stroke: var(--prop-ink); stroke-width: 1.5; stroke-linejoin: round; }
+.lamp-top { fill: #f6d7a8; stroke: #5b4239; stroke-width: 1.5; stroke-linejoin: round; }
+.lamp-dome { fill: #ffc4d3; stroke: #5b4239; stroke-width: 1.8; stroke-linejoin: round; }
+.lamp-trim { fill: #fff3dc; stroke: #5b4239; stroke-width: 1.5; stroke-linejoin: round; }
 .lamp-heart { fill: #ff8fae; }
 .lamp-shine { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; opacity: .7; }
-.lamp-bulb { fill: #fff3a6; stroke: var(--prop-ink); stroke-width: 1.5; transition: fill .3s; }
+.lamp-bulb { fill: #fff3a6; stroke: #5b4239; stroke-width: 1.5; transition: fill .3s; }
 .lamp-glow { fill: #fff2b0; opacity: .6; transition: opacity .3s; }
 .stage.lights-off .lamp-glow { opacity: 0; }
 .stage.lights-off .lamp-bulb { fill: #d9d2e6; }
@@ -2487,7 +2490,7 @@ html:root .picker .field-label.profile-top { display: none; }
 .dress-panel[data-tab="pet"] > .field:first-child { flex-direction: row; align-items: center; gap: 10px; }
 .dress-panel[data-tab="pet"] > .field:first-child .field-label { flex: none; }
 .dress-panel[data-tab="pet"] > .field:first-child :is(.name-show, input) { flex: 1; min-width: 0; min-height: 38px; padding-top: 6px; padding-bottom: 6px; }
-.name-show.unnamed .name-pen { display: inline-block; color: var(--accent); animation: pen-wiggle 1.8s ease-in-out infinite; transform-origin: 20% 90%; }
+.name-show.unnamed .name-pen { display: inline-block; animation: pen-wiggle 1.8s ease-in-out infinite; transform-origin: 20% 90%; }
 @keyframes pen-wiggle { 0%, 55%, 100% { rotate: 0deg; } 62% { rotate: -22deg; } 70% { rotate: 18deg; } 78% { rotate: -14deg; } 86% { rotate: 8deg; } }
 @media (prefers-reduced-motion: reduce) { .name-show.unnamed .name-pen { animation: none; } }
 
@@ -2610,7 +2613,7 @@ html:root .cal-month select { flex: none; }
 .shoot-bg svg { display: block; width: 100%; height: 100%; }
 .shoot-sparkles span { position: absolute; color: #fff; text-shadow: 0 0 6px rgba(255, 150, 190, .9); opacity: 0; animation: shoot-twinkle 2.8s ease-in-out infinite; pointer-events: none; }
 @keyframes shoot-twinkle { 0%, 100% { opacity: 0; scale: .5; } 50% { opacity: .95; scale: 1.1; } }
-.shoot-pet { position: absolute; left: 50%; top: 40%; translate: calc(-50% + var(--shoot-dx, 0px)) calc(-50% + var(--shoot-dy, 0px)); scale: var(--shoot-s, 1); }
+.shoot-pet { position: absolute; left: 50%; top: 40%; translate: calc(-50% + var(--shoot-dx, 0px)) calc(-50% + var(--shoot-dy, 0px)); rotate: var(--shoot-r, 0deg); scale: var(--shoot-s, 1); touch-action: none; }
 .shoot-pet .pet.preview { width: min(84vw, 48vh * 1.07); height: min(78.4vw, 48vh); }
 .shoot-pet::after { content: ""; position: absolute; left: 12%; right: 12%; bottom: -8px; height: 18px; border-radius: 50%; background: rgba(90, 60, 50, .16); filter: blur(4px); z-index: -1; }
 .shoot-frame { position: absolute; inset: 0; pointer-events: none; }
@@ -2718,3 +2721,22 @@ html[data-list="todo"] .recipe-btn { display: none; }
 .photo-actions { display: flex; gap: 10px; align-items: center; }
 .photo-btn { padding: 10px 22px; }
 .photo-btn[hidden] { display: none; }
+
+/* the recipe helper is open: Nibble searches with the magnifying glass (app-recipe.js), sweeping it and his eyes about */
+#pet.searching:not([data-state="sleepy"], .tucked) .arm-r { transform: rotate(0deg); translate: -15px -16px; animation: search-sweep 2.6s ease-in-out infinite alternate; }
+#pet.searching:not([data-state="sleepy"], .tucked) .pupils { animation: search-look 2.6s ease-in-out infinite alternate; }
+#pet.searching.inspecting:not(.mg-aha) .magnifier .mg-eye { animation: mg-look 2.6s ease-in-out infinite alternate; }
+@keyframes search-sweep { from { translate: -17px -15.5px; } to { translate: -11px -16.5px; } }
+@keyframes search-look { from { translate: -3.6px .4px; } to { translate: 3px .8px; } }
+@media (prefers-reduced-motion: reduce) { #pet.searching .arm-r, #pet.searching .pupils, #pet.searching .magnifier .mg-eye { animation: none; } }
+
+/* the profile's Edit pencils sit in the corner of their field, next to its label, so the text keeps all its room */
+.profile-sheet .profile-fields .field { position: relative; }
+.profile-sheet .field-edit { position: absolute; top: -3px; right: 0; min-height: 24px; padding: 0 9px; font-size: .8rem; }
+.profile-sheet .field-edit[hidden] { display: none; }
+
+/* a glass never stays in his hand in bed: asleep or under the blanket (app-recipe.js puts it away; this makes sure) */
+#pet.tucked .arm-r .magnifier, #pet[data-state="sleepy"] .arm-r .magnifier { display: none !important; }
+.shoot-turn { display: flex; gap: 8px; justify-content: center; }
+.done-more { display: block; margin: 4px auto 0; font-size: .85rem; }
+.done-more[hidden] { display: none; }

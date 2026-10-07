@@ -719,6 +719,7 @@
         <button type="button" class="text-btn" id="clearBtn">Clear list</button>
       </div>
       <ul class="items" id="done" aria-label="Bought"></ul>
+      <button type="button" class="text-btn done-more" id="doneMore" hidden></button>
     </section>
 
     <p class="hint" id="listHint">Tap an item's emoji, or long-press the item, to pick a different one.</p>
@@ -808,7 +809,7 @@
     <div class="dress-panel" data-tab="pet" role="tabpanel">
       <div class="field">
         <span class="field-label" id="petNameLabel">Name</span>
-        <button type="button" class="name-show" id="petNameShow" aria-label="Name (double-tap to change)"><span id="petNameText">Nibble</span><span class="name-pen" aria-hidden="true">✎</span></button>
+        <div class="name-show" id="petNameShow"><span id="petNameText">Nibble</span><button type="button" class="name-edit" id="petNameEdit" aria-label="Edit name"><span class="name-pen" aria-hidden="true">✎</span> Edit</button></div>
         <input id="petNameInput" type="text" maxlength="16" autocomplete="off" enterkeyhint="done" placeholder="Nibble" aria-labelledby="petNameLabel" hidden>
       </div>
       <fieldset class="species">
@@ -879,6 +880,7 @@
   <button type="button" class="shoot-x" id="shootClose" aria-label="Close the photoshoot">✕</button>
   <div class="shoot-ui" id="shootUi">
     <div class="shoot-row" id="shootPoses" role="group" aria-label="Pose"></div>
+    <div class="shoot-row shoot-turn"><button type="button" class="shoot-chip" id="shootTurnL" aria-label="Turn left">↺ Turn</button><button type="button" class="shoot-chip" id="shootTurnR" aria-label="Turn right">Turn ↻</button></div>
     <div class="shoot-row shoot-pick">
       <button type="button" class="shoot-arrow" id="shootPrev" aria-label="Previous background">‹</button>
       <span class="shoot-bgname" id="shootBgName"></span>
@@ -1068,13 +1070,13 @@
     <div class="profile-card"><span class="profile-avatar" id="profileAvatar" aria-hidden="true">♡</span><b id="profileHello">Hello, friend!</b></div>
     <div class="profile-fields">
     <div class="field">
-      <span class="field-label" id="profileNameLabel">Your name</span>
-      <button type="button" class="name-show" id="profileNameShow" hidden><span id="profileNameText"></span><span class="name-pen" aria-hidden="true">✎</span></button>
+      <span class="field-label" id="profileNameLabel">Your name</span><button type="button" class="name-edit field-edit" id="profileNameEdit" aria-label="Edit your name" hidden>✎</button>
+      <div class="name-show" id="profileNameShow" hidden><span id="profileNameText"></span></div>
       <input id="profileName" type="text" maxlength="20" placeholder="Your name" enterkeyhint="done" aria-labelledby="profileNameLabel">
     </div>
     <div class="field">
-      <span class="field-label" id="profileBirthdayLabel">Your birthday</span>
-      <button type="button" class="name-show" id="profileBirthdayShow" hidden><span id="profileBirthdayText"></span><span class="name-pen" aria-hidden="true">✎</span></button>
+      <span class="field-label" id="profileBirthdayLabel">Your birthday</span><button type="button" class="name-edit field-edit" id="profileBirthdayEdit" aria-label="Edit your birthday" hidden>✎</button>
+      <div class="name-show" id="profileBirthdayShow" hidden><span id="profileBirthdayText"></span></div>
       <input id="profileBirthday" type="date" aria-labelledby="profileBirthdayLabel">
     </div>
     </div>

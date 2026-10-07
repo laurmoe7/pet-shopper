@@ -1394,13 +1394,114 @@
     var out = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + [view.x, view.y, view.w, view.h].join(' ') + '" width="' + Math.round(view.w * 4) + '" height="' + Math.round(view.h * 4) + '" fill="none" stroke-linecap="round" stroke-linejoin="round">'];
     out.push('<!-- ' + esc(JSON.stringify(meta || {})) + ' -->');
     strokes.forEach(function (s) {
-      var d = sketchPath(s.pts, (s.fill || s.closed) && s.pts.length > 2, dp);
-      out.push('<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + esc(s.color) + '"' : '') + '/>');
+      // a paint-bucket fill carries its own outline (`d`, with holes)
+      var d = s.d || sketchPath(s.pts, (s.fill || s.closed) && s.pts.length > 2, dp);
+      out.push('<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + esc(s.color) + '"' : '') + (s.d ? ' fill-rule="evenodd"' : '') + (s.layer ? ' data-layer="' + esc(s.layer) + '"' : '') + '/>');
     });
     out.push('</svg>');
     return out.join('\n');
   }
 
+
+  /**
+   * The paint bucket's first step: spreads from a pixel over every pixel that is not a wall.
+   * @param {Uint8Array} wall  1 where a line is (w * h).
+   * @param {number} w
+   * @param {number} h
+   * @param {number} sx  Where it was clicked.
+   * @param {number} sy
+   * @returns {?{mask: Uint8Array, count: number, edge: boolean}} The area reached, how big it is and whether it touches the edge (so it is not closed); null if the click was on a line.
+   */
+  function floodMask(wall, w, h, sx, sy) {
+    if (sx < 0 || sy < 0 || sx >= w || sy >= h || wall[sy * w + sx]) return null;
+    var mask = new Uint8Array(w * h), stack = [sx, sy], count = 0, edge = false;
+    while (stack.length) {
+      var y = stack.pop(), x = stack.pop();
+      if (mask[y * w + x] || wall[y * w + x]) continue;
+      var l = x, r = x;
+      while (l > 0 && !wall[y * w + l - 1] && !mask[y * w + l - 1]) l--;
+      while (r < w - 1 && !wall[y * w + r + 1] && !mask[y * w + r + 1]) r++;
+      if (l === 0 || r === w - 1 || y === 0 || y === h - 1) edge = true;
+      for (var i = l; i <= r; i++) {
+        mask[y * w + i] = 1; count++;
+        if (y > 0 && !mask[(y - 1) * w + i] && !wall[(y - 1) * w + i]) stack.push(i, y - 1);
+        if (y < h - 1 && !mask[(y + 1) * w + i] && !wall[(y + 1) * w + i]) stack.push(i, y + 1);
+      }
+    }
+    return { mask: mask, count: count, edge: edge };
+  }
+  /**
+   * The outlines of a filled area as closed loops of pixel corners: the outside edge and the edge of every hole.
+   * @param {Uint8Array} mask  1 inside the area (w * h).
+   * @returns {number[][][]} Loops of [x, y] corners, without the points along straight runs.
+   */
+  function traceLoops(mask, w, h) {
+    var W = w + 1, next = {}, i, j;
+    function at(x, y) { return x >= 0 && y >= 0 && x < w && y < h && mask[y * w + x] === 1; }
+    function add(ax, ay, bx, by) { var k = ay * W + ax; (next[k] = next[k] || []).push(by * W + bx); }
+    for (j = 0; j < h; j++) for (i = 0; i < w; i++) {
+      if (!mask[j * w + i]) continue;
+      if (!at(i, j - 1)) add(i, j, i + 1, j);
+      if (!at(i + 1, j)) add(i + 1, j, i + 1, j + 1);
+      if (!at(i, j + 1)) add(i + 1, j + 1, i, j + 1);
+      if (!at(i - 1, j)) add(i, j + 1, i, j);
+    }
+    var loops = [], keys = Object.keys(next);
+    for (var n = 0; n < keys.length; n++) {
+      while (next[keys[n]] && next[keys[n]].length) {
+        var start = +keys[n], cur = start, pts = [];
+        do {
+          pts.push([cur % W, Math.floor(cur / W)]);
+          var out = next[cur];
+          var to = out.pop();
+          if (!out.length) delete next[cur];
+          cur = to;
+        } while (cur !== start && next[cur]);
+        // keep only the corners where the outline turns
+        var keep = pts.filter(function (p, q) {
+          var a = pts[(q + pts.length - 1) % pts.length], b = pts[(q + 1) % pts.length];
+          return (p[0] - a[0]) * (b[1] - p[1]) !== (p[1] - a[1]) * (b[0] - p[0]);
+        });
+        if (keep.length > 2) loops.push(keep);
+      }
+    }
+    return loops;
+  }
+
+  /** @returns {boolean} Whether a point is inside a closed shape (the lasso), given as a list of [x, y] corners. */
+  function inPolygon(poly, pt) {
+    var inside = false, i, j;
+    for (i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      var a = poly[i], b = poly[j];
+      if ((a[1] > pt[1]) !== (b[1] > pt[1]) && pt[0] < (b[0] - a[0]) * (pt[1] - a[1]) / (b[1] - a[1]) + a[0]) inside = !inside;
+    }
+    return inside;
+  }
+
+  /**
+   * Moves, resizes or turns a drawn line (the transform tool). The original is not changed, so a drag can always be worked out from
+   * how the line looked when it began.
+   * @param {{pts: number[][], d: ?string, width: number}} stroke
+   * @param {{kind: 'move', dx: number, dy: number}|{kind: 'scale', ax: number, ay: number, sx: number, sy: number}|{kind: 'rotate', cx: number, cy: number, a: number}|{kind: 'flip', axis: 'x'|'y', c: number}} op
+   *   scale grows the line away from the anchor (ax, ay); rotate turns it round (cx, cy) by `a` radians; flip mirrors it across the vertical (axis 'x') or horizontal (axis 'y') line at `c`.
+   * @returns {{pts: number[][], d: ?string, width: number}}
+   */
+  function sketchXform(stroke, op) {
+    var cos = Math.cos(op.a || 0), sin = Math.sin(op.a || 0);
+    function at(x, y) {
+      if (op.kind === 'move') return [x + op.dx, y + op.dy];
+      if (op.kind === 'flip') return op.axis === 'x' ? [2 * op.c - x, y] : [x, 2 * op.c - y];
+      if (op.kind === 'scale') return [op.ax + (x - op.ax) * op.sx, op.ay + (y - op.ay) * op.sy];
+      return [op.cx + (x - op.cx) * cos - (y - op.cy) * sin, op.cy + (x - op.cx) * sin + (y - op.cy) * cos];
+    }
+    function r2(n) { return Math.round(n * 100) / 100; }
+    var out = { pts: stroke.pts.map(function (p) { var q = at(p[0], p[1]); return [r2(q[0]), r2(q[1])]; }), width: stroke.width, d: stroke.d };
+    if (op.kind === 'scale') out.width = r2(stroke.width * Math.sqrt(Math.abs(op.sx * op.sy)));
+    if (stroke.d) {   // a paint-bucket fill keeps its outline as path text made of "x y" pairs
+      out.d = stroke.d.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g, function (m, x, y) { var q = at(+x, +y); return r2(q[0]) + ' ' + r2(q[1]); });
+    }
+    return out;
+  }
 
   /** @returns {number} Distance between two points. */
   function skDist(a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); }
@@ -1586,6 +1687,6 @@
     toggleDone: toggleDone,
     pickEmoji: pickEmoji,
     soundFor: soundFor,
-    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke
+    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, traceLoops: traceLoops, simplifyLine: skSimplify
   };
 })(typeof self !== 'undefined' ? self : globalThis);

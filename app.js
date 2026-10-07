@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '237';
+var BUILD = '239';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -162,7 +162,9 @@ document.addEventListener('click', function (e) {
 var $ = function (id) { return document.getElementById(id); };
 var pet = $('pet'), petSvg = pet.querySelector('.pet-svg'), bubble = $('bubble'), todoEl = $('todo'), doneEl = $('done');
 var addForm = $('addForm'), addInput = $('addInput'), addPreview = $('addPreview');
-var eatenSection = $('eatenSection'), eatenCount = $('eatenCount'), emptyHint = $('emptyHint');
+var eatenSection = $('eatenSection'), eatenCount = $('eatenCount'), emptyHint = $('emptyHint'), doneMore = $('doneMore');
+// a long Bought list only draws its latest rows (every row costs the page work all the time); a button shows the rest
+var DONE_SHOWN = 12, doneExpanded = false;
 // Developer tools can pretend it is day or night ('auto' uses the real clock). Not saved.
 var devClock = 'auto';
 /** @returns {Date} The time the pet goes by: the real time, or midday / 11 pm when Developer tools say so. */
@@ -236,7 +238,10 @@ function render() {
     return li;
   }
   todoEl.replaceChildren.apply(todoEl, state.mode !== 'todo' && state.settings.aisles ? aisleNodes(shown, rowFor) : shown.map(rowFor));
-  doneEl.replaceChildren.apply(doneEl, done.map(rowFor));
+  var collapsed = !doneExpanded && done.length > DONE_SHOWN + 3;
+  doneEl.replaceChildren.apply(doneEl, (collapsed ? done.slice(-DONE_SHOWN) : done).map(rowFor));
+  doneMore.hidden = done.length <= DONE_SHOWN + 3;
+  doneMore.textContent = collapsed ? 'Show ' + (done.length - DONE_SHOWN) + ' more' : 'Show fewer';
   rows = kept;
   eatenSection.hidden = done.length === 0;
   eatenCount.textContent = '(' + done.length + ')';

@@ -1,13 +1,13 @@
 /* The standalone sketchpad (sketch.html, sketch.js). The pet, wardrobe and cardboard look come from styles.css. */
 body.skp { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; font-size: 15px; }
 #skSource { position: absolute; left: -9999px; top: 0; width: 200px; height: 200px; overflow: hidden; pointer-events: none; }
-.skp-top { flex: none; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 8px 14px; border-bottom: 1.5px solid var(--line); background: var(--surface); }
+.skp-top { flex: none; display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; padding: 8px 14px; border-bottom: 1.5px solid var(--line); background: var(--surface); }
 .skp-top h1 { margin: 0; font-size: 1.15rem; }
 .skp-wrap { flex: 1; min-height: 0; display: flex; gap: 12px; padding: 12px; }
 .skp-canvas { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
-.skp-panel { flex: none; width: 340px; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; gap: 10px; padding-bottom: 12px; }
+.skp-panel { flex: none; width: 340px; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; gap: 8px; padding-bottom: 12px; }
 .skp-panel::-webkit-scrollbar { display: none; }
-.skp-box { background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.skp-box { background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 8px 10px; display: flex; flex-direction: column; gap: 7px; }
 .skp-box[hidden] { display: none; }
 .skp-box h2 { margin: 0; font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
 .skp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
@@ -27,9 +27,10 @@ body.skp { height: 100dvh; display: flex; flex-direction: column; overflow: hidd
 .sk-seg { display: inline-flex; border: 1.5px solid var(--line); border-radius: 999px; overflow: hidden; }
 .sk-seg button, .sk-tools button { padding: 6px 11px; border: 0; background: var(--surface); color: var(--ink); font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; }
 .sk-seg button[aria-pressed="true"], .sk-tools button[aria-pressed="true"] { background: var(--accent); color: #fff; }
-.sk-tools { gap: 5px; }
-.sk-tools button { display: flex; flex-direction: column; align-items: center; gap: 1px; width: 58px; padding: 5px 2px 4px; border: 1.5px solid var(--line); border-radius: 12px; font-size: .68rem; line-height: 1.15; }
-.sk-tools button svg { width: 22px; height: 22px; display: block; }
+.sk-tools { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.sk-tools button { position: relative; display: flex; align-items: center; justify-content: center; height: 38px; padding: 0; border: 1.5px solid var(--line); border-radius: 10px; }
+.sk-tools button[data-key]::after { content: attr(data-key); position: absolute; right: 3px; bottom: 1px; font-size: .55rem; font-weight: 800; opacity: .5; }
+.sk-tools button svg { width: 20px; height: 20px; display: block; }
 .sk-tools button:disabled { opacity: .4; cursor: default; }
 .sk-zoomtext { font-size: .8rem; font-weight: 700; color: var(--muted); min-width: 3.2em; font-variant-numeric: tabular-nums; }
 .skp-hint { margin: 0; font-size: .78rem; color: var(--muted); }
@@ -67,10 +68,9 @@ body.skp { height: 100dvh; display: flex; flex-direction: column; overflow: hidd
 .sk-stage[data-tool="imgmove"] .sk-draw { cursor: move; }
 .sk-stage[data-tool="drop"] .sk-draw { cursor: copy; }
 .sk-stage[data-tool="erase"] .sk-draw { cursor: cell; }
-.sk-coords { margin: 0 0 0 auto; font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: pre; min-width: 9em; text-align: right; }
-.sk-colours { gap: 6px; }
+.sk-colours { gap: 5px; flex: 1; }
 .sk-eye { padding: 5px 10px; border: 1.5px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; }
-.sk-swatch { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--line); cursor: pointer; padding: 0; }
+.sk-swatch { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--line); cursor: pointer; padding: 0; }
 .sk-swatch[aria-pressed="true"] { outline: 3px solid var(--accent); outline-offset: 1px; }
 #skPick { width: 34px; height: 30px; padding: 0; border: 1.5px solid var(--line); border-radius: 8px; background: none; }
 .sk-check { display: inline-flex; align-items: center; gap: 5px; font-size: .82rem; font-weight: 700; }
@@ -97,6 +97,19 @@ body.skp { height: 100dvh; display: flex; flex-direction: column; overflow: hidd
 .sk-stage.sampling * { pointer-events: auto !important; }
 .sk-stage.sampling .sk-draw { pointer-events: none !important; }
 
+/* people the page is shared with can draw and save, but do not see the Claude upload at all (it also needs a token only the owner has) */
+.skp-guest .owner-only { display: none !important; }
+.skp-guest #skSaveFile { flex: 1 1 100%; background: var(--accent); color: #fff; border-color: transparent; padding: 10px; }
+
+.sk-seg.sk-wrap { flex-wrap: wrap; border-radius: 14px; }
+#skTidy button { padding: 6px 8px; }
+.skp-layer .skp-rot { display: flex; align-items: center; gap: 6px; }
+.skp-layer .skp-rot button { padding: 1px 8px; border: 1.5px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font: inherit; font-size: .8rem; font-weight: 800; cursor: pointer; }
+.skp-layer .skp-rot input[type="range"] { flex: 1; }
+.sk-grid .g4 { stroke: var(--accent); stroke-width: 1.6; opacity: .9; }
+.sk-stage[data-tool="bucket"] .sk-draw { cursor: cell; }
+.sk-tools button#skMirror[aria-pressed="true"] { background: var(--accent); color: #fff; }
+
 /* Blank template (Pet mode only, never in the game): the pet as a colourless outline to draw skins on. Face, ears, hands and
    feet stay; every fill goes white, and markings, blush and shine are dropped. */
 .sk-blank .pet-svg :is(path, ellipse, circle, rect, polygon, polyline):not(.ink):not(.nose-round):not(.nose-cat):not(.nose-dark):not(.nostril):not(.nostril-dot):not(.cute-nose):not(.line) { fill: #fff !important; }
@@ -109,3 +122,171 @@ body.skp { height: 100dvh; display: flex; flex-direction: column; overflow: hidd
 .sk-blank .pet-svg .gill-line circle { fill: #5b4239 !important; }
 .sk-blank .pet-svg .cheek { fill: none !important; stroke: #b9a79d; stroke-width: 1; stroke-dasharray: 3 2; }
 .sk-blank .pet-svg .hatch { stroke: #b9a79d !important; }
+
+/* the transform tool: a box with corner handles to resize and a round handle to turn (sketch.js, skXfRender) */
+.sk-xf { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 6; pointer-events: none; }
+.sk-xf .xb { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 5 3; vector-effect: non-scaling-stroke; }
+.sk-xf .xr { fill: rgba(224, 86, 138, .12); stroke: var(--accent); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.sk-xf .xstem { stroke: var(--accent); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.sk-xf .xh { fill: #fff; stroke: var(--accent); stroke-width: 1.8; vector-effect: non-scaling-stroke; pointer-events: all; }
+.sk-xf .xh[data-h="nw"], .sk-xf .xh[data-h="se"] { cursor: nwse-resize; }
+.sk-xf .xh[data-h="ne"], .sk-xf .xh[data-h="sw"] { cursor: nesw-resize; }
+.sk-xf .xh[data-h="rot"] { cursor: grab; fill: var(--accent); }
+.sk-stage[data-tool="select"] .sk-draw { cursor: default; }
+
+.skp-head { display: flex; align-items: center; gap: 8px; }
+.skp-head h2 { margin-right: auto; }
+.skp-head kbd { font: inherit; font-size: .7rem; font-weight: 800; color: var(--muted); border: 1.5px solid var(--line); border-radius: 6px; padding: 0 5px; }
+.skp-small { padding: 4px 10px; font-size: .78rem; }
+.skp-top .sk-check input[type="range"] { width: 70px; }
+.sk-xf .xr { stroke-dasharray: 4 3; }
+.skp-panel .sk-seg button { padding: 5px 8px; font-size: .78rem; }
+.skp-panel #skTidy { flex: 1; flex-wrap: nowrap; border-radius: 999px; }
+.skp-panel #skTidy button { flex: 1; padding: 5px 4px; font-size: .74rem; }
+.sk-swatch { width: 22px; height: 22px; }
+.sk-colours { gap: 4px; }
+#skPick { width: 28px; height: 24px; }
+.sk-cur { width: 18px; height: 18px; }
+.skp-panel .sk-check { white-space: nowrap; }
+
+/* pen thickness */
+.sk-size { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 150px; }
+.sk-size input[type="range"] { flex: 1; width: auto; min-width: 0; }
+.sk-size output { min-width: 1.6em; text-align: right; font-size: .78rem; font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
+.sk-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--ink); display: block; transition: width .08s, height .08s; margin: 0 2px; }
+
+/* cuter, sweeter: same layout, softer shapes, pastel and pink touches */
+body.skp { background-image: radial-gradient(circle at 12px 12px, rgba(255, 143, 171, .07) 2.5px, transparent 3px); background-size: 28px 28px; }
+.skp-top { background: linear-gradient(90deg, #41294a, #2e2a4c 55%, #232b48); border-bottom: 2px dashed #f3b3c6; gap: 10px 16px; }
+.skp-top h1 { color: #ff9bb8; letter-spacing: .01em; text-shadow: 0 0 10px rgba(255,155,184,.45); }
+.skp-top h1 span { display: inline-block; color: #ff8fab; animation: sk-sway 3.5s ease-in-out infinite; }
+@keyframes sk-sway { 50% { transform: rotate(14deg) scale(1.12); } }
+.skp-box { border-radius: 20px; border: 2px solid var(--sk-edge); background: var(--sk-panel); box-shadow: 0 3px 0 var(--sk-edge); }
+.skp-box h2 { color: #ff9bb8; font-size: .78rem; }
+.skp-box h2::before { content: "♡ "; color: #ff8fab; }
+.sk-view { border-radius: 22px; border: 2px solid var(--sk-edge); box-shadow: 0 3px 0 var(--sk-edge); background: var(--sk-paper); }
+.sk-seg { border-width: 2px; border-color: var(--sk-edge); background: var(--sk-field); box-shadow: 0 2px 0 var(--sk-edge); }
+.sk-seg button[aria-pressed="true"], .sk-tools button[aria-pressed="true"] { background: linear-gradient(180deg, #ffa3bb, #ff8fab); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .08); }
+.sk-tools button { border-width: 2px; border-color: var(--sk-edge); border-radius: 14px; background: var(--sk-field); box-shadow: 0 2px 0 var(--sk-edge); }
+.sk-tools button:not(:disabled):hover { transform: translateY(-1px); border-color: #ff8fab; }
+.sk-tools button[aria-pressed="true"] { border-color: #ff8fab; box-shadow: 0 2px 0 #c9577f; }
+.skp-btn { border-width: 2px; border-color: var(--sk-edge); box-shadow: 0 2px 0 var(--sk-edge); background: var(--sk-field); }
+.skp-btn:hover { transform: translateY(-1px); }
+.skp-btn:active { transform: translateY(1px); box-shadow: none; }
+.skp-main { background: linear-gradient(180deg, #ffa3bb, #ff8fab); box-shadow: 0 3px 0 #c9577f; border-radius: 999px; }
+.skp-guest #skSaveFile { box-shadow: 0 3px 0 #c9577f; }
+.sk-swatch { border: 2.5px solid var(--sk-panel); box-shadow: 0 0 0 1.5px #6b5272, 0 2px 0 #6b5272; transition: transform .1s; }
+.sk-swatch:hover { transform: scale(1.15); }
+.sk-swatch[aria-pressed="true"] { outline: 0; box-shadow: 0 0 0 2.5px #ff8fab, 0 2px 0 #c9577f; transform: scale(1.12); }
+.skp select, .skp input[type="text"], .skp input[type="password"] { border-width: 2px; border-color: var(--sk-edge); border-radius: 12px; }
+.skp input[type="range"] { accent-color: #ff8fab; }
+.skp input[type="checkbox"] { accent-color: #ff8fab; }
+.skp-layer { border-width: 2px; border-color: var(--sk-edge); border-radius: 16px; }
+.skp-hint { text-align: center; padding: 6px 4px; }
+.skp-head kbd { background: var(--sk-field); border-width: 2px; border-color: var(--sk-edge); border-radius: 8px; }
+.skp-status { color: #c9a3b8; }
+.sk-zoomtext { color: #ff9bb8; }
+@media (prefers-reduced-motion: reduce) { .skp-top h1 span { animation: none; } }
+
+/* picked-lines buttons, game colours, layers, pen reset */
+.sk-seltools { margin-top: -2px; }
+.sk-seltools button { height: 32px; }
+.sk-seltools button svg { width: 17px; height: 17px; }
+.sk-gamerow { gap: 6px; flex-wrap: nowrap; }
+.sk-game { flex: none; width: 18px; text-align: center; color: #ff8fab; font-weight: 800; }
+.sk-gamerow .sk-swatch { width: 19px; height: 19px; border-width: 2px; }
+.sk-mini { flex: none; min-width: 24px; height: 24px; padding: 0 5px; border: 2px solid var(--sk-edge); border-radius: 999px; background: var(--sk-field); color: var(--ink); font: inherit; font-size: .7rem; font-weight: 800; cursor: pointer; line-height: 1; }
+.sk-mini:hover:not(:disabled) { border-color: #ff8fab; }
+.sk-mini:disabled { opacity: .35; cursor: default; }
+.sk-mini[aria-pressed="false"] { color: var(--muted); }
+.skp-lines { display: flex; flex-direction: column; gap: 4px; }
+.skp-line { display: flex; align-items: center; gap: 4px; padding: 3px 4px; border: 2px solid var(--sk-edge); border-radius: 14px; background: var(--sk-field); cursor: pointer; }
+.skp-line[aria-selected="true"] { border-color: #ff8fab; box-shadow: 0 0 0 2px #7a4a63; }
+.skp-line input[type="text"] { flex: 1; min-width: 0; padding: 2px 6px; border-radius: 8px; font-size: .8rem; font-weight: 700; border-color: transparent; background: transparent; }
+.skp-line input[type="text"]:focus { border-color: var(--sk-edge); background: var(--sk-field); }
+
+/* a dim, cosy night theme: plum panels, and a softer paper for the drawing so it does not glare */
+body.skp {
+  color-scheme: dark;
+  --sk-bg: #241c2b; --sk-panel: #33283b; --sk-field: #2a2132; --sk-edge: #52405c; --sk-paper: #eadbc9;
+  --surface: #33283b; --surface-2: #2a2132; --ink: #f6e9f0; --muted: #b9a3bd; --line: #52405c; --accent: #ff8fab;
+  background-color: var(--sk-bg); color: var(--ink);
+}
+.sk-stage, .sk-view { background: var(--sk-paper); }
+.sk-view { background: #1d1723; }
+.sk-grid path { stroke: #7a5c4a; }
+.skp-status { color: #d9b0c4; }
+.skp-layer img { background: repeating-conic-gradient(#6d5a74 0 25%, #4a3b52 0 50%) 0 0 / 10px 10px; }
+.sk-seg button, .sk-tools button, .skp-btn, .sk-mini { background: var(--sk-field); color: var(--ink); }
+.sk-seg button[aria-pressed="true"], .sk-tools button[aria-pressed="true"] { color: #3b1f2b; }
+.skp-main { color: #3b1f2b; }
+.skp-guest #skSaveFile { color: #3b1f2b; }
+.skp select, .skp input[type="text"], .skp input[type="password"] { background: var(--sk-field); color: var(--ink); }
+.skp-line, .skp-layer, .sk-seg { background: var(--sk-field); }
+.skp-head kbd { background: var(--sk-field); }
+.sk-tools button:not(:disabled):active, .sk-tools button.flash { color: #3b1f2b; }
+
+/* fireflies in the header */
+.skp-top { position: relative; overflow: hidden; }
+.skp-top > :not(.sk-flies) { position: relative; z-index: 1; }
+.sk-flies { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.sk-fly { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #fff7b0; box-shadow: 0 0 6px 2px rgba(255, 238, 140, .8), 0 0 14px 5px rgba(190, 255, 160, .35); opacity: 0; animation: sk-drift var(--t) ease-in-out var(--d) infinite alternate, sk-twinkle var(--b) ease-in-out var(--d) infinite; }
+@keyframes sk-drift { from { transform: translate(0, 0); } 50% { transform: translate(var(--x), calc(var(--y) * -.6)); } to { transform: translate(calc(var(--x) * -.5), var(--y)); } }
+@keyframes sk-twinkle { 0%, 100% { opacity: 0; } 25% { opacity: .95; } 45% { opacity: .25; } 70% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .sk-fly { animation: none; opacity: .5; } }
+html:root body.skp { background: radial-gradient(circle at 12px 12px, rgba(255, 143, 171, .07) 2.5px, transparent 3px) 0 0 / 28px 28px, var(--sk-bg); }
+html:root body.skp::before, html:root body.skp::after { display: none; }
+html:root body.skp select, html:root body.skp input[type="text"], html:root body.skp input[type="password"] { background: var(--sk-field); color: var(--ink); box-shadow: none; }
+html:root body.skp .skp-box, html:root body.skp .skp-top { background-color: var(--sk-panel); }
+html:root body.skp .skp-top { background-image: linear-gradient(90deg, #41294a, #2e2a4c 55%, #232b48); }
+
+/* a little more cute flair */
+.skp-top h1 { display: flex; align-items: center; gap: 8px; }
+.sk-mascot { width: 40px; height: 34px; flex: none; animation: sk-bob 3.2s ease-in-out infinite; filter: drop-shadow(0 0 6px rgba(255, 155, 184, .45)); }
+.sk-mascot .me { transform-box: fill-box; transform-origin: center; animation: sk-blink 4.5s infinite; }
+.sk-mascot .me ellipse { transform-box: fill-box; transform-origin: center; animation: sk-blink 4.5s infinite; }
+.sk-mascot .mt { transform-origin: 18px 8px; animation: sk-sway 2.8s ease-in-out infinite; }
+@keyframes sk-bob { 50% { transform: translateY(-2px) rotate(-3deg); } }
+@keyframes sk-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+.skp-box h2::before { display: inline-block; animation: sk-beat 2.6s ease-in-out infinite; }
+@keyframes sk-beat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.25); } 30% { transform: scale(1); } }
+.sk-tools button:not(:disabled):hover svg { animation: sk-wiggle .35s ease-out; }
+.sk-view::before, .sk-view::after { content: "✦"; position: sticky; display: block; width: 0; height: 0; z-index: 7; color: #ffd6e3; font-size: 14px; text-shadow: 0 0 8px rgba(255, 155, 184, .9); pointer-events: none; animation: sk-star 3s ease-in-out infinite; }
+.sk-view::before { top: 4px; left: 6px; }
+.sk-view::after { top: calc(100% - 22px); left: calc(100% - 20px); animation-delay: -1.4s; }
+@keyframes sk-star { 0%, 100% { opacity: .25; transform: scale(.7) rotate(0); } 50% { opacity: 1; transform: scale(1.1) rotate(25deg); } }
+.skp input[type="range"] { height: 18px; }
+.skp input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #ff8fab; border: 2.5px solid #fff3f6; box-shadow: 0 0 8px rgba(255, 143, 171, .7); }
+.skp input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: #ff8fab; border: 2.5px solid #fff3f6; box-shadow: 0 0 8px rgba(255, 143, 171, .7); }
+.skp-status:not(:empty)::before { content: "✧ "; color: #ff9bb8; }
+.skp-box { position: relative; }
+.skp-box::after { content: ""; position: absolute; right: 12px; top: -4px; width: 22px; height: 8px; border-radius: 4px; background: rgba(255, 190, 210, .35); transform: rotate(4deg); pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .sk-mascot, .sk-mascot *, .skp-box h2::before, .sk-view::before, .sk-view::after { animation: none !important; } }
+.skp-box h2::before { margin-right: 4px; }
+.sk-mini svg { width: 14px; height: 14px; display: block; margin: auto; }
+.skp-line.hidden { opacity: .55; }
+.skp-line.hidden input[type="text"] { text-decoration: line-through; }
+.sk-mini svg { width: 14px; height: 14px; display: block; margin: auto; }
+.skp-line.hidden { opacity: .55; }
+.skp-line.hidden input[type="text"] { text-decoration: line-through; }
+
+/* the message line sits under the header where it can be read */
+body.skp > .skp-status { flex: none; margin: 0; padding: 5px 16px; min-height: 2.1em; font-size: .92rem; font-weight: 700; color: #ffd3e1; background: rgba(255, 143, 171, .1); border-bottom: 1px solid var(--sk-edge); line-height: 1.5; }
+html:root body.skp .skp-main { color: #fff; text-shadow: 0 1px 2px rgba(120, 30, 60, .45); }
+html:root body.skp.skp-guest #skSaveFile { color: #fff; text-shadow: 0 1px 2px rgba(120, 30, 60, .45); }
+
+/* outlined sliders */
+.skp input[type="range"] { -webkit-appearance: none; appearance: none; background: transparent; height: 18px; }
+.skp input[type="range"]::-webkit-slider-runnable-track { height: 6px; border-radius: 999px; background: var(--sk-field); border: 2px solid #ff9bb8; }
+.skp input[type="range"]::-moz-range-track { height: 6px; border-radius: 999px; background: var(--sk-field); border: 2px solid #ff9bb8; }
+.skp input[type="range"]::-webkit-slider-thumb { margin-top: -7px; }
+.skp-layer input[type="range"]::-webkit-slider-runnable-track { border-width: 1.5px; }
+
+/* layer rows: tick box to work on a layer, the active one has a stronger ring */
+.skp-pair { display: inline-flex; gap: 6px; }
+.skp-line .sk-pickbox { flex: none; width: 16px; height: 16px; margin: 0 2px; }
+.skp-line[aria-selected="true"] { border-color: #ff8fab; background: #3d2a46; }
+.skp-line.active { box-shadow: 0 0 0 2px #7a4a63; }
+.skp-line[aria-selected="false"].active { border-color: var(--sk-edge); }
+.skp-line input[data-act="name"][readonly] { cursor: pointer; user-select: none; }
+.skp-line input[data-act="name"]:not([readonly]) { background: var(--sk-field); border-color: #ff8fab; cursor: text; }

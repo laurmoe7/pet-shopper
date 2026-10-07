@@ -138,9 +138,7 @@ function onWearClick(e) {
   dressUp(pet, state.pet.outfit);
   sound(wearing ? 'excited' : 'tap');
   if (wearing && Math.random() < 0.3) setTimeout(dressFlash, 650);   // sometimes it snaps a photo of the new look
-  var pointed = hoveredHat === b.dataset.hat;
-  if (pointed && wearing) dressSay(line('look', ['how do I look?', 'I love it!', 'kawaii?', 'ta-da!']), 1600, true);
-  else dressSay(wearing ? hatLine(b.dataset.hat) : 'fresh look!', 1600);
+  dressSay(wearing ? hatLine(b.dataset.hat) : 'fresh look!', 1600);   // tapping an outfit gets its line (phones have no hover)
   dressCheer(wearing);
 }
 /**
@@ -207,7 +205,7 @@ dressSearch.addEventListener('keydown', function (e) { if (e.key === 'Enter') { 
 searchStrip.addEventListener('click', onWearClick);
 searchStrip.addEventListener('click', function () { setTimeout(function () { refreshDressRoom(); refreshLocks(); }, 0); });
 // pointing at an unlocked outfit makes the pet react to it
-var dressBubble = $('dressBubble'), dressBubbleTimer, hoveredHat = null, lastOoh = 0;
+var dressBubble = $('dressBubble'), dressBubbleTimer, lastOoh = 0;
 /**
  * Shows a line from the pet in the dressing room .
  * @param {string} text
@@ -231,22 +229,6 @@ function hatLine(id) {
   if (!item) return pick(['the natural look?', 'just me!', 'all natural!']);
   return pick(item.lines || ['ooh!']);
 }
-/**
- * Reacts when a finger or cursor lands on an unlocked hat that isn't being worn.
- * @param {Event} e
- */
-function onHatHover(e) {
-  // a finger has no hover: on phones the tap itself gets the outfit's line
-  if (e.pointerType === 'touch') return;
-  var b = e.target.closest && e.target.closest('.hat-strip button');
-  if (!b || b.dataset.hat === hoveredHat) return;
-  hoveredHat = b.dataset.hat;
-  if (!unlocked('hat', b.dataset.hat) || L.wornIds(state.pet.outfit, b.dataset.slot).indexOf(b.dataset.hat) !== -1) return;
-  dressSay(hatLine(b.dataset.hat), 1600);
-  var view = dressPreview.querySelector('.pet');
-  if (view) sparkle(view);
-  if (Date.now() - lastOoh > 500) { sound('ooh'); lastOoh = Date.now(); }
-}
 var sparkleTimer, cheerTimer, lastDressTouch = 0;
 /**
  * A quick sparkle-eyed "ooh" from the dressing-room pet, then its eyes go
@@ -259,23 +241,6 @@ function sparkle(view) {
   clearTimeout(sparkleTimer);
   sparkleTimer = setTimeout(function () { view.dataset.eyes = dressRest.eyes; view.dataset.mouth = dressRest.mouth; }, 600);
 }
-WEAR_ROWS.forEach(function (row) {
-  var strip = row.strip;
-  strip.addEventListener('pointerover', onHatHover);
-  strip.addEventListener('focusin', onHatHover);
-  strip.addEventListener('pointerleave', onHatLeave);
-});
-[searchStrip].forEach(function (strip) {
-  strip.addEventListener('pointerover', onHatHover);
-  strip.addEventListener('focusin', onHatHover);
-  strip.addEventListener('pointerleave', onHatLeave);
-});
-function onHatLeave() {
-  hoveredHat = null;
-  var view = dressPreview.querySelector('.pet');
-  if (view && view.dataset.eyes === 'sparkle') { view.dataset.eyes = dressRest.eyes; view.dataset.mouth = dressRest.mouth; }
-}
-
 dressSheet.addEventListener('close', function () {
   finishRename(true);
   state.pet.name = petName();
@@ -283,7 +248,6 @@ dressSheet.addEventListener('close', function () {
   applyPet();
   speciesHint.hidden = true;
   dressBubble.hidden = true;
-  hoveredHat = null;
   if (!busy && petName() !== nameAtOpen) { pulse('hop', 500); talk('name', ["I'm {name}!"], 1500, { name: petName() }); return; }   // renamed: it says its new name
   if (!busy) {
     var item = L.OUTFIT_SLOTS.some(function (slot) { return L.wornIds(state.pet.outfit, slot).some(wardrobeItem); });
@@ -337,7 +301,7 @@ function dressFace(view, f) {
 }
 /** The camera goes off: a white flash over the stage and a shutter click. */
 function dressFlash() {
-  if (!dressSheet.open || Date.now() - lastFlash < 3500) return;   // never in quick succession
+  if (!dressSheet.open || !$('shoot').hidden || Date.now() - lastFlash < 3500) return;   // not while the photoshoot is on top   // never in quick succession
   lastFlash = Date.now();
   var f = $('dressFlash');
   f.classList.remove('pop'); void f.offsetWidth; f.classList.add('pop');
@@ -351,6 +315,7 @@ function dressDanceSoon() {
 function dressDance() {
   var view = dressPreview.querySelector('.pet');
   if (!dressSheet.open || !view) return;
+  if (!$('shoot').hidden) { dressDanceSoon(); return; }   // the photoshoot is on top: the dressing room keeps quiet
   // wait only just after you pick an outfit; pointing at outfits doesn't stop it
   if (Date.now() - lastDressTouch < 1500) { dressDanceSoon(); return; }
   var m, n = -1;

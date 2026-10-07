@@ -56,7 +56,7 @@ function showRecipe(title, found) {
   recipeStage(!!found.length);
   recipeList.scrollTop = 0;
   if (found.length) {
-    if (!busy && baseState() !== 'sleepy') { pulse('hop', 460); setFace(FACES.happy); setTimeout(function () { if (!busy) settle(); }, 1400); }
+    if (!busy && baseState() !== 'sleepy') { pulse('hop', 460); setFace(FACES.happy); }
     say(L.recipeRemark(title, found), 3200);
   }
   updateRecipeAdd();
@@ -71,12 +71,30 @@ function updateRecipeAdd() {
   $('recipeAdd').disabled = !n;
 }
 
+/** While the recipe helper is open Nibble searches with his magnifying glass; when ingredients turn up he finds them. @param {boolean} [found] */
+function recipeSearch(found) {
+  var on = recipeSheet.open && baseState() !== 'sleepy' && !pet.classList.contains('tucked');   // asleep or under the blanket: the glass is put away
+  pet.classList.toggle('searching', on);
+  pet.classList.toggle('inspecting', on);
+  pet.classList.toggle('mg-aha', on && !!found);
+  if (on) pet.dataset.prop = 'glass'; else if (pet.dataset.prop === 'glass') delete pet.dataset.prop;
+  if (on && !found && !busy) setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: [] });
+}
+// if he gets tucked in or falls asleep while the sheet is open, the glass goes away and the arm relaxes
+var searchWatch = 0;
+function watchSearch() {
+  clearInterval(searchWatch); searchWatch = 0;
+  if (recipeSheet.open) searchWatch = setInterval(function () { if (pet.classList.contains('searching') && (pet.classList.contains('tucked') || baseState() === 'sleepy')) recipeSearch(); }, 400);
+}
+recipeSheet.addEventListener('close', function () { watchSearch(); recipeSearch(); if (!busy) settle(); });
+
 /** Shows the input (a new recipe) or the ingredients found. @param {boolean} results */
 function recipeStage(results) {
   recipeSheet.classList.toggle('results', results);
   $('recipeInputBox').hidden = results;
   $('recipeResult').hidden = !results;
   if (results) recipeStatus.textContent = '';
+  recipeSearch(results);
 }
 
 function recipeGo() {
@@ -131,6 +149,8 @@ $('recipeBtn').addEventListener('click', function () {
   $('recipeHelper').hidden = !!RECIPE_HELPER;   // everyone uses the built-in helper; the box is only for a build without one
   sheetUnderMouth(recipeSheet);
   openDialog(recipeSheet);
+  recipeSearch();
+  watchSearch();
 });
 $('recipeGo').addEventListener('click', recipeGo);
 $('recipeAdd').addEventListener('click', recipeAddAll);
