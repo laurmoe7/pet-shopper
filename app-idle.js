@@ -85,14 +85,11 @@ function hum() {
 }
 /**
  * Looks one way, then the other, as if checking the shop.
- * Skipped while the eyes are following a finger or cursor.
  */
 function lookAround() {
-  if (lookAt) return;
   var steps = [[-3.2, -0.5], [3.2, -0.5], [0, 0]];
   steps.forEach(function (st, i) {
     setTimeout(function () {
-      if (lookAt) return;
       pet.style.setProperty('--look-x', st[0] + 'px');
       pet.style.setProperty('--look-y', st[1] + 'px');
       if (i === steps.length - 1) { pet.style.removeProperty('--look-x'); pet.style.removeProperty('--look-y'); }
@@ -138,7 +135,7 @@ function walkTo(x, pace) {
   stage.style.setProperty('--walk-ms', ms + 'ms');
   stage.style.setProperty('--walk-x', x + 'px');
   stage.classList.toggle('walk-right', x > 15);
-  if (!lookAt) pet.style.setProperty('--look-x', (x > walkX ? 3.2 : -3.2) + 'px');
+  pet.style.setProperty('--look-x', (x > walkX ? 3.2 : -3.2) + 'px');
   walkX = x;
   walking = true;
   pet.classList.add('walking');
@@ -146,7 +143,7 @@ function walkTo(x, pace) {
   walkTimer = setTimeout(function () {
     walking = false;
     pet.classList.remove('walking');
-    if (!lookAt) pet.style.removeProperty('--look-x');
+    pet.style.removeProperty('--look-x');
   }, ms);
   return ms;
 }
@@ -339,7 +336,7 @@ function scheduleLively() {
 }
 function lively() {
   scheduleLively();
-  if (reduceMotion || busy || walking || dreaming || document.hidden || lookAt || document.querySelector('dialog[open]:not(#roomSheet)')) return;
+  if (reduceMotion || busy || walking || dreaming || document.hidden || document.querySelector('dialog[open]:not(#roomSheet)')) return;
   var mood = baseState();
   if (mood === 'sleepy') return;
   var r = Math.random();
@@ -349,7 +346,7 @@ function lively() {
     pet.style.setProperty('--look-x', side + 'px');
     // now and then the eyes go wide or narrow as it looks
     if (Math.random() < 0.3) eyesDo(Math.random() < 0.5 ? 'wide' : 'squint');
-    setTimeout(function () { if (!lookAt) { pet.style.removeProperty('--look-x'); } }, 900);
+    setTimeout(function () { pet.style.removeProperty('--look-x'); }, 900);
   } else if (r < 0.38) {
     // two quick blinks
     if (pet.dataset.eyes !== 'open') return;
@@ -382,39 +379,3 @@ setInterval(function () {
   walkHome();
   refreshBedtime();
 }, 60000);
-
-// ---------- eyes follow your finger or cursor ----------
-var lookAt = null, lookFrame = 0, lookTimer;
-/** Points each visible pet's pupils towards the last finger or cursor position. */
-function updateLook() {
-  lookFrame = 0;
-  // just the pet and its dressing-room copy; the species buttons stay still
-  [pet, dressPreview.querySelector('.pet')].forEach(function (el) {
-    if (!el) return;
-    var eyes = el.querySelector('.pupils');
-    if (!eyes || !lookAt || el.classList.contains('wishing')) {   // asking for a treat: his eyes stay on the cloud
-      el.style.removeProperty('--look-x'); el.style.removeProperty('--look-y'); el.classList.remove('looking');
-      return;
-    }
-    var r = eyes.getBoundingClientRect();
-    if (!r.width) return;
-    var dx = lookAt.x - (r.left + r.width / 2), dy = lookAt.y - (r.top + r.height / 2);
-    var d = Math.hypot(dx, dy) || 1;
-    var reach = Math.min(d / 120, 1);
-    el.style.setProperty('--look-x', (dx / d * 3.4 * reach).toFixed(2) + 'px');
-    el.style.setProperty('--look-y', (dy / d * 2.8 * reach).toFixed(2) + 'px');
-    el.classList.add('looking');
-  });
-}
-/**
- * Remembers where the finger or cursor is and drifts the eyes back after a pause.
- * @param {PointerEvent} e
- */
-function watchPointer(e) {
-  lookAt = { x: e.clientX, y: e.clientY };
-  if (!lookFrame) lookFrame = requestAnimationFrame(updateLook);
-  clearTimeout(lookTimer);
-  lookTimer = setTimeout(function () { lookAt = null; updateLook(); }, e.pointerType === 'mouse' ? 4000 : 1500);
-}
-document.addEventListener('pointermove', watchPointer, { passive: true });
-document.addEventListener('pointerdown', watchPointer, { passive: true });

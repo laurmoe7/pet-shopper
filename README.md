@@ -27,28 +27,13 @@ The tests live in `tests/` and load the same scripts the browser uses.
 
 ## What's in it
 
-- **The list.** Add items, tick them off, put them back, delete them. Each item gets a food emoji, and you can pick a different one.
-- **Calendar and stamps.** On the to-do list the bottom bar has a Calendar (birthdays and plans, with yearly repeats) and a stamp book that fills with a stamp for every task you tick.
-- **Aisles.** The shopping list groups itself by shop aisle (fruit & veg, bakery, meat, dairy, pantry, drinks, treats...) in the order you walk round a shop; it can be switched off in Options.
-- **Add by voice.** A mic button in the Add bar listens and adds what you say ("milk, eggs and bread" becomes three items), in English or Dutch; the app icon also has an "Add by voice" shortcut.
-- **To-do list.** Tap the title ("Nibble's shopping list") to swap to "Nibble's to-do list". Tasks get their own emoji, kinds and chatter; ticking one off earns a check-mark stamp and a cheer instead of being eaten, and there is no receipt. Tap a task to give it a due date and a repeat (every day, 3 days, week or month); Nibble holds a clipboard, mentions what is due, and a repeating task comes back with its next date when ticked. It doesn't count for goals or the Top 10.
-- **Nibble.** Eats each item you tick off, reacts to the type of food, and celebrates when the list is done. Pick a species (mochi, pig, cat, dog, bunny, birdie, cow, hamster, mouse, monkey, dragon, frog, hedgehog or axolotl, with a skin for most of them: strawberry, chocolate or taro mochi, tabby, black or calico cat, chihuahua, Pomeranian or golden retriever, chocolate milk or Highland cow, dirty piggy or boar, floppy-eared or Dutch bunny, white or long-haired black hamster, poison dart frog or toad, fast (blue) hedgehog, penguin, parrot or kiwi birdie) and a personality, and rename it with a double-tap.
-- **Bottom bar.** Pet, Room, Top 10 and Goals (rename, species, personality) are always one tap away at the bottom of the screen.
-- **Dress up.** Hats, glasses, scarves and shoes, including a clown nose and clown shoes. Each has its own line when you point at it.
-- **Top 10.** Counts what you buy most (once per item per day, same fair-play rules as goals) and ranks it on its own screen (bottom bar), with medals for the top 3 and a pedestal for #1. Tap + to put a favourite back on the list.
-- **Petting and treats.** Stroke Nibble with a finger for a purr and hearts. Now and then Nibble asks for a snack (a thought cloud with the food in it); tap the cloud to feed him. Up to 3 a day, each once. They count for goals and personalities like shopping does, with the same daily limits, but not for the Top 10.
-- **Memory.** Nibble remarks when you add something you buy a lot, using your Top 10.
-- **Room.** Place furniture behind Nibble and drag it around.
-- **Goals.** Feeding Nibble counts progress towards goals. Everything is unlocked for now (`FreeUnlocks.all`), so goals don't unlock anything yet. Fair-play rules keep it about real shopping:
-  - Items count after 15 minutes on the list, and once a day each.
-  - Only a few count per day, so nothing unlocks in one day.
-  - Putting an item back the same day takes its count back.
-- **Little extras.** A shopping cart, daydreams, suggestions and idle moves.
-- **Look.** Cardboard with paper labels and sticker buttons, in light and dark (follows your phone).
-- **Options.** Sounds, vibration, quiet mode and more. Developer tools sit at the bottom for testing.
-- **Saved on the device.** Works offline once loaded.
+- **Shopping list.** Add items by typing or voice, tick them off, swipe to delete. Items get a food emoji and are grouped by shop aisle. Paste a recipe link or ingredients to add them in one go, in metric or US units.
+- **To-do list.** Tap the title to swap lists. Tasks have dates and repeats, and there is a calendar and a stamp book.
+- **Nibble.** A pet that eats what you tick off and reacts to it. Pick a species, skin and personality, name it, dress it up, decorate its room, pet it, and take photos of it.
+- **Goals and Top 10.** Goals and your most-bought items, with fair-play rules so they follow real shopping.
+- **Look and feel.** Cardboard and sticker style, light and dark, no ads. Works offline and installs to the home screen.
 
-Not in it yet: accounts, shared lists, payments, multiple lists. See `CHANGELOG.md` for what changed and when.
+Not in it yet: accounts, shared lists, payments. See `CHANGELOG.md` for what changed and when.
 
 ## Files
 

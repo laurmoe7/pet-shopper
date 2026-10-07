@@ -484,7 +484,7 @@ function renderRepeat(item) {
   var what = item.repeat === 'days' ? (days.length ? 'on ' + DOW_ORDER.filter(function (n) { return days.indexOf(n) !== -1; }).map(function (n) { return DOW_NAMES[n]; }).join(', ') : 'on the days you pick') : r && r.label ? r.label.toLowerCase().replace(/ \(.*/, '') : '';
   $('repeatNote').classList.toggle('warn', !!repeatWarn);
   var warn = repeatWarn; repeatWarn = '';
-  $('repeatNote').textContent = warn ? warn : item.repeat ? 'Comes back ' + what + (item.until ? ' until ' + L.dueInfo(item.until, '0000-00-00').label : '') + ', when you tick it off.' : item.due ? 'A repeating task comes back on its next day when you tick it off.' : 'Picking a repeat sets the date to today.';
+  $('repeatNote').textContent = warn ? warn : item.repeat ? 'Comes back ' + what + (item.until ? ' until ' + L.dueInfo(item.until, '0000-00-00').label + (item.until.slice(0, 4) !== todayKey().slice(0, 4) ? ' ' + item.until.slice(0, 4) : '') : '') + ', when you tick it off.' : item.due ? 'A repeating task comes back on its next day when you tick it off.' : 'Picking a repeat sets the date to today.';
 }
 /**
  * Gives the open task a due day (or none), and puts the tasks in due order.

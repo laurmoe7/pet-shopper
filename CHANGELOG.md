@@ -2,6 +2,26 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 238 (11 Oct)
+- Smoother with a long list: the Bought list shows its latest rows, with a button for the rest.
+- Tidied unused files.
+- His arm relaxes when the glass goes away at bedtime.
+- Photoshoot: twist with two fingers (or use the Turn buttons) to rotate the pet; drag and pinch work in every background.
+- Photoshoot: the dressing room underneath stays quiet.
+- All props (bed, quilt, clipboard, toy, tongue) have the darker outline.
+- The magnifying glass is always put away in bed.
+- Profile: the Edit pencils sit by the field names, so your name and birthday have all the room.
+- Nibble puts the magnifying glass away once he is in bed with his blanket or asleep.
+- He sweeps the glass less, and his own eyes follow the one in the lens.
+- The lamp's outline is the pet's dark brown.
+- Name, your name and your birthday have an Edit button; double-tap to edit is gone.
+- Nibble searches with the magnifying glass while the recipe helper is open.
+- A repeat's end date shows the year when it isn't this year.
+- Swipe an item sideways to delete it; no goals, no clean-up list, and the pet comments.
+- The eyes no longer follow your finger or cursor.
+- Tapping an outfit gives its line (no more hover lines).
+- The pet is happy about veggies now.
+
 ## Build 235 (10 Oct)
 - Sketchpad: dark night theme, fireflies in the header.
 - Sketchpad: blinking Nibble in the header, twinkling stars, tape on boxes.

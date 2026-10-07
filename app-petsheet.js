@@ -117,8 +117,7 @@ speciesGrid.addEventListener('click', function (e) {
   applyPet();
   if (!busy) { setFace(FACES.tada); pulse('hop', 500); setTimeout(function () { if (!busy) settle(); }, 900); }
 });
-// The name shows as text; a double-tap (or Enter) turns it into a box to type in,
-// so opening the sheet doesn't pop up the phone keyboard.
+// The name shows as text with an Edit button, so opening the sheet doesn't pop up the phone keyboard.
 var petNameShow = $('petNameShow'), lastNameTap = 0;
 function showName() {
   $('petNameText').textContent = petName();
@@ -141,16 +140,9 @@ function finishRename(keep) {
     applyPet();
   }
   showName();
-  petNameShow.focus();
+  $('petNameEdit').focus();
 }
-petNameShow.addEventListener('click', function (e) {
-  var now = Date.now();
-  // detail is 0 for keyboard clicks (Enter or Space): rename straight away
-  if (e.detail === 0 || L.isDoubleTap(lastNameTap, now)) { lastNameTap = 0; startRename(); return; }
-  lastNameTap = now;
-  petNameShow.classList.remove('nudge'); void petNameShow.offsetWidth; petNameShow.classList.add('nudge');
-});
-petNameShow.addEventListener('dblclick', function (e) { e.preventDefault(); if (petNameInput.hidden) startRename(); });
+$('petNameEdit').addEventListener('click', startRename);
 petNameInput.addEventListener('keydown', function (e) {
   if (e.key === 'Enter') { e.preventDefault(); finishRename(true); }
   else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finishRename(false); }
