@@ -25,10 +25,22 @@ jobs:
           node-version: 20
       - run: npm test
 
+  smoke:
+    # opens the app in a phone-sized Chrome and fails on any page error
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps chromium
+      - run: node tools/smoke.js
+
   deploy:
     # only main goes live; pull requests just run the tests
     if: github.ref == 'refs/heads/main'
-    needs: test
+    needs: [test, smoke]
     runs-on: ubuntu-latest
     environment:
       name: github-pages
