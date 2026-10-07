@@ -1,11 +1,17 @@
 name: Build the desktop app (Windows)
 
-# Run it by hand: Actions > "Build the desktop app (Windows)" > Run workflow. The installer is under "Artifacts" on the run.
-# Pushing a tag like desktop-v0.1.0 also attaches it to a release.
+# Runs by itself whenever the desktop shell changes on main (the folder desktop/), and by hand:
+# Actions > "Build the desktop app (Windows)" > Run workflow.
+# It publishes a release with the installer. Installed copies of Nibble find the release and update themselves,
+# so you only run the installer yourself the first time. Changes to the app itself (everything outside desktop/)
+# need none of this: the desktop app loads the app from the web.
 on:
   workflow_dispatch:
   push:
-    tags: ['desktop-v*']
+    branches: [main]
+    paths:
+      - 'desktop/**'
+      - '.github/workflows/desktop.yml'
 
 permissions:
   contents: write
@@ -22,13 +28,12 @@ jobs:
         with:
           node-version: 20
       - run: npm ci
-      - run: npm run dist
+      # each run gets a higher version, which is how installed copies know there is something newer
+      - run: npm version "0.1.${{ github.run_number }}" --no-git-tag-version
+      - run: npm run release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v4
         with:
           name: Nibble-Windows-installer
           path: desktop/dist/*.exe
-      - name: Attach to the release (tags only)
-        if: startsWith(github.ref, 'refs/tags/desktop-v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: desktop/dist/*.exe

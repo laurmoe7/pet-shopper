@@ -5,12 +5,21 @@ the web (https://laurmoe7.github.io/pet-shopper/), so every big push updates it.
 
 ## How to get it (no installs needed)
 
-1. On GitHub: **Actions** → **Build the desktop app (Windows)** → **Run workflow** (branch `main`).
-2. After about 5 minutes open the finished run → **Artifacts** → download `Nibble-Windows-installer` and unzip it.
-3. Double-click the `.exe`. Windows will say "Windows protected your PC" because the app isn't signed yet: click
+1. On GitHub open the repo's **Releases** (right side of the main page) and download the newest `Nibble Setup ….exe`.
+   (Or **Actions** → **Build the desktop app (Windows)** → a finished run → **Artifacts**.)
+2. Double-click the `.exe`. Windows will say "Windows protected your PC" because the app isn't signed yet: click
    **More info** → **Run anyway**. It installs for you only (no admin needed) and starts Nibble.
 4. In Nibble: right-click him → **Open my list** → Options → **Backup & sync** → join with your code. Your list and
    pet appear here too.
+
+## Updates
+
+- **The app itself** (the pet, the list, everything you see) is loaded from the web: a big push updates it. Restart Nibble
+  or right-click → **Reload (get the latest)**.
+- **The shell** (this `desktop/` folder: the window, tray, menu) updates itself. Whenever `desktop/` changes on `main`,
+  GitHub builds a new release by itself; installed copies check every few hours, download quietly and install when you
+  next close Nibble. The tray menu then shows **Restart to update Nibble**, and **Check for app updates** looks right away.
+  You only run an installer by hand the first time (and when moving to a new PC).
 
 ## Using it
 

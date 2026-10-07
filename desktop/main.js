@@ -19,7 +19,7 @@ const log = (...a) => { if (LOG) console.log('[desk]', ...a); };
 if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 
 function start() {
-  let win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
+  let updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
   let prefs = { x: null, y: null, onTop: true };
   try { prefs = Object.assign(prefs, JSON.parse(fs.readFileSync(prefsFile(), 'utf8'))); } catch (e) { /* first run */ }
@@ -52,12 +52,14 @@ function start() {
   function menu() {
     const visible = win && win.isVisible();
     return Menu.buildFromTemplate([
+      ...(updateReady ? [{ label: 'Restart to update Nibble', click: () => autoUpdater.quitAndInstall() }, { type: 'separator' }] : []),
       mode === 'list' ? { label: 'Back to Nibble', click: () => applyMode('pet') } : { label: 'Open my list', click: () => { showNibble(); applyMode('list'); } },
       { label: visible ? 'Hide Nibble' : 'Show Nibble', click: () => (visible ? hideNibble() : showNibble()) },
       { type: 'separator' },
       { label: 'Always on top', type: 'checkbox', checked: prefs.onTop, click: (item) => { prefs.onTop = item.checked; savePrefs(); if (win && mode === 'pet') win.setAlwaysOnTop(prefs.onTop); } },
       { label: 'Start with Windows', type: 'checkbox', checked: app.getLoginItemSettings().openAtLogin, click: (item) => app.setLoginItemSettings({ openAtLogin: item.checked }) },
       { label: 'Reload (get the latest)', click: () => win && win.webContents.reloadIgnoringCache() },
+      { label: 'Check for app updates', enabled: app.isPackaged, click: () => checkUpdates() },
       { type: 'separator' },
       { label: 'Quit Nibble', click: () => app.quit() }
     ]);
@@ -92,6 +94,24 @@ function start() {
   ipcMain.on('desk:menu', () => { log('menu'); if (win) menu().popup({ window: win }); });
   ipcMain.on('desk:hide', () => hideNibble());
 
+  // The page (the app itself) updates by itself because it is loaded from the web. This is for the shell: the
+  // installed program. It checks GitHub's releases, downloads quietly and installs when Nibble is next closed.
+  let autoUpdater = null;
+  function checkUpdates() {
+    if (!autoUpdater) return;
+    autoUpdater.checkForUpdates().catch((e) => log('update check failed', e && e.message));
+  }
+  function setupUpdates() {
+    if (!app.isPackaged) return;   // not when started from the source folder
+    try { autoUpdater = require('electron-updater').autoUpdater; } catch (e) { return; }
+    autoUpdater.autoDownload = true;
+    autoUpdater.autoInstallOnAppQuit = true;
+    autoUpdater.on('update-downloaded', () => { updateReady = true; if (tray) tray.setToolTip('Nibble (update ready: right-click the tray icon)'); refreshMenus(); log('update ready'); });
+    autoUpdater.on('error', (e) => log('updater', e && e.message));
+    setTimeout(checkUpdates, 15000);
+    setInterval(checkUpdates, 6 * 3600 * 1000);
+  }
+
   app.on('second-instance', () => showNibble());
   app.on('window-all-closed', () => app.quit());
 
@@ -105,5 +125,6 @@ function start() {
     tray.setToolTip('Nibble');
     tray.on('click', () => { if (win && win.isVisible()) hideNibble(); else showNibble(); });
     refreshMenus();
+    setupUpdates();
   });
 }

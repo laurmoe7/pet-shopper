@@ -7,7 +7,8 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder --win --publish never"
+    "dist": "electron-builder --win --publish never",
+    "release": "electron-builder --win --publish always"
   },
   "devDependencies": {
     "electron": "^44.7.0",
@@ -16,9 +17,37 @@
   "build": {
     "appId": "com.laurmoe.nibble",
     "productName": "Nibble",
-    "files": ["main.js", "preload.js", "place.js", "build/icon.png", "package.json"],
-    "directories": { "output": "dist", "buildResources": "build" },
-    "win": { "target": "nsis", "icon": "build/icon.png" },
-    "nsis": { "oneClick": true, "perMachine": false, "runAfterFinish": true, "deleteAppDataOnUninstall": false }
+    "files": [
+      "main.js",
+      "preload.js",
+      "place.js",
+      "build/icon.png",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "laurmoe7",
+        "repo": "pet-shopper",
+        "releaseType": "release"
+      }
+    ]
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
   }
 }
