@@ -263,3 +263,9 @@ html:root body.skp .skp-top { background-image: linear-gradient(90deg, #41294a, 
 .skp-box::after { content: ""; position: absolute; right: 12px; top: -4px; width: 22px; height: 8px; border-radius: 4px; background: rgba(255, 190, 210, .35); transform: rotate(4deg); pointer-events: none; }
 @media (prefers-reduced-motion: reduce) { .sk-mascot, .sk-mascot *, .skp-box h2::before, .sk-view::before, .sk-view::after { animation: none !important; } }
 .skp-box h2::before { margin-right: 4px; }
+.sk-mini svg { width: 14px; height: 14px; display: block; margin: auto; }
+.skp-line.hidden { opacity: .55; }
+.skp-line.hidden input[type="text"] { text-decoration: line-through; }
+.sk-mini svg { width: 14px; height: 14px; display: block; margin: auto; }
+.skp-line.hidden { opacity: .55; }
+.skp-line.hidden input[type="text"] { text-decoration: line-through; }

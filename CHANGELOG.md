@@ -5,6 +5,7 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 ## Build 235 (10 Oct)
 - Sketchpad: dark night theme, fireflies in the header.
 - Sketchpad: blinking Nibble in the header, twinkling stars, tape on boxes.
+- Sketchpad: layer names can be typed, eye icons, pig mascot, slower fireflies.
 - Sketchpad: layers, flip, duplicate, copy and paste, game colours, pen reset.
 - Sketchpad: pen thickness slider, cuter look, no coordinates.
 - Sketchpad: Select and Lasso tools for moving, turning and resizing many lines.
