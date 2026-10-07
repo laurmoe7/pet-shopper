@@ -210,3 +210,10 @@ test('a drawing becomes a dressing-room entry that can be pasted into wardrobe.j
   assert.equal(item.id, 'pinkbar');
   assert.match(item.svg, /^<g class="item-pinkbar">.*stroke="#ff8fab".*<\/g>$/);
 });
+
+test('every special line style gives a dash pattern that repeats evenly', () => {
+  Object.keys(L.SKETCH_STYLES).filter((k) => k !== 'solid').forEach((k) => {
+    const d = L.sketchDash(k, 2);
+    assert.ok(d.array && d.array.split(' ').length % 2 === 0, k);
+  });
+});

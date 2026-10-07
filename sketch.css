@@ -369,7 +369,6 @@ html:root body.skp .cs-opt[aria-selected="true"]::after { color: #3b1f2b; }
 .sk-tools button:not(:disabled):active { animation: sk-pop .25s ease-out; }
 @keyframes sk-pop { 40% { transform: scale(1.12) rotate(-4deg); } }
 .skp-tabs button[aria-selected="true"] { animation: sk-pop .3s ease-out; }
-.sk-swatch[aria-pressed="true"], .sk-swatch.on { animation: sk-beat 2.6s ease-in-out infinite; }
 html:root body.skp .skp-main { background-size: 200% 100%; position: relative; overflow: hidden; }
 html:root body.skp .skp-main::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, .45) 50%, transparent 65%); translate: -120% 0; animation: sk-shine 4s ease-in-out infinite; pointer-events: none; }
 @keyframes sk-shine { 0%, 60% { translate: -120% 0; } 100% { translate: 120% 0; } }
@@ -380,3 +379,6 @@ html:root body.skp .skp-main::after { content: ""; position: absolute; inset: 0;
 .cs-pop .cs-opt { transition: padding-left .1s; }
 .cs-pop .cs-opt:hover { padding-left: 16px; }
 @media (prefers-reduced-motion: reduce) { .skp-toolbar::before, .sk-tools button::before, .skp-tabs button, .sk-swatch, .skp-main::after { animation: none !important; } }
+
+/* the Shape menu glows while the Shape tool is on */
+body.skp:has(.sk-stage[data-tool="shape"]) #skShape { border-color: #ff8fab; box-shadow: 0 0 0 2px rgba(255, 143, 171, .35), 0 0 12px rgba(255, 143, 171, .55); }

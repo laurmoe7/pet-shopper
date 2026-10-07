@@ -485,7 +485,13 @@ function skDown(e) {
   if (SK.tool === 'shape') { skShapeDown(pt); return; }
   if (SK.tool === 'imgmove') {
     var img = skSelected();
-    if (!img) { skStatus.textContent = 'Add an image first (Ctrl+V pastes one).'; return; }
+    if (!img) {   // no image to move: the lines on the ticked layers move together
+      var all = SK.strokes[SK.mode].filter(skSelectable);
+      if (!all.length) { skStatus.textContent = 'Nothing to move on the ticked layers.'; return; }
+      SK.pick = all;
+      skDrawing = { xf: { kind: 'move', start: pt, snap: skPickSnap(), pushed: false, all: true } };
+      return;
+    }
     skDrawing = { image: img, last: pt, moved: false };
     return;
   }
@@ -554,7 +560,7 @@ function skUp() {
   if (skDrawing && skDrawing.shape) { skShapeEnd(); return; }
   if (skDrawing && skDrawing.curve) { skDrawing = false; skCurveRender(skLastPt); return; }
   if (skDrawing && skDrawing.curveEdit) { skDrawing = false; skSave(); skCurveRender(null); return; }
-  if (skDrawing && skDrawing.xf) { skDrawing = false; skSave(); skXfRender(); return; }
+  if (skDrawing && skDrawing.xf) { if (skDrawing.xf.all) SK.pick = []; skDrawing = false; skSave(); skXfRender(); return; }
   if (skDrawing && skDrawing.lasso) { skLassoEnd(); skDrawing = false; skXfRender(); return; }
   if (skDrawing && skDrawing.band) { skBandEnd(skLastPt || [skDrawing.band.x, skDrawing.band.y]); skDrawing = false; skXfRender(); return; }
   if (!skDrawing) return;

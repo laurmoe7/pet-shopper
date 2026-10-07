@@ -1704,7 +1704,8 @@
 
   /** The special line styles of the sketchpad: dash and gap lengths in line widths (a dot is a very short dash with round ends). */
   var SKETCH_STYLES = {
-    solid: null, dotted: [0.01, 2.2], dashed: [3, 2.2], long: [6, 3], dashdot: [4, 2, 0.01, 2], stitch: [1.6, 1.6]
+    solid: null, dotted: [0.01, 2.2], dashed: [3, 2.2], long: [6, 3], dashdot: [4, 2, 0.01, 2], stitch: [1.6, 1.6],
+    tiny: [0.01, 1.3], wide: [0.01, 4.5], short: [1.4, 1.8], dashdots: [4, 2, 0.01, 2, 0.01, 2], morse: [4, 1.6, 0.01, 1.6, 4, 1.6, 0.01, 4]
   };
   /** @returns {{array: ?string, cap: string}} The stroke-dasharray (null for a solid line) and the line end to draw a style with. */
   function sketchDash(style, width) {
