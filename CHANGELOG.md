@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 242 (11 Oct)
+- New clothes: lilac dress.
+
 ## Build 241 (11 Oct)
 - Much smoother on Chrome with many items, and when sliding an item away.
 - The gift box sits at Nibble's bottom left, clear of speech bubbles.
