@@ -232,8 +232,8 @@ test('pattern fills are SVG patterns drawn in the two colours', () => {
 
 test('a clipped line stays inside the body in the saved SVG', () => {
   const svg = L.sketchSvg([{ pts: [[0, 0], [90, 90]], color: '#000', width: 2, clip: true }], { x: -30, y: -50, w: 220, h: 220 }, {});
-  assert.match(svg, /<clipPath id="bodyclip">/);
-  assert.match(svg, /clip-path="url\(#bodyclip\)"/);
+  assert.match(svg, /<mask id="bodyclip"/);
+  assert.match(svg, /mask="url\(#bodyclip\)"/);
 });
 
 test('a pressure line becomes a closed outline as wide as the pressure', () => {

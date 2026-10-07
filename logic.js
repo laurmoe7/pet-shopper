@@ -1553,7 +1553,7 @@
       if (soft) defs[sketchBlurId(soft)] = sketchBlurDef(soft);
       if (s.clip) defs.bodyclip = sketchClipDef();
       var dash = sketchDash(s.style, s.width);
-      return { layer: s.layer || null, svg: '<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + (fillAttr || esc(s.color)) + '"' : '') + (soft ? ' filter="url(#' + sketchBlurId(soft) + ')" opacity="0.7"' : '') + (dash.array ? ' stroke-dasharray="' + dash.array + '"' + (dash.cap === 'butt' ? ' stroke-linecap="butt"' : '') : '') + (s.d ? ' fill-rule="evenodd"' : '') + (s.clip ? ' clip-path="url(#bodyclip)"' : '') + '/>' };
+      return { layer: s.layer || null, svg: '<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + (fillAttr || esc(s.color)) + '"' : '') + (soft ? ' filter="url(#' + sketchBlurId(soft) + ')" opacity="0.7"' : '') + (dash.array ? ' stroke-dasharray="' + dash.array + '"' + (dash.cap === 'butt' ? ' stroke-linecap="butt"' : '') : '') + (s.d ? ' fill-rule="evenodd"' : '') + (s.clip ? ' mask="url(#bodyclip)"' : '') + '/>' };
     });
     return { defs: Object.keys(defs).map(function (k) { return defs[k]; }).join(''), items: items };
   }
@@ -1722,8 +1722,8 @@
 
   /** The outline of the pet's body (the same as the game's #bodyClip), shrunk a hair so a clipped line meets the pet's brown outline with no gap. */
   var SKETCH_BODY_PATH = 'M80 139C41 139 13 129 13 102C13 70 36 38 80 38C124 38 147 70 147 102C147 129 119 139 80 139Z';
-  /** @returns {string} The SVG clip path that keeps a drawing inside the pet's body. */
-  function sketchClipDef() { return '<clipPath id="bodyclip"><path transform="translate(80 90) scale(.99) translate(-80 -90)" d="' + SKETCH_BODY_PATH + '"/></clipPath>'; }
+  /** @returns {string} The SVG mask that keeps a drawing inside the pet's body, stopping flush with the inside of its outline (a white body with a black 2.6 wide edge, like the game's outline). */
+  function sketchClipDef() { return '<mask id="bodyclip" maskUnits="userSpaceOnUse" x="-60" y="-80" width="280" height="300"><path d="' + SKETCH_BODY_PATH + '" fill="#fff" stroke="#000" stroke-width="2.6" stroke-linejoin="round"/></mask>'; }
   /**
    * Turns a line drawn with a pressure-sensitive pen into a filled outline: the line is as wide at each point as the pen was pressed.
    * @param {number[][]} pts
