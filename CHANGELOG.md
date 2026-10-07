@@ -37,6 +37,7 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 - The pet is happy about veggies now.
 
 ## Build 235 (10 Oct)
+- Sketchpad: game outline, pen pressure, pattern fills, clip to body, spin copies, make a curve.
 - Sketchpad: pig icon ears sit behind the head.
 - Sketchpad: five more line styles, Move tool moves a whole layer, Shape menu glows.
 - Sketchpad: can be installed as its own app again.

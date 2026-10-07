@@ -217,3 +217,31 @@ test('every special line style gives a dash pattern that repeats evenly', () => 
     assert.ok(d.array && d.array.split(' ').length % 2 === 0, k);
   });
 });
+
+test('pattern fills are SVG patterns drawn in the two colours', () => {
+  L.SKETCH_PATTERNS.forEach((type) => {
+    const g = { type, c1: '#ff0000', c2: '#00ff00', s: 12 };
+    const def = L.sketchGradDef(g);
+    assert.match(def, new RegExp('<pattern id="' + L.sketchGradId(g) + '"'));
+    assert.ok(def.includes('#ff0000') && def.includes('#00ff00'), type);
+  });
+  const svg = L.sketchSvg([{ pts: [[0, 0], [9, 0], [9, 9]], color: '#ff0000', width: 1, fill: true, closed: true, grad: { type: 'dots', c1: '#ff0000', c2: '#ffffff', s: 5 } }], { x: 0, y: 0, w: 26, h: 26 }, {});
+  assert.match(svg, /<pattern/);
+  assert.match(svg, /fill="url\(#gdots/);
+});
+
+test('a clipped line stays inside the body in the saved SVG', () => {
+  const svg = L.sketchSvg([{ pts: [[0, 0], [90, 90]], color: '#000', width: 2, clip: true }], { x: -30, y: -50, w: 220, h: 220 }, {});
+  assert.match(svg, /<clipPath id="bodyclip">/);
+  assert.match(svg, /clip-path="url\(#bodyclip\)"/);
+});
+
+test('a pressure line becomes a closed outline as wide as the pressure', () => {
+  const pts = [[0, 0], [10, 0], [20, 0], [30, 0]];
+  const poly = L.sketchRibbon(pts, [2, 4, 8, 2]);
+  const ys = poly.map((p) => p[1]);
+  assert.ok(poly.length > 8);
+  assert.ok(Math.max(...ys) - Math.min(...ys) > 3, 'it swells where the pen pressed');
+  assert.ok(Math.max(...ys) - Math.min(...ys) < 9);
+  assert.equal(L.sketchRibbon([[5, 5]], [4]).length, 14, 'a single press is a dot');
+});

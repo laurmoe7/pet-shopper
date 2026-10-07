@@ -1551,8 +1551,9 @@
       var fillAttr = s.fill && s.grad ? 'url(#' + sketchGradId(s.grad) + ')' : null, soft = s.style === 'soft' ? sketchSoftBlur(s.width) : 0;
       if (fillAttr) defs[sketchGradId(s.grad)] = sketchGradDef(s.grad);
       if (soft) defs[sketchBlurId(soft)] = sketchBlurDef(soft);
+      if (s.clip) defs.bodyclip = sketchClipDef();
       var dash = sketchDash(s.style, s.width);
-      return { layer: s.layer || null, svg: '<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + (fillAttr || esc(s.color)) + '"' : '') + (soft ? ' filter="url(#' + sketchBlurId(soft) + ')" opacity="0.7"' : '') + (dash.array ? ' stroke-dasharray="' + dash.array + '"' + (dash.cap === 'butt' ? ' stroke-linecap="butt"' : '') : '') + (s.d ? ' fill-rule="evenodd"' : '') + '/>' };
+      return { layer: s.layer || null, svg: '<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + (fillAttr || esc(s.color)) + '"' : '') + (soft ? ' filter="url(#' + sketchBlurId(soft) + ')" opacity="0.7"' : '') + (dash.array ? ' stroke-dasharray="' + dash.array + '"' + (dash.cap === 'butt' ? ' stroke-linecap="butt"' : '') : '') + (s.d ? ' fill-rule="evenodd"' : '') + (s.clip ? ' clip-path="url(#bodyclip)"' : '') + '/>' };
     });
     return { defs: Object.keys(defs).map(function (k) { return defs[k]; }).join(''), items: items };
   }
@@ -1688,9 +1689,26 @@
   }
 
   /** @returns {string} A name for a gradient (the same gradient always gets the same name). */
-  function sketchGradId(g) { return 'g' + (g.type + g.c1 + g.c2).replace(/[^a-zA-Z0-9]/g, ''); }
+  function sketchGradId(g) { return 'g' + (g.type + g.c1 + g.c2 + (g.s ? 's' + g.s : '')).replace(/[^a-zA-Z0-9]/g, ''); }
+  /** The patterns a shape can be filled with (besides flat colour and fades): a tile of `s` units, drawn in the two colours. */
+  var SKETCH_PATTERNS = ['stripes', 'dots', 'check', 'hearts', 'stars'];
+  /** @returns {string} The SVG for a pattern fill: colour 2 is the ground, colour 1 the little pictures. */
+  function sketchPatternDef(g) {
+    var s = g.s || 10, h = s / 2, n = function (v) { return +v.toFixed(2); }, ground = '<rect width="' + n(s) + '" height="' + n(s) + '" fill="' + g.c2 + '"/>', motif, extra = '';
+    if (g.type === 'stripes') { motif = '<rect width="' + n(s) + '" height="' + n(h) + '" fill="' + g.c1 + '"/>'; extra = ' patternTransform="rotate(45)"'; }
+    else if (g.type === 'dots') motif = '<circle cx="' + n(h) + '" cy="' + n(h) + '" r="' + n(s * 0.22) + '" fill="' + g.c1 + '"/>';
+    else if (g.type === 'check') motif = '<rect width="' + n(h) + '" height="' + n(h) + '" fill="' + g.c1 + '"/><rect x="' + n(h) + '" y="' + n(h) + '" width="' + n(h) + '" height="' + n(h) + '" fill="' + g.c1 + '"/>';
+    else if (g.type === 'hearts') motif = '<path transform="translate(' + n(s * 0.2) + ' ' + n(s * 0.2) + ') scale(' + n(s * 0.6) + ')" d="M.5 .9C.1 .6 0 .4 .1 .25C.22 .08 .44 .12 .5 .3C.56 .12 .78 .08 .9 .25C1 .4 .9 .6 .5 .9Z" fill="' + g.c1 + '"/>';
+    else {
+      var pts = [], i;
+      for (i = 0; i < 10; i++) { var a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 0.2 : 0.46; pts.push(n(0.5 + Math.cos(a) * r) + ' ' + n(0.54 + Math.sin(a) * r)); }
+      motif = '<path transform="translate(' + n(s * 0.2) + ' ' + n(s * 0.2) + ') scale(' + n(s * 0.6) + ')" d="M' + pts.join('L') + 'Z" fill="' + g.c1 + '"/>';
+    }
+    return '<pattern id="' + sketchGradId(g) + '" patternUnits="userSpaceOnUse" width="' + n(s) + '" height="' + n(s) + '"' + extra + '>' + ground + motif + '</pattern>';
+  }
   /** @returns {string} The SVG for a gradient fill: type 'v' fades top to bottom, 'h' left to right, 'r' from the middle out. */
   function sketchGradDef(g) {
+    if (SKETCH_PATTERNS.indexOf(g.type) !== -1) return sketchPatternDef(g);
     var id = sketchGradId(g), stops = '<stop offset="0" stop-color="' + g.c1 + '"/><stop offset="1" stop-color="' + g.c2 + '"/>';
     if (g.type === 'r') return '<radialGradient id="' + id + '" cx="0.5" cy="0.5" r="0.6">' + stops + '</radialGradient>';
     return '<linearGradient id="' + id + '" x1="0" y1="0" x2="' + (g.type === 'h' ? 1 : 0) + '" y2="' + (g.type === 'h' ? 0 : 1) + '">' + stops + '</linearGradient>';
@@ -1701,6 +1719,39 @@
   function sketchBlurId(sd) { return 'b' + String(sd).replace('.', '_'); }
   /** @returns {string} The SVG for a blur filter (room round the line so the soft edge is not cut off). */
   function sketchBlurDef(sd) { return '<filter id="' + sketchBlurId(sd) + '" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="' + sd + '"/></filter>'; }
+
+  /** The outline of the pet's body (the same as the game's #bodyClip), shrunk a little so a clipped drawing stops inside the pet's own outline. */
+  var SKETCH_BODY_PATH = 'M80 139C41 139 13 129 13 102C13 70 36 38 80 38C124 38 147 70 147 102C147 129 119 139 80 139Z';
+  /** @returns {string} The SVG clip path that keeps a drawing inside the pet's body. */
+  function sketchClipDef() { return '<clipPath id="bodyclip"><path transform="translate(80 90) scale(.965) translate(-80 -90)" d="' + SKETCH_BODY_PATH + '"/></clipPath>'; }
+  /**
+   * Turns a line drawn with a pressure-sensitive pen into a filled outline: the line is as wide at each point as the pen was pressed.
+   * @param {number[][]} pts
+   * @param {number[]} widths  Full width at each point.
+   * @returns {number[][]} The polygon (round at both ends).
+   */
+  function sketchRibbon(pts, widths) {
+    var n = pts.length, i, k;
+    if (!n) return [];
+    // soften the width a little so it does not jump from point to point
+    var w = widths.map(function (_, j) { var a = 0, c = 0; for (var q = -2; q <= 2; q++) if (widths[j + q] !== undefined) { a += widths[j + q]; c++; } return Math.max(0.05, a / c); });
+    var arc = function (c, dir, r) {
+      var out = [], base = Math.atan2(dir[1], dir[0]);
+      for (var m = 1; m < 8; m++) { var a = base - Math.PI / 2 + Math.PI * m / 8; out.push([c[0] + Math.cos(a) * r, c[1] + Math.sin(a) * r]); }
+      return out;
+    };
+    if (n === 1) { var dot = []; for (k = 0; k < 14; k++) dot.push([pts[0][0] + Math.cos(k * Math.PI / 7) * w[0] / 2, pts[0][1] + Math.sin(k * Math.PI / 7) * w[0] / 2]); return dot.map(rnd2); }
+    var L1 = [], R1 = [], dirs = [];
+    for (i = 0; i < n; i++) {
+      var a0 = pts[Math.max(0, i - 1)], b0 = pts[Math.min(n - 1, i + 1)], dx = b0[0] - a0[0], dy = b0[1] - a0[1], d = Math.hypot(dx, dy) || 1;
+      dirs.push([dx / d, dy / d]);
+      L1.push([pts[i][0] - dy / d * w[i] / 2, pts[i][1] + dx / d * w[i] / 2]);
+      R1.push([pts[i][0] + dy / d * w[i] / 2, pts[i][1] - dx / d * w[i] / 2]);
+    }
+    var poly = L1.concat(arc(pts[n - 1], dirs[n - 1], w[n - 1] / 2), R1.slice().reverse(), arc(pts[0], [-dirs[0][0], -dirs[0][1]], w[0] / 2));
+    return poly.map(rnd2);
+  }
+  function rnd2(p) { return [Math.round(p[0] * 100) / 100, Math.round(p[1] * 100) / 100]; }
 
   /** The special line styles of the sketchpad: dash and gap lengths in line widths (a dot is a very short dash with round ends). */
   var SKETCH_STYLES = {
@@ -2034,6 +2085,6 @@
     toggleDone: toggleDone,
     pickEmoji: pickEmoji,
     soundFor: soundFor,
-    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, sketchDash: sketchDash, fitCurve: fitCurve, sketchPathClean: sketchPathClean, sketchItemCode: sketchItemCode, sketchGradId: sketchGradId, sketchGradDef: sketchGradDef, sketchSoftBlur: sketchSoftBlur, sketchBlurId: sketchBlurId, sketchBlurDef: sketchBlurDef, sketchShape: sketchShape, SKETCH_SHAPES: SKETCH_SHAPES, sketchWave: sketchWave, SKETCH_STYLES: SKETCH_STYLES, traceLoops: traceLoops, simplifyLine: skSimplify
+    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, sketchDash: sketchDash, fitCurve: fitCurve, sketchPathClean: sketchPathClean, sketchItemCode: sketchItemCode, sketchGradId: sketchGradId, sketchGradDef: sketchGradDef, sketchSoftBlur: sketchSoftBlur, sketchBlurId: sketchBlurId, sketchBlurDef: sketchBlurDef, sketchShape: sketchShape, sketchRibbon: sketchRibbon, sketchClipDef: sketchClipDef, SKETCH_PATTERNS: SKETCH_PATTERNS, SKETCH_SHAPES: SKETCH_SHAPES, sketchWave: sketchWave, SKETCH_STYLES: SKETCH_STYLES, traceLoops: traceLoops, simplifyLine: skSimplify
   };
 })(typeof self !== 'undefined' ? self : globalThis);

@@ -20,7 +20,7 @@ var SLOTS = [['hat', 'Hat'], ['body', 'Clothes'], ['face', 'Glasses'], ['mouth',
 /** What the pet underneath looks like (kept on this computer). */
 var P = { species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, backdrop: 'meadow', night: false, room: {} };
 var SK = {
-  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, tab: 'draw', clean: true, style: 'solid', shape: 'heart', fillMode: 'none', colour2: '#ffc9d6', clip: [], pasteN: 0, tidy: 6, space: false, sel: null, mirror: false, pick: [],
+  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, tab: 'draw', clean: true, style: 'solid', shape: 'heart', bodyClip: false, radial: 0, pressure: true, fillMode: 'none', colour2: '#ffc9d6', clip: [], pasteN: 0, tidy: 6, space: false, sel: null, mirror: false, pick: [],
   strokes: { pet: [], scene: [], toy: [], room: [] }, hist: { pet: [], scene: [], toy: [], room: [] }, redo: { pet: [], scene: [], toy: [], room: [] },
   /** Pictures to trace, one layer each, in the same coordinates as the drawing: {id, name, src, cx, cy, bw, bh, scale, opacity, visible, behind} */
   images: { pet: [], scene: [], toy: [], room: [] },
@@ -82,7 +82,7 @@ function dressUp(el, outfit) {
 // ---------- keeping the work on this computer ----------
 function skSave() {
   try {
-    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, style: SK.style, tab: SK.tab, clean: SK.clean, shape: SK.shape, fillMode: SK.fillMode, colour2: SK.colour2, layers: SK.layers, active: SK.active, snap: $('skSnap').checked, mirror: SK.mirror }));
+    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, style: SK.style, tab: SK.tab, clean: SK.clean, shape: SK.shape, fillMode: SK.fillMode, colour2: SK.colour2, layers: SK.layers, active: SK.active, snap: $('skSnap').checked, mirror: SK.mirror, bodyClip: SK.bodyClip, radial: SK.radial, pressure: SK.pressure }));
   } catch (e) { /* storage not available */ }
 }
 function skLoad() {
@@ -102,7 +102,7 @@ function skLoad() {
     if (d.pen >= 1 && d.pen <= 40) SK.pen = d.pen;
     if (L.SKETCH_STYLES[d.style] !== undefined || d.style === 'wavy' || d.style === 'soft') SK.style = d.style;
     if (L.SKETCH_SHAPES.some(function (x) { return x[0] === d.shape; })) SK.shape = d.shape;
-    SK.fillMode = ['none', 'flat', 'v', 'h', 'r'].indexOf(d.fillMode) !== -1 ? d.fillMode : (d.shapeFill ? 'flat' : 'none');
+    SK.fillMode = ['none', 'flat', 'v', 'h', 'r'].concat(L.SKETCH_PATTERNS).indexOf(d.fillMode) !== -1 ? d.fillMode : (d.shapeFill ? 'flat' : 'none');
     if (/^#[0-9a-f]{6}$/i.test(d.colour2 || '')) SK.colour2 = d.colour2;
     if (d.clean === false) SK.clean = false;
     if (['draw', 'under', 'send', 'sent'].indexOf(d.tab) !== -1) SK.tab = d.tab;
@@ -112,6 +112,7 @@ function skLoad() {
     });
     $('skSnap').checked = d.snap !== false;
     SK.mirror = !!d.mirror;
+    SK.bodyClip = !!d.bodyClip; SK.radial = [0, 3, 4, 5, 6, 8].indexOf(d.radial) !== -1 ? d.radial : 0; SK.pressure = d.pressure !== false;
   } catch (e) { /* nothing saved, or it could not be read */ }
 }
 
@@ -147,6 +148,58 @@ function skPlace(el, v, x, y, w, h) {
 function skAxis() { return SK.mode === 'pet' ? 80 : SK_VIEW[SK.mode].x + SK_VIEW[SK.mode].w / 2; }
 /** @returns {number[]} A point on the other side of the middle line. */
 function skMirrorPt(p) { return [2 * skAxis() - p[0], p[1]]; }
+/** @returns {number[]} The middle the Spin copies turn round (the middle of the pet's body, or of the picture). */
+/** @returns {string} Path text for the lines out from the middle that Spin copies along (a guide). */
+function skSpokes() {
+  var c = skCentre(), v = SK_VIEW[SK.mode], r = Math.max(v.w, v.h), d = '', k;
+  for (k = 0; k < SK.radial; k++) { var a = -Math.PI / 2 + 2 * Math.PI * k / SK.radial; d += 'M' + c[0] + ' ' + c[1] + 'L' + (c[0] + Math.cos(a) * r).toFixed(1) + ' ' + (c[1] + Math.sin(a) * r).toFixed(1); }
+  return d;
+}
+function skCentre() { var v = SK_VIEW[SK.mode]; return SK.mode === 'pet' ? [80, 88] : [v.x + v.w / 2, v.y + v.h / 2]; }
+/** @returns {number[][]} A point and all its copies (mirrored, and turned round the middle when Spin is on): for the eraser and the bucket. */
+function skSpots(pt) {
+  var base = SK.mirror ? [pt, skMirrorPt(pt)] : [pt], out = base.slice(), c = skCentre(), n = SK.radial || 1, k;
+  for (k = 1; k < n; k++) base.forEach(function (p) {
+    var a = 2 * Math.PI * k / n, dx = p[0] - c[0], dy = p[1] - c[1];
+    out.push([c[0] + dx * Math.cos(a) - dy * Math.sin(a), c[1] + dx * Math.sin(a) + dy * Math.cos(a)]);
+  });
+  return out;
+}
+/** @returns {Object[]} Copies of lines turned round the middle (Spin on), not counting the lines themselves. */
+function skSpin(list) {
+  var n = SK.radial || 1, out = [], c = skCentre(), k;
+  for (k = 1; k < n; k++) list.forEach(function (s) {
+    var m = JSON.parse(JSON.stringify(s)), r = L.sketchXform({ pts: s.pts, d: s.d, width: s.width }, { kind: 'rotate', cx: c[0], cy: c[1], a: 2 * Math.PI * k / n });
+    m.pts = r.pts; if (s.d) m.d = r.d;
+    delete m.cv; delete m.pair;
+    out.push(m);
+  });
+  return out;
+}
+/** @returns {Object[]} The other copies of a new line: the mirrored one, and all of them turned round the middle. */
+function skSymExtra(s) {
+  var m = SK.mirror ? [skMirrored(s)] : [];
+  return m.concat(skSpin([s].concat(m)));
+}
+/** Marks a new line to stay inside the pet's body when Clip is on. @returns {Object} The line. */
+function skNew(s) { if (SK.bodyClip && SK.mode === 'pet') s.clip = true; return s; }
+/** @returns {Object} A pen-pressure line as the filled outline it is saved as (other lines come back as they are). */
+function skLiveStroke(s) {
+  if (!s.pr) return s;
+  var v = SK_VIEW[SK.mode];
+  return { pts: L.sketchRibbon(s.pts, s.pr.map(function (f) { return s.width * f; })), color: s.color, width: +(v.w * 0.0015).toFixed(2), fill: true, closed: true, lay: s.lay, style: 'solid', clip: s.clip };
+}
+/** Draws the line being drawn, and its copies. */
+function skLiveUpdate() {
+  var d = skDrawing, v = SK_VIEW[SK.mode], dp = v.w > 100 ? 1 : 2, ls = skLiveStroke(d.stroke), ex = skSymExtra(ls);
+  function path(t) { return t.d || L.sketchPath(t.pts, (t.fill || t.closed) && t.pts.length > 2, dp); }
+  d.el.setAttribute('d', path(ls));
+  if (d.stroke.pr) { d.el.setAttribute('fill', ls.color); d.el.setAttribute('stroke-width', ls.width); }
+  while (d.extra.length < ex.length) { var el = skEl(ex[d.extra.length]); skDraw.appendChild(el); d.extra.push(el); }
+  d.extra.forEach(function (el, i) { el.setAttribute('d', path(ex[i])); });
+}
+/** @returns {number} How wide a pen line is at a pen pressure (1 is the thickness on the slider). */
+function skPressure(e) { return Math.max(0.1, Math.min(1.6, 0.15 + 1.7 * (e.pressure || 0.5))); }
 /** @returns {SVGSVGElement} The grid: faint lines every 10 (or 2) units, stronger every 50 (or 10), and the pet's middle line. */
 function skGrid(v) {
   var small = v.w > 100 ? 10 : 2, big = v.w > 100 ? 50 : 10, d = '', dBig = '';
@@ -157,7 +210,7 @@ function skGrid(v) {
   svg.setAttribute('class', 'sk-grid');
   svg.innerHTML = '<path d="' + d + '" class="g1"/><path d="' + dBig + '" class="g2"/>' +
     (SK.mode === 'pet' ? '<path d="M80 ' + v.y + 'v' + v.h + '" class="g3"/>' : '') +
-    (SK.mirror ? '<path d="M' + skAxis() + ' ' + v.y + 'v' + v.h + '" class="g4"/>' : '');
+    (SK.mirror ? '<path d="M' + skAxis() + ' ' + v.y + 'v' + v.h + '" class="g4"/>' : '') + (SK.radial ? '<path d="' + skSpokes() + '" class="g4"/>' : '');
   return svg;
 }
 /** Builds the stage for the current mode: the picture underneath, the grid and the drawing layer. */
@@ -234,9 +287,11 @@ function skDef(id, markup) {
   if (!defs.querySelector('#' + id)) defs.insertAdjacentHTML('beforeend', markup);
   return id;
 }
-/** @returns {?Object} The fade a new filled shape gets (null for a flat colour), from the Fill list. */
+/** @returns {?Object} The fade or pattern a new filled shape gets (null for a flat colour), from the Fill list. */
 function skGrad() {
-  return SK.fillMode === 'v' || SK.fillMode === 'h' || SK.fillMode === 'r' ? { type: SK.fillMode, c1: SK.color, c2: SK.colour2 } : null;
+  if (SK.fillMode === 'v' || SK.fillMode === 'h' || SK.fillMode === 'r') return { type: SK.fillMode, c1: SK.color, c2: SK.colour2 };
+  if (L.SKETCH_PATTERNS.indexOf(SK.fillMode) !== -1) return { type: SK.fillMode, c1: SK.color, c2: SK.colour2, s: +(SK_VIEW[SK.mode].w / 16).toFixed(1) };   // a tile is a sixteenth of the picture
+  return null;
 }
 /** @returns {SVGPathElement} One stroke, drawn. */
 function skEl(s) {
@@ -248,6 +303,7 @@ function skEl(s) {
   el.setAttribute('fill', s.fill ? s.color : 'none');
   if (s.fill && s.grad) el.setAttribute('fill', 'url(#' + skDef(L.sketchGradId(s.grad), L.sketchGradDef(s.grad)) + ')');
   if (s.style === 'soft') { var sd = L.sketchSoftBlur(s.width); el.setAttribute('filter', 'url(#' + skDef(L.sketchBlurId(sd), L.sketchBlurDef(sd)) + ')'); el.setAttribute('opacity', '.7'); }
+  if (s.clip) el.setAttribute('clip-path', 'url(#' + skDef('bodyclip', L.sketchClipDef()) + ')');
   var dd = L.sketchDash(s.style, s.width);
   if (dd.array) el.setAttribute('stroke-dasharray', dd.array);
   el.setAttribute('stroke-linecap', dd.cap);
@@ -457,7 +513,7 @@ function skInFill(s, pt) {
 var skCtx = document.createElement('canvas').getContext('2d');
 function skEraseAt(pt) {
   var v = SK_VIEW[SK.mode], r = v.w * 0.012, list = SK.strokes[SK.mode];
-  var spots = SK.mirror ? [pt, skMirrorPt(pt)] : [pt];
+  var spots = skSpots(pt);
   var hitsLine = function (s) { return !s.bucket && skSelectable(s) && spots.some(function (q) { return L.sketchHit(s.pts, q, r + s.width / 2); }); };
   var lines = list.some(hitsLine);
   // lines come first: only when no line is under the eraser does it take the colour fill there
@@ -498,11 +554,12 @@ function skDown(e) {
   if (SK.tool === 'erase') { skDrawing = { erased: false }; skEraseAt(pt); return; }
   var act = skLays().filter(function (x) { return x.id === SK.active[SK.mode]; })[0];
   if (act && !act.show) { act.show = true; skLinesUI(); skRedraw(); }   // drawing on a hidden layer shows it, so the line is not invisible
-  var s = { pts: [pt], color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: SK.tool === 'blob', lay: SK.active[SK.mode], style: SK.style };
+  var s = skNew({ pts: [pt], color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: SK.tool === 'blob', lay: SK.active[SK.mode], style: SK.style });
   if (s.fill && skGrad()) s.grad = skGrad();
-  skDrawing = { stroke: s, el: skEl(s) };
+  if (SK.tool === 'pen' && SK.pressure && e.pointerType === 'pen' && SK.style === 'solid') s.pr = [skPressure(e)];   // a pen that feels pressure draws a line that swells and thins
+  skDrawing = { stroke: s, el: skEl(s), extra: [] };
   skDraw.appendChild(skDrawing.el);
-  if (SK.mirror) { skDrawing.el2 = skEl(skMirrored(s)); skDraw.appendChild(skDrawing.el2); }
+  skLiveUpdate();
 }
 /** @returns {Object} A copy of a stroke folded over the middle line. */
 /** @returns {Object} A curve's points folded over the middle line. */
@@ -550,8 +607,8 @@ function skMove(e) {
   var s = skDrawing.stroke, last = s.pts[s.pts.length - 1];
   if (Math.hypot(pt[0] - last[0], pt[1] - last[1]) < v.w * 0.002) return;   // ignore tiny wobbles
   s.pts.push(pt);
-  skDrawing.el.setAttribute('d', L.sketchPath(s.pts, s.fill && s.pts.length > 2, v.w > 100 ? 1 : 2));
-  if (skDrawing.el2) skDrawing.el2.setAttribute('d', L.sketchPath(s.pts.map(skMirrorPt), s.fill && s.pts.length > 2, v.w > 100 ? 1 : 2));
+  if (s.pr) s.pr.push(skPressure(e));
+  skLiveUpdate();
 }
 function skUp() {
   if (skPan) skStage.classList.remove('panning');
@@ -565,13 +622,17 @@ function skUp() {
   if (skDrawing && skDrawing.band) { skBandEnd(skLastPt || [skDrawing.band.x, skDrawing.band.y]); skDrawing = false; skXfRender(); return; }
   if (!skDrawing) return;
   if (skDrawing.stroke) {
-    var s = skDrawing.stroke, t = L.tidyStroke(s.pts, SK_VIEW[SK.mode].w, { passes: SK.tidy, snap: $('skSnap').checked });
-    s.pts = t.pts;
-    if (t.closed) s.closed = true;
-    if (s.style === 'wavy' && !s.fill) s.pts = skWavy(s.pts, s.width);
+    var s = skDrawing.stroke;
+    if (s.pr) s = skLiveStroke(s);   // a pressure line is saved as its filled outline, so it is not tidied
+    else {
+      var t = L.tidyStroke(s.pts, SK_VIEW[SK.mode].w, { passes: SK.tidy, snap: $('skSnap').checked });
+      s.pts = t.pts;
+      if (t.closed) s.closed = true;
+      if (s.style === 'wavy' && !s.fill) s.pts = skWavy(s.pts, s.width);
+    }
     skPushHistory();
     SK.strokes[SK.mode].push(s);
-    if (skDrawing.el2) SK.strokes[SK.mode].push(skMirrored(s));   // the other side is the same line folded over, so the two always match exactly
+    skSymExtra(s).forEach(function (c) { SK.strokes[SK.mode].push(c); });   // the other sides are the same line folded over and turned, so they always match exactly
     skRedraw();   // redrawn tidy, and in the right layer
   }
   skDrawing = false;
@@ -579,7 +640,7 @@ function skUp() {
 }
 function skCancel() {
   if (skDrawing && skDrawing.el) skDrawing.el.remove();
-  if (skDrawing && skDrawing.el2) skDrawing.el2.remove();
+  if (skDrawing && skDrawing.extra) skDrawing.extra.forEach(function (x) { x.remove(); });
   if (skDrawing && (skDrawing.lasso || skDrawing.band)) { (skDrawing.lasso || skDrawing.band).el.remove(); }
   skDrawing = false; skPan = null;
   skStage.classList.remove('panning');
@@ -641,13 +702,13 @@ function skShapeEnd() {
   skDrawing = false; d.el.remove();
   var xs = (d.pts || []).map(function (p) { return p[0]; }), ys = (d.pts || []).map(function (p) { return p[1]; });
   if (!d.pts || Math.max.apply(null, xs) - Math.min.apply(null, xs) < v.w * 0.01 || Math.max.apply(null, ys) - Math.min.apply(null, ys) < v.w * 0.01) { skRedraw(); return; }   // a plain click draws nothing
-  var s = { pts: d.pts, color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: SK.fillMode !== 'none', closed: true, lay: SK.active[SK.mode], style: SK.style === 'wavy' ? 'solid' : SK.style };
+  var s = skNew({ pts: d.pts, color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: SK.fillMode !== 'none', closed: true, lay: SK.active[SK.mode], style: SK.style === 'wavy' ? 'solid' : SK.style });
   if (s.fill && skGrad()) s.grad = skGrad();
   var act = skLays().filter(function (x) { return x.id === SK.active[SK.mode]; })[0];
   if (act && !act.show) { act.show = true; skLinesUI(); }
   skPushHistory();
   SK.strokes[SK.mode].push(s);
-  if (SK.mirror) SK.strokes[SK.mode].push(skMirrored(s));
+  skSymExtra(s).forEach(function (c) { SK.strokes[SK.mode].push(c); });
   skRedraw(); skSave();
 }
 
@@ -831,7 +892,7 @@ function skCurveFinish(close) {
   skCurve = null; skDrawing = false;
   skCurveRender(null);
   if (!c || c.pts.length < 2) return;
-  var s = { pts: [], color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: false, lay: SK.active[SK.mode], style: SK.style, cv: { closed: !!close, a: c.pts.map(function (a) { return { p: a.p.slice(), o: a.o.slice() }; }) } };
+  var s = skNew({ pts: [], color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: false, lay: SK.active[SK.mode], style: SK.style, cv: { closed: !!close, a: c.pts.map(function (a) { return { p: a.p.slice(), o: a.o.slice() }; }) } });
   if (close) s.closed = true;
   skCurveRebuild(s);
   var act = skLays().filter(function (x) { return x.id === SK.active[SK.mode]; })[0];
@@ -839,6 +900,7 @@ function skCurveFinish(close) {
   skPushHistory();
   SK.strokes[SK.mode].push(s);
   if (SK.mirror) { s.pair = 'm' + Date.now().toString(36); SK.strokes[SK.mode].push(skMirrored(s)); }
+  skSpin(SK.strokes[SK.mode].slice(-(SK.mirror ? 2 : 1))).forEach(function (c) { SK.strokes[SK.mode].push(c); });
   skRedraw(); skSave();
   skStatus.textContent = 'Curve added. Click it with the Curve tool to tweak it.';
 }
@@ -1078,6 +1140,50 @@ $('skDup').addEventListener('click', skDuplicate);
 $('skFront').addEventListener('click', function () { skStack(true); });
 $('skBack').addEventListener('click', function () { skStack(false); });
 $('skToLayer').addEventListener('click', skToLayer);
+/** The game's own dark brown, used for outlines. */
+var SK_INK = '#5b4239';
+/** Gives each picked filled shape the game's brown outline: a line along its edge, just above it, at the pen thickness. */
+function skOutline() {
+  var v = SK_VIEW[SK.mode], list = SK.strokes[SK.mode], shapes = skOrdered().filter(function (s) { return SK.pick.indexOf(s) !== -1 && (s.fill || s.bucket) && s.pts.length > 2; });
+  if (!shapes.length) { skStatus.textContent = 'Pick a filled shape first.'; return; }
+  skPushHistory();
+  var w = +(v.w * SK_PEN * SK.pen).toFixed(2);
+  shapes.forEach(function (s) {
+    var o = { pts: s.pts.map(function (p) { return p.slice(); }), color: SK_INK, width: w, fill: false, closed: true, lay: s.lay, style: 'solid' };
+    if (s.d) o.d = s.d;
+    if (s.clip) o.clip = true;
+    list.splice(list.indexOf(s) + 1, 0, o);
+  });
+  skRedraw(); skSave();
+  skStatus.textContent = 'Outlined in the game brown.';
+}
+/** Turns each picked pen line into a curve with points and handles, so the Curve tool can tweak it. */
+function skToCurve() {
+  var v = SK_VIEW[SK.mode], todo = SK.pick.filter(function (s) { return !s.cv && !s.bucket && !s.d && s.pts.length > 2 && s.style !== 'wavy'; });
+  if (!todo.length) { skStatus.textContent = 'Pick pen lines (not curves or fills) to turn into curves.'; return; }
+  skPushHistory();
+  todo.forEach(function (s) {
+    var loop = s.closed || s.fill, pts = loop ? s.pts.concat([s.pts[0]]) : s.pts, segs = L.fitCurve(pts, v.w * 0.003);
+    if (!segs.length) return;
+    var a = [{ p: segs[0][0].slice(), o: [segs[0][1][0] - segs[0][0][0], segs[0][1][1] - segs[0][0][1]] }];
+    segs.forEach(function (b, k) {
+      var next = { p: b[3].slice(), o: [0, 0], i: [b[2][0] - b[3][0], b[2][1] - b[3][1]] };
+      if (k < segs.length - 1) next.o = [segs[k + 1][1][0] - b[3][0], segs[k + 1][1][1] - b[3][1]];
+      a.push(next);
+    });
+    if (loop) { var last = a.pop(); a[0].i = last.i; }
+    a.forEach(function (n) {   // a point whose two handles line up is smooth: it keeps one handle and the other follows
+      if (n.i && Math.abs(n.i[0] + n.o[0]) < 0.01 && Math.abs(n.i[1] + n.o[1]) < 0.01) delete n.i;
+    });
+    s.cv = { closed: !!loop, a: a };
+    if (loop) s.closed = true;
+    skCurveRebuild(s, true);
+  });
+  skRedraw(); skSave();
+  skStatus.textContent = 'Now a curve: click it with the Curve tool to move its points.';
+}
+$('skOutline').addEventListener('click', skOutline);
+$('skToCurve').addEventListener('click', skToCurve);
 $('skDel').addEventListener('click', skDeletePick);
 
 // ---------- combining shapes ----------
@@ -1111,6 +1217,7 @@ function skCombine(op) {
   var base = shapes[0], outer = loops.slice().sort(function (a, b) { return b.length - a.length; })[0];
   var made = { d: loops.map(function (lp) { return 'M' + lp.map(function (p) { return p[0] + ' ' + p[1]; }).join('L') + 'Z'; }).join(''), pts: outer, color: base.color, width: base.width, fill: base.fill, closed: true, style: base.style, lay: base.lay };
   if (base.bucket) made.bucket = true;
+  if (base.clip) made.clip = true;
   if (base.grad) made.grad = base.grad;
   skPushHistory();
   var list = SK.strokes[SK.mode], at = list.indexOf(base);
@@ -1183,7 +1290,7 @@ function skBucket(pt) {
   });
   var px = g.getImageData(0, 0, W, H).data, wall = new Uint8Array(W * H);
   for (var i = 0; i < wall.length; i++) wall[i] = px[i * 4 + 3] > 40 ? 1 : 0;
-  var spots = SK.mirror ? [pt, skMirrorPt(pt)] : [pt], added = [], recoloured = false, why = '';
+  var spots = skSpots(pt), added = [], recoloured = false, why = '';
   spots.forEach(function (q) {
     var r = L.floodMask(wall, W, H, Math.floor((q[0] - v.x) * scale), Math.floor((q[1] - v.y) * scale));
     if (!r) { why = why || 'line'; return; }
@@ -1199,6 +1306,7 @@ function skBucket(pt) {
     if (same) { same.color = SK.color; recoloured = true; return; }
     // wide enough to reach under the lines on every side, so no hairline shows between the fill and a line
     added.push({ d: d, pts: outer, color: SK.color, width: +(2 * (GAP + 1.5) / scale).toFixed(2), fill: true, closed: true, bucket: true, lay: SK.active[SK.mode] });
+    skNew(added[added.length - 1]);
     if (skGrad()) added[added.length - 1].grad = skGrad();
   });
   if (!added.length && !recoloured) {
@@ -1759,6 +1867,9 @@ function skBuildPanels() {
   sh.value = SK.shape; $('skStyle').value = SK.style; $('skFillMode').value = SK.fillMode; $('skColour2').value = SK.colour2;
   skPress($('skTidy'), 'tidy', SK.tidy);
   $('skMirror').setAttribute('aria-pressed', String(SK.mirror));
+  $('skClip').setAttribute('aria-pressed', String(SK.bodyClip)); $('skClip').hidden = SK.mode !== 'pet';
+  $('skSpin').setAttribute('aria-pressed', String(!!SK.radial)); $('skSpin').dataset.key = SK.radial ? String(SK.radial) : 'R';
+  $('skPressure').checked = SK.pressure;
 }
 
 skStage.addEventListener('pointerdown', function (e) { if (skDraw && e.target === skDraw) skDown(e); });
@@ -1904,6 +2015,8 @@ document.addEventListener('keydown', function (e) {
   if (skCurve && e.key === 'Enter') { e.preventDefault(); skCurveFinish(false); return; }
   if ((skCurve || skCurveEdit) && e.key === 'Escape') { skCurveCancel(); skStatus.textContent = 'Curve cancelled.'; return; }
   if (k === 'x') { skSetMirror(!SK.mirror); return; }
+  if (k === 'r') { skNextSpin(); return; }
+  if (k === 'k') { skSetClip(!SK.bodyClip); return; }
   if ((k === 'delete' || k === 'backspace') && skIsSel() && SK.pick.length) { e.preventDefault(); skDeletePick(); return; }
   if (e.key === 'Escape' && skIsSel() && SK.pick.length) { SK.pick = []; skXfRender(); return; }
   var tool = { p: 'pen', f: 'blob', e: 'erase', h: 'hand', i: 'drop', m: 'imgmove', b: 'bucket', s: 'select', l: 'lasso', c: 'curve', g: 'shape' }[k];
@@ -1924,6 +2037,26 @@ function skSetMirror(on) {
   skBuild();
 }
 $('skMirror').addEventListener('click', function () { skSetMirror(!SK.mirror); });
+/** Clip: new lines stay inside the pet's body (for skin patterns). */
+function skSetClip(on) {
+  SK.bodyClip = on;
+  $('skClip').setAttribute('aria-pressed', String(on));
+  skStatus.textContent = on ? 'Clip on: new lines stay inside the pet’s body.' : 'Clip off.';
+  skSave();
+}
+$('skClip').addEventListener('click', function () { skSetClip(!SK.bodyClip); });
+/** Spin: each line is copied turned round the middle, 3 to 8 times; the button goes through the choices. */
+function skSetSpin(n) {
+  SK.radial = n;
+  var b = $('skSpin');
+  b.setAttribute('aria-pressed', String(!!n)); b.dataset.key = n ? String(n) : 'R';
+  skStatus.textContent = n ? 'Spin on: drawing is copied ' + n + ' times round the middle.' : 'Spin off.';
+  skSave(); skBuild();
+}
+function skNextSpin() { var o = [0, 3, 4, 5, 6, 8]; skSetSpin(o[(o.indexOf(SK.radial) + 1) % o.length]); }
+$('skSpin').addEventListener('click', skNextSpin);
+$('skPressure').addEventListener('change', function () { SK.pressure = $('skPressure').checked; skSave(); });
+
 // Ctrl+C and Ctrl+X on picked lines keep them for pasting (the system clipboard gets a note, so an older picture there is not pasted by mistake)
 document.addEventListener('copy', function (e) {
   if (typing(e) || !skIsSel() || !SK.pick.length) return;
