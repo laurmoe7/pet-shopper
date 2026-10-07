@@ -80,9 +80,11 @@
       <div class="sk-row sk-styles">
         <label class="sk-pick" title="Dotted, dashed and other special lines (also changes the lines you have picked)"><span>Line</span><select id="skStyle" aria-label="Line style">
           <option value="solid">━━ Solid</option><option value="dotted">· · · Dotted</option><option value="dashed">╌ Dashed</option><option value="long">━ ━ Long dashes</option>
-          <option value="dashdot">━ · ━ Dash-dot</option><option value="stitch">┄ Stitches</option><option value="wavy">∿ Wavy</option></select></label>
+          <option value="dashdot">━ · ━ Dash-dot</option><option value="stitch">┄ Stitches</option><option value="soft">☁ Soft</option><option value="wavy">∿ Wavy</option></select></label>
         <label class="sk-pick"><span>Shape</span><select id="skShape" aria-label="Shape"></select></label>
-        <label class="sk-check" title="Fill the shape with the pen colour"><input type="checkbox" id="skShapeFill"> Fill</label>
+        </div>
+      <div class="sk-row sk-styles">
+        <label class="sk-pick" title="How shapes, Filled and the bucket are coloured in. The fades go from the pen colour to the second colour"><span>Fill</span><select id="skFillMode" aria-label="Fill"><option value="none">Outline</option><option value="flat">Flat</option><option value="v">Fade ↓</option><option value="h">Fade →</option><option value="r">Glow</option></select></label><input type="color" id="skColour2" value="#ffc9d6" title="Second colour for fades" aria-label="Second colour">
       </div>
       <div class="sk-row">
         <span class="sk-label" title="Smooths each line when you lift the pen">Tidy</span>
@@ -157,6 +159,7 @@
 </div>
 
 <!-- the pet and the toy are borrowed from the game's own page (index.html) when this page opens, so they are always the current ones -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs id="skDefs"></defs></svg>
 <div id="skSource" aria-hidden="true"></div>
 
 <script src="logic.js"></script>

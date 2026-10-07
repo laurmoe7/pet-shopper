@@ -18,7 +18,7 @@ var SLOTS = [['hat', 'Hat'], ['body', 'Clothes'], ['face', 'Glasses'], ['mouth',
 /** What the pet underneath looks like (kept on this computer). */
 var P = { species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, backdrop: 'meadow', night: false, room: {} };
 var SK = {
-  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, style: 'solid', shape: 'heart', shapeFill: false, clip: [], pasteN: 0, tidy: 6, space: false, sel: null, mirror: false, pick: [],
+  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, style: 'solid', shape: 'heart', fillMode: 'none', colour2: '#ffc9d6', clip: [], pasteN: 0, tidy: 6, space: false, sel: null, mirror: false, pick: [],
   strokes: { pet: [], scene: [], toy: [], room: [] }, hist: { pet: [], scene: [], toy: [], room: [] }, redo: { pet: [], scene: [], toy: [], room: [] },
   /** Pictures to trace, one layer each, in the same coordinates as the drawing: {id, name, src, cx, cy, bw, bh, scale, opacity, visible, behind} */
   images: { pet: [], scene: [], toy: [], room: [] },
@@ -80,7 +80,7 @@ function dressUp(el, outfit) {
 // ---------- keeping the work on this computer ----------
 function skSave() {
   try {
-    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, style: SK.style, shape: SK.shape, shapeFill: SK.shapeFill, layers: SK.layers, active: SK.active, snap: $('skSnap').checked, mirror: SK.mirror }));
+    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, style: SK.style, shape: SK.shape, fillMode: SK.fillMode, colour2: SK.colour2, layers: SK.layers, active: SK.active, snap: $('skSnap').checked, mirror: SK.mirror }));
   } catch (e) { /* storage not available */ }
 }
 function skLoad() {
@@ -98,9 +98,10 @@ function skLoad() {
     $('skNote').value = d.note || '';
     if (typeof d.tidy === 'number') SK.tidy = d.tidy;
     if (d.pen >= 1 && d.pen <= 40) SK.pen = d.pen;
-    if (L.SKETCH_STYLES[d.style] !== undefined || d.style === 'wavy') SK.style = d.style;
+    if (L.SKETCH_STYLES[d.style] !== undefined || d.style === 'wavy' || d.style === 'soft') SK.style = d.style;
     if (L.SKETCH_SHAPES.some(function (x) { return x[0] === d.shape; })) SK.shape = d.shape;
-    SK.shapeFill = !!d.shapeFill;
+    SK.fillMode = ['none', 'flat', 'v', 'h', 'r'].indexOf(d.fillMode) !== -1 ? d.fillMode : (d.shapeFill ? 'flat' : 'none');
+    if (/^#[0-9a-f]{6}$/i.test(d.colour2 || '')) SK.colour2 = d.colour2;
     ['pet', 'scene', 'toy', 'room'].forEach(function (m) {
       if (d.layers && Array.isArray(d.layers[m])) SK.layers[m] = d.layers[m].filter(function (l) { return l && l.id; }).map(function (l) { return { id: String(l.id), name: String(l.name || 'Layer').slice(0, 24), show: l.show !== false }; });
       if (d.active && d.active[m]) SK.active[m] = d.active[m];
@@ -223,6 +224,16 @@ function svgIcon(view, inner) {
   svg.innerHTML = inner;
   return svg;
 }
+/** Makes sure a gradient or blur is defined for the drawing to use (kept in a hidden part of the page). @returns {string} Its id. */
+function skDef(id, markup) {
+  var defs = $('skDefs');
+  if (!defs.querySelector('#' + id)) defs.insertAdjacentHTML('beforeend', markup);
+  return id;
+}
+/** @returns {?Object} The fade a new filled shape gets (null for a flat colour), from the Fill list. */
+function skGrad() {
+  return SK.fillMode === 'v' || SK.fillMode === 'h' || SK.fillMode === 'r' ? { type: SK.fillMode, c1: SK.color, c2: SK.colour2 } : null;
+}
 /** @returns {SVGPathElement} One stroke, drawn. */
 function skEl(s) {
   var el = document.createElementNS(SVGNS, 'path'), v = SK_VIEW[SK.mode];
@@ -231,6 +242,8 @@ function skEl(s) {
   el.setAttribute('stroke', s.color);
   el.setAttribute('stroke-width', s.width);
   el.setAttribute('fill', s.fill ? s.color : 'none');
+  if (s.fill && s.grad) el.setAttribute('fill', 'url(#' + skDef(L.sketchGradId(s.grad), L.sketchGradDef(s.grad)) + ')');
+  if (s.style === 'soft') { var sd = L.sketchSoftBlur(s.width); el.setAttribute('filter', 'url(#' + skDef(L.sketchBlurId(sd), L.sketchBlurDef(sd)) + ')'); el.setAttribute('opacity', '.7'); }
   var dd = L.sketchDash(s.style, s.width);
   if (dd.array) el.setAttribute('stroke-dasharray', dd.array);
   el.setAttribute('stroke-linecap', dd.cap);
@@ -459,6 +472,7 @@ function skDown(e) {
   var act = skLays().filter(function (x) { return x.id === SK.active[SK.mode]; })[0];
   if (act && !act.show) { act.show = true; skLinesUI(); skRedraw(); }   // drawing on a hidden layer shows it, so the line is not invisible
   var s = { pts: [pt], color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: SK.tool === 'blob', lay: SK.active[SK.mode], style: SK.style };
+  if (s.fill && skGrad()) s.grad = skGrad();
   skDrawing = { stroke: s, el: skEl(s) };
   skDraw.appendChild(skDrawing.el);
   if (SK.mirror) { skDrawing.el2 = skEl(skMirrored(s)); skDraw.appendChild(skDrawing.el2); }
@@ -472,6 +486,7 @@ function skMirrored(s) {
   var m = JSON.parse(JSON.stringify(s));
   m.pts = s.pts.map(skMirrorPt);
   if (m.cv) m.cv = skMirrorCv(m.cv);
+  if (m.grad && m.grad.type === 'h') m.grad = { type: 'h', c1: m.grad.c2, c2: m.grad.c1 };   // the fade runs the other way round on the other side
   return m;
 }
 function skMove(e) {
@@ -577,7 +592,7 @@ function skWavy(pts, width) {
 /** Pressing with the shape tool: the shape grows from this corner as you drag. */
 function skShapeDown(pt) {
   var el = document.createElementNS(SVGNS, 'path'), v = SK_VIEW[SK.mode];
-  el.setAttribute('fill', SK.shapeFill ? SK.color : 'none'); el.setAttribute('stroke', SK.color); el.setAttribute('stroke-width', v.w * SK_PEN * SK.pen);
+  el.setAttribute('fill', SK.fillMode === 'none' ? 'none' : skGrad() ? 'url(#' + skDef(L.sketchGradId(skGrad()), L.sketchGradDef(skGrad())) + ')' : SK.color); el.setAttribute('stroke', SK.color); el.setAttribute('stroke-width', v.w * SK_PEN * SK.pen);
   el.setAttribute('stroke-linejoin', 'round'); el.setAttribute('stroke-linecap', 'round'); el.setAttribute('opacity', '.8');
   skDraw.appendChild(el);
   skDrawing = { shape: { a: pt, el: el, pts: null } };
@@ -599,7 +614,8 @@ function skShapeEnd() {
   skDrawing = false; d.el.remove();
   var xs = (d.pts || []).map(function (p) { return p[0]; }), ys = (d.pts || []).map(function (p) { return p[1]; });
   if (!d.pts || Math.max.apply(null, xs) - Math.min.apply(null, xs) < v.w * 0.01 || Math.max.apply(null, ys) - Math.min.apply(null, ys) < v.w * 0.01) { skRedraw(); return; }   // a plain click draws nothing
-  var s = { pts: d.pts, color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: SK.shapeFill, closed: true, lay: SK.active[SK.mode], style: SK.style === 'wavy' ? 'solid' : SK.style };
+  var s = { pts: d.pts, color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: SK.fillMode !== 'none', closed: true, lay: SK.active[SK.mode], style: SK.style === 'wavy' ? 'solid' : SK.style };
+  if (s.fill && skGrad()) s.grad = skGrad();
   var act = skLays().filter(function (x) { return x.id === SK.active[SK.mode]; })[0];
   if (act && !act.show) { act.show = true; skLinesUI(); }
   skPushHistory();
@@ -1111,6 +1127,7 @@ function skBucket(pt) {
     if (same) { same.color = SK.color; recoloured = true; return; }
     // wide enough to reach under the lines on every side, so no hairline shows between the fill and a line
     added.push({ d: d, pts: outer, color: SK.color, width: +(2 * (GAP + 1.5) / scale).toFixed(2), fill: true, closed: true, bucket: true, lay: SK.active[SK.mode] });
+    if (skGrad()) added[added.length - 1].grad = skGrad();
   });
   if (!added.length && !recoloured) {
     skStatus.textContent = why === 'open' ? 'That area is not closed in. Finish the outline (or close the gap), then try again.' : 'Click inside an area between your lines, not on a line.';
@@ -1517,7 +1534,7 @@ function skBuildPanels() {
   }));
   var sh = $('skShape');
   sh.replaceChildren.apply(sh, L.SKETCH_SHAPES.map(function (x) { var o = document.createElement('option'); o.value = x[0]; o.textContent = x[1]; return o; }));
-  sh.value = SK.shape; $('skStyle').value = SK.style; $('skShapeFill').checked = SK.shapeFill;
+  sh.value = SK.shape; $('skStyle').value = SK.style; $('skFillMode').value = SK.fillMode; $('skColour2').value = SK.colour2;
   skPress($('skTidy'), 'tidy', SK.tidy);
   $('skMirror').setAttribute('aria-pressed', String(SK.mirror));
 }
@@ -1605,7 +1622,8 @@ $('skTidy').addEventListener('click', function (e) {
 });
 $('skSnap').addEventListener('change', skSave);
 $('skShape').addEventListener('change', function () { SK.shape = $('skShape').value; skSave(); skSetTool('shape'); });
-$('skShapeFill').addEventListener('change', function () { SK.shapeFill = $('skShapeFill').checked; skSave(); });
+$('skFillMode').addEventListener('change', function () { SK.fillMode = $('skFillMode').value; skSave(); });
+$('skColour2').addEventListener('input', function () { SK.colour2 = $('skColour2').value; skSave(); });
 $('skStyle').addEventListener('change', function () {
   SK.style = $('skStyle').value; skSave();
   var picked = SK.pick.filter(function (s) { return !s.bucket; });

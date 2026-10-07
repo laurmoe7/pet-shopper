@@ -159,3 +159,17 @@ test('special lines: dash patterns scale with the width, and waves stay on the l
   const wave = L.sketchWave([[0, 0], [30, 0]], 2, 10);
   assert.ok(Math.max(...wave.map((p) => Math.abs(p[1]))) > 1.5 && Math.abs(wave[0][1]) < 0.01 && Math.abs(wave[wave.length - 1][1]) < 0.2);
 });
+
+test('gradient fills and soft lines come with their definitions in the saved SVG', () => {
+  const g = { type: 'v', c1: '#ff0000', c2: '#0000ff' };
+  const svg = L.sketchSvg([
+    { pts: [[0, 0], [10, 0], [10, 10]], color: '#000', width: 1, fill: true, closed: true, grad: g },
+    { pts: [[0, 20], [20, 20]], color: '#f00', width: 4, style: 'soft' }
+  ], { x: 0, y: 0, w: 26, h: 26 }, {});
+  assert.match(svg, /<linearGradient id="gvff00000000ff" x1="0" y1="0" x2="0" y2="1">/);
+  assert.match(svg, /fill="url\(#gvff00000000ff\)"/);
+  assert.match(svg, /<filter id="b1_8"[^>]*><feGaussianBlur stdDeviation="1.8"\/>/);
+  assert.match(svg, /filter="url\(#b1_8\)" opacity="0.7"/);
+  assert.ok(svg.indexOf('<defs>') < svg.indexOf('<path'), 'definitions come first');
+  assert.match(L.sketchGradDef({ type: 'r', c1: '#fff', c2: '#000' }), /radialGradient/);
+});

@@ -1393,11 +1393,17 @@
     var esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/--/g, '- -'); };
     var out = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + [view.x, view.y, view.w, view.h].join(' ') + '" width="' + Math.round(view.w * 4) + '" height="' + Math.round(view.h * 4) + '" fill="none" stroke-linecap="round" stroke-linejoin="round">'];
     out.push('<!-- ' + esc(JSON.stringify(meta || {})) + ' -->');
+    var defs = {};
     strokes.forEach(function (s) {
       // a paint-bucket fill carries its own outline (`d`, with holes)
       var d = s.d || sketchPath(s.pts, (s.fill || s.closed) && s.pts.length > 2, dp);
-      out.push('<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + esc(s.color) + '"' : '') + (sketchDash(s.style, s.width).array ? ' stroke-dasharray="' + sketchDash(s.style, s.width).array + '"' + (sketchDash(s.style, s.width).cap === 'butt' ? ' stroke-linecap="butt"' : '') : '') + (s.d ? ' fill-rule="evenodd"' : '') + (s.layer ? ' data-layer="' + esc(s.layer) + '"' : '') + '/>');
+      var fillAttr = s.fill && s.grad ? 'url(#' + sketchGradId(s.grad) + ')' : null, soft = s.style === 'soft' ? sketchSoftBlur(s.width) : 0;
+      if (fillAttr) defs[sketchGradId(s.grad)] = sketchGradDef(s.grad);
+      if (soft) defs[sketchBlurId(soft)] = sketchBlurDef(soft);
+      out.push('<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + (fillAttr || esc(s.color)) + '"' : '') + (soft ? ' filter="url(#' + sketchBlurId(soft) + ')" opacity="0.7"' : '') + (sketchDash(s.style, s.width).array ? ' stroke-dasharray="' + sketchDash(s.style, s.width).array + '"' + (sketchDash(s.style, s.width).cap === 'butt' ? ' stroke-linecap="butt"' : '') : '') + (s.d ? ' fill-rule="evenodd"' : '') + (s.layer ? ' data-layer="' + esc(s.layer) + '"' : '') + '/>');
     });
+    var defText = Object.keys(defs).map(function (k) { return defs[k]; }).join('');
+    if (defText) out.splice(2, 0, '<defs>' + defText + '</defs>');   // after the opening tag and the notes
     out.push('</svg>');
     return out.join('\n');
   }
@@ -1467,6 +1473,21 @@
     }
     return loops;
   }
+
+  /** @returns {string} A name for a gradient (the same gradient always gets the same name). */
+  function sketchGradId(g) { return 'g' + (g.type + g.c1 + g.c2).replace(/[^a-zA-Z0-9]/g, ''); }
+  /** @returns {string} The SVG for a gradient fill: type 'v' fades top to bottom, 'h' left to right, 'r' from the middle out. */
+  function sketchGradDef(g) {
+    var id = sketchGradId(g), stops = '<stop offset="0" stop-color="' + g.c1 + '"/><stop offset="1" stop-color="' + g.c2 + '"/>';
+    if (g.type === 'r') return '<radialGradient id="' + id + '" cx="0.5" cy="0.5" r="0.6">' + stops + '</radialGradient>';
+    return '<linearGradient id="' + id + '" x1="0" y1="0" x2="' + (g.type === 'h' ? 1 : 0) + '" y2="' + (g.type === 'h' ? 0 : 1) + '">' + stops + '</linearGradient>';
+  }
+  /** @returns {number} How much a soft (airbrush) line is blurred, for its thickness. */
+  function sketchSoftBlur(width) { return +(width * 0.45).toFixed(2); }
+  /** @returns {string} A name for the blur of a given amount. */
+  function sketchBlurId(sd) { return 'b' + String(sd).replace('.', '_'); }
+  /** @returns {string} The SVG for a blur filter (room round the line so the soft edge is not cut off). */
+  function sketchBlurDef(sd) { return '<filter id="' + sketchBlurId(sd) + '" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="' + sd + '"/></filter>'; }
 
   /** The special line styles of the sketchpad: dash and gap lengths in line widths (a dot is a very short dash with round ends). */
   var SKETCH_STYLES = {
@@ -1799,6 +1820,6 @@
     toggleDone: toggleDone,
     pickEmoji: pickEmoji,
     soundFor: soundFor,
-    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, sketchDash: sketchDash, sketchShape: sketchShape, SKETCH_SHAPES: SKETCH_SHAPES, sketchWave: sketchWave, SKETCH_STYLES: SKETCH_STYLES, traceLoops: traceLoops, simplifyLine: skSimplify
+    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, sketchDash: sketchDash, sketchGradId: sketchGradId, sketchGradDef: sketchGradDef, sketchSoftBlur: sketchSoftBlur, sketchBlurId: sketchBlurId, sketchBlurDef: sketchBlurDef, sketchShape: sketchShape, SKETCH_SHAPES: SKETCH_SHAPES, sketchWave: sketchWave, SKETCH_STYLES: SKETCH_STYLES, traceLoops: traceLoops, simplifyLine: skSimplify
   };
 })(typeof self !== 'undefined' ? self : globalThis);
