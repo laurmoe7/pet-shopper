@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 247 (13 Oct)
+- Backup & sync in Options: a code keeps your shopping list and Nibble the same on all your devices.
+
 ## Build 246 (12 Oct)
 - Syncing keeps to-do lists private; only the shopping list is shared.
 

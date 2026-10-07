@@ -175,8 +175,10 @@
    * a "removed" marker), a record per single thing, and the counters.
    * @param {Object} state
    * @param {number} now  Used to note what changed first.
+   * @param {{skipSample: boolean}} [opts]  skipSample leaves out items nobody has touched since the first launch
+   *   (the sample list, time 0), so they stay on this device and never reach an account.
    */
-  function snapshot(state, now) {
+  function snapshot(state, now, opts) {
     stamp(state, now);
     var meta = state.sync, doc = { v: VERSION, items: {}, fields: {}, counters: {} };
     var byId = {};
@@ -184,6 +186,7 @@
     Object.keys(meta.items).forEach(function (id) {
       var m = meta.items[id], rec = { at: m.at, by: m.by, list: m.list };
       if (m.del) rec.del = 1; else if (byId[id]) rec.item = copy(byId[id]); else return;
+      if (opts && opts.skipSample && !m.del && m.at === 0) return;
       doc.items[id] = rec;
     });
     FIELD_NAMES.forEach(function (name) {
@@ -364,17 +367,35 @@
    * @param {Object} state
    * @param {Object} remote  The other document, or null if there is none yet.
    * @param {number} now
+   * @param {{skipSample: boolean}} [opts]  See `snapshot`.
    * @returns {{doc: Object, applied: Object}} The merged document (to send back) and what changed here.
    */
-  function sync(state, remote, now) {
-    var merged = trim(merge(snapshot(state, now), remote), now);
+  function sync(state, remote, now, opts) {
+    var merged = trim(merge(snapshot(state, now, opts), remote), now);
     var applied = apply(state, merged);
     return { doc: merged, applied: applied };
   }
 
+  /**
+   * Removes the shopping items nobody has touched since the first launch (the sample list), so a device
+   * joining an account that already has a list adopts the account's list instead of adding to it.
+   * @returns {number} How many were removed.
+   */
+  function dropSample(state) {
+    var meta = state.sync, list = listArray(state, 'shop'), n = 0;
+    var kept = list.filter(function (item) {
+      var m = meta.items[item.id];
+      if (m && !m.del && m.at === 0) { delete meta.items[item.id]; n++; return false; }
+      return true;
+    });
+    list.length = 0;
+    kept.forEach(function (i) { list.push(i); });
+    return n;
+  }
+
   root.Sync = {
     VERSION: VERSION, TOMBSTONE_DAYS: TOMBSTONE_DAYS, FIELD_NAMES: FIELD_NAMES, COUNTERS: COUNTERS,
-    parse: parse, stamp: stamp, prune: prune, snapshot: snapshot, merge: merge, trim: trim, apply: apply, sync: sync,
+    parse: parse, dropSample: dropSample, stamp: stamp, prune: prune, snapshot: snapshot, merge: merge, trim: trim, apply: apply, sync: sync,
     hash: hash, stable: stable, fingerprint: fingerprint, newDevice: newDevice, listArray: listArray
   };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

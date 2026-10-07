@@ -393,3 +393,30 @@ test('every piece of pet data is either synced or deliberately left on the devic
   const keys = Object.keys(L.petProfile({})).sort();
   assert.deepEqual(keys, synced.concat(local).sort(), 'new pet data needs a rule in sync.js (FIELDS or COUNTERS), or a place in this test\'s local list');
 });
+
+test('the sample list stays on its device when asked, and a joining device can drop it', () => {
+  const a = L.parseState(null, ids());
+  a.sync.device = 'devicea';
+  const sampleCount = a.items.length;
+  assert.ok(sampleCount > 0);
+  assert.ok(Object.values(a.sync.items).every((m) => m.at === 0));
+  a.items.push(L.createItem('Oat milk', {}, 'mine-devicea', T));
+  const doc = Sync.snapshot(a, T + 1000, { skipSample: true });
+  assert.deepEqual(Object.keys(doc.items), ['mine-devicea']);
+  assert.equal(Object.keys(Sync.snapshot(a, T + 1000).items).length, sampleCount + 1);   // without the option, everything goes
+  const b = L.parseState(null, ids());
+  b.sync.device = 'deviceb';
+  assert.equal(Sync.dropSample(b), sampleCount);
+  assert.equal(b.items.length, 0);
+  assert.deepEqual(Object.keys(b.sync.items), []);
+  Sync.sync(b, doc, T + 2000, { skipSample: true });
+  assert.deepEqual(texts(b.items), ['Oat milk']);
+  assert.equal(Sync.dropSample(b), 0);   // an item that came from elsewhere is not sample
+});
+
+test('dropping the sample list leaves the to-do list alone', () => {
+  const a = L.parseState(null, ids());
+  a.stash = [L.createItem('Call mum', {}, 'task1', undefined, 'todo')];
+  Sync.dropSample(a);
+  assert.deepEqual(texts(a.stash), ['Call mum']);
+});

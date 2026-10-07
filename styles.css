@@ -2742,3 +2742,14 @@ html[data-list="todo"] .recipe-btn { display: none; }
 #pet.tucked .arm-r .magnifier, #pet[data-state="sleepy"] .arm-r .magnifier { display: none !important; }
 .done-more { display: block; margin: 4px auto 0; font-size: .85rem; }
 .done-more[hidden] { display: none; }
+
+/* Backup & sync sheet */
+.account-sheet .account-field { display: flex; flex-direction: column; gap: 4px; margin: 10px 0 4px; }
+.account-sheet input[type="text"], .account-sheet input[type="url"] { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1.5px solid var(--outline); border-radius: 12px; background: var(--surface); color: var(--ink); font: inherit; font-size: .9rem; letter-spacing: .04em; }
+.account-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.account-status { margin: 6px 0; font-weight: 700; }
+.account-code { margin: 6px 0; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1.05rem; font-weight: 800; letter-spacing: .06em; word-break: break-all; user-select: all; }
+.account-adv { margin-top: 10px; font-size: .85rem; }
+.account-adv summary { cursor: pointer; opacity: .75; }
+.account-adv input { margin-top: 6px; }
+.account-sheet .pill-btn.danger { color: var(--danger); }

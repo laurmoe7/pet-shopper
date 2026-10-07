@@ -34,7 +34,7 @@ function syncChangeText(c) {
   return parts.join(', ');
 }
 // every save that finds changes lands here; saves within a minute join into one line so the log stays readable
-syncHook = function (found) {
+function syncLocalNote(found) {
   var last = syncLog[syncLog.length - 1], now = Date.now();
   if (last && last.kind === 'local' && now - last.t < SYNC_MERGE_MS && last.c) {
     last.c.items += found.items;
@@ -51,6 +51,10 @@ syncHook = function (found) {
   if (syncLog.length > SYNC_LOG_MAX) syncLog.splice(0, syncLog.length - SYNC_LOG_MAX);
   syncLogSave();
   if (syncSheet.open) renderSyncLog();
+}
+syncHook = function (found) {
+  syncLocalNote(found);
+  if (typeof syncSoon === 'function') syncSoon();   // app-account.js: send it to the server soon
 };
 
 /** @returns {string} A time like 14:32:05, or 2:32:05 PM when the options say so. */

@@ -1120,6 +1120,37 @@
     <div class="sync-list" id="syncList"></div>
   </form>
 </dialog>
+<dialog class="picker pet-sheet account-sheet" id="accountSheet" aria-labelledby="accountTitle">
+  <form method="dialog" class="picker-inner" id="accountForm">
+    <h2 id="accountTitle">Backup &amp; sync</h2>
+    <div id="accountOut">
+      <p class="option-text">Keeps your shopping list and Nibble safe, and the same on all your devices. To-do lists stay on this device. No email or password: you get a code.</p>
+      <div class="account-actions"><button type="button" class="pill-btn" id="acctMake">Start a backup</button></div>
+      <label class="account-field"><span class="option-title">Already have a code?</span>
+        <input id="acctCode" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX" aria-label="Your backup code"></label>
+      <div class="account-actions"><button type="button" class="pill-btn" id="acctJoin">Join with this code</button></div>
+    </div>
+    <div id="accountIn" hidden>
+      <p class="account-status" id="acctStatus" aria-live="polite"></p>
+      <p class="account-code" id="acctShown" aria-live="polite"></p>
+      <p class="option-text" id="acctWarn" hidden>Write this code down or copy it somewhere safe. It is the only way to get your data on another device, and nobody can recover it for you. Anyone who has it can see your list and pet.</p>
+      <div class="account-actions">
+        <button type="button" class="pill-btn" id="acctNow">Sync now</button>
+        <button type="button" class="pill-btn" id="acctShow">Show my code</button>
+        <button type="button" class="pill-btn" id="acctCopy" hidden>Copy code</button>
+        <button type="button" class="pill-btn" id="acctLink" hidden>Copy link for another device</button>
+      </div>
+      <div class="account-actions">
+        <button type="button" class="pill-btn" id="acctLeave">Sign out of this device</button>
+        <button type="button" class="pill-btn danger" id="acctDelete">Delete my backup</button>
+      </div>
+    </div>
+    <p class="dev-status" id="acctMsg" aria-live="polite"></p>
+    <details class="account-adv"><summary>Server address</summary>
+      <input id="acctServer" type="url" autocomplete="off" spellcheck="false" placeholder="https://…workers.dev" aria-label="Sync server address">
+    </details>
+  </form>
+</dialog>
 <dialog class="picker pet-sheet" id="optionsSheet" aria-labelledby="optionsTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="optionsTitle">Options</h2>
@@ -1181,6 +1212,7 @@
 <script src="app-profile.js"></script>
 <script src="app-options.js"></script>
 <script src="app-sync.js"></script>
+<script src="app-account.js"></script>
 <script src="app-anims.js"></script>
 <script src="app-voice.js"></script>
 <script src="app-recipe.js"></script>
