@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 249 (14 Oct)
+- Desktop: his cushion and bed catch clicks too, so right-click works there.
+- Desktop: speech bubble sits closer, smaller window.
+
 ## Build 248 (14 Oct)
 - Nibble can live on your Windows desktop (separate app).
 - Friendlier message when too many backups are started.

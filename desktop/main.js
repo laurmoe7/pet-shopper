@@ -8,7 +8,7 @@ const fs = require('fs');
 const place = require('./place.js');
 
 const APP_URL = process.env.NIBBLE_URL || 'https://laurmoe7.github.io/pet-shopper/';
-const PET_SIZE = { width: 320, height: 300 };
+const PET_SIZE = { width: 320, height: 250 };
 const LIST_SIZE = { width: 440, height: 780 };
 const LOG = !!process.env.NIBBLE_LOG;
 // Clicks pass through the transparent parts only where Electron can forward the pointer to the page (Windows, macOS).
@@ -89,7 +89,7 @@ function start() {
   ipcMain.on('desk:dragStart', () => { if (win && mode === 'pet') dragFrom = win.getBounds(); });
   ipcMain.on('desk:dragMove', (_e, dx, dy) => { if (win && dragFrom) win.setBounds(place.dragBounds(dragFrom, dx, dy)); });
   ipcMain.on('desk:dragEnd', () => { if (win && dragFrom) { const b = win.getBounds(); prefs.x = b.x; prefs.y = b.y; savePrefs(); dragFrom = null; } });
-  ipcMain.on('desk:menu', () => { if (win) menu().popup({ window: win }); });
+  ipcMain.on('desk:menu', () => { log('menu'); if (win) menu().popup({ window: win }); });
   ipcMain.on('desk:hide', () => hideNibble());
 
   app.on('second-instance', () => showNibble());
