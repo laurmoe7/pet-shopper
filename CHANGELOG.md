@@ -3,6 +3,7 @@
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
 ## Build 235 (10 Oct)
+- Sketchpad: pen thickness slider, cuter look, no coordinates.
 - Sketchpad: Select and Lasso tools for moving, turning and resizing many lines.
 - Sketchpad: neater, shorter panel; Ctrl+V reminder for images.
 - Fixed double mouths on pets.

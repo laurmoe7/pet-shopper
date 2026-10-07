@@ -6,19 +6,19 @@
 
 var SVGNS = 'http://www.w3.org/2000/svg';
 var $ = function (id) { return document.getElementById(id); };
-var skStage = $('skStage'), skView = $('skView'), skStatus = $('skStatus'), skCoords = $('skCoords');
+var skStage = $('skStage'), skView = $('skView'), skStatus = $('skStatus');
 var L = PetLogic;
 
 /** The drawing area of each mode, in the coordinates of what is underneath. The pet is 160 x 150 with room round it for hats. */
 var SK_VIEW = { pet: { x: -30, y: -50, w: 220, h: 220 }, scene: { x: 0, y: 0, w: 400, h: 160 }, toy: { x: 0, y: 0, w: 26, h: 26 }, room: { x: 0, y: 0, w: 400, h: 160 } };
 var SK_COLOURS = ['#5b4239', '#000000', '#ffffff', '#ff8fb1', '#ff6b6b', '#ffa94d', '#ffd166', '#7bd389', '#6ec6ff', '#b69cff'];
-var SK_SIZES = [0.004, 0.009, 0.017];   // line widths as a share of the drawing area's width
+var SK_PEN = 0.001;   // each step of the thickness slider, as a share of the drawing area's width
 var SPECIES = [['mochi', 'Nibble'], ['pig', 'Pig'], ['kitty', 'Cat'], ['puppy', 'Dog'], ['bunny', 'Bunny'], ['birdie', 'Birdie'], ['cow', 'Cow'], ['hamster', 'Hamster'], ['frog', 'Frog'], ['hedgehog', 'Hedgehog'], ['axolotl', 'Axolotl'], ['mouse', 'Mouse'], ['monkey', 'Monkey'], ['dragon', 'Dragon']];
 var SLOTS = [['hat', 'Hat'], ['body', 'Clothes'], ['face', 'Glasses'], ['mouth', 'Mouth'], ['neck', 'Neck'], ['feet', 'Shoes']];
 /** What the pet underneath looks like (kept on this computer). */
 var P = { species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, backdrop: 'meadow', night: false, room: {} };
 var SK = {
-  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], size: 1, zoom: 1, tidy: 6, space: false, sel: null, mirror: false, pick: [],
+  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, tidy: 6, space: false, sel: null, mirror: false, pick: [],
   strokes: { pet: [], scene: [], toy: [], room: [] }, hist: { pet: [], scene: [], toy: [], room: [] }, redo: { pet: [], scene: [], toy: [], room: [] },
   /** Pictures to trace, one layer each, in the same coordinates as the drawing: {id, name, src, cx, cy, bw, bh, scale, opacity, visible, behind} */
   images: { pet: [], scene: [], toy: [], room: [] }
@@ -77,7 +77,7 @@ function dressUp(el, outfit) {
 // ---------- keeping the work on this computer ----------
 function skSave() {
   try {
-    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, snap: $('skSnap').checked, mirror: SK.mirror }));
+    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, snap: $('skSnap').checked, mirror: SK.mirror }));
   } catch (e) { /* storage not available */ }
 }
 function skLoad() {
@@ -94,6 +94,7 @@ function skLoad() {
     if (d.kind) $('skKind').value = d.kind;
     $('skNote').value = d.note || '';
     if (typeof d.tidy === 'number') SK.tidy = d.tidy;
+    if (d.pen >= 1 && d.pen <= 40) SK.pen = d.pen;
     $('skSnap').checked = d.snap !== false;
     SK.mirror = !!d.mirror;
   } catch (e) { /* nothing saved, or it could not be read */ }
@@ -324,7 +325,7 @@ function skDown(e) {
     return;
   }
   if (SK.tool === 'erase') { skDrawing = { erased: false }; skEraseAt(pt); return; }
-  var s = { pts: [pt], color: SK.color, width: +(v.w * SK_SIZES[SK.size]).toFixed(2), fill: SK.tool === 'blob' };
+  var s = { pts: [pt], color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: SK.tool === 'blob' };
   skDrawing = { stroke: s, el: skEl(s) };
   skDraw.appendChild(skDrawing.el);
   if (SK.mirror) { skDrawing.el2 = skEl(skMirrored(s)); skDraw.appendChild(skDrawing.el2); }
@@ -338,7 +339,6 @@ function skMirrored(s) {
 function skMove(e) {
   var pt = skPoint(e), v = SK_VIEW[SK.mode];
   skLastPt = pt;
-  skCoords.textContent = 'x ' + pt[0].toFixed(v.w > 100 ? 0 : 1) + '   y ' + pt[1].toFixed(v.w > 100 ? 0 : 1);
   if (skPan) { skView.scrollLeft = skPan.left - (e.clientX - skPan.x); skView.scrollTop = skPan.top - (e.clientY - skPan.y); return; }
   if (!skDrawing || !e.isPrimary) return;
   if (skDrawing.xf) { skXfMove(pt, e); return; }
@@ -1070,12 +1070,22 @@ $('skColours').addEventListener('click', function (e) {
   if (b) skUseColour(b.dataset.c);
 });
 $('skColours').addEventListener('input', function (e) { if (e.target.id === 'skPick') skUseColour(e.target.value); });
-$('skSizes').addEventListener('click', function (e) {
-  var b = e.target.closest('button');
-  if (!b) return;
-  SK.size = +b.dataset.size;
-  skPress($('skSizes'), 'size', SK.size);
-});
+/** Sets the pen thickness; with lines picked, they get that thickness too (one undo step per slider drag). */
+function skSetPen(n, fromSlider) {
+  SK.pen = Math.max(1, Math.min(40, Math.round(n)));
+  $('skPen').value = SK.pen; $('skPenNum').textContent = SK.pen;
+  var v = SK_VIEW[SK.mode], px = Math.max(2, Math.min(22, SK.pen * SK_PEN * v.w * (skStage.getBoundingClientRect().width / v.w)));
+  $('skDot').style.width = $('skDot').style.height = px + 'px';
+  if (fromSlider && skIsSel() && SK.pick.length) {
+    if (!skPenPushed) { skPushHistory(); skPenPushed = true; }
+    SK.pick.forEach(function (s) { if (!s.bucket) s.width = +(v.w * SK_PEN * SK.pen).toFixed(2); });
+    skRedraw(); skXfRender();
+  }
+  skSave();
+}
+var skPenPushed = false;
+$('skPen').addEventListener('input', function () { skSetPen(+$('skPen').value, true); });
+$('skPen').addEventListener('change', function () { skPenPushed = false; });
 $('skTidy').addEventListener('click', function (e) {
   var b = e.target.closest('button');
   if (!b) return;
@@ -1122,6 +1132,7 @@ document.addEventListener('keydown', function (e) {
     return;
   }
   var k = e.key.toLowerCase();
+  if (k === '[' || k === ']') { skSetPen(SK.pen + (k === ']' ? 1 : -1) * (SK.pen > 12 ? 2 : 1)); return; }
   if (e.key === 'Escape' && SK.tool === 'drop') { skSetTool(SK.prevTool && SK.prevTool !== 'drop' ? SK.prevTool : 'pen'); skStatus.textContent = 'Cancelled.'; return; }
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); if (e.shiftKey) skRedo(); else skUndo(); return; }
   if ((e.ctrlKey || e.metaKey) && k === 'a' && skIsSel()) { e.preventDefault(); SK.pick = SK.strokes[SK.mode].slice(); skXfRender(); return; }
@@ -1193,6 +1204,7 @@ skLoadImages();
 { var im0 = SK.images[SK.mode]; SK.sel = im0.length ? im0[im0.length - 1].id : null; }
 skLayersUI();
 skBuildPanels();
+skSetPen(SK.pen);
 skStatus.textContent = 'Loading…';
 skLoadSource().then(function () {
   skStatus.textContent = SK_OWNER ? 'Draw, then Upload to Claude.' : 'Draw, then Save SVG.';

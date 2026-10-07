@@ -14,7 +14,7 @@
 </head>
 <body class="skp">
 <header class="skp-top">
-  <h1>Sketchpad</h1>
+  <h1><span aria-hidden="true">✿</span> Sketchpad</h1>
   <div class="sk-seg" id="skModes" role="group" aria-label="What to draw on">
     <button type="button" data-mode="pet" aria-pressed="true">Pet</button>
     <button type="button" data-mode="scene" aria-pressed="false">Scene</button>
@@ -31,7 +31,6 @@
   <label class="sk-check"><input type="checkbox" id="skGrid" checked> Grid</label>
   <label class="sk-check"><input type="checkbox" id="skRef" checked> <span id="skRefLabel">Pet</span></label>
   <label class="sk-check" title="How strong the picture underneath is">Ghost <input type="range" id="skGhost" min="15" max="100" value="100" aria-label="Ghost"></label>
-  <p class="sk-coords" id="skCoords" aria-live="off"></p>
 </header>
 
 <div class="skp-wrap">
@@ -61,11 +60,7 @@
         <div class="sk-row sk-colours" id="skColours" role="group" aria-label="Colour"></div>
       </div>
       <div class="sk-row">
-        <div class="sk-seg" id="skSizes" role="group" aria-label="Line size">
-          <button type="button" data-size="0" aria-pressed="false">Thin</button>
-          <button type="button" data-size="1" aria-pressed="true">Medium</button>
-          <button type="button" data-size="2" aria-pressed="false">Thick</button>
-        </div>
+        <label class="sk-size" title="Pen thickness ([ and ] change it)"><span class="sk-dot" id="skDot" aria-hidden="true"></span><input type="range" id="skPen" min="1" max="40" value="9" aria-label="Pen thickness"><output id="skPenNum">9</output></label>
         <label class="sk-check" title="Straighten lines and turn loops into neat ovals"><input type="checkbox" id="skSnap" checked> Snap shapes</label>
       </div>
       <div class="sk-row">
