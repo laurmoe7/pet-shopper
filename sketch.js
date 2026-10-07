@@ -458,10 +458,14 @@ function skDown(e) {
   if (SK.mirror) { skDrawing.el2 = skEl(skMirrored(s)); skDraw.appendChild(skDrawing.el2); }
 }
 /** @returns {Object} A copy of a stroke folded over the middle line. */
+/** @returns {Object} A curve's points folded over the middle line. */
+function skMirrorCv(cv) {
+  return { closed: cv.closed, a: cv.a.map(function (a) { var o = { p: skMirrorPt(a.p), o: [-a.o[0], a.o[1]] }; if (a.i) o.i = [-a.i[0], a.i[1]]; return o; }) };
+}
 function skMirrored(s) {
   var m = JSON.parse(JSON.stringify(s));
   m.pts = s.pts.map(skMirrorPt);
-  if (m.cv) m.cv.a = m.cv.a.map(function (a) { var o = { p: skMirrorPt(a.p), o: [-a.o[0], a.o[1]] }; if (a.i) o.i = [-a.i[0], a.i[1]]; return o; });
+  if (m.cv) m.cv = skMirrorCv(m.cv);
   return m;
 }
 function skMove(e) {
@@ -577,10 +581,14 @@ function skCurvePts(anchors, closed, step) {
   return out.map(function (p) { return [+p[0].toFixed(2), +p[1].toFixed(2)]; });
 }
 /** Rebuilds a curve's line from its points. */
-function skCurveRebuild(s) {
+function skCurveRebuild(s, noTwin) {
   var v = SK_VIEW[SK.mode];
   s.pts = L.simplifyLine(skCurvePts(s.cv.a, s.cv.closed, v.w * 0.004), v.w * 0.0008);
   skFillPaths.delete(s); skShapePaths.delete(s);
+  if (SK.mirror && s.pair && !noTwin) {   // with Mirror on, the other half of a mirrored curve follows
+    var twin = SK.strokes[SK.mode].filter(function (t) { return t !== s && t.pair === s.pair && t.cv; })[0];
+    if (twin) { twin.cv = skMirrorCv(s.cv); skCurveRebuild(twin, true); }
+  }
 }
 /** Gives every sharp corner handles pointing along its lines (the same shape as before), so it can be bent by dragging them. */
 function skCurveNormalise(cv) {
@@ -621,6 +629,7 @@ function skCurveRender(hover) {
     if (hover && !skDrawing) list.push({ p: hover, o: [0, 0] });
     var pts = list.length > 1 ? skCurvePts(list, false, step) : [list[0].p];
     add('path', { d: L.sketchPath(pts, false, 2), fill: 'none', stroke: SK.color, 'stroke-width': v.w * SK_PEN * SK.pen, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: .85 });
+    if (SK.mirror) add('path', { d: L.sketchPath(pts.map(skMirrorPt), false, 2), fill: 'none', stroke: SK.color, 'stroke-width': v.w * SK_PEN * SK.pen, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: .5 });
   }
   anchors.forEach(function (a, k) {
     var ends = [];
@@ -736,7 +745,7 @@ function skCurveFinish(close) {
   if (act && !act.show) { act.show = true; skLinesUI(); }
   skPushHistory();
   SK.strokes[SK.mode].push(s);
-  if (SK.mirror) SK.strokes[SK.mode].push(skMirrored(s));
+  if (SK.mirror) { s.pair = 'm' + Date.now().toString(36); SK.strokes[SK.mode].push(skMirrored(s)); }
   skRedraw(); skSave();
   skStatus.textContent = 'Curve added. Click it with the Curve tool to tweak it.';
 }
@@ -926,7 +935,7 @@ function skAddCopies(list) {
     var c = JSON.parse(JSON.stringify(s)), r = L.sketchXform({ pts: c.pts, d: c.d, width: c.width }, { kind: 'move', dx: off, dy: off });
     c.pts = r.pts; if (c.d) c.d = r.d;
     if (c.cv) c.cv = skXfCv(c.cv, { kind: 'move', dx: off, dy: off });
-    c.lay = SK.active[SK.mode];
+    c.lay = SK.active[SK.mode]; delete c.pair;
     return c;
   });
   skPushHistory();
