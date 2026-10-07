@@ -8,14 +8,15 @@
  * writes a merged document back into the state.
  *
  * Merge rules, by kind of data:
- * - list items: one record per item id; the latest change wins (whole item). A deleted item stays as a
+ * - shopping list items: one record per item id; the latest change wins (whole item). A deleted item stays as a
  *   "removed" marker for TOMBSTONE_DAYS so the other devices learn of it.
  * - single things (name, look, personality, room, closet, player, emoji overrides): the latest change wins.
  * - counters (goals, tastes, stamps, favourites, prizes): the larger value wins, so progress is never lost.
  *   They never go down through syncing, and two devices counting different things at once keep the larger
  *   count, not the sum.
  * - gift boxes, treats and the fair-play memory: the later day wins; on the same day what both know is joined.
- * Left on each device: the lamp and sleep, options, developer switches, which list is showing.
+ * Left on each device: the to-do list (private to each person), the lamp and sleep, options, developer
+ * switches, which list is showing.
  */
 (function (root) {
   'use strict';
@@ -24,7 +25,8 @@
   /** Removed markers older than this are dropped: a device that was off for longer may bring a deleted item back. */
   var TOMBSTONE_DAYS = 30;
   var DAY_MS = 24 * 3600 * 1000;
-  var LISTS = ['shop', 'todo'];
+  /** Only the shopping list is shared; the to-do list stays private to each person and is never stamped, sent or changed by syncing. */
+  var LISTS = ['shop'];
   /** The single things merged by "latest change wins", with how to read and write each one in the state. */
   var FIELDS = {
     'pet.name': { get: function (s) { return s.pet.name; }, set: function (s, v) { s.pet.name = v; } },
@@ -76,7 +78,7 @@
     return s.slice(0, 6);
   }
 
-  /** @returns {Item[]} The items of one list ('shop' or 'todo'), whichever of items/stash holds it now. */
+  /** @returns {Item[]} The items of one list ('shop' or 'todo'), whichever of items/stash holds it now. Only 'shop' is synced. */
   function listArray(state, name) {
     return (state.mode === 'todo') === (name === 'todo') ? state.items : state.stash;
   }
@@ -291,7 +293,7 @@
    * Writes a merged document into the state: items added, changed or removed, the single things and the
    * counters. Items keep their place; new ones go at the end of the to-buy part (or the end, if eaten);
    * eaten items stay below the rest. Afterwards the table in state.sync matches, so a later `stamp`
-   * sees no change of its own. The to-do list needs sorting by day afterwards (`PetLogic.sortByDue`).
+   * sees no change of its own. The to-do list is never touched.
    * @param {Object} state
    * @param {Object} doc  From `merge`.
    * @returns {{added: number, changed: number, removed: number, fields: string[]}}
@@ -338,7 +340,7 @@
       // to-buy first, eaten after, each part keeping its order
       lists[name] = kept.filter(function (i) { return !i.done; }).concat(kept.filter(function (i) { return i.done; }));
     });
-    if (state.mode === 'todo') { state.items = lists.todo; state.stash = lists.shop; } else { state.items = lists.shop; state.stash = lists.todo; }
+    if (state.mode === 'todo') state.stash = lists.shop; else state.items = lists.shop;   // the to-do list is not touched
 
     var fields = isObj(doc.fields) ? doc.fields : {}, touched = [];
     FIELD_NAMES.forEach(function (name) {

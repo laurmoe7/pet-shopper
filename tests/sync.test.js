@@ -82,7 +82,8 @@ test('swapping the shopping and to-do lists is not a change', () => {
   assert.deepEqual(Sync.stamp(a, T + 1000), { items: 0, deleted: 0, fields: [] });
   a.items.push(L.createItem('Pay rent', {}, 'task2', undefined, 'todo'));
   Sync.stamp(a, T + 2000);
-  assert.equal(a.sync.items.task2.list, 'todo');
+  assert.equal(a.sync.items.task2, undefined);   // to-dos are private: never noted for syncing
+  assert.equal(a.sync.items.task1, undefined);
 });
 
 test('stamp finds changes to the pet and to your name', () => {
@@ -341,27 +342,27 @@ test('new items from another device go at the end of the to-buy part; eaten ones
   assert.ok(b.items.slice(0, -1).every((i) => !i.done));
 });
 
-test('the right list gets the items whichever list is showing', () => {
+test('the shopping list lands in the right place whichever list is showing, and to-dos never move', () => {
   const { a, b } = pair();
   b.mode = 'todo'; { const s = b.items; b.items = b.stash; b.stash = s; }   // b shows its to-dos
   a.stash.push(L.createItem('Water plants', {}, 'task9', undefined, 'todo'));
   a.items.push(L.createItem('Eggs', {}, 'ea', T));
   const shared = round(a, null, T + 1000);
+  assert.ok(!Object.values(shared.items).some((r) => r.list === 'todo'));
   round(b, shared, T + 2000);
-  assert.deepEqual(texts(b.items), ['Call mum', 'Water plants']);   // the to-do list is showing
+  assert.deepEqual(texts(b.items), ['Call mum']);   // the to-do list is showing, untouched
   assert.ok(texts(b.stash).includes('Eggs'));
   assert.equal(b.mode, 'todo');
 });
 
-test('items from other devices are checked like saved ones', () => {
+test('to-do items in a document from elsewhere are ignored', () => {
   const { a, b } = pair();
-  a.stash.push(Object.assign(L.createItem('Bad day', {}, 'task8', undefined, 'todo'), { due: 'tomorrow', repeat: 'weekly' }));
   const shared = round(a, null, T + 1000);
+  shared.items.task8 = { at: T + 5, by: 'devicea', list: 'todo', item: Object.assign(L.createItem('Bad day', {}, 'task8', undefined, 'todo')) };
+  const before = texts(b.items).concat(texts(b.stash));
   round(b, shared, T + 2000);
-  const got = find(b, 'Bad day');
-  assert.ok(got);
-  assert.equal(got.due, undefined);
-  assert.equal(got.repeat, undefined);
+  assert.deepEqual(texts(b.items).concat(texts(b.stash)), before);
+  assert.equal(b.sync.items.task8, undefined);
 });
 
 test('removed markers are left out of a document older than 30 days', () => {

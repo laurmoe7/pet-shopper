@@ -63,10 +63,9 @@ function syncClock(t) {
 function renderSyncLog() {
   var metas = Object.keys(state.sync.items).map(function (id) { return state.sync.items[id]; });
   var live = metas.filter(function (m) { return !m.del; }), gone = metas.length - live.length;
-  var shop = live.filter(function (m) { return m.list === 'shop'; }).length;
   var newest = metas.reduce(function (n, m) { return Math.max(n, m.at); }, 0);
   var days = Math.round(Sync.TOMBSTONE_DAYS);
-  syncSummary.textContent = 'Device ' + state.sync.device + ' · ' + shop + ' shopping, ' + (live.length - shop) + ' to-do · ' + gone +
+  syncSummary.textContent = 'Device ' + state.sync.device + ' · ' + live.length + ' shopping items (to-dos stay private) · ' + gone +
     ' removed marker' + (gone === 1 ? '' : 's') + ' (kept ' + days + ' days) · latest change ' + (newest ? syncClock(newest) : 'none') + ' · server: not connected yet';
   syncList.replaceChildren.apply(syncList, syncLog.slice().reverse().map(function (e) {
     var row = document.createElement('div'), time = document.createElement('span'), text = document.createElement('span');

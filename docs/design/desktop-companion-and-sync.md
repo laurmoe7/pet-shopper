@@ -14,8 +14,9 @@ Decisions from the design talk. Do not start building until Lauren says so.
 
 ## Sync
 
-- Account by email magic link (no passwords); add Apple/Google sign-in later if the stores need it.
-- Backend on Cloudflare (Worker + D1), EU region. The local save (`nibble.v1`) stays the main copy; the server mirrors it, so the app works offline.
+- **Only the shopping list syncs. To-do lists are private to each person** (Lauren's decision): never stamped, sent or changed by syncing. The Calendar's plans live in the to-do list, so they stay private too.
+- Sign-in: **recovery code first** (a long random code, shown as text and a QR to scan with the other device; no email service, no personal data on the server, works at once). Email magic link comes later as a way to get the account back; add Apple/Google sign-in if the stores need it.
+- Backend on Cloudflare (Worker + D1), EU region (Lauren has a Cloudflare account, the one the recipe helper uses). The local save (`nibble.v1`) stays the main copy; the server mirrors it, so the app works offline.
 - Merge per item, not whole lists: each item has an id and a "changed at" time; the latest change per item wins; deletions are kept as markers for a while.
 - Pet state: latest device wins per field. Counters (stamps, goal progress, unlock progress) merge by taking the larger value, so no progress is lost.
 - The merge rules are pure functions in `logic.js` with many tests (offline edits, same item changed twice, delete vs. edit).
