@@ -18,7 +18,7 @@ var SLOTS = [['hat', 'Hat'], ['body', 'Clothes'], ['face', 'Glasses'], ['mouth',
 /** What the pet underneath looks like (kept on this computer). */
 var P = { species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, backdrop: 'meadow', night: false, room: {} };
 var SK = {
-  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, style: 'solid', shape: 'heart', fillMode: 'none', colour2: '#ffc9d6', clip: [], pasteN: 0, tidy: 6, space: false, sel: null, mirror: false, pick: [],
+  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, tab: 'draw', clean: true, style: 'solid', shape: 'heart', fillMode: 'none', colour2: '#ffc9d6', clip: [], pasteN: 0, tidy: 6, space: false, sel: null, mirror: false, pick: [],
   strokes: { pet: [], scene: [], toy: [], room: [] }, hist: { pet: [], scene: [], toy: [], room: [] }, redo: { pet: [], scene: [], toy: [], room: [] },
   /** Pictures to trace, one layer each, in the same coordinates as the drawing: {id, name, src, cx, cy, bw, bh, scale, opacity, visible, behind} */
   images: { pet: [], scene: [], toy: [], room: [] },
@@ -80,7 +80,7 @@ function dressUp(el, outfit) {
 // ---------- keeping the work on this computer ----------
 function skSave() {
   try {
-    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, style: SK.style, shape: SK.shape, fillMode: SK.fillMode, colour2: SK.colour2, layers: SK.layers, active: SK.active, snap: $('skSnap').checked, mirror: SK.mirror }));
+    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, style: SK.style, tab: SK.tab, clean: SK.clean, shape: SK.shape, fillMode: SK.fillMode, colour2: SK.colour2, layers: SK.layers, active: SK.active, snap: $('skSnap').checked, mirror: SK.mirror }));
   } catch (e) { /* storage not available */ }
 }
 function skLoad() {
@@ -102,6 +102,8 @@ function skLoad() {
     if (L.SKETCH_SHAPES.some(function (x) { return x[0] === d.shape; })) SK.shape = d.shape;
     SK.fillMode = ['none', 'flat', 'v', 'h', 'r'].indexOf(d.fillMode) !== -1 ? d.fillMode : (d.shapeFill ? 'flat' : 'none');
     if (/^#[0-9a-f]{6}$/i.test(d.colour2 || '')) SK.colour2 = d.colour2;
+    if (d.clean === false) SK.clean = false;
+    if (['draw', 'images', 'under', 'send'].indexOf(d.tab) !== -1) SK.tab = d.tab;
     ['pet', 'scene', 'toy', 'room'].forEach(function (m) {
       if (d.layers && Array.isArray(d.layers[m])) SK.layers[m] = d.layers[m].filter(function (l) { return l && l.id; }).map(function (l) { return { id: String(l.id), name: String(l.name || 'Layer').slice(0, 24), show: l.show !== false }; });
       if (d.active && d.active[m]) SK.active[m] = d.active[m];
@@ -282,7 +284,22 @@ function skApplyLook() {
   $('skTemplateWrap').hidden = SK.mode !== 'pet';
   $('skTemplate').checked = !!P.template;
   $('skRefLabel').textContent = SK.mode === 'toy' ? 'Toy' : 'Pet';
+  $('skTabUnder').hidden = SK.mode === 'toy';
+  $('skTabUnder').textContent = SK.mode === 'pet' ? 'Pet' : 'Room';
+  $('skItemRow').hidden = !(SK.mode === 'pet' && SK_ITEM_SLOTS[$('skKind').value]);
+  skTab(SK.mode === 'toy' && SK.tab === 'under' ? 'draw' : SK.tab);
 }
+var SK_ITEM_SLOTS = { hat: 'hat', clothes: 'body', face: 'face', mouth: 'mouth', neck: 'neck', feet: 'feet' };
+/** Shows one of the panel's pages (Draw, Images, Pet or Room, Send). */
+function skTab(name) {
+  SK.tab = name;
+  document.querySelectorAll('#skTabs [data-tab]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === name)); });
+  document.querySelectorAll('.skp-pane').forEach(function (p) { p.hidden = p.dataset.pane !== name; });
+}
+$('skTabs').addEventListener('click', function (e) {
+  var b = e.target.closest('[data-tab]');
+  if (b) { skTab(b.dataset.tab); skSave(); }
+});
 
 // ---------- drawing ----------
 function skPoint(e) {
@@ -972,8 +989,9 @@ function skDeletePick() {
 
 /** Lets the buttons for picked lines work only while some are picked. */
 function skSelButtons() {
-  var none = !SK.pick.length;
+  var none = !SK.pick.length, shapes = SK.pick.filter(function (s) { return s.closed || s.fill || s.bucket || s.d; }).length;
   $('skSelTools').querySelectorAll('button').forEach(function (b) { b.disabled = none; });
+  ['skUnion', 'skSubtract', 'skIntersect'].forEach(function (id) { $(id).disabled = shapes < 2; });   // combining needs two closed shapes
 }
 /** Runs a transform on everything picked, as one undo step. */
 function skApplyOp(op) {
@@ -1051,6 +1069,50 @@ $('skFront').addEventListener('click', function () { skStack(true); });
 $('skBack').addEventListener('click', function () { skStack(false); });
 $('skToLayer').addEventListener('click', skToLayer);
 $('skDel').addEventListener('click', skDeletePick);
+
+// ---------- combining shapes ----------
+/**
+ * Joins the picked closed shapes (union), cuts the ones above the lowest out of it (subtract) or keeps only where they all cross
+ * (overlap). The shapes are drawn on a hidden canvas, combined, and the outline of what is left is kept as a new shape.
+ */
+function skCombine(op) {
+  var shapes = skOrdered().filter(function (s) { return SK.pick.indexOf(s) !== -1 && (s.closed || s.fill || s.bucket || s.d); });
+  if (shapes.length < 2) { skStatus.textContent = 'Pick two or more closed shapes first.'; return; }
+  var v = SK_VIEW[SK.mode], scale = 900 / Math.max(v.w, v.h), W = Math.round(v.w * scale), H = Math.round(v.h * scale);
+  var cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  var g = cv.getContext('2d', { willReadFrequently: true });
+  g.setTransform(scale, 0, 0, scale, -v.x * scale, -v.y * scale);
+  g.fillStyle = '#000';
+  shapes.forEach(function (s, i) {
+    g.globalCompositeOperation = i === 0 || op === 'union' ? 'source-over' : op === 'subtract' ? 'destination-out' : 'destination-in';
+    g.fill(s.d ? new Path2D(s.d) : new Path2D(L.sketchPath(s.pts, true, 2)), s.d ? 'evenodd' : 'nonzero');
+  });
+  var px = g.getImageData(0, 0, W, H).data, mask = new Uint8Array(W * H), left = 0, i;
+  for (i = 0; i < mask.length; i++) { mask[i] = px[i * 4 + 3] > 127 ? 1 : 0; left += mask[i]; }
+  var loops = left ? L.traceLoops(mask, W, H).map(function (lp) {
+    var real = lp.concat([lp[0]]).map(function (p) { return [v.x + p[0] / scale, v.y + p[1] / scale]; }), out = [];
+    L.fitCurve(L.simplifyLine(real, 0.8 / scale), v.w * 0.0012).forEach(function (b) {   // the pixel staircase becomes a smooth outline
+      for (var k = 0; k < 10; k++) { var t = k / 10, u = 1 - t; out.push([+(u * u * u * b[0][0] + 3 * u * u * t * b[1][0] + 3 * u * t * t * b[2][0] + t * t * t * b[3][0]).toFixed(2), +(u * u * u * b[0][1] + 3 * u * u * t * b[1][1] + 3 * u * t * t * b[2][1] + t * t * t * b[3][1]).toFixed(2)]); }
+    });
+    return out;
+  }).filter(function (lp) { return lp.length > 2; }) : [];
+  if (!loops.length) { skStatus.textContent = 'Nothing would be left, so nothing changed.'; return; }
+  var base = shapes[0], outer = loops.slice().sort(function (a, b) { return b.length - a.length; })[0];
+  var made = { d: loops.map(function (lp) { return 'M' + lp.map(function (p) { return p[0] + ' ' + p[1]; }).join('L') + 'Z'; }).join(''), pts: outer, color: base.color, width: base.width, fill: base.fill, closed: true, style: base.style, lay: base.lay };
+  if (base.bucket) made.bucket = true;
+  if (base.grad) made.grad = base.grad;
+  skPushHistory();
+  var list = SK.strokes[SK.mode], at = list.indexOf(base);
+  SK.strokes[SK.mode] = list.filter(function (s) { return shapes.indexOf(s) === -1 || s === base; });
+  SK.strokes[SK.mode][SK.strokes[SK.mode].indexOf(base)] = made;
+  SK.pick = [made];
+  skRedraw(); skXfRender(); skSave();
+  skStatus.textContent = { union: 'Joined into one shape.', subtract: 'Cut out of the lowest shape.', intersect: 'Kept where they overlap.' }[op] + ' Undo brings them back.';
+}
+$('skUnion').addEventListener('click', function () { skCombine('union'); });
+$('skSubtract').addEventListener('click', function () { skCombine('subtract'); });
+$('skIntersect').addEventListener('click', function () { skCombine('intersect'); });
 
 // ---------- the pet's own colours ----------
 /** Shows the main colours of whatever is underneath (the pet and its skin, the background, the toy) as swatches, read from how it is drawn. */
@@ -1157,10 +1219,26 @@ function skMeta() {
       : SK.mode === 'pet' ? 'pet drawing is 160 x 150 at 0,0' : 'toy drawing is 26 x 26'
   };
 }
+/** @returns {Object[]} The lines in drawing order, each with its layer's name when there are several layers. */
+function skLayered(several) {
+  return skOrdered().map(function (s) { return several ? Object.assign({}, s, { layer: skLayerOf(s).name }) : s; });
+}
+/** @returns {?{code: string, name: string}} A dressing-room entry for the drawing (pet drawings of a hat, clothes, glasses...), or null with a message. */
+function skItemCode() {
+  var slot = SK_ITEM_SLOTS[$('skKind').value], name = $('skItemName').value.trim();
+  if (SK.mode !== 'pet' || !slot) { skStatus.textContent = 'Item code is for pet drawings of a hat, clothes, glasses, mouth thing, neckwear or shoes.'; return null; }
+  if (skEmpty()) return null;
+  if (!name) { skStatus.textContent = 'Give the game item a name first.'; $('skItemName').focus(); return null; }
+  var id = name.toLowerCase().replace(/[^a-z0-9]+/g, '') || 'item', base = id, n = 2;
+  while (byId(Wardrobe, id)) id = base + n++;
+  var code = L.sketchItemCode(skLayered(skLays().length > 1), { id: id, label: name, slot: slot, lines: ['so cute!', 'i love it!', 'looks good on me'], note: $('skNote').value.trim() }, SK_VIEW.pet);
+  return { code: code, name: id };
+}
 function skFiles() {
   var m = skMeta(), several = skLays().length > 1;
   if (several) m.layers = skLays().map(function (x) { return x.name; });   // bottom first
-  var svg = L.sketchSvg(skOrdered().map(function (s) { return several ? Object.assign({}, s, { layer: skLayerOf(s).name }) : s; }), SK_VIEW[SK.mode], m);
+  m.export = SK.clean ? 'clean: curves fitted to the lines' : 'raw: every pen point kept';
+  var svg = L.sketchSvg(skLayered(several), SK_VIEW[SK.mode], m, { clean: SK.clean });
   var d = new Date(), pad = function (n) { return (n < 10 ? '0' : '') + n; };
   var stamp = d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '-' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
   return { meta: m, svg: svg, name: m.kind + '-' + SK.mode + '-' + stamp };
@@ -1185,6 +1263,14 @@ function skCopy() {
   navigator.clipboard.writeText(text).then(function () { skStatus.textContent = 'Copied. Paste it in the chat.'; },
     function () { skStatus.textContent = 'Could not copy. Try Save SVG.'; });
 }
+
+$('skItemCode').addEventListener('click', function () {
+  var it = skItemCode();
+  if (!it) return;
+  navigator.clipboard.writeText(it.code).then(function () { skStatus.textContent = 'Copied the item code for ' + it.name + '. It goes in the list in wardrobe.js.'; }, function () { skStatus.textContent = 'Could not copy. Use Upload, and I will add it.'; });
+});
+$('skClean').addEventListener('change', function () { SK.clean = $('skClean').checked; skSave(); });
+$('skKind').addEventListener('change', skApplyLook);
 
 // ---------- uploading to GitHub ----------
 function ghSettings() {
@@ -1228,11 +1314,12 @@ function skUpload() {
   if (!g.token || !g.repo) { $('skSettings').open = true; skStatus.textContent = 'Connect to GitHub first.'; return; }
   ghSaveSettings();
   skStatus.textContent = 'Uploading…';
-  var content = btoa(unescape(encodeURIComponent(f.svg)));
+  var put = function (path, text) { return ghReq('PUT', '/repos/' + g.repo + '/contents/drawings/' + path, { message: 'Drawing: ' + f.meta.kind + (f.meta.note ? ' - ' + f.meta.note.slice(0, 60) : ''), content: btoa(unescape(encodeURIComponent(text))), branch: g.branch }); };
+  var item = $('skItemName').value.trim() && !$('skItemRow').hidden ? skItemCode() : null;
   ghEnsureBranch().then(function () {
-    return ghReq('PUT', '/repos/' + g.repo + '/contents/drawings/' + f.name + '.svg', { message: 'Drawing: ' + f.meta.kind + (f.meta.note ? ' - ' + f.meta.note.slice(0, 60) : ''), content: content, branch: g.branch });
-  }).then(function () {
-    skStatus.textContent = 'Uploaded drawings/' + f.name + '.svg. Tell me in the chat.';
+    return put(f.name + '.svg', f.svg);
+  }).then(function () { return item ? put(f.name + '.item.js', item.code + '\n') : null; }).then(function () {
+    skStatus.textContent = 'Uploaded drawings/' + f.name + '.svg' + (item ? ' and its item code' : '') + '. Tell me in the chat.';
   }).catch(function (e) {
     skStatus.textContent = 'Could not upload: ' + e.message + (e.status === 401 || e.status === 403 || e.status === 404 ? ' (check the token and that it can write to this repository).' : '') + ' You can still use Save SVG.';
   });
@@ -1778,6 +1865,7 @@ skLoadImages();
 skLayersUI();
 skLinesUI();
 skBuildPanels();
+$('skClean').checked = SK.clean;
 skSetPen(SK.pen);
 skStatus.textContent = 'Loading…';
 skLoadSource().then(function () {

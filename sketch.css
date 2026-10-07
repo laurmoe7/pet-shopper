@@ -305,3 +305,17 @@ html:root body.skp.skp-guest #skSaveFile { color: #fff; text-shadow: 0 1px 2px r
 .sk-stage[data-tool="shape"] .sk-draw { cursor: crosshair; }
 #skColour2 { flex: none; width: 30px; height: 26px; padding: 0; border: 2px solid var(--sk-edge); border-radius: 8px; background: none; }
 .sk-styles { flex-wrap: nowrap; }
+
+/* the panel's pages */
+.skp-tabs { display: flex; gap: 4px; padding: 3px; background: var(--sk-field); border: 2px solid var(--sk-edge); border-radius: 999px; flex: none; }
+.skp-tabs button { flex: 1; padding: 6px 4px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: inherit; font-size: .84rem; font-weight: 800; cursor: pointer; }
+.skp-tabs button[hidden] { display: none; }
+.skp-tabs button[aria-selected="true"] { background: linear-gradient(180deg, #ffa3bb, #ff8fab); color: #3b1f2b; box-shadow: 0 2px 0 #c9577f; }
+.skp-pane { display: flex; flex-direction: column; gap: 8px; }
+.skp-pane[hidden] { display: none; }
+.sk-seltools[data-n="10"] { grid-template-columns: repeat(5, 1fr); }
+.sk-seltools[data-n="10"] button { height: 30px; }
+#skItemRow { flex-wrap: nowrap; }
+#skItemRow input { flex: 1; min-width: 0; }
+#skItemRow[hidden] { display: none; }
+html:root body.skp .skp-main { background: linear-gradient(180deg, #ffa3bb, #ff8fab); border-color: transparent; box-shadow: 0 3px 0 #c9577f; }

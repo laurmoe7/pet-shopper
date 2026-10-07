@@ -173,3 +173,40 @@ test('gradient fills and soft lines come with their definitions in the saved SVG
   assert.ok(svg.indexOf('<defs>') < svg.indexOf('<path'), 'definitions come first');
   assert.match(L.sketchGradDef({ type: 'r', c1: '#fff', c2: '#000' }), /radialGradient/);
 });
+
+test('clean export fits a few curves to a wobbly line and keeps corners', () => {
+  const circle = [];
+  for (let i = 0; i <= 120; i++) { const a = i / 120 * Math.PI * 2; circle.push([100 + Math.cos(a) * 50, 100 + Math.sin(a) * 50 + Math.sin(i * 7) * 0.3]); }
+  const curves = L.fitCurve(circle, 0.5);
+  assert.ok(curves.length >= 2 && curves.length <= 8, 'a circle is a handful of curves, not 120 points');
+  // every original point lies close to the fitted curves
+  const sample = [];
+  curves.forEach((b) => { for (let t = 0; t <= 1; t += 0.004) { const u = 1 - t; sample.push([u * u * u * b[0][0] + 3 * u * u * t * b[1][0] + 3 * u * t * t * b[2][0] + t * t * t * b[3][0], u * u * u * b[0][1] + 3 * u * u * t * b[1][1] + 3 * u * t * t * b[2][1] + t * t * t * b[3][1]]); } });
+  circle.forEach((p) => { assert.ok(Math.min(...sample.map((q) => Math.hypot(q[0] - p[0], q[1] - p[1]))) < 0.8); });
+  const square = [];
+  for (let i = 0; i < 20; i++) square.push([i * 5, 0]);
+  for (let i = 0; i < 20; i++) square.push([100, i * 5]);
+  for (let i = 0; i < 20; i++) square.push([100 - i * 5, 100]);
+  for (let i = 0; i <= 20; i++) square.push([0, 100 - i * 5]);
+  assert.equal(L.fitCurve(square, 0.8).length, 4, 'a square keeps its four sides');
+  const svg = L.sketchSvg([{ pts: circle, color: '#000', width: 2, closed: true }], { x: 0, y: 0, w: 220, h: 220 }, {}, { clean: true });
+  assert.match(svg, /d="M[^"]*C[^"]*Z"/);
+  assert.ok(svg.length < L.sketchSvg([{ pts: circle, color: '#000', width: 2, closed: true }], { x: 0, y: 0, w: 220, h: 220 }, {}).length, 'smaller than the raw file');
+});
+
+test('a curve made with the Curve tool is written from its own points, and layers become named groups', () => {
+  const s = { pts: [[0, 0], [10, 10]], color: '#000', width: 1, layer: 'Shading', cv: { closed: false, a: [{ p: [0, 0], o: [5, 0] }, { p: [10, 10], o: [5, 0] }] } };
+  assert.equal(L.sketchPathClean(s, 1, 0.1), 'M0 0C5 0 5 10 10 10');
+  const svg = L.sketchSvg([s], { x: 0, y: 0, w: 26, h: 26 }, {}, { clean: true });
+  assert.match(svg, /<g id="shading" data-layer="Shading">/);
+});
+
+test('a drawing becomes a dressing-room entry that can be pasted into wardrobe.js', () => {
+  const code = L.sketchItemCode([{ pts: [[60, 30], [100, 30]], color: '#ff8fab', width: 3 }], { id: 'pinkbar', label: "Lauren's bar", slot: 'hat', lines: ['cute!', "it's me"], note: 'a test' }, { x: -30, y: -50, w: 220, h: 220 });
+  assert.match(code, /id: 'pinkbar', slot: 'hat', label: 'Lauren\\'s bar'/);
+  assert.match(code, /icon: '\d+ \d+ \d+ \d+'/);
+  assert.match(code, /lines: \['cute!', 'it\\'s me'\]/);
+  const item = new Function('return ' + code.trim().replace(/,\s*$/, ''))();   // it is real JavaScript
+  assert.equal(item.id, 'pinkbar');
+  assert.match(item.svg, /^<g class="item-pinkbar">.*stroke="#ff8fab".*<\/g>$/);
+});

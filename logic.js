@@ -1382,32 +1382,245 @@
     }
     return false;
   }
+  // ---------- turning pen lines into a few clean curves ----------
+  // Curve fitting after Philip J. Schneider, "An Algorithm for Automatically Fitting Digitized Curves" (Graphics Gems, 1990):
+  // a line of many points becomes a few cubic Béziers that stay within `err` of every point.
+  function cvAdd(a, b) { return [a[0] + b[0], a[1] + b[1]]; }
+  function cvSub(a, b) { return [a[0] - b[0], a[1] - b[1]]; }
+  function cvMul(a, k) { return [a[0] * k, a[1] * k]; }
+  function cvDot(a, b) { return a[0] * b[0] + a[1] * b[1]; }
+  function cvNorm(a) { var d = Math.hypot(a[0], a[1]) || 1; return [a[0] / d, a[1] / d]; }
+  function cvAt(b, t) {
+    var u = 1 - t;
+    return [u * u * u * b[0][0] + 3 * u * u * t * b[1][0] + 3 * u * t * t * b[2][0] + t * t * t * b[3][0], u * u * u * b[0][1] + 3 * u * u * t * b[1][1] + 3 * u * t * t * b[2][1] + t * t * t * b[3][1]];
+  }
+  function cvD1(b, t) {
+    var u = 1 - t, q = [cvSub(b[1], b[0]), cvSub(b[2], b[1]), cvSub(b[3], b[2])];
+    return [3 * (u * u * q[0][0] + 2 * u * t * q[1][0] + t * t * q[2][0]), 3 * (u * u * q[0][1] + 2 * u * t * q[1][1] + t * t * q[2][1])];
+  }
+  function cvD2(b, t) {
+    var q = [cvSub(b[1], b[0]), cvSub(b[2], b[1]), cvSub(b[3], b[2])], r = [cvSub(q[1], q[0]), cvSub(q[2], q[1])];
+    return [6 * ((1 - t) * r[0][0] + t * r[1][0]), 6 * ((1 - t) * r[0][1] + t * r[1][1])];
+  }
+  function cvChord(P, first, last) {
+    var u = [0], i;
+    for (i = first + 1; i <= last; i++) u.push(u[u.length - 1] + Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]));
+    for (i = 1; i < u.length; i++) u[i] /= (u[u.length - 1] || 1);
+    return u;
+  }
+  function cvGenerate(P, first, last, u, t1, t2) {
+    var n = last - first + 1, C = [[0, 0], [0, 0]], X = [0, 0], i;
+    var p0 = P[first], p3 = P[last];
+    for (i = 0; i < n; i++) {
+      var t = u[i], m = 1 - t, b0 = m * m * m, b1 = 3 * t * m * m, b2 = 3 * t * t * m, b3 = t * t * t;
+      var a1 = cvMul(t1, b1), a2 = cvMul(t2, b2);
+      var tmp = cvSub(P[first + i], cvAdd(cvMul(p0, b0 + b1), cvMul(p3, b2 + b3)));
+      C[0][0] += cvDot(a1, a1); C[0][1] += cvDot(a1, a2); C[1][1] += cvDot(a2, a2);
+      X[0] += cvDot(a1, tmp); X[1] += cvDot(a2, tmp);
+    }
+    C[1][0] = C[0][1];
+    var det = C[0][0] * C[1][1] - C[1][0] * C[0][1];
+    var al = det ? (X[0] * C[1][1] - X[1] * C[0][1]) / det : 0, ar = det ? (C[0][0] * X[1] - C[1][0] * X[0]) / det : 0;
+    var seg = Math.hypot(p3[0] - p0[0], p3[1] - p0[1]), eps = 1e-6 * seg;
+    if (al < eps || ar < eps) { var d = seg / 3; return [p0, cvAdd(p0, cvMul(t1, d)), cvAdd(p3, cvMul(t2, d)), p3]; }
+    return [p0, cvAdd(p0, cvMul(t1, al)), cvAdd(p3, cvMul(t2, ar)), p3];
+  }
+  function cvReparam(P, first, last, u, b) {
+    var out = [], i;
+    for (i = first; i <= last; i++) {
+      var t = u[i - first], q = cvAt(b, t), d1 = cvD1(b, t), d2 = cvD2(b, t), diff = cvSub(q, P[i]);
+      var num = cvDot(diff, d1), den = cvDot(d1, d1) + cvDot(diff, d2);
+      out.push(den ? t - num / den : t);
+    }
+    return out;
+  }
+  function cvError(P, first, last, b, u) {
+    var worst = 0, at = Math.floor((last - first + 1) / 2), i;
+    for (i = first + 1; i < last; i++) {
+      var q = cvAt(b, u[i - first]), d = cvSub(q, P[i]), e = cvDot(d, d);
+      if (e >= worst) { worst = e; at = i; }
+    }
+    return { err: worst, at: at };
+  }
+  function cvFit(P, first, last, t1, t2, err) {
+    if (last - first === 1) { var d = Math.hypot(P[last][0] - P[first][0], P[last][1] - P[first][1]) / 3; return [[P[first], cvAdd(P[first], cvMul(t1, d)), cvAdd(P[last], cvMul(t2, d)), P[last]]]; }
+    var u = cvChord(P, first, last), b = cvGenerate(P, first, last, u, t1, t2), e = cvError(P, first, last, b, u), i;
+    if (e.err < err * err) return [b];
+    if (e.err < err * err * 16) {   // close: nudge the timing of each point a few times
+      for (i = 0; i < 12; i++) {
+        var u2 = cvReparam(P, first, last, u, b);
+        b = cvGenerate(P, first, last, u2, t1, t2); e = cvError(P, first, last, b, u2); u = u2;
+        if (e.err < err * err) return [b];
+      }
+    }
+    var tc = cvNorm(cvSub(P[e.at - 1], P[e.at + 1]));
+    return cvFit(P, first, e.at, t1, tc, err).concat(cvFit(P, e.at, last, cvMul(tc, -1), t2, err));
+  }
+  /**
+   * Fits a few smooth cubic Béziers to a line (sharp corners stay sharp).
+   * @param {number[][]} pts
+   * @param {number} err  How far the curves may stray from the points.
+   * @returns {number[][][]} Each curve is [start, control 1, control 2, end].
+   */
+  function fitCurve(pts, err) {
+    var P = [], i;
+    for (i = 0; i < pts.length; i++) if (!i || Math.hypot(pts[i][0] - P[P.length - 1][0], pts[i][1] - P[P.length - 1][1]) > 1e-6) P.push(pts[i]);
+    if (P.length < 2) return [];
+    if (P.length === 2) { var m = cvSub(P[1], P[0]); return [[P[0], cvAdd(P[0], cvMul(m, 1 / 3)), cvAdd(P[0], cvMul(m, 2 / 3)), P[1]]]; }
+    // cut the line at its corners and fit each stretch on its own
+    var cuts = [0], k = Math.max(2, Math.min(5, Math.floor(P.length / 8)));
+    for (i = 1; i < P.length - 1; i++) {
+      var a = cvSub(P[i], P[Math.max(0, i - k)]), c = cvSub(P[Math.min(P.length - 1, i + k)], P[i]);
+      if (!Math.hypot(a[0], a[1]) || !Math.hypot(c[0], c[1])) continue;
+      var ang = Math.acos(Math.max(-1, Math.min(1, cvDot(cvNorm(a), cvNorm(c)))));
+      if (ang > 0.95 && i - cuts[cuts.length - 1] > k) {   // about 55 degrees: the sharpest point of the bend is the corner
+        var best = i, bestAng = ang, j;
+        for (j = i + 1; j < Math.min(P.length - 1, i + k); j++) {
+          var a2 = cvSub(P[j], P[Math.max(0, j - k)]), c2 = cvSub(P[Math.min(P.length - 1, j + k)], P[j]), g = Math.acos(Math.max(-1, Math.min(1, cvDot(cvNorm(a2), cvNorm(c2)))));
+          if (g > bestAng) { bestAng = g; best = j; }
+        }
+        cuts.push(best); i = best;
+      }
+    }
+    cuts.push(P.length - 1);
+    var out = [];
+    for (i = 0; i < cuts.length - 1; i++) {
+      var f = cuts[i], e2 = cuts[i + 1];
+      if (e2 <= f) continue;
+      if (e2 - f === 1) { var mm = cvSub(P[e2], P[f]); out.push([P[f], cvAdd(P[f], cvMul(mm, 1 / 3)), cvAdd(P[f], cvMul(mm, 2 / 3)), P[e2]]); continue; }
+      var t1 = cvNorm(cvSub(P[Math.min(e2, f + 1)], P[f])), t2 = cvNorm(cvSub(P[Math.max(f, e2 - 1)], P[e2]));
+      out = out.concat(cvFit(P, f, e2, t1, t2, err));
+    }
+    return out;
+  }
+  /** @returns {string} Path text for curves, as M then C commands (or L for a straight piece). */
+  function curvesPath(curves, dp) {
+    var n = function (v) { return skNum(v, dp); }, d = '';
+    curves.forEach(function (b, i) {
+      if (!i) d += 'M' + n(b[0][0]) + ' ' + n(b[0][1]);
+      var straight = Math.abs((b[1][0] - b[0][0]) * (b[3][1] - b[0][1]) - (b[1][1] - b[0][1]) * (b[3][0] - b[0][0])) < 1e-6 && Math.abs((b[2][0] - b[0][0]) * (b[3][1] - b[0][1]) - (b[2][1] - b[0][1]) * (b[3][0] - b[0][0])) < 1e-6;
+      d += straight ? 'L' + n(b[3][0]) + ' ' + n(b[3][1]) : 'C' + n(b[1][0]) + ' ' + n(b[1][1]) + ' ' + n(b[2][0]) + ' ' + n(b[2][1]) + ' ' + n(b[3][0]) + ' ' + n(b[3][1]);
+    });
+    return d;
+  }
+  /**
+   * The path text for a stroke in "clean" form: a curve drawn with the Curve tool is written from its own points; any other
+   * line (or filled outline) is fitted with a few Béziers.
+   * @param {Object} s  A stroke.
+   * @param {number} dp  Decimals to keep.
+   * @param {number} err  How far a fitted curve may stray.
+   */
+  function sketchPathClean(s, dp, err) {
+    if (s.cv && s.cv.a.length > 1) {
+      var a = s.cv.a, n = a.length, segs = s.cv.closed ? n : n - 1, curves = [], i;
+      for (i = 0; i < segs; i++) {
+        var p = a[i], q = a[(i + 1) % n], qi = q.i || [-q.o[0], -q.o[1]];
+        curves.push([p.p, [p.p[0] + p.o[0], p.p[1] + p.o[1]], [q.p[0] + qi[0], q.p[1] + qi[1]], q.p]);
+      }
+      return curvesPath(curves, dp) + (s.cv.closed ? 'Z' : '');
+    }
+    if (s.d) {   // outlines made by the bucket or by combining shapes: each loop is fitted on its own
+      var loops = s.d.match(/M[^Z]*Z/g) || [];
+      return loops.map(function (lp) {
+        var nums = lp.match(/-?\d+(?:\.\d+)?/g).map(Number), pts = [], j;
+        for (j = 0; j + 1 < nums.length; j += 2) pts.push([nums[j], nums[j + 1]]);
+        pts.push(pts[0]);
+        return curvesPath(fitCurve(pts, err), dp) + 'Z';
+      }).join('');
+    }
+    if (s.pts.length < 3) return sketchPath(s.pts, false, dp);
+    var closed = (s.fill || s.closed) && s.pts.length > 2, pts2 = s.pts.slice();
+    if (closed) pts2.push(pts2[0]);
+    var fitted = fitCurve(pts2, err);
+    return fitted.length ? curvesPath(fitted, dp) + (closed ? 'Z' : '') : sketchPath(s.pts, closed, dp);
+  }
+  /**
+   * The drawing's parts, ready to write out: each stroke as a path with its colours, and the gradients and blurs they need.
+   * @param {Object[]} strokes
+   * @param {{w: number}} view
+   * @param {{clean: boolean}} opts  `clean` fits curves instead of keeping every pen point.
+   * @returns {{defs: string, items: {layer: ?string, svg: string}[]}}
+   */
+  function sketchBody(strokes, view, opts) {
+    opts = opts || {};
+    var dp = view.w > 100 ? 1 : 2, err = view.w * 0.0022, defs = {};
+    var esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/--/g, '- -'); };
+    var items = strokes.map(function (s) {
+      // a paint-bucket fill carries its own outline (`d`, with holes)
+      var d = opts.clean ? sketchPathClean(s, dp, err) : (s.d || sketchPath(s.pts, (s.fill || s.closed) && s.pts.length > 2, dp));
+      var fillAttr = s.fill && s.grad ? 'url(#' + sketchGradId(s.grad) + ')' : null, soft = s.style === 'soft' ? sketchSoftBlur(s.width) : 0;
+      if (fillAttr) defs[sketchGradId(s.grad)] = sketchGradDef(s.grad);
+      if (soft) defs[sketchBlurId(soft)] = sketchBlurDef(soft);
+      var dash = sketchDash(s.style, s.width);
+      return { layer: s.layer || null, svg: '<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + (fillAttr || esc(s.color)) + '"' : '') + (soft ? ' filter="url(#' + sketchBlurId(soft) + ')" opacity="0.7"' : '') + (dash.array ? ' stroke-dasharray="' + dash.array + '"' + (dash.cap === 'butt' ? ' stroke-linecap="butt"' : '') : '') + (s.d ? ' fill-rule="evenodd"' : '') + '/>' };
+    });
+    return { defs: Object.keys(defs).map(function (k) { return defs[k]; }).join(''), items: items };
+  }
+  /** @returns {string} The parts joined, with each layer in its own named group (when the lines are on layers). */
+  function sketchGroups(items) {
+    var out = [], cur = null, esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); };
+    items.forEach(function (it) {
+      if (it.layer !== cur) {
+        if (cur) out.push('</g>');
+        cur = it.layer;
+        if (cur) out.push('<g id="' + esc(String(cur).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'layer') + '" data-layer="' + esc(cur) + '">');
+      }
+      out.push(it.svg);
+    });
+    if (cur) out.push('</g>');
+    return out.join('\n');
+  }
   /**
    * Builds the drawing as an SVG file: the same coordinates as the pet, backdrop or toy it was drawn over.
    * @param {{pts: number[][], color: string, width: number, fill: boolean}[]} strokes
    * @param {{x: number, y: number, w: number, h: number}} view The drawing area in the reference's coordinates.
    * @param {Object} meta Notes for whoever reads the file (what it is, which pet it was drawn on...).
+   * @param {{clean: boolean}} [opts]
    */
-  function sketchSvg(strokes, view, meta) {
-    var dp = view.w > 100 ? 1 : 2;
+  function sketchSvg(strokes, view, meta, opts) {
     var esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/--/g, '- -'); };
+    var body = sketchBody(strokes, view, opts);
     var out = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + [view.x, view.y, view.w, view.h].join(' ') + '" width="' + Math.round(view.w * 4) + '" height="' + Math.round(view.h * 4) + '" fill="none" stroke-linecap="round" stroke-linejoin="round">'];
     out.push('<!-- ' + esc(JSON.stringify(meta || {})) + ' -->');
-    var defs = {};
-    strokes.forEach(function (s) {
-      // a paint-bucket fill carries its own outline (`d`, with holes)
-      var d = s.d || sketchPath(s.pts, (s.fill || s.closed) && s.pts.length > 2, dp);
-      var fillAttr = s.fill && s.grad ? 'url(#' + sketchGradId(s.grad) + ')' : null, soft = s.style === 'soft' ? sketchSoftBlur(s.width) : 0;
-      if (fillAttr) defs[sketchGradId(s.grad)] = sketchGradDef(s.grad);
-      if (soft) defs[sketchBlurId(soft)] = sketchBlurDef(soft);
-      out.push('<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + (fillAttr || esc(s.color)) + '"' : '') + (soft ? ' filter="url(#' + sketchBlurId(soft) + ')" opacity="0.7"' : '') + (sketchDash(s.style, s.width).array ? ' stroke-dasharray="' + sketchDash(s.style, s.width).array + '"' + (sketchDash(s.style, s.width).cap === 'butt' ? ' stroke-linecap="butt"' : '') : '') + (s.d ? ' fill-rule="evenodd"' : '') + (s.layer ? ' data-layer="' + esc(s.layer) + '"' : '') + '/>');
-    });
-    var defText = Object.keys(defs).map(function (k) { return defs[k]; }).join('');
-    if (defText) out.splice(2, 0, '<defs>' + defText + '</defs>');   // after the opening tag and the notes
+    if (body.defs) out.push('<defs>' + body.defs + '</defs>');
+    out.push(sketchGroups(body.items));
     out.push('</svg>');
     return out.join('\n');
   }
-
+  /**
+   * A ready-to-paste entry for the dressing room's list (wardrobe.js), drawn from the strokes: the colours and widths are written
+   * on each part, so it needs no styles of its own.
+   * @param {Object[]} strokes
+   * @param {{id: string, label: string, slot: string, lines: string[], note: ?string}} item
+   * @param {{x: number, y: number, w: number, h: number}} view
+   * @returns {string}
+   */
+  function sketchItemCode(strokes, item, view) {
+    var body = sketchBody(strokes, view, { clean: true }), prefix = item.id + '-';
+    var parts = [], x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    strokes.forEach(function (s) {
+      var h = (s.width || 0) / 2;
+      s.pts.forEach(function (p) { x0 = Math.min(x0, p[0] - h); y0 = Math.min(y0, p[1] - h); x1 = Math.max(x1, p[0] + h); y1 = Math.max(y1, p[1] + h); });
+    });
+    var inner = (body.defs ? '<defs>' + body.defs + '</defs>' : '') + sketchGroups(body.items).replace(/\n/g, '');
+    inner = inner.replace(/id="([a-z][a-zA-Z0-9_-]*)"/g, function (m, id) { return /^(g|b)[A-Za-z0-9_]/.test(id) && body.defs.indexOf('id="' + id + '"') !== -1 ? 'id="' + prefix + id + '"' : m; })
+      .replace(/url\(#([^)]+)\)/g, function (m, id) { return body.defs.indexOf('id="' + id + '"') !== -1 ? 'url(#' + prefix + id + ')' : m; });
+    var svg = '<g class="item-' + item.id + '">' + inner + '</g>';
+    var q = function (t) { return "'" + String(t).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'"; };
+    var pad = 2, icon = isFinite(x0) ? [Math.floor(x0 - pad), Math.floor(y0 - pad), Math.ceil(x1 - x0 + 2 * pad), Math.ceil(y1 - y0 + 2 * pad)].join(' ') : '0 0 160 150';
+    parts.push('    {');
+    parts.push('      id: ' + q(item.id) + ', slot: ' + q(item.slot) + ', label: ' + q(item.label) + (item.slot === 'body' ? ", layer: 'body'" : '') + ', icon: ' + q(icon) + ',');
+    parts.push('      lines: [' + item.lines.map(q).join(', ') + '],');
+    parts.push('      // drawn in the Sketchpad' + (item.note ? ': ' + String(item.note).replace(/[\r\n]+/g, ' ') : ''));
+    parts.push('      svg: ' + svgConcat(svg, q));
+    parts.push('    },');
+    return parts.join('\n');
+  }
+  /** @returns {string} The markup as a JavaScript string, one tag per line (the way the other items are written). */
+  function svgConcat(svg, q) {
+    var tags = svg.replace(/></g, '>\n<').split('\n');
+    return tags.map(function (t, i) { return (i ? '        ' : '') + q(t) + (i < tags.length - 1 ? ' +\n' : ''); }).join('');
+  }
 
   /**
    * The paint bucket's first step: spreads from a pixel over every pixel that is not a wall.
@@ -1820,6 +2033,6 @@
     toggleDone: toggleDone,
     pickEmoji: pickEmoji,
     soundFor: soundFor,
-    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, sketchDash: sketchDash, sketchGradId: sketchGradId, sketchGradDef: sketchGradDef, sketchSoftBlur: sketchSoftBlur, sketchBlurId: sketchBlurId, sketchBlurDef: sketchBlurDef, sketchShape: sketchShape, SKETCH_SHAPES: SKETCH_SHAPES, sketchWave: sketchWave, SKETCH_STYLES: SKETCH_STYLES, traceLoops: traceLoops, simplifyLine: skSimplify
+    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, sketchDash: sketchDash, fitCurve: fitCurve, sketchPathClean: sketchPathClean, sketchItemCode: sketchItemCode, sketchGradId: sketchGradId, sketchGradDef: sketchGradDef, sketchSoftBlur: sketchSoftBlur, sketchBlurId: sketchBlurId, sketchBlurDef: sketchBlurDef, sketchShape: sketchShape, SKETCH_SHAPES: SKETCH_SHAPES, sketchWave: sketchWave, SKETCH_STYLES: SKETCH_STYLES, traceLoops: traceLoops, simplifyLine: skSimplify
   };
 })(typeof self !== 'undefined' ? self : globalThis);
