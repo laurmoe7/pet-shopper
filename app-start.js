@@ -17,7 +17,7 @@ if (wakeState !== 'sleepy') {
     var top = L.topFavourites(state.pet, 1)[0];
     if (top && top.count >= 3 && Math.random() < 0.3) talk('memoryHi', ['thinking about {item}…', 'psst, more {item}?', 'hi! {item} soon?'], 1900, { item: top.label.toLowerCase() });
     else if (away > 6 * 3600 * 1000) say('*yaaawn* hi!', 1400);
-    else talk('hi', ['oh, hi!'], 1400);
+    else talk('hi', state.player.name ? ['oh, hi!', 'hi, ' + state.player.name + '!', 'welcome back, ' + state.player.name + '!'] : ['oh, hi!'], 1400);
     setTimeout(function () { busy--; if (!busy) settle(); }, 1000);
   }, 700);
 }

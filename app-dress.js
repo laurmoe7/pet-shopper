@@ -51,19 +51,23 @@ var WEAR_ROWS = [
   { slot: 'neck', strip: $('neckStrip'), none: 'Bare neck' },
   { slot: 'feet', strip: $('feetStrip'), none: 'Bare feet' }
 ];
+/** @returns {HTMLButtonElement} A tile for a wardrobe item (or the "none" tile) in a slot. */
+function wearTile(item, slot) {
+  var b = document.createElement('button');
+  b.type = 'button';
+  b.dataset.hat = item.id;
+  b.dataset.slot = slot;
+  var icon = item.id === 'none'
+    ? svgIcon('0 0 40 40', '<circle class="hat-none" cx="20" cy="20" r="12"/><path class="hat-none" d="M11.5 28.5 L28.5 11.5"/>')
+    : svgIcon(item.icon || '32 2 96 60', item.svg);
+  var label = document.createElement('span');
+  label.textContent = item.label;
+  b.append(icon, label);
+  return b;
+}
 WEAR_ROWS.forEach(function (row) {
   [{ id: 'none', label: row.none }].concat(Wardrobe.filter(function (w) { return w.slot === row.slot; })).forEach(function (item) {
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.dataset.hat = item.id;
-    b.dataset.slot = row.slot;
-    var icon = item.id === 'none'
-      ? svgIcon('0 0 40 40', '<circle class="hat-none" cx="20" cy="20" r="12"/><path class="hat-none" d="M11.5 28.5 L28.5 11.5"/>')
-      : svgIcon(item.icon || '32 2 96 60', item.svg);
-    var label = document.createElement('span');
-    label.textContent = item.label;
-    b.append(icon, label);
-    row.strip.appendChild(b);
+    row.strip.appendChild(wearTile(item, row.slot));
   });
 });
 /** Every wardrobe button, in every slot. */
@@ -93,9 +97,10 @@ function buildDressView() {
   refreshDressRoom();
 }
 // the page's tabs: Pet (name, species, skin, personality), then one tab for each kind of outfit
-var dressTabs = $('dressTabs'), dressPanels = $('dressPanels'), nameAtOpen = '';
+var dressSearch = $('dressSearch'), dressTabs = $('dressTabs'), dressPanels = $('dressPanels'), nameAtOpen = '';
 /** Shows one tab's panel, from the top. @param {string} tab 'pet', 'hat', 'body', 'face', 'mouth', 'neck' or 'feet'. */
 function showDressTab(tab) {
+  if (tab !== 'search') { dressSearch.value = ''; petFilter(''); }
   dressTabs.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === tab)); });
   dressPanels.querySelectorAll('.dress-panel').forEach(function (p) { p.hidden = p.dataset.tab !== tab; });
   dressPanels.scrollTop = 0;
@@ -118,6 +123,7 @@ $('dressBtn').addEventListener('click', function () {
   renderPersonalities();
   buildDressView();
   showDressTab('pet');   // it always opens on the pet's own page
+  tabBeforeSearch = 'pet';
   openDialog(dressSheet);
 });
 function onWearClick(e) {
@@ -132,9 +138,7 @@ function onWearClick(e) {
   dressUp(pet, state.pet.outfit);
   sound(wearing ? 'excited' : 'tap');
   if (wearing && Math.random() < 0.3) setTimeout(dressFlash, 650);   // sometimes it snaps a photo of the new look
-  var pointed = hoveredHat === b.dataset.hat;
-  if (pointed && wearing) dressSay(line('look', ['how do I look?', 'I love it!', 'kawaii?', 'ta-da!']), 1600, true);
-  else dressSay(wearing ? hatLine(b.dataset.hat) : 'fresh look!', 1600);
+  dressSay(wearing ? hatLine(b.dataset.hat) : 'fresh look!', 1600);   // tapping an outfit gets its line (phones have no hover)
   dressCheer(wearing);
 }
 /**
@@ -158,8 +162,50 @@ function dressCheer(happy) {
   }
 }
 WEAR_ROWS.forEach(function (row) { row.strip.addEventListener('click', onWearClick); });
+// search: typing shows every matching outfit from all tabs in one list; clearing it goes back to the last tab
+var SLOT_WORDS = { hat: 'hat cap', body: 'clothes top hoodie', face: 'glasses face', mouth: 'mouth', neck: 'neck scarf', feet: 'shoes feet boots' };
+var searchStrip = $('searchStrip'), tabBeforeSearch = 'pet';
+/** On the Pet tab the search narrows its own species, skins and personalities. @param {string} q Lower-case search text. */
+function petFilter(q) {
+  var panel = dressPanels.querySelector('.dress-panel[data-tab="pet"]');
+  panel.classList.toggle('pet-filtering', !!q);
+  var shown = 0;
+  [$('speciesGrid'), $('skinGrid'), $('personalityStrip')].forEach(function (grid) {
+    var any = 0;
+    grid.querySelectorAll('button').forEach(function (b) {
+      var words = Array.prototype.map.call(b.querySelectorAll('span'), function (sp) { return sp.textContent; }).join(' ');   // the labels only: the drawing inside holds text of its own
+      var text = (words + ' ' + (b.getAttribute('aria-label') || '') + ' ' + (b.dataset.species || b.dataset.skin || b.dataset.personality || '')).toLowerCase();
+      var hit = !q || text.indexOf(q) !== -1;
+      b.classList.toggle('search-empty', !hit);
+      if (hit) any++;
+    });
+    shown += any;
+    var box = grid.closest('fieldset');
+    if (box) box.classList.toggle('search-empty', !!q && !any);
+  });
+  $('petSearchNone').hidden = !q || shown > 0;
+}
+dressSearch.addEventListener('input', function () {
+  var q = dressSearch.value.trim().toLowerCase();
+  var sel = dressTabs.querySelector('[aria-selected="true"]');
+  if (!sel ? tabBeforeSearch === 'pet' && dressPanels.querySelector('.dress-panel[data-tab="pet"]:not([hidden])') : sel.dataset.tab === 'pet') { petFilter(q); return; }
+  if (!q) { showDressTab(tabBeforeSearch); return; }
+  var current = dressTabs.querySelector('[aria-selected="true"]');
+  if (current) tabBeforeSearch = current.dataset.tab;
+  dressTabs.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-selected', 'false'); });
+  dressPanels.querySelectorAll('.dress-panel').forEach(function (p) { p.hidden = p.dataset.tab !== 'search'; });
+  var found = Wardrobe.filter(function (w) { return w.label.toLowerCase().indexOf(q) !== -1 || (SLOT_WORDS[w.slot] || '').indexOf(q) !== -1; });
+  searchStrip.replaceChildren.apply(searchStrip, found.map(function (w) { return wearTile(w, w.slot); }));
+  $('searchNone').hidden = found.length > 0;
+  dressPanels.scrollTop = 0;
+  refreshDressRoom();
+  refreshLocks();
+});
+dressSearch.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); dressSearch.blur(); } });
+searchStrip.addEventListener('click', onWearClick);
+searchStrip.addEventListener('click', function () { setTimeout(function () { refreshDressRoom(); refreshLocks(); }, 0); });
 // pointing at an unlocked outfit makes the pet react to it
-var dressBubble = $('dressBubble'), dressBubbleTimer, hoveredHat = null, lastOoh = 0;
+var dressBubble = $('dressBubble'), dressBubbleTimer, lastOoh = 0;
 /**
  * Shows a line from the pet in the dressing room .
  * @param {string} text
@@ -183,22 +229,6 @@ function hatLine(id) {
   if (!item) return pick(['the natural look?', 'just me!', 'all natural!']);
   return pick(item.lines || ['ooh!']);
 }
-/**
- * Reacts when a finger or cursor lands on an unlocked hat that isn't being worn.
- * @param {Event} e
- */
-function onHatHover(e) {
-  // a finger has no hover: on phones the tap itself gets the outfit's line
-  if (e.pointerType === 'touch') return;
-  var b = e.target.closest && e.target.closest('.hat-strip button');
-  if (!b || b.dataset.hat === hoveredHat) return;
-  hoveredHat = b.dataset.hat;
-  if (!unlocked('hat', b.dataset.hat) || L.wornIds(state.pet.outfit, b.dataset.slot).indexOf(b.dataset.hat) !== -1) return;
-  dressSay(hatLine(b.dataset.hat), 1600);
-  var view = dressPreview.querySelector('.pet');
-  if (view) sparkle(view);
-  if (Date.now() - lastOoh > 500) { sound('ooh'); lastOoh = Date.now(); }
-}
 var sparkleTimer, cheerTimer, lastDressTouch = 0;
 /**
  * A quick sparkle-eyed "ooh" from the dressing-room pet, then its eyes go
@@ -211,18 +241,6 @@ function sparkle(view) {
   clearTimeout(sparkleTimer);
   sparkleTimer = setTimeout(function () { view.dataset.eyes = dressRest.eyes; view.dataset.mouth = dressRest.mouth; }, 600);
 }
-WEAR_ROWS.forEach(function (row) {
-  var strip = row.strip;
-  strip.addEventListener('pointerover', onHatHover);
-  strip.addEventListener('focusin', onHatHover);
-  strip.addEventListener('pointerleave', onHatLeave);
-});
-function onHatLeave() {
-  hoveredHat = null;
-  var view = dressPreview.querySelector('.pet');
-  if (view && view.dataset.eyes === 'sparkle') { view.dataset.eyes = dressRest.eyes; view.dataset.mouth = dressRest.mouth; }
-}
-
 dressSheet.addEventListener('close', function () {
   finishRename(true);
   state.pet.name = petName();
@@ -230,7 +248,6 @@ dressSheet.addEventListener('close', function () {
   applyPet();
   speciesHint.hidden = true;
   dressBubble.hidden = true;
-  hoveredHat = null;
   if (!busy && petName() !== nameAtOpen) { pulse('hop', 500); talk('name', ["I'm {name}!"], 1500, { name: petName() }); return; }   // renamed: it says its new name
   if (!busy) {
     var item = L.OUTFIT_SLOTS.some(function (slot) { return L.wornIds(state.pet.outfit, slot).some(wardrobeItem); });
@@ -284,7 +301,7 @@ function dressFace(view, f) {
 }
 /** The camera goes off: a white flash over the stage and a shutter click. */
 function dressFlash() {
-  if (!dressSheet.open || Date.now() - lastFlash < 3500) return;   // never in quick succession
+  if (!dressSheet.open || !$('shoot').hidden || Date.now() - lastFlash < 3500) return;   // not while the photoshoot is on top   // never in quick succession
   lastFlash = Date.now();
   var f = $('dressFlash');
   f.classList.remove('pop'); void f.offsetWidth; f.classList.add('pop');
@@ -298,6 +315,7 @@ function dressDanceSoon() {
 function dressDance() {
   var view = dressPreview.querySelector('.pet');
   if (!dressSheet.open || !view) return;
+  if (!$('shoot').hidden) { dressDanceSoon(); return; }   // the photoshoot is on top: the dressing room keeps quiet
   // wait only just after you pick an outfit; pointing at outfits doesn't stop it
   if (Date.now() - lastDressTouch < 1500) { dressDanceSoon(); return; }
   var m, n = -1;

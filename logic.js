@@ -125,7 +125,7 @@
       .sort(function (a, b) { return rank(a.e) - rank(b.e) || a.n - b.n; })
       .map(function (x) { return x.e; });
   }
-  var SAMPLE = ['Bananas', 'Oat milk', '500g Quark', 'Broccoli', 'Chili flakes', 'Dark chocolate', 'Toilet paper', "Oma's cake"];
+  var SAMPLE = ['Bananas', ['Oat milk', '1 l'], ['Quark', '500 g'], 'Broccoli', 'Chili flakes', 'Dark chocolate', 'Toilet paper', "Oma's cake"];
 
   /**
    * Finds the emoji for an item, preferring one the person picked for that word before.
@@ -188,6 +188,9 @@
       tastes: saved.tastes && typeof saved.tastes === 'object' ? saved.tastes : {},
       // check-mark stamps from ticked tasks, by task kind (the stamp book)
       stamps: saved.stamps && typeof saved.stamps === 'object' ? saved.stamps : {},
+      // daily gift boxes (bonuses.js): the boxes opened on each recent day and the prizes collected
+      gifts: saved.gifts && typeof saved.gifts === 'object' ? saved.gifts : {},
+      prizes: saved.prizes && typeof saved.prizes === 'object' ? saved.prizes : {},
       favourites: saved.favourites && typeof saved.favourites === 'object' ? saved.favourites : {},
       // the night it was put to bed (nightOf): asleep until something is checked off or the morning
       dozing: typeof saved.dozing === 'string' ? saved.dozing : '',
@@ -197,6 +200,21 @@
         words: (saved.guard && Array.isArray(saved.guard.words)) ? saved.guard.words : [],
         lastSeen: (saved.guard && saved.guard.lastSeen) || 0
       }
+    };
+  }
+
+  /**
+   * The player (the person, apart from the pet): a name and a birthday.
+   * @param {Object} [saved]
+   * @param {string} [oldBirthday] A birthday saved on the pet by an earlier build.
+   * @returns {{name: string, birthday: string}} birthday is "MM-DD" or empty.
+   */
+  function parsePlayer(saved, oldBirthday) {
+    saved = saved && typeof saved === 'object' ? saved : {};
+    var day = /^\d\d-\d\d$/;
+    return {
+      name: typeof saved.name === 'string' ? saved.name.trim().slice(0, 20) : '',
+      birthday: typeof saved.birthday === 'string' && day.test(saved.birthday) ? saved.birthday : (typeof oldBirthday === 'string' && day.test(oldBirthday) ? oldBirthday : '')
     };
   }
 
@@ -212,7 +230,11 @@
     try { data = JSON.parse(raw); } catch (e) { data = null; }
     if (!data || !Array.isArray(data.items)) {
       data = { items: [], overrides: {}, quiet: false, lastOpen: 0 };
-      SAMPLE.forEach(function (t) { data.items.push(createItem(t, data.overrides, nextId())); });
+      SAMPLE.forEach(function (t) {   // a sample can carry an amount: [name, amount]
+        var item = createItem(Array.isArray(t) ? t[0] : t, data.overrides, nextId());
+        if (Array.isArray(t)) item.qty = t[1];
+        data.items.push(item);
+      });
     }
     data.overrides = data.overrides || {};
     // the list on show (shopping or to-do) is state.items; the other one waits in state.stash
@@ -220,6 +242,7 @@
     if (!Array.isArray(data.stash)) data.stash = [];
     data.items.forEach(cleanTask);
     data.stash.forEach(cleanTask);
+    data.player = parsePlayer(data.player, data.pet && data.pet.birthday);   // build 196 kept the birthday on the pet
     data.pet = petProfile(data.pet);
     data.settings = settings(data.settings);
     // developer-only switches from the dev menu
@@ -311,8 +334,21 @@
     { id: 'daily', label: 'Every day', days: 1 },
     { id: 'every3', label: 'Every 3 days', days: 3 },
     { id: 'weekly', label: 'Every week', days: 7 },
+    { id: 'weekdays', label: 'Weekdays (Mon to Fri)', dow: [1, 2, 3, 4, 5] },
+    { id: 'weekends', label: 'Weekends', dow: [6, 0] },
+    { id: 'days', label: 'Certain days of the week…', dow: null },   // the days are on the task (item.days)
     { id: 'monthly', label: 'Every month', months: 1 },
     { id: 'yearly', label: 'Every year', months: 12 }
+  ];
+  /** How long a repeating task goes on for (`weeks` or `months` counted from its first day). */
+  var REPEAT_SPANS = [
+    { id: '', label: 'Forever' },
+    { id: '1w', label: '1 week', weeks: 1 },
+    { id: '2w', label: '2 weeks', weeks: 2 },
+    { id: '1m', label: '1 month', months: 1 },
+    { id: '2m', label: '2 months', months: 2 },
+    { id: '3m', label: '3 months', months: 3 },
+    { id: '6m', label: '6 months', months: 6 }
   ];
   /** @returns {boolean} Whether this is a due day in the form YYYY-MM-DD. */
   function isDayKey(s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s); }
@@ -346,6 +382,28 @@
     if (n === 1) return { days: n, state: 'soon', label: 'tomorrow' + at };
     return { days: n, state: n <= 2 ? 'soon' : 'later', label: (n <= 6 ? WEEKDAYS[d.getDay()] : d.getDate() + ' ' + MONTHS[d.getMonth()]) + at };
   }
+  /** @returns {string} The first day from this one on that falls on one of the weekdays (0 is Sunday). */
+  function firstOnDays(from, set) {
+    var d = from;
+    for (var n = 0; n < 7 && set.indexOf(dayDate(d).getDay()) === -1; n++) d = addDays(d, 1);
+    return d;
+  }
+  /** @returns {?number[]} The weekdays (0 is Sunday) a repeating task comes back on, or null if it repeats by a count of days or months. */
+  function repeatDays(item) {
+    var r = REPEATS.filter(function (x) { return x.id === item.repeat; })[0];
+    return r && r.dow ? r.dow : item.repeat === 'days' ? item.days || [] : null;
+  }
+  /**
+   * The last day of a repeat that runs for a span: "a week" from Monday ends on Sunday, "2 months" from 5 Oct ends on 4 Dec.
+   * @param {string} start  The day it starts (its due day).
+   * @param {string} span  A REPEAT_SPANS id.
+   * @returns {string} YYYY-MM-DD, or '' for forever.
+   */
+  function untilFor(start, span) {
+    var s = REPEAT_SPANS.filter(function (x) { return x.id === span; })[0];
+    if (!s || !s.id || !isDayKey(start)) return '';
+    return s.weeks ? addDays(start, 7 * s.weeks - 1) : addDays(addMonths(start, s.months), -1);
+  }
   /**
    * The next day a repeating task is due: one step after its due day, and always after today (a task that was
    * ticked weeks late comes back on its next regular day, not in the past).
@@ -354,10 +412,17 @@
    * @param {string} today
    * @returns {string}
    */
-  function nextDue(due, repeat, today) {
+  function nextDue(due, repeat, today, days) {
     var r = REPEATS.filter(function (x) { return x.id === repeat; })[0];
     var base = isDayKey(due) ? due : today;
     if (!r || !r.id) return base;
+    if (r.id === 'days' || r.dow) {   // certain days of the week: the next one after both its day and today
+      var set = r.dow || days || [];
+      if (!set.length) return base;
+      var d = addDays(base > today ? base : today, 1);
+      for (var n = 0; n < 7 && set.indexOf(dayDate(d).getDay()) === -1; n++) d = addDays(d, 1);
+      return d;
+    }
     var k = 1, next;
     do {
       next = r.months ? addMonths(base, r.months * k) : addDays(base, r.days * k);
@@ -487,9 +552,17 @@
   }
   /** Drops a due day or repeat that isn't valid (from old or damaged saves). */
   function cleanTask(item) {
+    if (item && item.qty !== undefined) { var q = typeof item.qty === 'string' ? item.qty.trim().slice(0, 20) : ''; if (q) item.qty = q; else delete item.qty; }   // the amount to buy, like "2 tbsp"
     if (item && item.due !== undefined && !isDayKey(item.due)) delete item.due;
     if (item && item.time !== undefined && (!item.due || !isTimeKey(item.time))) delete item.time;
+    if (item && item.until !== undefined && (!isDayKey(item.until) || !item.repeat || !item.due)) delete item.until;
+    if (item && item.days !== undefined) {   // the chosen weekdays of a 'certain days' repeat
+      var ds = Array.isArray(item.days) ? item.days.filter(function (n, i, a) { return n % 1 === 0 && n >= 0 && n <= 6 && a.indexOf(n) === i; }) : [];
+      if (item.repeat === 'days' && ds.length) item.days = ds; else delete item.days;
+    }
+    if (item && item.repeat === 'days' && !item.days) delete item.repeat;
     if (item && item.repeat !== undefined && (!item.due || !REPEATS.some(function (r) { return r.id && r.id === item.repeat; }))) delete item.repeat;
+    if (item && item.until !== undefined && !item.repeat) delete item.until;
     return item;
   }
 
@@ -1320,14 +1393,248 @@
     var esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/--/g, '- -'); };
     var out = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + [view.x, view.y, view.w, view.h].join(' ') + '" width="' + Math.round(view.w * 4) + '" height="' + Math.round(view.h * 4) + '" fill="none" stroke-linecap="round" stroke-linejoin="round">'];
     out.push('<!-- ' + esc(JSON.stringify(meta || {})) + ' -->');
+    var defs = {};
     strokes.forEach(function (s) {
-      var d = sketchPath(s.pts, (s.fill || s.closed) && s.pts.length > 2, dp);
-      out.push('<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + esc(s.color) + '"' : '') + '/>');
+      // a paint-bucket fill carries its own outline (`d`, with holes)
+      var d = s.d || sketchPath(s.pts, (s.fill || s.closed) && s.pts.length > 2, dp);
+      var fillAttr = s.fill && s.grad ? 'url(#' + sketchGradId(s.grad) + ')' : null, soft = s.style === 'soft' ? sketchSoftBlur(s.width) : 0;
+      if (fillAttr) defs[sketchGradId(s.grad)] = sketchGradDef(s.grad);
+      if (soft) defs[sketchBlurId(soft)] = sketchBlurDef(soft);
+      out.push('<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + (fillAttr || esc(s.color)) + '"' : '') + (soft ? ' filter="url(#' + sketchBlurId(soft) + ')" opacity="0.7"' : '') + (sketchDash(s.style, s.width).array ? ' stroke-dasharray="' + sketchDash(s.style, s.width).array + '"' + (sketchDash(s.style, s.width).cap === 'butt' ? ' stroke-linecap="butt"' : '') : '') + (s.d ? ' fill-rule="evenodd"' : '') + (s.layer ? ' data-layer="' + esc(s.layer) + '"' : '') + '/>');
     });
+    var defText = Object.keys(defs).map(function (k) { return defs[k]; }).join('');
+    if (defText) out.splice(2, 0, '<defs>' + defText + '</defs>');   // after the opening tag and the notes
     out.push('</svg>');
     return out.join('\n');
   }
 
+
+  /**
+   * The paint bucket's first step: spreads from a pixel over every pixel that is not a wall.
+   * @param {Uint8Array} wall  1 where a line is (w * h).
+   * @param {number} w
+   * @param {number} h
+   * @param {number} sx  Where it was clicked.
+   * @param {number} sy
+   * @returns {?{mask: Uint8Array, count: number, edge: boolean}} The area reached, how big it is and whether it touches the edge (so it is not closed); null if the click was on a line.
+   */
+  function floodMask(wall, w, h, sx, sy) {
+    if (sx < 0 || sy < 0 || sx >= w || sy >= h || wall[sy * w + sx]) return null;
+    var mask = new Uint8Array(w * h), stack = [sx, sy], count = 0, edge = false;
+    while (stack.length) {
+      var y = stack.pop(), x = stack.pop();
+      if (mask[y * w + x] || wall[y * w + x]) continue;
+      var l = x, r = x;
+      while (l > 0 && !wall[y * w + l - 1] && !mask[y * w + l - 1]) l--;
+      while (r < w - 1 && !wall[y * w + r + 1] && !mask[y * w + r + 1]) r++;
+      if (l === 0 || r === w - 1 || y === 0 || y === h - 1) edge = true;
+      for (var i = l; i <= r; i++) {
+        mask[y * w + i] = 1; count++;
+        if (y > 0 && !mask[(y - 1) * w + i] && !wall[(y - 1) * w + i]) stack.push(i, y - 1);
+        if (y < h - 1 && !mask[(y + 1) * w + i] && !wall[(y + 1) * w + i]) stack.push(i, y + 1);
+      }
+    }
+    return { mask: mask, count: count, edge: edge };
+  }
+  /**
+   * The outlines of a filled area as closed loops of pixel corners: the outside edge and the edge of every hole.
+   * @param {Uint8Array} mask  1 inside the area (w * h).
+   * @returns {number[][][]} Loops of [x, y] corners, without the points along straight runs.
+   */
+  function traceLoops(mask, w, h) {
+    var W = w + 1, next = {}, i, j;
+    function at(x, y) { return x >= 0 && y >= 0 && x < w && y < h && mask[y * w + x] === 1; }
+    function add(ax, ay, bx, by) { var k = ay * W + ax; (next[k] = next[k] || []).push(by * W + bx); }
+    for (j = 0; j < h; j++) for (i = 0; i < w; i++) {
+      if (!mask[j * w + i]) continue;
+      if (!at(i, j - 1)) add(i, j, i + 1, j);
+      if (!at(i + 1, j)) add(i + 1, j, i + 1, j + 1);
+      if (!at(i, j + 1)) add(i + 1, j + 1, i, j + 1);
+      if (!at(i - 1, j)) add(i, j + 1, i, j);
+    }
+    var loops = [], keys = Object.keys(next);
+    for (var n = 0; n < keys.length; n++) {
+      while (next[keys[n]] && next[keys[n]].length) {
+        var start = +keys[n], cur = start, pts = [];
+        do {
+          pts.push([cur % W, Math.floor(cur / W)]);
+          var out = next[cur];
+          var to = out.pop();
+          if (!out.length) delete next[cur];
+          cur = to;
+        } while (cur !== start && next[cur]);
+        // keep only the corners where the outline turns
+        var keep = pts.filter(function (p, q) {
+          var a = pts[(q + pts.length - 1) % pts.length], b = pts[(q + 1) % pts.length];
+          return (p[0] - a[0]) * (b[1] - p[1]) !== (p[1] - a[1]) * (b[0] - p[0]);
+        });
+        if (keep.length > 2) loops.push(keep);
+      }
+    }
+    return loops;
+  }
+
+  /** @returns {string} A name for a gradient (the same gradient always gets the same name). */
+  function sketchGradId(g) { return 'g' + (g.type + g.c1 + g.c2).replace(/[^a-zA-Z0-9]/g, ''); }
+  /** @returns {string} The SVG for a gradient fill: type 'v' fades top to bottom, 'h' left to right, 'r' from the middle out. */
+  function sketchGradDef(g) {
+    var id = sketchGradId(g), stops = '<stop offset="0" stop-color="' + g.c1 + '"/><stop offset="1" stop-color="' + g.c2 + '"/>';
+    if (g.type === 'r') return '<radialGradient id="' + id + '" cx="0.5" cy="0.5" r="0.6">' + stops + '</radialGradient>';
+    return '<linearGradient id="' + id + '" x1="0" y1="0" x2="' + (g.type === 'h' ? 1 : 0) + '" y2="' + (g.type === 'h' ? 0 : 1) + '">' + stops + '</linearGradient>';
+  }
+  /** @returns {number} How much a soft (airbrush) line is blurred, for its thickness. */
+  function sketchSoftBlur(width) { return +(width * 0.45).toFixed(2); }
+  /** @returns {string} A name for the blur of a given amount. */
+  function sketchBlurId(sd) { return 'b' + String(sd).replace('.', '_'); }
+  /** @returns {string} The SVG for a blur filter (room round the line so the soft edge is not cut off). */
+  function sketchBlurDef(sd) { return '<filter id="' + sketchBlurId(sd) + '" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="' + sd + '"/></filter>'; }
+
+  /** The special line styles of the sketchpad: dash and gap lengths in line widths (a dot is a very short dash with round ends). */
+  var SKETCH_STYLES = {
+    solid: null, dotted: [0.01, 2.2], dashed: [3, 2.2], long: [6, 3], dashdot: [4, 2, 0.01, 2], stitch: [1.6, 1.6]
+  };
+  /** @returns {{array: ?string, cap: string}} The stroke-dasharray (null for a solid line) and the line end to draw a style with. */
+  function sketchDash(style, width) {
+    var d = SKETCH_STYLES[style];
+    if (!d) return { array: null, cap: 'round' };
+    return { array: d.map(function (n) { return Math.max(0.01, +(n * width).toFixed(3)); }).join(' '), cap: style === 'stitch' ? 'butt' : 'round' };
+  }
+  /**
+   * Turns a line into a wavy one: the points are spread evenly along it and pushed sideways in a sine wave.
+   * @param {number[][]} pts
+   * @param {number} amp  How far the wave swings to each side.
+   * @param {number} len  Wavelength.
+   * @returns {number[][]}
+   */
+  function sketchWave(pts, amp, len) {
+    if (pts.length < 2) return pts.slice();
+    var rs = skResample(pts, len / 10), out = [], s = 0, i;
+    for (i = 0; i < rs.length; i++) {
+      var a = rs[Math.max(0, i - 1)], b = rs[Math.min(rs.length - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy) || 1;
+      if (i) s += Math.hypot(rs[i][0] - rs[i - 1][0], rs[i][1] - rs[i - 1][1]);
+      var k = Math.sin(2 * Math.PI * s / len) * amp * Math.min(1, s / (len / 2), Math.max(0, (rs.length - 1 - i) * len / 10) / (len / 2));   // eases in and out so the ends stay on the line
+      out.push([+(rs[i][0] - dy / d * k).toFixed(2), +(rs[i][1] + dx / d * k).toFixed(2)]);
+    }
+    return out;
+  }
+  /** @returns {number[][]} A polygon with its corners rounded (each corner is cut `r` back along both edges and joined with a curve). */
+  function skRoundPoly(poly, r, steps) {
+    var out = [], n = poly.length, i, k;
+    for (i = 0; i < n; i++) {
+      var p = poly[i], a = poly[(i + n - 1) % n], b = poly[(i + 1) % n];
+      var la = Math.hypot(a[0] - p[0], a[1] - p[1]), lb = Math.hypot(b[0] - p[0], b[1] - p[1]), ra = Math.min(r, la / 2) / la, rb = Math.min(r, lb / 2) / lb;
+      var s = [p[0] + (a[0] - p[0]) * ra, p[1] + (a[1] - p[1]) * ra], e = [p[0] + (b[0] - p[0]) * rb, p[1] + (b[1] - p[1]) * rb];
+      for (k = 0; k <= steps; k++) {   // a curve from s to e that bends towards the corner
+        var t = k / steps, u = 1 - t;
+        out.push([u * u * s[0] + 2 * u * t * p[0] + t * t * e[0], u * u * s[1] + 2 * u * t * p[1] + t * t * e[1]]);
+      }
+    }
+    return out;
+  }
+  /** @returns {number[][]} A line along the polygon with a point every `step`, so sharp corners stay sharp when the line is smoothed. */
+  function skDense(poly, step) {
+    var out = [], n = poly.length, i, k;
+    for (i = 0; i < n; i++) {
+      var a = poly[i], b = poly[(i + 1) % n], m = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / step));
+      for (k = 0; k < m; k++) out.push([a[0] + (b[0] - a[0]) * k / m, a[1] + (b[1] - a[1]) * k / m]);
+    }
+    return out;
+  }
+  /** @returns {number[][]} Points scaled to fill the box 0..1 in both directions. */
+  function skFit(pts) {
+    var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    pts.forEach(function (p) { x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]); });
+    return pts.map(function (p) { return [(p[0] - x0) / ((x1 - x0) || 1), (p[1] - y0) / ((y1 - y0) || 1)]; });
+  }
+  var SKETCH_SHAPES = [['circle', 'Circle'], ['square', 'Square'], ['triangle', 'Triangle'], ['diamond', 'Diamond'], ['hexagon', 'Hexagon'], ['heart', 'Heart'], ['star', 'Star'], ['sparkle', 'Sparkle'], ['cloud', 'Cloud'], ['flower', 'Flower'], ['moon', 'Moon'], ['drop', 'Drop']];
+  /**
+   * The outline of a common cute shape, as points filling the box 0..1 x 0..1 (to be stretched to wherever it is drawn).
+   * @param {string} id  One of SKETCH_SHAPES.
+   * @returns {number[][]}
+   */
+  function sketchShape(id) {
+    var i, pts = [], T = Math.PI * 2;
+    function polar(n, f) { var o = []; for (i = 0; i < n; i++) { var a = T * i / n - Math.PI / 2, r = f(a, i); o.push([0.5 + Math.cos(a) * r, 0.5 + Math.sin(a) * r]); } return o; }
+    if (id === 'circle') return polar(48, function () { return 0.5; });
+    if (id === 'square') return skFit(skRoundPoly([[0, 0], [1, 0], [1, 1], [0, 1]], 0.22, 8));
+    if (id === 'triangle') return skFit(skRoundPoly([[0.5, 0.02], [1, 0.95], [0, 0.95]], 0.14, 10));
+    if (id === 'diamond') return skFit(skRoundPoly([[0.5, 0], [1, 0.5], [0.5, 1], [0, 0.5]], 0.14, 8));
+    if (id === 'hexagon') return skFit(skRoundPoly(polar(6, function () { return 0.5; }), 0.14, 6));
+    if (id === 'heart') {
+      for (i = 0; i < 64; i++) { var t = T * i / 64; pts.push([16 * Math.pow(Math.sin(t), 3), -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t))]); }
+      return skFit(pts);
+    }
+    if (id === 'star') return skFit(skRoundPoly(polar(10, function (a, k) { return k % 2 ? 0.24 : 0.5; }), 0.07, 5));
+    if (id === 'sparkle') return skFit(skRoundPoly(polar(8, function (a, k) { return k % 2 ? 0.13 : 0.5; }), 0.09, 5));
+    if (id === 'flower') return skFit(polar(80, function (a) { return 0.7 + 0.3 * Math.cos(5 * (a + Math.PI / 2)); }));
+    if (id === 'cloud') {   // a few round bumps: for each direction, the farthest edge of any of them
+      var cs = [[0.27, 0.62, 0.2], [0.5, 0.42, 0.28], [0.74, 0.56, 0.22], [0.5, 0.66, 0.22]], cx = 0.5, cy = 0.58, o = [];
+      for (i = 0; i < 90; i++) {
+        var a2 = T * i / 90, dx = Math.cos(a2), dy = Math.sin(a2), far = 0;
+        cs.forEach(function (c) {
+          var fx = cx - c[0], fy = cy - c[1], b = fx * dx + fy * dy, d = b * b - (fx * fx + fy * fy - c[2] * c[2]);
+          if (d >= 0) far = Math.max(far, -b + Math.sqrt(d));
+        });
+        o.push([cx + dx * far, Math.min(0.84, cy + dy * far)]);   // the bottom is flat
+      }
+      return skFit(o);
+    }
+    if (id === 'moon') {
+      var outer = [], inner = [], oc = [0.5, 0.5, 0.5], ic = [0.74, 0.42, 0.4];
+      for (i = 0; i < 120; i++) {
+        var a3 = T * i / 120, op = [oc[0] + Math.cos(a3) * oc[2], oc[1] + Math.sin(a3) * oc[2]], ip = [ic[0] + Math.cos(a3) * ic[2], ic[1] + Math.sin(a3) * ic[2]];
+        if (Math.hypot(op[0] - ic[0], op[1] - ic[1]) > ic[2]) outer.push(op);
+        if (Math.hypot(ip[0] - oc[0], ip[1] - oc[1]) < oc[2]) inner.push(ip);
+      }
+      var cut = outer.findIndex(function (p, k) { return Math.hypot(p[0] - outer[(k + 1) % outer.length][0], p[1] - outer[(k + 1) % outer.length][1]) > 0.1; });
+      if (cut >= 0) outer = outer.slice(cut + 1).concat(outer.slice(0, cut + 1));
+      var cut2 = inner.findIndex(function (p, k) { return Math.hypot(p[0] - inner[(k + 1) % inner.length][0], p[1] - inner[(k + 1) % inner.length][1]) > 0.1; });
+      if (cut2 >= 0) inner = inner.slice(cut2 + 1).concat(inner.slice(0, cut2 + 1));
+      var end = outer[outer.length - 1];
+      if (Math.hypot(inner[0][0] - end[0], inner[0][1] - end[1]) > Math.hypot(inner[inner.length - 1][0] - end[0], inner[inner.length - 1][1] - end[1])) inner.reverse();
+      return skFit(outer.concat(inner));
+    }
+    if (id === 'drop') {
+      var r = 0.34, d = 0.66, al = Math.acos(r / d), arc = [];
+      for (i = 0; i <= 50; i++) { var f = -Math.PI / 2 + al + (T - 2 * al) * i / 50; arc.push([0.5 + Math.cos(f) * r, 0.66 + Math.sin(f) * r]); }
+      return skFit(skDense([[0.5, 0]].concat(arc), 0.03));
+    }
+    return polar(48, function () { return 0.5; });
+  }
+  /** @returns {boolean} Whether a point is inside a closed shape (the lasso), given as a list of [x, y] corners. */
+  function inPolygon(poly, pt) {
+    var inside = false, i, j;
+    for (i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      var a = poly[i], b = poly[j];
+      if ((a[1] > pt[1]) !== (b[1] > pt[1]) && pt[0] < (b[0] - a[0]) * (pt[1] - a[1]) / (b[1] - a[1]) + a[0]) inside = !inside;
+    }
+    return inside;
+  }
+
+  /**
+   * Moves, resizes or turns a drawn line (the transform tool). The original is not changed, so a drag can always be worked out from
+   * how the line looked when it began.
+   * @param {{pts: number[][], d: ?string, width: number}} stroke
+   * @param {{kind: 'move', dx: number, dy: number}|{kind: 'scale', ax: number, ay: number, sx: number, sy: number}|{kind: 'rotate', cx: number, cy: number, a: number}|{kind: 'flip', axis: 'x'|'y', c: number}} op
+   *   scale grows the line away from the anchor (ax, ay); rotate turns it round (cx, cy) by `a` radians; flip mirrors it across the vertical (axis 'x') or horizontal (axis 'y') line at `c`.
+   * @returns {{pts: number[][], d: ?string, width: number}}
+   */
+  function sketchXform(stroke, op) {
+    var cos = Math.cos(op.a || 0), sin = Math.sin(op.a || 0);
+    function at(x, y) {
+      if (op.kind === 'move') return [x + op.dx, y + op.dy];
+      if (op.kind === 'flip') return op.axis === 'x' ? [2 * op.c - x, y] : [x, 2 * op.c - y];
+      if (op.kind === 'scale') return [op.ax + (x - op.ax) * op.sx, op.ay + (y - op.ay) * op.sy];
+      return [op.cx + (x - op.cx) * cos - (y - op.cy) * sin, op.cy + (x - op.cx) * sin + (y - op.cy) * cos];
+    }
+    function r2(n) { return Math.round(n * 100) / 100; }
+    var out = { pts: stroke.pts.map(function (p) { var q = at(p[0], p[1]); return [r2(q[0]), r2(q[1])]; }), width: stroke.width, d: stroke.d };
+    if (op.kind === 'scale') out.width = r2(stroke.width * Math.sqrt(Math.abs(op.sx * op.sy)));
+    if (stroke.d) {   // a paint-bucket fill keeps its outline as path text made of "x y" pairs
+      out.d = stroke.d.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g, function (m, x, y) { var q = at(+x, +y); return r2(q[0]) + ' ' + r2(q[1]); });
+    }
+    return out;
+  }
 
   /** @returns {number} Distance between two points. */
   function skDist(a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); }
@@ -1419,7 +1726,41 @@
     return { pts: skSimplify(rs, w * 0.0012), closed: closed };
   }
 
+  /**
+   * What Nibble says about a recipe he has just read: by the dish in its title, else by what is in it, else by how big it is.
+   * @param {string} title  The recipe's name ("" for pasted ingredients).
+   * @param {{name: string}[]} found  The ingredients found.
+   * @param {function(): number} [random]
+   * @returns {string} A short line.
+   */
+  function recipeRemark(title, found, random) {
+    var rnd = random || Math.random;
+    var pick = function (a) { return a[Math.floor(rnd() * a.length)]; };
+    var t = String(title || '').toLowerCase();
+    var names = (found || []).map(function (f) { return String(f.name || '').toLowerCase(); }).join(' | ');
+    var dishes = [
+      [/mac(?:aroni)?\b.*cheese|\bcheesy\b/, ['cheesy!! yes please', 'so much cheese… I love it']],
+      [/chicken/, ['ooh, chicken!', 'chicken night? yum!']],
+      [/pasta|spaghetti|lasagn|noodle|ramen|pizza|pizzoc/, ['carbs!! my favourite', 'ooh, comfy food!']],
+      [/cookie|cake|brownie|muffin|cupcake|pie\b|tart\b|dessert|pudding|ice cream|cheesecake/, ['a sweet one!! can I try?', 'ooh, treat time!']],
+      [/bread|loaf|bun\b|rolls?\b|dough|bagel/, ['fresh bread… I can smell it', 'baking day! yay!']],
+      [/soup|stew|chili|casserole|curry|potpie|pot pie|hotpot/, ['cosy and warm…', 'ooh, a big warm pot!']],
+      [/salad|bowl|veggie|vegetable/, ['fresh and crunchy!', 'so healthy! good job']],
+      [/taco|burrito|nacho|quesadilla|fajita/, ['taco time!', 'ooh, spicy and yummy']],
+      [/pancake|waffle|crepe|french toast|breakfast|oat/, ['breakfast!! yay', 'ooh, a yummy morning']],
+      [/fish|salmon|shrimp|tuna|sushi/, ['ooh, fishy!', 'splashy and yummy']]
+    ];
+    for (var i = 0; i < dishes.length; i++) if (dishes[i][0].test(t)) return pick(dishes[i][1]);
+    var byFood = [[/chocolate|cocoa|cacao/, 'chocolate?? lucky you!'], [/cheese/, 'ooh, cheese!'], [/bacon/, 'bacon!! I smell it already'], [/butter/, 'mmm, buttery…'], [/chili|cayenne|sriracha|jalape/, 'ooh, a bit spicy!']];
+    for (var j = 0; j < byFood.length; j++) if (byFood[j][0].test(names)) return byFood[j][1];
+    var n = (found || []).length;
+    if (n >= 15) return 'so many things! big cooking day';
+    if (n && n <= 5) return pick(['easy one! just a few things', 'quick and simple, I like it']);
+    return pick(['ooh, that looks yummy!', 'yum! what are we making?', 'sounds tasty!']);
+  }
+
   root.PetLogic = {
+    recipeRemark: recipeRemark,
     unlockAll: unlockAll,
     lockAll: lockAll,
     skipDays: skipDays,
@@ -1463,9 +1804,10 @@
     isUnlocked: isUnlocked,
     gateFor: gateFor,
     emojiFor: emojiFor,
-    splitSpoken: splitSpoken, wornIds: wornIds, toggleWorn: toggleWorn, faceStack: faceStack, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, REPEATS: REPEATS, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
+    splitSpoken: splitSpoken, wornIds: wornIds, toggleWorn: toggleWorn, faceStack: faceStack, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, cleanTask: cleanTask, firstOnDays: firstOnDays, repeatDays: repeatDays, REPEATS: REPEATS, REPEAT_SPANS: REPEAT_SPANS, untilFor: untilFor, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
     createItem: createItem,
     petProfile: petProfile,
+    parsePlayer: parsePlayer,
     CLOSET_MAX: CLOSET_MAX,
     cleanOutfitName: cleanOutfitName,
     parseCloset: parseCloset,
@@ -1478,6 +1820,6 @@
     toggleDone: toggleDone,
     pickEmoji: pickEmoji,
     soundFor: soundFor,
-    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke
+    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, sketchDash: sketchDash, sketchGradId: sketchGradId, sketchGradDef: sketchGradDef, sketchSoftBlur: sketchSoftBlur, sketchBlurId: sketchBlurId, sketchBlurDef: sketchBlurDef, sketchShape: sketchShape, SKETCH_SHAPES: SKETCH_SHAPES, sketchWave: sketchWave, SKETCH_STYLES: SKETCH_STYLES, traceLoops: traceLoops, simplifyLine: skSimplify
   };
 })(typeof self !== 'undefined' ? self : globalThis);

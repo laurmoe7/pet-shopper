@@ -10,7 +10,7 @@ test('a first launch opens with the sample list and the default pet', () => {
   assert.equal(s.items[0].text, 'Bananas');
   assert.equal(s.items[0].emoji, '🍌');
   assert.ok(s.items.every((i) => !i.done));
-  assert.deepEqual(s.pet, { name: 'Nibble', species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, achievements: {}, room: {}, closet: [], personality: 'foodie', tastes: {}, stamps: {}, favourites: {}, dozing: '', treats: { day: '', used: [] }, guard: { day: '', words: [], lastSeen: 0 } });
+  assert.deepEqual(s.pet, { name: 'Nibble', species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, achievements: {}, room: {}, closet: [], personality: 'foodie', tastes: {}, stamps: {}, gifts: {}, prizes: {}, favourites: {}, dozing: '', treats: { day: '', used: [] }, guard: { day: '', words: [], lastSeen: 0 } });
 });
 
 test('broken saved data falls back to a fresh start', () => {
@@ -27,22 +27,22 @@ test('name, species and hat survive a save and load', () => {
   s.pet.outfit.hat = 'sunhat';
   s.pet.outfit.face = 'shades';
   const back = PetLogic.parseState(JSON.stringify(s), ids());
-  assert.deepEqual(back.pet, { name: 'Mugi', species: 'birdie', skin: 'parrot', outfit: { hat: 'sunhat', body: 'none', face: 'shades', mouth: 'none', neck: 'none', feet: 'none' }, achievements: {}, room: {}, closet: [], personality: 'foodie', tastes: {}, stamps: {}, favourites: {}, dozing: '', treats: { day: '', used: [] }, guard: { day: '', words: [], lastSeen: 0 } });
+  assert.deepEqual(back.pet, { name: 'Mugi', species: 'birdie', skin: 'parrot', outfit: { hat: 'sunhat', body: 'none', face: 'shades', mouth: 'none', neck: 'none', feet: 'none' }, achievements: {}, room: {}, closet: [], personality: 'foodie', tastes: {}, stamps: {}, gifts: {}, prizes: {}, favourites: {}, dozing: '', treats: { day: '', used: [] }, guard: { day: '', words: [], lastSeen: 0 } });
   assert.deepEqual(back.items, s.items);
 });
 
 test('older saves without pet details get the defaults', () => {
   const old = JSON.stringify({ items: [], overrides: {}, quiet: true });
   const s = PetLogic.parseState(old, ids());
-  assert.deepEqual(s.pet, { name: 'Nibble', species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, achievements: {}, room: {}, closet: [], personality: 'foodie', tastes: {}, stamps: {}, favourites: {}, dozing: '', treats: { day: '', used: [] }, guard: { day: '', words: [], lastSeen: 0 } });
+  assert.deepEqual(s.pet, { name: 'Nibble', species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, achievements: {}, room: {}, closet: [], personality: 'foodie', tastes: {}, stamps: {}, gifts: {}, prizes: {}, favourites: {}, dozing: '', treats: { day: '', used: [] }, guard: { day: '', words: [], lastSeen: 0 } });
   assert.equal(s.quiet, true);
   const noHat = PetLogic.parseState(JSON.stringify({ items: [], pet: { name: 'Bo', species: 'cow' } }), ids());
-  assert.deepEqual(noHat.pet, { name: 'Bo', species: 'cow', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, achievements: {}, room: {}, closet: [], personality: 'foodie', tastes: {}, stamps: {}, favourites: {}, dozing: '', treats: { day: '', used: [] }, guard: { day: '', words: [], lastSeen: 0 } });
+  assert.deepEqual(noHat.pet, { name: 'Bo', species: 'cow', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, achievements: {}, room: {}, closet: [], personality: 'foodie', tastes: {}, stamps: {}, gifts: {}, prizes: {}, favourites: {}, dozing: '', treats: { day: '', used: [] }, guard: { day: '', words: [], lastSeen: 0 } });
 });
 
 test('wardrobe hats have unique ids and a drawing', () => {
   const hatIds = Wardrobe.map((w) => w.id);
-  assert.deepEqual(hatIds, ['tophat', 'butterflyclip', 'maid', 'sunhat', 'cap', 'hoodie', 'pighoodie', 'berrydress', 'hardhat', 'bandana', 'headphones', 'chefhat', 'knight', 'beret', 'bananapeel', 'trashlid', 'clownwig', 'jestercap', 'cowboyhat', 'sidecap', 'scarf', 'boa', 'toast', 'leaf', 'hay', 'necktie', 'uglytie', 'mustache', 'boots', 'featherslides', 'bunnyslippers', 'cowboyboots', 'clogs', 'clownshoes', 'shades', 'redspecs', 'eyepatch', 'nerdspecs', 'roundshades', 'bandage', 'clownnose']);
+  assert.deepEqual(hatIds, ['tophat', 'butterflyclip', 'redribbon', 'goggles', 'catfriend', 'maid', 'sunhat', 'cap', 'hoodie', 'pighoodie', 'berrydress', 'lilacdress', 'overalls', 'hardhat', 'bandana', 'headphones', 'chefhat', 'knight', 'beret', 'bananapeel', 'trashlid', 'clownwig', 'jestercap', 'cowboyhat', 'sidecap', 'scarf', 'boa', 'toast', 'leaf', 'hay', 'necktie', 'uglytie', 'mustache', 'boots', 'featherslides', 'bunnyslippers', 'cowboyboots', 'clogs', 'clownshoes', 'shades', 'redspecs', 'eyepatch', 'nerdspecs', 'roundshades', 'bandage', 'clownnose']);
   assert.equal(new Set(hatIds).size, hatIds.length);
   for (const w of Wardrobe) {
     assert.ok(PetLogic.OUTFIT_SLOTS.includes(w.slot), w.id);
@@ -143,7 +143,7 @@ test('the new hat, bandana, headphones and sunglasses are free', () => {
 
 test('clothes, mouth, neck and feet are their own slots, worn alongside a hat and glasses', () => {
   assert.deepEqual(PetLogic.OUTFIT_SLOTS, ['hat', 'body', 'face', 'mouth', 'neck', 'feet']);
-  assert.deepEqual(Wardrobe.filter((w) => w.slot === 'body').map((w) => w.id), ['hoodie', 'pighoodie', 'berrydress']);
+  assert.deepEqual(Wardrobe.filter((w) => w.slot === 'body').map((w) => w.id), ['hoodie', 'pighoodie', 'berrydress', 'lilacdress', 'overalls']);
   const bySlot = (slot) => Wardrobe.filter((w) => w.slot === slot).map((w) => w.id);
   assert.deepEqual(bySlot('mouth'), ['toast', 'leaf', 'hay', 'mustache']);
   assert.deepEqual(bySlot('neck'), ['scarf', 'boa', 'necktie', 'uglytie']);
@@ -153,7 +153,7 @@ test('clothes, mouth, neck and feet are their own slots, worn alongside a hat an
   const back = PetLogic.parseState(JSON.stringify(s), ids());
   assert.deepEqual(back.pet.outfit, { hat: 'chefhat', body: 'none', face: 'nerdspecs', mouth: 'mustache', neck: 'boa', feet: 'featherslides' });
   const { FreeUnlocks } = require('./load');
-  for (const id of ['scarf', 'boa', 'boots', 'featherslides', 'bunnyslippers', 'bananapeel', 'trashlid', 'beret', 'roundshades', 'toast', 'necktie', 'uglytie', 'mustache', 'clownwig', 'jestercap', 'cowboyhat', 'sidecap', 'cowboyboots', 'clogs', 'clownshoes', 'clownnose', 'leaf', 'hay', 'butterflyclip', 'bandage']) assert.ok(FreeUnlocks.hat.includes(id), id);
+  for (const id of ['scarf', 'boa', 'boots', 'featherslides', 'bunnyslippers', 'bananapeel', 'trashlid', 'beret', 'roundshades', 'toast', 'necktie', 'uglytie', 'mustache', 'clownwig', 'jestercap', 'cowboyhat', 'sidecap', 'cowboyboots', 'clogs', 'clownshoes', 'clownnose', 'leaf', 'hay', 'butterflyclip', 'redribbon', 'goggles', 'catfriend', 'overalls', 'bandage']) assert.ok(FreeUnlocks.hat.includes(id), id);
 });
 
 test('saves from before skins: the chick becomes a birdie, the penguin a birdie in a penguin skin', () => {

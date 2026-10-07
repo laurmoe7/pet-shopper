@@ -14,7 +14,10 @@ var SPECIES = [
   { id: 'hamster', label: 'Hamster' },
   { id: 'frog', label: 'Frog' },
   { id: 'hedgehog', label: 'Hedgehog' },
-  { id: 'axolotl', label: 'Axolotl' }
+  { id: 'axolotl', label: 'Axolotl' },
+  { id: 'mouse', label: 'Mouse' },
+  { id: 'monkey', label: 'Monkey' },
+  { id: 'dragon', label: 'Dragon' }
 ];
 var petNameInput = $('petNameInput'), speciesGrid = $('speciesGrid');
 
@@ -114,13 +117,13 @@ speciesGrid.addEventListener('click', function (e) {
   applyPet();
   if (!busy) { setFace(FACES.tada); pulse('hop', 500); setTimeout(function () { if (!busy) settle(); }, 900); }
 });
-// The name shows as text; a double-tap (or Enter) turns it into a box to type in,
-// so opening the sheet doesn't pop up the phone keyboard.
+// The name shows as text with an Edit button, so opening the sheet doesn't pop up the phone keyboard.
 var petNameShow = $('petNameShow'), lastNameTap = 0;
 function showName() {
   $('petNameText').textContent = petName();
   petNameInput.hidden = true;
   petNameShow.hidden = false;
+  petNameShow.classList.toggle('unnamed', petName() === 'Nibble');   // still the first name: the pencil wiggles to show it can be changed
 }
 function startRename() {
   petNameInput.value = state.pet.name || '';
@@ -137,18 +140,29 @@ function finishRename(keep) {
     applyPet();
   }
   showName();
-  petNameShow.focus();
+  $('petNameEdit').focus();
 }
-petNameShow.addEventListener('click', function (e) {
-  var now = Date.now();
-  // detail is 0 for keyboard clicks (Enter or Space): rename straight away
-  if (e.detail === 0 || L.isDoubleTap(lastNameTap, now)) { lastNameTap = 0; startRename(); return; }
-  lastNameTap = now;
-  petNameShow.classList.remove('nudge'); void petNameShow.offsetWidth; petNameShow.classList.add('nudge');
-});
-petNameShow.addEventListener('dblclick', function (e) { e.preventDefault(); if (petNameInput.hidden) startRename(); });
+$('petNameEdit').addEventListener('click', startRename);
 petNameInput.addEventListener('keydown', function (e) {
   if (e.key === 'Enter') { e.preventDefault(); finishRename(true); }
   else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finishRename(false); }
 });
 petNameInput.addEventListener('blur', function () { finishRename(true); });
+
+// ---------- the title always fits: a long name makes it a little smaller, never cut off ----------
+var brandFitting = false;
+/** Shrinks the title (in steps) until all of it shows, down to a readable minimum. */
+function fitBrand() {
+  if (brandFitting) return;
+  brandFitting = true;
+  var el = $('brand'), nm = $('brandName');
+  var cut = function () { return el.scrollWidth > el.clientWidth + 1 || nm.scrollWidth > nm.clientWidth + 1; };
+  el.style.fontSize = '';
+  var size = parseFloat(getComputedStyle(el).fontSize);
+  while (cut() && size > 12) { size -= 0.5; el.style.fontSize = size + 'px'; }
+  brandFitting = false;
+}
+new MutationObserver(function () { fitBrand(); }).observe($('brand'), { childList: true, characterData: true, subtree: true });
+window.addEventListener('resize', fitBrand);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitBrand);
+fitBrand();

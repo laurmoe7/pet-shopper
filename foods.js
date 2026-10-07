@@ -33,7 +33,7 @@
     ['🥑', 'veg', 'avocado, guacamole'],
     ['🫛', 'veg', 'peas, pea, green bean, sugar snap, edamame, mangetout'],
     ['🥦', 'veg', 'broccoli, cauliflower'],
-    ['🥬', 'veg', 'lettuce, salad, spinach, kale, cabbage, rocket, arugula, chard, leek, bok choy, pak choi, herbs, parsley, basil, coriander, cilantro, dill, mint'],
+    ['🥬', 'veg', 'lettuce, salad, spinach, kale, cabbage, rocket, arugula, chard, leek, bok choy, pak choi, herbs, thyme, oregano, rosemary, sage, tarragon, chives, parsley, basil, coriander, cilantro, dill, mint'],
     ['🥒', 'veg', 'cucumber, courgette, zucchini, pickle, gherkin'],
     ['🫑', 'veg', 'bell pepper, pepper, paprika'],
     ['🌽', 'veg', 'corn, sweetcorn, popcorn kernels'],

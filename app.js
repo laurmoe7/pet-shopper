@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '187';
+var BUILD = '243';
 
 
 var STORE_KEY = 'nibble.v1';
@@ -40,6 +40,52 @@ function emojiImg(emoji, alt) {
   img.alt = alt || emoji;
   img.draggable = false;
   return img;
+}
+
+// ---------- list emoji as die-cut stickers ----------
+// A cream edge, a thin cocoa line outside it and a soft shadow. This used to be a chain of nine CSS drop-shadow filters on every
+// row's picture, which made Chrome crawl on a long list (and when sliding a row away); now each emoji is drawn once on a canvas.
+var stickerCache = {}, STICKER_PX = 34, STICKER_PAD = 5;
+/** @returns {string} Cache key for the sticker colours now in use (they differ in dark mode). */
+function stickerLook() {
+  var cs = getComputedStyle(document.documentElement);
+  return cs.getPropertyValue('--cb-edge-strong').trim() + '|' + cs.getPropertyValue('--shadow').trim();
+}
+/** The colours changed (light or dark): draw the list's stickers again. */
+function refreshStickers() { rows = {}; if (typeof render === 'function' && typeof state !== 'undefined') render(); }
+if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () { setTimeout(refreshStickers, 50); });
+/**
+ * Swaps a list emoji picture for its sticker version (it stays the plain picture until the sticker is drawn).
+ * @param {HTMLImageElement} img
+ * @param {string} emoji
+ */
+function stickerize(img, emoji) {
+  var look = stickerLook(), key = emoji + '|' + look;
+  function use(url) { img.src = url; img.classList.add('sticker'); }
+  if (stickerCache[key]) { use(stickerCache[key]); return; }
+  var src = new Image();
+  src.onload = function () {
+    var S = Math.min(3, Math.ceil(window.devicePixelRatio || 1)), parts = look.split('|');
+    var size = (STICKER_PX + 2 * STICKER_PAD) * S, at = STICKER_PAD * S, px = STICKER_PX * S;
+    /** The picture's outline shape, grown by r and filled with one colour. */
+    function shape(r, color) {
+      var c = document.createElement('canvas'); c.width = c.height = size;
+      var x = c.getContext('2d');
+      for (var a = 0; a < 16; a++) x.drawImage(src, at + Math.cos(a / 16 * 2 * Math.PI) * r, at + Math.sin(a / 16 * 2 * Math.PI) * r, px, px);
+      x.globalCompositeOperation = 'source-in'; x.fillStyle = color; x.fillRect(0, 0, size, size);
+      return c;
+    }
+    var out = document.createElement('canvas'); out.width = out.height = size;
+    var ctx = out.getContext('2d');
+    ctx.save(); ctx.shadowColor = parts[1]; ctx.shadowBlur = 1.5 * S; ctx.shadowOffsetY = 2 * S;
+    ctx.drawImage(shape(2.5 * S, parts[0]), 0, 0);
+    ctx.restore();
+    ctx.drawImage(shape(1.6 * S, '#fffaf0'), 0, 0);
+    ctx.drawImage(src, at, at, px, px);
+    try { stickerCache[key] = out.toDataURL('image/png'); } catch (e) { return; }
+    use(stickerCache[key]);
+  };
+  src.src = Foods.emojiFile(emoji);
 }
 /**
  * @template T
@@ -134,7 +180,7 @@ document.querySelectorAll('dialog.pet-sheet').forEach(function (d) {
 });
 document.addEventListener('click', function (e) {
   if (!e.target.closest('.list-area, .scene-bar') || e.target.closest('button')) return;
-  if (state.mode === 'todo' && e.target.closest('.item:not(.done) .item-text, .due-tag')) return;   // that tap opens the task sheet
+  if (e.target.closest(state.mode === 'todo' ? '.item:not(.done) .item-text, .due-tag' : '.item:not(.done) .item-text, .qty-tag')) return;   // that tap opens the task or item sheet
   document.querySelectorAll('dialog[open]:not(#picker):not(#roomSheet)').forEach(function (d) { d.close(); });
 });
 // sticker buttons rock like a roly-poly when tapped (the look is in styles.css)
@@ -162,7 +208,9 @@ document.addEventListener('click', function (e) {
 var $ = function (id) { return document.getElementById(id); };
 var pet = $('pet'), petSvg = pet.querySelector('.pet-svg'), bubble = $('bubble'), todoEl = $('todo'), doneEl = $('done');
 var addForm = $('addForm'), addInput = $('addInput'), addPreview = $('addPreview');
-var eatenSection = $('eatenSection'), eatenCount = $('eatenCount'), emptyHint = $('emptyHint');
+var eatenSection = $('eatenSection'), eatenCount = $('eatenCount'), emptyHint = $('emptyHint'), doneMore = $('doneMore');
+// a long Bought list only draws its latest rows (every row costs the page work all the time); a button shows the rest
+var DONE_SHOWN = 12, doneExpanded = false;
 // Developer tools can pretend it is day or night ('auto' uses the real clock). Not saved.
 var devClock = 'auto';
 /** @returns {Date} The time the pet goes by: the real time, or midday / 11 pm when Developer tools say so. */
@@ -229,14 +277,17 @@ function render() {
   var shown = far.length ? todo.filter(function (i) { return far.indexOf(i) === -1; }) : todo;
   var kept = {};
   function rowFor(item) {
-    var key = (item.done ? 1 : 0) + item.emoji + '|' + item.text + '|' + dueTagKey(item);
+    var key = (item.done ? 1 : 0) + item.emoji + '|' + item.text + '|' + (item.qty || '') + '|' + dueTagKey(item);
     var old = rows[item.id];
     var li = old && old.key === key && !freshIds[item.id] ? old.li : row(item);
     kept[item.id] = { key: key, li: li };
     return li;
   }
   todoEl.replaceChildren.apply(todoEl, state.mode !== 'todo' && state.settings.aisles ? aisleNodes(shown, rowFor) : shown.map(rowFor));
-  doneEl.replaceChildren.apply(doneEl, done.map(rowFor));
+  var collapsed = !doneExpanded && done.length > DONE_SHOWN + 3;
+  doneEl.replaceChildren.apply(doneEl, (collapsed ? done.slice(-DONE_SHOWN) : done).map(rowFor));
+  doneMore.hidden = done.length <= DONE_SHOWN + 3;
+  doneMore.textContent = collapsed ? 'Show ' + (done.length - DONE_SHOWN) + ' more' : 'Show fewer';
   rows = kept;
   eatenSection.hidden = done.length === 0;
   eatenCount.textContent = '(' + done.length + ')';
@@ -350,13 +401,21 @@ function row(item) {
   eb.type = 'button';
   eb.className = 'emoji-btn';
   eb.setAttribute('aria-label', 'Change emoji for ' + item.text);
-  eb.appendChild(emojiImg(item.emoji, ''));
+  var pic = emojiImg(item.emoji, '');
+  eb.appendChild(pic);
+  stickerize(pic, item.emoji);
 
   var text = document.createElement('span');
   text.className = 'item-text';
   text.textContent = item.text;
 
   li.append(check, eb, text);
+  if (item.qty && !item.done) {   // the amount to buy, from a recipe
+    var qty = document.createElement('span');
+    qty.className = 'qty-tag';
+    qty.textContent = item.qty;
+    li.append(qty);
+  }
   if (state.mode === 'todo' && item.due && !item.done) {
     var when = infoOf(item);
     if (when.days > 0) li.classList.add('later');   // not for today

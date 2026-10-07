@@ -44,7 +44,7 @@ function micDone() {
   listening = null;
   micBtn.classList.remove('on');
   micBtn.setAttribute('aria-pressed', 'false');
-  addInput.placeholder = state.mode === 'todo' ? 'Add a to-do, like call mum' : 'Add an item, like bananas';
+  addInput.placeholder = state.mode === 'todo' ? 'Add a to-do, like call mum' : 'Add an item…';
   busy--;
   if (!busy) settle();
 }

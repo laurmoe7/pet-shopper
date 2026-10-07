@@ -1,0 +1,3 @@
+name = "pet-shopper-recipes"
+main = "recipe-proxy.js"
+compatibility_date = "2025-01-01"

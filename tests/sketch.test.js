@@ -61,3 +61,115 @@ test('tidy: a dot or a tiny scribble is left alone', () => {
   assert.equal(L.tidyStroke([[5, 5]], 220, HOW).pts.length, 1);
   assert.equal(L.tidyStroke([[5, 5], [5.2, 5.1], [5.1, 5.2], [5.2, 5.2]], 220, HOW).pts.length, 4);
 });
+
+// the paint bucket: a 20 x 20 grid with a square line (wall) round the middle and a dot-shaped hole inside the filled part
+function grid(w, h, rows) { const wall = new Uint8Array(w * h); rows(wall, (x, y) => { wall[y * w + x] = 1; }); return wall; }
+
+test('bucket: fills inside a closed line and stops at it', () => {
+  const w = 20, h = 20;
+  const wall = grid(w, h, (a, set) => { for (let i = 5; i <= 14; i++) { set(i, 5); set(i, 14); set(5, i); set(14, i); } });
+  const inside = L.floodMask(wall, w, h, 10, 10);
+  assert.equal(inside.count, 8 * 8);
+  assert.equal(inside.edge, false);
+  assert.equal(inside.mask[10 * w + 10], 1);
+  assert.equal(inside.mask[2 * w + 2], 0);
+  const outside = L.floodMask(wall, w, h, 2, 2);
+  assert.equal(outside.edge, true, 'an open area is reported as not closed');
+  assert.equal(L.floodMask(wall, w, h, 5, 5), null, 'clicking on a line fills nothing');
+});
+
+test('bucket: an outline of the filled area comes back as one loop, and a hole as a second', () => {
+  const w = 20, h = 20;
+  const wall = grid(w, h, (a, set) => {
+    for (let i = 5; i <= 14; i++) { set(i, 5); set(i, 14); set(5, i); set(14, i); }
+    set(9, 9); set(10, 9); set(9, 10); set(10, 10);   // an island inside
+  });
+  const area = L.floodMask(wall, w, h, 7, 7);
+  const loops = L.traceLoops(area.mask, w, h);
+  assert.equal(loops.length, 2, 'the outside and the hole');
+  const outer = loops.find((l) => l.some((p) => p[0] === 6 && p[1] === 6));
+  assert.equal(outer.length, 4, 'a square has four corners');
+  assert.ok(outer.some((p) => p[0] === 14 && p[1] === 14));
+  const solid = L.traceLoops(L.floodMask(grid(w, h, () => {}), w, h, 1, 1).mask, w, h);
+  assert.equal(solid.length, 1);
+});
+
+test('a bucket fill is written to the file as its own outline, with holes cut out', () => {
+  const svg = L.sketchSvg([{ d: 'M0 0L10 0L10 10Z', pts: [[0, 0]], color: '#ff8fb1', width: 1, fill: true, closed: true, bucket: true }], { x: 0, y: 0, w: 100, h: 100 }, {});
+  assert.match(svg, /d="M0 0L10 0L10 10Z"/);
+  assert.match(svg, /fill-rule="evenodd"/);
+  assert.match(svg, /fill="#ff8fb1"/);
+});
+
+test('transform tool: moving, resizing and turning leave the original alone and carry fills along', () => {
+  const line = { pts: [[10, 0], [20, 0]], d: null, width: 2 };
+  const moved = L.sketchXform(line, { kind: 'move', dx: 5, dy: -3 });
+  assert.deepEqual(moved.pts, [[15, -3], [25, -3]]);
+  assert.deepEqual(line.pts, [[10, 0], [20, 0]], 'the original is untouched');
+  const big = L.sketchXform(line, { kind: 'scale', ax: 10, ay: 0, sx: 2, sy: 2 });
+  assert.deepEqual(big.pts, [[10, 0], [30, 0]]);
+  assert.equal(big.width, 4, 'the line gets thicker with the drawing');
+  const turned = L.sketchXform(line, { kind: 'rotate', cx: 10, cy: 0, a: Math.PI / 2 });
+  assert.deepEqual(turned.pts.map((p) => p.map((n) => Math.round(n))), [[10, 0], [10, 10]]);
+  assert.equal(turned.width, 2);
+  const fill = { pts: [[0, 0]], width: 1, d: 'M0 0L10 0L10 10Z' };
+  assert.equal(L.sketchXform(fill, { kind: 'scale', ax: 0, ay: 0, sx: 2, sy: 3 }).d, 'M0 0L20 0L20 30Z');
+  assert.equal(L.sketchXform(fill, { kind: 'move', dx: 1, dy: 1 }).d, 'M1 1L11 1L11 11Z');
+});
+
+test('lasso: a point is inside a loop only when the loop encloses it', () => {
+  const loop = [[0, 0], [10, 0], [10, 10], [0, 10]];
+  assert.equal(L.inPolygon(loop, [5, 5]), true);
+  assert.equal(L.inPolygon(loop, [15, 5]), false);
+  const notch = [[0, 0], [10, 0], [10, 10], [6, 10], [6, 4], [4, 4], [4, 10], [0, 10]];
+  assert.equal(L.inPolygon(notch, [5, 8]), false, 'the gap of a U shape is outside');
+  assert.equal(L.inPolygon(notch, [5, 2]), true);
+});
+
+test('flip mirrors lines (and fills) across a line and keeps the width', () => {
+  const line = { pts: [[10, 2], [14, 6]], d: null, width: 2 };
+  assert.deepEqual(L.sketchXform(line, { kind: 'flip', axis: 'x', c: 10 }).pts, [[10, 2], [6, 6]]);
+  assert.deepEqual(L.sketchXform(line, { kind: 'flip', axis: 'y', c: 5 }).pts, [[10, 8], [14, 4]]);
+  assert.equal(L.sketchXform(line, { kind: 'flip', axis: 'x', c: 0 }).width, 2);
+  assert.equal(L.sketchXform({ pts: [[0, 0]], width: 1, d: 'M0 0L4 0L4 4Z' }, { kind: 'flip', axis: 'x', c: 5 }).d, 'M10 0L6 0L6 4Z');
+});
+
+test('the saved SVG says which layer each line is on', () => {
+  const svg = L.sketchSvg([{ pts: [[0, 0], [5, 5]], color: '#000', width: 1, layer: 'Shading' }], { x: 0, y: 0, w: 26, h: 26 }, {});
+  assert.match(svg, /data-layer="Shading"/);
+});
+
+test('every cute shape fills its box and has enough points to draw smoothly', () => {
+  assert.ok(L.SKETCH_SHAPES.length >= 12);
+  L.SKETCH_SHAPES.forEach(([id]) => {
+    const pts = L.sketchShape(id);
+    assert.ok(pts.length >= 24, id + ' has points');
+    pts.forEach((p) => { assert.ok(p[0] > -1e-9 && p[0] < 1 + 1e-9 && p[1] > -1e-9 && p[1] < 1 + 1e-9, id + ' stays in the box'); });
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    assert.ok(Math.max(...xs) - Math.min(...xs) > 0.99 && Math.max(...ys) - Math.min(...ys) > 0.99, id + ' fills the box');
+  });
+});
+
+test('special lines: dash patterns scale with the width, and waves stay on the line', () => {
+  assert.equal(L.sketchDash('solid', 2).array, null);
+  assert.equal(L.sketchDash('dashed', 2).array, '6 4.4');
+  assert.equal(L.sketchDash('stitch', 1).cap, 'butt');
+  const svg = L.sketchSvg([{ pts: [[0, 0], [9, 9]], color: '#000', width: 1, style: 'dotted' }], { x: 0, y: 0, w: 26, h: 26 }, {});
+  assert.match(svg, /stroke-dasharray="0.01 2.2"/);
+  const wave = L.sketchWave([[0, 0], [30, 0]], 2, 10);
+  assert.ok(Math.max(...wave.map((p) => Math.abs(p[1]))) > 1.5 && Math.abs(wave[0][1]) < 0.01 && Math.abs(wave[wave.length - 1][1]) < 0.2);
+});
+
+test('gradient fills and soft lines come with their definitions in the saved SVG', () => {
+  const g = { type: 'v', c1: '#ff0000', c2: '#0000ff' };
+  const svg = L.sketchSvg([
+    { pts: [[0, 0], [10, 0], [10, 10]], color: '#000', width: 1, fill: true, closed: true, grad: g },
+    { pts: [[0, 20], [20, 20]], color: '#f00', width: 4, style: 'soft' }
+  ], { x: 0, y: 0, w: 26, h: 26 }, {});
+  assert.match(svg, /<linearGradient id="gvff00000000ff" x1="0" y1="0" x2="0" y2="1">/);
+  assert.match(svg, /fill="url\(#gvff00000000ff\)"/);
+  assert.match(svg, /<filter id="b1_8"[^>]*><feGaussianBlur stdDeviation="1.8"\/>/);
+  assert.match(svg, /filter="url\(#b1_8\)" opacity="0.7"/);
+  assert.ok(svg.indexOf('<defs>') < svg.indexOf('<path'), 'definitions come first');
+  assert.match(L.sketchGradDef({ type: 'r', c1: '#fff', c2: '#000' }), /radialGradient/);
+});

@@ -165,6 +165,7 @@ $('goalsBtn').addEventListener('click', function () {
   $('goalsFairPlay').hidden = !state.settings.fairPlayTips || !!FreeUnlocks.all;
   $('goalsIntroText').textContent = FreeUnlocks.all ? 'Everything is unlocked for now. Your progress still counts, so rewards can come back later. Only a few count each day.' : ' to unlock new friends and hats. Only a few count each day, so come back tomorrow for more.';
   $('goalsFeed').hidden = !!FreeUnlocks.all;
+  sheetUnderMouth(goalsSheet);
   openDialog(goalsSheet);
 });
 goalsSheet.addEventListener('click', function (e) { if (e.target === goalsSheet) goalsSheet.close(); });
