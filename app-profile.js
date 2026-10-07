@@ -1,12 +1,12 @@
 // Profile: the player's name and birthday (state.player). Basic for now; the gift boxes (app-gift.js) use the birthday,
-// and Nibble says hello by name (app-start.js). Once a field is filled in it shows as text and takes a double-tap to edit
+// and Nibble says hello by name (app-start.js). Once a field is filled in it shows as text with an Edit button
 // (like the pet's name), so a stray tap cannot change it. The Top 10 and the Stamp Book open from here too.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
 var profileNameAtOpen = '', profileBirthdayAtOpen = '';
 var profileSheet = $('profileSheet'), profileName = $('profileName'), profileBirthday = $('profileBirthday');
-var profileNameShow = $('profileNameShow'), profileBirthdayShow = $('profileBirthdayShow'), profileTaps = { name: 0, birthday: 0 };
+var profileNameShow = $('profileNameShow'), profileBirthdayShow = $('profileBirthdayShow');
 /** @returns {string} The birthday ("MM-DD") as a date to read: 9 March. */
 function birthdayText(mmdd) {
   return new Date(2000, +mmdd.slice(0, 2) - 1, +mmdd.slice(3)).toLocaleDateString(undefined, { day: 'numeric', month: 'long' });
@@ -36,13 +36,7 @@ function editProfile(which) {
   if (input.select) try { input.select(); } catch (e) { /* date boxes cannot select */ }
 }
 [['name', profileNameShow], ['birthday', profileBirthdayShow]].forEach(function (f) {
-  f[1].addEventListener('click', function (e) {
-    var now = Date.now();
-    if (e.detail === 0 || L.isDoubleTap(profileTaps[f[0]], now)) { profileTaps[f[0]] = 0; editProfile(f[0]); return; }
-    profileTaps[f[0]] = now;
-    f[1].classList.remove('nudge'); void f[1].offsetWidth; f[1].classList.add('nudge');
-  });
-  f[1].addEventListener('dblclick', function (e) { e.preventDefault(); editProfile(f[0]); });
+  f[1].querySelector('.name-edit').addEventListener('click', function () { editProfile(f[0]); });
 });
 profileName.addEventListener('input', function () {
   state.player.name = profileName.value.trim().slice(0, 20);

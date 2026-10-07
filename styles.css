@@ -483,11 +483,13 @@ button { font: inherit; color: inherit; }
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   width: 100%; min-height: 46px; padding: 10px 16px; border-radius: 999px;
   border: 1.8px dashed var(--outline); background: var(--surface-2); color: var(--ink);
-  font: inherit; font-size: 1.05rem; font-weight: 800; text-align: left; cursor: pointer;
-  touch-action: manipulation; -webkit-user-select: none; user-select: none;
+  font: inherit; font-size: 1.05rem; font-weight: 800; text-align: left;
+  -webkit-user-select: none; user-select: none;
 }
 .name-show[hidden] { display: none; }
-.name-show .name-pen { color: var(--muted); font-size: .9rem; }
+.name-show { padding-right: 8px; }
+.name-show .name-pen { font-size: .9rem; }
+.name-edit { display: inline-flex; align-items: center; gap: 4px; flex: none; min-height: 30px; padding: 3px 12px; border: 0; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font: inherit; font-size: .85rem; font-weight: 800; cursor: pointer; touch-action: manipulation; }
 .name-show.nudge { animation: name-nudge .35s ease; }
 @keyframes name-nudge { 30% { transform: translateX(-3px); } 60% { transform: translateX(3px); } }
 .mood-info { margin: 2px 0 0; font-size: .9rem; color: var(--ink); min-height: 2.6em; }
@@ -2440,7 +2442,7 @@ html:root .picker .field-label.profile-top { display: none; }
 .dress-panel[data-tab="pet"] > .field:first-child { flex-direction: row; align-items: center; gap: 10px; }
 .dress-panel[data-tab="pet"] > .field:first-child .field-label { flex: none; }
 .dress-panel[data-tab="pet"] > .field:first-child :is(.name-show, input) { flex: 1; min-width: 0; min-height: 38px; padding-top: 6px; padding-bottom: 6px; }
-.name-show.unnamed .name-pen { display: inline-block; color: var(--accent); animation: pen-wiggle 1.8s ease-in-out infinite; transform-origin: 20% 90%; }
+.name-show.unnamed .name-pen { display: inline-block; animation: pen-wiggle 1.8s ease-in-out infinite; transform-origin: 20% 90%; }
 @keyframes pen-wiggle { 0%, 55%, 100% { rotate: 0deg; } 62% { rotate: -22deg; } 70% { rotate: 18deg; } 78% { rotate: -14deg; } 86% { rotate: 8deg; } }
 @media (prefers-reduced-motion: reduce) { .name-show.unnamed .name-pen { animation: none; } }
 
@@ -2671,3 +2673,10 @@ html[data-list="todo"] .recipe-btn { display: none; }
 .photo-actions { display: flex; gap: 10px; align-items: center; }
 .photo-btn { padding: 10px 22px; }
 .photo-btn[hidden] { display: none; }
+
+/* the recipe helper is open: Nibble searches with the magnifying glass (app-recipe.js), sweeping it and his eyes about */
+#pet.searching:not([data-state="sleepy"]) .arm-r { transform: rotate(0deg); translate: -15px -16px; animation: search-sweep 1.8s ease-in-out infinite alternate; }
+#pet.searching:not([data-state="sleepy"]) .pupils { animation: search-look 1.8s ease-in-out infinite alternate; }
+@keyframes search-sweep { from { translate: -22px -15px; } to { translate: -6px -17px; } }
+@keyframes search-look { from { translate: -2.4px 0; } to { translate: 2.4px 0; } }
+@media (prefers-reduced-motion: reduce) { #pet.searching .arm-r, #pet.searching .pupils { animation: none; } }

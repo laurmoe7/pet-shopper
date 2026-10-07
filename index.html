@@ -763,7 +763,7 @@
     <div class="dress-panel" data-tab="pet" role="tabpanel">
       <div class="field">
         <span class="field-label" id="petNameLabel">Name</span>
-        <button type="button" class="name-show" id="petNameShow" aria-label="Name (double-tap to change)"><span id="petNameText">Nibble</span><span class="name-pen" aria-hidden="true">✎</span></button>
+        <div class="name-show" id="petNameShow"><span id="petNameText">Nibble</span><button type="button" class="name-edit" id="petNameEdit" aria-label="Edit name"><span class="name-pen" aria-hidden="true">✎</span> Edit</button></div>
         <input id="petNameInput" type="text" maxlength="16" autocomplete="off" enterkeyhint="done" placeholder="Nibble" aria-labelledby="petNameLabel" hidden>
       </div>
       <fieldset class="species">
@@ -1024,12 +1024,12 @@
     <div class="profile-fields">
     <div class="field">
       <span class="field-label" id="profileNameLabel">Your name</span>
-      <button type="button" class="name-show" id="profileNameShow" hidden><span id="profileNameText"></span><span class="name-pen" aria-hidden="true">✎</span></button>
+      <div class="name-show" id="profileNameShow" hidden><span id="profileNameText"></span><button type="button" class="name-edit" aria-label="Edit your name"><span class="name-pen" aria-hidden="true">✎</span> Edit</button></div>
       <input id="profileName" type="text" maxlength="20" placeholder="Your name" enterkeyhint="done" aria-labelledby="profileNameLabel">
     </div>
     <div class="field">
       <span class="field-label" id="profileBirthdayLabel">Your birthday</span>
-      <button type="button" class="name-show" id="profileBirthdayShow" hidden><span id="profileBirthdayText"></span><span class="name-pen" aria-hidden="true">✎</span></button>
+      <div class="name-show" id="profileBirthdayShow" hidden><span id="profileBirthdayText"></span><button type="button" class="name-edit" aria-label="Edit your birthday"><span class="name-pen" aria-hidden="true">✎</span> Edit</button></div>
       <input id="profileBirthday" type="date" aria-labelledby="profileBirthdayLabel">
     </div>
     </div>

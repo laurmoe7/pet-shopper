@@ -56,7 +56,7 @@ function showRecipe(title, found) {
   recipeStage(!!found.length);
   recipeList.scrollTop = 0;
   if (found.length) {
-    if (!busy && baseState() !== 'sleepy') { pulse('hop', 460); setFace(FACES.happy); setTimeout(function () { if (!busy) settle(); }, 1400); }
+    if (!busy && baseState() !== 'sleepy') { pulse('hop', 460); setFace(FACES.happy); }
     say(L.recipeRemark(title, found), 3200);
   }
   updateRecipeAdd();
@@ -71,12 +71,24 @@ function updateRecipeAdd() {
   $('recipeAdd').disabled = !n;
 }
 
+/** While the recipe helper is open Nibble searches with his magnifying glass; when ingredients turn up he finds them. @param {boolean} [found] */
+function recipeSearch(found) {
+  var on = recipeSheet.open && baseState() !== 'sleepy';
+  pet.classList.toggle('searching', on);
+  pet.classList.toggle('inspecting', on);
+  pet.classList.toggle('mg-aha', on && !!found);
+  if (on) pet.dataset.prop = 'glass'; else if (pet.dataset.prop === 'glass') delete pet.dataset.prop;
+  if (on && !found && !busy) setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: [] });
+}
+recipeSheet.addEventListener('close', function () { recipeSearch(); if (!busy) settle(); });
+
 /** Shows the input (a new recipe) or the ingredients found. @param {boolean} results */
 function recipeStage(results) {
   recipeSheet.classList.toggle('results', results);
   $('recipeInputBox').hidden = results;
   $('recipeResult').hidden = !results;
   if (results) recipeStatus.textContent = '';
+  recipeSearch(results);
 }
 
 function recipeGo() {
@@ -131,6 +143,7 @@ $('recipeBtn').addEventListener('click', function () {
   $('recipeHelper').hidden = !!RECIPE_HELPER;   // everyone uses the built-in helper; the box is only for a build without one
   sheetUnderMouth(recipeSheet);
   openDialog(recipeSheet);
+  recipeSearch();
 });
 $('recipeGo').addEventListener('click', recipeGo);
 $('recipeAdd').addEventListener('click', recipeAddAll);

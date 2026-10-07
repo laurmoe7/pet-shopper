@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 233 (11 Oct)
+- Name, your name and your birthday have an Edit button; double-tap to edit is gone.
+- Nibble searches with the magnifying glass while the recipe helper is open.
+- A repeat's end date shows the year when it isn't this year.
+
 ## Build 232 (11 Oct)
 - Swipe an item sideways to delete it; no goals, no clean-up list, and the pet comments.
 - The eyes no longer follow your finger or cursor.
