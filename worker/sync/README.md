@@ -14,7 +14,8 @@ recovered.
 
 1. https://dash.cloudflare.com → **Storage & Databases** → **D1 SQL database** → **Create database**.
    Name `pet-shopper-sync`, location **Western Europe**.
-2. Open the database → **Console**, paste all of `schema.sql`, **Execute**.
+2. Open the database → **Console**, paste the one line from `schema.sql`, **Execute**. (It is one line with no comments on purpose: the console joins lines together.)
+   The table is `docs`: one row per account, `id` is a hash of the recovery code, `body` the merged document, `rev` counts writes.
 3. **Workers & Pages** → **Create** → **Create Worker**, name `pet-shopper-sync` → **Deploy**.
 4. **Edit code**, delete what is there, paste in all of `dist/worker.js`, **Deploy**.
 5. The Worker's **Settings** → **Bindings** → **Add** → **D1 database**: variable name `DB`, pick `pet-shopper-sync`. **Deploy**.
