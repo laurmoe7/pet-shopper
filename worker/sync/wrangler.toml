@@ -1,0 +1,9 @@
+name = "pet-shopper-sync"
+main = "dist/worker.js"
+compatibility_date = "2025-01-01"
+
+# Fill in after `npx wrangler d1 create pet-shopper-sync --location weur` (or bind it in the dashboard as DB).
+[[d1_databases]]
+binding = "DB"
+database_name = "pet-shopper-sync"
+database_id = "PASTE-THE-ID-HERE"

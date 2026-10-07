@@ -29,6 +29,12 @@ Decisions from the design talk. Do not start building until Lauren says so.
 - Known limits: items merge whole (two devices changing different parts of one item at once keep only the later change); counters never go down through syncing and two devices counting different things at once keep the larger count, not the sum (so un-ticking a task on one device doesn't lower the stamps on another); a device off for more than 30 days may bring back an item deleted meanwhile; a device with a clock far in the future makes the others' changes sort after it.
 - To decide in step 4: a brand new device joining an account must adopt the account's data and drop its own sample list (those records have time 0, so they are easy to spot).
 
+## Built: sync server (not online yet)
+
+- `worker/sync/` (server.js, schema.sql, wrangler.toml, README.md with the Cloudflare steps) and `dist/worker.js` (made by `npm run build:worker` from `sync.js` + `server.js`, so it can be pasted in the dashboard). Tested in `tests/syncserver.test.js` (memory store plus real SQL on Node 22).
+- Account = recovery code (25 symbols, ~124 bits); the server stores only its hash. One document per account; the server joins what a device sends with the stored copy using `Sync.merge`, with compare-and-swap writes. The pet syncs between the person's own devices; the shopping list is the only list that does.
+- Next: put it online (Lauren, dashboard steps in the README), then the app part: sign-in sheet (make code / enter code / scan QR), a sync status, retry and the "new device adopts the account" rule.
+
 ## Shared lists (open, see below)
 
 Each person owns a pet; lists can be shared. Avoid a pile of separate lists. Proposed shape (not decided):

@@ -1,0 +1,53 @@
+# Sync server (Cloudflare Worker + D1 database)
+
+Keeps your shopping list and your pet in step between your devices, and safe if you lose one. It is the second Worker
+next to the recipe helper; the two are separate and don't affect each other. Free plan is plenty (Workers 100,000
+requests a day, D1 5 GB).
+
+How it works: an account is a long random **recovery code** (like `K7M2P-9XQ4R-…`). The server keeps only a hash of it,
+no email, no name. Each device sends its whole saved list/pet, the server joins it with the stored copy using the same
+merge rules as the app (`sync.js`), stores the result and sends it back. **To-do lists never reach the server.**
+Anyone with the code can read the data, so it is shown once and the app will ask you to save it. A lost code cannot be
+recovered.
+
+## Put it online (about 10 minutes, no installs)
+
+1. https://dash.cloudflare.com → **Storage & Databases** → **D1 SQL database** → **Create database**.
+   Name `pet-shopper-sync`, location **Western Europe**.
+2. Open the database → **Console**, paste all of `schema.sql`, **Execute**.
+3. **Workers & Pages** → **Create** → **Create Worker**, name `pet-shopper-sync` → **Deploy**.
+4. **Edit code**, delete what is there, paste in all of `dist/worker.js`, **Deploy**.
+5. The Worker's **Settings** → **Bindings** → **Add** → **D1 database**: variable name `DB`, pick `pet-shopper-sync`. **Deploy**.
+6. Copy the Worker's address (like `https://pet-shopper-sync.yourname.workers.dev`).
+7. Check it: open `<address>/v1/health` in a browser. It should show `{"ok":true}`.
+8. Protect the sign-up address from floods: Worker → **Settings** → **Rate limiting** (or **Security** → **WAF** →
+   rate limiting rules): limit `POST /v1/account` to a handful a minute per IP.
+
+Then send the address to Claude (or paste it into the app once sign-in exists).
+
+## With the command line instead
+
+`npm run build:worker`, then `cd worker/sync && npx wrangler d1 create pet-shopper-sync --location weur`, put the id
+into `wrangler.toml`, `npx wrangler d1 execute pet-shopper-sync --remote --file schema.sql`, `npx wrangler deploy`.
+
+## After changing `sync.js` or `server.js`
+
+Run `npm run build:worker` and paste `dist/worker.js` again (a test fails if `dist/worker.js` is out of date).
+
+## Addresses (all JSON, `Authorization: Bearer <code>` except the first)
+
+- `POST /v1/account` makes an account and returns `{code}` (shown to the person once).
+- `POST /v1/sync` with `{doc}` joins the document with the stored one and returns `{doc, rev}`.
+- `GET /v1/doc` returns `{doc, rev}`: what is stored (`doc` is null before the first sync).
+- `DELETE /v1/account` deletes the account and its data.
+- `GET /v1/health` returns `{ok:true}`.
+
+## Notes
+
+- One document per account, up to 1 MB and 5000 records. Changes dated more than a day ahead are pulled back, so a
+  device with a wrong clock can't make every other change lose.
+- Two devices writing at the same moment: the server writes only if nothing changed since it read, otherwise joins
+  again and retries.
+- Nothing is logged by the code. Cloudflare keeps its usual request metadata.
+- Privacy policy, export and delete are needed before a store release: `GET /v1/doc` is the export, `DELETE /v1/account`
+  the delete (the app needs buttons for both).
