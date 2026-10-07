@@ -2317,7 +2317,7 @@ html.typing .page-fade { display: none; }
 @media (prefers-reduced-motion: reduce) { .wish-cloud, .wish-cloud::after { animation: none; } }
 
 /* daily gift: a box on the stage while any of today's boxes is shut, and the sheet with the boxes (app-gift.js) */
-.gift { position: absolute; left: 10px; top: 8px; z-index: 4; width: 44px; height: 44px; padding: 0; border: 0; background: none; cursor: pointer; animation: gift-hop 2.6s ease-in-out infinite; }
+.gift { position: absolute; left: calc(50% - 88px * var(--pet-size, 1) - 22px); bottom: 2px; z-index: 4; width: 44px; height: 44px; padding: 0; border: 0; background: none; cursor: pointer; animation: gift-hop 2.6s ease-in-out infinite; }
 .gift[hidden] { display: none; }
 .gift-img svg { width: 44px; height: 44px; display: block; filter: drop-shadow(0 2px 0 var(--shadow)); }
 .gift-count { position: absolute; right: -4px; top: -4px; min-width: 18px; padding: 0 5px; border-radius: 999px; background: var(--accent); color: #fff; border: 1.5px solid #fff; font-size: .7rem; font-weight: 800; line-height: 1.35; text-align: center; }
@@ -2612,8 +2612,7 @@ html:root .cal-month select { flex: none; }
 .shoot-flash { position: absolute; inset: 0; background: #fff8ee; opacity: 0; pointer-events: none; }
 .shoot-flash.pop { animation: shoot-flash .9s ease-out; }
 @keyframes shoot-flash { 0% { opacity: 0; } 18% { opacity: .75; } 100% { opacity: 0; } }
-.shoot-hint { position: absolute; left: 50%; top: calc(18px + env(safe-area-inset-top, 0px)); translate: -50% 0; margin: 0; padding: 6px 14px; border-radius: 999px; background: rgba(255, 255, 255, .85); color: #5b4239; font-weight: 800; font-size: .8rem; z-index: 3; animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); }
-.shoot-ui { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; display: flex; flex-direction: column; gap: 8px; padding: 12px 12px calc(14px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to top, var(--paper) 72%, transparent); transition: opacity .25s, translate .25s; }
+.shoot-ui { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; display: flex; flex-direction: column; gap: 8px; padding: 12px 12px calc(14px + env(safe-area-inset-bottom, 0px)); transition: opacity .25s, translate .25s; }
 .shoot.clean .shoot-ui, .shoot.clean .shoot-x { opacity: 0; pointer-events: none; translate: 0 30px; }
 .shoot-x { position: absolute; left: 12px; top: calc(12px + env(safe-area-inset-top, 0px)); z-index: 3; width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-size: 1rem; font-weight: 800; cursor: pointer; box-shadow: 0 2px 0 var(--shadow); transition: opacity .25s; }
 .shoot-row { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 4px; scrollbar-width: none; }
@@ -2723,6 +2722,5 @@ html[data-list="todo"] .recipe-btn { display: none; }
 
 /* a glass never stays in his hand in bed: asleep or under the blanket (app-recipe.js puts it away; this makes sure) */
 #pet.tucked .arm-r .magnifier, #pet[data-state="sleepy"] .arm-r .magnifier { display: none !important; }
-.shoot-turn { display: flex; gap: 8px; justify-content: center; }
 .done-more { display: block; margin: 4px auto 0; font-size: .85rem; }
 .done-more[hidden] { display: none; }

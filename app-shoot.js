@@ -82,7 +82,6 @@ function openShoot() {
   shootState.night = false;
   shootEl.hidden = false;
   shootEl.classList.remove('clean');
-  $('shootHint').hidden = true;
   renderShoot();
   sound('open');
 }
@@ -123,7 +122,7 @@ function startCamera() {
     shootEl.classList.add('cam');
     $('shootCamBtn').setAttribute('aria-pressed', 'true');
     $('shootFlip').hidden = false;
-    camNote('Drag ' + petName() + ' to move him, pinch to make him bigger or smaller, twist to turn him.');
+    camNote('');
   }).catch(function () {
     stopCamera();
     camNote('The camera is off. Allow it in the browser\u2019s settings for this page to try again.');
@@ -171,17 +170,13 @@ shootPet.addEventListener('click', function (e) {
   if (now - camLastTap < 350) { camPos = { x: 0, y: 0, s: 1, r: 0 }; applyCamPos(); sound('tap'); }
   camLastTap = now;
 });
-/** Turns him a little (for the Turn buttons and people without two fingers). @param {number} deg */
-function shootTurn(deg) { camPos.r = ((camPos.r + deg + 540) % 360) - 180; applyCamPos(); sound('tap'); }
-$('shootTurnL').addEventListener('click', function () { shootTurn(-15); });
-$('shootTurnR').addEventListener('click', function () { shootTurn(15); });
 // the camera never keeps running when you leave
 document.addEventListener('visibilitychange', function () { if (document.hidden && camStream) stopCamera(); });
 
 /** Closes it (the dressing room is still there underneath). */
 function closeShoot() { stopCamera(); shootEl.hidden = true; }
 shootEl.addEventListener('click', function (e) {
-  if (shootEl.classList.contains('clean')) { shootEl.classList.remove('clean'); $('shootHint').hidden = true; }
+  if (shootEl.classList.contains('clean')) { shootEl.classList.remove('clean'); }
 });
 $('shootClose').addEventListener('click', closeShoot);
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !shootEl.hidden) { e.stopPropagation(); closeShoot(); } }, true);
