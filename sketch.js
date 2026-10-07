@@ -331,7 +331,7 @@ function skLinesUI() {
     row.className = 'skp-line' + (x.show ? '' : ' hidden'); row.dataset.id = x.id; row.setAttribute('aria-selected', String(skSetOf().indexOf(x.id) !== -1)); if (x.id === act) row.classList.add('active');
     row.innerHTML = '<input type="checkbox" class="sk-pickbox" data-act="pick" title="Tick to work on this layer with Select and Lasso (Shift-click a row also adds it)" aria-label="Select layer"' + (skSetOf().indexOf(x.id) !== -1 ? ' checked' : '') + '>' +
       '<button type="button" class="sk-mini" data-act="show" aria-pressed="' + x.show + '" title="Show or hide (it is still saved)">' + (x.show ? SK_EYE : SK_EYE_OFF) + '</button>' +
-      '<input type="text" maxlength="24" data-act="name" aria-label="Layer name">' +
+      '<input type="text" maxlength="24" data-act="name" aria-label="Layer name" title="Double-tap to rename" readonly>' +
       '<button type="button" class="sk-mini" data-act="up" title="Move up">▲</button><button type="button" class="sk-mini" data-act="down" title="Move down">▼</button>' +
       '<button type="button" class="sk-mini" data-act="del" title="Delete this layer (its lines drop to the next one)"' + (l.length < 2 ? ' disabled' : '') + '>✕</button>';
     row.querySelector('input[data-act=name]').value = x.name;
@@ -393,7 +393,18 @@ $('skAllLines').addEventListener('click', function () {
   skMarkActive(); skStatus.textContent = 'All layers can be picked.';
 });
 $('skLineLayers').addEventListener('click', skLinesEvent);
-$('skLineLayers').addEventListener('focusin', function (e) { if (e.target.dataset && e.target.dataset.act === 'name') e.target.select(); });
+/** Layer names are only editable after a double-tap, so a single tap just picks the layer. */
+function skRename(input) { input.readOnly = false; input.focus(); input.select(); }
+$('skLineLayers').addEventListener('dblclick', function (e) { if (e.target.dataset && e.target.dataset.act === 'name') skRename(e.target); });
+var skLastTap = { el: null, t: 0 };
+$('skLineLayers').addEventListener('pointerdown', function (e) {   // touch and pen: two quick taps on the same name
+  var el = e.target;
+  if (!el.dataset || el.dataset.act !== 'name' || e.pointerType === 'mouse') return;
+  var now = Date.now();
+  if (skLastTap.el === el && now - skLastTap.t < 400) { e.preventDefault(); skRename(el); skLastTap.el = null; return; }
+  skLastTap = { el: el, t: now };
+});
+$('skLineLayers').addEventListener('focusout', function (e) { if (e.target.dataset && e.target.dataset.act === 'name') { e.target.readOnly = true; e.target.setSelectionRange(0, 0); } });
 $('skLineLayers').addEventListener('keydown', function (e) { if (e.target.dataset && e.target.dataset.act === 'name' && (e.key === 'Enter' || e.key === 'Escape')) e.target.blur(); });
 $('skLineLayers').addEventListener('change', skLinesEvent);
 var skFillPaths = new WeakMap();

@@ -288,3 +288,5 @@ html:root body.skp.skp-guest #skSaveFile { color: #fff; text-shadow: 0 1px 2px r
 .skp-line[aria-selected="true"] { border-color: #ff8fab; background: #3d2a46; }
 .skp-line.active { box-shadow: 0 0 0 2px #7a4a63; }
 .skp-line[aria-selected="false"].active { border-color: var(--sk-edge); }
+.skp-line input[data-act="name"][readonly] { cursor: pointer; user-select: none; }
+.skp-line input[data-act="name"]:not([readonly]) { background: var(--sk-field); border-color: #ff8fab; cursor: text; }
