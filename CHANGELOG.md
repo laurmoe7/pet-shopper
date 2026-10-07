@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 250 (15 Oct)
+- Pigeon: the shiny neck band goes all the way to the outline.
+
 ## Build 249 (14 Oct)
 - Desktop: his cushion and bed catch clicks too, so right-click works there.
 - Desktop: speech bubble sits closer, smaller window.
