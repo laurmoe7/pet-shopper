@@ -33,6 +33,7 @@
   <label class="sk-check"><input type="checkbox" id="skRef" checked> <span id="skRefLabel">Pet</span></label>
   <label class="sk-check" title="How strong the picture underneath is">Ghost <input type="range" id="skGhost" min="15" max="100" value="100" aria-label="Ghost"></label>
 </header>
+<p class="skp-status" id="skStatus" aria-live="polite"></p>
 
 <div class="skp-wrap">
   <main class="skp-canvas">
@@ -88,7 +89,7 @@
     </section>
 
     <section class="skp-box">
-      <div class="skp-head"><h2>Layers</h2><button type="button" class="skp-btn skp-small" id="skAddLine">+ Layer</button></div>
+      <div class="skp-head"><h2>Layers</h2><span class="skp-pair"><button type="button" class="skp-btn skp-small" id="skAllLines" title="Select and Lasso can pick from every layer">All</button><button type="button" class="skp-btn skp-small" id="skAddLine">+ Layer</button></span></div>
       <div class="skp-lines" id="skLineLayers"></div>
     </section>
 
@@ -130,7 +131,6 @@
         <button type="button" class="skp-btn" id="skSaveFile">Save SVG</button>
         <button type="button" class="skp-btn" id="skCopy">Copy SVG</button>
       </div>
-      <p class="skp-status" id="skStatus" aria-live="polite"></p>
       <details class="skp-help owner-only" id="skSettings">
         <summary>GitHub connection</summary>
         <ol>

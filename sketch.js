@@ -23,7 +23,7 @@ var SK = {
   /** Pictures to trace, one layer each, in the same coordinates as the drawing: {id, name, src, cx, cy, bw, bh, scale, opacity, visible, behind} */
   images: { pet: [], scene: [], toy: [], room: [] },
   /** Layers for the lines, bottom first: {id, name, show}; each stroke has `lay` (a layer id), and `active` is where new lines go */
-  layers: { pet: [], scene: [], toy: [], room: [] }, active: { pet: 'l1', scene: 'l1', toy: 'l1', room: 'l1' }
+  layers: { pet: [], scene: [], toy: [], room: [] }, layerSet: { pet: [], scene: [], toy: [], room: [] }, active: { pet: 'l1', scene: 'l1', toy: 'l1', room: 'l1' }
 };
 var SK_PEN_DEFAULT = 9;
 var SK_OWNER = false, skDraw = null, skDrawing = false, skPan = null, skPetSvg = null, skToys = null, skImgUnder = null, skImgOver = null, skSelBox = null, skXf = null;
@@ -307,6 +307,15 @@ function skLayerOf(s) {
   return l.filter(function (x) { return x.id === s.lay; })[0] || l[0];
 }
 function skLive(s) { return skLayerOf(s).show; }
+/** @returns {string[]} The layers ticked in the panel: the ones Select and Lasso can reach (the active one if none are). */
+function skSetOf() {
+  var l = skLays(), set = SK.layerSet[SK.mode].filter(function (id) { return l.some(function (x) { return x.id === id; }); });
+  if (!set.length) set = [SK.active[SK.mode]];
+  SK.layerSet[SK.mode] = set;
+  return set;
+}
+/** @returns {boolean} Whether Select and Lasso may pick this line: it is shown and on a ticked layer. */
+function skSelectable(s) { var x = skLayerOf(s); return x.show && skSetOf().indexOf(x.id) !== -1; }
 /** @returns {Object[]} The strokes in drawing order: layer by layer, bottom first, each layer in the order it was drawn. */
 function skOrdered() {
   var l = skLays(), rank = function (s) { return Math.max(0, l.indexOf(skLayerOf(s))); };
@@ -319,25 +328,28 @@ function skLinesUI() {
   var box = $('skLineLayers'), l = skLays(), act = SK.active[SK.mode];
   box.replaceChildren.apply(box, l.slice().reverse().map(function (x) {
     var row = document.createElement('div');
-    row.className = 'skp-line' + (x.show ? '' : ' hidden'); row.dataset.id = x.id; row.setAttribute('aria-selected', String(x.id === act));
-    row.innerHTML = '<button type="button" class="sk-mini" data-act="show" aria-pressed="' + x.show + '" title="Show or hide (it is still saved)">' + (x.show ? SK_EYE : SK_EYE_OFF) + '</button>' +
+    row.className = 'skp-line' + (x.show ? '' : ' hidden'); row.dataset.id = x.id; row.setAttribute('aria-selected', String(skSetOf().indexOf(x.id) !== -1)); if (x.id === act) row.classList.add('active');
+    row.innerHTML = '<input type="checkbox" class="sk-pickbox" data-act="pick" title="Tick to work on this layer with Select and Lasso (Shift-click a row also adds it)" aria-label="Select layer"' + (skSetOf().indexOf(x.id) !== -1 ? ' checked' : '') + '>' +
+      '<button type="button" class="sk-mini" data-act="show" aria-pressed="' + x.show + '" title="Show or hide (it is still saved)">' + (x.show ? SK_EYE : SK_EYE_OFF) + '</button>' +
       '<input type="text" maxlength="24" data-act="name" aria-label="Layer name">' +
       '<button type="button" class="sk-mini" data-act="up" title="Move up">▲</button><button type="button" class="sk-mini" data-act="down" title="Move down">▼</button>' +
       '<button type="button" class="sk-mini" data-act="del" title="Delete this layer (its lines drop to the next one)"' + (l.length < 2 ? ' disabled' : '') + '>✕</button>';
-    row.querySelector('input').value = x.name;
+    row.querySelector('input[data-act=name]').value = x.name;
     return row;
   }));
 }
-/** Highlights the active layer's row. */
+/** Updates the layer rows (ticked, active) without rebuilding them, and drops picked lines that are no longer reachable. */
 function skMarkActive() {
-  document.querySelectorAll('#skLineLayers .skp-line').forEach(function (r) { r.setAttribute('aria-selected', String(r.dataset.id === SK.active[SK.mode])); });
+  var set = skSetOf();
+  document.querySelectorAll('#skLineLayers .skp-line').forEach(function (r) {
+    var on = set.indexOf(r.dataset.id) !== -1;
+    r.setAttribute('aria-selected', String(on));
+    r.classList.toggle('active', r.dataset.id === SK.active[SK.mode]);
+    r.querySelector('.sk-pickbox').checked = on;
+  });
+  if (SK.pick.some(function (s) { return !skSelectable(s); })) { SK.pick = SK.pick.filter(skSelectable); skXfRender(); }
 }
-/** After picking lines on the canvas: if they all share a layer, that layer becomes the active one. */
-function skFollowPick() {
-  if (!SK.pick.length) return;
-  var first = skLayerOf(SK.pick[0]);
-  if (SK.pick.every(function (s) { return skLayerOf(s) === first; }) && SK.active[SK.mode] !== first.id) { SK.active[SK.mode] = first.id; skMarkActive(); }
-}
+function skFollowPick() {}
 function skLinesEvent(e) {
   var row = e.target.closest('.skp-line');
   if (!row) return;
@@ -345,7 +357,7 @@ function skLinesEvent(e) {
   if (!x) return;
   if (e.type === 'change' && act === 'name') { x.name = e.target.value.trim().slice(0, 24) || 'Layer'; skSave(); return; }
   if (e.type !== 'click') return;
-  if (act === 'show') { x.show = !x.show; SK.pick = SK.pick.filter(skLive); skRedraw(); skXfRender(); }
+  if (act === 'show') { x.show = !x.show; SK.pick = SK.pick.filter(skSelectable); skRedraw(); skXfRender(); }
   else if (act === 'up' && i < l.length - 1) { l.splice(i + 1, 0, l.splice(i, 1)[0]); skRedraw(); }
   else if (act === 'down' && i > 0) { l.splice(i - 1, 0, l.splice(i, 1)[0]); skRedraw(); }
   else if (act === 'del' && l.length > 1) {
@@ -353,10 +365,16 @@ function skLinesEvent(e) {
     SK.strokes[SK.mode].forEach(function (s) { if (skLayerOf(s) === x) s.lay = to.id; });
     l.splice(i, 1);
     if (SK.active[SK.mode] === x.id) SK.active[SK.mode] = to.id;
+    SK.layerSet[SK.mode] = skSetOf().filter(function (id) { return id !== x.id; });
     skStatus.textContent = 'Layer removed. Its lines moved to ' + to.name + '.';
     skRedraw();
-  } else {   // a click on the row (or into its name box): make it the layer new lines go to, without rebuilding the row (that would drop the typing cursor)
-    SK.active[SK.mode] = x.id;
+  } else {   // a click on a row: it becomes the one layer to work on; Shift or Ctrl (or its tick box) adds or removes it. The row is not rebuilt (that would drop the typing cursor)
+    var set = skSetOf().slice(), at = set.indexOf(x.id);
+    if (act === 'pick' || e.shiftKey || e.ctrlKey || e.metaKey) {
+      if (at === -1) { set.push(x.id); SK.active[SK.mode] = x.id; }
+      else if (set.length > 1) { set.splice(at, 1); if (SK.active[SK.mode] === x.id) SK.active[SK.mode] = set[set.length - 1]; }
+    } else { set = [x.id]; SK.active[SK.mode] = x.id; }
+    SK.layerSet[SK.mode] = set;
     skMarkActive();
     skSave();
     return;
@@ -367,8 +385,12 @@ $('skAddLine').addEventListener('click', function () {
   var l = skLays(), n = 1;
   while (l.some(function (x) { return x.name === 'Layer ' + (l.length + n); })) n++;
   var x = { id: 'l' + Date.now().toString(36), name: 'Layer ' + (l.length + n), show: true };
-  l.push(x); SK.active[SK.mode] = x.id;
-  skLinesUI(); skSave();
+  l.push(x); SK.active[SK.mode] = x.id; SK.layerSet[SK.mode] = [x.id];
+  skLinesUI(); skMarkActive(); skSave();
+});
+$('skAllLines').addEventListener('click', function () {
+  SK.layerSet[SK.mode] = skLays().map(function (x) { return x.id; });
+  skMarkActive(); skStatus.textContent = 'All layers can be picked.';
 });
 $('skLineLayers').addEventListener('click', skLinesEvent);
 $('skLineLayers').addEventListener('focusin', function (e) { if (e.target.dataset && e.target.dataset.act === 'name') e.target.select(); });
@@ -540,7 +562,7 @@ function skInShape(s, pt) {
 }
 /** @returns {?Object} The topmost stroke under a point: lines first, then filled shapes and colour fills. */
 function skStrokeAt(pt) {
-  var r = SK_VIEW[SK.mode].w * 0.012, list = skOrdered().filter(skLive), i, s;
+  var r = SK_VIEW[SK.mode].w * 0.012, list = skOrdered().filter(skSelectable), i, s;
   for (i = list.length - 1; i >= 0; i--) { s = list[i]; if (!s.bucket && L.sketchHit(s.pts, pt, r + s.width / 2)) return s; }
   for (i = list.length - 1; i >= 0; i--) { s = list[i]; if (s.bucket ? skInFill(s, pt) : (s.fill && skInShape(s, pt))) return s; }
   return null;
@@ -635,7 +657,7 @@ function skBandEnd(pt) {
   var b = skDrawing.band, x0 = Math.min(b.x, pt[0]), x1 = Math.max(b.x, pt[0]), y0 = Math.min(b.y, pt[1]), y1 = Math.max(b.y, pt[1]);
   SK.strokes[SK.mode].forEach(function (s) {
     var q = skStrokeBox(s);
-    if (skLive(s) && q.x0 <= x1 && q.x1 >= x0 && q.y0 <= y1 && q.y1 >= y0 && SK.pick.indexOf(s) === -1) SK.pick.push(s);
+    if (skSelectable(s) && q.x0 <= x1 && q.x1 >= x0 && q.y0 <= y1 && q.y1 >= y0 && SK.pick.indexOf(s) === -1) SK.pick.push(s);
   });
   skFollowPick();
 }
@@ -652,7 +674,7 @@ function skLassoEnd() {
     }
     return false;
   }
-  SK.strokes[SK.mode].forEach(function (s) { if (skLive(s) && SK.pick.indexOf(s) === -1 && inside(s)) SK.pick.push(s); });
+  SK.strokes[SK.mode].forEach(function (s) { if (skSelectable(s) && SK.pick.indexOf(s) === -1 && inside(s)) SK.pick.push(s); });
   skFollowPick();
 }
 /** Removes the picked lines (Delete). */
@@ -1347,7 +1369,7 @@ document.addEventListener('keydown', function (e) {
   if (k === '[' || k === ']') { skSetPen(SK.pen + (k === ']' ? 1 : -1) * (SK.pen > 12 ? 2 : 1)); return; }
   if (e.key === 'Escape' && SK.tool === 'drop') { skSetTool(SK.prevTool && SK.prevTool !== 'drop' ? SK.prevTool : 'pen'); skStatus.textContent = 'Cancelled.'; return; }
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); if (e.shiftKey) skRedo(); else skUndo(); return; }
-  if ((e.ctrlKey || e.metaKey) && k === 'a' && skIsSel()) { e.preventDefault(); SK.pick = SK.strokes[SK.mode].filter(skLive); skXfRender(); return; }
+  if ((e.ctrlKey || e.metaKey) && k === 'a' && skIsSel()) { e.preventDefault(); SK.pick = SK.strokes[SK.mode].filter(skSelectable); skXfRender(); return; }
   if ((e.ctrlKey || e.metaKey) && k === 'd') { e.preventDefault(); skDuplicate(); return; }
   if ((e.ctrlKey || e.metaKey) && k === 'y') { e.preventDefault(); skRedo(); return; }
   if (e.ctrlKey || e.metaKey || e.altKey) return;
