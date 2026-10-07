@@ -1,0 +1,24 @@
+{
+  "name": "nibble-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Nibble on your desktop: a small always-on-top window with your pet, and your list one click away.",
+  "author": "Lauren",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --publish never"
+  },
+  "devDependencies": {
+    "electron": "^44.7.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "com.laurmoe.nibble",
+    "productName": "Nibble",
+    "files": ["main.js", "preload.js", "place.js", "build/icon.png", "package.json"],
+    "directories": { "output": "dist", "buildResources": "build" },
+    "win": { "target": "nsis", "icon": "build/icon.png" },
+    "nsis": { "oneClick": true, "perMachine": false, "runAfterFinish": true, "deleteAppDataOnUninstall": false }
+  }
+}

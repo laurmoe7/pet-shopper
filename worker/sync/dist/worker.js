@@ -415,6 +415,7 @@
   var FUTURE_MS = 24 * 3600 * 1000; // changes dated further ahead than this are pulled back (a clock set wrong)
   var ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';   // no 0/O or 1/I/L, which look alike
   var CODE_LENGTH = 25;             // 25 of 31 symbols: about 124 bits, shown as five groups of five
+  var SIGNUPS_PER_HOUR = 10;        // new accounts from one connection per hour (a household can share one address)
   var TRIES = 4;                    // compare-and-swap retries when two devices write at the same moment
 
   var CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS', 'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Access-Control-Max-Age': '86400' };
@@ -474,6 +475,11 @@
     if (path === '/v1/health' && method === 'GET') return reply({ ok: true });
 
     if (path === '/v1/account' && method === 'POST') {
+      if (store.hit) {   // a simple limit: a few new accounts an hour per connection (only a hash of the address is kept, for that hour)
+        var who = request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown';
+        var count = await store.hit(await accountId('ip:' + who), Math.floor(now / 3600000));
+        if (count > SIGNUPS_PER_HOUR) return fail(429, 'Too many new backups from this connection. Try again in an hour.');
+      }
       var code = newCode(), id = await accountId(cleanCode(code));
       if (!(await store.create(id, now))) return fail(500, 'Could not make an account, try again');
       return reply({ code: code }, 201);
@@ -529,12 +535,23 @@
         var r = await db.prepare('UPDATE docs SET body = ?, rev = rev + 1, updated = ? WHERE id = ? AND rev = ?').bind(body, now, id, rev).run();
         return r.meta.changes === 1;
       },
-      async remove(id) { await db.prepare('DELETE FROM docs WHERE id = ?').bind(id).run(); }
+      async remove(id) { await db.prepare('DELETE FROM docs WHERE id = ?').bind(id).run(); },
+      /**
+       * Counts one sign-up for this connection in this hour (and forgets older hours). Returns how many so far.
+       * If the `limits` table is missing (an older database) it returns 0, so sign-up still works unlimited.
+       */
+      async hit(key, hour) {
+        try {
+          await db.prepare('DELETE FROM limits WHERE hour < ?').bind(hour).run();
+          var r = await db.prepare('INSERT INTO limits (key, hour, n) VALUES (?, ?, 1) ON CONFLICT (key, hour) DO UPDATE SET n = n + 1 RETURNING n').bind(key, hour).first();
+          return r ? r.n : 0;
+        } catch (e) { return 0; }
+      }
     };
   }
 
   root.SyncServer = {
-    MAX_BODY: MAX_BODY, MAX_ITEMS: MAX_ITEMS, FUTURE_MS: FUTURE_MS,
+    MAX_BODY: MAX_BODY, MAX_ITEMS: MAX_ITEMS, SIGNUPS_PER_HOUR: SIGNUPS_PER_HOUR, FUTURE_MS: FUTURE_MS,
     newCode: newCode, cleanCode: cleanCode, accountId: accountId, clamp: clamp, handle: handle, d1Store: d1Store,
     /** The Worker entry: the D1 database is bound as `DB`. */
     worker: { fetch: function (request, env) { return handle(request, d1Store(env.DB), Date.now()); } }

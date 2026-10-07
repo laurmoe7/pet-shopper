@@ -2760,3 +2760,22 @@ html[data-list="todo"] .recipe-btn { display: none; }
 .account-adv summary { cursor: pointer; opacity: .75; }
 .account-adv input { margin-top: 6px; }
 .account-sheet .pill-btn.danger { color: var(--danger); }
+
+/* ---------- the desktop shell (app-desktop.js; only inside the Electron window in desktop/) ----------
+   'pet' mode: Nibble alone, everything else transparent. 'list' mode: the whole app with a small bar on top. */
+html.desktop-pet, html:root.desktop-pet body { background: none !important; }
+html.desktop-pet .scene-bar, html.desktop-pet .list-area, html.desktop-pet .dock, html.desktop-pet .backdrop, html.desktop-pet .room,
+html.desktop-pet .nightshade, html.desktop-pet .lamp, html.desktop-pet .lamp-light, html.desktop-pet .cart, html.desktop-pet .receipt,
+html.desktop-pet .cart-bag, html.desktop-pet .suggest, html.desktop-pet #deskBar { display: none !important; }
+html.desktop-pet .app { max-width: none; min-height: 0; height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; }
+html.desktop-pet .scene { position: static; padding: 0; background: none !important; }
+html.desktop-pet .scene::after { display: none; }
+html.desktop-pet .stage { width: 100vw; }   /* the stage keeps its own height at the bottom; the free room above is for the speech bubble */
+html.desktop-pet .stage .bubble { left: 0 !important; right: 0 !important; top: auto !important; bottom: calc(100% + 2px); margin: 0 auto; max-width: calc(100vw - 24px) !important; transform-origin: 50% 100% !important; }
+html.desktop-list #deskBar { display: flex; }
+#deskBar { display: none; position: fixed; top: 0; left: 0; right: 0; height: 34px; z-index: 50; align-items: center; gap: 8px; padding: 0 8px 0 14px;
+  background: var(--surface); color: var(--ink); border-bottom: 1.5px dashed var(--cb-edge, var(--outline)); -webkit-app-region: drag; user-select: none; font-weight: 800; font-size: .85rem; }
+#deskBar .desk-title { flex: 1; font-family: var(--font-display); }
+#deskBar button { -webkit-app-region: no-drag; border: 1.5px solid var(--outline); border-radius: 999px; background: var(--surface); color: var(--ink); font: inherit; font-size: .78rem; padding: 2px 10px; cursor: pointer; box-shadow: 0 2px 0 var(--outline); }
+html.desktop-list .app { padding-top: 34px; }
+html.desktop-list .scene { top: 34px; }

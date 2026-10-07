@@ -16,7 +16,9 @@ function memoryStore() {
     async get(id) { const r = rows.get(id); return r ? { body: r.body, rev: r.rev } : null; },
     async create(id) { if (rows.has(id)) return false; rows.set(id, { body: null, rev: 0 }); return true; },
     async put(id, body, rev) { const r = rows.get(id); if (!r || r.rev !== rev) return false; r.body = body; r.rev++; return true; },
-    async remove(id) { rows.delete(id); }
+    async remove(id) { rows.delete(id); },
+    hits: new Map(),
+    async hit(key, hour) { const k = key + hour; this.hits.set(k, (this.hits.get(k) || 0) + 1); return this.hits.get(k); }
   };
 }
 async function call(store, method, p, code, body, now) {
@@ -209,4 +211,34 @@ test('the D1 store works against real SQL', { skip: !sqlite }, async () => {
   assert.equal(await store.put(id, '{}', 1, T), true);
   await call(store, 'DELETE', '/v1/account', code);
   assert.equal(await store.get(id), null);
+});
+
+test('sign-ups are limited per connection per hour, and the next hour starts again', async () => {
+  const store = memoryStore();
+  for (let i = 0; i < S.SIGNUPS_PER_HOUR; i++) assert.equal((await call(store, 'POST', '/v1/account')).status, 201);
+  const refused = await call(store, 'POST', '/v1/account');
+  assert.equal(refused.status, 429);
+  assert.match(refused.json.error, /Try again/);
+  assert.equal(store.rows.size, S.SIGNUPS_PER_HOUR);
+  assert.equal((await call(store, 'POST', '/v1/account', null, undefined, T + 3600000)).status, 201);
+  // syncing an existing account is never limited
+  const code = await signUp(memoryStore());
+  assert.ok(code);
+});
+
+test('the limit counts in the real SQL table too, and a missing table does not break sign-up', { skip: !sqlite }, async () => {
+  const db = new sqlite.DatabaseSync(':memory:');
+  db.exec(fs.readFileSync(path.join(__dirname, '../worker/sync/schema.sql'), 'utf8'));
+  const wrap = (db) => ({ prepare(sql) { const st = db.prepare(sql); return { bind(...a) { return {
+    async first() { return st.get(...a) || null; },
+    async run() { return { meta: { changes: Number(st.run(...a).changes) } }; } }; } }; } });
+  const store = S.d1Store(wrap(db));
+  assert.deepEqual([await store.hit('k', 5), await store.hit('k', 5), await store.hit('other', 5)], [1, 2, 1]);
+  assert.equal(await store.hit('k', 6), 1);                         // a new hour starts again
+  assert.equal(db.prepare('SELECT COUNT(*) AS c FROM limits').get().c, 1);   // the old hour was forgotten
+  const old = new sqlite.DatabaseSync(':memory:');                  // a database from before the limit existed
+  old.exec('CREATE TABLE docs (id TEXT PRIMARY KEY, body TEXT, rev INTEGER NOT NULL DEFAULT 0, created INTEGER NOT NULL, updated INTEGER NOT NULL)');
+  const oldStore = S.d1Store(wrap(old));
+  assert.equal(await oldStore.hit('k', 5), 0);
+  assert.equal((await call(oldStore, 'POST', '/v1/account')).status, 201);
 });

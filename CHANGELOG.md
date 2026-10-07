@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 248 (14 Oct)
+- Nibble can live on your Windows desktop (separate app).
+- Friendlier message when too many backups are started.
+
 ## Build 247 (13 Oct)
 - Backup & sync in Options: a code keeps your shopping list and Nibble the same on all your devices.
 - Syncing keeps to-do lists private; only the shopping list is shared.

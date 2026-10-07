@@ -165,6 +165,7 @@ $('acctMake').addEventListener('click', function () {
   sound('tap');
   say2('Making your code…');
   accountApi('/v1/account', 'POST', '').then(function (r) {
+    if (r.status === 429) { say2('Too many new backups from this connection. Try again in an hour, or join with the code you already have.'); return; }
     if (!r.ok || !r.json || !cleanCode(r.json.code)) { say2(r.status ? 'The server said no (' + r.status + '). Try again later.' : 'Could not reach the server. Check your connection.'); return; }
     say2('');
     accountStart(cleanCode(r.json.code), true);

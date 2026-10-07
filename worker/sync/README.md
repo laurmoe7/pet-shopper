@@ -21,8 +21,9 @@ recovered.
 5. The Worker's **Settings** → **Bindings** → **Add** → **D1 database**: variable name `DB`, pick `pet-shopper-sync`. **Deploy**.
 6. Copy the Worker's address (like `https://pet-shopper-sync.yourname.workers.dev`).
 7. Check it: open `<address>/v1/health` in a browser. It should show `{"ok":true}`.
-8. Protect the sign-up address from floods: Worker → **Settings** → **Rate limiting** (or **Security** → **WAF** →
-   rate limiting rules): limit `POST /v1/account` to a handful a minute per IP.
+8. Sign-up is limited inside the Worker (10 new accounts an hour per connection, answered with "429"). It needs the
+   second line of `schema.sql` (the `limits` table). Without it everything still works, just unlimited. You can
+   also add a Cloudflare rate-limiting rule on `POST /v1/account` if you like.
 
 Then send the address to Claude (or paste it into the app once sign-in exists).
 

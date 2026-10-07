@@ -36,6 +36,13 @@ Decisions from the design talk. Do not start building until Lauren says so.
 - App part (`app-account.js`): Options > Backup & sync: start a backup (code), join with a code or a `#join=` link, sync status, automatic syncing, sign out, delete. A joining device drops its sample list. No QR code (the link does the job).
 - Still to do: rate limit on `POST /v1/account` before other people use it; privacy policy; an export button; a way to get back in if the code is lost (email link, later); shared shopping list between people (needs a separate shared document); the desktop shell.
 
+## Built: desktop shell v0 (build 248, Electron)
+
+- `desktop/` (main.js, preload.js, place.js, README.md) and the page side `app-desktop.js`. One transparent frameless always-on-top window (320 x 300) shows the real app, loaded from the Pages address, in "pet" mode (`html.desktop-pet`: only Nibble, bubble above him); "list" mode (`html.desktop-list`) makes the same window bigger and opaque with a small bar. One window on purpose: two windows would both write `nibble.v1` and overwrite each other.
+- Hold still on him to pick him up and drag the window; right-click or the tray icon for the menu; click-through on empty parts (Windows/macOS only; hit-tested in the page); quiet by default; opening any sheet switches to list mode.
+- Tested on Linux (Xvfb) with real pointer events: mode switching, carrying, strokes not carrying, back to the same place. Not yet run on Windows. Installer by `.github/workflows/desktop.yml` (windows-latest, electron-builder, unsigned: SmartScreen warns).
+- Next: send to PC / send to phone, recipes on the PC, awareness level 1-2 and pausing for full-screen apps, size option, signing and updates.
+
 ## Shared lists (open, see below)
 
 Each person owns a pet; lists can be shared. Avoid a pile of separate lists. Proposed shape (not decided):
