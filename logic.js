@@ -1382,26 +1382,246 @@
     }
     return false;
   }
+  // ---------- turning pen lines into a few clean curves ----------
+  // Curve fitting after Philip J. Schneider, "An Algorithm for Automatically Fitting Digitized Curves" (Graphics Gems, 1990):
+  // a line of many points becomes a few cubic Béziers that stay within `err` of every point.
+  function cvAdd(a, b) { return [a[0] + b[0], a[1] + b[1]]; }
+  function cvSub(a, b) { return [a[0] - b[0], a[1] - b[1]]; }
+  function cvMul(a, k) { return [a[0] * k, a[1] * k]; }
+  function cvDot(a, b) { return a[0] * b[0] + a[1] * b[1]; }
+  function cvNorm(a) { var d = Math.hypot(a[0], a[1]) || 1; return [a[0] / d, a[1] / d]; }
+  function cvAt(b, t) {
+    var u = 1 - t;
+    return [u * u * u * b[0][0] + 3 * u * u * t * b[1][0] + 3 * u * t * t * b[2][0] + t * t * t * b[3][0], u * u * u * b[0][1] + 3 * u * u * t * b[1][1] + 3 * u * t * t * b[2][1] + t * t * t * b[3][1]];
+  }
+  function cvD1(b, t) {
+    var u = 1 - t, q = [cvSub(b[1], b[0]), cvSub(b[2], b[1]), cvSub(b[3], b[2])];
+    return [3 * (u * u * q[0][0] + 2 * u * t * q[1][0] + t * t * q[2][0]), 3 * (u * u * q[0][1] + 2 * u * t * q[1][1] + t * t * q[2][1])];
+  }
+  function cvD2(b, t) {
+    var q = [cvSub(b[1], b[0]), cvSub(b[2], b[1]), cvSub(b[3], b[2])], r = [cvSub(q[1], q[0]), cvSub(q[2], q[1])];
+    return [6 * ((1 - t) * r[0][0] + t * r[1][0]), 6 * ((1 - t) * r[0][1] + t * r[1][1])];
+  }
+  function cvChord(P, first, last) {
+    var u = [0], i;
+    for (i = first + 1; i <= last; i++) u.push(u[u.length - 1] + Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]));
+    for (i = 1; i < u.length; i++) u[i] /= (u[u.length - 1] || 1);
+    return u;
+  }
+  function cvGenerate(P, first, last, u, t1, t2) {
+    var n = last - first + 1, C = [[0, 0], [0, 0]], X = [0, 0], i;
+    var p0 = P[first], p3 = P[last];
+    for (i = 0; i < n; i++) {
+      var t = u[i], m = 1 - t, b0 = m * m * m, b1 = 3 * t * m * m, b2 = 3 * t * t * m, b3 = t * t * t;
+      var a1 = cvMul(t1, b1), a2 = cvMul(t2, b2);
+      var tmp = cvSub(P[first + i], cvAdd(cvMul(p0, b0 + b1), cvMul(p3, b2 + b3)));
+      C[0][0] += cvDot(a1, a1); C[0][1] += cvDot(a1, a2); C[1][1] += cvDot(a2, a2);
+      X[0] += cvDot(a1, tmp); X[1] += cvDot(a2, tmp);
+    }
+    C[1][0] = C[0][1];
+    var det = C[0][0] * C[1][1] - C[1][0] * C[0][1];
+    var al = det ? (X[0] * C[1][1] - X[1] * C[0][1]) / det : 0, ar = det ? (C[0][0] * X[1] - C[1][0] * X[0]) / det : 0;
+    var seg = Math.hypot(p3[0] - p0[0], p3[1] - p0[1]), eps = 1e-6 * seg;
+    if (al < eps || ar < eps) { var d = seg / 3; return [p0, cvAdd(p0, cvMul(t1, d)), cvAdd(p3, cvMul(t2, d)), p3]; }
+    return [p0, cvAdd(p0, cvMul(t1, al)), cvAdd(p3, cvMul(t2, ar)), p3];
+  }
+  function cvReparam(P, first, last, u, b) {
+    var out = [], i;
+    for (i = first; i <= last; i++) {
+      var t = u[i - first], q = cvAt(b, t), d1 = cvD1(b, t), d2 = cvD2(b, t), diff = cvSub(q, P[i]);
+      var num = cvDot(diff, d1), den = cvDot(d1, d1) + cvDot(diff, d2);
+      out.push(den ? t - num / den : t);
+    }
+    return out;
+  }
+  function cvError(P, first, last, b, u) {
+    var worst = 0, at = Math.floor((last - first + 1) / 2), i;
+    for (i = first + 1; i < last; i++) {
+      var q = cvAt(b, u[i - first]), d = cvSub(q, P[i]), e = cvDot(d, d);
+      if (e >= worst) { worst = e; at = i; }
+    }
+    return { err: worst, at: at };
+  }
+  function cvFit(P, first, last, t1, t2, err) {
+    if (last - first === 1) { var d = Math.hypot(P[last][0] - P[first][0], P[last][1] - P[first][1]) / 3; return [[P[first], cvAdd(P[first], cvMul(t1, d)), cvAdd(P[last], cvMul(t2, d)), P[last]]]; }
+    var u = cvChord(P, first, last), b = cvGenerate(P, first, last, u, t1, t2), e = cvError(P, first, last, b, u), i;
+    if (e.err < err * err) return [b];
+    if (e.err < err * err * 16) {   // close: nudge the timing of each point a few times
+      for (i = 0; i < 12; i++) {
+        var u2 = cvReparam(P, first, last, u, b);
+        b = cvGenerate(P, first, last, u2, t1, t2); e = cvError(P, first, last, b, u2); u = u2;
+        if (e.err < err * err) return [b];
+      }
+    }
+    var tc = cvNorm(cvSub(P[e.at - 1], P[e.at + 1]));
+    return cvFit(P, first, e.at, t1, tc, err).concat(cvFit(P, e.at, last, cvMul(tc, -1), t2, err));
+  }
+  /**
+   * Fits a few smooth cubic Béziers to a line (sharp corners stay sharp).
+   * @param {number[][]} pts
+   * @param {number} err  How far the curves may stray from the points.
+   * @returns {number[][][]} Each curve is [start, control 1, control 2, end].
+   */
+  function fitCurve(pts, err) {
+    var P = [], i;
+    for (i = 0; i < pts.length; i++) if (!i || Math.hypot(pts[i][0] - P[P.length - 1][0], pts[i][1] - P[P.length - 1][1]) > 1e-6) P.push(pts[i]);
+    if (P.length < 2) return [];
+    if (P.length === 2) { var m = cvSub(P[1], P[0]); return [[P[0], cvAdd(P[0], cvMul(m, 1 / 3)), cvAdd(P[0], cvMul(m, 2 / 3)), P[1]]]; }
+    // cut the line at its corners and fit each stretch on its own
+    var cuts = [0], k = Math.max(2, Math.min(5, Math.floor(P.length / 8)));
+    for (i = 1; i < P.length - 1; i++) {
+      var a = cvSub(P[i], P[Math.max(0, i - k)]), c = cvSub(P[Math.min(P.length - 1, i + k)], P[i]);
+      if (!Math.hypot(a[0], a[1]) || !Math.hypot(c[0], c[1])) continue;
+      var ang = Math.acos(Math.max(-1, Math.min(1, cvDot(cvNorm(a), cvNorm(c)))));
+      if (ang > 0.95 && i - cuts[cuts.length - 1] > k) {   // about 55 degrees: the sharpest point of the bend is the corner
+        var best = i, bestAng = ang, j;
+        for (j = i + 1; j < Math.min(P.length - 1, i + k); j++) {
+          var a2 = cvSub(P[j], P[Math.max(0, j - k)]), c2 = cvSub(P[Math.min(P.length - 1, j + k)], P[j]), g = Math.acos(Math.max(-1, Math.min(1, cvDot(cvNorm(a2), cvNorm(c2)))));
+          if (g > bestAng) { bestAng = g; best = j; }
+        }
+        cuts.push(best); i = best;
+      }
+    }
+    cuts.push(P.length - 1);
+    var out = [];
+    for (i = 0; i < cuts.length - 1; i++) {
+      var f = cuts[i], e2 = cuts[i + 1];
+      if (e2 <= f) continue;
+      if (e2 - f === 1) { var mm = cvSub(P[e2], P[f]); out.push([P[f], cvAdd(P[f], cvMul(mm, 1 / 3)), cvAdd(P[f], cvMul(mm, 2 / 3)), P[e2]]); continue; }
+      var t1 = cvNorm(cvSub(P[Math.min(e2, f + 1)], P[f])), t2 = cvNorm(cvSub(P[Math.max(f, e2 - 1)], P[e2]));
+      out = out.concat(cvFit(P, f, e2, t1, t2, err));
+    }
+    return out;
+  }
+  /** @returns {string} Path text for curves, as M then C commands (or L for a straight piece). */
+  function curvesPath(curves, dp) {
+    var n = function (v) { return skNum(v, dp); }, d = '';
+    curves.forEach(function (b, i) {
+      if (!i) d += 'M' + n(b[0][0]) + ' ' + n(b[0][1]);
+      var straight = Math.abs((b[1][0] - b[0][0]) * (b[3][1] - b[0][1]) - (b[1][1] - b[0][1]) * (b[3][0] - b[0][0])) < 1e-6 && Math.abs((b[2][0] - b[0][0]) * (b[3][1] - b[0][1]) - (b[2][1] - b[0][1]) * (b[3][0] - b[0][0])) < 1e-6;
+      d += straight ? 'L' + n(b[3][0]) + ' ' + n(b[3][1]) : 'C' + n(b[1][0]) + ' ' + n(b[1][1]) + ' ' + n(b[2][0]) + ' ' + n(b[2][1]) + ' ' + n(b[3][0]) + ' ' + n(b[3][1]);
+    });
+    return d;
+  }
+  /**
+   * The path text for a stroke in "clean" form: a curve drawn with the Curve tool is written from its own points; any other
+   * line (or filled outline) is fitted with a few Béziers.
+   * @param {Object} s  A stroke.
+   * @param {number} dp  Decimals to keep.
+   * @param {number} err  How far a fitted curve may stray.
+   */
+  function sketchPathClean(s, dp, err) {
+    if (s.cv && s.cv.a.length > 1) {
+      var a = s.cv.a, n = a.length, segs = s.cv.closed ? n : n - 1, curves = [], i;
+      for (i = 0; i < segs; i++) {
+        var p = a[i], q = a[(i + 1) % n], qi = q.i || [-q.o[0], -q.o[1]];
+        curves.push([p.p, [p.p[0] + p.o[0], p.p[1] + p.o[1]], [q.p[0] + qi[0], q.p[1] + qi[1]], q.p]);
+      }
+      return curvesPath(curves, dp) + (s.cv.closed ? 'Z' : '');
+    }
+    if (s.d) {   // outlines made by the bucket or by combining shapes: each loop is fitted on its own
+      var loops = s.d.match(/M[^Z]*Z/g) || [];
+      return loops.map(function (lp) {
+        var nums = lp.match(/-?\d+(?:\.\d+)?/g).map(Number), pts = [], j;
+        for (j = 0; j + 1 < nums.length; j += 2) pts.push([nums[j], nums[j + 1]]);
+        pts.push(pts[0]);
+        return curvesPath(fitCurve(pts, err), dp) + 'Z';
+      }).join('');
+    }
+    if (s.pts.length < 3) return sketchPath(s.pts, false, dp);
+    var closed = (s.fill || s.closed) && s.pts.length > 2, pts2 = s.pts.slice();
+    if (closed) pts2.push(pts2[0]);
+    var fitted = fitCurve(pts2, err);
+    return fitted.length ? curvesPath(fitted, dp) + (closed ? 'Z' : '') : sketchPath(s.pts, closed, dp);
+  }
+  /**
+   * The drawing's parts, ready to write out: each stroke as a path with its colours, and the gradients and blurs they need.
+   * @param {Object[]} strokes
+   * @param {{w: number}} view
+   * @param {{clean: boolean}} opts  `clean` fits curves instead of keeping every pen point.
+   * @returns {{defs: string, items: {layer: ?string, svg: string}[]}}
+   */
+  function sketchBody(strokes, view, opts) {
+    opts = opts || {};
+    var dp = view.w > 100 ? 1 : 2, err = view.w * 0.0022, defs = {};
+    var esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/--/g, '- -'); };
+    var items = strokes.map(function (s) {
+      // a paint-bucket fill carries its own outline (`d`, with holes)
+      var d = opts.clean ? sketchPathClean(s, dp, err) : (s.d || sketchPath(s.pts, (s.fill || s.closed) && s.pts.length > 2, dp));
+      var fillAttr = s.fill && s.grad ? 'url(#' + sketchGradId(s.grad) + ')' : null, soft = s.style === 'soft' ? sketchSoftBlur(s.width) : 0;
+      if (fillAttr) defs[sketchGradId(s.grad)] = sketchGradDef(s.grad);
+      if (soft) defs[sketchBlurId(soft)] = sketchBlurDef(soft);
+      if (s.clip) defs.bodyclip = sketchClipDef();
+      var dash = sketchDash(s.style, s.width);
+      return { layer: s.layer || null, svg: '<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + (fillAttr || esc(s.color)) + '"' : '') + (soft ? ' filter="url(#' + sketchBlurId(soft) + ')" opacity="0.7"' : '') + (dash.array ? ' stroke-dasharray="' + dash.array + '"' + (dash.cap === 'butt' ? ' stroke-linecap="butt"' : '') : '') + (s.d ? ' fill-rule="evenodd"' : '') + (s.clip ? ' mask="url(#bodyclip)"' : '') + '/>' };
+    });
+    return { defs: Object.keys(defs).map(function (k) { return defs[k]; }).join(''), items: items };
+  }
+  /** @returns {string} The parts joined, with each layer in its own named group (when the lines are on layers). */
+  function sketchGroups(items) {
+    var out = [], cur = null, esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); };
+    items.forEach(function (it) {
+      if (it.layer !== cur) {
+        if (cur) out.push('</g>');
+        cur = it.layer;
+        if (cur) out.push('<g id="' + esc(String(cur).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'layer') + '" data-layer="' + esc(cur) + '">');
+      }
+      out.push(it.svg);
+    });
+    if (cur) out.push('</g>');
+    return out.join('\n');
+  }
   /**
    * Builds the drawing as an SVG file: the same coordinates as the pet, backdrop or toy it was drawn over.
    * @param {{pts: number[][], color: string, width: number, fill: boolean}[]} strokes
    * @param {{x: number, y: number, w: number, h: number}} view The drawing area in the reference's coordinates.
    * @param {Object} meta Notes for whoever reads the file (what it is, which pet it was drawn on...).
+   * @param {{clean: boolean}} [opts]
    */
-  function sketchSvg(strokes, view, meta) {
-    var dp = view.w > 100 ? 1 : 2;
+  function sketchSvg(strokes, view, meta, opts) {
     var esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/--/g, '- -'); };
+    var body = sketchBody(strokes, view, opts);
     var out = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + [view.x, view.y, view.w, view.h].join(' ') + '" width="' + Math.round(view.w * 4) + '" height="' + Math.round(view.h * 4) + '" fill="none" stroke-linecap="round" stroke-linejoin="round">'];
     out.push('<!-- ' + esc(JSON.stringify(meta || {})) + ' -->');
-    strokes.forEach(function (s) {
-      // a paint-bucket fill carries its own outline (`d`, with holes)
-      var d = s.d || sketchPath(s.pts, (s.fill || s.closed) && s.pts.length > 2, dp);
-      out.push('<path d="' + d + '" stroke="' + esc(s.color) + '" stroke-width="' + skNum(s.width, 2) + '"' + (s.fill ? ' fill="' + esc(s.color) + '"' : '') + (s.d ? ' fill-rule="evenodd"' : '') + (s.layer ? ' data-layer="' + esc(s.layer) + '"' : '') + '/>');
-    });
+    if (body.defs) out.push('<defs>' + body.defs + '</defs>');
+    out.push(sketchGroups(body.items));
     out.push('</svg>');
     return out.join('\n');
   }
-
+  /**
+   * A ready-to-paste entry for the dressing room's list (wardrobe.js), drawn from the strokes: the colours and widths are written
+   * on each part, so it needs no styles of its own.
+   * @param {Object[]} strokes
+   * @param {{id: string, label: string, slot: string, lines: string[], note: ?string}} item
+   * @param {{x: number, y: number, w: number, h: number}} view
+   * @returns {string}
+   */
+  function sketchItemCode(strokes, item, view) {
+    var body = sketchBody(strokes, view, { clean: true }), prefix = item.id + '-';
+    var parts = [], x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    strokes.forEach(function (s) {
+      var h = (s.width || 0) / 2;
+      s.pts.forEach(function (p) { x0 = Math.min(x0, p[0] - h); y0 = Math.min(y0, p[1] - h); x1 = Math.max(x1, p[0] + h); y1 = Math.max(y1, p[1] + h); });
+    });
+    var inner = (body.defs ? '<defs>' + body.defs + '</defs>' : '') + sketchGroups(body.items).replace(/\n/g, '');
+    inner = inner.replace(/id="([a-z][a-zA-Z0-9_-]*)"/g, function (m, id) { return /^(g|b)[A-Za-z0-9_]/.test(id) && body.defs.indexOf('id="' + id + '"') !== -1 ? 'id="' + prefix + id + '"' : m; })
+      .replace(/url\(#([^)]+)\)/g, function (m, id) { return body.defs.indexOf('id="' + id + '"') !== -1 ? 'url(#' + prefix + id + ')' : m; });
+    var svg = '<g class="item-' + item.id + '">' + inner + '</g>';
+    var q = function (t) { return "'" + String(t).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'"; };
+    var pad = 2, icon = isFinite(x0) ? [Math.floor(x0 - pad), Math.floor(y0 - pad), Math.ceil(x1 - x0 + 2 * pad), Math.ceil(y1 - y0 + 2 * pad)].join(' ') : '0 0 160 150';
+    parts.push('    {');
+    parts.push('      id: ' + q(item.id) + ', slot: ' + q(item.slot) + ', label: ' + q(item.label) + (item.slot === 'body' ? ", layer: 'body'" : '') + ', icon: ' + q(icon) + ',');
+    parts.push('      lines: [' + item.lines.map(q).join(', ') + '],');
+    parts.push('      // drawn in the Sketchpad' + (item.note ? ': ' + String(item.note).replace(/[\r\n]+/g, ' ') : ''));
+    parts.push('      svg: ' + svgConcat(svg, q));
+    parts.push('    },');
+    return parts.join('\n');
+  }
+  /** @returns {string} The markup as a JavaScript string, one tag per line (the way the other items are written). */
+  function svgConcat(svg, q) {
+    var tags = svg.replace(/></g, '>\n<').split('\n');
+    return tags.map(function (t, i) { return (i ? '        ' : '') + q(t) + (i < tags.length - 1 ? ' +\n' : ''); }).join('');
+  }
 
   /**
    * The paint bucket's first step: spreads from a pixel over every pixel that is not a wall.
@@ -1468,6 +1688,184 @@
     return loops;
   }
 
+  /** @returns {string} A name for a gradient (the same gradient always gets the same name). */
+  function sketchGradId(g) { return 'g' + (g.type + g.c1 + g.c2 + (g.s ? 's' + g.s : '')).replace(/[^a-zA-Z0-9]/g, ''); }
+  /** The patterns a shape can be filled with (besides flat colour and fades): a tile of `s` units, drawn in the two colours. */
+  var SKETCH_PATTERNS = ['stripes', 'dots', 'check', 'hearts', 'stars'];
+  /** @returns {string} The SVG for a pattern fill: colour 2 is the ground, colour 1 the little pictures. */
+  function sketchPatternDef(g) {
+    var s = g.s || 10, h = s / 2, n = function (v) { return +v.toFixed(2); }, ground = '<rect width="' + n(s) + '" height="' + n(s) + '" fill="' + g.c2 + '"/>', motif, extra = '';
+    if (g.type === 'stripes') { motif = '<rect width="' + n(s) + '" height="' + n(h) + '" fill="' + g.c1 + '"/>'; extra = ' patternTransform="rotate(45)"'; }
+    else if (g.type === 'dots') motif = '<circle cx="' + n(h) + '" cy="' + n(h) + '" r="' + n(s * 0.22) + '" fill="' + g.c1 + '"/>';
+    else if (g.type === 'check') motif = '<rect width="' + n(h) + '" height="' + n(h) + '" fill="' + g.c1 + '"/><rect x="' + n(h) + '" y="' + n(h) + '" width="' + n(h) + '" height="' + n(h) + '" fill="' + g.c1 + '"/>';
+    else if (g.type === 'hearts') motif = '<path transform="translate(' + n(s * 0.2) + ' ' + n(s * 0.2) + ') scale(' + n(s * 0.6) + ')" d="M.5 .9C.1 .6 0 .4 .1 .25C.22 .08 .44 .12 .5 .3C.56 .12 .78 .08 .9 .25C1 .4 .9 .6 .5 .9Z" fill="' + g.c1 + '"/>';
+    else {
+      var pts = [], i;
+      for (i = 0; i < 10; i++) { var a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 0.2 : 0.46; pts.push(n(0.5 + Math.cos(a) * r) + ' ' + n(0.54 + Math.sin(a) * r)); }
+      motif = '<path transform="translate(' + n(s * 0.2) + ' ' + n(s * 0.2) + ') scale(' + n(s * 0.6) + ')" d="M' + pts.join('L') + 'Z" fill="' + g.c1 + '"/>';
+    }
+    return '<pattern id="' + sketchGradId(g) + '" patternUnits="userSpaceOnUse" width="' + n(s) + '" height="' + n(s) + '"' + extra + '>' + ground + motif + '</pattern>';
+  }
+  /** @returns {string} The SVG for a gradient fill: type 'v' fades top to bottom, 'h' left to right, 'r' from the middle out. */
+  function sketchGradDef(g) {
+    if (SKETCH_PATTERNS.indexOf(g.type) !== -1) return sketchPatternDef(g);
+    var id = sketchGradId(g), stops = '<stop offset="0" stop-color="' + g.c1 + '"/><stop offset="1" stop-color="' + g.c2 + '"/>';
+    if (g.type === 'r') return '<radialGradient id="' + id + '" cx="0.5" cy="0.5" r="0.6">' + stops + '</radialGradient>';
+    return '<linearGradient id="' + id + '" x1="0" y1="0" x2="' + (g.type === 'h' ? 1 : 0) + '" y2="' + (g.type === 'h' ? 0 : 1) + '">' + stops + '</linearGradient>';
+  }
+  /** @returns {number} How much a soft (airbrush) line is blurred, for its thickness. */
+  function sketchSoftBlur(width) { return +(width * 0.45).toFixed(2); }
+  /** @returns {string} A name for the blur of a given amount. */
+  function sketchBlurId(sd) { return 'b' + String(sd).replace('.', '_'); }
+  /** @returns {string} The SVG for a blur filter (room round the line so the soft edge is not cut off). */
+  function sketchBlurDef(sd) { return '<filter id="' + sketchBlurId(sd) + '" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="' + sd + '"/></filter>'; }
+
+  /** The outline of the pet's body (the same as the game's #bodyClip), shrunk a hair so a clipped line meets the pet's brown outline with no gap. */
+  var SKETCH_BODY_PATH = 'M80 139C41 139 13 129 13 102C13 70 36 38 80 38C124 38 147 70 147 102C147 129 119 139 80 139Z';
+  /** @returns {string} The SVG mask that keeps a drawing inside the pet's body, stopping flush with the inside of its outline (a white body with a black 2.6 wide edge, like the game's outline). */
+  function sketchClipDef() { return '<mask id="bodyclip" maskUnits="userSpaceOnUse" x="-60" y="-80" width="280" height="300"><path d="' + SKETCH_BODY_PATH + '" fill="#fff" stroke="#000" stroke-width="2.6" stroke-linejoin="round"/></mask>'; }
+  /**
+   * Turns a line drawn with a pressure-sensitive pen into a filled outline: the line is as wide at each point as the pen was pressed.
+   * @param {number[][]} pts
+   * @param {number[]} widths  Full width at each point.
+   * @returns {number[][]} The polygon (round at both ends).
+   */
+  function sketchRibbon(pts, widths) {
+    var n = pts.length, i, k;
+    if (!n) return [];
+    // soften the width a little so it does not jump from point to point
+    var w = widths.map(function (_, j) { var a = 0, c = 0; for (var q = -2; q <= 2; q++) if (widths[j + q] !== undefined) { a += widths[j + q]; c++; } return Math.max(0.05, a / c); });
+    var arc = function (c, dir, r) {
+      var out = [], base = Math.atan2(dir[1], dir[0]);
+      for (var m = 1; m < 8; m++) { var a = base - Math.PI / 2 + Math.PI * m / 8; out.push([c[0] + Math.cos(a) * r, c[1] + Math.sin(a) * r]); }
+      return out;
+    };
+    if (n === 1) { var dot = []; for (k = 0; k < 14; k++) dot.push([pts[0][0] + Math.cos(k * Math.PI / 7) * w[0] / 2, pts[0][1] + Math.sin(k * Math.PI / 7) * w[0] / 2]); return dot.map(rnd2); }
+    var L1 = [], R1 = [], dirs = [];
+    for (i = 0; i < n; i++) {
+      var a0 = pts[Math.max(0, i - 1)], b0 = pts[Math.min(n - 1, i + 1)], dx = b0[0] - a0[0], dy = b0[1] - a0[1], d = Math.hypot(dx, dy) || 1;
+      dirs.push([dx / d, dy / d]);
+      L1.push([pts[i][0] - dy / d * w[i] / 2, pts[i][1] + dx / d * w[i] / 2]);
+      R1.push([pts[i][0] + dy / d * w[i] / 2, pts[i][1] - dx / d * w[i] / 2]);
+    }
+    var poly = L1.concat(arc(pts[n - 1], dirs[n - 1], w[n - 1] / 2), R1.slice().reverse(), arc(pts[0], [-dirs[0][0], -dirs[0][1]], w[0] / 2));
+    return poly.map(rnd2);
+  }
+  function rnd2(p) { return [Math.round(p[0] * 100) / 100, Math.round(p[1] * 100) / 100]; }
+
+  /** The special line styles of the sketchpad: dash and gap lengths in line widths (a dot is a very short dash with round ends). */
+  var SKETCH_STYLES = {
+    solid: null, dotted: [0.01, 2.2], dashed: [3, 2.2], long: [6, 3], dashdot: [4, 2, 0.01, 2], stitch: [1.6, 1.6],
+    tiny: [0.01, 1.3], wide: [0.01, 4.5], short: [1.4, 1.8], dashdots: [4, 2, 0.01, 2, 0.01, 2], morse: [4, 1.6, 0.01, 1.6, 4, 1.6, 0.01, 4]
+  };
+  /** @returns {{array: ?string, cap: string}} The stroke-dasharray (null for a solid line) and the line end to draw a style with. */
+  function sketchDash(style, width) {
+    var d = SKETCH_STYLES[style];
+    if (!d) return { array: null, cap: 'round' };
+    return { array: d.map(function (n) { return Math.max(0.01, +(n * width).toFixed(3)); }).join(' '), cap: style === 'stitch' ? 'butt' : 'round' };
+  }
+  /**
+   * Turns a line into a wavy one: the points are spread evenly along it and pushed sideways in a sine wave.
+   * @param {number[][]} pts
+   * @param {number} amp  How far the wave swings to each side.
+   * @param {number} len  Wavelength.
+   * @returns {number[][]}
+   */
+  function sketchWave(pts, amp, len) {
+    if (pts.length < 2) return pts.slice();
+    var rs = skResample(pts, len / 10), out = [], s = 0, i;
+    for (i = 0; i < rs.length; i++) {
+      var a = rs[Math.max(0, i - 1)], b = rs[Math.min(rs.length - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy) || 1;
+      if (i) s += Math.hypot(rs[i][0] - rs[i - 1][0], rs[i][1] - rs[i - 1][1]);
+      var k = Math.sin(2 * Math.PI * s / len) * amp * Math.min(1, s / (len / 2), Math.max(0, (rs.length - 1 - i) * len / 10) / (len / 2));   // eases in and out so the ends stay on the line
+      out.push([+(rs[i][0] - dy / d * k).toFixed(2), +(rs[i][1] + dx / d * k).toFixed(2)]);
+    }
+    return out;
+  }
+  /** @returns {number[][]} A polygon with its corners rounded (each corner is cut `r` back along both edges and joined with a curve). */
+  function skRoundPoly(poly, r, steps) {
+    var out = [], n = poly.length, i, k;
+    for (i = 0; i < n; i++) {
+      var p = poly[i], a = poly[(i + n - 1) % n], b = poly[(i + 1) % n];
+      var la = Math.hypot(a[0] - p[0], a[1] - p[1]), lb = Math.hypot(b[0] - p[0], b[1] - p[1]), ra = Math.min(r, la / 2) / la, rb = Math.min(r, lb / 2) / lb;
+      var s = [p[0] + (a[0] - p[0]) * ra, p[1] + (a[1] - p[1]) * ra], e = [p[0] + (b[0] - p[0]) * rb, p[1] + (b[1] - p[1]) * rb];
+      for (k = 0; k <= steps; k++) {   // a curve from s to e that bends towards the corner
+        var t = k / steps, u = 1 - t;
+        out.push([u * u * s[0] + 2 * u * t * p[0] + t * t * e[0], u * u * s[1] + 2 * u * t * p[1] + t * t * e[1]]);
+      }
+    }
+    return out;
+  }
+  /** @returns {number[][]} A line along the polygon with a point every `step`, so sharp corners stay sharp when the line is smoothed. */
+  function skDense(poly, step) {
+    var out = [], n = poly.length, i, k;
+    for (i = 0; i < n; i++) {
+      var a = poly[i], b = poly[(i + 1) % n], m = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / step));
+      for (k = 0; k < m; k++) out.push([a[0] + (b[0] - a[0]) * k / m, a[1] + (b[1] - a[1]) * k / m]);
+    }
+    return out;
+  }
+  /** @returns {number[][]} Points scaled to fill the box 0..1 in both directions. */
+  function skFit(pts) {
+    var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    pts.forEach(function (p) { x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]); });
+    return pts.map(function (p) { return [(p[0] - x0) / ((x1 - x0) || 1), (p[1] - y0) / ((y1 - y0) || 1)]; });
+  }
+  var SKETCH_SHAPES = [['circle', 'Circle'], ['square', 'Square'], ['triangle', 'Triangle'], ['diamond', 'Diamond'], ['hexagon', 'Hexagon'], ['heart', 'Heart'], ['star', 'Star'], ['sparkle', 'Sparkle'], ['cloud', 'Cloud'], ['flower', 'Flower'], ['moon', 'Moon'], ['drop', 'Drop']];
+  /**
+   * The outline of a common cute shape, as points filling the box 0..1 x 0..1 (to be stretched to wherever it is drawn).
+   * @param {string} id  One of SKETCH_SHAPES.
+   * @returns {number[][]}
+   */
+  function sketchShape(id) {
+    var i, pts = [], T = Math.PI * 2;
+    function polar(n, f) { var o = []; for (i = 0; i < n; i++) { var a = T * i / n - Math.PI / 2, r = f(a, i); o.push([0.5 + Math.cos(a) * r, 0.5 + Math.sin(a) * r]); } return o; }
+    if (id === 'circle') return polar(48, function () { return 0.5; });
+    if (id === 'square') return skFit(skRoundPoly([[0, 0], [1, 0], [1, 1], [0, 1]], 0.22, 8));
+    if (id === 'triangle') return skFit(skRoundPoly([[0.5, 0.02], [1, 0.95], [0, 0.95]], 0.14, 10));
+    if (id === 'diamond') return skFit(skRoundPoly([[0.5, 0], [1, 0.5], [0.5, 1], [0, 0.5]], 0.14, 8));
+    if (id === 'hexagon') return skFit(skRoundPoly(polar(6, function () { return 0.5; }), 0.14, 6));
+    if (id === 'heart') {
+      for (i = 0; i < 64; i++) { var t = T * i / 64; pts.push([16 * Math.pow(Math.sin(t), 3), -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t))]); }
+      return skFit(pts);
+    }
+    if (id === 'star') return skFit(skRoundPoly(polar(10, function (a, k) { return k % 2 ? 0.24 : 0.5; }), 0.07, 5));
+    if (id === 'sparkle') return skFit(skRoundPoly(polar(8, function (a, k) { return k % 2 ? 0.13 : 0.5; }), 0.09, 5));
+    if (id === 'flower') return skFit(polar(80, function (a) { return 0.7 + 0.3 * Math.cos(5 * (a + Math.PI / 2)); }));
+    if (id === 'cloud') {   // a few round bumps: for each direction, the farthest edge of any of them
+      var cs = [[0.27, 0.62, 0.2], [0.5, 0.42, 0.28], [0.74, 0.56, 0.22], [0.5, 0.66, 0.22]], cx = 0.5, cy = 0.58, o = [];
+      for (i = 0; i < 90; i++) {
+        var a2 = T * i / 90, dx = Math.cos(a2), dy = Math.sin(a2), far = 0;
+        cs.forEach(function (c) {
+          var fx = cx - c[0], fy = cy - c[1], b = fx * dx + fy * dy, d = b * b - (fx * fx + fy * fy - c[2] * c[2]);
+          if (d >= 0) far = Math.max(far, -b + Math.sqrt(d));
+        });
+        o.push([cx + dx * far, Math.min(0.84, cy + dy * far)]);   // the bottom is flat
+      }
+      return skFit(o);
+    }
+    if (id === 'moon') {
+      var outer = [], inner = [], oc = [0.5, 0.5, 0.5], ic = [0.74, 0.42, 0.4];
+      for (i = 0; i < 120; i++) {
+        var a3 = T * i / 120, op = [oc[0] + Math.cos(a3) * oc[2], oc[1] + Math.sin(a3) * oc[2]], ip = [ic[0] + Math.cos(a3) * ic[2], ic[1] + Math.sin(a3) * ic[2]];
+        if (Math.hypot(op[0] - ic[0], op[1] - ic[1]) > ic[2]) outer.push(op);
+        if (Math.hypot(ip[0] - oc[0], ip[1] - oc[1]) < oc[2]) inner.push(ip);
+      }
+      var cut = outer.findIndex(function (p, k) { return Math.hypot(p[0] - outer[(k + 1) % outer.length][0], p[1] - outer[(k + 1) % outer.length][1]) > 0.1; });
+      if (cut >= 0) outer = outer.slice(cut + 1).concat(outer.slice(0, cut + 1));
+      var cut2 = inner.findIndex(function (p, k) { return Math.hypot(p[0] - inner[(k + 1) % inner.length][0], p[1] - inner[(k + 1) % inner.length][1]) > 0.1; });
+      if (cut2 >= 0) inner = inner.slice(cut2 + 1).concat(inner.slice(0, cut2 + 1));
+      var end = outer[outer.length - 1];
+      if (Math.hypot(inner[0][0] - end[0], inner[0][1] - end[1]) > Math.hypot(inner[inner.length - 1][0] - end[0], inner[inner.length - 1][1] - end[1])) inner.reverse();
+      return skFit(outer.concat(inner));
+    }
+    if (id === 'drop') {
+      var r = 0.34, d = 0.66, al = Math.acos(r / d), arc = [];
+      for (i = 0; i <= 50; i++) { var f = -Math.PI / 2 + al + (T - 2 * al) * i / 50; arc.push([0.5 + Math.cos(f) * r, 0.66 + Math.sin(f) * r]); }
+      return skFit(skDense([[0.5, 0]].concat(arc), 0.03));
+    }
+    return polar(48, function () { return 0.5; });
+  }
   /** @returns {boolean} Whether a point is inside a closed shape (the lasso), given as a list of [x, y] corners. */
   function inPolygon(poly, pt) {
     var inside = false, i, j;
@@ -1687,6 +2085,6 @@
     toggleDone: toggleDone,
     pickEmoji: pickEmoji,
     soundFor: soundFor,
-    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, traceLoops: traceLoops, simplifyLine: skSimplify
+    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, sketchDash: sketchDash, fitCurve: fitCurve, sketchPathClean: sketchPathClean, sketchItemCode: sketchItemCode, sketchGradId: sketchGradId, sketchGradDef: sketchGradDef, sketchSoftBlur: sketchSoftBlur, sketchBlurId: sketchBlurId, sketchBlurDef: sketchBlurDef, sketchShape: sketchShape, sketchRibbon: sketchRibbon, sketchClipDef: sketchClipDef, SKETCH_PATTERNS: SKETCH_PATTERNS, SKETCH_SHAPES: SKETCH_SHAPES, sketchWave: sketchWave, SKETCH_STYLES: SKETCH_STYLES, traceLoops: traceLoops, simplifyLine: skSimplify
   };
 })(typeof self !== 'undefined' ? self : globalThis);

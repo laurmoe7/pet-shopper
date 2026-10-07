@@ -3,6 +3,8 @@
 // pet lands where the SVG for it goes. It is its own page, apart from the game: it borrows the pet and the toy from the game's
 // index.html when it opens, and uses logic.js, wardrobe.js, skins.js, decor.js and backdrops.js for the rest.
 'use strict';
+/** The drop-down menus (app-select.js) call this for the game's tap sound; the sketchpad has none. */
+function sound() {}
 
 var SVGNS = 'http://www.w3.org/2000/svg';
 var $ = function (id) { return document.getElementById(id); };
@@ -18,7 +20,7 @@ var SLOTS = [['hat', 'Hat'], ['body', 'Clothes'], ['face', 'Glasses'], ['mouth',
 /** What the pet underneath looks like (kept on this computer). */
 var P = { species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, backdrop: 'meadow', night: false, room: {} };
 var SK = {
-  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, clip: [], pasteN: 0, tidy: 6, space: false, sel: null, mirror: false, pick: [],
+  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, tab: 'draw', clean: true, style: 'solid', shape: 'heart', bodyClip: false, radial: 0, pressure: true, fillMode: 'none', colour2: '#ffc9d6', clip: [], pasteN: 0, tidy: 6, space: false, sel: null, mirror: false, pick: [],
   strokes: { pet: [], scene: [], toy: [], room: [] }, hist: { pet: [], scene: [], toy: [], room: [] }, redo: { pet: [], scene: [], toy: [], room: [] },
   /** Pictures to trace, one layer each, in the same coordinates as the drawing: {id, name, src, cx, cy, bw, bh, scale, opacity, visible, behind} */
   images: { pet: [], scene: [], toy: [], room: [] },
@@ -26,7 +28,7 @@ var SK = {
   layers: { pet: [], scene: [], toy: [], room: [] }, layerSet: { pet: [], scene: [], toy: [], room: [] }, active: { pet: 'l1', scene: 'l1', toy: 'l1', room: 'l1' }
 };
 var SK_PEN_DEFAULT = 9;
-var SK_OWNER = false, skDraw = null, skDrawing = false, skPan = null, skPetSvg = null, skToys = null, skImgUnder = null, skImgOver = null, skSelBox = null, skXf = null;
+var SK_OWNER = false, skDraw = null, skDrawing = false, skPan = null, skPetSvg = null, skToys = null, skImgUnder = null, skImgOver = null, skSelBox = null, skXf = null, skCv = null, skCurve = null;
 
 // ---------- borrowing the pet from the game ----------
 /** Fetches the game's page and keeps its pet drawing (with its gradients and clip) and its toys, hidden, to copy from. */
@@ -80,7 +82,7 @@ function dressUp(el, outfit) {
 // ---------- keeping the work on this computer ----------
 function skSave() {
   try {
-    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, layers: SK.layers, active: SK.active, snap: $('skSnap').checked, mirror: SK.mirror }));
+    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, style: SK.style, tab: SK.tab, clean: SK.clean, shape: SK.shape, fillMode: SK.fillMode, colour2: SK.colour2, layers: SK.layers, active: SK.active, snap: $('skSnap').checked, mirror: SK.mirror, bodyClip: SK.bodyClip, radial: SK.radial, pressure: SK.pressure }));
   } catch (e) { /* storage not available */ }
 }
 function skLoad() {
@@ -98,12 +100,19 @@ function skLoad() {
     $('skNote').value = d.note || '';
     if (typeof d.tidy === 'number') SK.tidy = d.tidy;
     if (d.pen >= 1 && d.pen <= 40) SK.pen = d.pen;
+    if (L.SKETCH_STYLES[d.style] !== undefined || d.style === 'wavy' || d.style === 'soft') SK.style = d.style;
+    if (L.SKETCH_SHAPES.some(function (x) { return x[0] === d.shape; })) SK.shape = d.shape;
+    SK.fillMode = ['none', 'flat', 'v', 'h', 'r'].concat(L.SKETCH_PATTERNS).indexOf(d.fillMode) !== -1 ? d.fillMode : (d.shapeFill ? 'flat' : 'none');
+    if (/^#[0-9a-f]{6}$/i.test(d.colour2 || '')) SK.colour2 = d.colour2;
+    if (d.clean === false) SK.clean = false;
+    if (['draw', 'under', 'send', 'sent'].indexOf(d.tab) !== -1) SK.tab = d.tab;
     ['pet', 'scene', 'toy', 'room'].forEach(function (m) {
       if (d.layers && Array.isArray(d.layers[m])) SK.layers[m] = d.layers[m].filter(function (l) { return l && l.id; }).map(function (l) { return { id: String(l.id), name: String(l.name || 'Layer').slice(0, 24), show: l.show !== false }; });
       if (d.active && d.active[m]) SK.active[m] = d.active[m];
     });
     $('skSnap').checked = d.snap !== false;
     SK.mirror = !!d.mirror;
+    SK.bodyClip = !!d.bodyClip; SK.radial = [0, 3, 4, 5, 6, 8].indexOf(d.radial) !== -1 ? d.radial : 0; SK.pressure = d.pressure !== false;
   } catch (e) { /* nothing saved, or it could not be read */ }
 }
 
@@ -139,6 +148,58 @@ function skPlace(el, v, x, y, w, h) {
 function skAxis() { return SK.mode === 'pet' ? 80 : SK_VIEW[SK.mode].x + SK_VIEW[SK.mode].w / 2; }
 /** @returns {number[]} A point on the other side of the middle line. */
 function skMirrorPt(p) { return [2 * skAxis() - p[0], p[1]]; }
+/** @returns {number[]} The middle the Spin copies turn round (the middle of the pet's body, or of the picture). */
+/** @returns {string} Path text for the lines out from the middle that Spin copies along (a guide). */
+function skSpokes() {
+  var c = skCentre(), v = SK_VIEW[SK.mode], r = Math.max(v.w, v.h), d = '', k;
+  for (k = 0; k < SK.radial; k++) { var a = -Math.PI / 2 + 2 * Math.PI * k / SK.radial; d += 'M' + c[0] + ' ' + c[1] + 'L' + (c[0] + Math.cos(a) * r).toFixed(1) + ' ' + (c[1] + Math.sin(a) * r).toFixed(1); }
+  return d;
+}
+function skCentre() { var v = SK_VIEW[SK.mode]; return SK.mode === 'pet' ? [80, 88] : [v.x + v.w / 2, v.y + v.h / 2]; }
+/** @returns {number[][]} A point and all its copies (mirrored, and turned round the middle when Spin is on): for the eraser and the bucket. */
+function skSpots(pt) {
+  var base = SK.mirror ? [pt, skMirrorPt(pt)] : [pt], out = base.slice(), c = skCentre(), n = SK.radial || 1, k;
+  for (k = 1; k < n; k++) base.forEach(function (p) {
+    var a = 2 * Math.PI * k / n, dx = p[0] - c[0], dy = p[1] - c[1];
+    out.push([c[0] + dx * Math.cos(a) - dy * Math.sin(a), c[1] + dx * Math.sin(a) + dy * Math.cos(a)]);
+  });
+  return out;
+}
+/** @returns {Object[]} Copies of lines turned round the middle (Spin on), not counting the lines themselves. */
+function skSpin(list) {
+  var n = SK.radial || 1, out = [], c = skCentre(), k;
+  for (k = 1; k < n; k++) list.forEach(function (s) {
+    var m = JSON.parse(JSON.stringify(s)), r = L.sketchXform({ pts: s.pts, d: s.d, width: s.width }, { kind: 'rotate', cx: c[0], cy: c[1], a: 2 * Math.PI * k / n });
+    m.pts = r.pts; if (s.d) m.d = r.d;
+    delete m.cv; delete m.pair;
+    out.push(m);
+  });
+  return out;
+}
+/** @returns {Object[]} The other copies of a new line: the mirrored one, and all of them turned round the middle. */
+function skSymExtra(s) {
+  var m = SK.mirror ? [skMirrored(s)] : [];
+  return m.concat(skSpin([s].concat(m)));
+}
+/** Marks a new line to stay inside the pet's body when Clip is on. @returns {Object} The line. */
+function skNew(s) { if (SK.bodyClip && SK.mode === 'pet') s.clip = true; return s; }
+/** @returns {Object} A pen-pressure line as the filled outline it is saved as (other lines come back as they are). */
+function skLiveStroke(s) {
+  if (!s.pr) return s;
+  var v = SK_VIEW[SK.mode];
+  return { pts: L.sketchRibbon(s.pts, s.pr.map(function (f) { return s.width * f; })), color: s.color, width: +(v.w * 0.0015).toFixed(2), fill: true, closed: true, lay: s.lay, style: 'solid', clip: s.clip };
+}
+/** Draws the line being drawn, and its copies. */
+function skLiveUpdate() {
+  var d = skDrawing, v = SK_VIEW[SK.mode], dp = v.w > 100 ? 1 : 2, ls = skLiveStroke(d.stroke), ex = skSymExtra(ls);
+  function path(t) { return t.d || L.sketchPath(t.pts, (t.fill || t.closed) && t.pts.length > 2, dp); }
+  d.el.setAttribute('d', path(ls));
+  if (d.stroke.pr) { d.el.setAttribute('fill', ls.color); d.el.setAttribute('stroke-width', ls.width); }
+  while (d.extra.length < ex.length) { var el = skEl(ex[d.extra.length]); skDraw.appendChild(el); d.extra.push(el); }
+  d.extra.forEach(function (el, i) { el.setAttribute('d', path(ex[i])); });
+}
+/** @returns {number} How wide a pen line is at a pen pressure (1 is the thickness on the slider). */
+function skPressure(e) { return Math.max(0.1, Math.min(1.6, 0.15 + 1.7 * (e.pressure || 0.5))); }
 /** @returns {SVGSVGElement} The grid: faint lines every 10 (or 2) units, stronger every 50 (or 10), and the pet's middle line. */
 function skGrid(v) {
   var small = v.w > 100 ? 10 : 2, big = v.w > 100 ? 50 : 10, d = '', dBig = '';
@@ -149,7 +210,7 @@ function skGrid(v) {
   svg.setAttribute('class', 'sk-grid');
   svg.innerHTML = '<path d="' + d + '" class="g1"/><path d="' + dBig + '" class="g2"/>' +
     (SK.mode === 'pet' ? '<path d="M80 ' + v.y + 'v' + v.h + '" class="g3"/>' : '') +
-    (SK.mirror ? '<path d="M' + skAxis() + ' ' + v.y + 'v' + v.h + '" class="g4"/>' : '');
+    (SK.mirror ? '<path d="M' + skAxis() + ' ' + v.y + 'v' + v.h + '" class="g4"/>' : '') + (SK.radial ? '<path d="' + skSpokes() + '" class="g4"/>' : '');
   return svg;
 }
 /** Builds the stage for the current mode: the picture underneath, the grid and the drawing layer. */
@@ -194,9 +255,9 @@ function skBuild() {
   skDraw.setAttribute('viewBox', [v.x, v.y, v.w, v.h].join(' '));
   skDraw.setAttribute('class', 'sk-draw');
   skStage.dataset.mode = SK.mode;
-  skImgUnder = skLayerSvg('sk-imgs under'); skImgOver = skLayerSvg('sk-imgs over'); skSelBox = skLayerSvg('sk-sel'); skXf = skLayerSvg('sk-xf');
+  skImgUnder = skLayerSvg('sk-imgs under'); skImgOver = skLayerSvg('sk-imgs over'); skSelBox = skLayerSvg('sk-sel'); skXf = skLayerSvg('sk-xf'); skCv = skLayerSvg('sk-cv'); skCurve = null; skCurveEdit = null;
   skXf.addEventListener('pointerdown', skXfDown);
-  skStage.replaceChildren(skImgUnder, ref, skImgOver, skGrid(v), skDraw, skSelBox, skXf);
+  skStage.replaceChildren(skImgUnder, ref, skImgOver, skGrid(v), skDraw, skSelBox, skXf, skCv);
   skRenderImages();
   skRedraw();
   skHistoryUI();
@@ -220,6 +281,18 @@ function svgIcon(view, inner) {
   svg.innerHTML = inner;
   return svg;
 }
+/** Makes sure a gradient or blur is defined for the drawing to use (kept in a hidden part of the page). @returns {string} Its id. */
+function skDef(id, markup) {
+  var defs = $('skDefs');
+  if (!defs.querySelector('#' + id)) defs.insertAdjacentHTML('beforeend', markup);
+  return id;
+}
+/** @returns {?Object} The fade or pattern a new filled shape gets (null for a flat colour), from the Fill list. */
+function skGrad() {
+  if (SK.fillMode === 'v' || SK.fillMode === 'h' || SK.fillMode === 'r') return { type: SK.fillMode, c1: SK.color, c2: SK.colour2 };
+  if (L.SKETCH_PATTERNS.indexOf(SK.fillMode) !== -1) return { type: SK.fillMode, c1: SK.color, c2: SK.colour2, s: +(SK_VIEW[SK.mode].w / 16).toFixed(1) };   // a tile is a sixteenth of the picture
+  return null;
+}
 /** @returns {SVGPathElement} One stroke, drawn. */
 function skEl(s) {
   var el = document.createElementNS(SVGNS, 'path'), v = SK_VIEW[SK.mode];
@@ -228,7 +301,12 @@ function skEl(s) {
   el.setAttribute('stroke', s.color);
   el.setAttribute('stroke-width', s.width);
   el.setAttribute('fill', s.fill ? s.color : 'none');
-  el.setAttribute('stroke-linecap', 'round');
+  if (s.fill && s.grad) el.setAttribute('fill', 'url(#' + skDef(L.sketchGradId(s.grad), L.sketchGradDef(s.grad)) + ')');
+  if (s.style === 'soft') { var sd = L.sketchSoftBlur(s.width); el.setAttribute('filter', 'url(#' + skDef(L.sketchBlurId(sd), L.sketchBlurDef(sd)) + ')'); el.setAttribute('opacity', '.7'); }
+  if (s.clip) el.setAttribute('mask', 'url(#' + skDef('bodyclip', L.sketchClipDef()) + ')');
+  var dd = L.sketchDash(s.style, s.width);
+  if (dd.array) el.setAttribute('stroke-dasharray', dd.array);
+  el.setAttribute('stroke-linecap', dd.cap);
   el.setAttribute('stroke-linejoin', 'round');
   return el;
 }
@@ -264,7 +342,24 @@ function skApplyLook() {
   $('skTemplateWrap').hidden = SK.mode !== 'pet';
   $('skTemplate').checked = !!P.template;
   $('skRefLabel').textContent = SK.mode === 'toy' ? 'Toy' : 'Pet';
+  $('skTabUnder').hidden = SK.mode === 'toy';
+  $('skTabUnder').textContent = SK.mode === 'pet' ? 'Pet' : 'Room';
+  $('skItemRow').hidden = !(SK.mode === 'pet' && SK_ITEM_SLOTS[$('skKind').value]);
+  skTab(SK.mode === 'toy' && SK.tab === 'under' ? 'draw' : SK.tab);
 }
+var SK_ITEM_SLOTS = { hat: 'hat', clothes: 'body', face: 'face', mouth: 'mouth', neck: 'neck', feet: 'feet' };
+/** Shows one of the panel's pages (Draw, Pet or Room, Send, Sent). */
+function skTab(name) {
+  if (name === 'images') name = 'draw';
+  if (name === 'sent' && !SK_OWNER) name = 'draw';
+  SK.tab = name;
+  document.querySelectorAll('#skTabs [data-tab]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === name)); });
+  document.querySelectorAll('.skp-pane').forEach(function (p) { p.hidden = p.dataset.pane !== name; });
+}
+$('skTabs').addEventListener('click', function (e) {
+  var b = e.target.closest('[data-tab]');
+  if (b) { skTab(b.dataset.tab); skSave(); }
+});
 
 // ---------- drawing ----------
 function skPoint(e) {
@@ -291,6 +386,7 @@ function skFlash(id) {
 }
 function skRedraw() {
   skDraw.replaceChildren.apply(skDraw, skOrdered().filter(skLive).map(skEl));
+  if (skCurveEdit && skCv) skCurveRender(null);
 }
 
 // ---------- layers for the lines ----------
@@ -417,7 +513,7 @@ function skInFill(s, pt) {
 var skCtx = document.createElement('canvas').getContext('2d');
 function skEraseAt(pt) {
   var v = SK_VIEW[SK.mode], r = v.w * 0.012, list = SK.strokes[SK.mode];
-  var spots = SK.mirror ? [pt, skMirrorPt(pt)] : [pt];
+  var spots = skSpots(pt);
   var hitsLine = function (s) { return !s.bucket && skSelectable(s) && spots.some(function (q) { return L.sketchHit(s.pts, q, r + s.width / 2); }); };
   var lines = list.some(hitsLine);
   // lines come first: only when no line is under the eraser does it take the colour fill there
@@ -441,31 +537,52 @@ function skDown(e) {
   var pt = skPoint(e), v = SK_VIEW[SK.mode];
   if (SK.tool === 'bucket') { skBucket(pt); return; }
   if (skIsSel()) { skSelDown(e, pt); return; }
+  if (SK.tool === 'curve') { skCurveDown(e, pt); return; }
+  if (SK.tool === 'shape') { skShapeDown(pt); return; }
   if (SK.tool === 'imgmove') {
     var img = skSelected();
-    if (!img) { skStatus.textContent = 'Add an image first (Ctrl+V pastes one).'; return; }
+    if (!img) {   // no image to move: the lines on the ticked layers move together
+      var all = SK.strokes[SK.mode].filter(skSelectable);
+      if (!all.length) { skStatus.textContent = 'Nothing to move on the ticked layers.'; return; }
+      SK.pick = all;
+      skDrawing = { xf: { kind: 'move', start: pt, snap: skPickSnap(), pushed: false, all: true } };
+      return;
+    }
     skDrawing = { image: img, last: pt, moved: false };
     return;
   }
   if (SK.tool === 'erase') { skDrawing = { erased: false }; skEraseAt(pt); return; }
   var act = skLays().filter(function (x) { return x.id === SK.active[SK.mode]; })[0];
   if (act && !act.show) { act.show = true; skLinesUI(); skRedraw(); }   // drawing on a hidden layer shows it, so the line is not invisible
-  var s = { pts: [pt], color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: SK.tool === 'blob', lay: SK.active[SK.mode] };
-  skDrawing = { stroke: s, el: skEl(s) };
+  var s = skNew({ pts: [pt], color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: SK.tool === 'blob', lay: SK.active[SK.mode], style: SK.style });
+  if (s.fill && skGrad()) s.grad = skGrad();
+  if (SK.tool === 'pen' && SK.pressure && e.pointerType === 'pen' && SK.style === 'solid') s.pr = [skPressure(e)];   // a pen that feels pressure draws a line that swells and thins
+  skDrawing = { stroke: s, el: skEl(s), extra: [] };
   skDraw.appendChild(skDrawing.el);
-  if (SK.mirror) { skDrawing.el2 = skEl(skMirrored(s)); skDraw.appendChild(skDrawing.el2); }
+  skLiveUpdate();
 }
 /** @returns {Object} A copy of a stroke folded over the middle line. */
+/** @returns {Object} A curve's points folded over the middle line. */
+function skMirrorCv(cv) {
+  return { closed: cv.closed, a: cv.a.map(function (a) { var o = { p: skMirrorPt(a.p), o: [-a.o[0], a.o[1]] }; if (a.i) o.i = [-a.i[0], a.i[1]]; return o; }) };
+}
 function skMirrored(s) {
   var m = JSON.parse(JSON.stringify(s));
   m.pts = s.pts.map(skMirrorPt);
+  if (m.cv) m.cv = skMirrorCv(m.cv);
+  if (m.grad && m.grad.type === 'h') m.grad = { type: 'h', c1: m.grad.c2, c2: m.grad.c1 };   // the fade runs the other way round on the other side
   return m;
 }
 function skMove(e) {
   var pt = skPoint(e), v = SK_VIEW[SK.mode];
   skLastPt = pt;
   if (skPan) { skView.scrollLeft = skPan.left - (e.clientX - skPan.x); skView.scrollTop = skPan.top - (e.clientY - skPan.y); return; }
+  if (SK.tool === 'curve' && skCurve && !skDrawing) { skCurveRender(pt); return; }
+  if (SK.tool === 'curve' && !skCurve && !skDrawing && skCurveEdit) { skCv.style.cursor = ''; }
   if (!skDrawing || !e.isPrimary) return;
+  if (skDrawing.curve) { skCurveDrag(pt); return; }
+  if (skDrawing.curveEdit) { skCurveEditDrag(pt); return; }
+  if (skDrawing.shape) { skShapeDrag(pt, e.shiftKey); return; }
   if (skDrawing.xf) { skXfMove(pt, e); return; }
   if (skDrawing.lasso) {
     var lp = skDrawing.lasso.pts;
@@ -490,24 +607,32 @@ function skMove(e) {
   var s = skDrawing.stroke, last = s.pts[s.pts.length - 1];
   if (Math.hypot(pt[0] - last[0], pt[1] - last[1]) < v.w * 0.002) return;   // ignore tiny wobbles
   s.pts.push(pt);
-  skDrawing.el.setAttribute('d', L.sketchPath(s.pts, s.fill && s.pts.length > 2, v.w > 100 ? 1 : 2));
-  if (skDrawing.el2) skDrawing.el2.setAttribute('d', L.sketchPath(s.pts.map(skMirrorPt), s.fill && s.pts.length > 2, v.w > 100 ? 1 : 2));
+  if (s.pr) s.pr.push(skPressure(e));
+  skLiveUpdate();
 }
 function skUp() {
   if (skPan) skStage.classList.remove('panning');
   skPan = null;
   if (skDrawing && skDrawing.image) { skDrawing = false; skSaveImages(); return; }
-  if (skDrawing && skDrawing.xf) { skDrawing = false; skSave(); skXfRender(); return; }
+  if (skDrawing && skDrawing.shape) { skShapeEnd(); return; }
+  if (skDrawing && skDrawing.curve) { skDrawing = false; skCurveRender(skLastPt); return; }
+  if (skDrawing && skDrawing.curveEdit) { skDrawing = false; skSave(); skCurveRender(null); return; }
+  if (skDrawing && skDrawing.xf) { if (skDrawing.xf.all) SK.pick = []; skDrawing = false; skSave(); skXfRender(); return; }
   if (skDrawing && skDrawing.lasso) { skLassoEnd(); skDrawing = false; skXfRender(); return; }
   if (skDrawing && skDrawing.band) { skBandEnd(skLastPt || [skDrawing.band.x, skDrawing.band.y]); skDrawing = false; skXfRender(); return; }
   if (!skDrawing) return;
   if (skDrawing.stroke) {
-    var s = skDrawing.stroke, t = L.tidyStroke(s.pts, SK_VIEW[SK.mode].w, { passes: SK.tidy, snap: $('skSnap').checked });
-    s.pts = t.pts;
-    if (t.closed) s.closed = true;
+    var s = skDrawing.stroke;
+    if (s.pr) s = skLiveStroke(s);   // a pressure line is saved as its filled outline, so it is not tidied
+    else {
+      var t = L.tidyStroke(s.pts, SK_VIEW[SK.mode].w, { passes: SK.tidy, snap: $('skSnap').checked });
+      s.pts = t.pts;
+      if (t.closed) s.closed = true;
+      if (s.style === 'wavy' && !s.fill) s.pts = skWavy(s.pts, s.width);
+    }
     skPushHistory();
     SK.strokes[SK.mode].push(s);
-    if (skDrawing.el2) SK.strokes[SK.mode].push(skMirrored(s));   // the other side is the same line folded over, so the two always match exactly
+    skSymExtra(s).forEach(function (c) { SK.strokes[SK.mode].push(c); });   // the other sides are the same line folded over and turned, so they always match exactly
     skRedraw();   // redrawn tidy, and in the right layer
   }
   skDrawing = false;
@@ -515,12 +640,13 @@ function skUp() {
 }
 function skCancel() {
   if (skDrawing && skDrawing.el) skDrawing.el.remove();
-  if (skDrawing && skDrawing.el2) skDrawing.el2.remove();
+  if (skDrawing && skDrawing.extra) skDrawing.extra.forEach(function (x) { x.remove(); });
   if (skDrawing && (skDrawing.lasso || skDrawing.band)) { (skDrawing.lasso || skDrawing.band).el.remove(); }
   skDrawing = false; skPan = null;
   skStage.classList.remove('panning');
 }
 function skUndo() {
+  if (skCurve) { skCurve.pts.pop(); if (!skCurve.pts.length) skCurve = null; skCurveRender(skLastPt); skFlash('skUndo'); return; }
   SK.pick = []; skXfRender();
   var h = SK.hist[SK.mode];
   if (!h.length) { skStatus.textContent = 'Nothing to undo.'; return; }
@@ -543,6 +669,240 @@ function skRedo() {
   skHistoryUI();
   skStatus.textContent = 'Redone.';
   skSave();
+}
+
+// ---------- special lines and shapes ----------
+/** @returns {number[][]} The points of a wavy version of a line (the wave grows with the line's thickness). */
+function skWavy(pts, width) {
+  var v = SK_VIEW[SK.mode];
+  return L.sketchWave(pts, Math.max(width * 1.2, v.w * 0.005), Math.max(width * 6, v.w * 0.028));
+}
+/** Pressing with the shape tool: the shape grows from this corner as you drag. */
+function skShapeDown(pt) {
+  var el = document.createElementNS(SVGNS, 'path'), v = SK_VIEW[SK.mode];
+  el.setAttribute('fill', SK.fillMode === 'none' ? 'none' : skGrad() ? 'url(#' + skDef(L.sketchGradId(skGrad()), L.sketchGradDef(skGrad())) + ')' : SK.color); el.setAttribute('stroke', SK.color); el.setAttribute('stroke-width', v.w * SK_PEN * SK.pen);
+  el.setAttribute('stroke-linejoin', 'round'); el.setAttribute('stroke-linecap', 'round'); el.setAttribute('opacity', '.8');
+  skDraw.appendChild(el);
+  skDrawing = { shape: { a: pt, el: el, pts: null } };
+}
+/** @returns {number[][]} The shape stretched to the box from the press to the pointer (Shift: an even box). */
+function skShapeBox(a, pt, even) {
+  var dx = pt[0] - a[0], dy = pt[1] - a[1];
+  if (even) { var m = Math.max(Math.abs(dx), Math.abs(dy)); dx = (dx < 0 ? -m : m); dy = (dy < 0 ? -m : m); }
+  var x0 = Math.min(a[0], a[0] + dx), y0 = Math.min(a[1], a[1] + dy), w = Math.abs(dx), h = Math.abs(dy);
+  return L.sketchShape(SK.shape).map(function (p) { return [+(x0 + p[0] * w).toFixed(2), +(y0 + p[1] * h).toFixed(2)]; });
+}
+function skShapeDrag(pt, even) {
+  var d = skDrawing.shape;
+  d.pts = skShapeBox(d.a, pt, even);
+  d.el.setAttribute('d', L.sketchPath(d.pts, true, 2));
+}
+function skShapeEnd() {
+  var d = skDrawing.shape, v = SK_VIEW[SK.mode];
+  skDrawing = false; d.el.remove();
+  var xs = (d.pts || []).map(function (p) { return p[0]; }), ys = (d.pts || []).map(function (p) { return p[1]; });
+  if (!d.pts || Math.max.apply(null, xs) - Math.min.apply(null, xs) < v.w * 0.01 || Math.max.apply(null, ys) - Math.min.apply(null, ys) < v.w * 0.01) { skRedraw(); return; }   // a plain click draws nothing
+  var s = skNew({ pts: d.pts, color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: SK.fillMode !== 'none', closed: true, lay: SK.active[SK.mode], style: SK.style === 'wavy' ? 'solid' : SK.style });
+  if (s.fill && skGrad()) s.grad = skGrad();
+  var act = skLays().filter(function (x) { return x.id === SK.active[SK.mode]; })[0];
+  if (act && !act.show) { act.show = true; skLinesUI(); }
+  skPushHistory();
+  SK.strokes[SK.mode].push(s);
+  skSymExtra(s).forEach(function (c) { SK.strokes[SK.mode].push(c); });
+  skRedraw(); skSave();
+}
+
+// ---------- the curve tool: place points, drag to bend, and the line follows them smoothly ----------
+// A curve is kept as its points (`cv`: anchors {p, o, i?} where `o` is the handle going on and `i` the one coming in, which is the
+// mirror of `o` unless it is given) beside the ordinary line (`pts`) that is drawn from them. Click a curve with the Curve tool to
+// tweak it: drag a point or a handle, double-click the line to add a point, double-click a point to remove it.
+var skCurveEdit = null;   // {s: the curve being tweaked, t, last, kind, i}
+function skIn(a) { return a.i || [-a.o[0], -a.o[1]]; }
+/** @returns {number[][]} A smooth line through the anchors. */
+function skCurvePts(anchors, closed, step) {
+  var out = [], n = anchors.length, segs = closed ? n : n - 1, i, k;
+  for (i = 0; i < segs; i++) {
+    var a = anchors[i], b = anchors[(i + 1) % n], bi = skIn(b);
+    var p0 = a.p, p1 = [a.p[0] + a.o[0], a.p[1] + a.o[1]], p2 = [b.p[0] + bi[0], b.p[1] + bi[1]], p3 = b.p;
+    var len = Math.hypot(p3[0] - p0[0], p3[1] - p0[1]) + Math.hypot(a.o[0], a.o[1]) + Math.hypot(bi[0], bi[1]);
+    var m = Math.max(4, Math.ceil(len / step));
+    for (k = (i ? 1 : 0); k <= m; k++) {
+      var t = k / m, u = 1 - t;
+      out.push([u * u * u * p0[0] + 3 * u * u * t * p1[0] + 3 * u * t * t * p2[0] + t * t * t * p3[0], u * u * u * p0[1] + 3 * u * u * t * p1[1] + 3 * u * t * t * p2[1] + t * t * t * p3[1]]);
+    }
+  }
+  return out.map(function (p) { return [+p[0].toFixed(2), +p[1].toFixed(2)]; });
+}
+/** Rebuilds a curve's line from its points. */
+function skCurveRebuild(s, noTwin) {
+  var v = SK_VIEW[SK.mode];
+  s.pts = L.simplifyLine(skCurvePts(s.cv.a, s.cv.closed, v.w * 0.004), v.w * 0.0008);
+  if (s.style === 'wavy') s.pts = skWavy(s.pts, s.width);
+  skFillPaths.delete(s); skShapePaths.delete(s);
+  if (SK.mirror && s.pair && !noTwin) {   // with Mirror on, the other half of a mirrored curve follows
+    var twin = SK.strokes[SK.mode].filter(function (t) { return t !== s && t.pair === s.pair && t.cv; })[0];
+    if (twin) { twin.cv = skMirrorCv(s.cv); skCurveRebuild(twin, true); }
+  }
+}
+/** Gives every sharp corner handles pointing along its lines (the same shape as before), so it can be bent by dragging them. */
+function skCurveNormalise(cv) {
+  var n = cv.a.length;
+  cv.a.forEach(function (a, k) {
+    if (a.o[0] || a.o[1] || a.i) return;
+    var nx = cv.a[(k + 1) % n], pv = cv.a[(k - 1 + n) % n];
+    a.o = k < n - 1 || cv.closed ? [(nx.p[0] - a.p[0]) / 3, (nx.p[1] - a.p[1]) / 3] : [0, 0];
+    a.i = k > 0 || cv.closed ? [(pv.p[0] - a.p[0]) / 3, (pv.p[1] - a.p[1]) / 3] : [0, 0];
+  });
+}
+/** @returns {Object} A curve's points moved, resized, turned or flipped the same way as its line. */
+function skXfCv(cv, op) {
+  var flat = [];
+  cv.a.forEach(function (a) { var i = skIn(a); flat.push(a.p, [a.p[0] + a.o[0], a.p[1] + a.o[1]], [a.p[0] + i[0], a.p[1] + i[1]]); });
+  var r = L.sketchXform({ pts: flat, width: 1, d: null }, op).pts;
+  return { closed: cv.closed, a: cv.a.map(function (a, k) {
+    var p = r[3 * k], o = r[3 * k + 1], i = r[3 * k + 2], out = { p: p, o: [o[0] - p[0], o[1] - p[1]] };
+    if (a.i) out.i = [i[0] - p[0], i[1] - p[1]];
+    return out;
+  }) };
+}
+/** Draws the line so far (while placing points) and the points with their handles. */
+function skCurveRender(hover) {
+  if (!skCv) return;
+  skCv.replaceChildren();
+  if (skCurveEdit && SK.strokes[SK.mode].indexOf(skCurveEdit.s) === -1) skCurveEdit = null;
+  var building = !!skCurve, anchors = building ? skCurve.pts : skCurveEdit ? skCurveEdit.s.cv.a : [];
+  if (!anchors.length) return;
+  var v = SK_VIEW[SK.mode], upp = v.w / (skStage.getBoundingClientRect().width || v.w), step = v.w * 0.004, closed = !building && skCurveEdit.s.cv.closed;
+  function add(tag, attrs) {
+    var n = document.createElementNS(SVGNS, tag);
+    Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    skCv.appendChild(n); return n;
+  }
+  if (building) {
+    var list = anchors.slice();
+    if (hover && !skDrawing) list.push({ p: hover, o: [0, 0] });
+    var pts = list.length > 1 ? skCurvePts(list, false, step) : [list[0].p];
+    add('path', { d: L.sketchPath(pts, false, 2), fill: 'none', stroke: SK.color, 'stroke-width': v.w * SK_PEN * SK.pen, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: .85 });
+    if (SK.mirror) add('path', { d: L.sketchPath(pts.map(skMirrorPt), false, 2), fill: 'none', stroke: SK.color, 'stroke-width': v.w * SK_PEN * SK.pen, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: .5 });
+  }
+  anchors.forEach(function (a, k) {
+    var ends = [];
+    if (a.o[0] || a.o[1]) { if (closed || k < anchors.length - 1 || building) ends.push([a.o[0], a.o[1]]); }
+    var i = skIn(a);
+    if ((i[0] || i[1]) && (closed || k > 0)) ends.push(i);
+    ends.forEach(function (h) {
+      add('line', { 'class': 'cvh', x1: a.p[0], y1: a.p[1], x2: a.p[0] + h[0], y2: a.p[1] + h[1] });
+      add('circle', { 'class': 'cvk', cx: a.p[0] + h[0], cy: a.p[1] + h[1], r: 3.2 * upp });
+    });
+  });
+  anchors.forEach(function (a, k) {
+    add('rect', { 'class': building && k === 0 ? 'cva first' : 'cva', x: a.p[0] - 4 * upp, y: a.p[1] - 4 * upp, width: 8 * upp, height: 8 * upp });
+  });
+}
+/** @returns {?Object} What is under the pointer in the curve being tweaked: a handle ({kind: 'h', i, side}), a point ({kind: 'a', i}) or its line ({kind: 'l'}). */
+function skCurveTarget(pt) {
+  var s = skCurveEdit.s, cv = s.cv, v = SK_VIEW[SK.mode], upp = v.w / (skStage.getBoundingClientRect().width || v.w), r = 9 * upp, n = cv.a.length, k;
+  for (k = 0; k < n; k++) {
+    var a = cv.a[k], i = skIn(a);
+    if ((cv.closed || k < n - 1) && (a.o[0] || a.o[1]) && Math.hypot(pt[0] - a.p[0] - a.o[0], pt[1] - a.p[1] - a.o[1]) < r) return { kind: 'h', i: k, side: 'o' };
+    if ((cv.closed || k > 0) && (i[0] || i[1]) && Math.hypot(pt[0] - a.p[0] - i[0], pt[1] - a.p[1] - i[1]) < r) return { kind: 'h', i: k, side: 'i' };
+  }
+  for (k = 0; k < n; k++) if (Math.hypot(pt[0] - cv.a[k].p[0], pt[1] - cv.a[k].p[1]) < r) return { kind: 'a', i: k };
+  if (L.sketchHit(s.pts, pt, r + s.width / 2)) return { kind: 'l' };
+  return null;
+}
+/** Adds a point on the line where it was double-clicked, without changing the shape. */
+function skCurveSplit(pt) {
+  var cv = skCurveEdit.s.cv, n = cv.a.length, segs = cv.closed ? n : n - 1, best = null, i, k;
+  for (i = 0; i < segs; i++) {
+    var a = cv.a[i], b = cv.a[(i + 1) % n], bi = skIn(b), p0 = a.p, p1 = [a.p[0] + a.o[0], a.p[1] + a.o[1]], p2 = [b.p[0] + bi[0], b.p[1] + bi[1]], p3 = b.p;
+    for (k = 1; k < 60; k++) {
+      var t = k / 60, u = 1 - t;
+      var x = u * u * u * p0[0] + 3 * u * u * t * p1[0] + 3 * u * t * t * p2[0] + t * t * t * p3[0], y = u * u * u * p0[1] + 3 * u * u * t * p1[1] + 3 * u * t * t * p2[1] + t * t * t * p3[1];
+      var d = Math.hypot(x - pt[0], y - pt[1]);
+      if (!best || d < best.d) best = { d: d, i: i, t: t };
+    }
+  }
+  if (!best) return;
+  var a2 = cv.a[best.i], b2 = cv.a[(best.i + 1) % n], bi2 = skIn(b2), t2 = best.t;
+  var P0 = a2.p, P1 = [a2.p[0] + a2.o[0], a2.p[1] + a2.o[1]], P2 = [b2.p[0] + bi2[0], b2.p[1] + bi2[1]], P3 = b2.p;
+  function lerp(p, q) { return [p[0] + (q[0] - p[0]) * t2, p[1] + (q[1] - p[1]) * t2]; }
+  var Q0 = lerp(P0, P1), Q1 = lerp(P1, P2), Q2 = lerp(P2, P3), R0 = lerp(Q0, Q1), R1 = lerp(Q1, Q2), S = lerp(R0, R1);   // de Casteljau: the two halves are the same curve
+  skPushHistory();
+  a2.o = [Q0[0] - P0[0], Q0[1] - P0[1]];
+  b2.i = [Q2[0] - P3[0], Q2[1] - P3[1]];
+  cv.a.splice(best.i + 1, 0, { p: S, o: [R1[0] - S[0], R1[1] - S[1]], i: [R0[0] - S[0], R0[1] - S[1]] });
+  skCurveRebuild(skCurveEdit.s); skRedraw(); skSave();
+}
+/** Pressing with the curve tool: tweak a curve, or place a point of a new one (drag to bend it; double-click finishes; the first point closes). */
+function skCurveDown(e, pt) {
+  var v = SK_VIEW[SK.mode], upp = v.w / (skStage.getBoundingClientRect().width || v.w), now = Date.now();
+  if (!skCurve) {
+    if (skCurveEdit) {
+      var t = skCurveTarget(pt), s = skCurveEdit.s, dbl = now - skCurveEdit.t < 350 && Math.hypot(pt[0] - skCurveEdit.last[0], pt[1] - skCurveEdit.last[1]) < 10 * upp;
+      skCurveEdit.t = now; skCurveEdit.last = pt;
+      if (t) {
+        if (t.kind === 'l') { if (dbl) skCurveSplit(pt); skCurveRender(null); return; }
+        if (t.kind === 'a' && dbl && s.cv.a.length > (s.cv.closed ? 3 : 2)) {
+          skPushHistory(); s.cv.a.splice(t.i, 1); skCurveRebuild(s); skRedraw(); skSave(); skCurveRender(null); return;
+        }
+        var a = s.cv.a[t.i];
+        if (t.kind === 'h' && e.altKey && !a.i) a.i = skIn(a).slice();   // Alt: this handle moves on its own
+        skDrawing = { curveEdit: { t: t, start: pt, p0: a.p.slice(), pushed: false } };
+        return;
+      }
+    }
+    var list = skOrdered().filter(skSelectable), r = v.w * 0.012, hit = null, k;
+    for (k = list.length - 1; k >= 0; k--) if (list[k].cv && L.sketchHit(list[k].pts, pt, r + list[k].width / 2)) { hit = list[k]; break; }
+    if (hit) { skCurveNormalise(hit.cv); skCurveEdit = { s: hit, t: now, last: pt }; skStatus.textContent = 'Drag a point or a handle. Double-click the line to add a point, a point to remove it.'; skCurveRender(null); return; }
+    skCurveEdit = null;
+    skCurve = { pts: [], t: 0 };
+  } else {
+    var last = skCurve.pts[skCurve.pts.length - 1], first = skCurve.pts[0];
+    if (now - skCurve.t < 350 && Math.hypot(pt[0] - last.p[0], pt[1] - last.p[1]) < 10 * upp) { skCurveFinish(false); return; }
+    if (skCurve.pts.length > 2 && Math.hypot(pt[0] - first.p[0], pt[1] - first.p[1]) < 10 * upp) { skCurveFinish(true); return; }
+  }
+  skCurve.t = now;
+  skCurve.pts.push({ p: pt, o: [0, 0] });
+  skDrawing = { curve: true };
+  skCurveRender(null);
+}
+/** Dragging after pressing pulls the new point's handles out, which bends the line through it. */
+function skCurveDrag(pt) {
+  var a = skCurve.pts[skCurve.pts.length - 1];
+  a.o = [pt[0] - a.p[0], pt[1] - a.p[1]];
+  skCurveRender(null);
+}
+/** Dragging a point or a handle of the curve being tweaked. */
+function skCurveEditDrag(pt) {
+  var d = skDrawing.curveEdit, s = skCurveEdit.s, a = s.cv.a[d.t.i], v = SK_VIEW[SK.mode];
+  if (!d.pushed) { if (Math.hypot(pt[0] - d.start[0], pt[1] - d.start[1]) < v.w * 0.002) return; d.pushed = true; skPushHistory(); }
+  if (d.t.kind === 'a') a.p = [d.p0[0] + pt[0] - d.start[0], d.p0[1] + pt[1] - d.start[1]];
+  else if (d.t.side === 'o') { a.o = [pt[0] - a.p[0], pt[1] - a.p[1]]; }
+  else { var iv = [pt[0] - a.p[0], pt[1] - a.p[1]]; if (a.i) a.i = iv; else a.o = [-iv[0], -iv[1]]; }
+  skCurveRebuild(s); skRedraw(); skCurveRender(null);
+}
+function skCurveCancel() {
+  skCurve = null; skCurveEdit = null; skDrawing = false;
+  skCurveRender(null);
+}
+/** Turns the points into a line in the drawing (closed into a loop if asked). */
+function skCurveFinish(close) {
+  var c = skCurve, v = SK_VIEW[SK.mode];
+  skCurve = null; skDrawing = false;
+  skCurveRender(null);
+  if (!c || c.pts.length < 2) return;
+  var s = skNew({ pts: [], color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: false, lay: SK.active[SK.mode], style: SK.style, cv: { closed: !!close, a: c.pts.map(function (a) { return { p: a.p.slice(), o: a.o.slice() }; }) } });
+  if (close) s.closed = true;
+  skCurveRebuild(s);
+  var act = skLays().filter(function (x) { return x.id === SK.active[SK.mode]; })[0];
+  if (act && !act.show) { act.show = true; skLinesUI(); }
+  skPushHistory();
+  SK.strokes[SK.mode].push(s);
+  if (SK.mirror) { s.pair = 'm' + Date.now().toString(36); SK.strokes[SK.mode].push(skMirrored(s)); }
+  skSpin(SK.strokes[SK.mode].slice(-(SK.mirror ? 2 : 1))).forEach(function (c) { SK.strokes[SK.mode].push(c); });
+  skRedraw(); skSave();
+  skStatus.textContent = 'Curve added. Click it with the Curve tool to tweak it.';
 }
 
 // ---------- the transform tool: pick lines, then resize, turn or move them ----------
@@ -601,7 +961,7 @@ function skXfRender() {
 }
 /** @returns {Object[]} How each picked line looks now, so a drag is always worked out from where it began. */
 function skPickSnap() {
-  return SK.pick.map(function (s) { return { s: s, pts: s.pts.map(function (p) { return p.slice(); }), d: s.d, width: s.width }; });
+  return SK.pick.map(function (s) { return { s: s, pts: s.pts.map(function (p) { return p.slice(); }), d: s.d, width: s.width, cv: s.cv ? JSON.parse(JSON.stringify(s.cv)) : null }; });
 }
 /** Pressing on a corner (resize) or the round handle (turn). */
 function skXfDown(e) {
@@ -658,6 +1018,7 @@ function skXfMove(pt, e) {
     var r = L.sketchXform({ pts: o.pts, d: o.d, width: o.width }, op);
     o.s.pts = r.pts; o.s.width = r.width;
     if (o.d) o.s.d = r.d;
+    if (o.cv) o.s.cv = skXfCv(o.cv, op);
     skFillPaths.delete(o.s); skShapePaths.delete(o.s);
   });
   skRedraw();
@@ -700,8 +1061,9 @@ function skDeletePick() {
 
 /** Lets the buttons for picked lines work only while some are picked. */
 function skSelButtons() {
-  var none = !SK.pick.length;
+  var none = !SK.pick.length, shapes = SK.pick.filter(function (s) { return s.closed || s.fill || s.bucket || s.d; }).length;
   $('skSelTools').querySelectorAll('button').forEach(function (b) { b.disabled = none; });
+  ['skUnion', 'skSubtract', 'skIntersect'].forEach(function (id) { $(id).disabled = shapes < 2; });   // combining needs two closed shapes
 }
 /** Runs a transform on everything picked, as one undo step. */
 function skApplyOp(op) {
@@ -711,6 +1073,7 @@ function skApplyOp(op) {
     var r = L.sketchXform({ pts: s.pts, d: s.d, width: s.width }, op);
     s.pts = r.pts; s.width = r.width;
     if (s.d) s.d = r.d;
+    if (s.cv) s.cv = skXfCv(s.cv, op);
     skFillPaths.delete(s); skShapePaths.delete(s);
   });
   skRedraw(); skXfRender(); skSave();
@@ -727,7 +1090,8 @@ function skAddCopies(list) {
   var added = list.map(function (s) {
     var c = JSON.parse(JSON.stringify(s)), r = L.sketchXform({ pts: c.pts, d: c.d, width: c.width }, { kind: 'move', dx: off, dy: off });
     c.pts = r.pts; if (c.d) c.d = r.d;
-    c.lay = SK.active[SK.mode];
+    if (c.cv) c.cv = skXfCv(c.cv, { kind: 'move', dx: off, dy: off });
+    c.lay = SK.active[SK.mode]; delete c.pair;
     return c;
   });
   skPushHistory();
@@ -776,7 +1140,96 @@ $('skDup').addEventListener('click', skDuplicate);
 $('skFront').addEventListener('click', function () { skStack(true); });
 $('skBack').addEventListener('click', function () { skStack(false); });
 $('skToLayer').addEventListener('click', skToLayer);
+/** The game's own dark brown, used for outlines. */
+var SK_INK = '#5b4239';
+/** Gives each picked filled shape the game's brown outline: a line along its edge, just above it, at the pen thickness. */
+function skOutline() {
+  var v = SK_VIEW[SK.mode], list = SK.strokes[SK.mode], shapes = skOrdered().filter(function (s) { return SK.pick.indexOf(s) !== -1 && (s.fill || s.bucket) && s.pts.length > 2; });
+  if (!shapes.length) { skStatus.textContent = 'Pick a filled shape first.'; return; }
+  skPushHistory();
+  var w = +(v.w * SK_PEN * SK.pen).toFixed(2);
+  shapes.forEach(function (s) {
+    var o = { pts: s.pts.map(function (p) { return p.slice(); }), color: SK_INK, width: w, fill: false, closed: true, lay: s.lay, style: 'solid' };
+    if (s.d) o.d = s.d;
+    if (s.clip) o.clip = true;
+    list.splice(list.indexOf(s) + 1, 0, o);
+  });
+  skRedraw(); skSave();
+  skStatus.textContent = 'Outlined in the game brown.';
+}
+/** Turns each picked pen line into a curve with points and handles, so the Curve tool can tweak it. */
+function skToCurve() {
+  var v = SK_VIEW[SK.mode], todo = SK.pick.filter(function (s) { return !s.cv && !s.bucket && !s.d && s.pts.length > 2 && s.style !== 'wavy'; });
+  if (!todo.length) { skStatus.textContent = 'Pick pen lines (not curves or fills) to turn into curves.'; return; }
+  skPushHistory();
+  todo.forEach(function (s) {
+    var loop = s.closed || s.fill, pts = loop ? s.pts.concat([s.pts[0]]) : s.pts, segs = L.fitCurve(pts, v.w * 0.003);
+    if (!segs.length) return;
+    var a = [{ p: segs[0][0].slice(), o: [segs[0][1][0] - segs[0][0][0], segs[0][1][1] - segs[0][0][1]] }];
+    segs.forEach(function (b, k) {
+      var next = { p: b[3].slice(), o: [0, 0], i: [b[2][0] - b[3][0], b[2][1] - b[3][1]] };
+      if (k < segs.length - 1) next.o = [segs[k + 1][1][0] - b[3][0], segs[k + 1][1][1] - b[3][1]];
+      a.push(next);
+    });
+    if (loop) { var last = a.pop(); a[0].i = last.i; }
+    a.forEach(function (n) {   // a point whose two handles line up is smooth: it keeps one handle and the other follows
+      if (n.i && Math.abs(n.i[0] + n.o[0]) < 0.01 && Math.abs(n.i[1] + n.o[1]) < 0.01) delete n.i;
+    });
+    s.cv = { closed: !!loop, a: a };
+    if (loop) s.closed = true;
+    skCurveRebuild(s, true);
+  });
+  skRedraw(); skSave();
+  skStatus.textContent = 'Now a curve: click it with the Curve tool to move its points.';
+}
+$('skOutline').addEventListener('click', skOutline);
+$('skToCurve').addEventListener('click', skToCurve);
 $('skDel').addEventListener('click', skDeletePick);
+
+// ---------- combining shapes ----------
+/**
+ * Joins the picked closed shapes (union), cuts the ones above the lowest out of it (subtract) or keeps only where they all cross
+ * (overlap). The shapes are drawn on a hidden canvas, combined, and the outline of what is left is kept as a new shape.
+ */
+function skCombine(op) {
+  var shapes = skOrdered().filter(function (s) { return SK.pick.indexOf(s) !== -1 && (s.closed || s.fill || s.bucket || s.d); });
+  if (shapes.length < 2) { skStatus.textContent = 'Pick two or more closed shapes first.'; return; }
+  var v = SK_VIEW[SK.mode], scale = 900 / Math.max(v.w, v.h), W = Math.round(v.w * scale), H = Math.round(v.h * scale);
+  var cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  var g = cv.getContext('2d', { willReadFrequently: true });
+  g.setTransform(scale, 0, 0, scale, -v.x * scale, -v.y * scale);
+  g.fillStyle = '#000';
+  shapes.forEach(function (s, i) {
+    g.globalCompositeOperation = i === 0 || op === 'union' ? 'source-over' : op === 'subtract' ? 'destination-out' : 'destination-in';
+    g.fill(s.d ? new Path2D(s.d) : new Path2D(L.sketchPath(s.pts, true, 2)), s.d ? 'evenodd' : 'nonzero');
+  });
+  var px = g.getImageData(0, 0, W, H).data, mask = new Uint8Array(W * H), left = 0, i;
+  for (i = 0; i < mask.length; i++) { mask[i] = px[i * 4 + 3] > 127 ? 1 : 0; left += mask[i]; }
+  var loops = left ? L.traceLoops(mask, W, H).map(function (lp) {
+    var real = lp.concat([lp[0]]).map(function (p) { return [v.x + p[0] / scale, v.y + p[1] / scale]; }), out = [];
+    L.fitCurve(L.simplifyLine(real, 0.8 / scale), v.w * 0.0012).forEach(function (b) {   // the pixel staircase becomes a smooth outline
+      for (var k = 0; k < 10; k++) { var t = k / 10, u = 1 - t; out.push([+(u * u * u * b[0][0] + 3 * u * u * t * b[1][0] + 3 * u * t * t * b[2][0] + t * t * t * b[3][0]).toFixed(2), +(u * u * u * b[0][1] + 3 * u * u * t * b[1][1] + 3 * u * t * t * b[2][1] + t * t * t * b[3][1]).toFixed(2)]); }
+    });
+    return out;
+  }).filter(function (lp) { return lp.length > 2; }) : [];
+  if (!loops.length) { skStatus.textContent = 'Nothing would be left, so nothing changed.'; return; }
+  var base = shapes[0], outer = loops.slice().sort(function (a, b) { return b.length - a.length; })[0];
+  var made = { d: loops.map(function (lp) { return 'M' + lp.map(function (p) { return p[0] + ' ' + p[1]; }).join('L') + 'Z'; }).join(''), pts: outer, color: base.color, width: base.width, fill: base.fill, closed: true, style: base.style, lay: base.lay };
+  if (base.bucket) made.bucket = true;
+  if (base.clip) made.clip = true;
+  if (base.grad) made.grad = base.grad;
+  skPushHistory();
+  var list = SK.strokes[SK.mode], at = list.indexOf(base);
+  SK.strokes[SK.mode] = list.filter(function (s) { return shapes.indexOf(s) === -1 || s === base; });
+  SK.strokes[SK.mode][SK.strokes[SK.mode].indexOf(base)] = made;
+  SK.pick = [made];
+  skRedraw(); skXfRender(); skSave();
+  skStatus.textContent = { union: 'Joined into one shape.', subtract: 'Cut out of the lowest shape.', intersect: 'Kept where they overlap.' }[op] + ' Undo brings them back.';
+}
+$('skUnion').addEventListener('click', function () { skCombine('union'); });
+$('skSubtract').addEventListener('click', function () { skCombine('subtract'); });
+$('skIntersect').addEventListener('click', function () { skCombine('intersect'); });
 
 // ---------- the pet's own colours ----------
 /** Shows the main colours of whatever is underneath (the pet and its skin, the background, the toy) as swatches, read from how it is drawn. */
@@ -837,7 +1290,7 @@ function skBucket(pt) {
   });
   var px = g.getImageData(0, 0, W, H).data, wall = new Uint8Array(W * H);
   for (var i = 0; i < wall.length; i++) wall[i] = px[i * 4 + 3] > 40 ? 1 : 0;
-  var spots = SK.mirror ? [pt, skMirrorPt(pt)] : [pt], added = [], recoloured = false, why = '';
+  var spots = skSpots(pt), added = [], recoloured = false, why = '';
   spots.forEach(function (q) {
     var r = L.floodMask(wall, W, H, Math.floor((q[0] - v.x) * scale), Math.floor((q[1] - v.y) * scale));
     if (!r) { why = why || 'line'; return; }
@@ -853,6 +1306,8 @@ function skBucket(pt) {
     if (same) { same.color = SK.color; recoloured = true; return; }
     // wide enough to reach under the lines on every side, so no hairline shows between the fill and a line
     added.push({ d: d, pts: outer, color: SK.color, width: +(2 * (GAP + 1.5) / scale).toFixed(2), fill: true, closed: true, bucket: true, lay: SK.active[SK.mode] });
+    skNew(added[added.length - 1]);
+    if (skGrad()) added[added.length - 1].grad = skGrad();
   });
   if (!added.length && !recoloured) {
     skStatus.textContent = why === 'open' ? 'That area is not closed in. Finish the outline (or close the gap), then try again.' : 'Click inside an area between your lines, not on a line.';
@@ -882,10 +1337,26 @@ function skMeta() {
       : SK.mode === 'pet' ? 'pet drawing is 160 x 150 at 0,0' : 'toy drawing is 26 x 26'
   };
 }
+/** @returns {Object[]} The lines in drawing order, each with its layer's name when there are several layers. */
+function skLayered(several) {
+  return skOrdered().map(function (s) { return several ? Object.assign({}, s, { layer: skLayerOf(s).name }) : s; });
+}
+/** @returns {?{code: string, name: string}} A dressing-room entry for the drawing (pet drawings of a hat, clothes, glasses...), or null with a message. */
+function skItemCode() {
+  var slot = SK_ITEM_SLOTS[$('skKind').value], name = $('skItemName').value.trim();
+  if (SK.mode !== 'pet' || !slot) { skStatus.textContent = 'Item code is for pet drawings of a hat, clothes, glasses, mouth thing, neckwear or shoes.'; return null; }
+  if (skEmpty()) return null;
+  if (!name) { skStatus.textContent = 'Give the game item a name first.'; $('skItemName').focus(); return null; }
+  var id = name.toLowerCase().replace(/[^a-z0-9]+/g, '') || 'item', base = id, n = 2;
+  while (byId(Wardrobe, id)) id = base + n++;
+  var code = L.sketchItemCode(skLayered(skLays().length > 1), { id: id, label: name, slot: slot, lines: ['so cute!', 'i love it!', 'looks good on me'], note: $('skNote').value.trim() }, SK_VIEW.pet);
+  return { code: code, name: id };
+}
 function skFiles() {
   var m = skMeta(), several = skLays().length > 1;
   if (several) m.layers = skLays().map(function (x) { return x.name; });   // bottom first
-  var svg = L.sketchSvg(skOrdered().map(function (s) { return several ? Object.assign({}, s, { layer: skLayerOf(s).name }) : s; }), SK_VIEW[SK.mode], m);
+  m.export = SK.clean ? 'clean: curves fitted to the lines' : 'raw: every pen point kept';
+  var svg = L.sketchSvg(skLayered(several), SK_VIEW[SK.mode], m, { clean: SK.clean });
   var d = new Date(), pad = function (n) { return (n < 10 ? '0' : '') + n; };
   var stamp = d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '-' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
   return { meta: m, svg: svg, name: m.kind + '-' + SK.mode + '-' + stamp };
@@ -910,6 +1381,14 @@ function skCopy() {
   navigator.clipboard.writeText(text).then(function () { skStatus.textContent = 'Copied. Paste it in the chat.'; },
     function () { skStatus.textContent = 'Could not copy. Try Save SVG.'; });
 }
+
+$('skItemCode').addEventListener('click', function () {
+  var it = skItemCode();
+  if (!it) return;
+  navigator.clipboard.writeText(it.code).then(function () { skStatus.textContent = 'Copied the item code for ' + it.name + '. It goes in the list in wardrobe.js.'; }, function () { skStatus.textContent = 'Could not copy. Use Upload, and I will add it.'; });
+});
+$('skClean').addEventListener('change', function () { SK.clean = $('skClean').checked; skSave(); });
+$('skKind').addEventListener('change', skApplyLook);
 
 // ---------- uploading to GitHub ----------
 function ghSettings() {
@@ -947,21 +1426,147 @@ function ghEnsureBranch() {
       .then(function (ref) { return ghReq('POST', base + '/git/refs', { ref: 'refs/heads/' + g.branch, sha: ref.object.sha }); });
   });
 }
+/** @returns {Object} Everything needed to open the drawing again exactly as it was (the lines as drawn, layers, what was underneath). */
+function skOriginal() {
+  return { v: 1, mode: SK.mode, kind: $('skKind').value, note: $('skNote').value.trim(), tidy: SK.tidy, strokes: skOrdered(), layers: skLays(), active: SK.active[SK.mode],
+    pet: { species: P.species, skin: P.skin, outfit: P.outfit, backdrop: P.backdrop, night: P.night, room: P.room, template: P.template } };
+}
 function skUpload() {
   if (skEmpty()) return;
   var g = ghSettings(), f = skFiles();
   if (!g.token || !g.repo) { $('skSettings').open = true; skStatus.textContent = 'Connect to GitHub first.'; return; }
   ghSaveSettings();
   skStatus.textContent = 'Uploading…';
-  var content = btoa(unescape(encodeURIComponent(f.svg)));
+  var put = function (path, text) { return ghReq('PUT', '/repos/' + g.repo + '/contents/drawings/' + path, { message: 'Drawing: ' + f.meta.kind + (f.meta.note ? ' - ' + f.meta.note.slice(0, 60) : ''), content: btoa(unescape(encodeURIComponent(text))), branch: g.branch }); };
+  var item = $('skItemName').value.trim() && !$('skItemRow').hidden ? skItemCode() : null, keep = JSON.stringify(skOriginal());
   ghEnsureBranch().then(function () {
-    return ghReq('PUT', '/repos/' + g.repo + '/contents/drawings/' + f.name + '.svg', { message: 'Drawing: ' + f.meta.kind + (f.meta.note ? ' - ' + f.meta.note.slice(0, 60) : ''), content: content, branch: g.branch });
-  }).then(function () {
-    skStatus.textContent = 'Uploaded drawings/' + f.name + '.svg. Tell me in the chat.';
+    return put(f.name + '.svg', f.svg);
+  }).then(function () { return put(f.name + '.strokes.json', keep); }).then(function () { return item ? put(f.name + '.item.js', item.code + '\n') : null; }).then(function () {
+    skStatus.textContent = 'Uploaded drawings/' + f.name + '.svg' + (item ? ' and its item code' : '') + '. Tell me in the chat.';
+    if (SK.tab === 'sent') skSentLoad();
   }).catch(function (e) {
     skStatus.textContent = 'Could not upload: ' + e.message + (e.status === 401 || e.status === 403 || e.status === 404 ? ' (check the token and that it can write to this repository).' : '') + ' You can still use Save SVG.';
   });
 }
+
+// ---------- what has been sent ----------
+var skSentAll = [], skSentShown = 0, SK_SENT_STEP = 8;
+/** @returns {Promise<string>} The text of a file on the drawings branch. */
+function ghFile(path) {
+  var g = ghSettings();
+  return fetch('https://api.github.com/repos/' + g.repo + '/contents/' + path + '?ref=' + encodeURIComponent(g.branch), { headers: { Authorization: 'Bearer ' + g.token, Accept: 'application/vnd.github.raw+json', 'X-GitHub-Api-Version': '2022-11-28' } })
+    .then(function (r) { if (!r.ok) { var e = new Error('GitHub said ' + r.status); e.status = r.status; throw e; } return r.text(); });
+}
+/** @returns {Object} The notes saved in a drawing's first comment (what it is, its note, the pet it was drawn on). */
+function skSvgMeta(svg) {
+  var m = /<!-- (.*?) -->/.exec(svg);
+  if (!m) return {};
+  try { return JSON.parse(m[1].replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')); } catch (e) { return {}; }
+}
+function skSentLoad() {
+  var g = ghSettings(), note = $('skSentNote');
+  if (!g.token || !g.repo) { note.textContent = 'Connect to GitHub first (Send page, GitHub connection).'; return; }
+  note.textContent = 'Looking…';
+  ghReq('GET', '/repos/' + g.repo + '/contents/drawings?ref=' + encodeURIComponent(g.branch)).then(function (files) {
+    var by = {};
+    files.forEach(function (f) {
+      var m = /^(.*?)\.(svg|strokes\.json|item\.js)$/.exec(f.name);
+      if (!m) return;
+      by[m[1]] = by[m[1]] || { base: m[1] };
+      by[m[1]][m[2] === 'svg' ? 'svg' : m[2] === 'item.js' ? 'item' : 'strokes'] = f;
+    });
+    skSentAll = Object.keys(by).map(function (k) { return by[k]; }).filter(function (e) { return e.svg; }).sort(function (a, b) {
+      var sa = (/(\d{8}-\d{6})$/.exec(a.base) || [0, a.base])[1], sb = (/(\d{8}-\d{6})$/.exec(b.base) || [0, b.base])[1];
+      return sa < sb ? 1 : -1;
+    });
+    skSentShown = 0;
+    $('skSentList').replaceChildren();
+    note.textContent = skSentAll.length ? skSentAll.length + ' sent, newest first.' : 'Nothing sent yet.';
+    skSentMore();
+  }).catch(function (e) { note.textContent = e.status === 404 ? 'Nothing sent yet (no drawings folder).' : 'Could not look: ' + e.message; });
+}
+function skSentMore() {
+  var list = $('skSentList');
+  skSentAll.slice(skSentShown, skSentShown + SK_SENT_STEP).forEach(function (e) { list.appendChild(skSentCard(e)); });
+  skSentShown = Math.min(skSentAll.length, skSentShown + SK_SENT_STEP);
+  $('skSentMore').hidden = skSentShown >= skSentAll.length;
+}
+function skSentCard(e) {
+  var card = document.createElement('div');
+  card.className = 'skp-sent';
+  card.innerHTML = '<img alt="" width="64" height="64"><div class="skp-sent-body"><b class="skp-sent-title"></b><span class="skp-sent-note"></span><div class="sk-row"><button type="button" class="skp-btn skp-small" data-act="show" title="Put it over the picture underneath, as an image layer">Show</button><button type="button" class="skp-btn skp-small" data-act="edit" title="Open the lines as you drew them, to keep working">Edit</button><button type="button" class="skp-btn skp-small skp-x" data-act="del" title="Delete this upload from GitHub">✕</button></div></div>';
+  var stamp = /(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})/.exec(e.base);
+  card.querySelector('.skp-sent-title').textContent = e.base.replace(/-\d{8}-\d{6}$/, '').replace(/-/g, ' · ');
+  card.querySelector('.skp-sent-note').textContent = stamp ? stamp[3] + '/' + stamp[2] + '/' + stamp[1] + ' ' + stamp[4] + ':' + stamp[5] : '';
+  card.querySelector('[data-act=edit]').disabled = !e.strokes;
+  if (!e.strokes) card.querySelector('[data-act=edit]').title = 'Sent before the original lines were kept, so it can only be shown';
+  ghFile('drawings/' + e.svg.name).then(function (svg) {
+    e.text = svg;
+    card.querySelector('img').src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    var meta = skSvgMeta(svg);
+    if (meta.note) card.querySelector('.skp-sent-note').textContent += ' · ' + meta.note;
+    e.meta = meta;
+  }).catch(function () { card.querySelector('.skp-sent-note').textContent += ' (could not open it)'; });
+  card.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-act]');
+    if (!b || b.disabled) return;
+    if (b.dataset.act === 'show') skSentShow(e);
+    else if (b.dataset.act === 'edit') skSentEdit(e);
+    else skSentDelete(e, card);
+  });
+  return card;
+}
+/** Switches to the area a drawing was made for. */
+function skGoMode(mode) {
+  if (mode && mode !== SK.mode && SK_VIEW[mode]) $('skModes').querySelector('[data-mode="' + mode + '"]').click();
+}
+/** Shows a sent drawing over the picture underneath, as an image layer (it is never part of what you send). */
+function skSentShow(e) {
+  if (!e.text) { skStatus.textContent = 'It is still loading.'; return; }
+  skGoMode((e.meta || {}).mode);
+  var v = SK_VIEW[SK.mode], im = { id: 'i' + Date.now().toString(36), name: e.base.slice(0, 28), src: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(e.text), cx: v.x + v.w / 2, cy: v.y + v.h / 2, bw: v.w, bh: v.h, scale: 1, opacity: 100, visible: true, behind: false };
+  SK.images[SK.mode].push(im); SK.sel = im.id;
+  skRenderImages(); skLayersUI(); skSaveImages(); skTab('draw'); skSave();
+  skStatus.textContent = 'Shown over the picture as an image layer (Images page). Remove it there when you are done.';
+}
+/** Opens a sent drawing's own lines on the canvas to keep working on them (Undo brings back what was there). */
+function skSentEdit(e) {
+  if (!e.strokes) return;
+  skStatus.textContent = 'Opening…';
+  ghFile('drawings/' + e.strokes.name).then(function (text) {
+    var d = JSON.parse(text);
+    if (!d || !Array.isArray(d.strokes)) throw new Error('that file is not a drawing');
+    skGoMode(d.mode);
+    if (SK.strokes[SK.mode].length && !window.confirm('Replace what is drawn on ' + SK.mode + ' with this drawing? Undo brings it back.')) { skStatus.textContent = 'Cancelled.'; return; }
+    skPushHistory();
+    SK.strokes[SK.mode] = d.strokes;
+    SK.layers[SK.mode] = Array.isArray(d.layers) ? d.layers.map(function (l) { return { id: String(l.id), name: String(l.name || 'Layer'), show: l.show !== false }; }) : [];
+    if (d.active) SK.active[SK.mode] = d.active;
+    SK.layerSet[SK.mode] = []; SK.pick = [];
+    if (d.pet) {
+      P.species = d.pet.species || P.species; P.skin = d.pet.skin || ''; P.backdrop = d.pet.backdrop || P.backdrop; P.night = !!d.pet.night; P.room = d.pet.room || {}; P.template = !!d.pet.template;
+      Object.keys(P.outfit).forEach(function (s) { P.outfit[s] = (d.pet.outfit && d.pet.outfit[s]) || 'none'; });
+    }
+    if (d.kind) { $('skKind').value = d.kind; }
+    $('skNote').value = d.note || '';
+    skBuildPanels(); skBuild(); skLinesUI(); skTab('draw'); skSave();
+    skStatus.textContent = 'Opened ' + e.base + '. Undo brings back what was there before.';
+  }).catch(function (err) { skStatus.textContent = 'Could not open it: ' + err.message; });
+}
+function skSentDelete(e, card) {
+  if (!window.confirm('Delete this upload from GitHub? Claude will not be able to see it any more.')) return;
+  var g = ghSettings(), files = [e.svg, e.strokes, e.item].filter(Boolean);
+  skStatus.textContent = 'Deleting…';
+  files.reduce(function (p, f) {
+    return p.then(function () { return ghReq('DELETE', '/repos/' + g.repo + '/contents/' + f.path, { message: 'Remove drawing ' + e.base, sha: f.sha, branch: g.branch }); });
+  }, Promise.resolve()).then(function () {
+    card.remove(); skSentAll = skSentAll.filter(function (x) { return x !== e; }); skSentShown = Math.max(0, skSentShown - 1);
+    skStatus.textContent = 'Deleted.';
+  }).catch(function (err) { skStatus.textContent = 'Could not delete: ' + err.message; });
+}
+$('skSentRefresh').addEventListener('click', skSentLoad);
+$('skSentMore').addEventListener('click', skSentMore);
+$('skTabs').addEventListener('click', function (ev) { if (ev.target.closest('[data-tab="sent"]') && !skSentAll.length) skSentLoad(); });
 
 // ---------- picture layers (to trace over) ----------
 /** @returns {?Object} The selected image layer of the current area. */
@@ -1202,6 +1807,8 @@ function skEyedrop() {
   });
 }
 function skSetTool(t) {
+  if (skCurve && t !== 'curve') skCurveFinish(false);
+  if (t !== 'curve' && skCurveEdit) { skCurveEdit = null; skCurveRender(null); }
   if (t === 'drop' && window.EyeDropper) { skEyedrop(); return; }   // the browser's own: picks once from anywhere on the screen
   if (t === 'drop') {   // no screen eyedropper (Firefox): click on the picture instead, then carry on with the tool you had
     if (SK.tool !== 'drop') SK.prevTool = SK.tool;
@@ -1209,6 +1816,8 @@ function skSetTool(t) {
   }
   if (t !== 'select' && t !== 'lasso') SK.pick = [];
   if (t === 'select') skStatus.textContent = 'Click a line or drag a box over some. Shift adds. Corners resize, the round handle turns, the middle moves.';
+  if (t === 'curve') skStatus.textContent = 'Click to place points, drag to bend. Double-click or Enter finishes, the first point closes, Esc cancels.';
+  if (t === 'shape') skStatus.textContent = 'Drag to draw the shape. Shift keeps it even. Pick the shape in the list; Fill colours it in.';
   if (t === 'lasso') skStatus.textContent = 'Draw a loop round what you want. Shift adds. Then resize, turn or move it.';
   if (t === 'bucket') skStatus.textContent = 'Click inside a closed area to fill it with the pen colour.';
   SK.tool = t;
@@ -1253,8 +1862,14 @@ function skBuildPanels() {
     cb.addEventListener('change', function () { P.room[d.id] = cb.checked; skSave(); skBuild(); });
     return lab;
   }));
+  var sh = $('skShape');
+  sh.replaceChildren.apply(sh, L.SKETCH_SHAPES.map(function (x) { var o = document.createElement('option'); o.value = x[0]; o.textContent = x[1]; return o; }));
+  sh.value = SK.shape; $('skStyle').value = SK.style; $('skFillMode').value = SK.fillMode; $('skColour2').value = SK.colour2;
   skPress($('skTidy'), 'tidy', SK.tidy);
   $('skMirror').setAttribute('aria-pressed', String(SK.mirror));
+  $('skClip').setAttribute('aria-pressed', String(SK.bodyClip)); $('skClip').hidden = SK.mode !== 'pet';
+  $('skSpin').setAttribute('aria-pressed', String(!!SK.radial)); $('skSpin').dataset.key = SK.radial ? String(SK.radial) : 'R';
+  $('skPressure').checked = SK.pressure;
 }
 
 skStage.addEventListener('pointerdown', function (e) { if (skDraw && e.target === skDraw) skDown(e); });
@@ -1339,6 +1954,19 @@ $('skTidy').addEventListener('click', function (e) {
   skSave();
 });
 $('skSnap').addEventListener('change', skSave);
+$('skShape').addEventListener('change', function () { SK.shape = $('skShape').value; skSave(); skSetTool('shape'); });
+$('skFillMode').addEventListener('change', function () { SK.fillMode = $('skFillMode').value; skSave(); });
+$('skColour2').addEventListener('input', function () { SK.colour2 = $('skColour2').value; skSave(); });
+$('skStyle').addEventListener('change', function () {
+  SK.style = $('skStyle').value; skSave();
+  var picked = SK.pick.filter(function (s) { return !s.bucket; });
+  if (skIsSel() && picked.length) {   // lines that are picked change too (a wave can only be given while drawing)
+    if (SK.style === 'wavy') { skStatus.textContent = 'Wavy is added while you draw, so it cannot change lines you already drew.'; return; }
+    skPushHistory();
+    picked.forEach(function (s) { s.style = SK.style; });
+    skRedraw(); skXfRender(); skSave();
+  }
+});
 ['skGrid', 'skRef', 'skGhost'].forEach(function (id) { $(id).addEventListener('input', skApplyLook); });
 $('skSpecies').addEventListener('change', function () { P.species = $('skSpecies').value; P.skin = ''; skSkins(); skSave(); skBuild(); });
 $('skSkin').addEventListener('change', function () { P.skin = $('skSkin').value; skSave(); skBuild(); });
@@ -1384,10 +2012,14 @@ document.addEventListener('keydown', function (e) {
   if ((e.ctrlKey || e.metaKey) && k === 'd') { e.preventDefault(); skDuplicate(); return; }
   if ((e.ctrlKey || e.metaKey) && k === 'y') { e.preventDefault(); skRedo(); return; }
   if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (skCurve && e.key === 'Enter') { e.preventDefault(); skCurveFinish(false); return; }
+  if ((skCurve || skCurveEdit) && e.key === 'Escape') { skCurveCancel(); skStatus.textContent = 'Curve cancelled.'; return; }
   if (k === 'x') { skSetMirror(!SK.mirror); return; }
+  if (k === 'r') { skNextSpin(); return; }
+  if (k === 'k') { skSetClip(!SK.bodyClip); return; }
   if ((k === 'delete' || k === 'backspace') && skIsSel() && SK.pick.length) { e.preventDefault(); skDeletePick(); return; }
   if (e.key === 'Escape' && skIsSel() && SK.pick.length) { SK.pick = []; skXfRender(); return; }
-  var tool = { p: 'pen', f: 'blob', e: 'erase', h: 'hand', i: 'drop', m: 'imgmove', b: 'bucket', s: 'select', l: 'lasso' }[k];
+  var tool = { p: 'pen', f: 'blob', e: 'erase', h: 'hand', i: 'drop', m: 'imgmove', b: 'bucket', s: 'select', l: 'lasso', c: 'curve', g: 'shape' }[k];
   if (tool) skSetTool(tool);
 });
 document.addEventListener('keyup', function (e) {
@@ -1405,6 +2037,26 @@ function skSetMirror(on) {
   skBuild();
 }
 $('skMirror').addEventListener('click', function () { skSetMirror(!SK.mirror); });
+/** Clip: new lines stay inside the pet's body (for skin patterns). */
+function skSetClip(on) {
+  SK.bodyClip = on;
+  $('skClip').setAttribute('aria-pressed', String(on));
+  skStatus.textContent = on ? 'Clip on: new lines stay inside the pet’s body.' : 'Clip off.';
+  skSave();
+}
+$('skClip').addEventListener('click', function () { skSetClip(!SK.bodyClip); });
+/** Spin: each line is copied turned round the middle, 3 to 8 times; the button goes through the choices. */
+function skSetSpin(n) {
+  SK.radial = n;
+  var b = $('skSpin');
+  b.setAttribute('aria-pressed', String(!!n)); b.dataset.key = n ? String(n) : 'R';
+  skStatus.textContent = n ? 'Spin on: drawing is copied ' + n + ' times round the middle.' : 'Spin off.';
+  skSave(); skBuild();
+}
+function skNextSpin() { var o = [0, 3, 4, 5, 6, 8]; skSetSpin(o[(o.indexOf(SK.radial) + 1) % o.length]); }
+$('skSpin').addEventListener('click', skNextSpin);
+$('skPressure').addEventListener('change', function () { SK.pressure = $('skPressure').checked; skSave(); });
+
 // Ctrl+C and Ctrl+X on picked lines keep them for pasting (the system clipboard gets a note, so an older picture there is not pasted by mistake)
 document.addEventListener('copy', function (e) {
   if (typing(e) || !skIsSel() || !SK.pick.length) return;
@@ -1453,6 +2105,12 @@ window.addEventListener('resize', skLayout);
   } catch (e) { /* storage blocked: treated as a visitor */ }
   document.body.classList.toggle('skp-guest', !owner);
   SK_OWNER = owner;
+  $('skOwnerLink').addEventListener('click', function () {   // on a new browser: turn the upload tools on without the ?owner=1 address
+    try { localStorage.setItem('nibble-sketchpad-owner', '1'); } catch (e) { /* storage blocked: it lasts until the page closes */ }
+    SK_OWNER = true; document.body.classList.remove('skp-guest');
+    $('skSettings').open = true;
+    skStatus.textContent = 'Uploads are on. Paste your GitHub token in the box under Send.';
+  });
 })();
 
 // ---------- fireflies in the header (only for looks) ----------
@@ -1481,6 +2139,7 @@ skLoadImages();
 skLayersUI();
 skLinesUI();
 skBuildPanels();
+$('skClean').checked = SK.clean;
 skSetPen(SK.pen);
 skStatus.textContent = 'Loading…';
 skLoadSource().then(function () {

@@ -27,7 +27,7 @@ body.skp { height: 100dvh; display: flex; flex-direction: column; overflow: hidd
 .sk-seg { display: inline-flex; border: 1.5px solid var(--line); border-radius: 999px; overflow: hidden; }
 .sk-seg button, .sk-tools button { padding: 6px 11px; border: 0; background: var(--surface); color: var(--ink); font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; }
 .sk-seg button[aria-pressed="true"], .sk-tools button[aria-pressed="true"] { background: var(--accent); color: #fff; }
-.sk-tools { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.sk-tools { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
 .sk-tools button { position: relative; display: flex; align-items: center; justify-content: center; height: 38px; padding: 0; border: 1.5px solid var(--line); border-radius: 10px; }
 .sk-tools button[data-key]::after { content: attr(data-key); position: absolute; right: 3px; bottom: 1px; font-size: .55rem; font-weight: 800; opacity: .5; }
 .sk-tools button svg { width: 20px; height: 20px; display: block; }
@@ -290,3 +290,97 @@ html:root body.skp.skp-guest #skSaveFile { color: #fff; text-shadow: 0 1px 2px r
 .skp-line[aria-selected="false"].active { border-color: var(--sk-edge); }
 .skp-line input[data-act="name"][readonly] { cursor: pointer; user-select: none; }
 .skp-line input[data-act="name"]:not([readonly]) { background: var(--sk-field); border-color: #ff8fab; cursor: text; }
+.sk-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 6; pointer-events: none; }
+.sk-cv .cva { fill: #fff; stroke: var(--accent); stroke-width: 1.6; vector-effect: non-scaling-stroke; }
+.sk-cv .cva.first { fill: var(--accent); }
+.sk-cv .cvh { stroke: var(--accent); stroke-width: 1.2; vector-effect: non-scaling-stroke; opacity: .8; }
+.sk-cv .cvk { fill: var(--accent); stroke: #fff; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.sk-stage[data-tool="curve"] .sk-draw { cursor: crosshair; }
+
+.sk-tools:not(.sk-seltools) button { height: 36px; }
+.sk-seltools { grid-template-columns: repeat(7, 1fr); }
+.sk-styles { flex-wrap: nowrap; gap: 6px; }
+.sk-pick { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; font-size: .75rem; font-weight: 700; color: var(--muted); }
+.sk-pick select { flex: 1; min-width: 0; padding: 4px 6px; font-size: .78rem; }
+.sk-stage[data-tool="shape"] .sk-draw { cursor: crosshair; }
+#skColour2 { flex: none; width: 30px; height: 26px; padding: 0; border: 2px solid var(--sk-edge); border-radius: 8px; background: none; }
+.sk-styles { flex-wrap: nowrap; }
+
+/* the panel's pages */
+.skp-tabs { display: flex; gap: 4px; padding: 3px; background: var(--sk-field); border: 2px solid var(--sk-edge); border-radius: 999px; flex: none; }
+.skp-tabs button { flex: 1; padding: 6px 4px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: inherit; font-size: .84rem; font-weight: 800; cursor: pointer; }
+.skp-tabs button[hidden] { display: none; }
+.skp-tabs button[aria-selected="true"] { background: linear-gradient(180deg, #ffa3bb, #ff8fab); color: #3b1f2b; box-shadow: 0 2px 0 #c9577f; }
+.skp-pane { display: flex; flex-direction: column; gap: 8px; }
+.skp-pane[hidden] { display: none; }
+.sk-seltools[data-n="10"], .sk-seltools[data-n="12"] { grid-template-columns: repeat(6, 1fr); }
+.sk-seltools[data-n="10"] button, .sk-seltools[data-n="12"] button { height: 30px; }
+#skItemRow { flex-wrap: nowrap; }
+#skItemRow input { flex: 1; min-width: 0; }
+#skItemRow[hidden] { display: none; }
+html:root body.skp .skp-main { background: linear-gradient(180deg, #ffa3bb, #ff8fab); border-color: transparent; box-shadow: 0 3px 0 #c9577f; }
+
+/* the Sent page and the owner link */
+.skp-link { align-self: flex-start; padding: 2px 0; border: 0; background: none; color: var(--muted); font: inherit; font-size: .76rem; font-weight: 700; text-decoration: underline; cursor: pointer; }
+body:not(.skp-guest) .guest-only { display: none; }
+.skp-sent-list { display: flex; flex-direction: column; gap: 6px; }
+.skp-sent { display: flex; gap: 8px; align-items: center; padding: 6px; border: 2px solid var(--sk-edge); border-radius: 14px; background: var(--sk-field); }
+.skp-sent img { flex: none; width: 64px; height: 64px; object-fit: contain; border-radius: 8px; background: var(--sk-paper); }
+.skp-sent-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.skp-sent-title { font-size: .84rem; text-transform: capitalize; }
+.skp-sent-note { font-size: .72rem; color: var(--muted); overflow-wrap: anywhere; }
+.skp-sent .sk-row { gap: 4px; flex-wrap: nowrap; }
+.skp-sent .skp-btn:disabled { opacity: .4; cursor: default; }
+.skp-tabs button { font-size: .78rem; }
+
+/* the tools bar beside the canvas */
+.skp-toolbar { flex: none; align-self: flex-start; display: flex; flex-direction: column; padding: 8px; border-radius: 20px; border: 2px solid var(--sk-edge); background: var(--sk-panel); box-shadow: 0 3px 0 var(--sk-edge); }
+.skp-toolbar .sk-tools { grid-template-columns: repeat(2, 52px); gap: 6px; }
+.skp-toolbar .sk-tools:not(.sk-seltools) button { height: 52px; }
+.skp-toolbar .sk-tools button svg { width: 26px; height: 26px; }
+.skp-toolbar .sk-tools button[data-key]::after { font-size: .62rem; right: 5px; bottom: 3px; }
+@media (max-width: 900px) { .skp-toolbar { align-self: stretch; } .skp-toolbar .sk-tools { grid-template-columns: repeat(8, 1fr); } .skp-toolbar .sk-tools:not(.sk-seltools) button { height: 44px; } }
+
+/* round drop-down menus in the night theme (the list comes from app-select.js) */
+html:root body.skp select { appearance: none; -webkit-appearance: none; padding-right: 26px; font-weight: 800; cursor: pointer; border-radius: 999px; box-shadow: 0 2px 0 var(--sk-edge);
+  background: var(--sk-field) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1.500 1.500l4.500 4.500 4.500-4.500' fill='none' stroke='%23ff8fab' stroke-width='2.200' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 9px center / 11px; }
+html:root body.skp select:hover, html:root body.skp select[aria-expanded="true"] { border-color: #ff8fab; }
+html:root body.skp select:focus-visible { outline: 2px solid #ff8fab; outline-offset: 1px; }
+html:root body.skp .cs-pop { background: var(--sk-panel); border: 2px solid #ff8fab; box-shadow: 0 3px 0 #c9577f, 0 12px 28px rgba(0, 0, 0, .5); border-radius: 18px; }
+html:root body.skp .cs-opt { color: var(--ink); font-size: .85rem; padding: 6px 12px; border-radius: 12px; }
+html:root body.skp .cs-opt:hover, html:root body.skp .cs-opt:focus-visible { background: var(--sk-field); }
+html:root body.skp .cs-opt[aria-selected="true"] { background: linear-gradient(180deg, #ffa3bb, #ff8fab); color: #3b1f2b; }
+html:root body.skp .cs-opt[aria-selected="true"]::after { color: #3b1f2b; }
+
+/* a roomy note for Claude */
+#skKind { width: 100%; }
+#skNote { width: 100%; box-sizing: border-box; min-height: 120px; resize: vertical; padding: 10px 12px; border-radius: 16px; border: 2px solid var(--sk-edge); background: var(--sk-field); color: var(--ink); font: inherit; font-size: .95rem; line-height: 1.4; box-shadow: none; }
+#skNote:focus { outline: 0; border-color: #ff8fab; }
+#skNote::placeholder { color: var(--muted); }
+.sk-kindrow { flex-direction: column; align-items: stretch; }
+
+/* more cute flair */
+.skp-toolbar { position: relative; }
+.skp-toolbar::before { content: "♡"; position: absolute; top: -9px; left: 50%; translate: -50% 0; padding: 0 6px; font-size: .9rem; line-height: 1; color: #ff8fab; background: var(--sk-bg); border-radius: 999px; animation: sk-beat 2.6s ease-in-out infinite; }
+.skp-box, .skp-toolbar { position: relative; }
+.skp-box::after { content: ""; position: absolute; top: -5px; right: 18px; width: 34px; height: 11px; border-radius: 3px; background: rgba(255, 179, 196, .5); rotate: 4deg; pointer-events: none; }
+.skp-box:nth-child(even)::after { right: auto; left: 18px; rotate: -4deg; background: rgba(190, 170, 255, .45); }
+.sk-tools button[aria-pressed="true"]::before { content: "✦"; position: absolute; top: -5px; left: -3px; font-size: .7rem; line-height: 1; color: #fff3f6; text-shadow: 0 0 6px #ff8fab; animation: sk-star 2.4s ease-in-out infinite; }
+.sk-tools button:not(:disabled):active { animation: sk-pop .25s ease-out; }
+@keyframes sk-pop { 40% { transform: scale(1.12) rotate(-4deg); } }
+.skp-tabs button[aria-selected="true"] { animation: sk-pop .3s ease-out; }
+html:root body.skp .skp-main { background-size: 200% 100%; position: relative; overflow: hidden; }
+html:root body.skp .skp-main::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, .45) 50%, transparent 65%); translate: -120% 0; animation: sk-shine 4s ease-in-out infinite; pointer-events: none; }
+@keyframes sk-shine { 0%, 60% { translate: -120% 0; } 100% { translate: 120% 0; } }
+.skp-hint, #skLayers:empty + *, .skp-layers .skp-hint { text-align: center; }
+.skp-layers .skp-hint::before { content: "🖼️ "; }
+.skp-sent-title::before { content: "♡ "; color: #ff8fab; }
+.skp-sent:hover { border-color: #ff8fab; }
+.cs-pop .cs-opt { transition: padding-left .1s; }
+.cs-pop .cs-opt:hover { padding-left: 16px; }
+@media (prefers-reduced-motion: reduce) { .skp-toolbar::before, .sk-tools button::before, .skp-tabs button, .sk-swatch, .skp-main::after { animation: none !important; } }
+
+/* the Shape menu glows while the Shape tool is on */
+body.skp:has(.sk-stage[data-tool="shape"]) #skShape { border-color: #ff8fab; box-shadow: 0 0 0 2px rgba(255, 143, 171, .35), 0 0 12px rgba(255, 143, 171, .55); }
+.sk-tools button[hidden] { display: none; }
+html:root body.skp .cs-pop::after { background: linear-gradient(transparent, var(--sk-panel) 85%); border-radius: 0 0 16px 16px; }

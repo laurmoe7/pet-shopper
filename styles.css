@@ -2654,6 +2654,8 @@ html:root .cal-month select { flex: none; }
 .cs-opt:hover, .cs-opt:focus-visible { background: var(--paper-edge); outline: 0; }
 .cs-opt[aria-selected="true"] { background: var(--paper-sel); }
 .cs-opt[aria-selected="true"]::after { content: "✓"; margin-left: auto; color: #ec6a8f; font-size: .85rem; }
+.cs-pop::after { content: ""; position: sticky; bottom: -6px; flex: none; height: 30px; margin: -26px -6px -6px; border-radius: 0 0 18px 18px; background: linear-gradient(transparent, var(--paper) 85%); pointer-events: none; opacity: 0; transition: opacity .15s; }
+.cs-pop.more::after { opacity: 1; }
 .cs-opt:disabled { opacity: .4; cursor: default; }
 .cs-opt:disabled:hover { background: transparent; }
 @keyframes cs-in { from { scale: .92; opacity: 0; } to { scale: 1; opacity: 1; } }

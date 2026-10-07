@@ -2,11 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
-## Build 245 (11 Oct)
+## Build 246 (11 Oct)
 - New birdie skin: thrush.
+- Cat friend: thinner outline.
 
 ## Build 244 (11 Oct)
-- Cat friend: thinner outline.
+- Drop-down menus fade at the bottom when they scroll.
 
 ## Build 243 (11 Oct)
 - New hat: cat friend.
@@ -43,9 +44,25 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 - The pet is happy about veggies now.
 
 ## Build 235 (10 Oct)
+- Sketchpad: Clip lines stop flush with the outline.
+- Sketchpad: icon has both ear insides and rounded corners, Clip lines meet the edge.
+- Sketchpad: game outline, pen pressure, pattern fills, clip to body, spin copies, make a curve.
+- Sketchpad: pig icon ears sit behind the head.
+- Sketchpad: five more line styles, Move tool moves a whole layer, Shape menu glows.
+- Sketchpad: can be installed as its own app again.
+- Sketchpad: washi tape on boxes, sparkle on the tool in use, shimmering Upload button.
+- Sketchpad: Images joined Draw, tools bar on the left, round drop-downs, bigger note box.
 - Sketchpad: dark night theme, fireflies in the header.
 - Sketchpad: blinking Nibble in the header, twinkling stars, tape on boxes.
 - Sketchpad: layer names can be typed, eye icons, pig mascot, slower fireflies.
+- Sketchpad: curve tool; click a curve to drag its points and handles.
+- Sketchpad: curves mirror while drawing and when tweaked.
+- Sketchpad: dotted, dashed, stitched and wavy lines.
+- Sketchpad: shape tool with hearts, stars, clouds and more.
+- Sketchpad: fades, glow fills and a soft brush.
+- Sketchpad: new app icon, a pig with a pencil on a rainbow.
+- Sketchpad: clean curve export, game item code, join and cut shapes, tidier tabbed panel.
+- Sketchpad: Sent page to view, reopen and delete uploads; easy upload setup in a new browser.
 - Sketchpad: double-tap a layer to rename it.
 - Sketchpad: the eraser only works on ticked layers.
 - Sketchpad: Select works only on ticked layers; messages moved to the top; outlined sliders.
