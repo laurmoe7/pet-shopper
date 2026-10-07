@@ -37,6 +37,7 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 - The pet is happy about veggies now.
 
 ## Build 235 (10 Oct)
+- Sketchpad: Images joined Draw, tools bar on the left, round drop-downs, bigger note box.
 - Sketchpad: dark night theme, fireflies in the header.
 - Sketchpad: blinking Nibble in the header, twinkling stars, tape on boxes.
 - Sketchpad: layer names can be typed, eye icons, pig mascot, slower fireflies.

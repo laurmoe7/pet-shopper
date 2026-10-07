@@ -3,6 +3,8 @@
 // pet lands where the SVG for it goes. It is its own page, apart from the game: it borrows the pet and the toy from the game's
 // index.html when it opens, and uses logic.js, wardrobe.js, skins.js, decor.js and backdrops.js for the rest.
 'use strict';
+/** The drop-down menus (app-select.js) call this for the game's tap sound; the sketchpad has none. */
+function sound() {}
 
 var SVGNS = 'http://www.w3.org/2000/svg';
 var $ = function (id) { return document.getElementById(id); };
@@ -103,7 +105,7 @@ function skLoad() {
     SK.fillMode = ['none', 'flat', 'v', 'h', 'r'].indexOf(d.fillMode) !== -1 ? d.fillMode : (d.shapeFill ? 'flat' : 'none');
     if (/^#[0-9a-f]{6}$/i.test(d.colour2 || '')) SK.colour2 = d.colour2;
     if (d.clean === false) SK.clean = false;
-    if (['draw', 'images', 'under', 'send', 'sent'].indexOf(d.tab) !== -1) SK.tab = d.tab;
+    if (['draw', 'under', 'send', 'sent'].indexOf(d.tab) !== -1) SK.tab = d.tab;
     ['pet', 'scene', 'toy', 'room'].forEach(function (m) {
       if (d.layers && Array.isArray(d.layers[m])) SK.layers[m] = d.layers[m].filter(function (l) { return l && l.id; }).map(function (l) { return { id: String(l.id), name: String(l.name || 'Layer').slice(0, 24), show: l.show !== false }; });
       if (d.active && d.active[m]) SK.active[m] = d.active[m];
@@ -290,8 +292,9 @@ function skApplyLook() {
   skTab(SK.mode === 'toy' && SK.tab === 'under' ? 'draw' : SK.tab);
 }
 var SK_ITEM_SLOTS = { hat: 'hat', clothes: 'body', face: 'face', mouth: 'mouth', neck: 'neck', feet: 'feet' };
-/** Shows one of the panel's pages (Draw, Images, Pet or Room, Send). */
+/** Shows one of the panel's pages (Draw, Pet or Room, Send, Sent). */
 function skTab(name) {
+  if (name === 'images') name = 'draw';
   if (name === 'sent' && !SK_OWNER) name = 'draw';
   SK.tab = name;
   document.querySelectorAll('#skTabs [data-tab]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === name)); });

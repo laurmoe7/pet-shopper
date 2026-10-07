@@ -332,3 +332,29 @@ body:not(.skp-guest) .guest-only { display: none; }
 .skp-sent .sk-row { gap: 4px; flex-wrap: nowrap; }
 .skp-sent .skp-btn:disabled { opacity: .4; cursor: default; }
 .skp-tabs button { font-size: .78rem; }
+
+/* the tools bar beside the canvas */
+.skp-toolbar { flex: none; align-self: flex-start; display: flex; flex-direction: column; padding: 8px; border-radius: 20px; border: 2px solid var(--sk-edge); background: var(--sk-panel); box-shadow: 0 3px 0 var(--sk-edge); }
+.skp-toolbar .sk-tools { grid-template-columns: repeat(2, 52px); gap: 6px; }
+.skp-toolbar .sk-tools:not(.sk-seltools) button { height: 52px; }
+.skp-toolbar .sk-tools button svg { width: 26px; height: 26px; }
+.skp-toolbar .sk-tools button[data-key]::after { font-size: .62rem; right: 5px; bottom: 3px; }
+@media (max-width: 900px) { .skp-toolbar { align-self: stretch; } .skp-toolbar .sk-tools { grid-template-columns: repeat(8, 1fr); } .skp-toolbar .sk-tools:not(.sk-seltools) button { height: 44px; } }
+
+/* round drop-down menus in the night theme (the list comes from app-select.js) */
+html:root body.skp select { appearance: none; -webkit-appearance: none; padding-right: 26px; font-weight: 800; cursor: pointer; border-radius: 999px; box-shadow: 0 2px 0 var(--sk-edge);
+  background: var(--sk-field) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1.500 1.500l4.500 4.500 4.500-4.500' fill='none' stroke='%23ff8fab' stroke-width='2.200' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 9px center / 11px; }
+html:root body.skp select:hover, html:root body.skp select[aria-expanded="true"] { border-color: #ff8fab; }
+html:root body.skp select:focus-visible { outline: 2px solid #ff8fab; outline-offset: 1px; }
+html:root body.skp .cs-pop { background: var(--sk-panel); border: 2px solid #ff8fab; box-shadow: 0 3px 0 #c9577f, 0 12px 28px rgba(0, 0, 0, .5); border-radius: 18px; }
+html:root body.skp .cs-opt { color: var(--ink); font-size: .85rem; padding: 6px 12px; border-radius: 12px; }
+html:root body.skp .cs-opt:hover, html:root body.skp .cs-opt:focus-visible { background: var(--sk-field); }
+html:root body.skp .cs-opt[aria-selected="true"] { background: linear-gradient(180deg, #ffa3bb, #ff8fab); color: #3b1f2b; }
+html:root body.skp .cs-opt[aria-selected="true"]::after { color: #3b1f2b; }
+
+/* a roomy note for Claude */
+#skKind { width: 100%; }
+#skNote { width: 100%; box-sizing: border-box; min-height: 120px; resize: vertical; padding: 10px 12px; border-radius: 16px; border: 2px solid var(--sk-edge); background: var(--sk-field); color: var(--ink); font: inherit; font-size: .95rem; line-height: 1.4; box-shadow: none; }
+#skNote:focus { outline: 0; border-color: #ff8fab; }
+#skNote::placeholder { color: var(--muted); }
+.sk-kindrow { flex-direction: column; align-items: stretch; }
