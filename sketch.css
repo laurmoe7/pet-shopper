@@ -290,3 +290,9 @@ html:root body.skp.skp-guest #skSaveFile { color: #fff; text-shadow: 0 1px 2px r
 .skp-line[aria-selected="false"].active { border-color: var(--sk-edge); }
 .skp-line input[data-act="name"][readonly] { cursor: pointer; user-select: none; }
 .skp-line input[data-act="name"]:not([readonly]) { background: var(--sk-field); border-color: #ff8fab; cursor: text; }
+.sk-cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 6; pointer-events: none; }
+.sk-cv .cva { fill: #fff; stroke: var(--accent); stroke-width: 1.6; vector-effect: non-scaling-stroke; }
+.sk-cv .cva.first { fill: var(--accent); }
+.sk-cv .cvh { stroke: var(--accent); stroke-width: 1.2; vector-effect: non-scaling-stroke; opacity: .8; }
+.sk-cv .cvk { fill: var(--accent); stroke: #fff; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.sk-stage[data-tool="curve"] .sk-draw { cursor: crosshair; }

@@ -26,6 +26,7 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 - Sketchpad: dark night theme, fireflies in the header.
 - Sketchpad: blinking Nibble in the header, twinkling stars, tape on boxes.
 - Sketchpad: layer names can be typed, eye icons, pig mascot, slower fireflies.
+- Sketchpad: curve tool.
 - Sketchpad: double-tap a layer to rename it.
 - Sketchpad: the eraser only works on ticked layers.
 - Sketchpad: Select works only on ticked layers; messages moved to the top; outlined sliders.

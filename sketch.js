@@ -26,7 +26,7 @@ var SK = {
   layers: { pet: [], scene: [], toy: [], room: [] }, layerSet: { pet: [], scene: [], toy: [], room: [] }, active: { pet: 'l1', scene: 'l1', toy: 'l1', room: 'l1' }
 };
 var SK_PEN_DEFAULT = 9;
-var SK_OWNER = false, skDraw = null, skDrawing = false, skPan = null, skPetSvg = null, skToys = null, skImgUnder = null, skImgOver = null, skSelBox = null, skXf = null;
+var SK_OWNER = false, skDraw = null, skDrawing = false, skPan = null, skPetSvg = null, skToys = null, skImgUnder = null, skImgOver = null, skSelBox = null, skXf = null, skCv = null, skCurve = null;
 
 // ---------- borrowing the pet from the game ----------
 /** Fetches the game's page and keeps its pet drawing (with its gradients and clip) and its toys, hidden, to copy from. */
@@ -194,9 +194,9 @@ function skBuild() {
   skDraw.setAttribute('viewBox', [v.x, v.y, v.w, v.h].join(' '));
   skDraw.setAttribute('class', 'sk-draw');
   skStage.dataset.mode = SK.mode;
-  skImgUnder = skLayerSvg('sk-imgs under'); skImgOver = skLayerSvg('sk-imgs over'); skSelBox = skLayerSvg('sk-sel'); skXf = skLayerSvg('sk-xf');
+  skImgUnder = skLayerSvg('sk-imgs under'); skImgOver = skLayerSvg('sk-imgs over'); skSelBox = skLayerSvg('sk-sel'); skXf = skLayerSvg('sk-xf'); skCv = skLayerSvg('sk-cv'); skCurve = null;
   skXf.addEventListener('pointerdown', skXfDown);
-  skStage.replaceChildren(skImgUnder, ref, skImgOver, skGrid(v), skDraw, skSelBox, skXf);
+  skStage.replaceChildren(skImgUnder, ref, skImgOver, skGrid(v), skDraw, skSelBox, skXf, skCv);
   skRenderImages();
   skRedraw();
   skHistoryUI();
@@ -441,6 +441,7 @@ function skDown(e) {
   var pt = skPoint(e), v = SK_VIEW[SK.mode];
   if (SK.tool === 'bucket') { skBucket(pt); return; }
   if (skIsSel()) { skSelDown(e, pt); return; }
+  if (SK.tool === 'curve') { skCurveDown(e, pt); return; }
   if (SK.tool === 'imgmove') {
     var img = skSelected();
     if (!img) { skStatus.textContent = 'Add an image first (Ctrl+V pastes one).'; return; }
@@ -465,7 +466,9 @@ function skMove(e) {
   var pt = skPoint(e), v = SK_VIEW[SK.mode];
   skLastPt = pt;
   if (skPan) { skView.scrollLeft = skPan.left - (e.clientX - skPan.x); skView.scrollTop = skPan.top - (e.clientY - skPan.y); return; }
+  if (SK.tool === 'curve' && skCurve && !skDrawing) { skCurveRender(pt); return; }
   if (!skDrawing || !e.isPrimary) return;
+  if (skDrawing.curve) { skCurveDrag(pt); return; }
   if (skDrawing.xf) { skXfMove(pt, e); return; }
   if (skDrawing.lasso) {
     var lp = skDrawing.lasso.pts;
@@ -497,6 +500,7 @@ function skUp() {
   if (skPan) skStage.classList.remove('panning');
   skPan = null;
   if (skDrawing && skDrawing.image) { skDrawing = false; skSaveImages(); return; }
+  if (skDrawing && skDrawing.curve) { skDrawing = false; skCurveRender(skLastPt); return; }
   if (skDrawing && skDrawing.xf) { skDrawing = false; skSave(); skXfRender(); return; }
   if (skDrawing && skDrawing.lasso) { skLassoEnd(); skDrawing = false; skXfRender(); return; }
   if (skDrawing && skDrawing.band) { skBandEnd(skLastPt || [skDrawing.band.x, skDrawing.band.y]); skDrawing = false; skXfRender(); return; }
@@ -521,6 +525,7 @@ function skCancel() {
   skStage.classList.remove('panning');
 }
 function skUndo() {
+  if (skCurve) { skCurve.pts.pop(); if (!skCurve.pts.length) skCurve = null; skCurveRender(skLastPt); skFlash('skUndo'); return; }
   SK.pick = []; skXfRender();
   var h = SK.hist[SK.mode];
   if (!h.length) { skStatus.textContent = 'Nothing to undo.'; return; }
@@ -543,6 +548,88 @@ function skRedo() {
   skHistoryUI();
   skStatus.textContent = 'Redone.';
   skSave();
+}
+
+// ---------- the curve tool: place points, drag to bend, and the line follows them smoothly ----------
+/** @returns {number[][]} A smooth line through the anchors (each has a handle `out`; the one coming in is its mirror image). */
+function skCurvePts(anchors, closed, step) {
+  var out = [], n = anchors.length, segs = closed ? n : n - 1, i, k;
+  for (i = 0; i < segs; i++) {
+    var a = anchors[i], b = anchors[(i + 1) % n];
+    var p0 = a.p, p1 = [a.p[0] + a.out[0], a.p[1] + a.out[1]], p2 = [b.p[0] - b.out[0], b.p[1] - b.out[1]], p3 = b.p;
+    var len = Math.hypot(p3[0] - p0[0], p3[1] - p0[1]) + Math.hypot(a.out[0], a.out[1]) + Math.hypot(b.out[0], b.out[1]);
+    var m = Math.max(4, Math.ceil(len / step));
+    for (k = (i ? 1 : 0); k <= m; k++) {
+      var t = k / m, u = 1 - t;
+      out.push([u * u * u * p0[0] + 3 * u * u * t * p1[0] + 3 * u * t * t * p2[0] + t * t * t * p3[0], u * u * u * p0[1] + 3 * u * u * t * p1[1] + 3 * u * t * t * p2[1] + t * t * t * p3[1]]);
+    }
+  }
+  return out.map(function (p) { return [+p[0].toFixed(2), +p[1].toFixed(2)]; });
+}
+/** Draws the line so far, a preview towards the pointer, and the points with their handles. */
+function skCurveRender(hover) {
+  if (!skCv) return;
+  skCv.replaceChildren();
+  if (!skCurve || !skCurve.pts.length) return;
+  var v = SK_VIEW[SK.mode], upp = v.w / (skStage.getBoundingClientRect().width || v.w), step = v.w * 0.004;
+  function add(tag, attrs) {
+    var n = document.createElementNS(SVGNS, tag);
+    Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    skCv.appendChild(n); return n;
+  }
+  var list = skCurve.pts.slice();
+  if (hover && !skDrawing) list.push({ p: hover, out: [0, 0] });
+  var pts = list.length > 1 ? skCurvePts(list, false, step) : [list[0].p];
+  add('path', { d: L.sketchPath(pts, false, 2), fill: 'none', stroke: SK.color, 'stroke-width': v.w * SK_PEN * SK.pen, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: .85 });
+  skCurve.pts.forEach(function (a, i) {
+    if (a.out[0] || a.out[1]) {
+      [1, -1].forEach(function (s) {
+        add('line', { 'class': 'cvh', x1: a.p[0], y1: a.p[1], x2: a.p[0] + s * a.out[0], y2: a.p[1] + s * a.out[1] });
+        add('circle', { 'class': 'cvk', cx: a.p[0] + s * a.out[0], cy: a.p[1] + s * a.out[1], r: 3 * upp });
+      });
+    }
+    add('rect', { 'class': i === 0 ? 'cva first' : 'cva', x: a.p[0] - 4 * upp, y: a.p[1] - 4 * upp, width: 8 * upp, height: 8 * upp });
+  });
+}
+/** Pressing with the curve tool: a new point (drag to bend it), a double-click to finish, or the first point to close. */
+function skCurveDown(e, pt) {
+  var v = SK_VIEW[SK.mode], upp = v.w / (skStage.getBoundingClientRect().width || v.w), now = Date.now();
+  if (skCurve) {
+    var last = skCurve.pts[skCurve.pts.length - 1], first = skCurve.pts[0];
+    if (now - skCurve.t < 350 && Math.hypot(pt[0] - last.p[0], pt[1] - last.p[1]) < 10 * upp) { skCurveFinish(false); return; }
+    if (skCurve.pts.length > 2 && Math.hypot(pt[0] - first.p[0], pt[1] - first.p[1]) < 10 * upp) { skCurveFinish(true); return; }
+  } else skCurve = { pts: [], t: 0 };
+  skCurve.t = now;
+  skCurve.pts.push({ p: pt, out: [0, 0] });
+  skDrawing = { curve: true };
+  skCurveRender(null);
+}
+/** Dragging after pressing pulls the new point's handles out, which bends the line through it. */
+function skCurveDrag(pt) {
+  var a = skCurve.pts[skCurve.pts.length - 1];
+  a.out = [pt[0] - a.p[0], pt[1] - a.p[1]];
+  skCurveRender(null);
+}
+function skCurveCancel() {
+  skCurve = null; skDrawing = false;
+  skCurveRender(null);
+}
+/** Turns the points into a line in the drawing (closed into a loop if asked). */
+function skCurveFinish(close) {
+  var c = skCurve, v = SK_VIEW[SK.mode];
+  skCurve = null; skDrawing = false;
+  skCurveRender(null);
+  if (!c || c.pts.length < 2) return;
+  var pts = L.simplifyLine(skCurvePts(c.pts, close, v.w * 0.004), v.w * 0.0008);
+  var s = { pts: pts, color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: false, lay: SK.active[SK.mode] };
+  if (close) s.closed = true;
+  var act = skLays().filter(function (x) { return x.id === SK.active[SK.mode]; })[0];
+  if (act && !act.show) { act.show = true; skLinesUI(); }
+  skPushHistory();
+  SK.strokes[SK.mode].push(s);
+  if (SK.mirror) SK.strokes[SK.mode].push(skMirrored(s));
+  skRedraw(); skSave();
+  skStatus.textContent = 'Curve added.';
 }
 
 // ---------- the transform tool: pick lines, then resize, turn or move them ----------
@@ -1202,6 +1289,7 @@ function skEyedrop() {
   });
 }
 function skSetTool(t) {
+  if (skCurve && t !== 'curve') skCurveFinish(false);
   if (t === 'drop' && window.EyeDropper) { skEyedrop(); return; }   // the browser's own: picks once from anywhere on the screen
   if (t === 'drop') {   // no screen eyedropper (Firefox): click on the picture instead, then carry on with the tool you had
     if (SK.tool !== 'drop') SK.prevTool = SK.tool;
@@ -1209,6 +1297,7 @@ function skSetTool(t) {
   }
   if (t !== 'select' && t !== 'lasso') SK.pick = [];
   if (t === 'select') skStatus.textContent = 'Click a line or drag a box over some. Shift adds. Corners resize, the round handle turns, the middle moves.';
+  if (t === 'curve') skStatus.textContent = 'Click to place points, drag to bend. Double-click or Enter finishes, the first point closes, Esc cancels.';
   if (t === 'lasso') skStatus.textContent = 'Draw a loop round what you want. Shift adds. Then resize, turn or move it.';
   if (t === 'bucket') skStatus.textContent = 'Click inside a closed area to fill it with the pen colour.';
   SK.tool = t;
@@ -1384,10 +1473,12 @@ document.addEventListener('keydown', function (e) {
   if ((e.ctrlKey || e.metaKey) && k === 'd') { e.preventDefault(); skDuplicate(); return; }
   if ((e.ctrlKey || e.metaKey) && k === 'y') { e.preventDefault(); skRedo(); return; }
   if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (skCurve && e.key === 'Enter') { e.preventDefault(); skCurveFinish(false); return; }
+  if (skCurve && e.key === 'Escape') { skCurveCancel(); skStatus.textContent = 'Curve cancelled.'; return; }
   if (k === 'x') { skSetMirror(!SK.mirror); return; }
   if ((k === 'delete' || k === 'backspace') && skIsSel() && SK.pick.length) { e.preventDefault(); skDeletePick(); return; }
   if (e.key === 'Escape' && skIsSel() && SK.pick.length) { SK.pick = []; skXfRender(); return; }
-  var tool = { p: 'pen', f: 'blob', e: 'erase', h: 'hand', i: 'drop', m: 'imgmove', b: 'bucket', s: 'select', l: 'lasso' }[k];
+  var tool = { p: 'pen', f: 'blob', e: 'erase', h: 'hand', i: 'drop', m: 'imgmove', b: 'bucket', s: 'select', l: 'lasso', c: 'curve' }[k];
   if (tool) skSetTool(tool);
 });
 document.addEventListener('keyup', function (e) {
