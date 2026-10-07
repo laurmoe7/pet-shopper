@@ -4,7 +4,7 @@
   "description": "Draw skins, hats, toys, backgrounds and furniture over Nibble's pets.",
   "id": "./sketch.html",
   "start_url": "./sketch.html",
-  "scope": "./",
+  "scope": "./sketch.html",
   "display": "standalone",
   "background_color": "#fdf1f3",
   "theme_color": "#fde3ea",

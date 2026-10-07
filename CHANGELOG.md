@@ -37,6 +37,7 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 - The pet is happy about veggies now.
 
 ## Build 235 (10 Oct)
+- Sketchpad: can be installed as its own app again.
 - Sketchpad: washi tape on boxes, sparkle on the tool in use, shimmering Upload button.
 - Sketchpad: Images joined Draw, tools bar on the left, round drop-downs, bigger note box.
 - Sketchpad: dark night theme, fireflies in the header.
