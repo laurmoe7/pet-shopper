@@ -2,6 +2,20 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 243 (11 Oct)
+- New hat: cat friend.
+- New clothes: overalls dress.
+
+## Build 242 (11 Oct)
+- New clothes: lilac dress.
+
+## Build 241 (11 Oct)
+- Much smoother on Chrome with many items, and when sliding an item away.
+- The gift box sits at Nibble's bottom left, clear of speech bubbles.
+- Photoshoot: no tutorial text, no Turn buttons (twist still works), no fade at the bottom.
+- New hat: red ribbon.
+- New hat: goggles.
+
 ## Build 238 (11 Oct)
 - Smoother with a long list: the Bought list shows its latest rows, with a button for the rest.
 - Tidied unused files.
