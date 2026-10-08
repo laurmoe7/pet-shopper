@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 323 (9 Oct)
+- The bell's open end is a flat band.
+- The night light is a little plug-in moon lamp by his bed (the glow is back to how it was).
+
 ## Build 322 (9 Oct)
 - The bell has no gap under its dome.
 - Night light on the desktop: the bed and the moon lamp glow and fireflies drift, no haze over the desktop.

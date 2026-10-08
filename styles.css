@@ -2957,10 +2957,16 @@ html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); scale: .7; t
 .pet.teddy-taken .teddy-hug { display: none !important; }
 .teddy-btn { position: absolute; z-index: 5; padding: 0; border: 0; background: transparent; cursor: grab; touch-action: none; border-radius: 50%; }
 .teddy-float { position: fixed; z-index: 30; width: 44px; height: 44px; pointer-events: none; filter: drop-shadow(0 3px 2px rgba(91, 66, 57, .3)); }
-.night-btn { position: absolute; right: 6px; bottom: 6px; z-index: 6; width: 30px; height: 30px; padding: 4px; border: 1.6px solid var(--outline); border-radius: 50%; background: var(--surface); box-shadow: 0 2px 0 var(--outline); cursor: pointer; }
-.night-btn img { display: block; width: 100%; height: 100%; opacity: .75; }
-.night-btn[aria-pressed="true"] { background: #ffe3a8; }
-.night-btn[aria-pressed="true"] img { opacity: 1; }
+.night-btn { position: absolute; right: 8px; bottom: 3px; z-index: 6; width: 30px; height: 38px; padding: 0; border: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.night-btn svg { display: block; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 2px 1px rgba(91, 66, 57, .3)); }
+.nl-plug { fill: #e8dcc8; stroke: #5b4239; stroke-width: 1.5; }
+.nl-base { fill: #f6ecd8; stroke: #5b4239; stroke-width: 1.7; }
+.nl-glass { fill: #dfe7f2; stroke: #5b4239; stroke-width: 1.7; }
+.nl-moon { fill: #b9c4d6; }
+.nl-shine { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; opacity: .8; }
+.night-btn[aria-pressed="true"] .nl-glass { fill: #fff0b8; }
+.night-btn[aria-pressed="true"] .nl-moon { fill: #ffc94a; }
+.night-btn[aria-pressed="true"] svg { filter: drop-shadow(0 0 6px rgba(255, 205, 110, .95)) drop-shadow(0 0 14px rgba(255, 175, 90, .6)); }
 .night-btn[hidden], .teddy-btn[hidden] { display: none; }
 .night-glow { position: absolute; inset: -10px; z-index: 0; pointer-events: none; opacity: 0; transition: opacity .8s ease; background: radial-gradient(ellipse at 50% 78%, rgba(255, 196, 120, .55), rgba(255, 176, 96, .2) 42%, transparent 70%); }
 .stage.night-light .night-glow { opacity: 1; animation: glow-breathe 5.5s ease-in-out infinite; }
@@ -2976,8 +2982,6 @@ html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); scale: .7; t
 .bell-svg { display: block; overflow: visible; transform-origin: 50% 17%; }   /* it swings from the handle */
 .bl-handle { fill: #d6a066; stroke: #5b4239; stroke-width: 1.7; }
 .bl-body { fill: #f2c14e; stroke: #5b4239; stroke-width: 1.8; stroke-linejoin: round; }
-.bl-fill { fill: #f2c14e; stroke: none; }
-.bl-line { fill: none; stroke: #5b4239; stroke-width: 1.8; stroke-linecap: round; }
 .bl-collar { fill: #e0a93a; stroke: #5b4239; stroke-width: 1.6; }
 .bl-shine { fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; opacity: .75; }
 .bl-clapper { fill: #c98f4f; stroke: #5b4239; stroke-width: 1.4; }
@@ -2986,16 +2990,3 @@ html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); scale: .7; t
 .bell.pop { animation: pop .35s cubic-bezier(.3, 1.6, .5, 1); }
 .stage.bell-mode .toy { display: none; }
 
-/* the night light on the desktop (the small window is see-through, so no big haze over the desktop): the bed and the little moon lamp glow, and
-   a few fireflies drift about him */
-html.desktop-pet .night-glow { display: none; }
-html.desktop-pet .stage.night-light :is(.pet-bed, .bed-front) { filter: drop-shadow(0 0 6px rgba(255, 205, 130, .95)) drop-shadow(0 0 16px rgba(255, 170, 90, .6)); }
-html.desktop-pet .stage.night-light .night-btn { box-shadow: 0 0 10px 4px rgba(255, 205, 120, .75), 0 0 22px 8px rgba(255, 170, 90, .35); background: #ffe9b0; }
-.night-fly { display: none; position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #ffe9a0; box-shadow: 0 0 6px 2px rgba(255, 220, 130, .85); pointer-events: none; z-index: 5; opacity: 0; }
-html.desktop-pet .stage.night-light .night-fly { display: block; animation: fly-drift 6s ease-in-out infinite; }
-.night-fly.f0 { left: 18%; bottom: 62px; }
-.night-fly.f1 { left: 78%; bottom: 74px; animation-delay: -2s !important; animation-duration: 7.5s !important; }
-.night-fly.f2 { left: 34%; bottom: 96px; animation-delay: -4s !important; animation-duration: 8.5s !important; }
-.night-fly.f3 { left: 66%; bottom: 52px; animation-delay: -1s !important; animation-duration: 6.8s !important; }
-@keyframes fly-drift { 0%, 100% { opacity: 0; translate: 0 0; } 20% { opacity: .95; } 50% { opacity: .5; translate: 9px -12px; } 80% { opacity: .95; translate: -7px -5px; } }
-@media (prefers-reduced-motion: reduce) { html.desktop-pet .stage.night-light .night-fly { animation: none; opacity: .8; } }

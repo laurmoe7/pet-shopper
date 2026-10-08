@@ -100,11 +100,13 @@ teddyBtn.addEventListener('pointercancel', teddyLetGo);
 var NIGHT_LIGHT_KEY = 'nibble-nightlight';
 var nightBtn = document.createElement('button');
 nightBtn.type = 'button'; nightBtn.className = 'night-btn'; nightBtn.hidden = true;
-nightBtn.appendChild(emojiImg('🌙', ''));
+// a little plug-in night light standing by his bed: a cream base with a glass moon on it (it lights up when it is on)
+nightBtn.innerHTML = '<svg viewBox="0 0 30 38" width="30" height="38" aria-hidden="true"><rect class="nl-plug" x="11" y="31" width="8" height="7" rx="1.5"/>' +
+  '<rect class="nl-base" x="3" y="22" width="24" height="12" rx="5"/><circle class="nl-glass" cx="15" cy="14" r="11"/>' +
+  '<path class="nl-moon" d="M17.6 6.6 A8 8 0 1 0 22.4 17.2 A6.4 6.4 0 0 1 17.6 6.6 Z"/><path class="nl-shine" d="M8.6 10.4 Q9.6 7.6 12.2 6.6"/></svg>';
 var nightGlow = document.createElement('div');
 nightGlow.className = 'night-glow'; nightGlow.setAttribute('aria-hidden', 'true');
 stage.append(nightGlow, nightBtn);
-for (var fi = 0; fi < 4; fi++) { var fly = document.createElement('i'); fly.className = 'night-fly f' + fi; fly.setAttribute('aria-hidden', 'true'); stage.appendChild(fly); }
 var nightLightOn = false;
 try { nightLightOn = localStorage.getItem(NIGHT_LIGHT_KEY) === '1'; } catch (e) { /* storage blocked */ }
 function showNightLight() {
@@ -144,9 +146,8 @@ bell.type = 'button'; bell.className = 'bell'; bell.hidden = true; bell.setAttri
 // a brass hand bell with a wooden handle (36 x 48): he is held by the handle, and swings from it
 bell.innerHTML = '<span class="bell-img"><svg class="bell-svg" viewBox="0 0 36 48" width="36" height="48" aria-hidden="true">' +
   '<rect class="bl-handle" x="14.2" y="1" width="7.6" height="19" rx="3.8"/>' +
-  '<path class="bl-fill" d="M4 41 C4 28 10 21 18 21 C26 21 32 28 32 41 L34 41 Q18 46.5 2 41 Z"/>' +   // (the dome, filled right down to the lip: no gap)
-  '<path class="bl-line" d="M4 41 C4 28 10 21 18 21 C26 21 32 28 32 41"/>' +
-  '<path class="bl-body" d="M2 41 Q18 46.5 34 41 Q34.4 44.6 30.5 44.6 L5.5 44.6 Q1.6 44.6 2 41 Z"/>' +
+  '<path class="bl-body" d="M4 40 C4 28 10 21 18 21 C26 21 32 28 32 40 Z"/>' +
+  '<path class="bl-body" d="M2 39.6 H34 L34.2 43.2 Q34.2 44.8 32.4 44.8 L3.6 44.8 Q1.8 44.8 1.8 43.2 Z"/>' +   // (a flat band round the open end)
   '<rect class="bl-collar" x="11.4" y="17.6" width="13.2" height="5.4" rx="2.4"/>' +
   '<path class="bl-shine" d="M9 36 C9 31 11 27.6 14 25.6"/><circle class="bl-clapper" cx="18" cy="46" r="2.6"/></svg></span>';
 var bellImg = bell.querySelector('.bell-img'), bellSvg = bell.querySelector('.bell-svg');
