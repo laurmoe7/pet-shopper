@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 322 (9 Oct)
+- The bell has no gap under its dome.
+- Night light on the desktop: the bed and the moon lamp glow and fireflies drift, no haze over the desktop.
+
 ## Build 321 (9 Oct)
 - The night bell has a handle: you hold it by the handle and it swings like a real hand bell.
 - It flies like the toy when thrown, and breaks on its second bounce.

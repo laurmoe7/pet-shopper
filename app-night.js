@@ -104,6 +104,7 @@ nightBtn.appendChild(emojiImg('🌙', ''));
 var nightGlow = document.createElement('div');
 nightGlow.className = 'night-glow'; nightGlow.setAttribute('aria-hidden', 'true');
 stage.append(nightGlow, nightBtn);
+for (var fi = 0; fi < 4; fi++) { var fly = document.createElement('i'); fly.className = 'night-fly f' + fi; fly.setAttribute('aria-hidden', 'true'); stage.appendChild(fly); }
 var nightLightOn = false;
 try { nightLightOn = localStorage.getItem(NIGHT_LIGHT_KEY) === '1'; } catch (e) { /* storage blocked */ }
 function showNightLight() {
@@ -143,7 +144,8 @@ bell.type = 'button'; bell.className = 'bell'; bell.hidden = true; bell.setAttri
 // a brass hand bell with a wooden handle (36 x 48): he is held by the handle, and swings from it
 bell.innerHTML = '<span class="bell-img"><svg class="bell-svg" viewBox="0 0 36 48" width="36" height="48" aria-hidden="true">' +
   '<rect class="bl-handle" x="14.2" y="1" width="7.6" height="19" rx="3.8"/>' +
-  '<path class="bl-body" d="M4 41 C4 28 10 21 18 21 C26 21 32 28 32 41 Z"/>' +
+  '<path class="bl-fill" d="M4 41 C4 28 10 21 18 21 C26 21 32 28 32 41 L34 41 Q18 46.5 2 41 Z"/>' +   // (the dome, filled right down to the lip: no gap)
+  '<path class="bl-line" d="M4 41 C4 28 10 21 18 21 C26 21 32 28 32 41"/>' +
   '<path class="bl-body" d="M2 41 Q18 46.5 34 41 Q34.4 44.6 30.5 44.6 L5.5 44.6 Q1.6 44.6 2 41 Z"/>' +
   '<rect class="bl-collar" x="11.4" y="17.6" width="13.2" height="5.4" rx="2.4"/>' +
   '<path class="bl-shine" d="M9 36 C9 31 11 27.6 14 25.6"/><circle class="bl-clapper" cx="18" cy="46" r="2.6"/></svg></span>';

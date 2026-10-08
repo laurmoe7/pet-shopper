@@ -2976,6 +2976,8 @@ html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); scale: .7; t
 .bell-svg { display: block; overflow: visible; transform-origin: 50% 17%; }   /* it swings from the handle */
 .bl-handle { fill: #d6a066; stroke: #5b4239; stroke-width: 1.7; }
 .bl-body { fill: #f2c14e; stroke: #5b4239; stroke-width: 1.8; stroke-linejoin: round; }
+.bl-fill { fill: #f2c14e; stroke: none; }
+.bl-line { fill: none; stroke: #5b4239; stroke-width: 1.8; stroke-linecap: round; }
 .bl-collar { fill: #e0a93a; stroke: #5b4239; stroke-width: 1.6; }
 .bl-shine { fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; opacity: .75; }
 .bl-clapper { fill: #c98f4f; stroke: #5b4239; stroke-width: 1.4; }
@@ -2983,3 +2985,17 @@ html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); scale: .7; t
 .bell.held .bell-img { filter: drop-shadow(0 6px 3px rgba(91, 66, 57, .25)); }
 .bell.pop { animation: pop .35s cubic-bezier(.3, 1.6, .5, 1); }
 .stage.bell-mode .toy { display: none; }
+
+/* the night light on the desktop (the small window is see-through, so no big haze over the desktop): the bed and the little moon lamp glow, and
+   a few fireflies drift about him */
+html.desktop-pet .night-glow { display: none; }
+html.desktop-pet .stage.night-light :is(.pet-bed, .bed-front) { filter: drop-shadow(0 0 6px rgba(255, 205, 130, .95)) drop-shadow(0 0 16px rgba(255, 170, 90, .6)); }
+html.desktop-pet .stage.night-light .night-btn { box-shadow: 0 0 10px 4px rgba(255, 205, 120, .75), 0 0 22px 8px rgba(255, 170, 90, .35); background: #ffe9b0; }
+.night-fly { display: none; position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #ffe9a0; box-shadow: 0 0 6px 2px rgba(255, 220, 130, .85); pointer-events: none; z-index: 5; opacity: 0; }
+html.desktop-pet .stage.night-light .night-fly { display: block; animation: fly-drift 6s ease-in-out infinite; }
+.night-fly.f0 { left: 18%; bottom: 62px; }
+.night-fly.f1 { left: 78%; bottom: 74px; animation-delay: -2s !important; animation-duration: 7.5s !important; }
+.night-fly.f2 { left: 34%; bottom: 96px; animation-delay: -4s !important; animation-duration: 8.5s !important; }
+.night-fly.f3 { left: 66%; bottom: 52px; animation-delay: -1s !important; animation-duration: 6.8s !important; }
+@keyframes fly-drift { 0%, 100% { opacity: 0; translate: 0 0; } 20% { opacity: .95; } 50% { opacity: .5; translate: 9px -12px; } 80% { opacity: .95; translate: -7px -5px; } }
+@media (prefers-reduced-motion: reduce) { html.desktop-pet .stage.night-light .night-fly { animation: none; opacity: .8; } }
