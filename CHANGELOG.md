@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 296 (9 Oct)
+- Desktop: the add box and other cards stay on the screen when he is near the edge.
+
 ## Build 295 (9 Oct)
 - Desktop (dev build only): Claude Code link, he reacts when Claude Code finishes or needs you.
 

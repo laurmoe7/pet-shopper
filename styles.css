@@ -2856,7 +2856,7 @@ html.desktop-pet .dream-dot.d2 { left: -12px; top: 54px; }
 .inbox-actions button:active { transform: translateY(2px); box-shadow: none; }
 .inbox-actions .inbox-done { margin-left: auto; }
 .stage:has(.inbox-card) .bubble { display: none; }
-html.desktop-pet .stage .inbox-card { top: auto; bottom: calc(100% + 1px); }
+html.desktop-pet .stage .inbox-card { top: auto; bottom: calc(100% + 1px); left: calc(var(--vis-l, 0px) + 8px); right: calc(100vw - var(--vis-r, 100vw) + 8px); }   /* (and only over the part of his window that is on a screen) */
 /* choices from the settings window: no toy, no cushion under him (the bed at night stays) */
 html.desktop-pet.desk-notoy .toy { display: none !important; }
 html.desktop-pet.desk-nocushion .stage:not(.bedtime) .cushion { display: none; }

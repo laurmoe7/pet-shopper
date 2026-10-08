@@ -257,7 +257,14 @@ function start() {
   function toggleFull() { if (!win) return; if (!win.isVisible()) showFumu(); applyMode(mode === 'list' ? 'pet' : 'list'); }
   function swapList() { if (!win) return; if (!win.isVisible()) showFumu(); win.webContents.send('desk:swapList'); }
   // a small box by Fumu to add an item without opening the app: the page shows it and asks for the keyboard while it is open
-  function quickAdd() { if (!win) return; if (!win.isVisible()) showFumu(); win.webContents.send('desk:quickAdd'); if (mode === 'list') win.focus(); }
+  function quickAdd() {
+    if (!win) return;
+    if (!win.isVisible()) showFumu();
+    // the box opens over his window: if he is half off the screen (peeking, or near the edge) he is brought fully back first
+    if (mode === 'pet') { const b = win.getBounds(), fixed = place.within(b, here()); if (fixed.x !== b.x || fixed.y !== b.y) { peekRest = null; stopTween(); win.setBounds(fixed); restHere(); } }
+    win.webContents.send('desk:quickAdd');
+    if (mode === 'list') win.focus();
+  }
   // the text on the clipboard (a link or a note) goes to the other device at once: the page does the sending
   function sendCopied() { if (!win) return; if (!win.isVisible()) showFumu(); win.webContents.send('desk:sendCopied', String(clipboard.readText() || '').slice(0, 4100)); }
   ipcMain.on('desk:typing', (_e, yes) => { if (win && yes) win.focus(); });
