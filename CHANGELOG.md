@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 298 (9 Oct)
+- Fumu hears when Claude replies or needs you (a hook in the cloud sends a note through your sync inbox); the Claude Code link on the PC is gone.
+- Toy over the whole screen: harder throws, lighter gravity, livelier bounces, longer flights.
+
 ## Build 297 (9 Oct)
 - Sitting on a window: 10 px lower.
 - Claude Code link shows the full settings.json path with a button to open it.

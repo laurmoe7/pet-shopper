@@ -27,7 +27,7 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, displaced = false, perch = null, perchTimer = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, claudeLink: false, claudeToken: '', mute: false, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
+  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, mute: false, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
   const DEFAULTS = Object.assign({}, prefs);
   try { prefs = Object.assign(prefs, JSON.parse(fs.readFileSync(prefsFile(), 'utf8'))); } catch (e) { /* first run */ }
   prefs.keys = keys.clean(prefs.keys);
@@ -172,7 +172,7 @@ function start() {
   function hideFumu() { if (win) win.hide(); refreshMenus(); }
 
   // one place that changes a setting, for the right-click menu and the settings window alike
-  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'remind', 'perch', 'hideToy', 'hideCushion', 'startWithWindows', 'bubbles', 'clouds', 'sparkles', 'backdrop', 'mute', 'toyRoam', 'claudeLink'];
+  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'remind', 'perch', 'hideToy', 'hideCushion', 'startWithWindows', 'bubbles', 'clouds', 'sparkles', 'backdrop', 'mute', 'toyRoam'];
   function setPref(key, value) {
     if (key === 'awareness') {   // 1 = more privacy, 2 = normal; at 1 he stops sitting on windows (he can no longer see them)
       prefs.awareness = privacy.clean(+value); savePrefs();
@@ -194,7 +194,6 @@ function start() {
       prefs[key] = value; savePrefs();
       if (key === 'onTop' || key === 'aboveFull') applyTop();
       if (key === 'hotkeys') setupKeys();
-      if (key === 'claudeLink') { setupClaudeLink(); panel.push(); }
       if (key === 'perch' && !value) fall();
       if (key === 'perch' && value && win && mode === 'pet' && privacy.allows(prefs.awareness, 'perch')) setTimeout(() => { if (win && prefs.perch) win.webContents.send('desk:do', 'perch'); }, 700);   // try right away, so you can see it working
     }
@@ -503,33 +502,6 @@ function start() {
   });
   ipcMain.on('desk:toyHide', () => hideToy());
   app.on('before-quit', () => { if (toyWin && !toyWin.isDestroyed()) toyWin.destroy(); });
-  // ---------- Claude Code tells him when it is done or needs you (only the dev build, only when switched on in the developer tools) ----------
-  // A Claude Code hook (see the snippet in the settings window) POSTs "done" or "needs" to this loopback port with the secret token.
-  // Nothing else is read or sent: no message text, nothing from Claude's side, and nothing leaves this computer.
-  const CLAUDE_PORT = 47931;
-  let claudeServer = null;
-  function claudeHookSnippet() {
-    const cmd = (word) => 'curl.exe -s -m 2 -X POST -H \\"x-fumu-token: ' + prefs.claudeToken + '\\" -d ' + word + ' http://127.0.0.1:' + CLAUDE_PORT + '/claude';
-    return '{\n  "hooks": {\n    "Stop": [{ "hooks": [{ "type": "command", "command": "' + cmd('done') + '" }] }],\n    "Notification": [{ "hooks": [{ "type": "command", "command": "' + cmd('needs') + '" }] }]\n  }\n}';
-  }
-  function setupClaudeLink() {
-    const want = CHANNEL.name === 'dev' && prefs.claudeLink;
-    if (!want) { if (claudeServer) { try { claudeServer.close(); } catch (e) { /* already closed */ } claudeServer = null; } return; }
-    if (claudeServer) return;
-    if (!prefs.claudeToken) { prefs.claudeToken = require('crypto').randomBytes(12).toString('hex'); savePrefs(); }
-    claudeServer = require('http').createServer((req, res) => {
-      let body = '';
-      req.on('data', (c) => { body += c; if (body.length > 64) req.destroy(); });
-      req.on('end', () => {
-        const ok = req.method === 'POST' && req.url === '/claude' && req.headers['x-fumu-token'] === prefs.claudeToken;
-        res.writeHead(ok ? 204 : 403); res.end();
-        const kind = body.trim() === 'needs' ? 'needs' : 'done';
-        if (ok && win) { if (!win.isVisible()) showFumu(); win.webContents.send('desk:claude', kind); }
-      });
-    });
-    claudeServer.on('error', (e) => { log('claude link', e && e.message); claudeServer = null; });
-    claudeServer.listen(CLAUDE_PORT, '127.0.0.1');
-  }
   // a reminder: bring Fumu back if he was hidden (without taking the keyboard from what you are doing)
   ipcMain.on('desk:reveal', () => { if (win && !win.isVisible()) { win.showInactive(); refreshMenus(); } });
   ipcMain.on('desk:menu', () => { log('menu'); if (win) menu().popup({ window: win }); });
@@ -623,8 +595,6 @@ function start() {
       case 'resetPosition': resetPosition(); return true;
       case 'teachGame': return teachGame(arg);
       case 'forgetGames': prefs.myGames = {}; savePrefs(); programSent = ''; programMaybe = ''; return true;
-      case 'openClaudeSettings': { const f = path.join(app.getPath('home'), '.claude', 'settings.json'); if (fs.existsSync(f)) shell.showItemInFolder(f); else shell.openPath(path.dirname(f)); return true; }
-      case 'copyClaudeHook': { if (CHANNEL.name !== 'dev') return false; setupClaudeLink(); clipboard.writeText(claudeHookSnippet()); return true; }
       case 'copyDiag': { const d = diag(); delete d.lastUnknownProgram; clipboard.writeText(JSON.stringify(d, null, 2)); return true; }
       case 'openData': shell.openPath(app.getPath('userData')); return true;
       case 'checkUpdates': checkUpdates(); return true;
@@ -642,7 +612,7 @@ function start() {
   const panel = createPanel({
     state: () => ({
       prefs: Object.assign({ onTop: prefs.onTop, aboveFull: prefs.aboveFull, hotkeys: prefs.hotkeys, startWithWindows: app.getLoginItemSettings().openAtLogin }, publicPrefs(), { perch: prefs.perch }),
-      keys: prefs.keys, channel: CHANNEL.name, privacy: { levels: privacy.LEVELS, always: privacy.ALWAYS, chatLevels: privacy.CHAT_LEVELS, moveLevels: privacy.MOVE_LEVELS }, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, petName: prefs.petName, claudeLink: CHANNEL.name === 'dev' && !!prefs.claudeLink, claudeSettings: path.join(app.getPath('home'), '.claude', 'settings.json'), update: updateReady, updateState
+      keys: prefs.keys, channel: CHANNEL.name, privacy: { levels: privacy.LEVELS, always: privacy.ALWAYS, chatLevels: privacy.CHAT_LEVELS, moveLevels: privacy.MOVE_LEVELS }, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, petName: prefs.petName, update: updateReady, updateState
     }),
     set: setPref, rebind, action, diag
   });
@@ -660,7 +630,6 @@ function start() {
     createWindow();
     watchCursor();
     setupKeys();
-    setupClaudeLink();
     ['display-added', 'display-removed', 'display-metrics-changed'].forEach((e) => screen.on(e, screensChanged));
     watchIdle();
     const icon = nativeImage.createFromPath(path.join(__dirname, 'build', 'icon.png')).resize({ width: 32, height: 32 });

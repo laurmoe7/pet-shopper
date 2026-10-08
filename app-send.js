@@ -107,6 +107,7 @@ function recentList() {
 }
 /** Keeps a received link or note at the top of the list (once: the same message id is not added twice). */
 function rememberReceived(msg) {
+  if (msg.from === 'claude') return;   // a "Claude replied" tap on the shoulder is not something to keep (see the hook in .claude/)
   var list = recentList();
   if (msg.id && list.some(function (m) { return m.id === msg.id; })) return;
   list.unshift({ id: msg.id || '', kind: msg.kind === 'link' ? 'link' : 'text', text: String(msg.text).slice(0, 4000), at: Date.now() });
@@ -224,7 +225,7 @@ function receiveMessage(msg, more) {
       var mouth = mouthPoint();
       busy++;
       eatMessage(link, { x: mouth.x + 70, y: Math.max(8, mouth.y - 170) }).then(function () {
-        say(link ? 'a link for you!' : 'a note for you!', 1900);
+        say(msg.from === 'claude' ? msg.text + '!' : link ? 'a link for you!' : 'a note for you!', msg.from === 'claude' ? 3200 : 1900);
         setTimeout(function () {
           busy--; if (!busy) settle();
           inboxCard = null;

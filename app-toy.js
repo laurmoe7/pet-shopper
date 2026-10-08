@@ -273,7 +273,10 @@ function letGoToy() {
   skipClick = true;
   var a = h.pts[0], z = h.pts[h.pts.length - 1], dt = Math.max(16, z.t - a.t) / 1000;
   var vx = (z.x - a.x) / dt, vy = -(z.y - a.y) / dt, speed = Math.hypot(vx, vy);
-  if (speed > 1500) { vx *= 1500 / speed; vy *= 1500 / speed; }
+  // over the whole screen a throw goes twice as hard, so it really crosses it
+  var boost = toyField ? 2.2 : 1, cap = 1500 * boost;
+  vx *= boost; vy *= boost; speed *= boost;
+  if (speed > cap) { vx *= cap / speed; vy *= cap / speed; }
   fling(vx, vy, h.y);
 }
 toyEl.addEventListener('pointerup', letGoToy);
@@ -300,22 +303,24 @@ function fling(vx, vy, y) {
   pet.classList.add('running');
   var lim = toyLimits(), x = toyX, spin = 0, start = performance.now(), last = start, chaseAt = 0;
   var catchAt = playStyle() === 'fetch' ? mouthHeight() : 14, frog = playStyle() === 'tongue';
+  // over the whole screen it flies longer: lighter gravity, livelier bounces, and he waits a while before he may catch it
+  var wide = !!toyField, gravity = wide ? 950 : 1500, wallK = wide ? 0.92 : 0.75, floorK = wide ? 0.74 : 0.6, grace = wide ? 3000 : 250, maxMs = wide ? 12000 : 7000;
   cancelAnimationFrame(flight);
   if (reduceMotion) { placeToy(x, 0, 0); landed(); return; }
   function step(now) {
     var dt = Math.min(0.033, (now - last) / 1000);
     last = now;
-    vy -= 1500 * dt;
+    vy -= gravity * dt;
     x += vx * dt;
     y += vy * dt;
     // bounce off the sides, the top and the floor of the room
-    if (x < lim.minX) { x = lim.minX; vx = -vx * 0.75; sound('bounce'); }
-    if (x > lim.maxX) { x = lim.maxX; vx = -vx * 0.75; sound('bounce'); }
+    if (x < lim.minX) { x = lim.minX; vx = -vx * wallK; sound('bounce'); }
+    if (x > lim.maxX) { x = lim.maxX; vx = -vx * wallK; sound('bounce'); }
     if (y > lim.maxY) { y = lim.maxY; vy = -Math.abs(vy) * 0.6; }
     if (y < 0) {
       y = 0;
       if (vy < -140) sound('bounce');
-      vy = -vy * 0.6;
+      vy = -vy * floorK;
       if (vy < 70) vy = 0;
       vx *= 0.88;
     }
@@ -328,10 +333,10 @@ function fling(vx, vy, y) {
     // caught: coming down at the right height, right in front of the pet
     var px = parseFloat(getComputedStyle(pet).translate) || 0;
     // a frog snatches it out of the air with its tongue once it is within reach
-    if (frog && now - start > 250 && y > 6 && Math.hypot(x - px, y - mouthHeight()) < 115) { caught(x, y); return; }
+    if (frog && now - start > grace && y > 6 && Math.hypot(x - px, y - mouthHeight()) < 115) { caught(x, y); return; }
     // a cat does not catch it out of the air: it waits for it to land, then hunts it on the floor (landed > getIt > batAbout)
-    if (playStyle() !== 'bat' && now - start > 250 && vy <= 0 && y < catchAt + 18 && y > catchAt - 24 && Math.abs(x - px) < 30) { caught(); return; }
-    if ((y === 0 && vy === 0 && Math.abs(vx) < 14) || now - start > 7000) { landed(); return; }
+    if (playStyle() !== 'bat' && now - start > grace && vy <= 0 && y < catchAt + 18 && y > catchAt - 24 && Math.abs(x - px) < 30) { caught(); return; }
+    if ((y === 0 && vy === 0 && Math.abs(vx) < 14) || now - start > maxMs) { landed(); return; }
     flight = requestAnimationFrame(step);
   }
   flight = requestAnimationFrame(step);
