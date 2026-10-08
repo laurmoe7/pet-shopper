@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 327
+- Thrown: he spins a little smaller, so no part of him is cut off.
+- Carried or thrown: no shadow or cushion left behind on the floor.
+
 ## Build 326 (9 Oct)
 - The daily gift moved into the Profile sheet (right of the title), with a count on the Profile button. It no longer shows on the stage or in the desktop pet.
 

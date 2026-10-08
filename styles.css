@@ -2945,7 +2945,7 @@ html:not([data-list="todo"]) #pet.wanding .arm-l { transform-box: view-box; tran
 /* thrown by the desktop shell (app-desktop.js onThrown): he spins round the whole flight */
 .pet.thrown .pet-svg { animation: throw-spin .5s linear infinite; animation-direction: normal; }
 /* he turns about his middle, so he is lifted off the window's bottom edge or his lower half would be cut off as he swings round */
-@keyframes throw-spin { from { translate: 0 -38px; rotate: 0deg; } to { translate: 0 -38px; rotate: 360deg; } }
+@keyframes throw-spin { from { translate: 0 -34px; rotate: 0deg; scale: .84; } to { translate: 0 -34px; rotate: 360deg; scale: .84; } }
 .pet.thrown[style*="--spin-dir: -1"] .pet-svg { animation-direction: reverse; }
 @media (prefers-reduced-motion: reduce) { .pet.thrown .pet-svg { animation: none; } }
 
@@ -3010,3 +3010,7 @@ html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); scale: .7; t
 .dock #profileBtn { position: relative; }
 .dock-badge { position: absolute; top: 0; left: calc(50% + 8px); min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 999px; background: var(--accent); color: #fff; border: 1.8px solid #fff; font-size: .68rem; font-weight: 800; line-height: 15px; text-align: center; z-index: 2; box-shadow: 0 1px 0 rgba(91, 66, 57, .25); }
 @media (prefers-reduced-motion: reduce) { .profile-gift { animation: none; } }
+
+/* in the air (carried or thrown) he has no shadow on the floor under him, and no cushion */
+.pet.carried::before, .pet.thrown::before, .pet.falling::before { display: none; }
+.stage.flying .cushion { display: none; }

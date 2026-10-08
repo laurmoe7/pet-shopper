@@ -345,6 +345,7 @@
   // thrown (the shell flies his window about): he spins round and is dizzy, and every hit on an edge or the floor goes "boing"
   if (D.onThrown) D.onThrown(function (on, dir, bed) {
     pet.classList.toggle('thrown', !!on && !bed);
+    stage.classList.toggle('flying', !!on);
     stage.classList.toggle('bed-thrown', !!on && !!bed);   // asleep in bed: the whole bed turns, no spinning (see onFlight)
     pet.style.setProperty('--spin-dir', dir < 0 ? -1 : 1);
     if (on && !bed) setFace({ eyes: 'dizzy', mouth: 'o', arms: 'idle', x: ['sweat'] });
