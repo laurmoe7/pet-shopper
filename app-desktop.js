@@ -292,8 +292,21 @@
         zoom: z, ax: 0,
         lim: { minX: (f.area.x - f.wx) / z - mid + w / 2 + 2, maxX: (f.area.x + f.area.width - f.wx) / z - mid - w / 2 - 2, maxY: fl - (f.area.y - f.wy) / z - h / 2 - 8 },
         localX: function () { return (this.ax - f.wx) / z - mid; },
-        show: function (x, y, spin) { var px = f.wx + (mid + x) * z, py = f.wy + (fl - y) * z; this.ax = px; D.toyAt(px, py, spin); },
-        hide: function () { D.toyHide(); }
+        show: function (x, y, spin) { var px = f.wx + (mid + x) * z, py = f.wy + (fl - y) * z; this.ax = px; this.ay = py; D.toyAt(px, py, spin); },
+        hide: function () { D.toyHide(); },
+        /** Draws a short burst where it last was (pieces flying apart): build(t) gives the 96 x 96 drawing at t 0..1, shown as n frames ms apart. */
+        burst: function (build, n, ms) {
+          var self = this, at = [self.ax, self.ay], shots = [];
+          for (var i = 0; i < n; i++) shots.push(svgPicture(new DOMParser().parseFromString(build(i / (n - 1)), 'image/svg+xml').documentElement, 48, 48));
+          return Promise.all(shots).then(function (png) {
+            var k = 0;
+            (function next() {
+              if (k >= png.length) { D.toyHide(); return; }
+              if (png[k]) { D.toyShow(png[k], Math.round(96 * z)); D.toyAt(at[0], at[1], 0); }
+              k++; setTimeout(next, ms);
+            })();
+          });
+        }
       };
     });
   };

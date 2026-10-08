@@ -124,6 +124,7 @@
   // opens after the pointer has rested on him for a moment, and closes when it has gone well away from him
   document.addEventListener('mousemove', function (e) {
     if (!isDesk()) return;
+    if (e.buttons) { hoverAt = 0; return; }   // stroking or carrying him: no ring until the button is let go
     var pr = pet.getBoundingClientRect(), sr = stage.getBoundingClientRect();
     var onHim = e.clientX >= pr.left && e.clientX <= pr.right && e.clientY >= pr.top && e.clientY <= pr.bottom;
     if (!shown) {
@@ -139,6 +140,8 @@
   document.addEventListener('mouseleave', function () { hoverAt = 0; clearTimeout(leaveTimer); leaveTimer = setTimeout(hide, 300); });
   // picking him up, stroking him or anything else that starts on him puts it away for a moment
   pet.addEventListener('pointerdown', function () { hoverAt = 0; quietUntil = Date.now() + 1500; hide(); }, true);
+  // it comes back a moment after the stroking ends, not during it
+  document.addEventListener('pointerup', function () { hoverAt = 0; quietUntil = Math.max(quietUntil, Date.now() + 700); }, true);
   // his scene changed under the open ring (it got dark, the list was swapped): build it again
   new MutationObserver(function () { if (shown) { if (canShow()) build(); else hide(); } }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-scene', 'data-list'] });
   window.deskRing = function () { show(); return shown; };   // for tests and the animation player

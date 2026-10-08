@@ -238,12 +238,52 @@ function endBellField() {
   f.hide();
   bell.style.visibility = '';
 }
+// the bell's pieces (in the bell's 36 x 48 drawing): where each flies (px, over the whole burst) and how far it turns
+var BELL_PIECES = [
+  { d: 'M4 40 C4 28 10 21 18 21 L15 28 L19 33 L16 40 Z', fill: '#f2c14e', w: 1.8, v: [-30, -36], r: -140 },
+  { d: 'M18 21 C26 21 32 28 32 40 L16 40 L19 33 L15 28 Z', fill: '#f2c14e', w: 1.8, v: [32, -44], r: 170 },
+  { d: 'M2 39.6 H18 L18 44.8 L3.6 44.8 Q1.8 44.8 1.8 43.2 Z', fill: '#f2c14e', w: 1.8, v: [-40, -10], r: -230 },
+  { d: 'M18 39.6 H34 L34.2 43.2 Q34.2 44.8 32.4 44.8 L18 44.8 Z', fill: '#f2c14e', w: 1.8, v: [42, -18], r: 210 },
+  { d: 'M14.2 1 H21.8 V20 H14.2 Z', fill: '#d6a066', w: 1.7, v: [8, -62], r: 260 },
+  { d: 'M11.4 17.6 H24.6 V23 H11.4 Z', fill: '#e0a93a', w: 1.6, v: [-14, -52], r: -200 },
+  { d: 'M14.1 46.2 a3.9 3.9 0 1 0 7.8 0 a3.9 3.9 0 1 0 -7.8 0 Z', fill: '#c98f4f', w: 1.5, v: [20, -8], r: 300 },
+  { d: 'M0 0 L7 2 L3 7 Z', fill: '#f2c14e', w: 1.2, v: [-52, -28], r: 320, at: [6, 30] },
+  { d: 'M0 0 L6 1 L2 6 Z', fill: '#f2c14e', w: 1.2, v: [54, -30], r: -300, at: [28, 32] },
+  { d: 'M0 0 L5 3 L1 6 Z', fill: '#e0a93a', w: 1.2, v: [4, -70], r: 280, at: [16, 24] }
+];
+/** Where a piece is a fraction t (0..1) through the burst: [x, y, turn] (it flies out, then falls). */
+function bellPiecePos(pc, t) { return [pc.v[0] * t, pc.v[1] * t + 120 * t * t, pc.r * t]; }
+/** @param {number} t  0..1 @returns {string} The bell's pieces part way through bursting, as a 96 x 96 drawing with the bell in the middle. */
+function bellBurstSvg(t) {
+  var out = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96"><g transform="translate(30 24)" stroke="#5b4239" stroke-linejoin="round" opacity="' + (t > .7 ? (1 - (t - .7) / .3).toFixed(2) : 1) + '">';
+  BELL_PIECES.forEach(function (pc) {
+    var p = bellPiecePos(pc, t), at = pc.at || [0, 0], c = pc.at ? [2.5, 3.5] : [18, 28];
+    out += '<path d="' + pc.d + '" fill="' + pc.fill + '" stroke-width="' + pc.w + '" transform="translate(' + (at[0] + p[0]).toFixed(1) + ' ' + (at[1] + p[1]).toFixed(1) + ') rotate(' + p[2].toFixed(0) + ' ' + c[0] + ' ' + c[1] + ')"/>';
+  });
+  return out + '</g></svg>';
+}
+/** The bell breaks into pieces that fly out and fall, drawn on the page (at: the middle of the bell, in page px). */
+function bellPiecesOnPage(at) {
+  BELL_PIECES.forEach(function (pc) {
+    var el = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    el.setAttribute('viewBox', '0 0 36 48'); el.setAttribute('width', '36'); el.setAttribute('height', '48');
+    el.style.cssText = 'position:fixed;left:0;top:0;z-index:40;pointer-events:none;overflow:visible';
+    var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', pc.d); path.setAttribute('fill', pc.fill); path.setAttribute('stroke', '#5b4239'); path.setAttribute('stroke-width', pc.w); path.setAttribute('stroke-linejoin', 'round');
+    if (pc.at) path.setAttribute('transform', 'translate(' + pc.at[0] + ' ' + pc.at[1] + ')');
+    el.appendChild(path); document.body.appendChild(el);
+    var frames = [], n = 10;
+    for (var i = 0; i <= n; i++) { var t = i / n, p = bellPiecePos(pc, t); frames.push({ transform: 'translate(' + (at.x - 18 + p[0]).toFixed(1) + 'px,' + (at.y - 24 + p[1]).toFixed(1) + 'px) rotate(' + p[2].toFixed(0) + 'deg)', opacity: t > .7 ? 1 - (t - .7) / .3 : 1, offset: t }); }
+    el.animate(frames, { duration: 950, easing: 'linear', fill: 'both' }).finished.then(el.remove.bind(el), el.remove.bind(el));
+  });
+}
 function bellBreak() {
   cancelAnimationFrame(bellFlight);
-  var r = bell.getBoundingClientRect(), at = { x: r.left + r.width / 2, y: r.top + r.height / 2 }, wide = !!bellActive;
+  var r = bell.getBoundingClientRect(), at = { x: r.left + r.width / 2, y: r.top + r.height / 2 }, wide = !!bellActive, field = bellActive;
   endBellField();
   bell.hidden = true; bellBroken = true; bellY = 0;
   sound('smash');
+  if (!reduceMotion) { if (!wide) bellPiecesOnPage(at); else if (field && field.burst) field.burst(bellBurstSvg, 7, 110); }
   if (!wide) drift(['✦', '✧', '·', '✦'], at, 6);
   bellToBed(petScene() !== 'night-bed' ? ['oh… so sleepy… night night', '…bed…', 'mm… back to bed…'] : ['mm…', '…zzz…']);
   setTimeout(function () { bellBroken = false; showScene(); }, 4000);   // a new one turns up a few seconds later

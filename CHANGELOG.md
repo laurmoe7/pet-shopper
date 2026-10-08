@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 357
+- The ring of buttons waits until you stop petting him.
+
+## Build 356
+- The bell breaks into pieces that fly apart.
+
 ## Build 355
 - Five new generic game lines.
 - Ten special lines for World of Warcraft, plus a hello and a goodbye.
