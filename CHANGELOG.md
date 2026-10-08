@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 307 (9 Oct)
+- Developer tools: test Claude, note, link and task alerts (also in the desktop settings).
+- The wand is in his other hand.
+
 ## Build 306 (9 Oct)
 - The toy chase ends with a real jump and the toy swings in to him.
 - He carries the toy back to where he started, and always gets there.

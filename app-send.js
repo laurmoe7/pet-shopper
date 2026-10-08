@@ -107,7 +107,7 @@ function recentList() {
 }
 /** Keeps a received link or note at the top of the list (once: the same message id is not added twice). */
 function rememberReceived(msg) {
-  if (msg.from === 'claude') return;   // a "Claude replied" tap on the shoulder is not something to keep (see the hook in .claude/)
+  if (msg.from === 'claude' || msg.test) return;   // a "Claude replied" tap on the shoulder is not something to keep (see the hook in .claude/)
   var list = recentList();
   if (msg.id && list.some(function (m) { return m.id === msg.id; })) return;
   list.unshift({ id: msg.id || '', kind: msg.kind === 'link' ? 'link' : 'text', text: String(msg.text).slice(0, 4000), at: Date.now() });
@@ -203,6 +203,7 @@ function showInboxCard(msg, more) {
 /** Takes the card away and tells the server it was read, so it is not shown again. */
 function finishInboxCard(msg) {
   if (inboxCard) { inboxCard.remove(); inboxCard = null; }
+  if (msg.test) return;   // a made-up one from Developer tools
   accountApi('/v1/inbox/ack', 'POST', account.code, { ids: [msg.id] });
   setTimeout(inboxPoll, 800);
 }
@@ -261,6 +262,15 @@ function receiveMessage(msg, more) {
  * Looks for something another device left (only while the window is showing and nothing is on the card). The server leaves
  * out what this device sent itself; the check on `from` is for a server that has not been updated yet.
  */
+/** Developer tools: shows an alert as if it had arrived. @param {string} kind 'claude', 'note' or 'link'. */
+function devAlert(kind) {
+  if (inboxCard) return 'An alert is already showing: close it first.';
+  var msg = kind === 'claude' ? { kind: 'text', text: 'Claude replied', from: 'claude' }
+    : kind === 'link' ? { kind: 'link', text: 'https://example.com/test', from: 'test' } : { kind: 'text', text: 'A test note\nsent from Developer tools', from: 'test' };
+  msg.test = true; msg.id = 'test-' + Date.now();
+  receiveMessage(msg, 0);
+  return 'It arrives in a few seconds.';
+}
 var polling = false;
 /** @returns {string} This device's id as the server keeps it (letters and digits, at most 12). */
 function inboxDevice() { return String(state.sync.device || '').replace(/[^a-z0-9]/gi, '').slice(0, 12); }

@@ -104,6 +104,15 @@ var DEV_ACTIONS = [
     refreshGift();
     return 'Your name and birthday are empty again and he is back to Fumu. Open Pet to see the pencil wiggle.';
   } },
+  { label: 'Test a Claude alert', run: function () { devSheet.close(); return devAlert('claude'); } },
+  { label: 'Test a note alert', run: function () { devSheet.close(); return devAlert('note'); } },
+  { label: 'Test a link alert', run: function () { devSheet.close(); return devAlert('link'); } },
+  { label: 'Test a task reminder', run: function () {
+    devSheet.close();
+    var item = { id: 'test', text: 'A test reminder', emoji: '⏰', time: '', done: false };
+    if (typeof window.deskRemind === 'function' && window.deskRemind([item])) return 'Reminder card shown.';
+    say('A test reminder: time for your task!', 3000); return 'Said as a bubble (the card is for the desktop app).';
+  } },
   { label: 'Make Fumu ask for a snack', run: function () { return devWish(); } },
   { label: 'Pretend it is the next special day (gifts)', run: function () { return devGiftCalendar(); } },
   { label: 'Shut today\'s gift boxes again', run: function () { return devGiftReset(); } },

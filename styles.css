@@ -2178,7 +2178,8 @@ html[data-list="todo"] #pet.wishing[data-arms="idle"]:not(.desk):not(.tucked) .a
 /* the right hand's props on the to-do list (app-todo.js): a chubby pencil for writing, a magnifying glass for inspecting.
    Both are drawn in the right arm so they move with it; the pet's `desk` pose brings both paws to the clipboard. */
 .arm .pencil, .arm .magnifier, .arm .wand { display: none; }
-#pet[data-prop="wand"] .arm-r .wand { display: inline; }
+#pet[data-prop="wand"] .arm-l .wand, html[data-list="todo"] #pet[data-prop="wand"] .arm-r .wand { display: inline; }
+html[data-list="todo"] #pet[data-prop="wand"] .arm-l .wand { display: none; }   /* on the to-do list his left hand holds the clipboard: the wand goes in the right */
 #pet[data-prop="pencil"] .arm-r .pencil, #pet[data-prop="glass"] .arm-r .magnifier { display: inline; }
 .pencil .pc-wood { fill: #f3d6a8; stroke: var(--prop-ink); stroke-width: 1.4; stroke-linejoin: round; }
 .pencil .pc-lead { fill: #5a4540; }
@@ -2923,6 +2924,9 @@ html.desk-moving :is(.dream, .wish), .stage:has(.pet.walking) :is(.dream, .wish)
 .wand .wd-band { stroke: #fff; stroke-width: 2.6; fill: none; }
 .wand .wd-star { fill: #ffd45e; stroke: var(--prop-ink); stroke-width: 1.4; stroke-linejoin: round; transform-box: fill-box; transform-origin: center; animation: wand-twinkle .5s ease-in-out infinite alternate; }
 @keyframes wand-twinkle { from { transform: translate(0, 4px) scale(1.25); } to { transform: translate(0, 4px) scale(1.5); } }
-@keyframes wand-flick { 0% { transform: translate(-6px, -26px) rotate(-120deg); } 18% { transform: translate(-6px, -26px) rotate(-165deg); } 36% { transform: translate(-6px, -26px) rotate(-118deg); } 54% { transform: translate(-6px, -26px) rotate(-165deg); } 72% { transform: translate(-6px, -26px) rotate(-118deg); } 100% { transform: translate(-6px, -26px) rotate(-150deg); } }
-#pet.wanding .arm-r { animation: wand-flick 1.8s ease-in-out both; }
-@media (prefers-reduced-motion: reduce) { #pet.wanding .arm-r { animation: none; transform: translate(-6px, -26px) rotate(-140deg); } .wand .wd-star { animation: none; } }
+@keyframes wand-flick { 0%, 36%, 72% { transform: rotate(-110deg); } 18%, 54% { transform: rotate(-148deg); } 100% { transform: rotate(-128deg); } }
+@keyframes wand-flick-l { 0%, 36%, 72% { transform: rotate(110deg); } 18%, 54% { transform: rotate(148deg); } 100% { transform: rotate(128deg); } }
+/* the arm turns about its shoulder (the wand would otherwise change the arm's box, and so its pivot) */
+html[data-list="todo"] #pet.wanding .arm-r { transform-box: view-box; transform-origin: 133px 110.2px; animation: wand-flick 1.8s ease-in-out both; }
+html:not([data-list="todo"]) #pet.wanding .arm-l { transform-box: view-box; transform-origin: 27px 110.2px; animation: wand-flick-l 1.8s ease-in-out both; }
+@media (prefers-reduced-motion: reduce) { html[data-list="todo"] #pet.wanding .arm-r { animation: none; transform: rotate(-128deg); } html:not([data-list="todo"]) #pet.wanding .arm-l { animation: none; transform: rotate(128deg); } .wand .wd-star { animation: none; } }

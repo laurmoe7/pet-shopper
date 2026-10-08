@@ -158,7 +158,7 @@
     var dev = section('Developer tools');
     var info = el('p', '', 'Make him do something now (in the small window):'); info.style.margin = '4px 0 0'; dev.appendChild(info);
     var doBtns = el('div', 'btns');
-    [['wander', 'Wander'], ['peek', 'Peek round the edge'], ['nap', 'Nap'], ['perch', 'Hop on a window / down'], ['sit', 'Sit / stand (soles)'], ['remind', 'Test reminder']].forEach(function (d) { button(doBtns, d[1], act('do', d[0])); });
+    [['wander', 'Wander'], ['peek', 'Peek round the edge'], ['nap', 'Nap'], ['perch', 'Hop on a window / down'], ['sit', 'Sit / stand (soles)'], ['remind', 'Test task alert'], ['claude', 'Test Claude alert'], ['note', 'Test note alert']].forEach(function (d) { button(doBtns, d[1], act('do', d[0])); });
     dev.appendChild(doBtns);
     var tools = el('div', 'btns');
     if (S.update) button(tools, 'Restart to update', act('installUpdate'));

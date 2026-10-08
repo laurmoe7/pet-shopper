@@ -826,6 +826,7 @@
     if (what === 'sit') { var sit = !pet.classList.contains('seated'); pet.classList.toggle('seated', sit); if (sit) pulse('hopsmall', 450); return 0; }
     if (what === 'nap') return typeof napNow === 'function' ? napNow(15000) : 0;
     if (what === 'remind') { window.deskRemind([{ id: 'test', text: 'A test reminder', emoji: '⏰', time: '', done: false }]); return 4000; }
+    if (what === 'claude' || what === 'note') { devAlert(what); return 9000; }
     return 0;
   };
   /** A short stroll inside the window, where his room is: the window itself stays put. */

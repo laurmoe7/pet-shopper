@@ -610,7 +610,7 @@ function start() {
     switch (name) {
       case 'reload': win.webContents.reloadIgnoringCache(); return true;
       case 'devtools': win.webContents.openDevTools({ mode: 'detach' }); return true;
-      case 'do': if (['wander', 'peek', 'nap', 'perch', 'sit', 'remind'].includes(arg)) { if (mode !== 'pet') applyMode('pet'); win.webContents.send('desk:do', arg); } return true;
+      case 'do': if (['wander', 'peek', 'nap', 'perch', 'sit', 'remind', 'claude', 'note'].includes(arg)) { if (mode !== 'pet') applyMode('pet'); win.webContents.send('desk:do', arg); } return true;
       case 'corner': if (['br', 'bl', 'tr', 'tl'].includes(arg)) toCorner(arg); return true;
       case 'nudge': if (Array.isArray(arg)) nudgeBy(Math.max(-200, Math.min(200, +arg[0] || 0)), Math.max(-200, Math.min(200, +arg[1] || 0))); return true;
       case 'resetPosition': resetPosition(); return true;
