@@ -21,16 +21,6 @@
   function render() {
     root.textContent = '';
     document.getElementById('ver').textContent = S.packaged ? '' : 'running from source';
-    var upd = section('Updates');
-    var updRow = el('div', 'row'), updText = el('span', 'text', S.update ? 'An update is ready.' : 'Fumu updates himself; the page is loaded from the web.');
-    updText.appendChild(el('small', '', S.packaged ? 'Restart Fumu or reload to get the latest page. The program itself is checked every few hours.' : 'Running from source: updates are off.'));
-    updRow.appendChild(updText); upd.appendChild(updRow);
-    var updBtns = el('div', 'btns');
-    if (S.update) button(updBtns, 'Restart to update', act('installUpdate'));
-    button(updBtns, 'Check for app updates', act('checkUpdates')).disabled = !S.packaged;
-    button(updBtns, 'Reload the app (get the latest page)', act('reload'));
-    upd.appendChild(updBtns);
-
     var look = section('His look');
     var sizeRow = el('div', 'row'); sizeRow.appendChild(el('span', 'text', 'Size'));
     var seg = el('span', 'seg');
@@ -89,6 +79,9 @@
     [['wander', 'Wander'], ['peek', 'Peek round the edge'], ['nap', 'Nap'], ['perch', 'Hop on a window / down'], ['sit', 'Sit / stand (soles)'], ['remind', 'Test reminder']].forEach(function (d) { button(doBtns, d[1], act('do', d[0])); });
     dev.appendChild(doBtns);
     var tools = el('div', 'btns');
+    if (S.update) button(tools, 'Restart to update', act('installUpdate'));
+    button(tools, 'Check for app updates', act('checkUpdates')).disabled = !S.packaged;
+    button(tools, 'Reload the app (get the latest page)', act('reload'));
     button(tools, 'Open DevTools', act('devtools'));
     button(tools, 'Open the settings folder', act('openData'));
     button(tools, 'Copy diagnostics', act('copyDiag'));

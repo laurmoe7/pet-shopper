@@ -174,9 +174,6 @@ function start() {
       { label: 'Remind me of tasks', type: 'checkbox', checked: prefs.remind, click: (item) => setPref('remind', item.checked) },
       { label: 'Start with Windows', type: 'checkbox', checked: app.getLoginItemSettings().openAtLogin, click: (item) => setPref('startWithWindows', item.checked) },
       { type: 'separator' },
-      { label: 'Reload (get the latest)', click: () => win && win.webContents.reloadIgnoringCache() },
-      { label: 'Check for app updates', enabled: app.isPackaged, click: () => checkUpdates() },
-      { type: 'separator' },
       { label: 'More Fumu settings…', accelerator: prefs.keys.options || undefined, registerAccelerator: false, click: () => panel.open() },
       { label: 'Fumufumu ' + app.getVersion(), enabled: false },
       { label: 'Quit Fumufumu', click: () => app.quit() }

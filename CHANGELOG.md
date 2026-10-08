@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 268 (8 Oct)
+- Desktop: update options moved from right-click to the developer tools; "Restart to update" stays in the menu when one is ready.
+
 ## Build 267 (8 Oct)
 - Desktop: on a window he now sits with his feet out and the soles showing (cat, pig and pigeon first).
 - Desktop: he tries to hop onto a window every minute or two, and right away when you switch it on.
