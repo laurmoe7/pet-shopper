@@ -3024,6 +3024,5 @@ html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); scale: .7; t
 .ring-btn:active { translate: 0 1px; box-shadow: none; }
 .ring-btn[aria-pressed="true"] { background: #ffe3a8; box-shadow: 0 0 10px 3px rgba(255, 205, 120, .7), 0 2px 0 var(--outline); }
 @keyframes ring-pop { from { opacity: 0; scale: .3; } to { opacity: 1; scale: 1; } }
-/* in the small window the night light is a little lamp built into the bed's left end, not a thing standing on the screen */
-html.desktop-pet .night-btn { right: auto; left: calc(50% - 118px); bottom: 26px; width: 22px; height: 28px; z-index: 7; }
+html.desktop-pet .night-btn { display: none !important; }   /* in the small window the night light switch is in his ring menu */
 @media (prefers-reduced-motion: reduce) { .ring-btn { animation: none; } }

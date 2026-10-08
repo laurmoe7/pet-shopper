@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 332
+- The night light is switched from the ring menu (the lamp on the bed is gone).
+
 ## Build 331
 - Lights off only gets him into bed: you still tuck him in.
 - The night light is a little lamp on his bed, not a floating moon (the glow is the same).

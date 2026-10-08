@@ -1,6 +1,6 @@
 // The ring menu: in the small desktop window, rest the pointer on him and a ring of little buttons opens above him (play ball, pat, a snack,
 // a dance, swap the list, and at night the lights or the night light). It lives in his own window, so it never has to fit round the edge of the
-// screen. What it offers follows his scene (petScene): nothing while he is in bed; drowsy at night he can be sent to bed (then you tuck him in).
+// screen. What it offers follows his scene (petScene): in bed only the night light; drowsy at night he can be sent to bed (then you tuck him in).
 // Plain script, shares one scope, loaded after app-night.js.
 'use strict';
 
@@ -46,12 +46,13 @@
     dance: { icon: '🎉', label: 'Dance', run: ringDance },
     wave: { icon: '👋', label: 'Wave', run: ringWave },
     swap: { icon: '📝', label: 'Swap list', run: function () { if (typeof switchList === 'function') switchList(); } },
-    lights: { icon: '💡', label: 'Lights off', run: ringSleep }
+    lights: { icon: '💡', label: 'Lights off', run: ringSleep },
+    night: { icon: '🌙', label: 'Night light', keep: true, on: function () { return nightLightOn; }, run: function () { toggleNightLight(); } }
   };
   /** @returns {string[]} The buttons for the scene he is in now. */
   function items() {
     var scene = petScene();
-    if (scene === 'night-bed') return [];   // asleep in bed: nothing to play (the night light is on the bed)
+    if (scene === 'night-bed') return ['night'];   // in bed: only the night light
     if (scene.indexOf('night-drowsy') === 0) return ['ball', 'pat', 'snack', 'dance', 'swap', 'lights'];
     return ['ball', 'pat', 'snack', 'dance', 'swap', 'wave'];
   }
@@ -70,7 +71,7 @@
       var it = ITEMS[name], b = document.createElement('button');
       b.type = 'button'; b.className = 'ring-btn'; b.setAttribute('role', 'menuitem'); b.title = it.label; b.setAttribute('aria-label', it.label);
       if (it.on) b.setAttribute('aria-pressed', it.on() ? 'true' : 'false');
-      var a = (n === 1 ? -90 : start + (span / (n - 1)) * i) * Math.PI / 180;
+      var a = (n === 1 ? -38 : start + (span / (n - 1)) * i) * Math.PI / 180;
       var x = Math.max(20, Math.min(sr.width - 20, center.x + Math.cos(a) * center.r)), y = Math.max(20, center.y + Math.sin(a) * center.r);
       b.style.left = (x - 17) + 'px'; b.style.top = (y - 17) + 'px'; b.style.setProperty('--i', i);
       b.appendChild(emojiImg(it.icon, ''));
