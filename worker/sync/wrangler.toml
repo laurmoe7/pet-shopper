@@ -1,5 +1,5 @@
 name = "pet-shopper-sync"
-main = "../../dist/worker.js"
+main = "dist/worker.js"
 compatibility_date = "2025-01-01"
 
 # The D1 database made in the Cloudflare dashboard (the same one is bound as DB there).
