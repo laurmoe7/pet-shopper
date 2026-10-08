@@ -35,6 +35,7 @@
     var sel = window.getSelection && window.getSelection(); if (sel) sel.removeAllRanges();   // nothing stays highlighted across a switch
     if (mode !== 'list') for (var i = 0, open = document.querySelectorAll('dialog[open]'); i < open.length; i++) open[i].close();
     if (typeof fadeSoon === 'function') fadeSoon();
+    if (typeof refreshBedtime === 'function') refreshBedtime();   // the small window has no lamp: at night the light is off there
   }
   D.onMode(showMode);
   D.getMode().then(function (m) { showMode(m); D.ready(); });
@@ -93,6 +94,12 @@
   pet.addEventListener('pointerup', drop, true);
   pet.addEventListener('pointercancel', drop, true);
   pet.addEventListener('click', function (e) { if (Date.now() < noClickUntil) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+
+  // quick ways between the small Fumu and the whole app: a middle click on him, a double click on the bar, or the shell's shortcuts
+  pet.addEventListener('auxclick', function (e) { if (e.button === 1 && isPet()) { e.preventDefault(); D.setMode('list'); } });
+  pet.addEventListener('mousedown', function (e) { if (e.button === 1) e.preventDefault(); });   // no autoscroll circle
+  bar.addEventListener('dblclick', function (e) { if (e.target === bar || e.target.className === 'desk-title') D.setMode('pet'); });
+  if (D.onSwapList) D.onSwapList(function () { if (typeof switchList === 'function') switchList(); });   // the shortcut for shopping / to-do
 
   document.addEventListener('contextmenu', function (e) { e.preventDefault(); D.menu(); });
 

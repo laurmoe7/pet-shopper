@@ -100,6 +100,11 @@ Each person owns a pet; lists can be shared. Avoid a pile of separate lists. Pro
 - Other ideas: Nomlet, Snaffle, Munchlet, Gulpie.
 - Decided: app **Fumufumu**, mascot **Fumu**. Nibble was the working name; internal keys keep `nibble` on purpose.
 
+## Built: shortcuts and the lamp (build 260)
+
+- `globalShortcut` in the shell: Ctrl/Cmd+Alt+F toggles pet/list mode (showing him first if hidden), Ctrl/Cmd+Alt+T sends `desk:swapList` (the page calls `switchList`). Ctrl+Alt can be AltGr on some European keyboards; F and T give no characters on common layouts, but the tray menu has a switch (`hotkeys`) and says when a key is taken. Tested with real key events on Linux (Xvfb).
+- The small window hides the lamp, so at bedtime the light counts as off there and he asks to be tucked in instead of asking for the lamp.
+
 ## Built: desktop size, floating, reminders and roaming (build 257)
 
 - Tray menu: Size (a page zoom of 0.8, 1 or 1.3; the window is scaled with it and the shell divides the pointer position by the zoom, carrying follows the real pointer), Stay above full-screen apps (`setAlwaysOnTop(true, 'screen-saver')`; exclusive full-screen games still cover him), Move Fumu (nudges and corners, `place.js`), roam and remind switches. Choices are kept in `window.json`; the page reads them with `getPrefs`/`onPrefs`.

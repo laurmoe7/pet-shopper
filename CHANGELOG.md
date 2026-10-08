@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 260 (18 Oct)
+- Desktop: at night the small Fumu has no lamp to switch off; a tap tucks him in.
+- Desktop shortcuts: Ctrl+Alt+F swaps small Fumu and the whole app, Ctrl+Alt+T swaps shopping and to-do.
+- Middle-click on Fumu opens the whole app; double-click the bar to go back.
+
 ## Build 259 (18 Oct)
 - Desktop Fumu: no snack clouds, daydreams beside his head, speech bubble a little lower.
 - Links and notes between devices are checked every 10 seconds.

@@ -35,6 +35,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   /** Slides half out of the screen at the nearest free side; resolves 'left', 'right' or null. unpeek slides back. */
   peek: (ms) => ipcRenderer.invoke('desk:peek', +ms || 900),
   unpeek: (ms) => ipcRenderer.invoke('desk:unpeek', +ms || 700),
+  /** The shortcut for swapping the shopping list and the to-do list was pressed. */
+  onSwapList: (fn) => ipcRenderer.on('desk:swapList', () => fn()),
   /** Shows Fumu if he was hidden (a reminder). */
   reveal: () => ipcRenderer.send('desk:reveal')
 });

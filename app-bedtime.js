@@ -57,6 +57,8 @@ function refreshBedtime() {
   bedtimeKnown = true;
   wasAsleep = asleep;
   var bed = bedtime();
+  // the small desktop window has no lamp to pull, so the light counts as off there: a tap tucks him in (the big window shows it off)
+  if (bedNow && !bed.dark && document.documentElement.classList.contains('desktop-pet')) { bed.dark = true; saveBedtime(bed); }
   var wasTucked = pet.classList.contains('tucked');
   if (bedNow && !wasBed) owlSoon(true);
   stage.classList.toggle('bedtime', bedNow);

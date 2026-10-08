@@ -2,7 +2,7 @@
 // real app in "pet only" mode, a tray icon, and the whole app in a bigger window when you open your list.
 // The app itself is loaded from the web (so a big push updates it), see NIBBLE_URL below.
 'use strict';
-const { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, shell, session, clipboard } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, shell, session, clipboard, globalShortcut } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const place = require('./place.js');
@@ -21,7 +21,7 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true };
+  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true };
   try { prefs = Object.assign(prefs, JSON.parse(fs.readFileSync(prefsFile(), 'utf8'))); } catch (e) { /* first run */ }
   const savePrefs = () => { try { fs.writeFileSync(prefsFile(), JSON.stringify(prefs)); } catch (e) { /* ignore */ } };
   const areas = () => screen.getAllDisplays().map((d) => d.workArea);
@@ -104,6 +104,10 @@ function start() {
       mode === 'list' ? { label: 'Back to Fumu', click: () => applyMode('pet') } : { label: 'Open my list', click: () => { showFumu(); applyMode('list'); } },
       { label: visible ? 'Hide Fumu' : 'Show Fumu', click: () => (visible ? hideFumu() : showFumu()) },
       { type: 'separator' },
+      { label: 'Small Fumu / whole app', accelerator: prefs.hotkeys && registered.swapSize ? KEYS.swapSize : undefined, registerAccelerator: false, click: () => toggleFull() },
+      { label: 'Shopping list / to-do list', accelerator: prefs.hotkeys && registered.swapList ? KEYS.swapList : undefined, registerAccelerator: false, click: () => swapList() },
+      { label: 'Keyboard shortcuts' + (prefs.hotkeys && (!registered.swapSize || !registered.swapList) ? ' (a key is taken by another program)' : ''), type: 'checkbox', checked: prefs.hotkeys, click: (item) => { prefs.hotkeys = item.checked; savePrefs(); setupKeys(); refreshMenus(); } },
+      { type: 'separator' },
       { label: 'Always on top', type: 'checkbox', checked: prefs.onTop, click: (item) => { prefs.onTop = item.checked; savePrefs(); applyTop(); } },
       { label: 'Stay above full-screen apps', type: 'checkbox', checked: prefs.aboveFull, enabled: prefs.onTop, click: (item) => { prefs.aboveFull = item.checked; savePrefs(); applyTop(); } },
       { label: 'Size', submenu: [['small', 'Small'], ['normal', 'Normal'], ['large', 'Large']].map(([id, label]) => ({ label, type: 'radio', checked: prefs.size === id, click: () => setSize(id) })) },
@@ -137,6 +141,18 @@ function start() {
   }
   function nudgeBy(dx, dy) { if (win && mode === 'pet') { stopTween(); peekRest = null; win.setBounds(place.nudge(win.getBounds(), dx, dy, here())); restHere(); } }
   function toCorner(which) { if (win && mode === 'pet') { stopTween(); peekRest = null; win.setBounds(place.corner(win.getBounds(), here(), which)); restHere(); } }
+  // shortcuts that work from any program: small Fumu <-> the whole app, and shopping list <-> to-do list
+  const KEYS = { swapSize: 'CommandOrControl+Alt+F', swapList: 'CommandOrControl+Alt+T' };
+  const registered = {};
+  function toggleFull() { if (!win) return; if (!win.isVisible()) showFumu(); applyMode(mode === 'list' ? 'pet' : 'list'); }
+  function swapList() { if (!win) return; if (!win.isVisible()) showFumu(); win.webContents.send('desk:swapList'); }
+  function setupKeys() {
+    Object.keys(KEYS).forEach((k) => { if (registered[k]) { globalShortcut.unregister(KEYS[k]); registered[k] = false; } });
+    if (!prefs.hotkeys) return;
+    registered.swapSize = globalShortcut.register(KEYS.swapSize, toggleFull);
+    registered.swapList = globalShortcut.register(KEYS.swapList, swapList);
+    log('shortcuts', registered);
+  }
   function refreshMenus() { if (tray) tray.setContextMenu(menu()); }
 
   function createWindow() {
@@ -226,6 +242,7 @@ function start() {
 
   app.on('second-instance', () => showFumu());
   app.on('window-all-closed', () => app.quit());
+  app.on('will-quit', () => globalShortcut.unregisterAll());
 
   app.whenReady().then(() => {
     app.setAppUserModelId('com.laurmoe.nibble');
@@ -233,6 +250,7 @@ function start() {
     session.defaultSession.setPermissionRequestHandler((_wc, permission, cb) => cb(permission === 'clipboard-sanitized-write'));
     createWindow();
     watchCursor();
+    setupKeys();
     const icon = nativeImage.createFromPath(path.join(__dirname, 'build', 'icon.png')).resize({ width: 32, height: 32 });
     tray = new Tray(icon);
     tray.setToolTip('Fumufumu');
