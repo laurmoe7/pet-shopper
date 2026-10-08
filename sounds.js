@@ -254,6 +254,12 @@
       // a bright little hand bell: ding-ding
       chime(t, [2093, 2794], 0.0, 0.8, 'sine'); chime(t + 0.16, [2093, 2794], 0.0, 0.6, 'sine'); chime(t + 0.34, [2349], 0.0, 0.35, 'sine');
     },
+    bedbell: [
+      // the little bell tucked in his bed, jostled by a bump: a faint clink or two
+      function (t) { chime(t, [2349], 0.0, 0.16, 'sine'); chime(t + 0.07, [2794], 0.0, 0.1, 'sine'); },
+      function (t) { chime(t, [2093, 2637], 0.05, 0.14, 'sine'); },
+      function (t) { chime(t, [2637], 0.0, 0.17, 'sine'); chime(t + 0.09, [2093], 0.0, 0.09, 'sine'); }
+    ],
     tink: function (t) {
       // one small clink of the clapper
       chime(t, [2637], 0.0, 0.45, 'sine');

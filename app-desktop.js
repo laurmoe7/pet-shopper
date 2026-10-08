@@ -412,11 +412,12 @@
   });
   // in bed the bed always leads: it turns to face the way he is flying, so it is the bed that hits the wall, the ceiling or the floor
   if (D.onFlight) D.onFlight(function (vx, vy) {
-    if (Math.hypot(vx, vy) < 120) return;
+    if (Math.hypot(vx, vy) < 120) { stage.style.setProperty('--bed-turn', '0deg'); return; }   // on the ground: flat
     stage.style.setProperty('--bed-turn', (Math.atan2(-vx, vy) * 180 / Math.PI).toFixed(0) + 'deg');
   });
   if (D.onBounce) D.onBounce(function (hard) {
     if (headDown) { headDown = false; pet.classList.remove('thrown'); pet.classList.add('head-down'); }   // he stops spinning on his head
+    if (stage.classList.contains('bed-thrown')) { if (typeof sound === 'function') sound('bedbell'); return; }   // in his bed: a heavy thud and the faint bell in the bed
     if (typeof sound === 'function') sound('bounce');
     if (typeof pulse === 'function' && !carried) pulse(hard > .5 ? 'hop' : 'hopsmall', 400);
   });

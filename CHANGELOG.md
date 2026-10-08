@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 351
+- Thrown in bed he is heavier: no bouncing off walls, lands flat and bounces a few small times.
+- Each bounce in bed makes a faint bell clink.
+
 ## Build 350
 - The bell can be shaken anywhere on the screen when "Toy flies around the screen" is on.
 - New shortcut Ctrl+Alt+G: in a full-screen game he catches the mouse (to move him or clear an alert); again to let go.
