@@ -150,7 +150,7 @@ function castWand() {
   pet.dataset.prop = 'wand';
   pet.classList.add('wanding');
   var tip = pet.querySelector('.wand .wd-star');
-  [350, 750, 1150, 1550].forEach(function (ms, i) {
+  [700, 1500, 2300, 3100].forEach(function (ms, i) {
     setTimeout(function () {
       if (!pet.classList.contains('wanding') || !tip) return;
       var r = tip.getBoundingClientRect();
@@ -160,7 +160,7 @@ function castWand() {
   setTimeout(function () {
     pet.classList.remove('wanding');
     if (before) pet.dataset.prop = before; else delete pet.dataset.prop;
-  }, 1900);
+  }, 3800);
 }
 
 var inboxCard = null;
@@ -214,22 +214,24 @@ function showInboxCard(msg, more) {
     if (!drag || e.pointerId !== drag.id) return;
     drag.dx = e.clientX - drag.x;
     drag.card.style.translate = drag.dx + 'px 0';
-    drag.card.style.opacity = String(Math.max(.3, 1 - Math.abs(drag.dx) / 260));
   });
   function end(e) {
     if (!drag || e.pointerId !== drag.id) return;
     var d = drag, fast = Math.abs(d.dx) / Math.max(1, Date.now() - d.t) > .5;
     drag = null;
     if (Math.abs(d.dx) < 70 && !(fast && Math.abs(d.dx) > 30)) {   // not far enough: it springs back
-      d.card.style.transition = 'translate .18s, opacity .18s';
-      d.card.style.translate = ''; d.card.style.opacity = '';
+      d.card.style.transition = 'translate .18s';
+      d.card.style.translate = '';
       setTimeout(function () { d.card.style.transition = ''; }, 200);
       return;
     }
     var done = d.card.querySelector('.inbox-done');
-    d.card.style.transition = 'translate .18s ease-in, opacity .18s';
-    d.card.style.translate = (d.dx < 0 ? -1 : 1) * 320 + 'px 0'; d.card.style.opacity = '0';
-    setTimeout(function () { if (d.card.parentNode && done) done.click(); }, 170);
+    // it slides on out of the window the way it was pushed
+    var away = (d.dx < 0 ? -1 : 1) * (window.innerWidth + d.card.offsetWidth);
+    d.card.style.animation = 'none';
+    d.card.style.transition = 'translate .26s cubic-bezier(.4, 0, 1, 1)';
+    d.card.style.translate = away + 'px 0';
+    setTimeout(function () { if (d.card.parentNode && done) done.click(); }, 270);
   }
   document.addEventListener('pointerup', end);
   document.addEventListener('pointercancel', end);
@@ -285,13 +287,13 @@ function receiveMessage(msg, more) {
       busy++;
       eatMessage(link, { x: mouth.x + 70, y: Math.max(8, mouth.y - 170) }).then(function () {
         var fromClaude = msg.from === 'claude';
-        say(fromClaude ? msg.text + '!' : link ? 'a link for you!' : 'a note for you!', fromClaude ? 3200 : 1900);
+        say(fromClaude ? msg.text + '!' : link ? 'a link for you!' : 'a note for you!', fromClaude ? 6400 : 1900);
         if (fromClaude) { setFace(FACES.tada); castWand(); sound('claude'); }   // Claude's note gets a little celebration
         setTimeout(function () {
           busy--; if (!busy) settle();
           inboxCard = null;
           showInboxCard(msg, more);
-        }, fromClaude ? 1600 : 520);
+        }, fromClaude ? 3200 : 520);
       });
     }, 8000);
   }, 1800);

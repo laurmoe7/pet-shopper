@@ -285,12 +285,14 @@
       var f = r[0], png = r[1];
       if (!f || !png || token !== fieldToken || !playing || toyField) return;
       var z = f.zoom || 1, st = stage.getBoundingClientRect(), mid = st.left + st.width / 2, fl = st.bottom - 19;
-      fieldZoom = z;
+      fieldZoom = z; knownWx = f.wx;
       var spot = function (x, y) { return [f.wx + (mid + x) * z, f.wy + (fl - y) * z]; };
       toyField = {
         zoom: z,
         lim: { minX: (f.area.x - f.wx) / z - mid + 18, maxX: (f.area.x + f.area.width - f.wx) / z - mid - 18, maxY: fl - (f.area.y - f.wy) / z - 20 },
-        show: function (x, y, spin) { toyEl.style.visibility = 'hidden'; var p = spot(x, y); D.toyAt(p[0], p[1], spin); },
+        ax: 0,   // where the toy is on the screen (px), so that wherever his window has got to, its place in the window can be worked out again
+        localX: function () { return (this.ax - f.wx) / z - mid; },
+        show: function (x, y, spin) { toyEl.style.visibility = 'hidden'; var p = spot(x, y); this.ax = p[0]; D.toyAt(p[0], p[1], spin); },
         hide: function () { D.toyHide(); },
         shift: function (p) { f.wx += p * z; this.lim.minX -= p; this.lim.maxX -= p; }   // his window moved p page px to the right
       };
@@ -303,15 +305,20 @@
   var runBusy = null;   // the window run that is going on now (a new run would cut it short and lose the distance it had covered)
   var fieldMoved = 0;   // how far (screen px) his window ran after the toy, so he can run back
   /** Runs his window along the floor by dx page px over ms; keeps the toy's screen-wide field in step. @returns {Promise<number>} Page px really moved. */
+  var knownWx = null;   // where the page thinks his window is (screen px): the toy's screen-wide field is measured from it
   function runWindow(dx, ms) {
     var z = fieldZoom || 1;
     pet.classList.add('walking'); lookToward(dx);
     return (runBusy = D.walk(dx * z, ms)).then(function (went) {
       pet.classList.remove('walking'); stopLook();
       went = went || 0;
-      fieldMoved += went;
-      if (toyField && toyField.shift) toyField.shift(went / z);
-      return went / z;
+      // a run that was cut short by the next one answers nothing, but the window did move: ask where it really is
+      return (knownWx !== null && D.where ? D.where() : Promise.resolve(null)).then(function (x) {
+        if (x !== null && knownWx !== null) { went = x - knownWx; knownWx = x; }
+        fieldMoved += went;
+        if (toyField && toyField.shift) toyField.shift(went / z);
+        return went / z;
+      });
     }, function () { pet.classList.remove('walking'); stopLook(); return 0; });
   }
   window.deskToyChase = function (dx) { var slow = typeof toyTired === 'function' && toyTired() ? 5 : 1; return runWindow(dx, Math.min(3500 * slow, (500 + Math.abs(dx) * 5) * slow)); };
@@ -350,6 +357,7 @@
     stage.classList.toggle('flying', !!on);
     pet.style.setProperty('--spin-dir', dir < 0 ? -1 : 1);
     headDown = !!on && !!extra.head;   // spinning round, he lands on his head at the first bounce (onBounce)
+    if (on) tripStart(); else tripEnd(900);
     if (on && !bed) setFace({ eyes: 'dizzy', mouth: 'o', arms: 'idle', x: ['sweat'] });
     if (!on) {
       pet.classList.remove('thrown');
@@ -899,6 +907,9 @@
     perched = yes;
     pet.classList.toggle('seated', yes);
     if (yes && !busy) { pulse('hopsmall', 450); drift(['♪'], petTop(), 1); }
+    // he keeps hold of his toy while he sits on a window, and puts it down when he is off again (unless he is falling or running back with it)
+    if (yes) { if (typeof toyCarry === 'function') toyCarry(true); }
+    else setTimeout(function () { if (!perched && !tripHold && !carried && typeof toyCarry === 'function') toyCarry(false); }, 250);
   });
   /** @param {boolean} [manual] Asked for from the settings or animation player: say why when nothing happens. */
   function hopUp(manual) {
@@ -920,7 +931,17 @@
     }, function () { roaming = false; });
   }
   // after getting off a window he runs back to where he was: the shell glides the window, here the feet go
-  if (D.onFall) D.onFall(function (on) { pet.classList.toggle('falling', on); if (on) setFace({ eyes: 'sparkle', mouth: 'o', arms: 'idle', x: [] }); else if (!busy) settle(); });
+  // a fall, a throw or a run back: he keeps the toy in his arms the whole way and puts it down where he ends up
+  var tripHold = false, tripRun = false;
+  function tripStart() { tripHold = true; if (typeof toyCarry === 'function' && !carried) toyCarry(true); }
+  function tripEnd(afterMs) {
+    setTimeout(function () {
+      if (tripRun || carried) return;   // he is running back: the end of the run puts it down
+      tripHold = false;
+      if (!perched && typeof toyCarry === 'function') toyCarry(false);
+    }, afterMs);
+  }
+  if (D.onFall) D.onFall(function (on) { if (on) tripStart(); else tripEnd(900); pet.classList.toggle('falling', on); if (on) setFace({ eyes: 'sparkle', mouth: 'o', arms: 'idle', x: [] }); else if (!busy) settle(); });
   var runOwn = false;
   // up at night and tired: the shell takes his walk back slowly, and his feet go slowly too
   if (D.setDrowsy) new MutationObserver(function () {
@@ -929,6 +950,7 @@
     pet.classList.toggle('plod', sc.indexOf('night-drowsy') === 0);
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-scene'] });
   if (D.onRun) D.onRun(function (dir) {
+    if (dir) { tripRun = true; tripStart(); } else { tripRun = false; tripEnd(150); }
     if (dir) { pet.classList.add('walking'); lookToward(dir); if (!roaming) { roaming = true; runOwn = true; } }
     else { pet.classList.remove('walking'); stopLook(); if (runOwn) { roaming = false; runOwn = false; } }
   });

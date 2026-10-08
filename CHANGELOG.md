@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 346
+- Swiped alerts slide away instead of fading.
+- Claude alerts last twice as long (speech, wand, jingle).
+- A toy thrown far across the screen no longer jumps to him: no sudden leap when it is far, and its place is worked out from where his window really is.
+- He holds his toy when he hops onto a window, and carries it on a fall, a throw or the run back.
+- A toy cut off by the screen edge rolls into view.
+
 ## Build 345
 - Ring menu opens again in the small window.
 
