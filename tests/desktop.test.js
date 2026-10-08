@@ -202,7 +202,7 @@ test('falling goes straight down to the floor; the hop arcs and ends where it sh
 
 test('the desktop shell lists every file it needs for the installer', () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'desktop', 'package.json'), 'utf8'));
-  ['main.js', 'preload.js', 'place.js', 'windows.js'].forEach((f) => assert.ok(pkg.build.files.includes(f), f));
+  ['main.js', 'preload.js', 'place.js', 'windows.js', 'keys.js', 'panel-main.js', 'panel-preload.js', 'panel.html', 'panel-ui.js'].forEach((f) => assert.ok(pkg.build.files.includes(f), f));
   assert.ok(pkg.dependencies.koffi);
   assert.ok(fs.existsSync(path.join(__dirname, '..', 'desktop', 'windows.js')));
 });
@@ -210,4 +210,40 @@ test('the desktop shell lists every file it needs for the installer', () => {
 test('the window lister never reads titles or process names', () => {
   const src = fs.readFileSync(path.join(__dirname, '..', 'desktop', 'windows.js'), 'utf8');
   assert.equal(/GetWindowTextW|GetWindowTextA|GetClassName|QueryFullProcessImageName|GetModuleFileName/.test(src.replace(/\/\/.*$/gm, '')), false);
+});
+
+// ---------- shortcuts (desktop/keys.js) ----------
+const K = require('../desktop/keys.js');
+
+test('a shortcut needs Ctrl or Alt and one known key; empty means off', () => {
+  assert.equal(K.valid('CommandOrControl+Alt+F'), true);
+  assert.equal(K.valid('Alt+F9'), true);
+  assert.equal(K.valid(''), true);
+  assert.equal(K.valid('F'), false);            // a bare letter would swallow typing
+  assert.equal(K.valid('Shift+F'), false);
+  assert.equal(K.valid('Ctrl+Alt+F'), false);   // written as CommandOrControl
+  assert.equal(K.valid('Alt+Alt+F'), false);
+  assert.equal(K.valid('Alt+Nope'), false);
+  assert.equal(K.valid(null), false);
+});
+
+test('saved shortcuts are cleaned: bad ones and clashes fall back to the default', () => {
+  const d = K.clean(null);
+  assert.equal(d.options, 'CommandOrControl+Alt+O');
+  assert.equal(K.clean({ swapSize: '' }).swapSize, '');                       // switched off stays off
+  assert.equal(K.clean({ swapSize: 'x' }).swapSize, d.swapSize);              // unusable: default
+  const clash = K.clean({ swapList: 'CommandOrControl+Alt+F' });              // the same as the first one
+  assert.equal(clash.swapSize, 'CommandOrControl+Alt+F');
+  assert.notEqual(clash.swapList, 'CommandOrControl+Alt+F');
+  assert.equal(K.label('CommandOrControl+Alt+F'), 'Ctrl+Alt+F');
+  assert.equal(K.label(''), 'off');
+});
+
+test('every file the settings window needs exists, and its page loads only its own script', () => {
+  const dir = path.join(__dirname, '..', 'desktop');
+  ['panel-main.js', 'panel-preload.js', 'panel.html', 'panel-ui.js', 'keys.js'].forEach((f) => assert.ok(fs.existsSync(path.join(dir, f)), f));
+  const html = fs.readFileSync(path.join(dir, 'panel.html'), 'utf8');
+  assert.deepEqual(html.match(/<script[^>]*src="[^"]+"/g), ['<script src="panel-ui.js"']);
+  assert.match(html, /script-src 'self'/);
+  new Function(fs.readFileSync(path.join(dir, 'panel-ui.js'), 'utf8'));   // parses
 });

@@ -7,6 +7,8 @@ const path = require('path');
 const fs = require('fs');
 const place = require('./place.js');
 const windows = require('./windows.js');
+const keys = require('./keys.js');
+const createPanel = require('./panel-main.js');
 
 const APP_URL = process.env.NIBBLE_URL || 'https://laurmoe7.github.io/pet-shopper/';
 const PET_SIZE = { width: 320, height: 250 };
@@ -22,8 +24,10 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, displaced = false, perch = null, perchTimer = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false };
+  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, keys: null };
+  const DEFAULTS = Object.assign({}, prefs);
   try { prefs = Object.assign(prefs, JSON.parse(fs.readFileSync(prefsFile(), 'utf8'))); } catch (e) { /* first run */ }
+  prefs.keys = keys.clean(prefs.keys);
   const savePrefs = () => { try { fs.writeFileSync(prefsFile(), JSON.stringify(prefs)); } catch (e) { /* ignore */ } };
   const areas = () => screen.getAllDisplays().map((d) => d.workArea);
   const here = () => screen.getDisplayMatching(win.getBounds()).workArea;
@@ -38,8 +42,8 @@ function start() {
     if (prefs.onTop && prefs.aboveFull) win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true });
     else win.setVisibleOnAllWorkspaces(false);
   };
-  const publicPrefs = () => ({ roam: prefs.roam, remind: prefs.remind, size: prefs.size, idle: prefs.idle, perch: prefs.perch && windows.available() });
-  const sendPrefs = () => { if (win) win.webContents.send('desk:prefs', publicPrefs()); };
+  const publicPrefs = () => ({ roam: prefs.roam, remind: prefs.remind, size: prefs.size, idle: prefs.idle, perch: prefs.perch && windows.available(), hideToy: prefs.hideToy, hideCushion: prefs.hideCushion });
+  const sendPrefs = () => { if (win) win.webContents.send('desk:prefs', publicPrefs()); panel.push(); };
   // moves the window smoothly (walking, peeking round the screen edge); anything that takes hold of it stops the move
   let tween = null;
   function stopTween() { if (tween) { clearInterval(tween.timer); const done = tween.done; tween = null; done(false); } }
@@ -126,36 +130,39 @@ function start() {
   function showFumu() { if (win) { win.show(); if (mode === 'list') win.focus(); } refreshMenus(); }
   function hideFumu() { if (win) win.hide(); refreshMenus(); }
 
+  // one place that changes a setting, for the right-click menu and the settings window alike
+  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'roam', 'remind', 'idle', 'perch', 'hideToy', 'hideCushion', 'startWithWindows'];
+  function setPref(key, value) {
+    if (key === 'size') { if (['small', 'normal', 'large'].includes(value)) setSize(value); return; }
+    if (!BOOLS.includes(key)) return;
+    value = !!value;
+    if (key === 'startWithWindows') { app.setLoginItemSettings({ openAtLogin: value }); }
+    else {
+      prefs[key] = value; savePrefs();
+      if (key === 'onTop' || key === 'aboveFull') applyTop();
+      if (key === 'hotkeys') setupKeys();
+      if (key === 'perch' && !value) fall();
+    }
+    sendPrefs(); refreshMenus();
+  }
+  // the short menu (right-click and tray): the everyday things; the rest is in the settings window
   function menu() {
     const visible = win && win.isVisible();
+    const accel = (id) => (prefs.hotkeys && registered[id] ? registered[id] : undefined);
     return Menu.buildFromTemplate([
       ...(updateReady ? [{ label: 'Restart to update Fumufumu', click: () => autoUpdater.quitAndInstall() }, { type: 'separator' }] : []),
-      mode === 'list' ? { label: 'Back to Fumu', click: () => applyMode('pet') } : { label: 'Open my list', click: () => { showFumu(); applyMode('list'); } },
+      mode === 'list' ? { label: 'Back to Fumu', accelerator: accel('swapSize'), registerAccelerator: false, click: () => applyMode('pet') } : { label: 'Open my list', accelerator: accel('swapSize'), registerAccelerator: false, click: () => { showFumu(); applyMode('list'); } },
+      { label: 'Add an item…', accelerator: accel('quickAdd'), registerAccelerator: false, click: () => quickAdd() },
+      { label: 'Shopping list / to-do list', accelerator: accel('swapList'), registerAccelerator: false, click: () => swapList() },
       { label: visible ? 'Hide Fumu' : 'Show Fumu', click: () => (visible ? hideFumu() : showFumu()) },
       { type: 'separator' },
-      { label: 'Small Fumu / whole app', accelerator: prefs.hotkeys && registered.swapSize ? KEYS.swapSize : undefined, registerAccelerator: false, click: () => toggleFull() },
-      { label: 'Add an item…', accelerator: prefs.hotkeys && registered.quickAdd ? KEYS.quickAdd : undefined, registerAccelerator: false, click: () => quickAdd() },
-      { label: 'Shopping list / to-do list', accelerator: prefs.hotkeys && registered.swapList ? KEYS.swapList : undefined, registerAccelerator: false, click: () => swapList() },
-      { label: 'Keyboard shortcuts' + (prefs.hotkeys && (!registered.swapSize || !registered.swapList) ? ' (a key is taken by another program)' : ''), type: 'checkbox', checked: prefs.hotkeys, click: (item) => { prefs.hotkeys = item.checked; savePrefs(); setupKeys(); refreshMenus(); } },
+      { label: 'Always on top', type: 'checkbox', checked: prefs.onTop, click: (item) => setPref('onTop', item.checked) },
+      { label: 'Size', submenu: [['small', 'Small'], ['normal', 'Normal'], ['large', 'Large']].map(([id, label]) => ({ label, type: 'radio', checked: prefs.size === id, click: () => setPref('size', id) })) },
+      { label: 'Fumu wanders and naps on his own', type: 'checkbox', checked: prefs.roam, click: (item) => setPref('roam', item.checked) },
+      { label: 'Remind me of tasks', type: 'checkbox', checked: prefs.remind, click: (item) => setPref('remind', item.checked) },
+      { label: 'Start with Windows', type: 'checkbox', checked: app.getLoginItemSettings().openAtLogin, click: (item) => setPref('startWithWindows', item.checked) },
       { type: 'separator' },
-      { label: 'Always on top', type: 'checkbox', checked: prefs.onTop, click: (item) => { prefs.onTop = item.checked; savePrefs(); applyTop(); } },
-      { label: 'Stay above full-screen apps', type: 'checkbox', checked: prefs.aboveFull, enabled: prefs.onTop, click: (item) => { prefs.aboveFull = item.checked; savePrefs(); applyTop(); } },
-      { label: 'Size', submenu: [['small', 'Small'], ['normal', 'Normal'], ['large', 'Large']].map(([id, label]) => ({ label, type: 'radio', checked: prefs.size === id, click: () => setSize(id) })) },
-      { label: 'Move Fumu', enabled: mode === 'pet', submenu: [
-        { label: 'Nudge left', click: () => nudgeBy(-20, 0) }, { label: 'Nudge right', click: () => nudgeBy(20, 0) },
-        { label: 'Nudge up', click: () => nudgeBy(0, -20) }, { label: 'Nudge down', click: () => nudgeBy(0, 20) },
-        { type: 'separator' },
-        { label: 'To the bottom right', click: () => toCorner('br') }, { label: 'To the bottom left', click: () => toCorner('bl') },
-        { label: 'To the top right', click: () => toCorner('tr') }, { label: 'To the top left', click: () => toCorner('tl') }
-      ] },
-      { label: 'Fumu wanders and naps on his own', type: 'checkbox', checked: prefs.roam, click: (item) => { prefs.roam = item.checked; savePrefs(); sendPrefs(); } },
-      { label: 'Fumu naps when I am away', type: 'checkbox', checked: prefs.idle, click: (item) => { prefs.idle = item.checked; savePrefs(); sendPrefs(); } },
-      ...(windows.available() ? [{ label: 'Fumu sits on my windows', type: 'checkbox', checked: prefs.perch, click: (item) => { prefs.perch = item.checked; savePrefs(); if (!prefs.perch) fall(); sendPrefs(); } }] : []),
-      { label: 'Remind me of tasks', type: 'checkbox', checked: prefs.remind, click: (item) => { prefs.remind = item.checked; savePrefs(); sendPrefs(); } },
-      { label: 'Start with Windows', type: 'checkbox', checked: app.getLoginItemSettings().openAtLogin, click: (item) => app.setLoginItemSettings({ openAtLogin: item.checked }) },
-      { label: 'Reload (get the latest)', click: () => win && win.webContents.reloadIgnoringCache() },
-      { label: 'Check for app updates', enabled: app.isPackaged, click: () => checkUpdates() },
-      { type: 'separator' },
+      { label: 'More Fumu settings…', accelerator: prefs.keys.options || undefined, registerAccelerator: false, click: () => panel.open() },
       { label: 'Fumufumu ' + app.getVersion(), enabled: false },
       { label: 'Quit Fumufumu', click: () => app.quit() }
     ]);
@@ -173,21 +180,50 @@ function start() {
   }
   function nudgeBy(dx, dy) { if (win && mode === 'pet') { leavePerch(); stopTween(); peekRest = null; win.setBounds(place.nudge(win.getBounds(), dx, dy, here())); restHere(); } }
   function toCorner(which) { if (win && mode === 'pet') { leavePerch(); stopTween(); peekRest = null; win.setBounds(place.corner(win.getBounds(), here(), which)); restHere(); } }
-  // shortcuts that work from any program: small Fumu <-> the whole app, and shopping list <-> to-do list
-  const KEYS = { swapSize: 'CommandOrControl+Alt+F', swapList: 'CommandOrControl+Alt+T', quickAdd: 'CommandOrControl+Alt+A' };
+  // shortcuts that work from any program (which keys is chosen in the settings window); the settings one only while the pointer is over Fumu
   const registered = {};
+  let hoverKeyOn = null, solidNow = false;
   function toggleFull() { if (!win) return; if (!win.isVisible()) showFumu(); applyMode(mode === 'list' ? 'pet' : 'list'); }
   function swapList() { if (!win) return; if (!win.isVisible()) showFumu(); win.webContents.send('desk:swapList'); }
   // a small box by Fumu to add an item without opening the app: the page shows it and asks for the keyboard while it is open
   function quickAdd() { if (!win) return; if (!win.isVisible()) showFumu(); win.webContents.send('desk:quickAdd'); if (mode === 'list') win.focus(); }
   ipcMain.on('desk:typing', (_e, yes) => { if (win && yes) win.focus(); });
+  const HANDLERS = { swapSize: toggleFull, swapList, quickAdd };
   function setupKeys() {
-    Object.keys(KEYS).forEach((k) => { if (registered[k]) { globalShortcut.unregister(KEYS[k]); registered[k] = false; } });
-    if (!prefs.hotkeys) return;
-    registered.swapSize = globalShortcut.register(KEYS.swapSize, toggleFull);
-    registered.swapList = globalShortcut.register(KEYS.swapList, swapList);
-    registered.quickAdd = globalShortcut.register(KEYS.quickAdd, quickAdd);
+    Object.keys(registered).forEach((k) => { if (registered[k]) globalShortcut.unregister(registered[k]); delete registered[k]; });
+    if (hoverKeyOn) { globalShortcut.unregister(hoverKeyOn); hoverKeyOn = null; }
+    if (!prefs.hotkeys) { refreshMenus(); panel.push(); return; }
+    Object.keys(HANDLERS).forEach((id) => {
+      const accel = prefs.keys[id];
+      if (accel && globalShortcut.register(accel, HANDLERS[id])) registered[id] = accel;
+    });
     log('shortcuts', registered);
+    refreshMenus(); panel.push();
+  }
+  // the settings shortcut is only held while the pointer is over him, so it never steals the keys from other programs
+  function hoverOver() {
+    if (!win || !win.isVisible()) return false;
+    const p = screen.getCursorScreenPoint(), b = win.getBounds();
+    const inside = p.x >= b.x && p.x < b.x + b.width && p.y >= b.y && p.y < b.y + b.height;
+    return inside && (mode === 'list' || solidNow);
+  }
+  function updateHoverKey() {
+    const accel = prefs.keys.options, want = !!(accel && prefs.hotkeys && hoverOver());
+    if (want && !hoverKeyOn) { if (globalShortcut.register(accel, () => panel.toggle())) hoverKeyOn = accel; }
+    else if (!want && hoverKeyOn) { globalShortcut.unregister(hoverKeyOn); hoverKeyOn = null; }
+  }
+  // a new shortcut for one of them: checks it is usable and not taken, then keeps it
+  function rebind(id, accel) {
+    if (!keys.KEY_LIST.some((k) => k.id === id)) return { ok: false, reason: 'Unknown shortcut.' };
+    if (!keys.valid(accel)) return { ok: false, reason: 'Use Ctrl or Alt together with a letter, number or F-key.' };
+    if (accel && keys.KEY_LIST.some((k) => k.id !== id && prefs.keys[k.id].toLowerCase() === accel.toLowerCase())) return { ok: false, reason: 'Another Fumu shortcut already uses that.' };
+    if (accel && accel !== prefs.keys[id]) {   // is it free? (try it, then let go)
+      let free = false;
+      try { free = globalShortcut.register(accel, () => {}); if (free) globalShortcut.unregister(accel); } catch (e) { free = false; }
+      if (!free) return { ok: false, reason: 'Another program is using that.' };
+    }
+    prefs.keys[id] = accel; savePrefs(); setupKeys();
+    return { ok: true };
   }
   // ---------- screens that come and go, and the computer going quiet ----------
   // A screen is unplugged or changes size: he goes to the main screen but remembers his own spot, and goes back when that screen returns.
@@ -241,7 +277,7 @@ function start() {
   ipcMain.handle('desk:getMode', () => mode);
   ipcMain.on('desk:setMode', (_e, next) => applyMode(next === 'list' ? 'list' : 'pet'));
   ipcMain.on('desk:ready', () => { if (win && !shown) { shown = true; win.showInactive(); log('shown'); } });
-  ipcMain.on('desk:solid', (_e, yes) => { log('solid', yes); if (win && mode === 'pet' && THROUGH) win.setIgnoreMouseEvents(!yes, { forward: true }); });
+  ipcMain.on('desk:solid', (_e, yes) => { solidNow = !!yes; log('solid', yes); if (win && mode === 'pet' && THROUGH) win.setIgnoreMouseEvents(!yes, { forward: true }); });
   // carrying follows the real pointer (the page's own numbers change with the zoom)
   let dragCursor = null;
   ipcMain.on('desk:dragStart', () => { if (win && mode === 'pet') { leavePerch(); stopTween(); peekRest = null; dragFrom = win.getBounds(); dragCursor = screen.getCursorScreenPoint(); } });
@@ -337,6 +373,54 @@ function start() {
     setTimeout(checkUpdates, 15000);
     setInterval(checkUpdates, 6 * 3600 * 1000);
   }
+
+  // ---------- the settings window (panel-main.js, panel.html): the bigger menu, with the shortcuts and some developer tools ----------
+  function resetPosition() {
+    if (!win || mode !== 'pet') return;
+    leavePerch(); stopTween(); peekRest = null;
+    win.setBounds(place.defaultBounds(screen.getPrimaryDisplay().workArea, petSize()));
+    restHere();
+  }
+  function diag() {
+    const b = win ? win.getBounds() : null;
+    return {
+      version: app.getVersion(), electron: process.versions.electron, packaged: app.isPackaged, page: APP_URL,
+      mode, bounds: b, zoom: zoom(), screens: screen.getAllDisplays().map((d) => d.workArea.width + 'x' + d.workArea.height + ' @' + d.scaleFactor),
+      onPerch: perch ? perch.id : null, windowsSeen: prefs.perch && windows.available() ? windows.list().length : null,
+      idleSeconds: powerMonitor.getSystemIdleTime(), idle, displaced, pointerOverFumu: solidNow,
+      shortcutsHeld: Object.assign({}, registered, hoverKeyOn ? { options: hoverKeyOn } : {}), settingsFolder: app.getPath('userData')
+    };
+  }
+  function action(name, arg) {
+    if (!win) return false;
+    switch (name) {
+      case 'reload': win.webContents.reloadIgnoringCache(); return true;
+      case 'devtools': win.webContents.openDevTools({ mode: 'detach' }); return true;
+      case 'do': if (['wander', 'peek', 'nap', 'perch', 'remind'].includes(arg)) { if (mode !== 'pet') applyMode('pet'); win.webContents.send('desk:do', arg); } return true;
+      case 'corner': if (['br', 'bl', 'tr', 'tl'].includes(arg)) toCorner(arg); return true;
+      case 'nudge': if (Array.isArray(arg)) nudgeBy(Math.max(-200, Math.min(200, +arg[0] || 0)), Math.max(-200, Math.min(200, +arg[1] || 0))); return true;
+      case 'resetPosition': resetPosition(); return true;
+      case 'copyDiag': clipboard.writeText(JSON.stringify(diag(), null, 2)); return true;
+      case 'openData': shell.openPath(app.getPath('userData')); return true;
+      case 'checkUpdates': checkUpdates(); return true;
+      case 'resetSettings': {
+        const keep = { x: prefs.x, y: prefs.y };
+        prefs = Object.assign({}, DEFAULTS, keep, { keys: keys.clean(null) });
+        savePrefs(); app.setLoginItemSettings({ openAtLogin: false });
+        setupKeys(); applyTop(); setSize('normal'); sendPrefs(); refreshMenus();
+        return true;
+      }
+      default: return false;
+    }
+  }
+  const panel = createPanel({
+    state: () => ({
+      prefs: Object.assign({ onTop: prefs.onTop, aboveFull: prefs.aboveFull, hotkeys: prefs.hotkeys, startWithWindows: app.getLoginItemSettings().openAtLogin }, publicPrefs(), { perch: prefs.perch }),
+      keys: prefs.keys, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, update: updateReady
+    }),
+    set: setPref, rebind, action, diag
+  });
+  setInterval(updateHoverKey, 120);
 
   app.on('second-instance', () => showFumu());
   app.on('window-all-closed', () => app.quit());

@@ -2820,6 +2820,9 @@ html.desktop-pet .dream-dot.d2 { left: -12px; top: 54px; }
 .inbox-actions .inbox-done { margin-left: auto; }
 .stage:has(.inbox-card) .bubble { display: none; }
 html.desktop-pet .stage .inbox-card { top: auto; bottom: calc(100% + 1px); }
+/* choices from the settings window: no toy, no cushion under him (the bed at night stays) */
+html.desktop-pet.desk-notoy .toy { display: none !important; }
+html.desktop-pet.desk-nocushion .stage:not(.bedtime) .cushion { display: none; }
 /* the quick-add box by Fumu (the shell's Ctrl+Alt+A): a field and an Add button */
 .quick-card { grid-template-columns: 1fr auto; gap: 6px; }
 .quick-card input { min-width: 0; font: inherit; font-size: .95rem; padding: 5px 10px; border: 1.5px solid var(--outline); border-radius: 12px; background: var(--surface); color: var(--ink); user-select: text; -webkit-user-select: text; }

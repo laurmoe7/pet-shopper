@@ -27,7 +27,7 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   /** Puts text on the clipboard. */
   copy: (text) => ipcRenderer.send('desk:copy', String(text).slice(0, 20000)),
   hide: () => ipcRenderer.send('desk:hide'),
-  /** The tray menu's choices that matter to the page: {roam, remind, size, idle, perch}. */
+  /** The tray menu's choices that matter to the page: {roam, remind, size, idle, perch, hideToy, hideCushion}. */
   getPrefs: () => ipcRenderer.invoke('desk:getPrefs'),
   onPrefs: (fn) => ipcRenderer.on('desk:prefs', (_e, p) => fn(p)),
   /** Walks the window dx px along (negative = left) over ms; resolves how far it really went. */
@@ -46,6 +46,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   perch: (want) => ipcRenderer.invoke('desk:perch', want === 'down' ? 'down' : 'up'),
   /** Whether he sits on a window now (also when the shell moved him, e.g. the window closed). */
   onPerched: (fn) => ipcRenderer.on('desk:perched', (_e, yes) => fn(!!yes)),
+  /** The settings window asked him to do something now: 'wander', 'peek', 'nap', 'perch' or 'remind'. */
+  onDo: (fn) => ipcRenderer.on('desk:do', (_e, what) => fn(String(what))),
   /** Shows Fumu if he was hidden (a reminder). */
   reveal: () => ipcRenderer.send('desk:reveal')
 });

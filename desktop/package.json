@@ -22,6 +22,11 @@
       "preload.js",
       "place.js",
       "windows.js",
+      "keys.js",
+      "panel-main.js",
+      "panel-preload.js",
+      "panel.html",
+      "panel-ui.js",
       "build/icon.png",
       "package.json"
     ],

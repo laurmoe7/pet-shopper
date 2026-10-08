@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 264 (8 Oct)
+- Desktop: a bigger "Fumu settings" window (hover over him and press Ctrl+Alt+O, or right-click > More Fumu settings).
+- Desktop: hide his toy and hide the cushion under him.
+- Desktop: change or switch off each shortcut.
+- Desktop: developer tools in settings (make him wander, nap, hop, test reminder, diagnostics).
+- Desktop: the right-click menu is shorter.
+
 ## Build 263 (8 Oct)
 - Desktop: the toy no longer gets stuck in the air when dragged fast over a window behind him.
 - Desktop: picking up and throwing the toy is smoother.

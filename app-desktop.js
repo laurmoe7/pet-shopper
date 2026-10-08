@@ -127,15 +127,22 @@
     row.innerHTML = '<span class="option-title">Shortcuts on this PC</span>';
     var t = document.createElement('span');
     t.className = 'option-text desk-keys';
-    t.innerHTML = '<b>Ctrl+Alt+F</b> small Fumu ⇄ whole app<br><b>Ctrl+Alt+T</b> shopping ⇄ to-do list<br><b>Ctrl+Alt+A</b> add an item from any program<br>Middle-click Fumu: open the app. Double-click the bar: back to Fumu.<br>Right-click Fumu for size, position and more.';
+    t.innerHTML = '<b>Ctrl+Alt+F</b> small Fumu ⇄ whole app<br><b>Ctrl+Alt+T</b> shopping ⇄ to-do list<br><b>Ctrl+Alt+A</b> add an item from any program<br><b>Ctrl+Alt+O</b> more settings (with the pointer over him)<br>Middle-click Fumu: open the app. Double-click the bar: back to Fumu.<br>Right-click Fumu for the everyday choices. Keys can be changed in the settings.';
     row.appendChild(t);
     optionsList.insertBefore(row, optionsList.children[2] || null);
   })();
 
   // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------
-  var deskPrefs = { roam: true, remind: true, idle: true, perch: false };
-  if (D.getPrefs) D.getPrefs().then(function (p) { if (p) deskPrefs = p; });
-  if (D.onPrefs) D.onPrefs(function (p) { if (p) deskPrefs = p; });
+  var deskPrefs = { roam: true, remind: true, idle: true, perch: false, hideToy: false, hideCushion: false };
+  /** The small window's look choices from the settings window: no toy, no cushion (classes on <html>, CSS at the end of styles.css). */
+  function applyLook() {
+    root.classList.toggle('desk-notoy', !!deskPrefs.hideToy);
+    root.classList.toggle('desk-nocushion', !!deskPrefs.hideCushion);
+    lastSolidReset();
+  }
+  function lastSolidReset() { lastSolid = null; }
+  if (D.getPrefs) D.getPrefs().then(function (p) { if (p) { deskPrefs = p; applyLook(); } });
+  if (D.onPrefs) D.onPrefs(function (p) { if (p) { deskPrefs = p; applyLook(); } });
 
   // ---------- a reminder for a task's time ----------
   // timeCheck (app-todo.js) asks here first. In pet mode Fumu pops up if he was hidden and a card by him says what is
@@ -349,6 +356,8 @@
     if (what === 'wander') { wander(); return 4500; }
     if (what === 'peek') { peek(); return 7000; }
     if (what === 'perch') { if (perched) hopDown(); else hopUp(); return 3000; }
+    if (what === 'nap') return typeof napNow === 'function' ? napNow(15000) : 0;
+    if (what === 'remind') { window.deskRemind([{ id: 'test', text: 'A test reminder', emoji: '⏰', time: '', done: false }]); return 4000; }
     return 0;
   };
   var roamTimer = 0;
@@ -367,4 +376,9 @@
     }, (first ? 90 : 240) * 1000 + Math.random() * (first ? 150 : 300) * 1000);
   }
   scheduleRoam(true);
+  // the settings window's "make him do it now" buttons
+  if (D.onDo) D.onDo(function (what) {
+    if (what === 'remind') { var old = deskPrefs.remind; deskPrefs.remind = true; window.deskDo('remind'); deskPrefs.remind = old; }
+    else window.deskDo(what);
+  });
 })();
