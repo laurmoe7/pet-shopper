@@ -2995,3 +2995,4 @@ html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); scale: .7; t
 
 /* resting, it is tucked into the bed beside him: the bed's front edge is over its lower half */
 .bell.nested { z-index: 1; }
+.bell.putaway { transition: opacity .4s ease, scale .4s ease; opacity: 0; scale: .5; pointer-events: none; }

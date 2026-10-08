@@ -314,8 +314,8 @@
       return went / z;
     }, function () { pet.classList.remove('walking'); stopLook(); return 0; });
   }
-  window.deskToyChase = function (dx) { return runWindow(dx, Math.min(3500, 500 + Math.abs(dx) * 5)); };
-  window.deskToyFollow = function (dx) { return runWindow(dx, 450); };
+  window.deskToyChase = function (dx) { var slow = typeof toyTired === 'function' && toyTired() ? 5 : 1; return runWindow(dx, Math.min(3500 * slow, (500 + Math.abs(dx) * 5) * slow)); };
+  window.deskToyFollow = function (dx) { return runWindow(dx, typeof toyTired === 'function' && toyTired() ? 2200 : 450); };
   /** After the game: he runs back to where he stood when the toy was thrown. @returns {Promise<void>} Resolves when he is there. */
   window.deskToyReturn = function () {
     var home = homeX, moved0 = fieldMoved;

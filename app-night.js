@@ -139,8 +139,9 @@ function petScene() { return L.deskScene({ night: L.isNight(petNow()), bed: stag
 var BELL_KEY = 'nibble-bell-awake';
 var bellBroken = false;
 /** @returns {boolean} Whether the bell woke him tonight and he is still up (until the morning, or the bell breaks). */
-function bellAwake() { try { return localStorage.getItem(BELL_KEY) === L.nightOf(petNow()); } catch (e) { return false; } }
-function setBellAwake(on) { try { if (on) localStorage.setItem(BELL_KEY, L.nightOf(petNow())); else localStorage.removeItem(BELL_KEY); } catch (e) { /* storage blocked */ } }
+var BELL_AWAKE_MS = 30 * 60000;   // woken by the bell, he stays up (drowsy) for half an hour, then goes back to bed by himself
+function bellAwake() { try { var v = (localStorage.getItem(BELL_KEY) || '').split('|'); return v[0] === L.nightOf(petNow()) && Date.now() - (+v[1] || 0) < BELL_AWAKE_MS; } catch (e) { return false; } }
+function setBellAwake(on) { try { if (on) localStorage.setItem(BELL_KEY, L.nightOf(petNow()) + '|' + Date.now()); else localStorage.removeItem(BELL_KEY); } catch (e) { /* storage blocked */ } }
 var bell = document.createElement('button');
 bell.type = 'button'; bell.className = 'bell'; bell.hidden = true; bell.setAttribute('aria-label', 'Bell');
 // a brass hand bell with a wooden handle (36 x 48): he is held by the handle, and swings from it
@@ -155,8 +156,8 @@ var bellImg = bell.querySelector('.bell-img'), bellSvg = bell.querySelector('.be
 stage.appendChild(bell);
 var BELL_W = 36, BELL_H = 48, BELL_GRIP = 9;   // the pointer holds the handle, about 9 px down from the top
 var bellX = 100, bellY = 20, bellTilt = 18, bellHeld = null, bellFlight = 0, bellRings = 0, bellRingTimer = 0;
-/** @returns {boolean} Whether the bell is out: in the small desktop window, at night, while he is in bed or was woken by it. */
-function bellOut() { return document.documentElement.classList.contains('desktop-pet') && L.isNight(petNow()) && !bellBroken && (stage.classList.contains('bedtime') || bellAwake()); }
+/** @returns {boolean} Whether the bell is out: in the small desktop window, at night, only while his bed is out (awake with no bed there is no bell: he has his toy). */
+function bellOut() { return document.documentElement.classList.contains('desktop-pet') && L.isNight(petNow()) && !bellBroken && stage.classList.contains('bedtime'); }
 /** Where it rests: tucked into his bed beside him (when the bed is out), otherwise on the floor. */
 function bellRest() { return stage.classList.contains('bedtime') ? { x: 100, y: 20, tilt: 18 } : { x: -128, y: 0, tilt: 0 }; }
 function placeBell(turn, clap) { bell.style.translate = Math.round(bellX) + 'px 0'; bellImg.style.transform = 'translateY(' + (-bellY).toFixed(1) + 'px)'; bellSvg.style.rotate = (turn || 0).toFixed(1) + 'deg'; bellClap.style.rotate = (clap || 0).toFixed(1) + 'deg'; }
@@ -172,7 +173,11 @@ function bellNest(quick) {
     if (u < 1) bellFlight = requestAnimationFrame(step); else bell.classList.add('nested');
   })(t0);
 }
+var wasBellAwake = false;
 function showScene() {
+  var awakeNow = bellAwake();
+  if (wasBellAwake && !awakeNow && L.isNight(petNow()) && document.documentElement.classList.contains('desktop-pet')) bellToBed(['oh… so sleepy… night night', '*yawn* bed time again…', 'mm… back to bed…']);
+  wasBellAwake = awakeNow;
   document.documentElement.dataset.scene = petScene();
   var out = bellOut();
   if (out && bell.hidden) { bell.hidden = false; var rest = bellRest(); bellX = rest.x; bellY = rest.y; bellTilt = rest.tilt; bell.classList.add('nested'); placeBell(bellTilt, 0); bell.classList.remove('pop'); void bell.offsetWidth; bell.classList.add('pop'); }
@@ -204,6 +209,18 @@ function bellRing() {
   pulse('hop', 450);
   say(pick(['wha—? who rang?', 'mm?! I\'m up…', 'ding…? I\'m awake…']), 2200);
   setTimeout(function () { if (!busy) settle(); }, 1800);
+  // with no bed there is no bell: it is put away (he has his toy again)
+  bellHeld = null; bell.classList.remove('held'); bell.classList.add('putaway'); cancelAnimationFrame(bellFlight);
+  setTimeout(function () { bell.classList.remove('putaway'); showScene(); }, 450);
+  showScene();
+}
+/** Back to bed: tucked in and asleep (the small window has no lamp), saying one of the lines. */
+function bellToBed(lines) {
+  setBellAwake(false);
+  refreshBedtime();
+  var bed = bedtime(); bed.dark = true; bed.tucked = true; saveBedtime(bed);
+  refreshBedtime();
+  say(pick(lines), 2000);
   showScene();
 }
 function bellBreak() {
@@ -212,13 +229,7 @@ function bellBreak() {
   bell.hidden = true; bellBroken = true; bellY = 0;
   sound('smash');
   drift(['✦', '✧', '·', '✦'], at, 6);
-  var wasUp = petScene() !== 'night-bed';
-  setBellAwake(false);
-  refreshBedtime();   // back to bed (the small window has no lamp, so he is tucked in as well)
-  var bed = bedtime(); bed.dark = true; bed.tucked = true; saveBedtime(bed);
-  refreshBedtime();
-  say(wasUp ? pick(['oh… so sleepy… night night', '…bed…', 'mm… back to bed…']) : pick(['mm…', '…zzz…']), 2000);
-  showScene();
+  bellToBed(petScene() !== 'night-bed' ? ['oh… so sleepy… night night', '…bed…', 'mm… back to bed…'] : ['mm…', '…zzz…']);
   setTimeout(function () { bellBroken = false; showScene(); }, 45000);   // a new one turns up
 }
 /** @returns {{minX: number, maxX: number, maxY: number}} Where the bell can go (as the toy's limits: px from the middle, px up). */

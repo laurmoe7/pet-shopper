@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 325 (9 Oct)
+- No bell when he is awake with no bed: he has his toy.
+- Drowsy at night, he chases a thrown toy very slowly.
+- Woken by the bell, he goes back to bed by himself after half an hour.
+
 ## Build 324 (9 Oct)
 - The bell's clapper is behind the bell, bigger, and swings when you ring it.
 - The bell rests tucked into his bed beside him, not on the floor.

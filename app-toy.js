@@ -6,6 +6,10 @@
 var toyEl = $('toy'), toyBall = toyEl.querySelector('.toy-ball'), toyX = toyHome(), playing = false;
 /** @returns {number} The toy's spot beside the cushion: a bigger pet takes more room (its size is --pet-size on the stage). */
 function toyHome() { return Math.round(58 * (parseFloat(getComputedStyle(stage).getPropertyValue('--pet-size')) || 1)); }
+/** @returns {boolean} Whether he is up at night and drowsy (not in his bed): he goes after the toy very slowly then. */
+function toyTired() { return typeof petScene === 'function' && petScene().indexOf('night-drowsy') === 0; }
+/** @param {number} pace Ms per px for a walk. @returns {number} The pace, many times slower when he is drowsy. */
+function toyPace(pace) { return toyTired() ? pace * 6 : pace; }
 /** @returns {string} How the species plays: fetch, bat, tongue or hug. */
 function playStyle() {
   var sp = state.pet.species;
@@ -123,7 +127,7 @@ function playToy() {
   wait(300).then(function () {
     setFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] });
     pet.classList.add('running');
-    return Promise.all([wait(walkTo(stop, 7)), landed]);
+    return Promise.all([wait(walkTo(stop, toyPace(7))), landed]);
   }).then(function () {
     pet.classList.remove('running');
     return getIt(side);
@@ -154,7 +158,7 @@ function endPlay() {
 function pounce() {
   pulse('hop', 500);
   sound('squish');
-  walkTo(toyX, 5);
+  walkTo(toyX, toyPace(5));
   return wait(380);
 }
 /** A cat's game: a wiggle, a pounce that knocks the toy away, then a chase after it. */
@@ -175,7 +179,7 @@ function batAbout(side) {
     var rolled = toyBounce(to, 650, 18);
     return wait(300).then(function () {
       pet.classList.add('running');
-      return Promise.all([wait(walkTo(to + side * 34, 7)), rolled]);
+      return Promise.all([wait(walkTo(to + side * 34, toyPace(7))), rolled]);
     }).then(function () { pet.classList.remove('running'); });
   });
 }
@@ -192,7 +196,7 @@ function fetchBack() {
   setFace({ eyes: 'happy', mouth: 'o', arms: 'idle', x: ['cheeks'] });
   toyHold(mouthHeight(), walkX);
   return wait(350).then(function () { return carryBack(mouthHeight()); }).then(function () {
-    var ms = walkTo(0, 12);
+    var ms = walkTo(0, toyPace(12));
     toyHold(mouthHeight(), walkX, ms || 200);
     return wait(ms + 100);
   }).then(function () {
@@ -343,7 +347,7 @@ function fling(vx, vy, y) {
   cancelAnimationFrame(flight);
   if (reduceMotion) { placeToy(x, 0, 0); landed(); return; }
   // if the chase drags on he jumps at the toy and gets it
-  var leapAfter = wide ? 6500 : 3200;
+  var leapAfter = toyTired() ? Infinity : wide ? 6500 : 3200;   // (drowsy, he does not manage the jump)
   function leap() {
     var px0 = parseFloat(getComputedStyle(pet).translate) || 0, fx = x, fy = y, t0 = performance.now(), svg = pet.querySelector('.pet-svg');
     // he springs up off the floor as the toy swings in to him in an arc, and catches it at the top
@@ -376,7 +380,7 @@ function fling(vx, vy, y) {
     spin += vx * dt * 2.4;
     placeToy(x, y, spin);
     // the pet runs to where the toy is heading
-    if (now > chaseAt) { chaseAt = now + 110; walkTo(x + vx * 0.3, 5); }
+    if (now > chaseAt) { chaseAt = now + 110; walkTo(x + vx * 0.3, toyPace(5)); }
     // over the whole screen his window runs after it too, once it is well past where he can reach inside the window
     if (wide && now > followAt && typeof deskToyFollow === 'function') {
       var far = x - clampWalk(x);
@@ -423,7 +427,7 @@ function landed() {
   (far && typeof deskToyChase === 'function' ? deskToyChase(far) : Promise.resolve(0)).then(function (moved) {
     toyX -= moved || 0;   // the window moved under it
     endField();
-    return wait(walkTo(toyX - side * (playStyle() === 'tongue' ? 80 : 40), 7));
+    return wait(walkTo(toyX - side * (playStyle() === 'tongue' ? 80 : 40), toyPace(7)));
   }).then(function () {
     pet.classList.remove('running');
     return getIt(side);
