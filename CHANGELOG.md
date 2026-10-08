@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 291 (9 Oct)
+- Right-click: "Swap list".
+- Every switch now means on = enabled (Sounds, Show his toy, Show the cushion; "Quiet mode" became "Sounds").
+- "Alerts still show" instead of "Cards".
+
 ## Build 290 (9 Oct)
 - Settings: "How much he moves about" (a lot, normal, in his room, still), also for games and full-screen; replaces the wander, nap and stand-still switches.
 - Settings: mute switch for small Fumu; floating scroll bar.

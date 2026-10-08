@@ -16,7 +16,7 @@ try { savedTheme = localStorage.getItem('nibble-theme') || 'auto'; } catch (e) {
 applyTheme(savedTheme);
 var optionsSheet = $('optionsSheet'), optionsList = $('optionsList');
 var OPTIONS = [
-  { key: 'quiet', title: 'Quiet mode', text: '' },
+  { key: 'quiet', title: 'Sounds', text: '', invert: true },   // on = sounds on, stored as state.quiet
   { key: 'vibration', title: 'Vibration', text: '' },
   { key: 'aisles', title: 'Sort by aisle', text: '' },
   { key: 'time24', title: '24-hour time', text: '' },
@@ -55,18 +55,19 @@ OPTIONS.forEach(function (o) {
   box.type = 'checkbox';
   box.setAttribute('role', 'switch');
   box.dataset.key = o.key;
+  if (o.invert) box.dataset.invert = '1';
   if (o.text) label.append(title, box, text); else label.append(title, box);
   optionsList.appendChild(label);
 });
 optionsList.addEventListener('change', function (e) {
   var key = e.target.dataset.key;
   if (!key) return;
-  if (key === 'quiet') state.quiet = e.target.checked; else state.settings[key] = e.target.checked;
+  if (key === 'quiet') state.quiet = !e.target.checked; else state.settings[key] = e.target.checked;
   save();
-  if (!state.quiet) sound(e.target.checked ? 'on' : 'off');
+  if (!state.quiet) sound(e.target.checked ? 'on' : 'off');   // (switching sounds on plays the click; switching them off is silent)
 });
 $('optionsBtn').addEventListener('click', function () {
-  optionsList.querySelectorAll('input[data-key]').forEach(function (b) { b.checked = b.dataset.key === 'quiet' ? state.quiet : state.settings[b.dataset.key]; });
+  optionsList.querySelectorAll('input[data-key]').forEach(function (b) { b.checked = b.dataset.key === 'quiet' ? !state.quiet : state.settings[b.dataset.key]; });
   openDialog(optionsSheet);
 });
 optionsSheet.addEventListener('click', function (e) { if (e.target === optionsSheet) optionsSheet.close(); });

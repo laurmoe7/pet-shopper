@@ -204,7 +204,7 @@ function start() {
       mode === 'list' ? { label: 'Back to ' + pet, accelerator: accel('swapSize'), registerAccelerator: false, click: () => applyMode('pet') } : { label: 'Open my list', accelerator: accel('swapSize'), registerAccelerator: false, click: () => { showFumu(); applyMode('list'); } },
       { label: 'Add an item…', accelerator: accel('quickAdd'), registerAccelerator: false, click: () => quickAdd() },
       { label: 'Send copied text to my other device', accelerator: accel('sendCopied'), registerAccelerator: false, click: () => sendCopied() },
-      { label: 'Shopping list / to-do list', accelerator: accel('swapList'), registerAccelerator: false, click: () => swapList() },
+      { label: 'Swap list', accelerator: accel('swapList'), registerAccelerator: false, click: () => swapList() },
       { label: visible ? 'Hide ' + pet : 'Show ' + pet, click: () => (visible ? hideFumu() : showFumu()) },
       { type: 'separator' },
       { label: 'Always on top', type: 'checkbox', checked: prefs.onTop, click: (item) => setPref('onTop', item.checked) },

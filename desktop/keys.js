@@ -5,7 +5,7 @@
 /** The shortcuts and what they are for (`{name}` is his name, filled in where they are shown); `hover` ones only work while the pointer is over him. */
 var KEY_LIST = [
   { id: 'swapSize', label: 'Small {name} / whole app', def: 'CommandOrControl+Alt+F' },
-  { id: 'swapList', label: 'Shopping list / to-do list', def: 'CommandOrControl+Alt+T' },
+  { id: 'swapList', label: 'Swap list', def: 'CommandOrControl+Alt+T' },
   { id: 'quickAdd', label: 'Add an item from anywhere', def: 'CommandOrControl+Alt+A' },
   { id: 'sendCopied', label: 'Send my copied text or link (while the pointer is over {name})', def: 'CommandOrControl+Alt+S', hover: true },
   { id: 'options', label: 'Open the settings (while the pointer is over {name})', def: 'CommandOrControl+Alt+O', hover: true }

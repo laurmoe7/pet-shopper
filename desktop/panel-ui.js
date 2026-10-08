@@ -12,8 +12,8 @@
     opts = opts || {};
     var row = el('label', 'row' + (opts.disabled ? ' off' : '')), text = el('span', 'text', label);
     if (hint) text.appendChild(el('small', '', hint));
-    var sw = el('span', 'sw'), input = el('input'); input.type = 'checkbox'; input.checked = !!S.prefs[pref]; input.disabled = !!opts.disabled;
-    input.addEventListener('change', function () { P.set(pref, input.checked).then(take); });
+    var sw = el('span', 'sw'), input = el('input'); input.type = 'checkbox'; input.checked = opts.invert ? !S.prefs[pref] : !!S.prefs[pref]; input.disabled = !!opts.disabled;
+    input.addEventListener('change', function () { P.set(pref, opts.invert ? !input.checked : input.checked).then(take); });
     sw.append(input, el('i'));
     row.append(text, sw); sec.appendChild(row);
   }
@@ -75,13 +75,13 @@
     var seg = el('span', 'seg');
     [['small', 'Small'], ['normal', 'Normal'], ['large', 'Large']].forEach(function (o) { var b = button(seg, o[1], function () { P.set('size', o[0]).then(take); }); if (S.prefs.size === o[0]) b.className = 'on'; });
     sizeRow.appendChild(seg); look.appendChild(sizeRow);
-    toggle(look, 'Speech bubbles', 'bubbles', 'In the small window. Cards still show.');
+    toggle(look, 'Speech bubbles', 'bubbles', 'In the small window. Alerts still show.');
     toggle(look, 'Thought bubbles', 'clouds', 'Daydreams and wishes.');
     toggle(look, 'Sparkles around him', 'sparkles');
     toggle(look, 'Room background', 'backdrop', 'The scene from the whole app.');
-    toggle(look, 'Mute him', 'mute', 'No sounds in the small window.');
-    toggle(look, 'Hide his toy', 'hideToy');
-    toggle(look, 'Hide the cushion under him', 'hideCushion', 'His bed still shows at bedtime.');
+    toggle(look, 'Sounds', 'mute', 'In the small window.', { invert: true });
+    toggle(look, 'Show his toy', 'hideToy', '', { invert: true });
+    toggle(look, 'Show the cushion under him', 'hideCushion', 'His bed still shows at bedtime.', { invert: true });
 
     var does = section('What he does on his own');
     // how much he talks on his own: his idle chatter, daydreams, asking for things. Reminders, greetings and answers to you are never held back.
