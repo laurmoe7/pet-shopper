@@ -408,6 +408,10 @@
       } else if (!bed) setTimeout(function () { if (!pet.classList.contains('thrown') && !carried && !busy) settle(); }, 900);
     }
     if (!on) stage.style.removeProperty('--bed-turn');
+    if (!on && stage.classList.contains('bed-thrown')) {   // the bed settles back into place softly instead of snapping
+      stage.classList.add('bed-settle');
+      setTimeout(function () { stage.classList.remove('bed-settle'); }, 800);
+    }
     stage.classList.toggle('bed-thrown', !!on && !!bed);
   });
   // in bed the bed always leads: it turns to face the way he is flying, so it is the bed that hits the wall, the ceiling or the floor
@@ -918,7 +922,9 @@
 
   // ---------- away from the computer ----------
   // The shell says when nothing was touched for a few minutes (or the screen was locked): he curls up for a nap, and says hello again when you are back.
+  window.deskAway = function () { return away; };   // (app-send.js polls the inbox slowly while he is away)
   if (D.onIdle) D.onIdle(function (idle) {
+    if (!idle && typeof inboxPoll === 'function') setTimeout(inboxPoll, 400);   // back at the computer: look for anything that came meanwhile
     if (idle) {
       if (!isPet() || away) return;
       away = true; awayAt = Date.now();

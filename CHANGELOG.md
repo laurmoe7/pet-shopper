@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 353
+- The bed settles back softly after a throw.
+- Fewer server requests: while you are away from the computer he checks for messages once a minute.
+
 ## Build 352
 - Bouncing in bed plays the bounce sound and the bell clink together.
 

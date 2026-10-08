@@ -317,9 +317,12 @@ function devAlert(kind) {
 var polling = false, shownIds = {}, lastClaudeAt = 0;
 /** @returns {string} This device's id as the server keeps it (letters and digits, at most 12). */
 function inboxDevice() { return String(state.sync.device || '').replace(/[^a-z0-9]/gi, '').slice(0, 12); }
+var lastPollAt = 0;
 function inboxPoll() {
+  // away from the computer (the desktop app says so after a few idle minutes): once a minute is plenty, which keeps the server's request count down
+  if (typeof deskAway === 'function' && deskAway() && Date.now() - lastPollAt < 60000) return;
   if (polling || !receivingHere() || !account.code || syncState.stopped || inboxCard || document.querySelector('.remind-card') || document.visibilityState === 'hidden') return;
-  polling = true;
+  polling = true; lastPollAt = Date.now();
   accountApi('/v1/inbox?device=' + encodeURIComponent(inboxDevice()), 'GET', account.code).then(function (r) {
     polling = false;
     var list = r.ok && r.json && r.json.messages;
