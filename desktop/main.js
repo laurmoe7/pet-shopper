@@ -623,6 +623,7 @@ function start() {
       case 'resetPosition': resetPosition(); return true;
       case 'teachGame': return teachGame(arg);
       case 'forgetGames': prefs.myGames = {}; savePrefs(); programSent = ''; programMaybe = ''; return true;
+      case 'openClaudeSettings': { const f = path.join(app.getPath('home'), '.claude', 'settings.json'); if (fs.existsSync(f)) shell.showItemInFolder(f); else shell.openPath(path.dirname(f)); return true; }
       case 'copyClaudeHook': { if (CHANNEL.name !== 'dev') return false; setupClaudeLink(); clipboard.writeText(claudeHookSnippet()); return true; }
       case 'copyDiag': { const d = diag(); delete d.lastUnknownProgram; clipboard.writeText(JSON.stringify(d, null, 2)); return true; }
       case 'openData': shell.openPath(app.getPath('userData')); return true;
@@ -641,7 +642,7 @@ function start() {
   const panel = createPanel({
     state: () => ({
       prefs: Object.assign({ onTop: prefs.onTop, aboveFull: prefs.aboveFull, hotkeys: prefs.hotkeys, startWithWindows: app.getLoginItemSettings().openAtLogin }, publicPrefs(), { perch: prefs.perch }),
-      keys: prefs.keys, channel: CHANNEL.name, privacy: { levels: privacy.LEVELS, always: privacy.ALWAYS, chatLevels: privacy.CHAT_LEVELS, moveLevels: privacy.MOVE_LEVELS }, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, petName: prefs.petName, claudeLink: CHANNEL.name === 'dev' && !!prefs.claudeLink, update: updateReady, updateState
+      keys: prefs.keys, channel: CHANNEL.name, privacy: { levels: privacy.LEVELS, always: privacy.ALWAYS, chatLevels: privacy.CHAT_LEVELS, moveLevels: privacy.MOVE_LEVELS }, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, petName: prefs.petName, claudeLink: CHANNEL.name === 'dev' && !!prefs.claudeLink, claudeSettings: path.join(app.getPath('home'), '.claude', 'settings.json'), update: updateReady, updateState
     }),
     set: setPref, rebind, action, diag
   });

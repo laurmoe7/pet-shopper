@@ -4,6 +4,7 @@ A grocery list with a tamagotchi-like pet that "eats" items as you check them of
 
 ## How to work with Lauren
 
+- When you point her to a file or folder on her computer, give the whole path (for example `C:\Users\<name>\.claude\settings.json`, never `~/...`) so she can click it; where the program knows it (it can ask Windows), show the full path in the settings window with a button that opens it.
 - She wants honest, unflattering feedback. Don't flatter; say when something looks bad or is a weak idea.
 - Priority is cute and appealing. Style is kawaii, inspired by Chiikawa but original (don't copy characters). Keep all pet species.
 - She tests on her phone (Chrome) and reports by build number (shown in Options, `BUILD` in `app.js`). Always bump the build when you change app files.

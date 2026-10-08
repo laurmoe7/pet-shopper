@@ -173,14 +173,14 @@ test('a window with no room above it (maximized) is not a perch, and edges are c
 test('he stands on an edge like on the taskbar, with his middle kept over it', () => {
   const b = { x: 0, y: 0, width: 320, height: 250 }, seg = { id: 'a', x1: 500, x2: 900, y: 600 };
   const on = P.perchBounds(b, seg);
-  assert.equal(on.y, 600 - 250 + 11);   // the soles clip a little into the window
+  assert.equal(on.y, 600 - 250 + 21);   // the soles clip a little into the window
   assert.equal(on.x + 160 >= 500 + 80 && on.x + 160 <= 900 - 80, true);
   assert.equal(P.perchBounds({ x: 3000, y: 0, width: 320, height: 250 }, seg).x + 160, 900 - 80);
 });
 
 test('a drop close to an edge snaps to it, a drop far above does not', () => {
   const segs = [{ id: 'a', x1: 500, x2: 900, y: 600 }];
-  const close = { x: 540, y: 600 - 250 + 11 - 25, width: 320, height: 250 };
+  const close = { x: 540, y: 600 - 250 + 21 - 25, width: 320, height: 250 };
   assert.equal(P.perchUnder(close, segs, 40).id, 'a');
   assert.equal(P.perchUnder(Object.assign({}, close, { y: close.y - 200 }), segs, 40), null);
   assert.equal(P.perchUnder(Object.assign({}, close, { x: 2000 }), segs, 40), null);

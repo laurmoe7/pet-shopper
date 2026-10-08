@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 297 (9 Oct)
+- Sitting on a window: 10 px lower.
+- Claude Code link shows the full settings.json path with a button to open it.
+
 ## Build 296 (9 Oct)
 - Desktop: the add box and other cards stay on the screen when he is near the edge.
 

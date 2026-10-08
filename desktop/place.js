@@ -172,8 +172,8 @@ function perchBounds(b, seg) {
   var half = PERCH_BODY / 2, cx = Math.max(seg.x1 + half, Math.min(b.x + b.width / 2, seg.x2 - half));
   return { x: Math.round(cx - b.width / 2), y: Math.round(seg.y - b.height + perchSink(b)), width: b.width, height: b.height };
 }
-/** How far the bottom of his window reaches below the top of the window he sits on, so his soles just clip into it (11 px in a 250 px window). */
-function perchSink(b) { return Math.round(11 * b.height / 250); }
+/** How far the bottom of his window reaches below the top of the window he sits on, so his soles just clip into it (21 px in a 250 px window). */
+function perchSink(b) { return Math.round(21 * b.height / 250); }
 
 /** The perch Fumu's window is standing on or just above or below (within `tol` px), if any. */
 function perchUnder(b, segs, tol) {

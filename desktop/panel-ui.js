@@ -172,8 +172,8 @@
     if (S.channel === 'dev') {   // only for the dev build (not for the friends' stable one)
       toggle(dev, 'Claude Code link', 'claudeLink', 'He reacts when Claude Code finishes or needs you.');
       if (S.claudeLink) {
-        var hookRow = el('div', 'btns'); button(hookRow, 'Copy the hook for Claude Code', act('copyClaudeHook')); dev.appendChild(hookRow);
-        dev.appendChild(el('p', '', 'Paste it into ~/.claude/settings.json on this PC (Stop and Notification hooks).')).style.cssText = 'margin:0 0 8px;font-size:.78rem;color:var(--muted)';
+        var hookRow = el('div', 'btns'); button(hookRow, 'Copy the hook for Claude Code', act('copyClaudeHook')); button(hookRow, 'Show Claude Code settings.json', act('openClaudeSettings')); dev.appendChild(hookRow);
+        dev.appendChild(el('p', '', 'Paste it into ' + S.claudeSettings + ' (Stop and Notification hooks).')).style.cssText = 'margin:0 0 8px;font-size:.78rem;color:var(--muted);word-break:break-all';
       }
     }
     var d = el('details'); d.open = devOpen;
