@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 288 (9 Oct)
+- Desktop: speech bubble stays on the visible part when he is half off the screen.
+- Desktop: while carried he wiggles, squishes and stays under the cursor; pick-up is quicker.
+- Settings: sparkles switch; the window's bottom edge fades while scrolling.
+
 ## Build 287 (9 Oct)
 - Send sheet is a normal-height sheet again, tighter, so the sending animation stays visible.
 - "Receive from my other devices" moved to Options.

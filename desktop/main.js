@@ -27,7 +27,7 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, displaced = false, perch = null, perchTimer = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
+  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
   const DEFAULTS = Object.assign({}, prefs);
   try { prefs = Object.assign(prefs, JSON.parse(fs.readFileSync(prefsFile(), 'utf8'))); } catch (e) { /* first run */ }
   prefs.keys = keys.clean(prefs.keys);
@@ -52,7 +52,7 @@ function start() {
     if (prefs.onTop && prefs.aboveFull) win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true });
     else win.setVisibleOnAllWorkspaces(false);
   };
-  const publicPrefs = () => ({ roam: prefs.roam, remind: prefs.remind, size: prefs.size, idle: prefs.idle, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, standStill: prefs.standStill, standStillFull: prefs.standStillFull, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion, bubbles: prefs.bubbles, clouds: prefs.clouds });
+  const publicPrefs = () => ({ roam: prefs.roam, remind: prefs.remind, size: prefs.size, idle: prefs.idle, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, standStill: prefs.standStill, standStillFull: prefs.standStillFull, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion, bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles });
   const sendPrefs = () => { if (win) win.webContents.send('desk:prefs', publicPrefs()); panel.push(); };
   // moves the window smoothly (walking, peeking round the screen edge); anything that takes hold of it stops the move
   let tween = null;
@@ -152,7 +152,7 @@ function start() {
   function hideFumu() { if (win) win.hide(); refreshMenus(); }
 
   // one place that changes a setting, for the right-click menu and the settings window alike
-  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'roam', 'remind', 'idle', 'perch', 'hideToy', 'hideCushion', 'startWithWindows', 'standStill', 'standStillFull', 'bubbles', 'clouds'];
+  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'roam', 'remind', 'idle', 'perch', 'hideToy', 'hideCushion', 'startWithWindows', 'standStill', 'standStillFull', 'bubbles', 'clouds', 'sparkles'];
   function setPref(key, value) {
     if (key === 'awareness') {   // 1 = more privacy, 2 = normal; at 1 he stops sitting on windows (he can no longer see them)
       prefs.awareness = privacy.clean(+value); savePrefs();
@@ -280,6 +280,22 @@ function start() {
     prefs.keys[id] = accel; savePrefs(); setupKeys();
     return { ok: true };
   }
+  // which part of his window is on a screen (he may be half out of it, peeking): the page keeps his speech bubble inside that part
+  let visibleSent = '';
+  setInterval(() => {
+    if (!win || !win.isVisible() || mode !== 'pet') return;
+    const b = win.getBounds(), cy = b.y + b.height / 2, z = zoom();
+    let lo = Infinity, hi = -Infinity;
+    screen.getAllDisplays().forEach((d) => {
+      const r = d.bounds;
+      if (cy < r.y || cy >= r.y + r.height) return;
+      const l = Math.max(0, r.x - b.x), h = Math.min(b.width, r.x + r.width - b.x);
+      if (h > l) { lo = Math.min(lo, l); hi = Math.max(hi, h); }
+    });
+    if (lo === Infinity) { lo = 0; hi = b.width; }
+    const msg = Math.round(lo / z) + ',' + Math.round(hi / z);
+    if (msg !== visibleSent) { visibleSent = msg; win.webContents.send('desk:visible', Math.round(lo / z), Math.round(hi / z)); }
+  }, 150);
   // ---------- screens that come and go, and the computer going quiet ----------
   // A screen is unplugged or changes size: he goes to the main screen but remembers his own spot, and goes back when that screen returns.
   let screenTimer = null;
@@ -340,13 +356,21 @@ function start() {
   ipcMain.on('desk:solid', (_e, yes) => { solidNow = !!yes; log('solid', yes); if (win && mode === 'pet' && THROUGH) win.setIgnoreMouseEvents(!yes, { forward: true }); });
   // carrying follows the real pointer (the page's own numbers change with the zoom)
   let dragCursor = null;
-  ipcMain.on('desk:dragStart', () => { if (win && mode === 'pet') { leavePerch(); stopTween(); peekRest = null; dragFrom = win.getBounds(); dragCursor = screen.getCursorScreenPoint(); } });
+  // while he is carried the shell itself follows the cursor about 120 times a second, so he stays under it however fast it moves
+  let dragTimer = null;
+  function dragFollow() {
+    if (!win || !dragFrom || !dragCursor) return;
+    const p = screen.getCursorScreenPoint();
+    win.setBounds(place.dragBounds(dragFrom, p.x - dragCursor.x, p.y - dragCursor.y));
+  }
+  ipcMain.on('desk:dragStart', () => { if (win && mode === 'pet') { leavePerch(); stopTween(); peekRest = null; dragFrom = win.getBounds(); dragCursor = screen.getCursorScreenPoint(); clearInterval(dragTimer); dragTimer = setInterval(dragFollow, 8); } });
   ipcMain.on('desk:dragMove', (_e, dx, dy) => {
     if (!win || !dragFrom) return;
     const p = screen.getCursorScreenPoint();
     win.setBounds(place.dragBounds(dragFrom, dragCursor ? p.x - dragCursor.x : dx, dragCursor ? p.y - dragCursor.y : dy));
   });
   ipcMain.on('desk:dragEnd', async () => {
+    clearInterval(dragTimer); dragTimer = null;
     if (!win || !dragFrom) return;
     dragFrom = null;
     const b = win.getBounds();

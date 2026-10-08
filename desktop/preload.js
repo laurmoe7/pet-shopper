@@ -47,6 +47,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   onQuickAdd: (fn) => ipcRenderer.on('desk:quickAdd', () => fn()),
   /** The send-copied-text shortcut was pressed: the text that was on the clipboard. */
   onSendCopied: (fn) => ipcRenderer.on('desk:sendCopied', (_e, text) => fn(String(text))),
+  /** Which part of the window is on a screen: [left, right] in page pixels (he may be half out of it). */
+  onVisible: (fn) => ipcRenderer.on('desk:visible', (_e, l, r) => fn(+l || 0, +r || 0)),
   typing: (yes) => ipcRenderer.send('desk:typing', !!yes),
   /** The computer went quiet (true) or someone is back (false): no input for a few minutes, or the screen was locked. */
   onIdle: (fn) => ipcRenderer.on('desk:idle', (_e, idle) => fn(!!idle)),

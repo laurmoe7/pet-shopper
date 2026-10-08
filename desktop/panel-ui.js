@@ -77,6 +77,7 @@
     sizeRow.appendChild(seg); look.appendChild(sizeRow);
     toggle(look, 'Speech bubbles', 'bubbles', 'In the small window. Cards still show.');
     toggle(look, 'Thought bubbles', 'clouds', 'Daydreams and wishes.');
+    toggle(look, 'Sparkles around him', 'sparkles');
     toggle(look, 'Hide his toy', 'hideToy');
     toggle(look, 'Hide the cushion under him', 'hideCushion', 'His bed still shows at bedtime.');
 
@@ -206,4 +207,13 @@
 
   P.onState(take);   // a change made from the right-click menu or by a shortcut shows here too
   P.get().then(take);
+
+  // the bottom edge fades while there is more to scroll to, like the menus in the app
+  (function () {
+    var f = document.getElementById('fade');
+    function upd() { f.style.opacity = document.documentElement.scrollHeight - window.scrollY - window.innerHeight > 6 ? 1 : 0; }
+    addEventListener('scroll', upd, { passive: true }); addEventListener('resize', upd);
+    new MutationObserver(upd).observe(root, { childList: true, subtree: true });
+    setInterval(upd, 600); upd();
+  })();
 })();

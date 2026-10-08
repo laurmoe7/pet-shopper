@@ -7,7 +7,7 @@
 (function () {
   var D = window.nibbleDesktop;
   if (!D) return;
-  var root = document.documentElement, PICK_MS = 450, STILL_PX = 6;
+  var root = document.documentElement, PICK_MS = 300, STILL_PX = 6;
   root.classList.add('desktop');
 
   // quiet by default on the desktop: the first time on this PC sounds are switched off (Options can bring them back)
@@ -90,9 +90,39 @@
 
   // pick Fumu up: hold still on him for a moment, then drag the window; letting go puts him down
   var press = null, carried = false, noClickUntil = 0;
+  // while he hangs from the cursor he wiggles, and squashes and stretches with how fast it moves (the body is drawn by drawBody, never a CSS scale)
+  var carryRun = 0, carryT0 = 0, carryLast = null, carryV = { x: 0, y: 0 };
+  function carryMove(x, y) {
+    if (carryLast) { carryV.x = carryV.x * .6 + (x - carryLast.x) * .4; carryV.y = carryV.y * .6 + (y - carryLast.y) * .4; }
+    carryLast = { x: x, y: y };
+  }
+  function startCarry() {
+    if (typeof drawBody !== 'function') return;
+    var run = carryRun = (typeof squishRun !== 'undefined' ? ++squishRun : carryRun + 1);
+    carryT0 = performance.now(); carryLast = null; carryV = { x: 0, y: 0 };
+    if (typeof squishing !== 'undefined') squishing = true;
+    var svg = pet.querySelector('.pet-svg');
+    (function frame(now) {
+      if (!carried || run !== carryRun) return;
+      carryV.x *= .92; carryV.y *= .92;   // it fades when the cursor stops
+      var t = (now - carryT0) / 1000, speed = Math.min(30, Math.hypot(carryV.x, carryV.y));
+      var wob = Math.sin(t * 13) * (.035 + speed * .002), stretch = Math.min(.16, speed * .006);
+      drawBody(1 - stretch * .7 - wob, 1 + stretch + wob, 0);
+      if (svg) svg.style.translate = Math.max(-9, Math.min(9, -carryV.x * .5 + Math.sin(t * 9) * 2)).toFixed(1) + 'px 0';
+      requestAnimationFrame(frame);
+    })(performance.now());
+  }
+  function stopCarry() {
+    carryRun = 0;
+    var svg = pet.querySelector('.pet-svg'); if (svg) svg.style.translate = '';
+    if (typeof squishRun !== 'undefined') squishRun++;
+    if (typeof squishing !== 'undefined') squishing = false;
+    if (typeof drawBody === 'function') drawBody(1, 1, 0);
+    if (typeof pulse === 'function') pulse('hopsmall', 450);
+  }
   function drop() {
     if (press && press.timer) clearTimeout(press.timer);
-    if (carried) { D.dragEnd(); noClickUntil = Date.now() + 400; carried = false; }
+    if (carried) { stopCarry(); D.dragEnd(); noClickUntil = Date.now() + 400; carried = false; }
     press = null;
   }
   pet.addEventListener('pointerdown', function (e) {
@@ -102,13 +132,13 @@
       press.timer = 0; carried = true;
       try { pet.setPointerCapture(press.id); } catch (err) { /* ignore */ }
       D.dragStart();
-      if (typeof pulse === 'function') pulse('hop', 460);
+      startCarry();
       if (typeof say === 'function') say(['wheee!', 'hehe, up we go', 'where to?'][Math.floor(Math.random() * 3)], 1200);
     }, PICK_MS) };
   }, true);
   pet.addEventListener('pointermove', function (e) {
     if (!press) return;
-    if (carried) { e.stopImmediatePropagation(); D.dragMove(e.screenX - press.x, e.screenY - press.y); return; }
+    if (carried) { e.stopImmediatePropagation(); carryMove(e.screenX, e.screenY); D.dragMove(e.screenX - press.x, e.screenY - press.y); return; }
     if (Math.hypot(e.screenX - press.x, e.screenY - press.y) > STILL_PX) { clearTimeout(press.timer); press.timer = 0; press = null; }   // a stroke, not a pick-up
   }, true);
   pet.addEventListener('pointerup', drop, true);
@@ -138,13 +168,14 @@
   })();
 
   // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------
-  var deskPrefs = { roam: true, remind: true, idle: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, awareness: 2, chatNormal: 'normal', chatFull: 'normal', standStill: false, standStillFull: true, talkNormal: 'normal', talkFull: 'rare' };
+  var deskPrefs = { roam: true, remind: true, idle: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, sparkles: true, awareness: 2, chatNormal: 'normal', chatFull: 'normal', standStill: false, standStillFull: true, talkNormal: 'normal', talkFull: 'rare' };
   /** Awareness: 1 = more privacy (idle and time only), 2 = normal. Anything he says about what you are doing, or knows about your windows and programs, checks this first. */
   window.deskAware = function (level) { return (deskPrefs.awareness === 1 ? 1 : 2) >= level; };
   /** The small window's look choices from the settings window: no toy, no cushion (classes on <html>, CSS at the end of styles.css). */
   function applyLook() {
     root.classList.toggle('desk-notoy', !!deskPrefs.hideToy);
     root.classList.toggle('desk-nocushion', !!deskPrefs.hideCushion);
+    root.classList.toggle('desk-nosparkles', deskPrefs.sparkles === false);
     root.classList.toggle('desk-noclouds', deskPrefs.clouds === false);
     root.classList.toggle('desk-nobubbles', deskPrefs.bubbles === false);   // speech bubbles in the small window only; cards (reminders, links) are separate
     lastSolidReset();
@@ -154,9 +185,8 @@
   if (D.onPrefs) D.onPrefs(function (p) { if (p) { deskPrefs = p; applyLook(); applyChatter(); } });
 
   // ---------- a long line must not run off the top of the small window: the text shrinks until it fits ----------
-  if (window.MutationObserver) {
-    var fitting = false;
-    new MutationObserver(function () {
+  var fitting = false;
+  function fitBubble() {
       if (fitting || bubble.hidden || !isPet()) return;
       fitting = true;
       // (measured with offsetHeight: the pop-in animation scales what getBoundingClientRect says)
@@ -166,8 +196,15 @@
       while (size > 10.5 && bubble.offsetHeight > room) { size -= 0.8; bubble.style.fontSize = size + 'px'; }
       if (bubble.offsetHeight > room) { bubble.style.maxHeight = room + 'px'; bubble.style.overflow = 'hidden'; }
       fitting = false;
-    }).observe(bubble, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['hidden'] });
   }
+  if (window.MutationObserver) new MutationObserver(fitBubble).observe(bubble, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['hidden'] });
+  // half out of the screen (peeking): the bubble keeps to the part that shows
+  if (D.onVisible) D.onVisible(function (l, r) {
+    var full = l <= 0 && r >= window.innerWidth - 1;
+    root.style.setProperty('--vis-l', full ? '0px' : l + 'px');
+    root.style.setProperty('--vis-r', full ? '100vw' : r + 'px');
+    fitBubble();
+  });
 
   // ---------- a reminder for a task's time ----------
   // timeCheck (app-todo.js) asks here first. In pet mode Fumu pops up if he was hidden and a card by him says what is
