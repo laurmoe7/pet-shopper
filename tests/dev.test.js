@@ -19,14 +19,18 @@ test('unlock everything finishes every goal and earns every personality', () => 
 test('lock everything again resets progress and anything now locked', () => {
   const pet = L.petProfile();
   L.unlockAll(pet, Achievements, Personalities);
-  pet.species = 'birdie';
-  pet.skin = 'penguin';
+  pet.species = 'bunny';
+  pet.skin = 'lop';
   pet.outfit.hat = 'cap';
   pet.personality = Personalities[Personalities.length - 1].id;
   L.lockAll(pet, Achievements, FreeUnlocks);
   for (const a of Achievements) assert.equal(L.progress(pet, a, noon).done, false, a.id);
-  assert.equal(pet.species, 'mochi', 'a locked pet goes back to Mochi');
-  assert.equal(pet.skin, '', 'and its skin comes off');
+  assert.equal(pet.species, 'birdie', 'a locked pet goes back to the pigeon');
+  assert.equal(pet.skin, 'pigeon', 'with the pigeon skin');
+  const penguin = L.petProfile({ species: 'birdie', skin: 'penguin' });
+  L.lockAll(penguin, Achievements, FreeUnlocks);
+  assert.equal(penguin.species, 'birdie');
+  assert.equal(penguin.skin, '', 'a locked skin comes off');
   assert.equal(pet.outfit.hat, 'cap', 'a free hat stays on');
   assert.equal(pet.personality, 'foodie');
   assert.deepEqual(pet.tastes, {});

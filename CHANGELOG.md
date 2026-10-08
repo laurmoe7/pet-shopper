@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 254 (17 Oct)
+- New players start as the pigeon; the pet list begins with bird, cat, dog, mochi.
+- Fumu closes his eyes happily while he nods.
+- Beaks keep the same size when chewing or opening.
+
 ## Build 253 (17 Oct)
 - The app is now Fumufumu and the pet is Fumu.
 - Fumu nods twice when you add something.

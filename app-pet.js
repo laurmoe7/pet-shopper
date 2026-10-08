@@ -17,7 +17,8 @@ var FACES = {
   suspicious: { eyes: 'squint', mouth: 'wavy', arms: 'scratch', x: ['question'] },
   love: { eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['hearts', 'cheeks'] },
   annoyed: { eyes: 'squint', mouth: 'wavy', arms: 'idle', x: [] },
-  dreamy: { eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks'] }
+  dreamy: { eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks'] },
+  nod: { eyes: 'happy', mouth: 'smile', arms: 'idle', x: ['cheeks'] }   // the "fumu fumu" nod: happy closed eyes
 };
 var CHEW = { eyes: 'happy', mouth: 'chew', arms: 'nom', x: ['cheeks'] };
 var REACTIONS = {

@@ -181,9 +181,9 @@ function addItem(text) {
   if (baseState() === 'sleepy') { pulse('rocksmall', 1300); say(pick(state.mode === 'todo' ? ['tomorrow…', 'mm… later…', 'to-do… zzz'] : ['for me…', 'mm… yum…', 'snack…']), 1300); return; }
   if (state.mode === 'todo') { addedTask(item); return; }
   if (!busy) {
-    pulse('nod', 900);   // the "fumu fumu" nod
-    var face = isBagged(item) ? null : FACES.catching;
-    if (face) { setFace(face); setTimeout(function () { if (!busy) settle(); }, 500); }
+    pulse('nod', 900);   // the "fumu fumu" nod, with happy closed eyes
+    setFace(FACES.nod);
+    setTimeout(function () { if (!busy) settle(); }, 950);
   }
   // something you buy a lot gets a remark from its history; the rest get a quick cheer
   var memory = L.memoryLine(state.pet, text);

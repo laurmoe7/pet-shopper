@@ -168,8 +168,8 @@
   function petProfile(saved) {
     saved = saved || {};
     // the chick and penguin became one species, the birdie, with the penguin as a skin
-    var species = saved.species || 'mochi';
-    var skin = typeof saved.skin === 'string' ? saved.skin : '';
+    var species = saved.species || 'birdie';   // a new pet is Fumu the pigeon (older saves keep the species they have)
+    var skin = typeof saved.skin === 'string' ? saved.skin : (saved.species ? '' : 'pigeon');
     if (skin === 'syrian') skin = 'longhair';
     if (skin === 'yak' || skin === 'lionhead' || skin === 'tabby') skin = '';   // removed skins (the tabby became the plain cat in build 121)
     if (skin === 'flamepoint') skin = 'siamese';                                 // the flame point became the Siamese in build 135
@@ -1142,7 +1142,7 @@
     profile.tastes = {};
     profile.guard = { day: '', words: [], lastSeen: 0 };
     profile.personality = 'foodie';
-    if (!isUnlocked(profile, 'species', profile.species, achievements, free)) { profile.species = 'mochi'; profile.skin = ''; }
+    if (!isUnlocked(profile, 'species', profile.species, achievements, free)) { profile.species = 'birdie'; profile.skin = 'pigeon'; }
     else if (profile.skin && !isUnlocked(profile, 'skin', profile.skin, achievements, free)) profile.skin = '';
     OUTFIT_SLOTS.forEach(function (slot) {
       var kept = wornIds(profile.outfit, slot).filter(function (id) { return isUnlocked(profile, 'hat', id, achievements, free); });

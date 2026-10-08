@@ -228,9 +228,10 @@ button { font: inherit; color: inherit; }
 /* birds (PetLogic.isBird) talk and eat with their beak, so they have no separate mouth */
 .pet.beaked[data-mouth] [data-mouth] { display: none; }
 .pet.beaked .beak { transform-box: fill-box; transform-origin: 50% 50%; }
+/* a beak never changes size: chewing and opening only move it down a little */
 .pet.beaked[data-mouth="chew"] .beak { animation: beak-chew .16s ease-in-out infinite alternate; }
-.pet.beaked[data-mouth="open"] .beak, .pet.beaked[data-mouth="o"] .beak { transform: scale(1.1, 1.45); }
-@keyframes beak-chew { from { transform: scale(1, 1); } to { transform: scale(1.08, 1.4); } }
+.pet.beaked[data-mouth="open"] .beak, .pet.beaked[data-mouth="o"] .beak { translate: 0 1.3px; }
+@keyframes beak-chew { from { translate: 0 0; } to { translate: 0 1.6px; } }
 
 /* species: colours and which parts show */
 .pet { --pet-skin: #fff8f2; --pet-skin-shade: #ffe4d8; --pet-ear-in: #ffc4cf; --pet-mark: #f3c9a8; }
@@ -1479,7 +1480,7 @@ button { font: inherit; color: inherit; }
 .lh-muzzle { fill: #dcb88a; }
 .kiwi-fuzz path { fill: none; stroke: #8a6a45; stroke-width: 1.7; stroke-linecap: round; }
 .kiwi-beak { fill: #f3dca8; }
-.pet[data-skin="kiwi"] .beak { animation: none !important; transform: none !important; }
+.pet[data-skin="kiwi"] .beak { animation: none !important; transform: none !important; translate: none !important; }
 .dutch path { fill: #8e8a99; }
 .pet[data-skin="dutch"] [data-sp="bunny"] .ear { fill: #8e8a99; }
 /* frog: webbed hands and feet, and a wide smile instead of the small one */

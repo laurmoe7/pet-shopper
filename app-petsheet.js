@@ -4,12 +4,12 @@
 
 // ---------- your pet: name and species ----------
 var SPECIES = [
-  { id: 'mochi', label: 'Mochi' },
-  { id: 'pig', label: 'Pig' },
+  { id: 'birdie', label: 'Birdie' },   // Fumu the pigeon is the mascot, so the bird comes first
   { id: 'kitty', label: 'Cat' },
   { id: 'puppy', label: 'Dog' },
+  { id: 'mochi', label: 'Mochi' },
+  { id: 'pig', label: 'Pig' },
   { id: 'bunny', label: 'Bunny' },
-  { id: 'birdie', label: 'Birdie' },
   { id: 'cow', label: 'Cow' },
   { id: 'hamster', label: 'Hamster' },
   { id: 'frog', label: 'Frog' },
