@@ -37,6 +37,14 @@ jobs:
             echo "Add the repository secrets CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID first." >&2
             exit 1
           fi
+      - name: Ask Cloudflare if the token works (prints no secret)
+        run: |
+          echo "Token length: ${#CLOUDFLARE_API_TOKEN} (a real one is 40), account id length: ${#CLOUDFLARE_ACCOUNT_ID} (a real one is 32)"
+          curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" https://api.cloudflare.com/client/v4/user/tokens/verify | sed 's/"id":"[^"]*"/"id":"..."/'
+          echo
+          curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/tokens/verify" | sed 's/"id":"[^"]*"/"id":"..."/'
+          echo
+        continue-on-error: true
       - run: npm test
       - run: npm run build:worker
       - name: Create missing database tables
