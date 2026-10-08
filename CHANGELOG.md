@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 265 (8 Oct)
+- Desktop: the toy catches clicks instantly, so picking it up and throwing it feels smooth.
+- Desktop: the welcome-back message after being away shows longer and a bit later.
+- Desktop: the quick-add box on the to-do list can set a day, time and repeat.
+
 ## Build 264 (8 Oct)
 - Desktop: a bigger "Fumu settings" window (hover over him and press Ctrl+Alt+O, or right-click > More Fumu settings).
 - Desktop: hide his toy and hide the cushion under him.

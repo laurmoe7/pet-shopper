@@ -51,6 +51,7 @@
   var SOLID = '#pet, .bubble, .gift, .wish, .toy, .suggest, .dream, .inbox-card';   // (the reminder card is an .inbox-card too)
   /** Tells the shell whether clicks should be caught; sent when it changes and now and then anyway, so the two can't drift apart. */
   function setSolid(yes) {
+    if (D.setRects) return;   // a newer shell decides by itself from the rectangles below (no round trip to the page)
     var now = Date.now();
     if (yes !== lastSolid || now - lastSent > 800) { lastSolid = yes; lastSent = now; D.solid(yes); }
   }
@@ -60,6 +61,7 @@
   function releasePress() {
     if (!pressing) return;
     pressing = false; lastSolid = null;
+    if (D.hold) D.hold(false);
     if (lastPt) hoverAt(lastPt.x, lastPt.y);
   }
   function hoverAt(x, y) {
@@ -74,7 +76,7 @@
     if (pressing && e.buttons === 0) releasePress();   // the release was missed: don't stay solid for ever
     hoverAt(e.clientX, e.clientY);
   }, true);
-  document.addEventListener('pointerdown', function (e) { if (isPet() && e.button === 0) { pressing = true; setSolid(true); } }, true);
+  document.addEventListener('pointerdown', function (e) { if (isPet() && e.button === 0) { pressing = true; setSolid(true); if (D.hold) D.hold(true); } }, true);
   document.addEventListener('pointerup', releasePress, true);
   document.addEventListener('pointercancel', releasePress, true);
   window.addEventListener('blur', releasePress);
@@ -269,37 +271,141 @@
     clearTimeout(quickAway);
     if (c) c.remove();
   }
+  function qEl(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+  /**
+   * Puts the day, time and repeat chosen in the quick box on a task that was just added (the same steps as the task sheet in the full app).
+   * @param {Object} item  The new task.
+   * @param {{due: string, time: string, repeat: string, days: number[], span: string}} o
+   */
+  function applyQuickOptions(item, o) {
+    taskFor = item.id;
+    try {
+      if (o.due) setTaskDue(o.due);
+      if (o.time) setTaskTime(o.time);
+      if (o.repeat) {
+        setTaskRepeat(o.repeat);
+        if (o.repeat === 'days' && o.days.length) {
+          item.days = o.days.slice();
+          item.due = L.firstOnDays(item.due < todayKey() ? todayKey() : item.due, item.days);
+          fixUntil(item); state.items = L.sortByDue(state.items, todayKey()); save(); render();
+        }
+        if (o.span) setTaskUntil(o.span);
+      }
+    } finally { taskFor = null; }
+  }
   function openQuick() {
     if (!isPet()) { var box = $('addInput'); if (box) box.focus(); return; }
     var old = quickCard();
     if (old) { old.querySelector('input').focus(); return; }
     if (peeking) endPeek();
     if (typeof wakeFromNap === 'function') wakeFromNap(false);
-    var card = document.createElement('form');
-    card.className = 'inbox-card quick-card';
+    var todo = isTodo(), opts = { due: '', time: '', repeat: '', days: [], span: '' }, open = false;
+    var card = qEl('form', 'inbox-card quick-card');
     card.autocomplete = 'off';
-    var input = document.createElement('input');
+    var input = qEl('input'), go = qEl('button', '', 'Add'), more = qEl('button', 'quick-more', '📅');
     input.type = 'text'; input.maxLength = 80; input.enterKeyHint = 'done';
-    input.placeholder = isTodo() ? 'Add a task…' : 'Add to the shopping list…';
+    input.placeholder = todo ? 'Add a task…' : 'Add to the shopping list…';
     input.setAttribute('aria-label', input.placeholder);
-    var go = document.createElement('button');
-    go.type = 'submit'; go.textContent = 'Add';
+    go.type = 'submit'; more.type = 'button'; more.title = 'Day, time and repeat'; more.setAttribute('aria-label', 'Day, time and repeat'); more.setAttribute('aria-expanded', 'false');
+    var panel = qEl('div', 'quick-opts'); panel.hidden = true;
     card.append(input, go);
+    if (todo) { card.insertBefore(more, go); card.appendChild(panel); }
+
+    // the choices (only for tasks): a day, a time, how it repeats and for how long
+    function chipRow(items, pressed, onTap) {
+      var row = qEl('div', 'quick-chips');
+      items.forEach(function (it) {
+        var b = qEl('button', 'quick-chip', it[0]); b.type = 'button'; b.setAttribute('aria-pressed', pressed(it[1]) ? 'true' : 'false');
+        b.addEventListener('click', function () { onTap(it[1]); drawOpts(); });
+        row.appendChild(b);
+      });
+      return row;
+    }
+    function drawOpts() {
+      var today = todayKey(), nodes = [];
+      var dayRow = chipRow([['No date', ''], ['Today', today], ['Tomorrow', L.addDays(today, 1)], ['In a week', L.addDays(today, 7)]], function (v) { return opts.due === v; }, function (v) { opts.due = v; if (!v) { opts.time = ''; opts.repeat = ''; } });
+      var date = qEl('input', 'quick-in'); date.type = 'date'; date.value = opts.due; date.setAttribute('aria-label', 'Day'); date.min = today;
+      date.addEventListener('change', function () { if (date.value) { opts.due = date.value; drawOpts(); } });
+      var time = qEl('input', 'quick-in'); time.type = 'time'; time.value = opts.time; time.setAttribute('aria-label', 'Time');
+      time.addEventListener('change', function () { opts.time = time.value; if (time.value && !opts.due) opts.due = today; drawOpts(); });
+      var rep = qEl('select', 'quick-in'); rep.setAttribute('aria-label', 'Repeat');
+      L.REPEATS.forEach(function (r) { rep.appendChild(new Option(r.id ? r.label : 'No repeat', r.id)); });
+      rep.value = opts.repeat;
+      rep.addEventListener('change', function () { opts.repeat = rep.value; if (opts.repeat && !opts.due) opts.due = today; if (opts.repeat === 'days' && !opts.days.length) opts.days = [new Date((opts.due || today) + 'T12:00').getDay()]; if (!opts.repeat) opts.span = ''; drawOpts(); });
+      var line = qEl('div', 'quick-line'); line.append(date, time);
+      nodes.push(dayRow, line, rep);
+      if (opts.repeat === 'days') {
+        var names = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        nodes.push(chipRow([1, 2, 3, 4, 5, 6, 0].map(function (n) { return [names[n], n]; }), function (n) { return opts.days.indexOf(n) !== -1; }, function (n) {
+          var at = opts.days.indexOf(n);
+          if (at !== -1) { if (opts.days.length > 1) opts.days.splice(at, 1); } else opts.days.push(n);
+        }));
+      }
+      if (opts.repeat) {
+        var span = qEl('select', 'quick-in'); span.setAttribute('aria-label', 'For how long');
+        L.REPEAT_SPANS.forEach(function (sp) { span.appendChild(new Option(sp.id ? 'For ' + sp.label : 'Forever', sp.id)); });
+        span.value = opts.span;
+        span.addEventListener('change', function () { opts.span = span.value; });
+        nodes.push(span);
+      }
+      panel.replaceChildren.apply(panel, nodes);
+      var bits = []; if (opts.due) bits.push(L.dueInfo(opts.due, today).label); if (opts.time) bits.push(opts.time); if (opts.repeat) bits.push('↻');
+      more.classList.toggle('set', bits.length > 0);   // the choices themselves show in the panel; the button only says there are some
+      more.title = bits.length ? bits.join(' ') : 'Day, time and repeat';
+    }
+    more.addEventListener('click', function () {
+      open = !open; panel.hidden = !open; card.classList.toggle('opts-open', open);
+      card.style.setProperty('--quick-up', Math.max(0, document.querySelector('.stage').getBoundingClientRect().top - 4) + 'px');
+      more.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) drawOpts();
+    });
+
     card.addEventListener('submit', function (e) {
       e.preventDefault();
       var text = input.value;
       closeQuick();
-      if (text.trim()) addItem(text);
+      if (!text.trim()) return;
+      var item = addItem(text);
+      if (item && todo && (opts.due || opts.time || opts.repeat)) applyQuickOptions(item, opts);
     });
-    input.addEventListener('keydown', function (e) { e.stopPropagation(); if (e.key === 'Escape') closeQuick(); });
-    input.addEventListener('blur', function () { clearTimeout(quickAway); quickAway = setTimeout(closeQuick, 6000); });   // clicked elsewhere: it tidies itself away
-    input.addEventListener('focus', function () { clearTimeout(quickAway); });
+    card.addEventListener('keydown', function (e) { e.stopPropagation(); if (e.key === 'Escape') closeQuick(); });
+    // clicked somewhere else: it tidies itself away after a while (not while a choice inside it is being made)
+    card.addEventListener('focusout', function (e) { if (!card.contains(e.relatedTarget)) { clearTimeout(quickAway); quickAway = setTimeout(closeQuick, 8000); } });
+    card.addEventListener('focusin', function () { clearTimeout(quickAway); });
     document.querySelector('.stage').appendChild(card);
     setFace(FACES.curious);
     D.typing(true);
     setTimeout(function () { input.focus(); }, 60);
   }
   if (D.onQuickAdd) D.onQuickAdd(openQuick);
+
+  // ---------- where the solid parts are (for the shell's own, instant hit test) ----------
+  // The shell used to ask the page "is the pointer over him?" and wait for the answer, which could take long enough for a quick press on the
+  // toy to fall through to the window behind. Now the page tells it where the solid things are (about 30 times a second, only when they move)
+  // and the shell checks the pointer against them itself, many times a second, without any waiting.
+  var lastRects = '';
+  function solidRects() {
+    var out = [], list = document.querySelectorAll(SOLID);
+    for (var i = 0; i < list.length; i++) {
+      var el = list[i];
+      if (el.hidden || el.closest('[hidden]')) continue;
+      var r = el.getBoundingClientRect();
+      if (r.width < 1 || r.height < 1 || getComputedStyle(el).display === 'none') continue;
+      out.push([Math.round(r.left), Math.round(r.top), Math.round(r.right), Math.round(r.bottom)]);
+      if (el === pet) {   // the cushion (or bed) under him is part of him too (see #pet::after in styles.css)
+        var bed = stage.classList.contains('bedtime'), w = bed ? 250 : 164, h = bed ? 52 : 44, cx = (r.left + r.right) / 2;
+        out.push([Math.round(cx - w / 2), Math.round(r.bottom + 12 - h), Math.round(cx + w / 2), Math.round(r.bottom + 12)]);
+      }
+    }
+    return out;
+  }
+  if (D.setRects) setInterval(function () {
+    if (!isPet() || document.hidden) return;
+    var r = solidRects(), key = JSON.stringify(r);
+    if (key !== lastRects) { lastRects = key; D.setRects(r); }
+  }, 33);
+  // (the shell forgets nothing between page loads, so say it once more after a reload)
+  window.addEventListener('pageshow', function () { lastRects = ''; });
 
   // ---------- away from the computer ----------
   // The shell says when nothing was touched for a few minutes (or the screen was locked): he curls up for a nap, and says hello again when you are back.
@@ -315,10 +421,10 @@
     var gone = Date.now() - awayAt, hello = gone > 3600000 ? ['you were gone so long!', 'I missed you ♡', 'welcome back, finally!'] : ['welcome back!', 'there you are~', 'hello again ♡'];
     if (awayNap && typeof napping !== 'undefined' && napping) {
       wakeFromNap(false);
-      setTimeout(function () { if (!busy) { say(pick(hello), 1800); pulse('hop', 460); } }, 1800);
+      // after unlocking, Windows takes a moment to show the desktop again: say hello a little later, and for long enough to read
+      setTimeout(function () { if (!busy) { say(pick(hello), 5000, true); pulse('hop', 460); setFace({ eyes: 'happy', mouth: 'smile', arms: 'idle', x: ['cheeks', 'hearts'] }); } }, 2200);
     } else if (gone > 120000 && !busy && isPet()) {
-      say(pick(hello), 1800);
-      pulse('hop', 460);
+      setTimeout(function () { if (!busy) { say(pick(hello), 5000, true); pulse('hop', 460); } }, 1200);
     }
     awayNap = false;
   });

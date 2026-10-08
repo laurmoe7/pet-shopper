@@ -211,7 +211,7 @@ toyEl.addEventListener('pointermove', function (e) {
   if (!held) return;
   if (e.buttons === 0 && e.pointerType === 'mouse') { letGoToy(); return; }   // the button is already up: let go
   if (!held.moved) {
-    if (Math.hypot(e.clientX - held.x0, e.clientY - held.y0) < 8) return;
+    if (Math.hypot(e.clientX - held.x0, e.clientY - held.y0) < (e.pointerType === 'mouse' ? 3 : 8)) return;   // a mouse is exact: pick up almost at once
     held.moved = true;
     // picked up: the pet can't wait
     playing = true;
@@ -222,9 +222,11 @@ toyEl.addEventListener('pointermove', function (e) {
     pulse('hopsmall', 450);
     talk('toyHeld', ['throw it! throw it!', 'ooh! ooh!', 'I\'m ready!', 'over here!'], 1300);
   }
-  var st = stage.getBoundingClientRect(), lim = toyLimits();
+  // the boxes are read again only a few times a second while dragging: reading them on every move forces the page to lay itself out each time
+  if (!held.box || e.timeStamp - held.box.t > 120) held.box = { t: e.timeStamp, st: stage.getBoundingClientRect(), pr: pet.getBoundingClientRect(), lim: toyLimits() };
+  var st = held.box.st, lim = held.box.lim;
   // dangling it over his head: he jumps for it, and after a few seconds of that he gets a little cross
-  var pr = pet.getBoundingClientRect(), over = e.clientY < pr.top + pr.height * 0.25 && Math.abs(e.clientX - (pr.left + pr.width / 2)) < pr.width * 0.5;
+  var pr = held.box.pr, over = e.clientY < pr.top + pr.height * 0.25 && Math.abs(e.clientX - (pr.left + pr.width / 2)) < pr.width * 0.5;
   if (over && !held.over) {
     held.over = true;
     held.hopTimer = setInterval(function () { if (held && held.over && !held.annoyed) pulse('hop', 500); }, 1100);

@@ -167,10 +167,11 @@ function celebrate() {
 /**
  * Adds a typed item to the to-buy list and lets the pet react.
  * @param {string} text
+ * @returns {?Object} The new item (null when the text was empty).
  */
 function addItem(text) {
   text = text.trim();
-  if (!text) return;
+  if (!text) return null;
   var item = L.createItem(text, state.overrides, newId(), Date.now(), state.mode);
   L.addToList(state.items, item);
   if (state.mode === 'todo') state.items = L.sortByDue(state.items, todayKey());   // an undated task goes above the ones for later days
@@ -178,8 +179,8 @@ function addItem(text) {
   save();
   render();
   // asleep, it doesn't wake up for this: it only mumbles in its sleep
-  if (baseState() === 'sleepy') { pulse('rocksmall', 1300); say(pick(state.mode === 'todo' ? ['tomorrow…', 'mm… later…', 'to-do… zzz'] : ['for me…', 'mm… yum…', 'snack…']), 1300); return; }
-  if (state.mode === 'todo') { addedTask(item); return; }
+  if (baseState() === 'sleepy') { pulse('rocksmall', 1300); say(pick(state.mode === 'todo' ? ['tomorrow…', 'mm… later…', 'to-do… zzz'] : ['for me…', 'mm… yum…', 'snack…']), 1300); return item; }
+  if (state.mode === 'todo') { addedTask(item); return item; }
   if (!busy) {
     pulse('nod', 900);   // the "fumu fumu" nod, with happy closed eyes
     setFace(FACES.nod);
@@ -189,6 +190,7 @@ function addItem(text) {
   var memory = L.memoryLine(state.pet, text);
   if (memory) talk(memory.key, MEMORY_LINES[memory.key], 1900, memory.vars);
   else say(item.cat === 'mystery' ? 'ooh, mystery!' : pick(['fumu fumu~', 'mhm, mhm!', 'fumu fumu~', 'ooh!', 'for me?', 'yes please', 'noted!']), 1300);
+  return item;
 }
 // what Fumu says about things you buy often ({item}, {n} times, #{rank} in the Top 10)
 var MEMORY_LINES = {

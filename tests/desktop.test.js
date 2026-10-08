@@ -247,3 +247,12 @@ test('every file the settings window needs exists, and its page loads only its o
   assert.match(html, /script-src 'self'/);
   new Function(fs.readFileSync(path.join(dir, 'panel-ui.js'), 'utf8'));   // parses
 });
+
+test('the shell decides from the page\'s rectangles whether the pointer is on something solid', () => {
+  const rects = [[100, 100, 200, 200], [10, 10, 40, 40]];
+  assert.equal(P.hitTest(rects, 150, 150, 6), true);
+  assert.equal(P.hitTest(rects, 95, 150, 6), true);    // just outside, inside the slack
+  assert.equal(P.hitTest(rects, 90, 150, 6), false);
+  assert.equal(P.hitTest(rects, 25, 25, 0), true);
+  assert.equal(P.hitTest([], 25, 25, 6), false);
+});

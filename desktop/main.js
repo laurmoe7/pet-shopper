@@ -95,7 +95,7 @@ function start() {
       petBounds = win.getBounds();
       if (perch) { petBounds = place.floorBounds(petBounds, here()); leavePerch(); }
       mode = 'list';
-      win.setIgnoreMouseEvents(false);
+      win.setIgnoreMouseEvents(false); solidState = null;
       win.setAlwaysOnTop(false);
       stopTween(); peekRest = null;
       win.setBounds(place.listBounds(petBounds, here(), LIST_SIZE));
@@ -106,9 +106,10 @@ function start() {
       applyZoom();
       win.setBounds(place.startBounds(petBounds, petSize(), areas(), screen.getPrimaryDisplay().workArea));
       if (THROUGH) win.setIgnoreMouseEvents(true, { forward: true });
+      solidState = null;
       applyTop();
       // Windows can drop the click-through setting when the window changes size: say it again a moment later and ask the page to answer again
-      setTimeout(() => { if (win && mode === 'pet' && THROUGH) { win.setIgnoreMouseEvents(true, { forward: true }); win.webContents.send('desk:resync'); } }, 200);
+      setTimeout(() => { if (win && mode === 'pet' && THROUGH) { win.setIgnoreMouseEvents(true, { forward: true }); solidState = null; win.webContents.send('desk:resync'); } }, 200);
     }
     win.webContents.send('desk:mode', mode);
     log('mode', mode);
@@ -116,16 +117,26 @@ function start() {
   }
   // Windows is meant to forward the pointer to the page while clicks pass through, but that can stop working after the window
   // changes size. So the shell also watches the pointer itself and tells the page where it is; the page decides if it is on Fumu.
-  let cursorTimer = null, wasInside = false;
+  let cursorTimer = null, wasInside = false, rects = null, holdSolid = false, solidState = null;
+  const HIT_PAD = 6;   // a few pixels of slack round the solid parts, so the window is already catching clicks when the pointer arrives
   function watchCursor() {
     if (!THROUGH || cursorTimer) return;
+    // about 120 times a second. With the page's rectangles the check is a few comparisons here in the shell (no messages, so it costs next to
+    // nothing); an older page that sends no rectangles is still asked, as before.
     cursorTimer = setInterval(() => {
-      if (!win || mode !== 'pet' || !win.isVisible() || dragFrom) { wasInside = false; return; }
+      if (!win || mode !== 'pet' || !win.isVisible()) { wasInside = false; return; }
       const p = screen.getCursorScreenPoint(), b = win.getBounds();
       const inside = p.x >= b.x && p.x < b.x + b.width && p.y >= b.y && p.y < b.y + b.height;
+      if (rects) {
+        const z = zoom(), x = (p.x - b.x) / z, y = (p.y - b.y) / z;
+        const want = holdSolid || (inside && place.hitTest(rects, x, y, HIT_PAD));
+        if (want !== solidState) { solidState = want; solidNow = want; win.setIgnoreMouseEvents(!want, { forward: true }); }
+        return;
+      }
+      if (dragFrom) { wasInside = false; return; }
       if (inside) { wasInside = true; win.webContents.send('desk:cursor', (p.x - b.x) / zoom(), (p.y - b.y) / zoom()); }
       else if (wasInside) { wasInside = false; win.webContents.send('desk:cursor', -1, -1); }
-    }, 16);
+    }, 8);
   }
   function showFumu() { if (win) { win.show(); if (mode === 'list') win.focus(); } refreshMenus(); }
   function hideFumu() { if (win) win.hide(); refreshMenus(); }
@@ -277,6 +288,11 @@ function start() {
   ipcMain.handle('desk:getMode', () => mode);
   ipcMain.on('desk:setMode', (_e, next) => applyMode(next === 'list' ? 'list' : 'pet'));
   ipcMain.on('desk:ready', () => { if (win && !shown) { shown = true; win.showInactive(); log('shown'); } });
+  ipcMain.on('desk:rects', (_e, list) => {
+    if (!Array.isArray(list)) return;
+    rects = list.slice(0, 40).filter((r) => Array.isArray(r) && r.length === 4 && r.every((n) => typeof n === 'number' && isFinite(n)));
+  });
+  ipcMain.on('desk:hold', (_e, yes) => { holdSolid = !!yes; });
   ipcMain.on('desk:solid', (_e, yes) => { solidNow = !!yes; log('solid', yes); if (win && mode === 'pet' && THROUGH) win.setIgnoreMouseEvents(!yes, { forward: true }); });
   // carrying follows the real pointer (the page's own numbers change with the zoom)
   let dragCursor = null;

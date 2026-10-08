@@ -198,6 +198,11 @@ function floorBounds(b, area) { return within({ x: b.x, y: area.y + area.height 
 /** A tween that also lifts (a hop) in the middle of its time. */
 function arcAt(a, b, t, lift) { var r = tweenAt(a, b, t); r.y -= Math.round(Math.sin(Math.PI * Math.max(0, Math.min(1, t))) * (lift || 0)); return r; }
 
+/** Whether a point (page pixels) is on one of the solid rectangles [left, top, right, bottom], with `pad` pixels of slack. */
+function hitTest(rects, x, y, pad) {
+  return rects.some(function (r) { return x >= r[0] - pad && x <= r[2] + pad && y >= r[1] - pad && y <= r[3] + pad; });
+}
+
 module.exports = {
-  afterScreensChange: afterScreensChange, idleStep: idleStep, perches: perches, perchBounds: perchBounds, perchUnder: perchUnder, perchesNear: perchesNear, floorBounds: floorBounds, arcAt: arcAt, PERCH_BODY: PERCH_BODY,
+  hitTest: hitTest,  afterScreensChange: afterScreensChange, idleStep: idleStep, perches: perches, perchBounds: perchBounds, perchUnder: perchUnder, perchesNear: perchesNear, floorBounds: floorBounds, arcAt: arcAt, PERCH_BODY: PERCH_BODY,
   SIZES: SIZES, sizeFactor: sizeFactor, resizeKeepingBottom: resizeKeepingBottom, within: within, nudge: nudge, corner: corner, walkEnd: walkEnd, peekSpot: peekSpot, tweenAt: tweenAt, MARGIN: MARGIN, visibleFraction: visibleFraction, defaultBounds: defaultBounds, startBounds: startBounds, listBounds: listBounds, dragBounds: dragBounds };
