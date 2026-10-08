@@ -47,7 +47,7 @@
 
   // clicks go to Fumu only where something solid is under the pointer; elsewhere they pass to the desktop
   var lastSolid = null, lastSent = 0;
-  var SOLID = '#pet, .bubble, .gift, .wish, .toy, .suggest, .dream, .inbox-card';
+  var SOLID = '#pet, .bubble, .gift, .wish, .toy, .suggest, .dream, .inbox-card';   // (the reminder card is an .inbox-card too)
   /** Tells the shell whether clicks should be caught; sent when it changes and now and then anyway, so the two can't drift apart. */
   function setSolid(yes) {
     var now = Date.now();
@@ -95,4 +95,145 @@
   pet.addEventListener('click', function (e) { if (Date.now() < noClickUntil) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
 
   document.addEventListener('contextmenu', function (e) { e.preventDefault(); D.menu(); });
+
+  // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------
+  var deskPrefs = { roam: true, remind: true };
+  if (D.getPrefs) D.getPrefs().then(function (p) { if (p) deskPrefs = p; });
+  if (D.onPrefs) D.onPrefs(function (p) { if (p) deskPrefs = p; });
+
+  // ---------- a reminder for a task's time ----------
+  // timeCheck (app-todo.js) asks here first. In pet mode Fumu pops up if he was hidden and a card by him says what is
+  // due, with Done (when the task is on the list in view), "In 10 min" and a cross. Only one card at a time; more wait.
+  var remindQueue = [], SNOOZE_MS = 10 * 60 * 1000;
+  function remindCard() { return document.querySelector('.remind-card'); }
+  function showRemind() {
+    if (remindCard() || !remindQueue.length) return;
+    var item = remindQueue.shift();
+    if (item.done) { showRemind(); return; }   // ticked off meanwhile
+    if (inboxCard) { remindQueue.unshift(item); setTimeout(showRemind, 3000); return; }   // the card for a message is up: wait a moment
+    var card = document.createElement('div');
+    card.className = 'inbox-card remind-card';
+    card.setAttribute('role', 'alert');
+    var img = emojiImg(item.emoji, '');
+    img.className = 'inbox-icon';
+    var text = document.createElement('div'), t = document.createElement('b'), d = document.createElement('span');
+    text.className = 'inbox-text';
+    t.textContent = item.text;
+    d.textContent = (item.time ? 'at ' + fmtTime(item.time) : 'now') + (remindQueue.length ? ' · +' + remindQueue.length + ' more' : '');
+    text.append(t, d);
+    var acts = document.createElement('div');
+    acts.className = 'inbox-actions';
+    function close() { card.remove(); setTimeout(showRemind, 300); }
+    function button(label, fn, cls) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.textContent = label; if (cls) b.className = cls;
+      b.addEventListener('click', function (e) { e.stopPropagation(); sound('tap'); fn(); });
+      acts.appendChild(b);
+      return b;
+    }
+    if (state.items.indexOf(item) !== -1 && isTodo()) button('Done ✓', function () { close(); toggle(item.id); });
+    button('In 10 min', function () {
+      close();
+      setTimeout(function () { if (!item.done && (state.items.indexOf(item) !== -1 || state.stash.indexOf(item) !== -1)) { remindQueue.push(item); showRemind(); } }, SNOOZE_MS);
+      say(pick(['ok, I\'ll remind you!', 'back in 10 minutes!', 'I\'ll poke you later ♡']), 1500);
+    });
+    button('✕', close, 'inbox-done').setAttribute('aria-label', 'Dismiss');
+    card.append(img, text, acts);
+    document.querySelector('.stage').appendChild(card);
+    setFace(FACES.tada);
+    pulse('hop', 460);
+    sound('ring');
+  }
+  /**
+   * @param {Object[]} items  Tasks whose time just came.
+   * @returns {boolean} Whether a card took over (then the bubble stays quiet).
+   */
+  window.deskRemind = function (items) {
+    if (deskPrefs.remind === false) return false;
+    if (D.reveal) D.reveal();   // he may be hidden: bring him back, without taking the keyboard
+    if (!isPet()) return false; // the big window shows the usual bubble
+    if (peeking) endPeek();
+    if (typeof wakeFromNap === 'function') wakeFromNap(false);
+    items.forEach(function (i) { remindQueue.push(i); });
+    showRemind();
+    return true;
+  };
+
+  // ---------- Fumu does things on his own: wander along the screen, peek round the edge, nap ----------
+  var peeking = false, roaming = false;
+  function roamOk() {
+    return deskPrefs.roam !== false && isPet() && !document.hidden && !roaming && !peeking && !carried && !press && !busy && !walking && !dreaming &&
+      !(typeof napping !== 'undefined' && napping) && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') &&
+      !document.querySelector('dialog[open], .inbox-card') && bubble.hidden && suggestEl.hidden;
+  }
+  function lookToward(dir) { pet.style.setProperty('--look-x', (dir > 0 ? 3.2 : -3.2) + 'px'); }
+  function stopLook() { pet.style.removeProperty('--look-x'); }
+  /** A stroll along where he sits: the window glides, the feet go. */
+  function wander() {
+    if (!D.walk) return;
+    var dir = Math.random() < 0.5 ? -1 : 1, dx = dir * (140 + Math.random() * 280), ms = Math.round(Math.abs(dx) * 12);
+    roaming = true;
+    setFace(FACES.dreamy);
+    pet.classList.add('walking');
+    lookToward(dir);
+    D.walk(dx, ms).then(function (went) {
+      if (went === 0) return D.walk(-dx, ms);   // no room that way: the other way (null = picked up: leave it)
+      return went;
+    }).then(function () {
+      pet.classList.remove('walking'); stopLook(); roaming = false;
+      if (!busy) { settle(); if (Math.random() < 0.5) say(pick(['nice walk~', 'hmm hm hm ♪', 'fumu fumu~']), 1400); }
+    }, function () { pet.classList.remove('walking'); stopLook(); roaming = false; });
+  }
+  /** Slides half out of the screen at the nearest free side, looks about, and comes back. */
+  function peek() {
+    if (!D.peek) return;
+    roaming = true;
+    setFace(FACES.curious);
+    D.peek(1100).then(function (edge) {
+      roaming = false;
+      if (!edge) { settle(); return; }
+      peeking = true;
+      lookToward(edge === 'right' ? -1 : 1);
+      pulse('peek', 1400);
+      var wait = 3200 + Math.random() * 2600;
+      peekTimer = setTimeout(endPeek, wait);
+    }, function () { roaming = false; });
+  }
+  var peekTimer = 0;
+  function endPeek() {
+    if (!peeking) return;
+    peeking = false; clearTimeout(peekTimer);
+    stopLook();
+    setFace({ eyes: 'happy', mouth: 'smile', arms: 'idle', x: ['cheeks'] });
+    D.unpeek(800).then(function () {
+      if (busy) return;
+      pulse('hop', 460);
+      say(pick(['hehe, boo!', 'peekaboo!', 'found you!']), 1400);
+      setTimeout(function () { if (!busy) settle(); }, 1500);
+    });
+  }
+  // touching him while he peeks brings him straight back; the page shows only a bit of him, so his click lands on the part you see
+  pet.addEventListener('pointerdown', function () { if (peeking) endPeek(); }, true);
+
+  /** For the animation player and tests: do one of them now (ignores the pause and the tray choice). */
+  window.deskDo = function (what) {
+    if (!isPet() || roaming || peeking) return 0;
+    if (what === 'wander') { wander(); return 4500; }
+    if (what === 'peek') { peek(); return 7000; }
+    return 0;
+  };
+  var roamTimer = 0;
+  function scheduleRoam(first) {
+    clearTimeout(roamTimer);
+    roamTimer = setTimeout(function () {
+      if (roamOk()) {
+        var r = Math.random();
+        if (r < 0.4) wander();
+        else if (r < 0.7 && typeof napNow === 'function') napNow(18000 + Math.random() * 14000);
+        else peek();
+      }
+      scheduleRoam(false);
+    }, (first ? 90 : 240) * 1000 + Math.random() * (first ? 150 : 300) * 1000);
+  }
+  scheduleRoam(true);
 })();

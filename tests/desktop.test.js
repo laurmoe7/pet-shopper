@@ -59,3 +59,66 @@ test('the desktop package lists the files it needs and the page script is wired 
   assert.ok(html.includes('src="app-desktop.js"'));
   assert.ok(html.indexOf('app-desktop.js') < html.indexOf('app-start.js'));
 });
+
+test('size names turn into zoom factors and unknown names are normal size', () => {
+  const place = require('../desktop/place.js');
+  assert.equal(place.sizeFactor('small'), 0.8);
+  assert.equal(place.sizeFactor('large'), 1.3);
+  assert.equal(place.sizeFactor('huge'), 1);
+  assert.equal(place.sizeFactor('toString'), 1);
+});
+
+test('a resized window keeps its bottom middle in place and stays on the screen', () => {
+  const place = require('../desktop/place.js');
+  const r = place.resizeKeepingBottom({ x: 1000, y: 700, width: 320, height: 250 }, { width: 416, height: 325 });
+  assert.deepEqual(r, { x: 952, y: 625, width: 416, height: 325 });
+  const area = { x: 0, y: 0, width: 1920, height: 1040 };
+  assert.deepEqual(place.within({ x: 1800, y: 900, width: 416, height: 325 }, area), { x: 1504, y: 715, width: 416, height: 325 });
+});
+
+test('nudging and corners move the window inside the work area', () => {
+  const place = require('../desktop/place.js');
+  const area = { x: 0, y: 0, width: 1920, height: 1040 }, b = { x: 100, y: 100, width: 320, height: 250 };
+  assert.deepEqual(place.nudge(b, 20, -20, area), { x: 120, y: 80, width: 320, height: 250 });
+  assert.equal(place.nudge(b, -500, 0, area).x, 0);
+  assert.equal(place.nudge({ x: 1600, y: 100, width: 320, height: 250 }, 200, 0, area).x, 1600);
+  const br = place.corner(b, area, 'br'), tl = place.corner(b, area, 'tl');
+  assert.equal(br.x + br.width + place.MARGIN, 1920);
+  assert.ok(br.y + br.height <= 1040 && br.y > 700);
+  assert.deepEqual([tl.x, tl.y > 0], [place.MARGIN, true]);
+});
+
+test('a walk stops at the edge of the screen and keeps its height', () => {
+  const place = require('../desktop/place.js');
+  const area = { x: 0, y: 0, width: 1920, height: 1040 }, b = { x: 1500, y: 780, width: 320, height: 250 };
+  assert.deepEqual(place.walkEnd(b, area, 200), { x: 1600, y: 780, width: 320, height: 250 });
+  assert.equal(place.walkEnd(b, area, 900).x, 1600);
+  assert.equal(place.walkEnd(b, area, -2000).x, 0);
+});
+
+test('peeking goes to the nearest side that has no other screen beside it', () => {
+  const place = require('../desktop/place.js');
+  const one = [{ x: 0, y: 0, width: 1920, height: 1080 }];
+  const b = { x: 1500, y: 780, width: 320, height: 250 };
+  const right = place.peekSpot(b, one);
+  assert.equal(right.edge, 'right');
+  assert.equal(right.bounds.x + right.bounds.width / 2, 1920);   // half of him is past the edge
+  assert.equal(right.bounds.y, 780);
+  assert.equal(place.peekSpot({ x: 100, y: 780, width: 320, height: 250 }, one).edge, 'left');
+  // a second screen to the right: he must not show up on it, so he goes left
+  const two = [{ x: 0, y: 0, width: 1920, height: 1080 }, { x: 1920, y: 0, width: 1920, height: 1080 }];
+  assert.equal(place.peekSpot(b, two).edge, 'left');
+  // screens on both sides: nowhere to peek
+  const three = [{ x: -1920, y: 0, width: 1920, height: 1080 }].concat(two);
+  assert.equal(place.peekSpot(b, three), null);
+  assert.equal(place.peekSpot({ x: 9000, y: 0, width: 320, height: 250 }, one), null);
+});
+
+test('a glide eases from start to end and lands exactly', () => {
+  const place = require('../desktop/place.js');
+  const a = { x: 0, y: 500, width: 320, height: 250 }, z = { x: 400, y: 500, width: 320, height: 250 };
+  assert.equal(place.tweenAt(a, z, 0).x, 0);
+  assert.equal(place.tweenAt(a, z, 1).x, 400);
+  assert.equal(place.tweenAt(a, z, 0.5).x, 200);
+  assert.ok(place.tweenAt(a, z, 0.1).x < 40 && place.tweenAt(a, z, 0.9).x > 360);   // slow at both ends
+});

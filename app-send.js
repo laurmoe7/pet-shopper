@@ -136,7 +136,7 @@ function receiveMessage(msg, more) {
 }
 /** Looks for something waiting for this PC (only while the window is showing and nothing is on the card). */
 function inboxPoll() {
-  if (!receivingHere() || !account.code || syncState.stopped || inboxCard || document.visibilityState === 'hidden') return;
+  if (!receivingHere() || !account.code || syncState.stopped || inboxCard || document.querySelector('.remind-card') || document.visibilityState === 'hidden') return;
   accountApi('/v1/inbox?to=pc', 'GET', account.code).then(function (r) {
     var list = r.ok && r.json && r.json.messages;
     if (!list || !list.length || inboxCard) return;

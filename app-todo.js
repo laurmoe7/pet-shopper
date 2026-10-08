@@ -703,8 +703,10 @@ function timeCheck(quiet) {
     alerted[i.id] = true;
     hit.push(i);
   });
-  if (quiet || !hit.length || document.hidden) return;
-  if (baseState() === 'sleepy') return;
+  if (quiet || !hit.length) return;
+  // the desktop companion pops up (even from hiding) and shows a card with Done and a snooze: it then does the speaking
+  if (window.deskRemind && window.deskRemind(hit)) return;
+  if (document.hidden || baseState() === 'sleepy') return;
   var hint = isTodo() ? '' : '\ncheck the to-do list ♡';
   var go = function () {
     if (busy) { setTimeout(go, 1500); return; }

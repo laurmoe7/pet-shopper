@@ -72,10 +72,10 @@ Each person owns a pet; lists can be shared. Avoid a pile of separate lists. Pro
 - Drop a link or text on Fumu: he eats it and it shows on the phone; "Send to PC" from the phone and the Share menu.
 - Recipe parser on the PC (same `recipe.js` and Worker), ingredients with checkboxes, "Send to phone".
 - Images from phone to PC (small, deleted after about a day).
-- Reminders from tasks (`due`/`time`), kind work-break nudges (stretch, water, eyes), a focus mode (quiet pet, nap or snack at the end).
+- Reminders from tasks: done in build 257 (card with Done / In 10 min, pops up from hiding). Still to do: kind work-break nudges (stretch, water, eyes), a focus mode (quiet pet, nap or snack at the end).
 - Today's tasks on his clipboard; ticking on the PC ticks on the phone.
 - Same outfit, furniture and mood on both devices.
-- New idle animations for the desktop: walking along the taskbar and window edges, peeking from a corner, sitting on a window, napping. Each goes in the animation player.
+- New idle animations for the desktop: walking along the screen, peeking round a side edge and napping are done (build 257; wander and peek in the animation player's Desktop group, nap under Specials). Still to do: walking along window edges, sitting on a window.
 - Right-click or drag to an edge to hide him.
 
 ## Order of work
@@ -99,3 +99,9 @@ Each person owns a pet; lists can be shared. Avoid a pile of separate lists. Pro
 - App name idea: **FumuList**.
 - Other ideas: Nomlet, Snaffle, Munchlet, Gulpie.
 - Decided: app **Fumufumu**, mascot **Fumu**. Nibble was the working name; internal keys keep `nibble` on purpose.
+
+## Built: desktop size, floating, reminders and roaming (build 257)
+
+- Tray menu: Size (a page zoom of 0.8, 1 or 1.3; the window is scaled with it and the shell divides the pointer position by the zoom, carrying follows the real pointer), Stay above full-screen apps (`setAlwaysOnTop(true, 'screen-saver')`; exclusive full-screen games still cover him), Move Fumu (nudges and corners, `place.js`), roam and remind switches. Choices are kept in `window.json`; the page reads them with `getPrefs`/`onPrefs`.
+- The shell glides the window (`glide`, `place.tweenAt`) for walking and peeking; picking him up, a size change or switching to the list stops it. `peekSpot` only uses a side with no other monitor beside it.
+- Tested on Linux (Xvfb): glides, clamping at the screen edge, the interrupted walk, the three sizes, the reminder card inside the pet window. Not run on Windows yet: check that the card can be clicked, that Stay above full-screen works over a full-screen video, and the look of a half-hidden Fumu.

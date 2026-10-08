@@ -46,6 +46,11 @@ function animCatalogue() {
   add('Specials', 'hum', function () { hum(); setFace(FACES.dreamy); pulse('bob', 1400); return 1800; });
   add('Specials', 'goodnight kiss', function () { kissGoodnight(); return 2600; });
   add('Specials', 'snore', function () { snore(); return 2400; });
+  add('Specials', 'nap (22 seconds, tap to wake)', function () { return napNow(22000) || 600; });
+  if (window.deskDo) {
+    add('Desktop', 'wander along the screen', function () { return window.deskDo('wander') || (say('only in the small pet window', 1800), 1200); });
+    add('Desktop', 'peek round the edge', function () { return window.deskDo('peek') || (say('only in the small pet window', 1800), 1200); });
+  }
   add('Specials', 'wake with a start', function () { return wakeForSnack(); });
   add('Specials', 'hearts drifting', function () { drift(['♥', '✦', '♥'], petTop(), 4); return 2200; });
   Sounds.kinds.forEach(function (k) { add('Sounds', k, function () { sound(k); return 900; }); });

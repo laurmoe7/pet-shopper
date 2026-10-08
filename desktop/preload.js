@@ -26,5 +26,15 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   open: (url) => ipcRenderer.send('desk:open', String(url).slice(0, 4100)),
   /** Puts text on the clipboard. */
   copy: (text) => ipcRenderer.send('desk:copy', String(text).slice(0, 20000)),
-  hide: () => ipcRenderer.send('desk:hide')
+  hide: () => ipcRenderer.send('desk:hide'),
+  /** The tray menu's choices that matter to the page: {roam, remind, size}. */
+  getPrefs: () => ipcRenderer.invoke('desk:getPrefs'),
+  onPrefs: (fn) => ipcRenderer.on('desk:prefs', (_e, p) => fn(p)),
+  /** Walks the window dx px along (negative = left) over ms; resolves how far it really went. */
+  walk: (dx, ms) => ipcRenderer.invoke('desk:walk', +dx || 0, +ms || 3000),
+  /** Slides half out of the screen at the nearest free side; resolves 'left', 'right' or null. unpeek slides back. */
+  peek: (ms) => ipcRenderer.invoke('desk:peek', +ms || 900),
+  unpeek: (ms) => ipcRenderer.invoke('desk:unpeek', +ms || 700),
+  /** Shows Fumu if he was hidden (a reminder). */
+  reveal: () => ipcRenderer.send('desk:reveal')
 });

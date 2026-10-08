@@ -14,7 +14,7 @@ function scheduleDream() {
 /** One idle moment, when nothing else is going on. */
 function idle() {
   scheduleDream();
-  if (busy || dreaming || document.hidden || document.querySelector('dialog[open]:not(#roomSheet)')) return;
+  if (busy || dreaming || napping || document.hidden || document.querySelector('dialog[open]:not(#roomSheet)')) return;
   // while it's awake it asks for something now and then (offerSuggestion keeps that to once every three minutes at most)
   if (Math.random() < 0.3 && dueNag(true)) return;
   if (baseState() !== 'sleepy' && Math.random() < 0.2 && offerSuggestion()) return;
@@ -174,6 +174,49 @@ function walkPath(spots, pause) {
   });
   return t;
 }
+// ---------- a daytime nap ----------
+// Eyes closed, a few z's and a slow breath for a while (the desktop companion does this now and then). A touch, or
+// something to eat, ends it; on its own it ends with a stretch and a yawn.
+var napping = false, napTimer = 0;
+/**
+ * @param {number} [ms=22000] How long it sleeps.
+ * @returns {number} How long the nap lasts in ms (0 when it can't nap now).
+ */
+function napNow(ms) {
+  if (napping || busy || dreaming || document.hidden || baseState() === 'sleepy') return 0;
+  ms = ms || 22000;
+  napping = true;
+  setFace({ eyes: 'closed', mouth: 'o', arms: 'rest', x: ['zzz'] });
+  pulse('sit', 2600);
+  var t0 = Date.now();
+  (function tick() {
+    if (!napping) return;
+    if (busy) { napping = false; return; }   // something to eat: the eating takes over the face
+    if (Date.now() - t0 > ms) { wakeFromNap(false); return; }
+    snore();
+    napTimer = setTimeout(tick, 2600);
+  })();
+  return ms;
+}
+/** Ends a nap: with a start when it was disturbed, or a stretch and a yawn when it was done. */
+function wakeFromNap(startled) {
+  if (!napping) return;
+  napping = false;
+  clearTimeout(napTimer);
+  if (startled) {
+    setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: ['shock'] });
+    eyesDo('wide');
+    pulse('hopsmall', 450);
+    talk('napStart', ["huh! I'm awake!", "wasn't sleeping!", 'oh! hi!'], 1300);
+  } else {
+    setFace({ eyes: 'closed', mouth: 'open', arms: 'reach', x: [] });
+    pulse('stretch', 1000);
+    sound('yawn');
+    say(pick(['*yaaawn*', 'hwaaa~ good nap', '*stretch*']), 1500, true);
+  }
+  setTimeout(function () { if (!busy) settle(); }, startled ? 1400 : 1800);
+}
+pet.addEventListener('pointerdown', function () { wakeFromNap(true); }, true);
 var SHOPPING_WINDOW_MS = 30 * 60 * 1000;
 /** @returns {boolean} Whether you are in the middle of shopping: something on the shopping list was ticked off in the last half hour and more is still to buy. Only that keeps Fumu up at night. */
 function shoppingNow() {

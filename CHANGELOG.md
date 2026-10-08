@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 257 (18 Oct)
+- Desktop: Fumu pops up for a task's time with a card (Done, In 10 min).
+- Desktop: size, stay above full-screen apps and nudge or corner him, all in the tray menu.
+- Desktop: now and then he wanders along the screen, peeks round the edge or naps.
+- Nap added to the animation player.
+
 ## Build 256 (18 Oct)
 - Send to my PC: links and notes from your phone; Fumu eats them on the PC and shows a card.
 - Desktop: right-click and pick-up keep working with older installed copies; clicks are re-checked after the window changes.
