@@ -10,6 +10,11 @@ case "$1" in
   needs) text="Claude needs you" ;;
   *) text="Claude replied" ;;
 esac
+# the same words twice within a few seconds (both hooks firing, or two copies of the settings) are one alert
+lock="${TMPDIR:-/tmp}/fumu-notify-$(printf %s "$text" | tr -c 'a-z' _)"
+now=$(date +%s)
+if [ -f "$lock" ] && [ $((now - $(cat "$lock" 2>/dev/null || echo 0))) -lt 8 ]; then exit 0; fi
+echo "$now" > "$lock" 2>/dev/null
 auth=()
 [ -n "$FUMU_SYNC_CODE" ] && auth=(-H "Authorization: Bearer $FUMU_SYNC_CODE")
 curl -s -m 5 -X POST "$url/v1/inbox" "${auth[@]}" -H "Content-Type: application/json" \

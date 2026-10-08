@@ -237,6 +237,8 @@ function whenCanEat(fn, maxMs) {
 /** Fumu eats the thing that arrived (it flies in from above), then the card shows. */
 function receiveMessage(msg, more) {
   var link = msg.kind === 'link';
+  if (msg.id) shownIds[msg.id] = 1;
+  if (msg.from === 'claude' && !msg.test) accountApi('/v1/inbox/ack', 'POST', account.code, { ids: [msg.id] });   // a tap on the shoulder: gone from the server at once, so it cannot come back
   rememberReceived(msg);
   inboxCard = document.createElement('div');   // holds the place from the start, so a second message does not begin
   // a short wait first (long enough to have watched it leave the other device), then he eats it as soon as he is free
@@ -271,7 +273,7 @@ function devAlert(kind) {
   receiveMessage(msg, 0);
   return 'It arrives in a few seconds.';
 }
-var polling = false;
+var polling = false, shownIds = {}, lastClaudeAt = 0;
 /** @returns {string} This device's id as the server keeps it (letters and digits, at most 12). */
 function inboxDevice() { return String(state.sync.device || '').replace(/[^a-z0-9]/gi, '').slice(0, 12); }
 function inboxPoll() {
@@ -281,6 +283,13 @@ function inboxPoll() {
     polling = false;
     var list = r.ok && r.json && r.json.messages;
     list = list && list.filter(function (m) { return m.from !== inboxDevice(); });
+    // never show the same message twice (it can still be on the server a moment after it was acked), and only one Claude alert at a time
+    if (list) list = list.filter(function (m) {
+      var seen = shownIds[m.id], soon = m.from === 'claude' && Date.now() - lastClaudeAt < 20000;
+      if (seen || soon) { shownIds[m.id] = 1; if (!m.test) accountApi('/v1/inbox/ack', 'POST', account.code, { ids: [m.id] }); return false; }
+      if (m.from === 'claude') lastClaudeAt = Date.now();
+      return true;
+    });
     if (!list || !list.length || inboxCard) return;
     syncLogAdd('Got a ' + (list[0].kind === 'link' ? 'link' : 'note') + ' from your other device', 'sync');
     receiveMessage(list[0], list.length - 1);

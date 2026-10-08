@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 313 (9 Oct)
+- Claude alerts no longer show twice.
+
 ## Build 312 (9 Oct)
 - Alerts and bubbles stay on screen when he is at the edge (the shell now repeats where the screen edge is).
 - Spinning: he swings round the cursor in an arc.
