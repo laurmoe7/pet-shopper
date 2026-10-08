@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 319 (9 Oct)
+- Thrown: his lower half no longer gets cut off while he spins.
+
 ## Build 318 (9 Oct)
 - Night play and the bed throw only apply while he is lying in his bed, not when he is up at night.
 

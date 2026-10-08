@@ -128,7 +128,7 @@ function start() {
     if (!win || mode !== 'pet') return;
     const all = areas(), b0 = win.getBounds();
     const box = { x: Math.min(...all.map((a) => a.x)), y: Math.min(...all.map((a) => a.y)), r: Math.max(...all.map((a) => a.x + a.width)), b: Math.max(...all.map((a) => a.y + a.height)) };
-    const insetX = Math.round(b0.width * 0.2), insetTop = Math.round(b0.height * 0.3);   // the window has clear space round him: he touches the edge, not the window
+    const insetX = Math.round(b0.width * 0.14), insetTop = Math.round(b0.height * 0.3);   // the window has clear space round him: he touches the edge, not the window
     if (inBed) { vx *= 0.42; vy *= 0.42; }   // asleep in his bed he is heavy: he does not go nearly as far
     const G = inBed ? 3800 : 2400, WALL = inBed ? 0.45 : 0.8, FLOOR = inBed ? 0.35 : 0.62;
     let x = b0.x, y = b0.y, lastHit = 0, spinDir = vx >= 0 ? 1 : -1;

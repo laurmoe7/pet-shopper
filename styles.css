@@ -2944,7 +2944,8 @@ html:not([data-list="todo"]) #pet.wanding .arm-l { transform-box: view-box; tran
 
 /* thrown by the desktop shell (app-desktop.js onThrown): he spins round the whole flight */
 .pet.thrown .pet-svg { animation: throw-spin .5s linear infinite; animation-direction: normal; }
-@keyframes throw-spin { to { rotate: 360deg; } }
+/* he turns about his middle, so he is lifted off the window's bottom edge or his lower half would be cut off as he swings round */
+@keyframes throw-spin { from { translate: 0 -38px; rotate: 0deg; } to { translate: 0 -38px; rotate: 360deg; } }
 .pet.thrown[style*="--spin-dir: -1"] .pet-svg { animation-direction: reverse; }
 @media (prefers-reduced-motion: reduce) { .pet.thrown .pet-svg { animation: none; } }
 
