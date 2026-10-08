@@ -34,7 +34,11 @@ into `wrangler.toml`, `npx wrangler d1 execute pet-shopper-sync --remote --file 
 
 ## After changing `sync.js` or `server.js`
 
-Run `npm run build:worker` and paste `dist/worker.js` again (a test fails if `dist/worker.js` is out of date).
+Run `npm run build:worker` (a test fails if `dist/worker.js` is out of date). Pushing to `main` then deploys by itself:
+`.github/workflows/worker.yml` runs the tests, creates any missing tables from `schema.sql` and deploys the Worker with
+wrangler. It needs two repository secrets (GitHub > Settings > Secrets and variables > Actions): `CLOUDFLARE_API_TOKEN`
+(a custom token with Account > Workers Scripts > Edit and Account > D1 > Edit, limited to her account) and
+`CLOUDFLARE_ACCOUNT_ID`. Pasting `dist/worker.js` into the dashboard still works as a fallback.
 
 ## The inbox (Send to my PC)
 
