@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 281 (8 Oct)
+- Sketchpad: "Sitting (foot bottoms)" option for the pet.
+- Sitting hides the standing feet for every pet.
+
 ## Build 280 (8 Oct)
 - Sitting feet for every pet.
 - Thought clouds hide while he is carried or walking.

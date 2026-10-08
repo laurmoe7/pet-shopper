@@ -2040,8 +2040,8 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 .pet[data-species="cow"] .sole-hoof-toe { fill: #8a7474; }
 .pet[data-species="mochi"] { --sole-bean: #ffc4cf; }
 .pet[data-species="monkey"] { --sole-bean: #d9a08c; }
-.pet.seated:not(.walking, .shod):is([data-species="kitty"], [data-species="pig"], [data-species="birdie"]) :is(.foot, .paw-feet, .hoof-feet, .bird-feet) { display: none; }
-.pet.seated:not(.walking):is([data-species="kitty"], [data-species="pig"], [data-species="birdie"]) .pet-svg { translate: 0 3px; overflow: visible; }
+.pet.seated:not(.walking, .shod) :is(.foot, .paw-feet, .hoof-feet, .bird-feet, .frog-feet, .monkey-feet) { display: none; }
+.pet.seated:not(.walking) .pet-svg { translate: 0 3px; overflow: visible; }
 .sole-base { fill: var(--pet-skin-shade); stroke: var(--pet-ink); stroke-width: 2.2; }
 .sole-bean { fill: var(--sole-bean, #ff9fb5); stroke: none; }
 .sole-hoof-base { fill: #c98896; stroke: var(--pet-ink); stroke-width: 2.2; }
