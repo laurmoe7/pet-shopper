@@ -351,3 +351,11 @@ test('the thought bubbles switch only hides them in the small window, never in t
   assert.match(css, /html\.desktop-pet\.desk-noclouds :is\(\.dream, \.wish\)/);
   assert.doesNotMatch(css, /(^|\n)html\.desk-noclouds/);
 });
+
+test('the send-link shortcut exists, is unique and has a handler', () => {
+  const K = require('../desktop/keys.js');
+  const k = K.KEY_LIST.find((x) => x.id === 'sendLink');
+  assert.ok(k && K.valid(k.def));
+  assert.equal(new Set(K.KEY_LIST.map((x) => x.def.toLowerCase())).size, K.KEY_LIST.length);
+  assert.match(fs.readFileSync(path.join(__dirname, '..', 'desktop', 'main.js'), 'utf8'), /HANDLERS = \{[^}]*sendLink/);
+});

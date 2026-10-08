@@ -418,6 +418,8 @@
     setTimeout(function () { input.focus(); }, 60);
   }
   if (D.onQuickAdd) D.onQuickAdd(openQuick);
+  // the copied link goes to the other device at once (small Fumu or the whole app)
+  if (D.onSendLink) D.onSendLink(function (text) { if (typeof sendToOther === 'function') sendToOther(text); });
 
   // ---------- which program is in front (awareness level 2) ----------
   // The shell says what kind of program it is (a game, a browser, an art program...) and, for programs on its short list, its name.

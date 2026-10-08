@@ -195,6 +195,7 @@ function start() {
       ...(updateReady ? [{ label: 'Restart to update Fumufumu', click: () => autoUpdater.quitAndInstall() }, { type: 'separator' }] : []),
       mode === 'list' ? { label: 'Back to ' + pet, accelerator: accel('swapSize'), registerAccelerator: false, click: () => applyMode('pet') } : { label: 'Open my list', accelerator: accel('swapSize'), registerAccelerator: false, click: () => { showFumu(); applyMode('list'); } },
       { label: 'Add an item…', accelerator: accel('quickAdd'), registerAccelerator: false, click: () => quickAdd() },
+      { label: 'Send copied link to my other device', accelerator: accel('sendLink'), registerAccelerator: false, click: () => sendLink() },
       { label: 'Shopping list / to-do list', accelerator: accel('swapList'), registerAccelerator: false, click: () => swapList() },
       { label: visible ? 'Hide ' + pet : 'Show ' + pet, click: () => (visible ? hideFumu() : showFumu()) },
       { type: 'separator' },
@@ -234,8 +235,10 @@ function start() {
   function swapList() { if (!win) return; if (!win.isVisible()) showFumu(); win.webContents.send('desk:swapList'); }
   // a small box by Fumu to add an item without opening the app: the page shows it and asks for the keyboard while it is open
   function quickAdd() { if (!win) return; if (!win.isVisible()) showFumu(); win.webContents.send('desk:quickAdd'); if (mode === 'list') win.focus(); }
+  // the link on the clipboard goes to the other device at once: the page checks it is a link and does the sending
+  function sendLink() { if (!win) return; if (!win.isVisible()) showFumu(); win.webContents.send('desk:sendLink', String(clipboard.readText() || '').slice(0, 4100)); }
   ipcMain.on('desk:typing', (_e, yes) => { if (win && yes) win.focus(); });
-  const HANDLERS = { swapSize: toggleFull, swapList, quickAdd };
+  const HANDLERS = { swapSize: toggleFull, swapList, quickAdd, sendLink };
   function setupKeys() {
     Object.keys(registered).forEach((k) => { if (registered[k]) globalShortcut.unregister(registered[k]); delete registered[k]; });
     if (hoverKeyOn) { globalShortcut.unregister(hoverKeyOn); hoverKeyOn = null; }

@@ -45,6 +45,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   onProgram: (fn) => ipcRenderer.on('desk:program', (_e, p) => fn(p)),
   /** The shortcut for adding an item was pressed. typing(true) asks the shell to give the window the keyboard. */
   onQuickAdd: (fn) => ipcRenderer.on('desk:quickAdd', () => fn()),
+  /** The send-link shortcut was pressed: the text that was on the clipboard. */
+  onSendLink: (fn) => ipcRenderer.on('desk:sendLink', (_e, text) => fn(String(text))),
   typing: (yes) => ipcRenderer.send('desk:typing', !!yes),
   /** The computer went quiet (true) or someone is back (false): no input for a few minutes, or the screen was locked. */
   onIdle: (fn) => ipcRenderer.on('desk:idle', (_e, idle) => fn(!!idle)),

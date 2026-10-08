@@ -17,20 +17,25 @@ function openSend(prefill) {
   sendReceive.checked = receivingHere();
   openDialog(sendSheet);
 }
-/** Sends what is in the box to the other device. */
-function sendToOther() {
-  var m = Send.classify(sendText.value);
-  if (!m) { sendSay('Type or paste something to send.'); return; }
-  if (!account.code) { sendSay('Turn on Backup & sync first, here and on your other device.'); return; }
-  sendGo.disabled = true;
-  sendSay('Sending…');
-  var fromPt = center(sendGo.getBoundingClientRect());   // the emoji flies from the button
+/**
+ * Sends what is in the box to the other device. With `quickText` (the desktop shortcut) it sends that link at once, without the sheet,
+ * and says what went wrong in a speech bubble.
+ */
+function sendToOther(quickText) {
+  var quick = typeof quickText === 'string';
+  var m = Send.classify(quick ? quickText : sendText.value);
+  function fail(t) { if (quick) say(t, 3200, true); else sendSay(t); }
+  if (!m || (quick && m.kind !== 'link')) { fail(quick ? 'Copy a link first, then try again.' : 'Type or paste something to send.'); return; }
+  if (!account.code) { fail('Turn on Backup & sync first, here and on your other device.'); return; }
+  if (quick) { if (quickSending) return; quickSending = true; } else sendGo.disabled = true;
+  if (!quick) sendSay('Sending…');
+  var fromPt = quick ? { x: pet.getBoundingClientRect().left + pet.getBoundingClientRect().width / 2, y: pet.getBoundingClientRect().top - 30 } : center(sendGo.getBoundingClientRect());   // the emoji flies from the button (or from above him)
   accountApi('/v1/inbox', 'POST', account.code, { kind: m.kind, text: m.text, from: inboxDevice() }).then(function (r) {
-    sendGo.disabled = false;
+    if (quick) quickSending = false; else sendGo.disabled = false;
     if (r.ok) {
-      sendText.value = '';
+      if (!quick) sendText.value = '';
       syncLogAdd('Sent a ' + (m.kind === 'link' ? 'link' : 'note') + ' to the other device', 'sync');
-      if (sendSheet.open) sendSheet.close();   // at once: nothing more to wait for
+      if (!quick && sendSheet.open) sendSheet.close();   // at once: nothing more to wait for
       var sentLine = function () { say(pick(['off it goes!', 'on its way ♡', 'fumu fumu~ sent!']), 1400); };
       // a moment for the sheet to close, then he eats it (waiting for his own moves to end rather than skipping the animation)
       setTimeout(function () {
@@ -39,13 +44,14 @@ function sendToOther() {
           busy++;
           eatMessage(m.kind === 'link', fromPt).then(function () { sentLine(); setTimeout(function () { busy--; if (!busy) settle(); }, 700); });
         }, 4000);
-      }, 450);
-    } else if (r.status === 401) sendSay('The server does not know this code. Check Backup & sync.');
-    else if (r.status === 503) sendSay('The server is not ready for this yet: it needs the new inbox table (see worker/sync/README.md).');
-    else if (r.status === 413) sendSay('That is too long to send.');
-    else sendSay(r.status ? 'The server said no (' + r.status + ').' : 'Could not reach the server. Check your connection.');
+      }, quick ? 100 : 450);
+    } else if (r.status === 401) fail('The server does not know this code. Check Backup & sync.');
+    else if (r.status === 503) fail('The server is not ready for this yet: it needs the new inbox table (see worker/sync/README.md).');
+    else if (r.status === 413) fail('That is too long to send.');
+    else fail(r.status ? 'The server said no (' + r.status + ').' : 'Could not reach the server. Check your connection.');
   });
 }
+var quickSending = false;
 sendGo.addEventListener('click', function () { sound('tap'); sendToOther(); });
 sendSheet.addEventListener('click', function (e) { if (e.target === sendSheet) sendSheet.close(); });
 sendReceive.addEventListener('change', function () {

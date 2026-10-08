@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 285 (8 Oct)
+- Desktop: Ctrl+Alt+S sends the copied link to your other device (small or whole app, also in right-click).
+
 ## Build 284 (8 Oct)
 - Desktop: long speech bubbles shrink to fit the small window.
 - Thought bubbles switch only affects small Fumu.
