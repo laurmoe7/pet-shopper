@@ -608,7 +608,7 @@
   function moveOk() { var l = moveLevel(); return l === 'lots' || l === 'normal'; }
   window.deskMoveOk = moveOk;
   // how often he remarks on what you are doing (settings: Never / Rarely / Normal / Often, one for the usual case and one for games and full-screen)
-  var FREQ = { off: 0, rare: 0.35, normal: 1, often: 2.5 };
+  var FREQ = { off: 0, rare: 0.6, normal: 1.6, often: 4.5 };
   /** @param {boolean} full  Whether a game or something full-screen is involved. @returns {number} 0 (never), .35, 1 or 2.5: bigger means more often. */
   function chatRate(full) { var v = FREQ[full ? deskPrefs.chatFull : deskPrefs.chatNormal]; return v === undefined ? 1 : v; }
   window.deskChatRate = chatRate;
@@ -677,7 +677,7 @@
   /** Whether a 0..1 chance (already scaled by how often he is allowed to talk) comes up. */
   function chance(p) { return Math.random() < Math.min(1, p); }
   var duringTimer = 0;
-  // while a game is in front he says something about it now and then (every 14 to 26 minutes at Normal), only if comments there are not on Never
+  // while a game is in front he says something about it now and then (every 5 to 9 minutes at Normal), only if comments there are not on Never
   function scheduleDuring() {
     clearTimeout(duringTimer);
     var rate = chatRate(true);
@@ -687,7 +687,19 @@
         whenFree(function () { return program.kind === 'game' && program.name === name; }, function () { remark(pick(linesFor(name, 'during')), name); });
       }
       if (program.kind === 'game') scheduleDuring();
-    }, (rate > 0 ? (14 + Math.random() * 12) * 60000 / rate : 120000));
+    }, (rate > 0 ? (8 + Math.random() * 7) * 60000 / rate : 120000));
+  }
+  var whileTimer = 0;
+  // staying in the same kind of program he says something about it now and then too (every 5 to 9 minutes at Normal)
+  function scheduleWhile() {
+    clearTimeout(whileTimer);
+    var rate = chatRate(!!program.fullscreen), kind = program.kind;
+    if (rate <= 0) return;
+    whileTimer = setTimeout(function () {
+      if (program.kind !== kind) return;
+      whenFree(function () { return program.kind === kind; }, function () { lastRemark = Date.now(); remark(pick(PROGRAM_LINES[kind]), program.name); });
+      scheduleWhile();
+    }, (8 + Math.random() * 7) * 60000 / rate);
   }
   if (D.onProgram) D.onProgram(function (p) {
     var was = program;
@@ -709,7 +721,7 @@
       clearTimeout(duringTimer);
       var played = gameSince ? now - gameSince : 0; gameSince = 0;
       if (played > 15 * 60000 && full > 0 && chance(full)) programTimer = setTimeout(function () { whenFree(function () { return program.kind !== 'game'; }, function () { remark(pick(linesFor(was.name, 'end')), was.name); }); }, 2500);
-    } else if (PROGRAM_LINES[program.kind] && program.kind !== was.kind && usual > 0 && now - lastRemark > 20 * 60000 / usual && now - (kindRemark[program.kind] || 0) > 60 * 60000 / usual && chance(0.6 * usual)) {
+    } else if (PROGRAM_LINES[program.kind] && program.kind !== was.kind && usual > 0 && now - lastRemark > 12 * 60000 / usual && now - (kindRemark[program.kind] || 0) > 30 * 60000 / usual && chance(0.9 * usual)) {
       // stay in the program for a little while first, so a quick alt-tab says nothing
       var kind = program.kind;
       programTimer = setTimeout(function () {
@@ -717,8 +729,9 @@
           lastRemark = Date.now(); kindRemark[kind] = lastRemark;
           remark(pick(PROGRAM_LINES[kind]), program.name);
         });
-      }, 20000);
+      }, 8000);
     }
+    if (PROGRAM_LINES[program.kind] && program.kind !== 'game') scheduleWhile(); else clearTimeout(whileTimer);
   });
 
   // ---------- where the solid parts are (for the shell's own, instant hit test) ----------

@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 310 (9 Oct)
+- He comments on what you're doing more often, at every setting.
+- He also remarks now and then while you stay in the same program.
+
 ## Build 309 (9 Oct)
 - Carried: he tilts much more.
 
