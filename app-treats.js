@@ -24,6 +24,14 @@ function mayWish() {
   return !document.documentElement.classList.contains('desktop-pet') && !busy && !document.hidden && !wishWord && suggestEl.hidden && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') && !stage.classList.contains('night-lamp') &&
     !document.querySelector('dialog[open]:not(#roomSheet)');
 }
+/** @returns {number} How many times the cloud was tapped to feed him (device only; players from before it was counted start from the number of asks). */
+function wishFeeds() {
+  try {
+    var n = localStorage.getItem('nibble-wish-fed');
+    return n === null ? (+localStorage.getItem('nibble-wish-asks') || 0) : (+n || 0);
+  } catch (e) { return 0; }
+}
+var WISH_LEARNED = 4;   // after this many feedings the "Tap to feed" label and the how-to line are no longer needed
 /** Fumu asks for a snack he has not had today. @param {boolean} [force] Ask now whatever else is going on (the developer tool). */
 function askForTreat(force) {
   var word = L.nextWish(state.pet, new Date(), Math.random);
@@ -38,10 +46,11 @@ function askForTreat(force) {
   clearInterval(wishHop);
   wishHop = setInterval(wishPose, 5000);
   sound('ooh');
-  // the first few asks say how it works
-  var asks = 0;
-  try { asks = +localStorage.getItem('nibble-wish-asks') || 0; localStorage.setItem('nibble-wish-asks', String(asks + 1)); } catch (e) { /* storage blocked */ }
-  if (asks < 4) say(pick(['tap my thought cloud to feed me!', 'psst… tap the cloud, I want ' + (WISH_NAME[word] || word) + '!']), 2600);
+  // until you have fed him a few times the label and the first lines say how it works
+  var learned = wishFeeds() >= WISH_LEARNED;
+  wishEl.classList.toggle('wish-learned', learned);
+  try { localStorage.setItem('nibble-wish-asks', String((+localStorage.getItem('nibble-wish-asks') || 0) + 1)); } catch (e) { /* storage blocked */ }
+  if (!learned) say(pick(['tap my thought cloud to feed me!', 'psst… tap the cloud, I want ' + (WISH_NAME[word] || word) + '!']), 2600);
   else say(pick(['could I have ' + (WISH_NAME[word] || word) + '?', 'ooh… ' + word + '?', 'I\'m peckish…', 'snack time?']), 1800);
   clearTimeout(wishGone);
   wishGone = setTimeout(function () { dropWish(false); }, WISH_STAYS_MS);
@@ -73,6 +82,7 @@ wishEl.addEventListener('click', function (e) {
   var from = wishEl.getBoundingClientRect();
   dropWish(given.ok);
   if (!given.ok) return;
+  try { localStorage.setItem('nibble-wish-fed', String(wishFeeds() + 1)); } catch (e) { /* storage blocked */ }
   var item = L.createItem(word, {}, 'treat');   // no added time: a free treat counts straight away
   item.treat = true;
   var goals = creditEaten(item, now);

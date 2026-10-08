@@ -180,6 +180,8 @@ function walkPath(spots, pause) {
 // Eyes closed, a few z's and a slow breath for a while (the desktop companion does this now and then). A touch, or
 // something to eat, ends it; on its own it ends with a stretch and a yawn.
 var napping = false, napTimer = 0;
+/** @returns {boolean} Whether he is asleep or napping (the snore marks are showing): timers that blink his eyes must leave them shut. */
+function asleepFace() { return napping || pet.classList.contains('x-zzz'); }
 /**
  * @param {number} [ms=22000] How long it sleeps.
  * @returns {number} How long the nap lasts in ms (0 when it can't nap now).
@@ -323,9 +325,9 @@ var IDLE_MOVES = [
   } },
   { moods: ['curious', 'happy', 'stuffed'], night: true, run: function () {
     setFace({ eyes: 'closed', mouth: 'smile', arms: 'idle', x: [] });
-    setTimeout(function () { pet.dataset.eyes = 'open'; }, 700);
-    setTimeout(function () { pet.dataset.eyes = 'closed'; }, 1100);
-    setTimeout(function () { pet.dataset.eyes = 'open'; }, 2100);
+    setTimeout(function () { if (!asleepFace()) pet.dataset.eyes = 'open'; }, 700);
+    setTimeout(function () { if (!asleepFace()) pet.dataset.eyes = 'closed'; }, 1100);
+    setTimeout(function () { if (!asleepFace()) pet.dataset.eyes = 'open'; }, 2100);
     talk('heavyBlink', ['keep… eyes… open…', 'just a little longer…'], 1600);
     return 2400;
   } },
@@ -402,9 +404,10 @@ function lively() {
     // two quick blinks
     if (pet.dataset.eyes !== 'open') return;
     pet.dataset.eyes = 'closed';
-    setTimeout(function () { if (pet.dataset.eyes === 'closed' && !busy) pet.dataset.eyes = 'open'; }, 120);
-    setTimeout(function () { if (pet.dataset.eyes === 'open' && !busy) pet.dataset.eyes = 'closed'; }, 330);
-    setTimeout(function () { if (pet.dataset.eyes === 'closed' && !busy) pet.dataset.eyes = 'open'; }, 450);
+    // (not once he has dropped off in the middle of it: his shut eyes would be opened by the timers)
+    setTimeout(function () { if (pet.dataset.eyes === 'closed' && !busy && !asleepFace()) pet.dataset.eyes = 'open'; }, 120);
+    setTimeout(function () { if (pet.dataset.eyes === 'open' && !busy && !asleepFace()) pet.dataset.eyes = 'closed'; }, 330);
+    setTimeout(function () { if (pet.dataset.eyes === 'closed' && !busy && !asleepFace()) pet.dataset.eyes = 'open'; }, 450);
   } else if (r < 0.46) {
     pulse('hopsmall', 500);
   } else if (r < 0.62 && mayWander()) {

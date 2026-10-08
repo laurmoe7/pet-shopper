@@ -373,3 +373,12 @@ test('movement choices: a lot, normal, in his room, still; anything else falls b
   assert.equal(V.cleanMove('walk', 'still'), 'still');
   assert.equal(V.cleanMove(undefined, 'normal'), 'normal');
 });
+
+test('blink timers leave a sleeping pet\'s eyes shut, and the "Tap to feed" label goes after four feedings', () => {
+  const idle = fs.readFileSync(path.join(__dirname, '..', 'app-idle.js'), 'utf8');
+  assert.ok(!/setTimeout\(function \(\) \{ if \(pet\.dataset\.eyes === 'closed' && !busy\) pet\.dataset\.eyes = 'open'/.test(idle));
+  assert.match(idle, /function asleepFace\(\)/);
+  const treats = fs.readFileSync(path.join(__dirname, '..', 'app-treats.js'), 'utf8');
+  assert.match(treats, /WISH_LEARNED = 4/);
+  assert.match(treats, /nibble-wish-fed/);
+});

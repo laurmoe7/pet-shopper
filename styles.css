@@ -2897,3 +2897,4 @@ html.desk-moving :is(.dream, .wish), .stage:has(.pet.walking) :is(.dream, .wish)
 .pet.carried :is(.foot-side, .shoe-l, .shoe-r) { transform-box: fill-box; transform-origin: 50% 0; animation: dangle-a .28s ease-in-out infinite; }
 .pet.carried :is(.foot-r, .shoe-r) { animation-name: dangle-b; }
 @media (prefers-reduced-motion: reduce) { .pet.carried :is(.foot-side, .shoe-l, .shoe-r) { animation: none; } }
+.wish.wish-learned .wish-tag { display: none; }   /* fed him a few times: the label is not needed any more */

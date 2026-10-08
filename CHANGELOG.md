@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 293 (9 Oct)
+- "Tap to feed" label and how-to lines go away after you have fed him 4 times.
+- Fixed him napping with his eyes open.
+
 ## Build 292 (9 Oct)
 - Settings: "A little" movement (pacing on the spot), also for games and full-screen.
 - Settings: toy can fly around the whole screen (switch).
