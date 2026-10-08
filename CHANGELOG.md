@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 336
+- The lamp in the whole app works again after the desktop bell has woken him.
+
 ## Build 335
 - Settings window: the developer tools are tidied into groups (time and scenes, make him do something, alerts, pet and lists, animations, the program), with the time of day, scenes and the animation player now there.
 - Profile: the title is back on the left with the gift beside it.

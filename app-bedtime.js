@@ -131,6 +131,7 @@ function wakeForSnack() {
 }
 /** Switches the lamp. */
 function setLamp(dark) {
+  if (dark && typeof setBellAwake === 'function') setBellAwake(false);   // lights out ends a stretch up that the desktop bell started
   var bed = bedtime();
   bed.dark = dark;
   saveBedtime(bed);
