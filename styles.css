@@ -2813,6 +2813,8 @@ html.desktop-pet .scene::after { display: none; }
 html.desktop-pet .stage { width: 100vw; }   /* the stage keeps its own height at the bottom; the free room above is for the speech bubble */
 html.desktop-pet .stage .bubble { left: 0 !important; right: 0 !important; top: auto !important; bottom: calc(100% - 24px); margin: 0 auto; max-width: calc(100vw - 24px) !important; transform-origin: 50% 100% !important; }
 html.desktop-list #deskBar { display: flex; }
+/* the full-height sheets (calendar, Top 10, dressing room) start under the bar, not behind it */
+html.desktop-list .picker.pet-sheet:is(.cal-full, .fav-full, .dress-full) { inset: 34px 0 0 0; }
 #deskBar { display: none; position: fixed; top: 0; left: 0; right: 0; height: 34px; z-index: 50; align-items: center; gap: 8px; padding: 0 8px 0 14px;
   background: var(--surface); color: var(--ink); border-bottom: 1.5px dashed var(--cb-edge, var(--outline)); -webkit-app-region: drag; user-select: none; font-weight: 800; font-size: .85rem; }
 #deskBar .desk-title { flex: 1; font-family: var(--font-display); }

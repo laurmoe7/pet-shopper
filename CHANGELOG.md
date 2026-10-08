@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 270 (8 Oct)
+- Desktop: the calendar, Top 10 and dressing room start below the top bar instead of behind it.
+
 ## Build 269 (8 Oct)
 - Desktop: the build number and the room options no longer hide behind the bottom bar.
 - Desktop: the room menu is as tall as the other tall menus.
