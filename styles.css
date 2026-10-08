@@ -2951,3 +2951,18 @@ html:not([data-list="todo"]) #pet.wanding .arm-l { transform-box: view-box; tran
 /* thrown while asleep in bed (app-desktop.js onFlight): the bed turns to face where it is flying */
 html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); scale: .7; translate: 0 -38px; transform-origin: 50% 58%; transition: rotate .14s ease-out; }
 @media (prefers-reduced-motion: reduce) { html.desktop-pet .stage.bed-thrown { transition: none; } }
+
+/* night play (app-night.js): the teddy to pick up, the night light and its glow */
+.pet.teddy-taken .teddy-hug { display: none !important; }
+.teddy-btn { position: absolute; z-index: 5; padding: 0; border: 0; background: transparent; cursor: grab; touch-action: none; border-radius: 50%; }
+.teddy-float { position: fixed; z-index: 30; width: 44px; height: 44px; pointer-events: none; filter: drop-shadow(0 3px 2px rgba(91, 66, 57, .3)); }
+.night-btn { position: absolute; right: 6px; bottom: 6px; z-index: 6; width: 30px; height: 30px; padding: 4px; border: 1.6px solid var(--outline); border-radius: 50%; background: var(--surface); box-shadow: 0 2px 0 var(--outline); cursor: pointer; }
+.night-btn img { display: block; width: 100%; height: 100%; opacity: .75; }
+.night-btn[aria-pressed="true"] { background: #ffe3a8; }
+.night-btn[aria-pressed="true"] img { opacity: 1; }
+.night-btn[hidden], .teddy-btn[hidden] { display: none; }
+.night-glow { position: absolute; inset: -10px; z-index: 0; pointer-events: none; opacity: 0; transition: opacity .8s ease; background: radial-gradient(ellipse at 50% 78%, rgba(255, 196, 120, .55), rgba(255, 176, 96, .2) 42%, transparent 70%); }
+.stage.night-light .night-glow { opacity: 1; animation: glow-breathe 5.5s ease-in-out infinite; }
+@keyframes glow-breathe { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
+.stage.night-light .zzz text { animation-duration: 4s; }
+@media (prefers-reduced-motion: reduce) { .stage.night-light .night-glow { animation: none; } }

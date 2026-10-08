@@ -2,7 +2,7 @@
  * Sounds.play(kind) where kind is one of:
  *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party,
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
- *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
+ *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
  *   notice (Claude's note arriving), done, sparkle, coin, ring (ticking off a to-do), stamp (the check mark landing), scribble (writing on the clipboard), shutter (the dressing room's camera),
  *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
@@ -250,6 +250,11 @@
       tone(t + 0.02, 0.14, 'sine', 620, 190, env(t + 0.02, 0.005, 0.13, 0.6));
     },
     // Claude's note arriving: two soft bells
+    lullaby: function (t) {
+      // a soft little lullaby, two phrases (resting the pointer on him while he sleeps)
+      chime(t, [659, 784, 988, 784], 0.34, 0.5, 'sine');
+      chime(t + 1.5, [880, 784, 659], 0.36, 0.42, 'sine');
+    },
     notice: function (t) { chime(t, [988, 1319], 0.12, 0.85, 'sine'); chime(t + 0.34, [1568], 0.1, 0.5, 'sine'); },
     party: function (t) { chime(t, [523, 659, 784, 1047, 1319], 0.09, 1.1); },
     jiggle: function (t) {

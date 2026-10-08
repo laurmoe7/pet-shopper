@@ -129,6 +129,8 @@ function start() {
     const all = areas(), b0 = win.getBounds();
     const box = { x: Math.min(...all.map((a) => a.x)), y: Math.min(...all.map((a) => a.y)), r: Math.max(...all.map((a) => a.x + a.width)), b: Math.max(...all.map((a) => a.y + a.height)) };
     const insetX = Math.round(b0.width * 0.2), insetTop = Math.round(b0.height * 0.3);   // the window has clear space round him: he touches the edge, not the window
+    if (inBed) { vx *= 0.42; vy *= 0.42; }   // asleep in his bed he is heavy: he does not go nearly as far
+    const G = inBed ? 3800 : 2400, WALL = inBed ? 0.45 : 0.8, FLOOR = inBed ? 0.35 : 0.62;
     let x = b0.x, y = b0.y, lastHit = 0, spinDir = vx >= 0 ? 1 : -1;
     const t0 = Date.now();
     let last = t0;
@@ -140,15 +142,15 @@ function start() {
         if (!win) { stopTween(); return; }
         const now = Date.now(), dt = Math.min(0.034, (now - last) / 1000);
         last = now;
-        vy += 2400 * dt; x += vx * dt; y += vy * dt;
+        vy += G * dt; x += vx * dt; y += vy * dt;
         let hit = 0;   // how hard he hit an edge this step (px/s)
-        if (x < box.x - insetX) { x = box.x - insetX; hit = Math.abs(vx); vx = Math.abs(vx) * 0.8; }
-        if (x > box.r - b0.width + insetX) { x = box.r - b0.width + insetX; hit = Math.abs(vx); vx = -Math.abs(vx) * 0.8; }
-        if (y < box.y - insetTop) { y = box.y - insetTop; hit = Math.max(hit, Math.abs(vy)); vy = Math.abs(vy) * 0.8; }
+        if (x < box.x - insetX) { x = box.x - insetX; hit = Math.abs(vx); vx = Math.abs(vx) * WALL; }
+        if (x > box.r - b0.width + insetX) { x = box.r - b0.width + insetX; hit = Math.abs(vx); vx = -Math.abs(vx) * WALL; }
+        if (y < box.y - insetTop) { y = box.y - insetTop; hit = Math.max(hit, Math.abs(vy)); vy = Math.abs(vy) * WALL; }
         const wa = screen.getDisplayNearestPoint({ x: Math.round(x + b0.width / 2), y: Math.round(y + b0.height) }).workArea;
         const floorY = wa.y + wa.height - b0.height - place.MARGIN / 2;
         let rest = false;
-        if (y >= floorY) { y = floorY; if (Math.abs(vy) > 260) { hit = Math.max(hit, Math.abs(vy)); vy = -vy * 0.62; } else { vy = 0; rest = true; } vx *= 0.85; }
+        if (y >= floorY) { y = floorY; if (Math.abs(vy) > 260) { hit = Math.max(hit, Math.abs(vy)); vy = -vy * FLOOR; } else { vy = 0; rest = true; } vx *= 0.85; }
         if (hit > 220 && now - lastHit > 90) { lastHit = now; win.webContents.send('desk:bounce', Math.min(1, hit / 2500)); }
         if (Math.abs(vx) > 60) spinDir = vx > 0 ? 1 : -1;
         if (inBed && now - lastFlight > 40) { lastFlight = now; win.webContents.send('desk:flight', vx, vy); }

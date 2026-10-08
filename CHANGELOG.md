@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 317 (9 Oct)
+- Night: rest the pointer on him and he hums a lullaby in his sleep.
+- Night: pick up his teddy, he reaches for it; put it back and he hugs it.
+- Night: a night light switch gives his room a warm glow.
+- Thrown in bed: he is much heavier and does not go nearly as far.
+
 ## Build 316 (9 Oct)
 - Thrown in bed: the bed turns to face the wall it hits, and he stays bouncing where he lands.
 
