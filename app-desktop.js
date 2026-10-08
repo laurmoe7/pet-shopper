@@ -91,7 +91,7 @@
   // pick Fumu up: hold still on him for a moment, then drag the window; letting go puts him down
   var press = null, carried = false, noClickUntil = 0;
   // while he hangs from the cursor he wiggles, and squashes and stretches with how fast it moves (the body is drawn by drawBody, never a CSS scale)
-  var carryDir = 0, carryRun = 0, carryT0 = 0, carryLast = null, carryV = { x: 0, y: 0 };
+  var carryLastFrame = 0, carryDir = 0, spinA = 0, spinW = 0, dizzy = false, dizzyOff = 0, carryRun = 0, carryT0 = 0, carryLast = null, carryV = { x: 0, y: 0 };
   function carryMove(x, y) {
     if (carryLast) { carryV.x = carryV.x * .6 + (x - carryLast.x) * .4; carryV.y = carryV.y * .6 + (y - carryLast.y) * .4; }
     carryLast = { x: x, y: y };
@@ -102,7 +102,7 @@
     carryT0 = performance.now(); carryLast = null; carryV = { x: 0, y: 0 };
     pet.classList.add('carried');   // his feet dangle and kick (styles.css)
     if (typeof toyCarry === 'function') toyCarry(true);   // he takes his toy along
-    carryDir = 0; stopLook();
+    carryDir = 0; spinA = 0; spinW = 0; dizzy = false; clearTimeout(dizzyOff); stopLook();
     if (typeof squishing !== 'undefined') squishing = true;
     var svg = pet.querySelector('.pet-svg');
     (function frame(now) {
@@ -114,7 +114,16 @@
       var dir = Math.abs(carryV.x) > 1.5 ? (carryV.x > 0 ? 1 : -1) : 0;
       if (dir !== carryDir) { carryDir = dir; if (dir) lookToward(dir); else stopLook(); }
       drawBody(1 - stretch * .75 - wob, 1 + stretch + wob, Math.sin(t * 7) * 1.5);
-      if (svg) svg.style.rotate = Math.max(-34, Math.min(34, carryV.x * 2.4)).toFixed(1) + 'deg';   // leans the way he is taken
+      // move him fast enough and he spins right round (with a little friction), and gets dizzy; slow again and he turns back upright
+      var fast = Math.hypot(carryV.x, carryV.y);
+      if (fast > 13) spinW += ((fast - 13) * 55 * (carryV.x >= 0 ? 1 : -1) - spinW) * .12; else spinW *= .985;
+      spinA += spinW * Math.min(.05, (now - (carryLastFrame || now)) / 1000);
+      if (Math.abs(spinW) < 60 && spinA !== 0) { spinA += (Math.round(spinA / 360) * 360 - spinA) * .15; if (Math.abs(spinA - Math.round(spinA / 360) * 360) < 1) { spinA = 0; spinW = 0; } }
+      carryLastFrame = now;
+      if (Math.abs(spinW) > 160 && !dizzy) { dizzy = true; clearTimeout(dizzyOff); setFace({ eyes: 'dizzy', mouth: 'wavy', arms: 'idle', x: ['sweat'] }); }
+      else if (dizzy && Math.abs(spinW) < 60 && !dizzyOff) dizzyOff = setTimeout(function () { dizzyOff = 0; if (!dizzy) return; dizzy = false; if (carried) { settle(); say('so dizzy…', 1400); } }, 1600);
+      else if (dizzy && Math.abs(spinW) >= 60) { clearTimeout(dizzyOff); dizzyOff = 0; }
+      if (svg) svg.style.rotate = (Math.max(-55, Math.min(55, carryV.x * 4.5)) * (spinA ? 0 : 1) + spinA).toFixed(1) + 'deg';   // leans the way he is taken
       if (typeof toyCarried !== 'undefined' && toyCarried) {   // the toy is in his arms: it sways and bobs with him
         toyEl.style.translate = (walkX + toyHoldX - carryV.x * .7 * .5 + Math.sin(t * 9) * 3).toFixed(1) + 'px 0';
         toyBall.style.transform = 'translateY(' + (-toyHoldY + Math.sin(t * 13) * 2).toFixed(1) + 'px)';
@@ -124,7 +133,9 @@
     })(performance.now());
   }
   function stopCarry() {
-    carryRun = 0;
+    carryRun = 0; carryLastFrame = 0; spinA = 0; spinW = 0;
+    clearTimeout(dizzyOff); dizzyOff = 0;
+    if (dizzy) setTimeout(function () { dizzy = false; if (!carried) { settle(); say('so dizzy…', 1400); } }, 1300);   // still seeing stars for a moment after being put down
     pet.classList.remove('carried');
     stopLook();
     if (typeof toyCarry === 'function') toyCarry(false);   // he puts the toy down
@@ -271,12 +282,13 @@
   };
   /** The toy came down far from him: the window runs along the floor towards it. @param {number} dx Page px. @returns {Promise<number>} Page px really moved. */
   var homeX = null;     // where his window stood when the toy was picked up (screen px)
+  var runBusy = null;   // the window run that is going on now (a new run would cut it short and lose the distance it had covered)
   var fieldMoved = 0;   // how far (screen px) his window ran after the toy, so he can run back
   /** Runs his window along the floor by dx page px over ms; keeps the toy's screen-wide field in step. @returns {Promise<number>} Page px really moved. */
   function runWindow(dx, ms) {
     var z = fieldZoom || 1;
     pet.classList.add('walking'); lookToward(dx);
-    return D.walk(dx * z, ms).then(function (went) {
+    return (runBusy = D.walk(dx * z, ms)).then(function (went) {
       pet.classList.remove('walking'); stopLook();
       went = went || 0;
       fieldMoved += went;
@@ -288,19 +300,28 @@
   window.deskToyFollow = function (dx) { return runWindow(dx, 450); };
   /** After the game: he runs back to where he stood when the toy was thrown. @returns {Promise<void>} Resolves when he is there. */
   window.deskToyReturn = function () {
-    var home = homeX, moved = fieldMoved;
-    homeX = null; fieldMoved = 0;
-    if (!D.walk || (home === null && !moved)) return Promise.resolve();
+    var home = homeX, moved0 = fieldMoved;
+    homeX = null;
+    if (!D.walk || (home === null && !moved0)) return Promise.resolve();
     var wasRoaming = roaming;
-    // the exact spot he started from (the shell's own count of his moves misses a run that was cut short by the next one)
-    return (home !== null && D.where ? D.where().then(function (x) { return x === null ? -moved : home - x; }) : Promise.resolve(-moved)).then(function (back) {
-      if (Math.abs(back) < 4) return;
+    // wait for a run that is still going, so it is not cut short; then count again
+    return (runBusy ? runBusy.then(function () {}, function () {}) : Promise.resolve()).then(function () {
+      var moved = fieldMoved; fieldMoved = 0;
+      // the exact spot he started from (the shell's own count of his moves misses a run that was cut short)
+      return home !== null && D.where ? D.where().then(function (x) { return x === null ? -moved : home - x; }) : -moved;
+    }).then(function (back) {
       roaming = true;
-      pet.classList.add('walking'); lookToward(back);
-      return D.walk(back, Math.min(3500, 600 + Math.abs(back) * 2)).then(function () {}, function () {}).then(function () {
-        pet.classList.remove('walking'); stopLook(); roaming = wasRoaming;
-      });
-    }).catch(function () { roaming = wasRoaming; });
+      pet.classList.add('walking');
+      function go(dx, tries) {
+        if (Math.abs(dx) < 4) return Promise.resolve();
+        lookToward(dx);
+        return D.walk(dx, Math.min(3500, 600 + Math.abs(dx) * 2)).then(function () {}, function () {}).then(function () {
+          // look again where he ended up, and go the rest of the way (once) if he fell short
+          if (tries > 0 && home !== null && D.where) return D.where().then(function (x) { return x === null ? 0 : go(home - x, tries - 1); });
+        });
+      }
+      return go(back, 1).then(function () { pet.classList.remove('walking'); stopLook(); roaming = wasRoaming; });
+    }).catch(function () { pet.classList.remove('walking'); roaming = wasRoaming; });
   };
 
   /** A card (so it shows even with speech bubbles off) saying an update is ready, with Restart and a cross for later. */

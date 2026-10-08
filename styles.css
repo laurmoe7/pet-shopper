@@ -328,6 +328,7 @@ button { font: inherit; color: inherit; }
 .pet[data-eyes="closed"] [data-eyes="closed"],
 .pet[data-eyes="happy"] [data-eyes="happy"],
 .pet[data-eyes="sparkle"] [data-eyes="sparkle"],
+.pet[data-eyes="dizzy"] [data-eyes="dizzy"],
 .pet[data-eyes="squint"] [data-eyes="squint"],
 .pet[data-eyes="teary"] [data-eyes="teary"],
 .pet[data-eyes="confused"] [data-eyes="confused"],
@@ -2935,3 +2936,8 @@ html.desk-moving :is(.dream, .wish), .stage:has(.pet.walking) :is(.dream, .wish)
 html[data-list="todo"] #pet.wanding .arm-r { transform-box: view-box; transform-origin: 133px 110.2px; animation: wand-flick 1.8s ease-in-out both; }
 html:not([data-list="todo"]) #pet.wanding .arm-l { transform-box: view-box; transform-origin: 27px 110.2px; animation: wand-flick-l 1.8s ease-in-out both; }
 @media (prefers-reduced-motion: reduce) { html[data-list="todo"] #pet.wanding .arm-r { animation: none; transform: rotate(-128deg); } html:not([data-list="todo"]) #pet.wanding .arm-l { animation: none; transform: rotate(128deg); } .wand .wd-star { animation: none; } }
+
+/* spiral eyes: dizzy (carried and spun round, app-desktop.js) */
+.dizzy-eyes .dz { fill: none; stroke: var(--pet-ink); stroke-width: 1.5; stroke-linecap: round; }
+@media (prefers-reduced-motion: no-preference) { .dizzy-eyes .dz { animation: dizzy-turn .5s linear infinite; transform-box: fill-box; transform-origin: center; } }
+@keyframes dizzy-turn { to { rotate: 360deg; } }

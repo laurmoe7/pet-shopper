@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 311 (9 Oct)
+- Carried: he tilts even more, and spins round if you move him fast, with a dizzy face.
+- Back to where he started after the toy: no longer cut short by a run still going.
+
 ## Build 310 (9 Oct)
 - He comments on what you're doing more often, at every setting.
 - He also remarks now and then while you stay in the same program.
