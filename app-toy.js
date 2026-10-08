@@ -64,6 +64,25 @@ function toyHold(y, x, ms) {
   }
   toyBall.style.transform = to;
 }
+var toyCarried = false;
+/** @returns {boolean} Whether the toy is out and free to be picked up (not put away, hidden, in a game or already held). */
+function toyFree() {
+  return !playing && !held && !toyField && getComputedStyle(toyEl).display !== 'none' && !stage.classList.contains('bedtime');
+}
+/** Picks the toy up in his hands while he is carried (the desktop app), or drops it where he is put down. */
+function toyCarry(on) {
+  if (on) {
+    if (!toyFree()) return;
+    toyCarried = true;
+    toyHold(26, 30 * (parseFloat(getComputedStyle(stage).getPropertyValue('--pet-size')) || 1) + 10, 220);
+  } else if (toyCarried) {
+    toyCarried = false;
+    var from = toyX;
+    toyX = from;   // it falls from his hands onto the floor beside him
+    toyBall.style.transform = '';
+    toyBounce(toyHome(), 600, 10, 26);
+  }
+}
 /** @returns {number} How far up the pet's mouth is from the floor, in px. */
 function mouthHeight() { return Math.round(pet.offsetHeight * 0.285 - 9); }
 

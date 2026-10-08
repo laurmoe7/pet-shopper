@@ -91,7 +91,7 @@
   // pick Fumu up: hold still on him for a moment, then drag the window; letting go puts him down
   var press = null, carried = false, noClickUntil = 0;
   // while he hangs from the cursor he wiggles, and squashes and stretches with how fast it moves (the body is drawn by drawBody, never a CSS scale)
-  var carryRun = 0, carryT0 = 0, carryLast = null, carryV = { x: 0, y: 0 };
+  var carryDir = 0, carryRun = 0, carryT0 = 0, carryLast = null, carryV = { x: 0, y: 0 };
   function carryMove(x, y) {
     if (carryLast) { carryV.x = carryV.x * .6 + (x - carryLast.x) * .4; carryV.y = carryV.y * .6 + (y - carryLast.y) * .4; }
     carryLast = { x: x, y: y };
@@ -101,6 +101,8 @@
     var run = carryRun = (typeof squishRun !== 'undefined' ? ++squishRun : carryRun + 1);
     carryT0 = performance.now(); carryLast = null; carryV = { x: 0, y: 0 };
     pet.classList.add('carried');   // his feet dangle and kick (styles.css)
+    if (typeof toyCarry === 'function') toyCarry(true);   // he takes his toy along
+    carryDir = 0; stopLook();
     if (typeof squishing !== 'undefined') squishing = true;
     var svg = pet.querySelector('.pet-svg');
     (function frame(now) {
@@ -108,6 +110,9 @@
       carryV.x *= .92; carryV.y *= .92;   // it fades when the cursor stops
       var t = (now - carryT0) / 1000, speed = Math.min(30, Math.hypot(carryV.x, carryV.y));
       var wob = Math.sin(t * 13) * (.07 + speed * .005), stretch = Math.min(.3, speed * .013);
+      // he looks the way he is being taken
+      var dir = Math.abs(carryV.x) > 1.5 ? (carryV.x > 0 ? 1 : -1) : 0;
+      if (dir !== carryDir) { carryDir = dir; if (dir) lookToward(dir); else stopLook(); }
       drawBody(1 - stretch * .75 - wob, 1 + stretch + wob, Math.sin(t * 7) * 1.5);
       if (svg) svg.style.translate = Math.max(-14, Math.min(14, -carryV.x * .7 + Math.sin(t * 9) * 3)).toFixed(1) + 'px 0';
       requestAnimationFrame(frame);
@@ -116,6 +121,8 @@
   function stopCarry() {
     carryRun = 0;
     pet.classList.remove('carried');
+    stopLook();
+    if (typeof toyCarry === 'function') toyCarry(false);   // he puts the toy down
     var svg = pet.querySelector('.pet-svg'); if (svg) svg.style.translate = '';
     if (typeof squishRun !== 'undefined') squishRun++;
     if (typeof squishing !== 'undefined') squishing = false;
@@ -310,6 +317,7 @@
     (function go() {
       if (!busy && bubble.hidden && !document.querySelector('.inbox-card')) {
         say(pick(['a new version is ready! restart me when you like', 'I have an update! ♡', 'new me incoming~']), 6500, true);
+        speechLockUntil = Date.now() + 6500;   // his chatter waits until the notice is read
         pulse('hopsmall', 450);
         showUpdateCard();
       } else if (++tries < 30) setTimeout(go, 2000);
