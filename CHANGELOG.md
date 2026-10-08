@@ -2,8 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 286 (9 Oct)
+- Desktop: Ctrl+Alt+S sends copied text or a link, only while pointing at him (also in right-click).
+- Send sheet: last 5 received links and notes, taller sheet.
+
 ## Build 285 (8 Oct)
-- Desktop: Ctrl+Alt+S sends the copied link to your other device (small or whole app, also in right-click).
+- Desktop: Ctrl+Alt+S sends the copied link to your other device.
 
 ## Build 284 (8 Oct)
 - Desktop: long speech bubbles shrink to fit the small window.

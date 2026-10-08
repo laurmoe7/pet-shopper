@@ -195,7 +195,7 @@ function start() {
       ...(updateReady ? [{ label: 'Restart to update Fumufumu', click: () => autoUpdater.quitAndInstall() }, { type: 'separator' }] : []),
       mode === 'list' ? { label: 'Back to ' + pet, accelerator: accel('swapSize'), registerAccelerator: false, click: () => applyMode('pet') } : { label: 'Open my list', accelerator: accel('swapSize'), registerAccelerator: false, click: () => { showFumu(); applyMode('list'); } },
       { label: 'Add an item…', accelerator: accel('quickAdd'), registerAccelerator: false, click: () => quickAdd() },
-      { label: 'Send copied link to my other device', accelerator: accel('sendLink'), registerAccelerator: false, click: () => sendLink() },
+      { label: 'Send copied text to my other device', accelerator: accel('sendCopied'), registerAccelerator: false, click: () => sendCopied() },
       { label: 'Shopping list / to-do list', accelerator: accel('swapList'), registerAccelerator: false, click: () => swapList() },
       { label: visible ? 'Hide ' + pet : 'Show ' + pet, click: () => (visible ? hideFumu() : showFumu()) },
       { type: 'separator' },
@@ -230,18 +230,20 @@ function start() {
   function toCorner(which) { if (win && mode === 'pet') { leavePerch(); stopTween(); peekRest = null; win.setBounds(place.corner(win.getBounds(), here(), which)); restHere(); } }
   // shortcuts that work from any program (which keys is chosen in the settings window); the settings one only while the pointer is over Fumu
   const registered = {};
-  let hoverKeyOn = null, solidNow = false;
+  const hoverKeyOn = {};   // id -> accelerator, for the shortcuts held right now
+  let solidNow = false;
   function toggleFull() { if (!win) return; if (!win.isVisible()) showFumu(); applyMode(mode === 'list' ? 'pet' : 'list'); }
   function swapList() { if (!win) return; if (!win.isVisible()) showFumu(); win.webContents.send('desk:swapList'); }
   // a small box by Fumu to add an item without opening the app: the page shows it and asks for the keyboard while it is open
   function quickAdd() { if (!win) return; if (!win.isVisible()) showFumu(); win.webContents.send('desk:quickAdd'); if (mode === 'list') win.focus(); }
-  // the link on the clipboard goes to the other device at once: the page checks it is a link and does the sending
-  function sendLink() { if (!win) return; if (!win.isVisible()) showFumu(); win.webContents.send('desk:sendLink', String(clipboard.readText() || '').slice(0, 4100)); }
+  // the text on the clipboard (a link or a note) goes to the other device at once: the page does the sending
+  function sendCopied() { if (!win) return; if (!win.isVisible()) showFumu(); win.webContents.send('desk:sendCopied', String(clipboard.readText() || '').slice(0, 4100)); }
   ipcMain.on('desk:typing', (_e, yes) => { if (win && yes) win.focus(); });
-  const HANDLERS = { swapSize: toggleFull, swapList, quickAdd, sendLink };
+  const HANDLERS = { swapSize: toggleFull, swapList, quickAdd };
+  const HOVER_HANDLERS = { options: () => panel.toggle(), sendCopied };   // held only while the pointer is over him
   function setupKeys() {
     Object.keys(registered).forEach((k) => { if (registered[k]) globalShortcut.unregister(registered[k]); delete registered[k]; });
-    if (hoverKeyOn) { globalShortcut.unregister(hoverKeyOn); hoverKeyOn = null; }
+    Object.keys(hoverKeyOn).forEach((id) => { globalShortcut.unregister(hoverKeyOn[id]); delete hoverKeyOn[id]; });
     if (!prefs.hotkeys) { refreshMenus(); panel.push(); return; }
     Object.keys(HANDLERS).forEach((id) => {
       const accel = prefs.keys[id];
@@ -258,9 +260,12 @@ function start() {
     return inside && (mode === 'list' || solidNow);
   }
   function updateHoverKey() {
-    const accel = prefs.keys.options, want = !!(accel && prefs.hotkeys && hoverOver());
-    if (want && !hoverKeyOn) { if (globalShortcut.register(accel, () => panel.toggle())) hoverKeyOn = accel; }
-    else if (!want && hoverKeyOn) { globalShortcut.unregister(hoverKeyOn); hoverKeyOn = null; }
+    const over = !!(prefs.hotkeys && hoverOver());
+    Object.keys(HOVER_HANDLERS).forEach((id) => {
+      const accel = prefs.keys[id], want = !!(accel && over);
+      if (want && !hoverKeyOn[id]) { if (globalShortcut.register(accel, HOVER_HANDLERS[id])) hoverKeyOn[id] = accel; }
+      else if (!want && hoverKeyOn[id]) { globalShortcut.unregister(hoverKeyOn[id]); delete hoverKeyOn[id]; }
+    });
   }
   // a new shortcut for one of them: checks it is usable and not taken, then keeps it
   function rebind(id, accel) {
@@ -484,7 +489,7 @@ function start() {
       mode, bounds: b, zoom: zoom(), screens: screen.getAllDisplays().map((d) => d.workArea.width + 'x' + d.workArea.height + ' @' + d.scaleFactor),
       onPerch: perch ? perch.id : null, awareness: prefs.awareness, program: programNow, lastUnknownProgram: lastUnknown, taughtGames: Object.keys(prefs.myGames).length, windowsSeen: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch') ? windows.list().length : null, perchesNow: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch') ? perchesNow().length : null,
       idleSeconds: powerMonitor.getSystemIdleTime(), idle, displaced, pointerOverFumu: solidNow,
-      shortcutsHeld: Object.assign({}, registered, hoverKeyOn ? { options: hoverKeyOn } : {}), settingsFolder: app.getPath('userData')
+      shortcutsHeld: Object.assign({}, registered, hoverKeyOn), settingsFolder: app.getPath('userData')
     };
   }
   function action(name, arg) {

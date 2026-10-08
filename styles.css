@@ -2838,7 +2838,13 @@ html.desktop-pet .dream-dot.d1 { left: -4px; top: 44px; }
 html.desktop-pet .dream-dot.d2 { left: -12px; top: 54px; }
 
 /* ---------- Send to my PC (app-send.js) ---------- */
-.send-sheet textarea { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1.5px solid var(--outline); border-radius: 12px; background: var(--surface); color: var(--ink); font: inherit; font-size: .95rem; resize: none; margin: 8px 0 2px; }
+.send-recent-head { margin: 12px 0 4px; font-size: .95rem; font-weight: 500; }
+.send-recent { display: flex; flex-direction: column; gap: 6px; flex: none; }
+.send-recent-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1.5px solid var(--outline); border-radius: 12px; background: var(--surface); }
+.send-recent-icon { width: 22px; height: 22px; flex: none; }
+.send-recent-text { flex: 1; min-width: 0; font-size: .88rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; word-break: break-word; }
+.send-recent-row .pill-btn { flex: none; padding: 4px 10px; font-size: .8rem; }
+.send-sheet textarea { flex: none; min-height: 64px; width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1.5px solid var(--outline); border-radius: 12px; background: var(--surface); color: var(--ink); font: inherit; font-size: .95rem; resize: none; margin: 8px 0 2px; }
 /* what arrived, on a card by Fumu: a picture, what it is, and Open / Copy / done */
 .inbox-card, .remind-card { position: absolute; left: 8px; right: 8px; top: 4px; z-index: 8; display: grid; grid-template-columns: 30px 1fr; gap: 2px 8px; align-items: center; padding: 6px 10px; border: 1.8px solid var(--outline); border-radius: 14px; background: var(--surface); color: var(--ink); box-shadow: 0 2px 0 var(--shadow); animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); }
 .inbox-icon { width: 28px; height: 28px; grid-row: 1 / span 2; }

@@ -15,17 +15,18 @@ function openSend(prefill) {
   sendText.value = prefill || '';
   sendSay(account.code ? '' : 'Turn on Backup & sync first (Options), here and on your other device, so both have the same code.');
   sendReceive.checked = receivingHere();
+  renderRecent();
   openDialog(sendSheet);
 }
 /**
- * Sends what is in the box to the other device. With `quickText` (the desktop shortcut) it sends that link at once, without the sheet,
+ * Sends what is in the box to the other device. With `quickText` (the desktop shortcut) it sends that text at once, without the sheet,
  * and says what went wrong in a speech bubble.
  */
 function sendToOther(quickText) {
   var quick = typeof quickText === 'string';
   var m = Send.classify(quick ? quickText : sendText.value);
   function fail(t) { if (quick) say(t, 3200, true); else sendSay(t); }
-  if (!m || (quick && m.kind !== 'link')) { fail(quick ? 'Copy a link first, then try again.' : 'Type or paste something to send.'); return; }
+  if (!m) { fail(quick ? 'Copy a link or some text first, then try again.' : 'Type or paste something to send.'); return; }
   if (!account.code) { fail('Turn on Backup & sync first, here and on your other device.'); return; }
   if (quick) { if (quickSending) return; quickSending = true; } else sendGo.disabled = true;
   if (!quick) sendSay('Sending…');
@@ -86,6 +87,52 @@ function receivingHere() {
 })();
 
 // ---------- on the PC: what arrives ----------
+
+// ---------- the last few things that arrived (kept on this device only, never synced) ----------
+var RECENT_KEY = 'nibble.received', RECENT_MAX = 5;
+function recentList() {
+  try {
+    var a = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+    return Array.isArray(a) ? a.filter(function (m) { return m && typeof m.text === 'string' && (m.kind === 'link' || m.kind === 'text'); }).slice(0, RECENT_MAX) : [];
+  } catch (e) { return []; }
+}
+/** Keeps a received link or note at the top of the list (once: the same message id is not added twice). */
+function rememberReceived(msg) {
+  var list = recentList();
+  if (msg.id && list.some(function (m) { return m.id === msg.id; })) return;
+  list.unshift({ id: msg.id || '', kind: msg.kind === 'link' ? 'link' : 'text', text: String(msg.text).slice(0, 4000), at: Date.now() });
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, RECENT_MAX))); } catch (e) { /* storage blocked */ }
+}
+/** Fills the "Received lately" list in the send sheet. */
+function renderRecent() {
+  var box = $('sendRecent'), list = recentList();
+  box.replaceChildren();
+  $('sendRecentHead').hidden = !list.length;
+  list.forEach(function (m) {
+    var row = document.createElement('div'), pv = Send.preview(m), txt = document.createElement('span'), img = emojiImg(pv.icon, '');
+    row.className = 'send-recent-row';
+    img.className = 'send-recent-icon';
+    txt.className = 'send-recent-text';
+    txt.textContent = m.kind === 'link' ? (pv.title || m.text) : m.text;
+    txt.title = m.text;
+    row.append(img, txt);
+    if (m.kind === 'link' && Send.safeToOpen(m.text)) {
+      var open = document.createElement('button');
+      open.type = 'button'; open.className = 'pill-btn small'; open.textContent = 'Open';
+      open.addEventListener('click', function () { sound('tap'); if (deskShell && deskShell.open) deskShell.open(m.text); else window.open(m.text, '_blank', 'noopener'); });
+      row.appendChild(open);
+    }
+    var copy = document.createElement('button');
+    copy.type = 'button'; copy.className = 'pill-btn small'; copy.textContent = 'Copy';
+    copy.addEventListener('click', function () {
+      sound('tap');
+      if (deskShell && deskShell.copy) deskShell.copy(m.text); else if (navigator.clipboard) navigator.clipboard.writeText(m.text).catch(function () { /* blocked */ });
+      copy.textContent = 'Copied ✓';
+    });
+    row.appendChild(copy);
+    box.appendChild(row);
+  });
+}
 
 var inboxCard = null;
 /** The little card: what it is, and Open / Copy / done. Only one at a time; the next waits on the server. */
@@ -159,6 +206,7 @@ function whenCanEat(fn, maxMs) {
 /** Fumu eats the thing that arrived (it flies in from above), then the card shows. */
 function receiveMessage(msg, more) {
   var link = msg.kind === 'link';
+  rememberReceived(msg);
   inboxCard = document.createElement('div');   // holds the place from the start, so a second message does not begin
   // a short wait first (long enough to have watched it leave the other device), then he eats it as soon as he is free
   setTimeout(function () {
