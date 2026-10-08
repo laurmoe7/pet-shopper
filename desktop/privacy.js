@@ -14,7 +14,7 @@ var LEVELS = {
   }
 };
 /** Said under both levels. */
-var ALWAYS = 'He never reads window titles, tabs, page text or your screen. Nothing leaves this PC.';
+var ALWAYS = 'He never reads window titles, tabs, page text or your screen.';
 
 /** What each thing needs: the lowest level that allows it. */
 var NEEDS = { idle: 1, perch: 2, program: 2 };

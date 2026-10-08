@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 283 (8 Oct)
+- Desktop: no shortcuts note in the whole app's Options.
+- Settings: thought bubbles switch for small Fumu.
+- Settings: game / full-screen chat greyed out on More privacy.
+- Settings: shorter privacy text, "never" underlined, matching scroll bar.
+
 ## Build 282 (8 Oct)
 - Monkey's foot bottoms are face-coloured.
 

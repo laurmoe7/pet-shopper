@@ -123,25 +123,13 @@
 
   document.addEventListener('contextmenu', function (e) { e.preventDefault(); D.menu(); });
 
-  // a note on the shortcuts, in Options, only here in the PC app (the phone has none of them)
-  (function () {
-    var row = document.createElement('div');
-    row.className = 'option';
-    row.innerHTML = '<span class="option-title">Shortcuts on this PC</span>';
-    var t = document.createElement('span');
-    t.className = 'option-text desk-keys';
-    t.innerHTML = 'Right-click <span class="pet-name">Fumu</span> and choose More settings to see and change the keys.';
-    row.appendChild(t);
-    optionsList.insertBefore(row, optionsList.children[2] || null);
-  })();
-
   // his name (the one you gave him) is used in the bar, the shortcut note, the right-click menu and the settings window: the page's own
   // `.pet-name` spans follow it by themselves (applyPet); the shell is told, and the button labels that are not text are set here
   (function () {
     var shown = $('brandName');   // the title of the list: applyPet puts his name there whenever it changes
     function nameChanged() {
       var name = typeof petName === 'function' ? petName() : 'Fumu';
-      document.querySelectorAll('#deskBar .pet-name, .desk-keys .pet-name').forEach(function (el) { el.textContent = name; });
+      document.querySelectorAll('#deskBar .pet-name').forEach(function (el) { el.textContent = name; });
       $('deskHide').setAttribute('aria-label', 'Hide ' + name);
       if (D.setPetName) D.setPetName(name);
     }
@@ -150,13 +138,14 @@
   })();
 
   // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------
-  var deskPrefs = { roam: true, remind: true, idle: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, awareness: 2, chatNormal: 'normal', chatFull: 'normal', standStill: false, standStillFull: true, talkNormal: 'normal', talkFull: 'rare' };
+  var deskPrefs = { roam: true, remind: true, idle: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, awareness: 2, chatNormal: 'normal', chatFull: 'normal', standStill: false, standStillFull: true, talkNormal: 'normal', talkFull: 'rare' };
   /** Awareness: 1 = more privacy (idle and time only), 2 = normal. Anything he says about what you are doing, or knows about your windows and programs, checks this first. */
   window.deskAware = function (level) { return (deskPrefs.awareness === 1 ? 1 : 2) >= level; };
   /** The small window's look choices from the settings window: no toy, no cushion (classes on <html>, CSS at the end of styles.css). */
   function applyLook() {
     root.classList.toggle('desk-notoy', !!deskPrefs.hideToy);
     root.classList.toggle('desk-nocushion', !!deskPrefs.hideCushion);
+    root.classList.toggle('desk-noclouds', deskPrefs.clouds === false);
     root.classList.toggle('desk-nobubbles', deskPrefs.bubbles === false);   // speech bubbles in the small window only; cards (reminders, links) are separate
     lastSolidReset();
   }

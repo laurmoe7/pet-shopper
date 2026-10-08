@@ -45,7 +45,10 @@
     [1, 2].forEach(function (n) { var b = button(pseg, lv[n].title, function () { P.set('awareness', n).then(take); }); if (cur === n) b.className = 'on'; });
     pickRow.appendChild(pseg); priv.appendChild(pickRow);
     var what = el('div', 'row note'), whatText = el('span', 'text', lv[cur].text);
-    whatText.appendChild(el('small', '', S.privacy.always));
+    var always = el('small', ''), ai = S.privacy.always.indexOf('never');
+    if (ai < 0) always.textContent = S.privacy.always;
+    else always.append(S.privacy.always.slice(0, ai), el('u', '', 'never'), S.privacy.always.slice(ai + 5));
+    whatText.appendChild(always);
     what.appendChild(whatText); priv.appendChild(what);
 
     if (cur === 2) {
@@ -73,6 +76,7 @@
     [['small', 'Small'], ['normal', 'Normal'], ['large', 'Large']].forEach(function (o) { var b = button(seg, o[1], function () { P.set('size', o[0]).then(take); }); if (S.prefs.size === o[0]) b.className = 'on'; });
     sizeRow.appendChild(seg); look.appendChild(sizeRow);
     toggle(look, 'Speech bubbles', 'bubbles', 'In the small window. Cards still show.');
+    toggle(look, 'Thought bubbles', 'clouds', 'Daydreams and wishes.');
     toggle(look, 'Hide his toy', 'hideToy');
     toggle(look, 'Hide the cushion under him', 'hideCushion', 'His bed still shows at bedtime.');
 
@@ -85,7 +89,9 @@
       row.append(text, seg3); does.appendChild(row);
     }
     talkRow('How much he chats on his own', 'Reminders and replies are never held back.', 'talkNormal');
-    talkRow('…in a game or full-screen', 'Needs Normal awareness.', 'talkFull');
+    if (cur === 1) {
+      var tfRow = el('div', 'row off'), tfText = el('span', 'text', '…in a game or full-screen'); tfText.appendChild(el('small', '', 'Needs Normal awareness.')); tfRow.appendChild(tfText); does.appendChild(tfRow);
+    } else talkRow('…in a game or full-screen', 'Needs Normal awareness.', 'talkFull');
     toggle(does, 'Wanders, peeks and naps', 'roam');
     toggle(does, 'Naps when I am away', 'idle', 'After 4 idle minutes or a locked screen.');
     if (S.canPerch && cur === 1) {

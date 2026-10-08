@@ -2855,6 +2855,7 @@ html.desktop-pet .stage .inbox-card { top: auto; bottom: calc(100% + 1px); }
 html.desktop-pet.desk-notoy .toy { display: none !important; }
 html.desktop-pet.desk-nocushion .stage:not(.bedtime) .cushion { display: none; }
 html.desktop-pet.desk-nobubbles .bubble { display: none !important; }
+html.desktop-pet.desk-noclouds :is(.dream, .wish) { display: none !important; }
 /* the quick-add box by Fumu (the shell's Ctrl+Alt+A): a field and an Add button */
 .quick-card { grid-template-columns: 1fr auto auto; gap: 6px; }
 .quick-card:has(.quick-more) { grid-template-columns: 1fr auto auto auto; }
@@ -2879,7 +2880,6 @@ html.desktop-pet .quick-card input { user-select: text; -webkit-user-select: tex
 /* the Background picker in the Room sheet, under the furniture */
 .room-bg { margin-top: 12px; }
 .room-bg-title { display: block; }
-.desk-keys b { font-weight: 800; white-space: nowrap; }
 
 /* thought clouds hide while he moves about quickly (carried, strolling, gliding along the screen) */
 html.desk-moving :is(.dream, .wish), .stage:has(.pet.walking) :is(.dream, .wish) { visibility: hidden; }

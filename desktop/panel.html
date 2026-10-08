@@ -46,6 +46,12 @@
   .pad button { padding: 2px 0; }
   .pad .gap { visibility: hidden; }
   pre { margin: 6px 0 12px; padding: 10px; background: var(--surface-2); border: 1.5px dashed var(--outline); border-radius: 10px; font: .75rem/1.4 ui-monospace, Consolas, monospace; white-space: pre-wrap; word-break: break-all; }
+  /* scroll bar in the look of the rest: a slim cream track and a pink thumb with the brown outline */
+  ::-webkit-scrollbar { width: 14px; }
+  ::-webkit-scrollbar-track { background: var(--surface-2); border-left: 1.8px solid var(--outline); }
+  ::-webkit-scrollbar-thumb { background: var(--accent); border: 1.8px solid var(--outline); border-radius: 999px; box-shadow: inset 0 -2px 0 var(--shadow); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); filter: brightness(1.06); }
+  u { text-decoration-thickness: 1.5px; text-underline-offset: 2px; }
   details > summary { cursor: pointer; padding: 6px 0; font-weight: 700; list-style: none; }
   details > summary::before { content: "▸ "; }
   details[open] > summary::before { content: "▾ "; }
