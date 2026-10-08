@@ -33,10 +33,18 @@
     what.appendChild(whatText); priv.appendChild(what);
 
     if (cur === 2) {
-      toggle(priv, 'Comments on what I am doing', 'chat', 'Cheers when a game starts, says good game after, and a remark now and then about some apps. He is always quiet while you play or are on a call.');
+      // how often he remarks on what you are doing (nothing else he says is affected): one choice for the usual case, one for games and full-screen
+      function chatRow(label, hint, pref) {
+        var row = el('div', 'row'), text = el('span', 'text', label); text.appendChild(el('small', '', hint));
+        var seg2 = el('span', 'seg');
+        S.privacy.chatLevels.forEach(function (l) { var b = button(seg2, l.label, function () { P.set(pref, l.id).then(take); }); if (S.prefs[pref] === l.id) b.className = 'on'; });
+        row.append(text, seg2); priv.appendChild(row);
+      }
+      chatRow('Remarks about what I am doing', 'Now and then he comments on the program you are using ("are you drawing?"). "Never" stops them; nothing else he says changes.', 'chatNormal');
+      chatRow('…while a game or something full-screen is in front', 'A cheer when a game starts, a line now and then while you play, and "good game" after. "Never" stops all of those.', 'chatFull');
       var seeRow = el('div', 'row note'), seeText = el('span', 'text', 'Right now he sees: …'); seeText.id = 'progHint';
       seeRow.appendChild(seeText); priv.appendChild(seeRow);
-      var teach = el('div', 'row note'), teachText = el('span', 'text', 'Teach him a game'), tsmall = el('small', '', 'Switch to the game, come back here, then type its name. He learns the last program he could not name.');
+      var teach = el('div', 'row note'), teachText = el('span', 'text', 'Teach him a game'), tsmall = el('small', '', 'Switch to the game, come back here, then type its name (for the WoW Forever beta: "WoW Forever beta"). He learns the last program he could not name.');
       tsmall.id = 'teachHint'; teachText.appendChild(tsmall);
       var tin = el('input'); tin.type = 'text'; tin.maxLength = 40; tin.placeholder = 'Name of the game'; tin.id = 'teachName'; tin.style.cssText = 'font:inherit;font-size:.85rem;padding:3px 8px;border:1.8px solid var(--outline);border-radius:10px;background:var(--surface);color:var(--ink);width:150px';
       var tgo = button(teach, 'Teach him', function () { if (!tin.value.trim()) return; P.action('teachGame', tin.value.trim()).then(function (ok) { document.getElementById('teachHint').textContent = ok ? 'Learned. Next time he will cheer for it.' : 'He has not seen an unknown program yet.'; tin.value = ''; }); });
@@ -61,6 +69,8 @@
       if (S.prefs.perch) { var hint = el('small', '', 'Looking for windows…'); hint.id = 'perchHint'; does.lastChild.querySelector('.text').appendChild(hint); }
     }
     toggle(does, 'Reminds me of tasks', 'remind', 'A card by him when a task\'s time comes.');
+    toggle(does, 'Stands in place', 'standStill', 'No wandering, peeking or hopping onto windows. He can still nap and talk.');
+    toggle(does, 'Stands in place while a game or something full-screen is in front', 'standStillFull', 'Needs Normal awareness: he has to know that a game or a full-screen program is in front.', { disabled: cur === 1 });
 
     var win = section('His window');
     toggle(win, 'Always on top', 'onTop');

@@ -27,11 +27,14 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, displaced = false, perch = null, perchTimer = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, chat: true, myGames: {}, keys: null };
+  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', standStill: false, standStillFull: true, myGames: {}, keys: null };
   const DEFAULTS = Object.assign({}, prefs);
   try { prefs = Object.assign(prefs, JSON.parse(fs.readFileSync(prefsFile(), 'utf8'))); } catch (e) { /* first run */ }
   prefs.keys = keys.clean(prefs.keys);
   prefs.awareness = privacy.clean(prefs.awareness);
+  if (prefs.chat === false) { prefs.chatNormal = 'off'; prefs.chatFull = 'off'; }   // the old on/off switch for his comments
+  delete prefs.chat;
+  prefs.chatNormal = privacy.cleanChat(prefs.chatNormal, 'normal'); prefs.chatFull = privacy.cleanChat(prefs.chatFull, 'normal');
   if (!prefs.myGames || typeof prefs.myGames !== 'object' || Array.isArray(prefs.myGames)) prefs.myGames = {};
   const savePrefs = () => { try { fs.writeFileSync(prefsFile(), JSON.stringify(prefs)); } catch (e) { /* ignore */ } };
   const areas = () => screen.getAllDisplays().map((d) => d.workArea);
@@ -47,7 +50,7 @@ function start() {
     if (prefs.onTop && prefs.aboveFull) win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true });
     else win.setVisibleOnAllWorkspaces(false);
   };
-  const publicPrefs = () => ({ roam: prefs.roam, remind: prefs.remind, size: prefs.size, idle: prefs.idle, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chat: prefs.chat, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion });
+  const publicPrefs = () => ({ roam: prefs.roam, remind: prefs.remind, size: prefs.size, idle: prefs.idle, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, standStill: prefs.standStill, standStillFull: prefs.standStillFull, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion });
   const sendPrefs = () => { if (win) win.webContents.send('desk:prefs', publicPrefs()); panel.push(); };
   // moves the window smoothly (walking, peeking round the screen edge); anything that takes hold of it stops the move
   let tween = null;
@@ -147,13 +150,17 @@ function start() {
   function hideFumu() { if (win) win.hide(); refreshMenus(); }
 
   // one place that changes a setting, for the right-click menu and the settings window alike
-  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'roam', 'remind', 'idle', 'perch', 'hideToy', 'hideCushion', 'startWithWindows', 'chat'];
+  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'roam', 'remind', 'idle', 'perch', 'hideToy', 'hideCushion', 'startWithWindows', 'standStill', 'standStillFull'];
   function setPref(key, value) {
     if (key === 'awareness') {   // 1 = more privacy, 2 = normal; at 1 he stops sitting on windows (he can no longer see them)
       prefs.awareness = privacy.clean(+value); savePrefs();
       if (!privacy.allows(prefs.awareness, 'perch')) fall();
       if (!privacy.allows(prefs.awareness, 'program')) forgetProgram();   // level 1: he stops looking at once, and the page is told there is nothing
       sendPrefs(); refreshMenus();
+      return;
+    }
+    if (key === 'chatNormal' || key === 'chatFull') {   // how often he remarks on what you are doing: never, rarely, normal, often
+      prefs[key] = privacy.cleanChat(value, prefs[key]); savePrefs(); sendPrefs();
       return;
     }
     if (key === 'size') { if (['small', 'normal', 'large'].includes(value)) setSize(value); return; }
@@ -478,7 +485,7 @@ function start() {
   const panel = createPanel({
     state: () => ({
       prefs: Object.assign({ onTop: prefs.onTop, aboveFull: prefs.aboveFull, hotkeys: prefs.hotkeys, startWithWindows: app.getLoginItemSettings().openAtLogin }, publicPrefs(), { perch: prefs.perch }),
-      keys: prefs.keys, channel: CHANNEL.name, privacy: { levels: privacy.LEVELS, always: privacy.ALWAYS }, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, update: updateReady
+      keys: prefs.keys, channel: CHANNEL.name, privacy: { levels: privacy.LEVELS, always: privacy.ALWAYS, chatLevels: privacy.CHAT_LEVELS }, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, update: updateReady
     }),
     set: setPref, rebind, action, diag
   });

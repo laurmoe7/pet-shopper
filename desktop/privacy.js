@@ -19,9 +19,19 @@ var ALWAYS = 'At either level he never reads window titles, tab names, page text
 /** What each thing needs: the lowest level that allows it. */
 var NEEDS = { idle: 1, perch: 2, program: 2 };
 
+/** How often he remarks on what you are doing (nothing else he says is affected). */
+var CHAT_LEVELS = [
+  { id: 'off', label: 'Never' },
+  { id: 'rare', label: 'Rarely' },
+  { id: 'normal', label: 'Normal' },
+  { id: 'often', label: 'Often' }
+];
+/** @returns {string} A saved chatter level, or `fallback` when it is not one of them. */
+function cleanChat(v, fallback) { return CHAT_LEVELS.some(function (l) { return l.id === v; }) ? v : fallback; }
+
 /** @returns {1|2} A saved value as a level (normal when it is missing or not one). */
 function clean(v) { return v === 1 || v === '1' ? 1 : 2; }
 /** @returns {boolean} Whether a level allows a thing ('idle', 'perch', 'program'). */
 function allows(level, thing) { return clean(level) >= (NEEDS[thing] || 2); }
 
-module.exports = { LEVELS: LEVELS, ALWAYS: ALWAYS, NEEDS: NEEDS, clean: clean, allows: allows };
+module.exports = { CHAT_LEVELS: CHAT_LEVELS, cleanChat: cleanChat, LEVELS: LEVELS, ALWAYS: ALWAYS, NEEDS: NEEDS, clean: clean, allows: allows };

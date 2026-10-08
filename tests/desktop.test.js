@@ -325,3 +325,20 @@ test('programs: listed games and apps are named, everything else is just "someth
   assert.deepEqual(G.describe('mygame.exe', false, { 'mygame.exe': 'My Game' }), { kind: 'game', name: 'My Game', fullscreen: false });
   Object.keys(G.GAMES).concat(Object.keys(G.APPS)).forEach((k) => assert.equal(k, k.toLowerCase()));
 });
+
+test('chatter levels: never, rarely, normal, often; anything else keeps what was there', () => {
+  const V = require('../desktop/privacy.js');
+  assert.deepEqual(V.CHAT_LEVELS.map((l) => l.id), ['off', 'rare', 'normal', 'often']);
+  assert.equal(V.cleanChat('rare', 'normal'), 'rare');
+  assert.equal(V.cleanChat('loud', 'normal'), 'normal');
+  assert.equal(V.cleanChat(undefined, 'off'), 'off');
+});
+
+test('the Dark Souls games and the WoW classic programs are on the list', () => {
+  const G = require('../desktop/programs.js');
+  assert.deepEqual(G.identify('DarkSoulsRemastered.exe'), { kind: 'game', name: 'Dark Souls Remastered' });
+  assert.deepEqual(G.identify('DarkSoulsII.exe'), { kind: 'game', name: 'Dark Souls II' });
+  assert.deepEqual(G.identify('DATA.exe'), { kind: 'game', name: 'Dark Souls' });
+  assert.deepEqual(G.identify('DarkSoulsIII.exe'), { kind: 'game', name: 'Dark Souls III' });
+  assert.deepEqual(G.identify('Wow.exe'), { kind: 'game', name: 'World of Warcraft' });
+});

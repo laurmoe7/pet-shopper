@@ -136,7 +136,7 @@
   })();
 
   // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------
-  var deskPrefs = { roam: true, remind: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2 };
+  var deskPrefs = { roam: true, remind: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', standStill: false, standStillFull: true };
   /** Awareness: 1 = more privacy (idle and time only), 2 = normal. Anything he says about what you are doing, or knows about your windows and programs, checks this first. */
   window.deskAware = function (level) { return (deskPrefs.awareness === 1 ? 1 : 2) >= level; };
   /** The small window's look choices from the settings window: no toy, no cushion (classes on <html>, CSS at the end of styles.css). */
@@ -210,7 +210,7 @@
   // ---------- Fumu does things on his own: wander along the screen, peek round the edge, nap ----------
   var peeking = false, roaming = false, away = false, awayAt = 0, awayNap = false, perched = false;
   function roamOk(ignoreRoamSwitch) {
-    return (ignoreRoamSwitch || deskPrefs.roam !== false) && isPet() && !document.hidden && !roaming && !peeking && !away && !quietNow() && !carried && !press && !busy && !walking && !dreaming &&
+    return (ignoreRoamSwitch || deskPrefs.roam !== false) && isPet() && !document.hidden && !roaming && !peeking && !away && !carried && !press && !busy && !walking && !dreaming &&
       !(typeof napping !== 'undefined' && napping) && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') &&
       !document.querySelector('dialog[open], .inbox-card') && bubble.hidden && suggestEl.hidden;
   }
@@ -389,7 +389,18 @@
   // the shell sends nothing and none of this happens.
   var program = { kind: 'none', name: '', fullscreen: false }, gameSince = 0, lastRemark = 0, kindRemark = {}, programTimer = 0;
   var QUIET_KINDS = { game: 1, call: 1, fullscreen: 1 };
+  /** Whether a game, a call or something full-screen is in front: no napping then (he is quiet). */
   function quietNow() { return deskAware(2) && !!QUIET_KINDS[program.kind]; }
+  /** Whether a game or something full-screen is in front: the "full-screen" choices in the settings apply instead of the usual ones. */
+  function inFull() { return deskAware(2) && (!!program.fullscreen || program.kind === 'game'); }
+  /** @returns {boolean} Whether he may move about (wander, peek, hop onto windows): not when "stand still" is on for the situation he is in. */
+  function moveOk() { return !(inFull() ? deskPrefs.standStillFull !== false : !!deskPrefs.standStill); }
+  window.deskMoveOk = moveOk;
+  // how often he remarks on what you are doing (settings: Never / Rarely / Normal / Often, one for the usual case and one for games and full-screen)
+  var FREQ = { off: 0, rare: 0.35, normal: 1, often: 2.5 };
+  /** @param {boolean} full  Whether a game or something full-screen is involved. @returns {number} 0 (never), .35, 1 or 2.5: bigger means more often. */
+  function chatRate(full) { var v = FREQ[full ? deskPrefs.chatFull : deskPrefs.chatNormal]; return v === undefined ? 1 : v; }
+  window.deskChatRate = chatRate;
   window.deskQuiet = quietNow;   // for tests and the developer tools
   window.deskMayRemark = function () { return mayRemark(); };
   var PROGRAM_LINES = {
@@ -406,9 +417,27 @@
   };
   var GAME_START = ['ooh, {name}! have fun~', '{name} time! good luck!', "go get 'em in {name}!", "{name}! I'll be quiet ♡"];
   var GAME_END = ['good game~', 'how was {name}?', 'welcome back from {name}!'];
+  var GAME_DURING = ['you can do it!', "don't die!", 'I believe in you ♡', 'focus focus~', 'snack break soon?'];
+  // Lines for particular games, to be filled in (any list can stay empty: he then uses the ones above). The key is the game's name as the list
+  // in desktop/programs.js (or a game you taught him) spells it, in any case and ignoring spaces and punctuation. start: when it begins;
+  // during: now and then while you play; end: when you stop after a while. {name} is replaced by the name.
+  var GAME_LINES = {
+    'Dark Souls': { start: [], during: [], end: [] },
+    'Dark Souls Remastered': { start: [], during: [], end: [] },
+    'Dark Souls II': { start: [], during: [], end: [] },
+    'WoW Forever beta': { start: [], during: [], end: [] }   // teach him this one under that name (Settings > Privacy), the program is not on the list yet
+  };
+  function gameKey(name) { return String(name || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+  var GAME_LINES_BY_KEY = {};
+  Object.keys(GAME_LINES).forEach(function (n) { GAME_LINES_BY_KEY[gameKey(n)] = GAME_LINES[n]; });
+  /** @param {string} name  A game. @param {string} part  'start', 'during' or 'end'. @returns {string[]} The lines for that game, or the usual ones. */
+  function linesFor(name, part) {
+    var own = GAME_LINES_BY_KEY[gameKey(name)];
+    return own && own[part] && own[part].length ? own[part] : part === 'start' ? GAME_START : part === 'end' ? GAME_END : GAME_DURING;
+  }
   /** @returns {boolean} Whether he may say something about the program now (not at More privacy, not when switched off, not mid-something). */
   function mayRemark() {
-    return deskAware(2) && deskPrefs.chat !== false && isPet() && !document.hidden && !busy && !dreaming && !walking && !carried && !press &&
+    return deskAware(2) && isPet() && !document.hidden && !busy && !dreaming && !walking && !carried && !press &&
       !(typeof napping !== 'undefined' && napping) && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') &&
       !document.querySelector('dialog[open], .inbox-card') && bubble.hidden;
   }
@@ -424,21 +453,41 @@
     return first;
   }
   function remark(text, name) { say(text.replace(/\{name\}/g, name || 'it'), 4200, true); pulse('hopsmall', 450); }
+  /** Whether a 0..1 chance (already scaled by how often he is allowed to talk) comes up. */
+  function chance(p) { return Math.random() < Math.min(1, p); }
+  var duringTimer = 0;
+  // while a game is in front he says something about it now and then (every 14 to 26 minutes at Normal), only if comments there are not on Never
+  function scheduleDuring() {
+    clearTimeout(duringTimer);
+    var rate = chatRate(true);
+    duringTimer = setTimeout(function () {
+      if (program.kind === 'game' && chatRate(true) > 0) {
+        var name = program.name;
+        whenFree(function () { return program.kind === 'game' && program.name === name; }, function () { remark(pick(linesFor(name, 'during')), name); });
+      }
+      if (program.kind === 'game') scheduleDuring();
+    }, (rate > 0 ? (14 + Math.random() * 12) * 60000 / rate : 120000));
+  }
   if (D.onProgram) D.onProgram(function (p) {
     var was = program;
     program = p || { kind: 'none', name: '', fullscreen: false };
     clearTimeout(programTimer);
     var now = Date.now();
+    var full = chatRate(true), usual = chatRate(!!program.fullscreen);
     if (program.kind === 'game' && was.kind !== 'game') {
       if (!gameSince) gameSince = now;
-      if (!(kindRemark['game:' + program.name] && now - kindRemark['game:' + program.name] < 30 * 60000)) {   // (whenFree waits for a quiet moment)
+      scheduleDuring();
+      var seen = kindRemark['game:' + program.name];
+      if (full > 0 && !(seen && now - seen < 30 * 60000 / full) && chance(full)) {   // (whenFree waits for a quiet moment)
         kindRemark['game:' + program.name] = now;
-        programTimer = setTimeout(function () { whenFree(function () { return program.kind === 'game'; }, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); remark(pick(GAME_START), program.name); setTimeout(function () { if (!busy) settle(); }, 2200); }); }, 1500);
+        var game = program.name;
+        programTimer = setTimeout(function () { whenFree(function () { return program.kind === 'game'; }, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); remark(pick(linesFor(game, 'start')), game); setTimeout(function () { if (!busy) settle(); }, 2200); }); }, 1500);
       }
     } else if (was.kind === 'game' && program.kind !== 'game') {
+      clearTimeout(duringTimer);
       var played = gameSince ? now - gameSince : 0; gameSince = 0;
-      if (played > 15 * 60000) programTimer = setTimeout(function () { whenFree(function () { return program.kind !== 'game'; }, function () { remark(pick(GAME_END), was.name); }); }, 2500);
-    } else if (PROGRAM_LINES[program.kind] && program.kind !== was.kind && now - lastRemark > 20 * 60000 && now - (kindRemark[program.kind] || 0) > 60 * 60000 && Math.random() < 0.6) {
+      if (played > 15 * 60000 && full > 0 && chance(full)) programTimer = setTimeout(function () { whenFree(function () { return program.kind !== 'game'; }, function () { remark(pick(linesFor(was.name, 'end')), was.name); }); }, 2500);
+    } else if (PROGRAM_LINES[program.kind] && program.kind !== was.kind && usual > 0 && now - lastRemark > 20 * 60000 / usual && now - (kindRemark[program.kind] || 0) > 60 * 60000 / usual && chance(0.6 * usual)) {
       // stay in the program for a little while first, so a quick alt-tab says nothing
       var kind = program.kind;
       programTimer = setTimeout(function () {
@@ -555,12 +604,14 @@
     clearTimeout(roamTimer);
     roamTimer = setTimeout(function () {
       if (roamOk()) {
+        // what he may do now: moving about (wander, peek, hop onto a window) only when "stand still" is not on for the situation, napping when nothing quiet is in front
+        var move = moveOk(), nap = !quietNow() && typeof napNow === 'function', hop = move && D.perch && deskPrefs.perch;
         var r = Math.random();
-        if (D.perch && deskPrefs.perch && r < 0.3) { if (perched) hopDown(); else hopUp(); }
-        else if (perched && r > 0.7) wander();
-        else if (r < 0.4) wander();
-        else if (r < 0.7 && typeof napNow === 'function') napNow(18000 + Math.random() * 14000);
-        else if (!perched) peek();
+        if (hop && r < 0.3) { if (perched) hopDown(); else hopUp(); }
+        else if (move && perched && r > 0.7) wander();
+        else if (move && r < 0.4) wander();
+        else if (nap && r < 0.7) napNow(18000 + Math.random() * 14000);
+        else if (move && !perched) peek();
       }
       scheduleRoam(false);
     }, (first ? 90 : 240) * 1000 + Math.random() * (first ? 150 : 300) * 1000);
@@ -569,7 +620,7 @@
   // with "sits on my windows" on he tries every minute or two, so it is easy to see: he hops up, stays a while, comes down again
   (function scheduleSeat() {
     setTimeout(function () {
-      if (deskPrefs.perch && D.perch && roamOk(true)) {
+      if (deskPrefs.perch && D.perch && roamOk(true) && moveOk()) {
         if (!perched) { if (Math.random() < 0.8) hopUp(); }
         else if (Math.random() < 0.35) hopDown();
       }

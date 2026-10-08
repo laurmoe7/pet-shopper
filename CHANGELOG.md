@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 273 (8 Oct)
+- Desktop: choose how often he remarks on what you are doing (never, rarely, normal, often), separately for games and full-screen.
+- Desktop: stand in place options, one for games and full-screen, one for the rest.
+- Desktop: Dark Souls, Dark Souls Remastered and Dark Souls II added; room for lines of their own.
+
 ## Build 272 (8 Oct)
 - Desktop: Fumu knows which program is in front and when you play a game (a short list of games and apps).
 - Desktop: he cheers when a game starts, says good game after, and stays quiet while you play or are on a call.

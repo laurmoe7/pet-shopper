@@ -20,7 +20,9 @@ var GAMES = {
   'ittakestwo.exe': 'It Takes Two', 'davethediver.exe': 'Dave the Diver', 'cuphead.exe': 'Cuphead', 'undertale.exe': 'Undertale', 'osu!.exe': 'osu!',
   'fallguys_client_game.exe': 'Fall Guys', 'hearthstone.exe': 'Hearthstone', 'overcooked2.exe': 'Overcooked 2', 'cultofthelamb.exe': 'Cult of the Lamb', 'spiritfarer.exe': 'Spiritfarer',
   'monsterhunterworld.exe': 'Monster Hunter World', 'monsterhunterrise.exe': 'Monster Hunter Rise',
-  'eldenring_dx12.exe': 'Elden Ring', 'sekiro.exe': 'Sekiro', 'darksoulsiii.exe': 'Dark Souls III', 'marvelrivals-win64-shipping.exe': 'Marvel Rivals'
+  'eldenring_dx12.exe': 'Elden Ring', 'sekiro.exe': 'Sekiro', 'darksoulsiii.exe': 'Dark Souls III', 'darksoulsii.exe': 'Dark Souls II', 'darksoulsremastered.exe': 'Dark Souls Remastered', 'darksouls.exe': 'Dark Souls',
+  'data.exe': 'Dark Souls',   // the original PC release (Prepare to Die Edition) really is called DATA.exe
+  'wowclassic.exe': 'World of Warcraft Classic', 'wow-64.exe': 'World of Warcraft', 'marvelrivals-win64-shipping.exe': 'Marvel Rivals'
 };
 
 /** Everyday programs: file name -> [what kind, the name Fumu says]. */
