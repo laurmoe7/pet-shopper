@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 355
+- Five new generic game lines.
+- Ten special lines for World of Warcraft, plus a hello and a goodbye.
+- New moves: head tilt, flop, spinning hop, shiver and pop-up.
+
 ## Build 354
 - He remarks about the game you are playing more often, with more lines.
 

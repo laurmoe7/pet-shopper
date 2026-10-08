@@ -793,15 +793,22 @@
   };
   var GAME_START = ['ooh, {name}! have fun~', '{name} time! good luck!', "go get 'em in {name}!", "{name}! I'll be quiet ♡"];
   var GAME_END = ['good game~', 'how was {name}?', 'welcome back from {name}!'];
-  var GAME_DURING = ['you can do it!', "don't die!", 'I believe in you ♡', 'focus focus~', 'snack break soon?', 'wow, you are so good at {name}!', 'careful careful…', 'drink some water~', 'sit up straight!', 'I am watching quietly ♡', 'ooh, what was that?', 'one more round?'];
+  var GAME_DURING = ['you can do it!', "don't die!", 'I believe in you ♡', 'focus focus~', 'snack break soon?', 'wow, you are so good at {name}!', 'careful careful…', 'drink some water~', 'sit up straight!', 'I am watching quietly ♡', 'ooh, what was that?', 'one more round?', 'you are doing great ♡', 'stretch your hands a bit~', 'good teamwork!', 'ooh, nice move!', 'I will guard your snacks~'];
   // Lines for particular games, to be filled in (any list can stay empty: he then uses the ones above). The key is the game's name as the list
   // in desktop/programs.js (or a game you taught him) spells it, in any case and ignoring spaces and punctuation. start: when it begins;
   // during: now and then while you play; end: when you stop after a while. {name} is replaced by the name.
+  var WOW_LINES = {
+    start: ['Azeroth awaits! have fun~', "off to Azeroth! I'll keep watch ♡"],
+    during: ['for the Horde! …or the Alliance~', "don't stand in the fire!", 'loot loot loot ✦', 'be nice to the tank ♡', 'may all your rolls be high~', 'one more quest… promise?', 'can I be a battle pet?', 'is that a rare spawn?!', 'the mounts are so cute~', 'bring snacks to the dungeon!'],
+    end: ['how was Azeroth?', 'welcome back, hero~']
+  };
   var GAME_LINES = {
+    'World of Warcraft': WOW_LINES,
+    'World of Warcraft Classic': WOW_LINES,
     'Dark Souls': { start: [], during: [], end: [] },
     'Dark Souls Remastered': { start: [], during: [], end: [] },
     'Dark Souls II': { start: [], during: [], end: [] },
-    'WoW Forever beta': { start: [], during: [], end: [] }   // teach him this one under that name (Settings > Privacy), the program is not on the list yet
+    'WoW Forever beta': WOW_LINES   // teach him this one under that name (Settings > Privacy), the program is not on the list yet
   };
   function gameKey(name) { return String(name || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
   var GAME_LINES_BY_KEY = {};
@@ -828,7 +835,7 @@
     })();
     return first;
   }
-  function remark(text, name) { say(text.replace(/\{name\}/g, name || 'it'), 4200, true); pulse('hopsmall', 450); }
+  function remark(text, name) { say(text.replace(/\{name\}/g, name || 'it'), 4200, true); var m = pick(['hopsmall', 'hopsmall', 'tilt', 'shiver']); pulse(m, m === 'tilt' ? 1800 : m === 'shiver' ? 700 : 450); }
   /** Whether a 0..1 chance (already scaled by how often he is allowed to talk) comes up. */
   function chance(p) { return Math.random() < Math.min(1, p); }
   var duringTimer = 0;

@@ -249,6 +249,12 @@ var IDLE_MOVES = [
   { moods: ['curious', 'happy'], run: function () { setFace(FACES.dreamy); lookAround(); pulse('stroll', 3600); } },
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'open', mouth: 'smile', arms: 'idle', x: ['cheeks'] }); pulse('waddle', 1800); } },
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'idle', x: ['cheeks'] }); pulse('rock', 1900); } },
+  // newer moves: a curious head tilt, flopping over, a spinning hop, an excited shiver, ducking down and popping up
+  { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: ['question'] }); pulse('tilt', 1800); } },
+  { moods: ['happy', 'stuffed'], run: function () { setFace({ eyes: 'closed', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('flop', 2400); say(pick(['plop~', 'flop!', 'nap time?']), 1200, true); } },
+  { moods: ['happy'], run: function () { setFace(FACES.tada); pulse('spinhop', 900); drift(['✦', '♥'], petTop(), 3); } },
+  { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('shiver', 700); say(pick(['eee!', "so excited!", 'squee~']), 1000, true); } },
+  { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('popup', 1500); say(pick(['peekaboo!', 'boo~', 'found me!']), 1100, true); } },
   // a big roly-poly roll from side to side, with a giggle
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('roly', 2800); drift(['♥', '✦'], petTop(), 2); } },
   { moods: ['happy'], run: function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'idle', x: ['cheeks', 'sparkles'] }); pulse('roly', 2800); } },
