@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 271 (8 Oct)
+- Desktop: a Privacy setting in Fumu settings: More privacy (he only knows idle and time of day, no window sitting, fewer comments) or Normal.
+
 ## Build 270 (8 Oct)
 - Desktop: the calendar, Top 10 and dressing room start below the top bar instead of behind it.
 

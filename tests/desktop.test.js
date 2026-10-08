@@ -290,3 +290,20 @@ test('the workflows keep stable apart: its own release, never marked as the late
   assert.match(pages, /branches: \[main, stable\]/);
   assert.match(pages, /_site\/stable/);
 });
+
+test('awareness levels: 1 is idle only, 2 adds the outline of the desktop; never titles at either', () => {
+  const V = require('../desktop/privacy.js');
+  assert.equal(V.clean(undefined), 2);
+  assert.equal(V.clean(1), 1);
+  assert.equal(V.clean('1'), 1);
+  assert.equal(V.clean(3), 2);
+  assert.equal(V.allows(1, 'idle'), true);
+  assert.equal(V.allows(1, 'perch'), false);
+  assert.equal(V.allows(1, 'program'), false);
+  assert.equal(V.allows(2, 'perch'), true);
+  assert.equal(V.allows(2, 'anything-new'), true);
+  assert.equal(V.allows(1, 'anything-new'), false);   // a new kind of awareness needs the higher level until it is listed
+  assert.match(V.ALWAYS, /never reads window titles/);
+  assert.equal(/\btitles? (are|is) read|reads? (the )?titles/i.test(V.LEVELS[1].text + V.LEVELS[2].text), false);
+  assert.ok(V.LEVELS[1].title && V.LEVELS[2].title);
+});

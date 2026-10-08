@@ -23,6 +23,7 @@
       "place.js",
       "windows.js",
       "channel.js",
+      "privacy.js",
       "keys.js",
       "panel-main.js",
       "panel-preload.js",

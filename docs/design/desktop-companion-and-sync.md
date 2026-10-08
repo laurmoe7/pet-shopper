@@ -6,6 +6,9 @@ Decisions from the design talk. Do not start building until Lauren says so.
 
 - **No AI chat, ever.** Fumu's lines are hand-written (the `voice` system). No per-message cost.
 - **Desktop awareness stops at level 2.** He may know: idle or busy, time of day, work length without a break, a full-screen app running, and *which program* is in front (process name, from a curated list of games and common apps). He never reads window titles, tab names, page text or the screen. Never level 3, not even as an option.
+  - **Level 1 ("More privacy")**: idle or busy, time of day, work length without a break. No program, no window information, far fewer comments.
+  - **Level 2 ("Normal", the default)**: level 1 plus the outline of the desktop (where windows are, for sitting on them), which program is in front by name, full-screen apps.
+  - The player chooses in the desktop settings window (Privacy); anything new that notices something must check `deskAware(2)` (page) or `privacy.allows(level, thing)` (shell) first. Built so far: idle (level 1) and window positions for sitting on windows (level 2); program names and comments about them are not built yet.
 - **Everything he notices is worked out on the PC** and never leaves it (not sent to the server or the phone).
 - **Sync comes first and must work right away.** Accounts, backup and phone-to-PC sync come before the desktop pet shell.
 - **Each person has their own pet.** Only lists are shared (no shared household pet). `state.pet` stays one object per person.

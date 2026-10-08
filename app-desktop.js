@@ -136,7 +136,9 @@
   })();
 
   // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------
-  var deskPrefs = { roam: true, remind: true, idle: true, perch: false, hideToy: false, hideCushion: false };
+  var deskPrefs = { roam: true, remind: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2 };
+  /** Awareness: 1 = more privacy (idle and time only), 2 = normal. Anything he says about what you are doing, or knows about your windows and programs, checks this first. */
+  window.deskAware = function (level) { return (deskPrefs.awareness === 1 ? 1 : 2) >= level; };
   /** The small window's look choices from the settings window: no toy, no cushion (classes on <html>, CSS at the end of styles.css). */
   function applyLook() {
     root.classList.toggle('desk-notoy', !!deskPrefs.hideToy);
@@ -419,7 +421,9 @@
     }
     if (!away) return;
     away = false;
-    var gone = Date.now() - awayAt, hello = gone > 3600000 ? ['you were gone so long!', 'I missed you ♡', 'welcome back, finally!'] : ['welcome back!', 'there you are~', 'hello again ♡'];
+    var gone = Date.now() - awayAt;
+    if (!deskAware(2) && gone < 600000) { awayNap && napping && wakeFromNap(false); awayNap = false; return; }   // more privacy: he only says hello after a long time away
+    var hello = gone > 3600000 ? ['you were gone so long!', 'I missed you ♡', 'welcome back, finally!'] : ['welcome back!', 'there you are~', 'hello again ♡'];
     if (awayNap && typeof napping !== 'undefined' && napping) {
       wakeFromNap(false);
       // after unlocking, Windows takes a moment to show the desktop again: say hello a little later, and for long enough to read
@@ -448,7 +452,7 @@
       roaming = false;
       if (on !== true) {
         settle();
-        if (manual) say(on === 'off' ? 'switch on "Sits on my windows" in the settings' : 'no window with room above it to sit on', 3500);
+        if (manual) say(on === 'private' ? 'awareness is on More privacy, so I cannot see your windows' : on === 'off' ? 'switch on "Sits on my windows" in the settings' : 'no window with room above it to sit on', 3500);
         return;
       }
       pulse('hop', 460);

@@ -27,7 +27,7 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   /** Puts text on the clipboard. */
   copy: (text) => ipcRenderer.send('desk:copy', String(text).slice(0, 20000)),
   hide: () => ipcRenderer.send('desk:hide'),
-  /** The tray menu's choices that matter to the page: {roam, remind, size, idle, perch, hideToy, hideCushion}. */
+  /** The tray menu's choices that matter to the page: {roam, remind, size, idle, perch, hideToy, hideCushion, awareness}. */
   getPrefs: () => ipcRenderer.invoke('desk:getPrefs'),
   onPrefs: (fn) => ipcRenderer.on('desk:prefs', (_e, p) => fn(p)),
   /** Walks the window dx px along (negative = left) over ms; resolves how far it really went. */

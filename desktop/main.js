@@ -8,6 +8,7 @@ const fs = require('fs');
 const place = require('./place.js');
 const windows = require('./windows.js');
 const keys = require('./keys.js');
+const privacy = require('./privacy.js');
 const createPanel = require('./panel-main.js');
 
 const CHANNEL = require('./channel.js').pick(require('./package.json'));   // dev (follows main) or stable (follows only what was promoted)
@@ -25,10 +26,11 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, displaced = false, perch = null, perchTimer = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, keys: null };
+  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, keys: null };
   const DEFAULTS = Object.assign({}, prefs);
   try { prefs = Object.assign(prefs, JSON.parse(fs.readFileSync(prefsFile(), 'utf8'))); } catch (e) { /* first run */ }
   prefs.keys = keys.clean(prefs.keys);
+  prefs.awareness = privacy.clean(prefs.awareness);
   const savePrefs = () => { try { fs.writeFileSync(prefsFile(), JSON.stringify(prefs)); } catch (e) { /* ignore */ } };
   const areas = () => screen.getAllDisplays().map((d) => d.workArea);
   const here = () => screen.getDisplayMatching(win.getBounds()).workArea;
@@ -43,7 +45,7 @@ function start() {
     if (prefs.onTop && prefs.aboveFull) win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true });
     else win.setVisibleOnAllWorkspaces(false);
   };
-  const publicPrefs = () => ({ roam: prefs.roam, remind: prefs.remind, size: prefs.size, idle: prefs.idle, perch: prefs.perch && windows.available(), hideToy: prefs.hideToy, hideCushion: prefs.hideCushion });
+  const publicPrefs = () => ({ roam: prefs.roam, remind: prefs.remind, size: prefs.size, idle: prefs.idle, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion });
   const sendPrefs = () => { if (win) win.webContents.send('desk:prefs', publicPrefs()); panel.push(); };
   // moves the window smoothly (walking, peeking round the screen edge); anything that takes hold of it stops the move
   let tween = null;
@@ -145,6 +147,12 @@ function start() {
   // one place that changes a setting, for the right-click menu and the settings window alike
   const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'roam', 'remind', 'idle', 'perch', 'hideToy', 'hideCushion', 'startWithWindows'];
   function setPref(key, value) {
+    if (key === 'awareness') {   // 1 = more privacy, 2 = normal; at 1 he stops sitting on windows (he can no longer see them)
+      prefs.awareness = privacy.clean(+value); savePrefs();
+      if (!privacy.allows(prefs.awareness, 'perch')) fall();
+      sendPrefs(); refreshMenus();
+      return;
+    }
     if (key === 'size') { if (['small', 'normal', 'large'].includes(value)) setSize(value); return; }
     if (!BOOLS.includes(key)) return;
     value = !!value;
@@ -154,7 +162,7 @@ function start() {
       if (key === 'onTop' || key === 'aboveFull') applyTop();
       if (key === 'hotkeys') setupKeys();
       if (key === 'perch' && !value) fall();
-      if (key === 'perch' && value && win && mode === 'pet') setTimeout(() => { if (win && prefs.perch) win.webContents.send('desk:do', 'perch'); }, 700);   // try right away, so you can see it working
+      if (key === 'perch' && value && win && mode === 'pet' && privacy.allows(prefs.awareness, 'perch')) setTimeout(() => { if (win && prefs.perch) win.webContents.send('desk:do', 'perch'); }, 700);   // try right away, so you can see it working
     }
     sendPrefs(); refreshMenus();
   }
@@ -309,7 +317,7 @@ function start() {
     dragFrom = null;
     const b = win.getBounds();
     // let go close above another window's edge and he sits on it
-    if (prefs.perch && windows.available()) {
+    if (prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch')) {
       const all = frames(), seg = place.perchUnder(b, place.perches(all, areas(), petSize().height * 0.6), 40);
       if (seg) {
         const rect = all.find((f) => f.id === seg.id);
@@ -355,6 +363,7 @@ function start() {
   ipcMain.handle('desk:perch', async (_e, want) => {
     if (!win || mode !== 'pet' || dragFrom || peekRest) return null;
     if (want === 'down') { if (!perch) return null; await fall(); return false; }
+    if (!privacy.allows(prefs.awareness, 'perch')) return 'private';
     if (!prefs.perch || !windows.available()) return 'off';
     const all = frames(), b = win.getBounds();
     const near = place.perchesNear(b, place.perches(all, areas(), petSize().height * 0.6), areas(), 1100, perch && perch.id);
@@ -404,7 +413,7 @@ function start() {
     return {
       version: app.getVersion(), channel: CHANNEL.name, electron: process.versions.electron, packaged: app.isPackaged, page: APP_URL,
       mode, bounds: b, zoom: zoom(), screens: screen.getAllDisplays().map((d) => d.workArea.width + 'x' + d.workArea.height + ' @' + d.scaleFactor),
-      onPerch: perch ? perch.id : null, windowsSeen: prefs.perch && windows.available() ? windows.list().length : null, perchesNow: prefs.perch && windows.available() ? perchesNow().length : null,
+      onPerch: perch ? perch.id : null, awareness: prefs.awareness, windowsSeen: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch') ? windows.list().length : null, perchesNow: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch') ? perchesNow().length : null,
       idleSeconds: powerMonitor.getSystemIdleTime(), idle, displaced, pointerOverFumu: solidNow,
       shortcutsHeld: Object.assign({}, registered, hoverKeyOn ? { options: hoverKeyOn } : {}), settingsFolder: app.getPath('userData')
     };
@@ -435,7 +444,7 @@ function start() {
   const panel = createPanel({
     state: () => ({
       prefs: Object.assign({ onTop: prefs.onTop, aboveFull: prefs.aboveFull, hotkeys: prefs.hotkeys, startWithWindows: app.getLoginItemSettings().openAtLogin }, publicPrefs(), { perch: prefs.perch }),
-      keys: prefs.keys, channel: CHANNEL.name, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, update: updateReady
+      keys: prefs.keys, channel: CHANNEL.name, privacy: { levels: privacy.LEVELS, always: privacy.ALWAYS }, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, update: updateReady
     }),
     set: setPref, rebind, action, diag
   });

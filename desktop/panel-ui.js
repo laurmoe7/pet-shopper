@@ -21,6 +21,17 @@
   function render() {
     root.textContent = '';
     document.getElementById('ver').textContent = (S.packaged ? '' : 'running from source · ') + (S.channel === 'stable' ? 'stable channel' : 'dev channel');
+    // how much he may notice (awareness level 1 or 2): the privacy choice comes first
+    var priv = section('Privacy: what he can notice');
+    var lv = S.privacy.levels, cur = S.prefs.awareness === 1 ? 1 : 2;
+    var pickRow = el('div', 'row'); pickRow.appendChild(el('span', 'text', 'Awareness'));
+    var pseg = el('span', 'seg');
+    [1, 2].forEach(function (n) { var b = button(pseg, lv[n].title, function () { P.set('awareness', n).then(take); }); if (cur === n) b.className = 'on'; });
+    pickRow.appendChild(pseg); priv.appendChild(pickRow);
+    var what = el('div', 'row note'), whatText = el('span', 'text', lv[cur].text);
+    whatText.appendChild(el('small', '', S.privacy.always));
+    what.appendChild(whatText); priv.appendChild(what);
+
     var look = section('His look');
     var sizeRow = el('div', 'row'); sizeRow.appendChild(el('span', 'text', 'Size'));
     var seg = el('span', 'seg');
@@ -32,7 +43,9 @@
     var does = section('What he does on his own');
     toggle(does, 'Wanders, peeks and naps', 'roam', 'Every few minutes, only when nothing is open.');
     toggle(does, 'Naps when I am away', 'idle', 'After about 4 minutes without keyboard or mouse, or when the screen is locked. Says hello when you are back.');
-    if (S.canPerch) {
+    if (S.canPerch && cur === 1) {
+      var offRow = el('div', 'row off'); var offText = el('span', 'text', 'Sits on my windows'); offText.appendChild(el('small', '', 'Off while awareness is on More privacy: he cannot see your windows.')); offRow.appendChild(offText); does.appendChild(offRow);
+    } else if (S.canPerch) {
       toggle(does, 'Sits on my windows', 'perch', 'Every minute or two he hops onto the top edge of another window, sits there with his feet out, and rides along if you move it. He only looks at where windows are, never at their titles.');
       if (S.prefs.perch) { var hint = el('small', '', 'Looking for windows…'); hint.id = 'perchHint'; does.lastChild.querySelector('.text').appendChild(hint); }
     }
