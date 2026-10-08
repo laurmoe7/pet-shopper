@@ -2,7 +2,7 @@
 // real app in "pet only" mode, a tray icon, and the whole app in a bigger window when you open your list.
 // The app itself is loaded from the web (so a big push updates it), see NIBBLE_URL below.
 'use strict';
-const { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, shell, session } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, shell, session, clipboard } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const place = require('./place.js');
@@ -41,6 +41,8 @@ function start() {
       win.setBounds(place.startBounds(petBounds, PET_SIZE, areas(), screen.getPrimaryDisplay().workArea));
       if (THROUGH) win.setIgnoreMouseEvents(true, { forward: true });
       win.setAlwaysOnTop(prefs.onTop);
+      // Windows can drop the click-through setting when the window changes size: say it again a moment later and ask the page to answer again
+      setTimeout(() => { if (win && mode === 'pet' && THROUGH) { win.setIgnoreMouseEvents(true, { forward: true }); win.webContents.send('desk:resync'); } }, 200);
     }
     win.webContents.send('desk:mode', mode);
     log('mode', mode);
@@ -74,6 +76,7 @@ function start() {
       { label: 'Reload (get the latest)', click: () => win && win.webContents.reloadIgnoringCache() },
       { label: 'Check for app updates', enabled: app.isPackaged, click: () => checkUpdates() },
       { type: 'separator' },
+      { label: 'Fumufumu ' + app.getVersion(), enabled: false },
       { label: 'Quit Fumufumu', click: () => app.quit() }
     ]);
   }
@@ -106,6 +109,8 @@ function start() {
   ipcMain.on('desk:dragEnd', () => { if (win && dragFrom) { const b = win.getBounds(); prefs.x = b.x; prefs.y = b.y; savePrefs(); dragFrom = null; } });
   ipcMain.on('desk:menu', () => { log('menu'); if (win) menu().popup({ window: win }); });
   ipcMain.on('desk:hide', () => hideFumu());
+  ipcMain.on('desk:open', (_e, url) => { if (typeof url === 'string' && /^https?:\/\/[^\s]+$/i.test(url)) shell.openExternal(url); });
+  ipcMain.on('desk:copy', (_e, text) => { if (typeof text === 'string') clipboard.writeText(text.slice(0, 20000)); });
 
   // The page (the app itself) updates by itself because it is loaded from the web. This is for the shell: the
   // installed program. It checks GitHub's releases, downloads quietly and installs when Fumu is next closed.

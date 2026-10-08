@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 256 (18 Oct)
+- Send to my PC: links and notes from your phone; Fumu eats them on the PC and shows a card.
+- Desktop: right-click and pick-up keep working with older installed copies; clicks are re-checked after the window changes.
+
 ## Build 255 (18 Oct)
 - Desktop: no leftover band, highlight or stuck clicks after opening the list and going back.
 

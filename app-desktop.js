@@ -47,7 +47,7 @@
 
   // clicks go to Fumu only where something solid is under the pointer; elsewhere they pass to the desktop
   var lastSolid = null, lastSent = 0;
-  var SOLID = '#pet, .bubble, .gift, .wish, .toy, .suggest, .dream';
+  var SOLID = '#pet, .bubble, .gift, .wish, .toy, .suggest, .dream, .inbox-card';
   /** Tells the shell whether clicks should be caught; sent when it changes and now and then anyway, so the two can't drift apart. */
   function setSolid(yes) {
     var now = Date.now();
@@ -60,7 +60,10 @@
     setSolid(!!(el && el.closest && el.closest(SOLID)));
   }
   document.addEventListener('mousemove', function (e) { hoverAt(e.clientX, e.clientY); }, true);
-  D.onCursor(hoverAt);   // the shell also reports where the pointer is (Windows can stop forwarding it after a resize)
+  // the shell also reports where the pointer is (Windows can stop forwarding it after a resize). An older shell has no such call, so ask first:
+  // the page is loaded from the web and can be newer than the installed program
+  if (D.onCursor) D.onCursor(hoverAt);
+  if (D.onResync) D.onResync(function () { lastSolid = null; });   // the shell changed the window: say again whether clicks are caught
   document.addEventListener('mouseleave', function () { hoverAt(-1, -1); });
   new MutationObserver(function () { lastSolid = null; }).observe(root, { attributes: true, attributeFilter: ['class'] });
 

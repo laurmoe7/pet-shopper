@@ -11,12 +11,24 @@ const T = Date.UTC(2026, 9, 12, 12);
 /** A store that lives in memory, with the same rules as the D1 one. */
 function memoryStore() {
   const rows = new Map();
+  let inbox = [];
   return {
     rows,
+    get inbox() { return inbox; },
+    async inboxList(acct, to, now) {
+      inbox = inbox.filter((m) => now - m.at <= S.INBOX_TTL_MS);
+      return inbox.filter((m) => m.acct === acct && m.to === to).sort((a, b) => a.at - b.at).map((m) => ({ id: m.id, at: m.at, kind: m.kind, text: m.text, from: m.from }));
+    },
+    async inboxAdd(acct, m) {
+      inbox.push({ ...m, acct });
+      const drop = new Set(inbox.filter((x) => x.acct === acct).sort((a, b) => b.at - a.at).slice(S.INBOX_MAX).map((x) => x.id));
+      inbox = inbox.filter((x) => !drop.has(x.id));
+    },
+    async inboxRemove(acct, ids) { const n = inbox.length; inbox = inbox.filter((m) => !(m.acct === acct && ids.includes(m.id))); return n - inbox.length; },
     async get(id) { const r = rows.get(id); return r ? { body: r.body, rev: r.rev } : null; },
     async create(id) { if (rows.has(id)) return false; rows.set(id, { body: null, rev: 0 }); return true; },
     async put(id, body, rev) { const r = rows.get(id); if (!r || r.rev !== rev) return false; r.body = body; r.rev++; return true; },
-    async remove(id) { rows.delete(id); },
+    async remove(id) { rows.delete(id); inbox = inbox.filter((m) => m.acct !== id); },
     hits: new Map(),
     async hit(key, hour) { const k = key + hour; this.hits.set(k, (this.hits.get(k) || 0) + 1); return this.hits.get(k); }
   };
@@ -198,6 +210,7 @@ test('the D1 store works against real SQL', { skip: !sqlite }, async () => {
   db.exec(fs.readFileSync(path.join(__dirname, '../worker/sync/schema.sql'), 'utf8'));
   const d1 = { prepare(sql) { const st = db.prepare(sql); return { bind(...a) { return {
     async first() { return st.get(...a) || null; },
+    async all() { return { results: st.all(...a) }; },
     async run() { return { meta: { changes: Number(st.run(...a).changes) } }; } }; } }; } };
   const store = S.d1Store(d1);
   const code = await signUp(store);
@@ -231,6 +244,7 @@ test('the limit counts in the real SQL table too, and a missing table does not b
   db.exec(fs.readFileSync(path.join(__dirname, '../worker/sync/schema.sql'), 'utf8'));
   const wrap = (db) => ({ prepare(sql) { const st = db.prepare(sql); return { bind(...a) { return {
     async first() { return st.get(...a) || null; },
+    async all() { return { results: st.all(...a) }; },
     async run() { return { meta: { changes: Number(st.run(...a).changes) } }; } }; } }; } });
   const store = S.d1Store(wrap(db));
   assert.deepEqual([await store.hit('k', 5), await store.hit('k', 5), await store.hit('other', 5)], [1, 2, 1]);
@@ -241,4 +255,99 @@ test('the limit counts in the real SQL table too, and a missing table does not b
   const oldStore = S.d1Store(wrap(old));
   assert.equal(await oldStore.hit('k', 5), 0);
   assert.equal((await call(oldStore, 'POST', '/v1/account')).status, 201);
+});
+
+// ---------- the inbox: a link or a note from the phone to the PC ----------
+const send = (store, code, body, now) => call(store, 'POST', '/v1/inbox', code, body, now);
+const waiting = async (store, code, to, now) => (await call(store, 'GET', '/v1/inbox?to=' + (to || 'pc'), code, undefined, now)).json.messages;
+
+test('a link sent from the phone waits for the PC until it is read', async () => {
+  const store = memoryStore(), code = await signUp(store);
+  assert.deepEqual(await waiting(store, code), []);
+  const r = await send(store, code, { to: 'pc', kind: 'link', text: 'https://example.com/a?b=1', from: 'phone1' });
+  assert.equal(r.status, 201);
+  assert.match(r.json.id, /^[0-9a-f]{16}$/);
+  const list = await waiting(store, code);
+  assert.equal(list.length, 1);
+  assert.deepEqual([list[0].kind, list[0].text, list[0].from, list[0].id], ['link', 'https://example.com/a?b=1', 'phone1', r.json.id]);
+  assert.equal((await call(store, 'POST', '/v1/inbox/ack', code, { ids: [r.json.id] })).json.deleted, 1);
+  assert.deepEqual(await waiting(store, code), []);
+  assert.equal((await call(store, 'POST', '/v1/inbox/ack', code, { ids: [r.json.id, 5, null] })).json.deleted, 0);   // nothing left, junk ignored
+});
+
+test('messages for the PC and for the phone stay apart, and so do two accounts', async () => {
+  const store = memoryStore(), mine = await signUp(store), other = await signUp(store);
+  await send(store, mine, { to: 'pc', kind: 'text', text: 'for the PC' });
+  await send(store, mine, { to: 'phone', kind: 'text', text: 'for the phone' });
+  assert.deepEqual((await waiting(store, mine, 'pc')).map((m) => m.text), ['for the PC']);
+  assert.deepEqual((await waiting(store, mine, 'phone')).map((m) => m.text), ['for the phone']);
+  assert.deepEqual(await waiting(store, other, 'pc'), []);
+  assert.equal((await call(store, 'GET', '/v1/inbox?to=tablet', mine)).status, 400);
+});
+
+test('messages come out oldest first and the oldest are dropped past 50', async () => {
+  const store = memoryStore(), code = await signUp(store);
+  for (let i = 0; i < S.INBOX_MAX + 5; i++) await send(store, code, { to: 'pc', kind: 'text', text: 'm' + i }, T + i * 1000);
+  const list = await waiting(store, code, 'pc', T + 100000);
+  assert.equal(list.length, S.INBOX_MAX);
+  assert.equal(list[0].text, 'm5');
+  assert.equal(list[list.length - 1].text, 'm' + (S.INBOX_MAX + 4));
+});
+
+test('an unread message is deleted after a day', async () => {
+  const store = memoryStore(), code = await signUp(store);
+  await send(store, code, { to: 'pc', kind: 'text', text: 'old news' }, T);
+  assert.equal((await waiting(store, code, 'pc', T + S.INBOX_TTL_MS - 1000)).length, 1);
+  assert.equal((await waiting(store, code, 'pc', T + S.INBOX_TTL_MS + 1000)).length, 0);
+});
+
+test('bad messages are refused', async () => {
+  const store = memoryStore(), code = await signUp(store);
+  const bad = async (body, status) => assert.equal((await send(store, code, body)).status, status, JSON.stringify(body).slice(0, 60));
+  await bad({ to: 'tablet', kind: 'text', text: 'x' }, 400);
+  await bad({ to: 'pc', kind: 'image', text: 'x' }, 400);
+  await bad({ to: 'pc', kind: 'text', text: '   ' }, 400);
+  await bad({ to: 'pc', kind: 'text' }, 400);
+  await bad({ to: 'pc', kind: 'link', text: 'javascript:alert(1)' }, 400);
+  await bad({ to: 'pc', kind: 'link', text: 'https://a.com/two words' }, 400);
+  await bad({ to: 'pc', kind: 'text', text: 'x'.repeat(S.INBOX_TEXT_MAX + 1) }, 413);
+  const res = await S.handle(new Request('https://x.test/v1/inbox', { method: 'POST', headers: { Authorization: 'Bearer ' + code }, body: '{nope' }), store, T);
+  assert.equal(res.status, 400);
+  assert.equal((await send(store, null, { to: 'pc', kind: 'text', text: 'x' })).status, 401);
+  assert.equal((await call(store, 'GET', '/v1/inbox', 'WRONG')).status, 401);
+  assert.equal((await send(store, code, { to: 'pc', kind: 'link', text: 'http://localhost:8080/x' })).status, 201);
+});
+
+test('deleting the account deletes its messages', async () => {
+  const store = memoryStore(), code = await signUp(store);
+  await send(store, code, { to: 'pc', kind: 'text', text: 'bye' });
+  await call(store, 'DELETE', '/v1/account', code);
+  assert.equal(store.inbox.length, 0);
+});
+
+test('the inbox works in the real SQL tables, and a database without them answers 503 instead of breaking', { skip: !sqlite }, async () => {
+  const wrap = (db) => ({ prepare(sql) { const st = db.prepare(sql); return { bind(...a) { return {
+    async first() { return st.get(...a) || null; },
+    async all() { return { results: st.all(...a) }; },
+    async run() { return { meta: { changes: Number(st.run(...a).changes) } }; } }; } }; } });
+  const db = new sqlite.DatabaseSync(':memory:');
+  db.exec(fs.readFileSync(path.join(__dirname, '../worker/sync/schema.sql'), 'utf8'));
+  const store = S.d1Store(wrap(db)), code = await signUp(store);
+  const r = await send(store, code, { to: 'pc', kind: 'link', text: 'https://example.com/x' }, T);
+  assert.equal(r.status, 201);
+  for (let i = 0; i < S.INBOX_MAX + 3; i++) await send(store, code, { to: 'pc', kind: 'text', text: 'n' + i }, T + 1000 + i);
+  const list = await waiting(store, code, 'pc', T + 5000);
+  assert.equal(list.length, S.INBOX_MAX);
+  assert.equal(list[list.length - 1].text, 'n' + (S.INBOX_MAX + 2));
+  assert.equal((await call(store, 'POST', '/v1/inbox/ack', code, { ids: [list[0].id, list[1].id] }, T + 5000)).json.deleted, 2);
+  assert.equal((await waiting(store, code, 'pc', T + 5000)).length, S.INBOX_MAX - 2);
+  assert.equal((await waiting(store, code, 'pc', T + S.INBOX_TTL_MS + 100000)).length, 0);   // a day later they are gone
+  await call(store, 'DELETE', '/v1/account', code);
+  assert.equal(db.prepare('SELECT COUNT(*) AS c FROM inbox').get().c, 0);
+  // an older database without the inbox table
+  const old = new sqlite.DatabaseSync(':memory:');
+  old.exec('CREATE TABLE docs (id TEXT PRIMARY KEY, body TEXT, rev INTEGER NOT NULL DEFAULT 0, created INTEGER NOT NULL, updated INTEGER NOT NULL)');
+  const oldStore = S.d1Store(wrap(old)), oldCode = await signUp(oldStore);
+  assert.equal((await send(oldStore, oldCode, { to: 'pc', kind: 'text', text: 'x' })).status, 503);
+  assert.equal((await call(oldStore, 'POST', '/v1/sync', oldCode, { doc: { v: 1, items: {}, fields: {}, counters: {} } })).status, 200);   // everything else still works
 });

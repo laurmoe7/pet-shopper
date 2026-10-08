@@ -36,12 +36,21 @@ into `wrangler.toml`, `npx wrangler d1 execute pet-shopper-sync --remote --file 
 
 Run `npm run build:worker` and paste `dist/worker.js` again (a test fails if `dist/worker.js` is out of date).
 
+## The inbox (Send to my PC)
+
+A link or a note from the phone waits here for the PC (and the other way round, later). It needs two more lines of `schema.sql` (the `inbox`
+table and its index): in D1 → Console paste each line and Execute, then paste the new `dist/worker.js` over the Worker's code. Without the
+table everything else works and sending says "the inbox is not set up". Messages are deleted when read, after a day, or past 50 waiting.
+
 ## Addresses (all JSON, `Authorization: Bearer <code>` except the first)
 
 - `POST /v1/account` makes an account and returns `{code}` (shown to the person once).
 - `POST /v1/sync` with `{doc}` joins the document with the stored one and returns `{doc, rev}`.
 - `GET /v1/doc` returns `{doc, rev}`: what is stored (`doc` is null before the first sync).
 - `DELETE /v1/account` deletes the account and its data.
+- `GET /v1/inbox?to=pc` lists what waits for a device: `{messages: [{id, at, kind, text, from}]}` (oldest first).
+- `POST /v1/inbox` with `{to: 'pc'|'phone', kind: 'link'|'text', text, from}` leaves a message (a link must start with http:// or https://; 4000 characters at most).
+- `POST /v1/inbox/ack` with `{ids: [...]}` removes read messages.
 - `GET /v1/health` returns `{ok:true}`.
 
 ## Notes

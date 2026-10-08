@@ -28,7 +28,9 @@ let missing = [];
 // the foods, the tasks, the personalities' icons
 // and the little pictures on the Pet page's tabs
 const TAB_ICONS = ['🐾', '🎩', '👕', '👓', '👄', '🧣', '👟'];
-const used = global.Foods.all.concat(global.Tasks.all, global.Personalities.map((p) => p.icon), TAB_ICONS);
+// and the things sent from the phone to the PC (app-send.js): a link, a note
+const SEND_ICONS = ['🔗', '📝', '💌'];
+const used = global.Foods.all.concat(global.Tasks.all, global.Personalities.map((p) => p.icon), TAB_ICONS, SEND_ICONS);
 for (const e of used) {
   const file = path.basename(global.Foods.emojiFile(e));
   const from = path.join(src, file);

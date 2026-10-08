@@ -11,6 +11,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   setMode: (mode) => ipcRenderer.send('desk:setMode', mode === 'list' ? 'list' : 'pet'),
   onMode: (fn) => ipcRenderer.on('desk:mode', (_e, mode) => fn(mode)),
   /** Where the pointer is, in the window's own coordinates (-1, -1 when it is outside), about 25 times a second. */
+  /** The window was just changed by the shell, so the page should say again whether clicks are caught. */
+  onResync: (fn) => ipcRenderer.on('desk:resync', () => fn()),
   onCursor: (fn) => ipcRenderer.on('desk:cursor', (_e, x, y) => fn(x, y)),
   /** The page has applied its mode: the window can be shown. */
   ready: () => ipcRenderer.send('desk:ready'),
@@ -20,5 +22,9 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   dragMove: (dx, dy) => ipcRenderer.send('desk:dragMove', +dx || 0, +dy || 0),
   dragEnd: () => ipcRenderer.send('desk:dragEnd'),
   menu: () => ipcRenderer.send('desk:menu'),
+  /** Opens a web link in the browser (only http and https are passed on by the shell). */
+  open: (url) => ipcRenderer.send('desk:open', String(url).slice(0, 4100)),
+  /** Puts text on the clipboard. */
+  copy: (text) => ipcRenderer.send('desk:copy', String(text).slice(0, 20000)),
   hide: () => ipcRenderer.send('desk:hide')
 });

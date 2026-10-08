@@ -30,9 +30,21 @@ jobs:
       - run: npm ci
       # each run gets a higher version, which is how installed copies know there is something newer
       - run: npm version "0.1.${{ github.run_number }}" --no-git-tag-version
-      - run: npm run release
+      - run: npm run dist
+      # one step makes the release and attaches everything (the installer, its block map and latest.yml, which installed copies read
+      # to find updates). Letting electron-builder upload by itself raced two uploads against each other and failed.
+      - name: Publish the release
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VER=$(node -p "require('./package.json').version")
+          ls dist
+          if gh release view "v$VER" >/dev/null 2>&1; then
+            gh release upload "v$VER" dist/Fumufumu-Setup-*.exe dist/*.blockmap dist/latest.yml --clobber
+          else
+            gh release create "v$VER" dist/Fumufumu-Setup-*.exe dist/*.blockmap dist/latest.yml --target "$GITHUB_SHA" --title "$VER" --notes "Fumufumu for Windows $VER"
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: Fumufumu-Windows-installer

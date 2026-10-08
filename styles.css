@@ -2802,3 +2802,18 @@ html.desktop-list .scene { top: 34px; }
 html.desktop-pet #pet::after { content: ""; position: absolute; left: calc(50% - 82px); width: 164px; bottom: -12px; height: 44px; border-radius: 22px; }
 html.desktop-pet .stage.bedtime #pet::after { left: calc(50% - 125px); width: 250px; height: 52px; }
 html.desktop-pet .stage:has(.bubble:not([hidden])) .dream { visibility: hidden; }   /* a thought and a speech bubble at once would overlap */
+
+/* ---------- Send to my PC (app-send.js) ---------- */
+.send-sheet textarea { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1.5px solid var(--outline); border-radius: 12px; background: var(--surface); color: var(--ink); font: inherit; font-size: .95rem; resize: none; margin: 8px 0 2px; }
+/* what arrived, on a card by Fumu: a picture, what it is, and Open / Copy / done */
+.inbox-card { position: absolute; left: 8px; right: 8px; top: 4px; z-index: 8; display: grid; grid-template-columns: 30px 1fr; gap: 2px 8px; align-items: center; padding: 6px 10px; border: 1.8px solid var(--outline); border-radius: 14px; background: var(--surface); color: var(--ink); box-shadow: 0 2px 0 var(--shadow); animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); }
+.inbox-icon { width: 28px; height: 28px; grid-row: 1 / span 2; }
+.inbox-text { min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
+.inbox-text b { font-family: var(--font-display); font-weight: 500; font-size: .95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inbox-text span { font-size: .72rem; opacity: .7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inbox-actions { grid-column: 2; display: flex; gap: 6px; margin-top: 3px; }
+.inbox-actions button { border: 1.5px solid var(--outline); border-radius: 999px; background: var(--surface); color: var(--ink); font: inherit; font-size: .74rem; font-weight: 800; padding: 1px 10px; cursor: pointer; box-shadow: 0 2px 0 var(--outline); }
+.inbox-actions button:active { transform: translateY(2px); box-shadow: none; }
+.inbox-actions .inbox-done { margin-left: auto; }
+.stage:has(.inbox-card) .bubble { display: none; }
+html.desktop-pet .stage .inbox-card { top: auto; bottom: calc(100% + 1px); }

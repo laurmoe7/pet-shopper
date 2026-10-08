@@ -36,7 +36,8 @@
       "oneClick": true,
       "perMachine": false,
       "runAfterFinish": true,
-      "deleteAppDataOnUninstall": false
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "Fumufumu-Setup-${version}.${ext}"
     },
     "publish": [
       {

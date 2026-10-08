@@ -50,6 +50,12 @@ Decisions from the design talk. Do not start building until Lauren says so.
 - Icon: Fumu on a pink-lavender-mint sunburst, transparent corners (`icon-*.png`, `icon-maskable-512.png`, `desktop/build/icon.ico`). Trademark checks are not done (Lauren decided not to worry yet; Japan has many "ふむふむ" marks, see the earlier notes).
 - Ideas not done: a head-bob nod when an item is added ("fumu fumu~"), a tail, food falling around the icon (Lauren will add her own).
 
+## Built: Send to my PC (build 256)
+
+- `worker/sync/server.js` inbox (`/v1/inbox`, `/v1/inbox/ack`; table `inbox`; deleted when read, after 24 h or past 50), `send.js` (what is a link or a note, tested), `app-send.js` (the phone's sheet and the PC's card), a `share_target` in the manifest (the Share menu, once installed), `desk:open`/`desk:copy` in the shell. The PC polls every 15 s while the window shows.
+- Next: images (small, deleted after a day), PC to phone (recipe ingredients), reminders, awareness level 1-2.
+- Release fix: electron-builder's own upload raced two release creations and failed after publishing the installer, with no `latest.yml`, so installed copies could not update. The workflow now builds, then `gh release create`s everything in one step.
+
 ## Shared lists (open, see below)
 
 Each person owns a pet; lists can be shared. Avoid a pile of separate lists. Proposed shape (not decided):
