@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 358
+- A little hop when he jumps down from a window.
+- The bell and ball stay visible when grabbed with the room background on.
+- The bell's pieces are no longer cut off at the bottom.
+
 ## Build 357
 - The ring of buttons waits until you stop petting him.
 

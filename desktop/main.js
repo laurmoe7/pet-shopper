@@ -569,7 +569,7 @@ function start() {
   // ---------- the toy flying about the whole screen (a switch in the settings window) ----------
   // His own window is small, so while a thrown toy is in the air it is drawn by a second little transparent window that the page moves
   // along with the toy (the page does the bouncing, the shell only places the picture). Clicks always go through it.
-  let toyWin = null, toyImg = '', toyPx = 0, toySpinAt = 0;
+  let toyWin = null, toyImg = '', toyPx = 0, toySpinAt = 0, toyTopAt = 0;
   function toyWindow(px) {
     if (!toyWin || toyWin.isDestroyed()) {
       toyWin = new BrowserWindow({ width: px, height: px, frame: false, transparent: true, resizable: false, skipTaskbar: true, focusable: false, hasShadow: false, show: false, alwaysOnTop: true, webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false } });
@@ -588,7 +588,7 @@ function start() {
   });
   ipcMain.on('desk:toyShow', (_e, dataUrl, px) => {
     if (!win || mode !== 'pet' || !prefs.toyRoam || typeof dataUrl !== 'string' || dataUrl.length > 80000 || !/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(dataUrl)) return;
-    px = Math.max(16, Math.min(120, Math.round(+px || 32)));
+    px = Math.max(16, Math.min(220, Math.round(+px || 32)));
     const w = toyWindow(px + 24);
     if (dataUrl !== toyImg || px !== toyPx) {
       toyImg = dataUrl; toyPx = px;
@@ -601,6 +601,7 @@ function start() {
     toyWin.setBounds({ x: Math.round(+x - s / 2), y: Math.round(+y - s / 2), width: s, height: s });
     if (!toyWin.isVisible()) toyWin.showInactive();
     const now = Date.now();
+    if (now - toyTopAt > 150) { toyTopAt = now; toyWin.moveTop(); }   // (his window comes to the front when clicked; with the room background it would hide the toy)
     if (now - toySpinAt > 30) { toySpinAt = now; toyWin.webContents.executeJavaScript('document.getElementById("t")&&(document.getElementById("t").style.transform="rotate(' + Math.round(+deg || 0) + 'deg)")').catch(() => {}); }
   });
   ipcMain.on('desk:toyHide', () => hideToy());

@@ -294,15 +294,15 @@
         localX: function () { return (this.ax - f.wx) / z - mid; },
         show: function (x, y, spin) { var px = f.wx + (mid + x) * z, py = f.wy + (fl - y) * z; this.ax = px; this.ay = py; D.toyAt(px, py, spin); },
         hide: function () { D.toyHide(); },
-        /** Draws a short burst where it last was (pieces flying apart): build(t) gives the 96 x 96 drawing at t 0..1, shown as n frames ms apart. */
+        /** Draws a short burst where it last was (pieces flying apart): build(t) gives the 144 x 144 drawing at t 0..1, shown as n frames ms apart. */
         burst: function (build, n, ms) {
           var self = this, at = [self.ax, self.ay], shots = [];
-          for (var i = 0; i < n; i++) shots.push(svgPicture(new DOMParser().parseFromString(build(i / (n - 1)), 'image/svg+xml').documentElement, 48, 48));
+          for (var i = 0; i < n; i++) shots.push(svgPicture(new DOMParser().parseFromString(build(i / (n - 1)), 'image/svg+xml').documentElement, 72, 72, 144));
           return Promise.all(shots).then(function (png) {
             var k = 0;
             (function next() {
               if (k >= png.length) { D.toyHide(); return; }
-              if (png[k]) { D.toyShow(png[k], Math.round(96 * z)); D.toyAt(at[0], at[1], 0); }
+              if (png[k]) { D.toyShow(png[k], Math.round(144 * z)); D.toyAt(at[0], at[1], 0); }
               k++; setTimeout(next, ms);
             })();
           });
@@ -311,7 +311,8 @@
     });
   };
   /** @returns {Promise<string>} A drawing as a small square PNG (its colours read from the page's CSS), centred, for the window that draws a flying thing. */
-  function svgPicture(svg, w, h) {
+  function svgPicture(svg, w, h, size) {
+    size = size || 96;
     return new Promise(function (resolve) {
       var copy = svg.cloneNode(true), src = svg.querySelectorAll('*'), dst = copy.querySelectorAll('*');
       for (var j = 0; j < src.length; j++) {
@@ -323,7 +324,7 @@
       copy.setAttribute('xmlns', 'http://www.w3.org/2000/svg'); copy.setAttribute('width', String(w * 2)); copy.setAttribute('height', String(h * 2));
       var img = new Image();
       img.onload = function () {
-        try { var c = document.createElement('canvas'); c.width = c.height = 96; c.getContext('2d').drawImage(img, (96 - w * 2) / 2, (96 - h * 2) / 2, w * 2, h * 2); resolve(c.toDataURL('image/png')); } catch (e) { resolve(''); }
+        try { var c = document.createElement('canvas'); c.width = c.height = size; c.getContext('2d').drawImage(img, (size - w * 2) / 2, (size - h * 2) / 2, w * 2, h * 2); resolve(c.toDataURL('image/png')); } catch (e) { resolve(''); }
       };
       img.onerror = function () { resolve(''); };
       img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(copy));
@@ -1021,7 +1022,7 @@
     if (!D.perch || roaming) return;
     roaming = true;
     pulse('hop', 700);
-    D.perch('down').then(function () { roaming = false; if (!busy) { settle(); chat(pick(['back down~', 'whee!']), 1200); } }, function () { roaming = false; });
+    D.perch('down').then(function () { roaming = false; pulse('hopsmall', 450); if (!busy) { settle(); chat(pick(['back down~', 'whee!']), 1200); } }, function () { roaming = false; });
   }
   // bedtime or sleep: he comes down to his cushion first
   setInterval(function () {

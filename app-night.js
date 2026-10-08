@@ -242,20 +242,20 @@ function endBellField() {
 var BELL_PIECES = [
   { d: 'M4 40 C4 28 10 21 18 21 L15 28 L19 33 L16 40 Z', fill: '#f2c14e', w: 1.8, v: [-30, -36], r: -140 },
   { d: 'M18 21 C26 21 32 28 32 40 L16 40 L19 33 L15 28 Z', fill: '#f2c14e', w: 1.8, v: [32, -44], r: 170 },
-  { d: 'M2 39.6 H18 L18 44.8 L3.6 44.8 Q1.8 44.8 1.8 43.2 Z', fill: '#f2c14e', w: 1.8, v: [-40, -10], r: -230 },
-  { d: 'M18 39.6 H34 L34.2 43.2 Q34.2 44.8 32.4 44.8 L18 44.8 Z', fill: '#f2c14e', w: 1.8, v: [42, -18], r: 210 },
+  { d: 'M2 39.6 H18 L18 44.8 L3.6 44.8 Q1.8 44.8 1.8 43.2 Z', fill: '#f2c14e', w: 1.8, v: [-40, -28], r: -230 },
+  { d: 'M18 39.6 H34 L34.2 43.2 Q34.2 44.8 32.4 44.8 L18 44.8 Z', fill: '#f2c14e', w: 1.8, v: [42, -30], r: 210 },
   { d: 'M14.2 1 H21.8 V20 H14.2 Z', fill: '#d6a066', w: 1.7, v: [8, -62], r: 260 },
   { d: 'M11.4 17.6 H24.6 V23 H11.4 Z', fill: '#e0a93a', w: 1.6, v: [-14, -52], r: -200 },
-  { d: 'M14.1 46.2 a3.9 3.9 0 1 0 7.8 0 a3.9 3.9 0 1 0 -7.8 0 Z', fill: '#c98f4f', w: 1.5, v: [20, -8], r: 300 },
+  { d: 'M14.1 46.2 a3.9 3.9 0 1 0 7.8 0 a3.9 3.9 0 1 0 -7.8 0 Z', fill: '#c98f4f', w: 1.5, v: [20, -26], r: 300 },
   { d: 'M0 0 L7 2 L3 7 Z', fill: '#f2c14e', w: 1.2, v: [-52, -28], r: 320, at: [6, 30] },
   { d: 'M0 0 L6 1 L2 6 Z', fill: '#f2c14e', w: 1.2, v: [54, -30], r: -300, at: [28, 32] },
   { d: 'M0 0 L5 3 L1 6 Z', fill: '#e0a93a', w: 1.2, v: [4, -70], r: 280, at: [16, 24] }
 ];
 /** Where a piece is a fraction t (0..1) through the burst: [x, y, turn] (it flies out, then falls). */
-function bellPiecePos(pc, t) { return [pc.v[0] * t, pc.v[1] * t + 120 * t * t, pc.r * t]; }
-/** @param {number} t  0..1 @returns {string} The bell's pieces part way through bursting, as a 96 x 96 drawing with the bell in the middle. */
+function bellPiecePos(pc, t) { return [pc.v[0] * t, pc.v[1] * t + 60 * t * t, pc.r * t]; }
+/** @param {number} t  0..1 @returns {string} The bell's pieces part way through bursting, as a 144 x 144 drawing with the bell in the middle. */
 function bellBurstSvg(t) {
-  var out = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96"><g transform="translate(30 24)" stroke="#5b4239" stroke-linejoin="round" opacity="' + (t > .7 ? (1 - (t - .7) / .3).toFixed(2) : 1) + '">';
+  var out = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144" width="144" height="144"><g transform="translate(54 48)" stroke="#5b4239" stroke-linejoin="round" opacity="' + (t > .6 ? (1 - (t - .6) / .4).toFixed(2) : 1) + '">';
   BELL_PIECES.forEach(function (pc) {
     var p = bellPiecePos(pc, t), at = pc.at || [0, 0], c = pc.at ? [2.5, 3.5] : [18, 28];
     out += '<path d="' + pc.d + '" fill="' + pc.fill + '" stroke-width="' + pc.w + '" transform="translate(' + (at[0] + p[0]).toFixed(1) + ' ' + (at[1] + p[1]).toFixed(1) + ') rotate(' + p[2].toFixed(0) + ' ' + c[0] + ' ' + c[1] + ')"/>';
