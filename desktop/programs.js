@@ -33,6 +33,7 @@ var APPS = {
   'pycharm64.exe': ['code', 'PyCharm'], 'webstorm64.exe': ['code', 'WebStorm'], 'rider64.exe': ['code', 'Rider'], 'sublime_text.exe': ['code', 'Sublime Text'],
   'notepad++.exe': ['code', 'Notepad++'], 'windowsterminal.exe': ['code', 'the terminal'], 'cmd.exe': ['code', 'the terminal'], 'powershell.exe': ['code', 'the terminal'],
   'pwsh.exe': ['code', 'the terminal'],
+  'claude.exe': ['ai', 'Claude'],
   'discord.exe': ['chat', 'Discord'], 'slack.exe': ['chat', 'Slack'], 'teams.exe': ['chat', 'Teams'], 'ms-teams.exe': ['chat', 'Teams'],
   'whatsapp.exe': ['chat', 'WhatsApp'], 'telegram.exe': ['chat', 'Telegram'], 'signal.exe': ['chat', 'Signal'], 'zoom.exe': ['call', 'Zoom'],
   'spotify.exe': ['music', 'Spotify'], 'itunes.exe': ['music', 'iTunes'], 'tidal.exe': ['music', 'Tidal'],

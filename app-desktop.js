@@ -168,13 +168,14 @@
   })();
 
   // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------
-  var deskPrefs = { roam: true, remind: true, idle: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, sparkles: true, awareness: 2, chatNormal: 'normal', chatFull: 'normal', standStill: false, standStillFull: true, talkNormal: 'normal', talkFull: 'rare' };
+  var deskPrefs = { roam: true, remind: true, idle: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, sparkles: true, backdrop: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', standStill: false, standStillFull: true, talkNormal: 'normal', talkFull: 'rare' };
   /** Awareness: 1 = more privacy (idle and time only), 2 = normal. Anything he says about what you are doing, or knows about your windows and programs, checks this first. */
   window.deskAware = function (level) { return (deskPrefs.awareness === 1 ? 1 : 2) >= level; };
   /** The small window's look choices from the settings window: no toy, no cushion (classes on <html>, CSS at the end of styles.css). */
   function applyLook() {
     root.classList.toggle('desk-notoy', !!deskPrefs.hideToy);
     root.classList.toggle('desk-nocushion', !!deskPrefs.hideCushion);
+    root.classList.toggle('desk-backdrop', deskPrefs.backdrop === true);
     root.classList.toggle('desk-nosparkles', deskPrefs.sparkles === false);
     root.classList.toggle('desk-noclouds', deskPrefs.clouds === false);
     root.classList.toggle('desk-nobubbles', deskPrefs.bubbles === false);   // speech bubbles in the small window only; cards (reminders, links) are separate
@@ -492,6 +493,7 @@
     browser: ['browsing, hm?', 'so much internet~', 'looking something up?'],
     code: ['hard at work!', 'so many tiny words…', 'tap tap tap~'],
     chat: ['chatting with friends?', 'say hi from me!'],
+    ai: ['ooh, Claude! say hi from me~', 'asking Claude again?', 'Claude knows lots of things~', "tell Claude I'm the cute one", 'thinking together? hmm hm', 'fumu fumu~ (that means hi, Claude)'],
     music: ['nice music~ ♪', "what's playing?"],
     video: ['movie time?', 'can I watch too?'],
     office: ['working hard!', 'documents… zzz'],

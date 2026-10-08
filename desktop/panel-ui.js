@@ -78,6 +78,7 @@
     toggle(look, 'Speech bubbles', 'bubbles', 'In the small window. Cards still show.');
     toggle(look, 'Thought bubbles', 'clouds', 'Daydreams and wishes.');
     toggle(look, 'Sparkles around him', 'sparkles');
+    toggle(look, 'Room background', 'backdrop', 'The scene from the whole app.');
     toggle(look, 'Hide his toy', 'hideToy');
     toggle(look, 'Hide the cushion under him', 'hideCushion', 'His bed still shows at bedtime.');
 
@@ -173,7 +174,7 @@
     var seen = document.getElementById('progHint');
     if (seen) P.diag().then(function (x) {
       var el2 = document.getElementById('progHint'); if (!x || !el2) return;
-      var p = x.program, kinds = { game: 'a game', browser: 'a browser', code: 'a coding program', chat: 'a chat program', call: 'a call', music: 'music', video: 'a video player', office: 'an office program', mail: 'mail', art: 'an art program', 'video-edit': 'a video editor', launcher: 'a game launcher', files: 'the file explorer', other: 'something else', fullscreen: 'something full-screen', none: 'nothing yet' };
+      var p = x.program, kinds = { game: 'a game', browser: 'a browser', code: 'a coding program', chat: 'a chat program', ai: 'Claude', call: 'a call', music: 'music', video: 'a video player', office: 'an office program', mail: 'mail', art: 'an art program', 'video-edit': 'a video editor', launcher: 'a game launcher', files: 'the file explorer', other: 'something else', fullscreen: 'something full-screen', none: 'nothing yet' };
       el2.textContent = 'Right now he sees: ' + (!p ? 'nothing yet' : (p.name ? p.name + ' (' + kinds[p.kind] + ')' : kinds[p.kind] || 'something else')) + (p && p.fullscreen ? ', full-screen' : '') + (x.lastUnknownProgram ? '. Last program he could not name: ' + x.lastUnknownProgram : '') + '.';
     });
     var h = document.getElementById('perchHint');

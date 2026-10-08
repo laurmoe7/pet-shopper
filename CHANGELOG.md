@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 289 (9 Oct)
+- Desktop: he recognises Claude and comments on it.
+- Settings: room background switch for small Fumu.
+
 ## Build 288 (9 Oct)
 - Desktop: speech bubble stays on the visible part when he is half off the screen.
 - Desktop: while carried he wiggles, squishes and stays under the cursor; pick-up is quicker.

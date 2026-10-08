@@ -2810,7 +2810,7 @@ html[data-list="todo"] .recipe-btn { display: none; }
 /* ---------- the desktop shell (app-desktop.js; only inside the Electron window in desktop/) ----------
    'pet' mode: Fumu alone, everything else transparent. 'list' mode: the whole app with a small bar on top. */
 html.desktop-pet, html:root.desktop-pet body { background: none !important; }
-html.desktop-pet .scene-bar, html.desktop-pet .list-area, html.desktop-pet .dock, html.desktop-pet .backdrop, html.desktop-pet .room,
+html.desktop-pet .scene-bar, html.desktop-pet .list-area, html.desktop-pet .dock, html.desktop-pet:not(.desk-backdrop) .backdrop, html.desktop-pet .room,
 html.desktop-pet .nightshade, html.desktop-pet .lamp, html.desktop-pet .lamp-light, html.desktop-pet .cart, html.desktop-pet .receipt,
 html.desktop-pet .cart-bag, html.desktop-pet .suggest, html.desktop-pet #deskBar { display: none !important; }
 html.desktop-pet .page-fade { display: none !important; }   /* the scrolling list's bottom fade would paint a band over the transparent window */

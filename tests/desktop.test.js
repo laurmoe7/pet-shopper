@@ -359,3 +359,9 @@ test('the send-copied shortcut exists, is unique and only works while the pointe
   assert.equal(new Set(K.KEY_LIST.map((x) => x.def.toLowerCase())).size, K.KEY_LIST.length);
   assert.match(fs.readFileSync(path.join(__dirname, '..', 'desktop', 'main.js'), 'utf8'), /HOVER_HANDLERS = \{[^}]*sendCopied/);
 });
+
+test('Claude is on the list of known programs', () => {
+  const Pr = require('../desktop/programs.js');
+  assert.deepEqual(Pr.identify('Claude.exe'), { kind: 'ai', name: 'Claude' });
+  assert.deepEqual(Pr.describe('claude.exe', true), { kind: 'ai', name: 'Claude', fullscreen: false });
+});
