@@ -2,7 +2,7 @@
  * Sounds.play(kind) where kind is one of:
  *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party,
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
- *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
+ *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), bell and smash (the night bell ringing, and breaking), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
  *   notice (Claude's note arriving), done, sparkle, coin, ring (ticking off a to-do), stamp (the check mark landing), scribble (writing on the clipboard), shutter (the dressing room's camera),
  *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
@@ -250,6 +250,15 @@
       tone(t + 0.02, 0.14, 'sine', 620, 190, env(t + 0.02, 0.005, 0.13, 0.6));
     },
     // Claude's note arriving: two soft bells
+    bell: function (t) {
+      // a bright little hand bell: ding-ding
+      chime(t, [2093, 2794], 0.0, 0.8, 'sine'); chime(t + 0.16, [2093, 2794], 0.0, 0.6, 'sine'); chime(t + 0.34, [2349], 0.0, 0.35, 'sine');
+    },
+    smash: function (t) {
+      // the bell cracks and tinkles into pieces
+      noise(t, 0.12, 'highpass', 1800, 0.8, env(t, 0.003, 0.11, 0.5));
+      chime(t + 0.05, [2637, 3136, 2349, 1976, 1568], 0.045, 0.5, 'triangle');
+    },
     lullaby: function (t) {
       // a soft little lullaby, two phrases (resting the pointer on him while he sleeps)
       chime(t, [659, 784, 988, 784], 0.34, 0.5, 'sine');

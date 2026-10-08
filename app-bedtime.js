@@ -30,7 +30,7 @@ pet.querySelector('.teddy-hug').innerHTML = TEDDY;
 
 var bedtimeKnown = false, wasAsleep = false;
 /** @returns {boolean} True when it is bedtime by the clock and the list: night, unless you are in the middle of shopping (items waiting on the list or tasks don't keep it up). */
-function bedtimeNow() { return L.isNight(petNow()) && (baseState() === 'sleepy' || !shoppingNow()); }
+function bedtimeNow() { return L.isNight(petNow()) && !(typeof bellAwake === 'function' && bellAwake()) && (baseState() === 'sleepy' || !shoppingNow()); }
 /**
  * Shows the lamp, bed, quilt and dark room for the time and the list, and the tired eyes when it's up at night.
  * Bedtime starts fresh (lamp on, not tucked in) each time it begins or the pet wakes while the app is open,
@@ -47,7 +47,7 @@ function refreshBedtime() {
   // The lamp hangs all night. The bed scene (bed, quilt, teddy) comes with bedtime, or when you switch the lamp off
   // while shopping: then it gets into bed so you can tuck it in.
   var asleep = baseState() === 'sleepy', night = L.isNight(petNow()), base = bedtimeNow();
-  var bedNow = base || (night && bedtime().dark);
+  var bedNow = base || (night && bedtime().dark && !(typeof bellAwake === 'function' && bellAwake()));   // (rung awake with the bell: up until it breaks)
   var wasBed = stage.classList.contains('bedtime');
   if (bedtimeKnown && ((bedNow && !wasBed && base) || (!bedNow && wasBed) || (wasAsleep && !asleep))) {
     try { localStorage.removeItem(BED_KEY); } catch (e) { /* storage blocked */ }

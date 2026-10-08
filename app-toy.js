@@ -76,6 +76,7 @@ function toyCarry(on) {
     toyCarried = true;
     // now and then in both arms, now and then in one hand held out to the side (the other arm flaps as usual; styles.css)
     var side = Math.random() < .5 ? 0 : (Math.random() < .5 ? -1 : 1), k = pet.offsetWidth / 160;
+    if (document.documentElement.dataset.list === 'todo') side = 1;   // his left hand has the clipboard: the toy goes in the right
     toyHoldX = side * 66 * k; toyHoldY = side ? 24 * k : 14;
     pet.classList.add(side === 0 ? 'holds-toy' : side < 0 ? 'holds-toy-l' : 'holds-toy-r');
     toyHold(toyHoldY, walkX + toyHoldX, 220);

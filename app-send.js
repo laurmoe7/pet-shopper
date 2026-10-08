@@ -243,6 +243,8 @@ function receiveMessage(msg, more) {
   inboxCard = document.createElement('div');   // holds the place from the start, so a second message does not begin
   // a short wait first (long enough to have watched it leave the other device), then he eats it as soon as he is free
   setTimeout(function () {
+    // asleep in his bed he does not wake to eat it: a quiet chime and the card, no wand and no cheering
+    if (typeof petScene === 'function' && petScene() === 'night-bed') { inboxCard = null; sound('notice'); showInboxCard(msg, more); return; }
     whenCanEat(function (ok) {
       if (!ok) { inboxCard = null; showInboxCard(msg, more); return; }
       var mouth = mouthPoint();

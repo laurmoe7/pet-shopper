@@ -49,7 +49,7 @@
 
   // clicks go to Fumu only where something solid is under the pointer; elsewhere they pass to the desktop
   var lastSolid = null, lastSent = 0;
-  var SOLID = '#pet, .bubble, .gift, .wish, .toy, .suggest, .dream, .inbox-card, .teddy-btn, .night-btn';   // (the reminder card is an .inbox-card too)
+  var SOLID = '#pet, .bubble, .gift, .wish, .toy, .suggest, .dream, .inbox-card, .teddy-btn, .night-btn, .bell';   // (the reminder card is an .inbox-card too)
   /** Tells the shell whether clicks should be caught; sent when it changes and now and then anyway, so the two can't drift apart. */
   function setSolid(yes) {
     if (D.setRects) return;   // a newer shell decides by itself from the rectangles below (no round trip to the page)
@@ -433,8 +433,7 @@
     button('✕', close, 'inbox-done').setAttribute('aria-label', 'Dismiss');
     card.append(img, text, acts);
     document.querySelector('.stage').appendChild(card);
-    setFace(FACES.tada);
-    pulse('hop', 460);
+    if (!(typeof petScene === 'function' && petScene() === 'night-bed')) { setFace(FACES.tada); pulse('hop', 460); }   // (asleep in bed he does not jump about)
     sound('ring');
   }
   /**

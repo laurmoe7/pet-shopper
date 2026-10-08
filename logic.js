@@ -656,6 +656,18 @@
    * @returns {string} The night this moment belongs to, named by the evening it started (an hour after
    * midnight is still the night before), so a tuck-in lasts until morning.
    */
+  /**
+   * Which of the desktop pet's five scenes he is in (everything he does on the desktop must work in each):
+   * 'day' (normal daytime), 'day-clip' (daytime, the to-do list: the clipboard in his hand), 'night-bed' (at night, in his bed),
+   * 'night-drowsy' (up at night, e.g. from using the shopping list) and 'night-drowsy-clip' (up at night with the clipboard).
+   * @param {{night: boolean, bed: boolean, todo: boolean}} o  Whether it is night, whether his bed is out, whether the to-do list is showing.
+   * @returns {string}
+   */
+  function deskScene(o) {
+    if (o.night && o.bed) return 'night-bed';
+    if (o.night) return o.todo ? 'night-drowsy-clip' : 'night-drowsy';
+    return o.todo ? 'day-clip' : 'day';
+  }
   function nightOf(now) { return dayKey(new Date(now.getTime() - 12 * 3600 * 1000)); }
 
   function dayKey(date) {
@@ -2058,6 +2070,7 @@
     TRIP_MIN_ITEMS: TRIP_MIN_ITEMS,
     dayKey: dayKey,
     nightOf: nightOf,
+    deskScene: deskScene,
     countsFor: countsFor,
     recordEaten: recordEaten,
     recordTrip: recordTrip,

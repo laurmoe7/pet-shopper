@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 320 (9 Oct)
+- Five clear desktop scenes: day, day with clipboard, night in bed, night drowsy, night drowsy with clipboard.
+- Night bell in bed instead of the toy: shake it to wake him drowsy, throw it and it breaks and he goes back to bed.
+- Asleep in bed, alerts and reminders no longer make him jump about.
+- Carrying the toy on the to-do list uses his free hand.
+
 ## Build 319 (9 Oct)
 - Thrown: his lower half no longer gets cut off while he spins.
 
