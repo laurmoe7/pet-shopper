@@ -35,5 +35,6 @@ module.exports = function createPanel(ctx) {
   ipcMain.handle('panel:rebind', (e, id, accel) => (from(e) ? ctx.rebind(String(id), String(accel)) : { ok: false, reason: 'Not allowed.' }));
   ipcMain.handle('panel:action', (e, name, arg) => (from(e) ? ctx.action(String(name), arg) : false));
   ipcMain.handle('panel:diag', (e) => (from(e) ? ctx.diag() : null));
+  ipcMain.handle('panel:dev', (e, cmd, arg) => (from(e) ? ctx.dev(String(cmd), arg) : null));
   return { open, toggle, push };
 };

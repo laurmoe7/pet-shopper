@@ -2998,7 +2998,7 @@ html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); scale: .7; t
 .bell.putaway { transition: opacity .4s ease, scale .4s ease; opacity: 0; scale: .5; pointer-events: none; }
 
 /* the daily gift lives in the Profile sheet for now: a box to the right of the title, and a count on the Profile button */
-.profile-head { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.profile-head { display: flex; align-items: center; justify-content: flex-start; gap: 10px; }
 .profile-head h2 { margin: 0; }
 .profile-gift { position: relative; width: 38px; height: 38px; padding: 0; border: 0; background: none; cursor: pointer; animation: gift-wiggle 3.2s ease-in-out infinite; }
 .profile-gift[hidden], .dock-badge[hidden] { display: none; }

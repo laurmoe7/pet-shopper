@@ -711,7 +711,14 @@ function start() {
       prefs: Object.assign({ onTop: prefs.onTop, aboveFull: prefs.aboveFull, hotkeys: prefs.hotkeys, startWithWindows: app.getLoginItemSettings().openAtLogin }, publicPrefs(), { perch: prefs.perch }),
       keys: prefs.keys, channel: CHANNEL.name, privacy: { levels: privacy.LEVELS, always: privacy.ALWAYS, chatLevels: privacy.CHAT_LEVELS, moveLevels: privacy.MOVE_LEVELS }, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, petName: prefs.petName, update: updateReady, updateState
     }),
-    set: setPref, rebind, action, diag
+    set: setPref, rebind, action, diag,
+    // developer tools: the page's own functions (window.deskDev in app-desktop.js), called by name from a fixed list with a plain value
+    dev: async (cmd, arg) => {
+      if (!win || win.isDestroyed() || !['state', 'clock', 'scene', 'run', 'animations', 'play', 'stop'].includes(cmd)) return null;
+      if (mode !== 'pet' && cmd !== 'state' && cmd !== 'animations') applyMode('pet');
+      const value = typeof arg === 'number' || typeof arg === 'string' ? arg : null;
+      try { return await win.webContents.executeJavaScript('window.deskDev ? window.deskDev.' + cmd + '(' + JSON.stringify(value) + ') : null'); } catch (e) { return null; }
+    }
   });
   setInterval(updateHoverKey, 120);
   watchProgram();

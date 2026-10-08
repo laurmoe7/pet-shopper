@@ -1,7 +1,7 @@
 // The settings window's page: draws the choices from what main.js reports and sends changes back.
 'use strict';
 (function () {
-  var P = window.fumuPanel, root = document.getElementById('root'), S = null, capture = null, note = '', diagTimer = 0, devOpen = false;
+  var P = window.fumuPanel, root = document.getElementById('root'), S = null, capture = null, note = '', diagTimer = 0, devOpen = false, devNote = '', devGroups = { 'Time of day and scenes': true };
 
   /** His name, the one the player gave him (the shell passes it on). */
   function nm() { return (S && S.petName) || 'Fumu'; }
@@ -156,24 +156,85 @@
     keys.appendChild(back);
 
     var dev = section('Developer tools');
-    var info = el('p', '', 'Make him do something now (in the small window):'); info.style.margin = '4px 0 0'; dev.appendChild(info);
-    var doBtns = el('div', 'btns');
-    [['wander', 'Wander'], ['peek', 'Peek round the edge'], ['nap', 'Nap'], ['perch', 'Hop on a window / down'], ['sit', 'Sit / stand (soles)'], ['remind', 'Test task alert'], ['claude', 'Test Claude alert'], ['note', 'Test note alert']].forEach(function (d) { button(doBtns, d[1], act('do', d[0])); });
-    dev.appendChild(doBtns);
-    var tools = el('div', 'btns');
-    if (S.update) button(tools, 'Restart to update', act('installUpdate'));
-    button(tools, 'Check for app updates', act('checkUpdates')).disabled = !S.packaged;
-    button(tools, 'Reload the app (get the latest page)', act('reload'));
-    button(tools, 'Open DevTools', act('devtools'));
-    button(tools, 'Open the settings folder', act('openData'));
-    button(tools, 'Copy diagnostics', act('copyDiag'));
-    button(tools, 'Reset all these settings', function () { if (window.confirm('Reset all these settings?')) P.action('resetSettings').then(function () { return P.get(); }).then(take); }, 'warn');
-    dev.appendChild(tools);
+    var status = el('p', 'devnote', devNote); dev.appendChild(status);
+    function say(msg) { devNote = msg || ''; status.textContent = devNote; }
+    /** A button that calls one of the page's developer functions (see window.deskDev in app-desktop.js) and shows what it says. */
+    function devBtn(parent, label, cmd, arg, cls) { return button(parent, label, function () { P.dev(cmd, arg).then(function (r) { say(typeof r === 'string' ? r : ''); showState(); }); }, cls); }
+    /** One fold-out group of the developer tools. */
+    function group(title, hint) {
+      var d = el('details'); d.open = !!devGroups[title];
+      d.appendChild(el('summary', '', title));
+      d.addEventListener('toggle', function () { devGroups[title] = d.open; });
+      if (hint) { var h = el('p', 'hint', hint); d.appendChild(h); }
+      var box = el('div', 'btns'); d.appendChild(box); dev.appendChild(d);
+      return box;
+    }
+
+    // time of day and scenes: the five scenes he can be in on the desktop (CLAUDE.md), set up in one click
+    var time = group('Time of day and scenes', 'The clock changes what he does: bed at night, the toy by day.');
+    var seg = el('div', 'seg');
+    [['auto', 'Real clock'], ['day', 'Day'], ['night', 'Night']].forEach(function (c) { devBtn(seg, c[1], 'clock', c[0]); });
+    time.appendChild(seg);
+    var scenesBox = el('div', 'btns'); time.parentNode.appendChild(scenesBox);
+    [['day', 'Day'], ['day-clip', 'Day, clipboard'], ['night-bed', 'Night, in bed'], ['night-drowsy', 'Night, drowsy'], ['night-drowsy-clip', 'Night, drowsy, clipboard']].forEach(function (c) { devBtn(scenesBox, c[1], 'scene', c[0]); });
+    var now = el('p', 'hint', 'Now: …'); time.parentNode.appendChild(now);
+    function showState() { P.dev('state').then(function (x) { if (x && document.body.contains(now)) now.textContent = 'Now: ' + x.scene + ' · clock ' + x.clock + ' · ' + x.list + ' list'; }); }
+    showState();
+
+    var does = group('Make him do something');
+    [['wander', 'Wander'], ['peek', 'Peek round the edge'], ['perch', 'Hop on a window / down'], ['sit', 'Sit / stand (soles)'], ['nap', 'Nap'], ['ring', 'Open the ring menu'], ['bellring', 'Ring the bell'], ['bellbreak', 'Break the bell'], ['nightlight', 'Night light on / off']].forEach(function (d) { devBtn(does, d[1], 'run', d[0]); });
+
+    var alerts = group('Alerts');
+    [['remind', 'Task alert'], ['claude', 'Claude alert'], ['note', 'Note alert'], ['link', 'Link alert'], ['update', 'Update ready card']].forEach(function (d) { devBtn(alerts, d[1], 'run', d[0]); });
+
+    var stuff = group('Pet and lists');
+    [['snack', 'He asks for a snack'], ['suggest', 'He suggests an item'], ['giftday', 'Pretend the next special day (gifts)'], ['giftshut', 'Shut today\'s gifts again'], ['tomorrow', 'Skip to tomorrow'], ['sample', 'Fill with sample items'], ['clear', 'Clear the list']].forEach(function (d) { devBtn(stuff, d[1], 'run', d[0], d[0] === 'clear' ? 'warn' : ''); });
+
+    // the animation player: every animation by name, played on the small Fumu
+    var anim = el('details'); anim.open = !!devGroups['Animations'];
+    anim.appendChild(el('summary', '', 'Animations'));
+    var abox = el('div'); anim.appendChild(abox); dev.appendChild(anim);
+    var loaded = false;
+    function loadAnims() {
+      if (loaded) return; loaded = true;
+      abox.appendChild(el('p', 'hint', 'Loading…'));
+      P.dev('animations').then(function (list) {
+        abox.textContent = '';
+        if (!list) { abox.appendChild(el('p', 'hint', 'Open the small Fumu first.')); loaded = false; return; }
+        var top = el('div', 'btns'), filter = el('input'); filter.type = 'search'; filter.placeholder = 'Search ' + list.length + ' animations'; filter.className = 'filter';
+        top.appendChild(filter); devBtn(top, 'Stop', 'stop'); abox.appendChild(top);
+        var holder = el('div'); abox.appendChild(holder);
+        function draw() {
+          var q = filter.value.trim().toLowerCase(), order = [], groups = {};
+          list.forEach(function (a, i) { if (q && a.n.toLowerCase().indexOf(q) === -1 && a.g.toLowerCase().indexOf(q) === -1) return; if (!groups[a.g]) { groups[a.g] = []; order.push(a.g); } groups[a.g].push(i); });
+          holder.textContent = '';
+          order.forEach(function (g) {
+            holder.appendChild(el('h3', '', g));
+            var row = el('div', 'btns chips');
+            groups[g].forEach(function (i) { devBtn(row, list[i].n, 'play', i); });
+            holder.appendChild(row);
+          });
+          if (!order.length) holder.appendChild(el('p', 'hint', 'Nothing matches.'));
+        }
+        filter.addEventListener('input', draw); draw();
+      });
+    }
+    anim.addEventListener('toggle', function () { devGroups['Animations'] = anim.open; if (anim.open) loadAnims(); });
+    if (anim.open) loadAnims();
+
+    var appBox = group('The program');
+    if (S.update) button(appBox, 'Restart to update', act('installUpdate'));
+    button(appBox, 'Check for app updates', act('checkUpdates')).disabled = !S.packaged;
+    button(appBox, 'Reload the app (get the latest page)', act('reload'));
+    button(appBox, 'Open DevTools', act('devtools'));
+    button(appBox, 'Open the settings folder', act('openData'));
+    button(appBox, 'Copy diagnostics', act('copyDiag'));
+    button(appBox, 'Reset all these settings', function () { if (window.confirm('Reset all these settings?')) P.action('resetSettings').then(function () { return P.get(); }).then(take); }, 'warn');
     var d = el('details'); d.open = devOpen;
     d.appendChild(el('summary', '', 'What the shell sees right now'));
     var pre = el('pre', '', '…'); pre.id = 'diag'; d.appendChild(pre);
     d.addEventListener('toggle', function () { devOpen = d.open; poll(); });
-    dev.appendChild(d);
+    appBox.parentNode.appendChild(d);
     poll();
   }
   function poll() {

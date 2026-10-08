@@ -55,6 +55,11 @@
   u { text-decoration-thickness: 1.5px; text-underline-offset: 2px; }
   /* the bottom edge fades while there is more to scroll to, like the menus in the app */
   #fade { position: fixed; left: 0; right: 14px; bottom: 0; height: 38px; pointer-events: none; background: linear-gradient(to bottom, transparent, var(--bg) 85%); opacity: 0; transition: opacity .2s; }
+  .devnote { margin: 4px 0 8px; min-height: 1.2em; font-size: .85rem; color: var(--muted); }
+  .hint { margin: 0 0 4px; color: var(--muted); font-size: .8rem; }
+  .filter { flex: 1; min-width: 140px; font: inherit; font-size: .85rem; padding: 4px 12px; border: 1.8px solid var(--outline); border-radius: 999px; background: var(--surface-2); color: var(--ink); }
+  .chips button { font-size: .78rem; padding: 2px 10px; }
+  h3 { margin: 10px 0 2px; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
   details > summary { cursor: pointer; padding: 6px 0; font-weight: 700; list-style: none; }
   details > summary::before { content: "▸ "; }
   details[open] > summary::before { content: "▾ "; }

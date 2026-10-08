@@ -903,6 +903,68 @@
     if (what === 'claude' || what === 'note') { devAlert(what); return 9000; }
     return 0;
   };
+  // ---------- developer tools for the settings window (the shell calls these; see desktop/panel-ui.js) ----------
+  // Only the shell may call them (it runs a fixed list of names), and none of them reads or sends anything about the player.
+  var devAnims = [], devAnimTimer = 0, devAnimBusy = false;
+  function devRefresh() { updateEmptyHint(); refreshBackdrop(); refreshBedtime(); if (!busy) settle(); }
+  /** Marks one item on the list as just ticked (so "shopping now" is true) and the rest as still to do. @param {Object[]} list */
+  function devShopping(list) {
+    if (!list.length) list.push.apply(list, L.parseState(null, newId).items.slice(0, 3));
+    var now = Date.now();
+    list.forEach(function (it, i) { it.done = i === 0; it.doneAt = i === 0 ? now : 0; });
+  }
+  function devQuietList(list) { list.forEach(function (it) { if (it.done) it.doneAt = 0; }); }
+  function devList(todo) { if (isTodo() !== todo) switchList(); }
+  var DEV_RUN = {
+    wander: function () { return window.deskDo('wander') ? 'He wanders.' : 'Not now.'; },
+    peek: function () { return window.deskDo('peek') ? 'He peeks.' : 'Not now.'; },
+    perch: function () { return window.deskDo('perch') ? 'He hops on or off a window.' : 'Not now.'; },
+    sit: function () { window.deskDo('sit'); return 'Sit / stand.'; },
+    nap: function () { window.deskDo('nap'); return 'He naps.'; },
+    remind: function () { window.deskDo('remind'); return 'Task alert.'; },
+    claude: function () { return devAlert('claude'); },
+    note: function () { return devAlert('note'); },
+    link: function () { return devAlert('link'); },
+    update: function () { showUpdateCard(); return 'Update card.'; },
+    ring: function () { return window.deskRing && window.deskRing() ? 'Ring menu open.' : 'Not now.'; },
+    bellring: function () { if (!bellOut()) return 'The bell is only out while he is in bed.'; bellRing(); return 'Ding.'; },
+    bellbreak: function () { if (!bellOut()) return 'The bell is only out while he is in bed.'; bellBreak(); return 'Smash.'; },
+    nightlight: function () { toggleNightLight(); return 'Night light ' + (nightLightOn ? 'on' : 'off') + '.'; },
+    snack: function () { return devWish(); },
+    suggest: function () { return devSuggest(); },
+    giftday: function () { return devGiftCalendar(); },
+    giftshut: function () { return devGiftReset(); },
+    tomorrow: function () { L.skipDays(state, 1); refreshAll(); return 'A day has passed.'; },
+    sample: function () { state.items = state.items.concat(isTodo() ? sampleTodos() : L.parseState(null, newId).items); refreshAll(); return 'Sample items added.'; },
+    clear: function () { state.items = []; refreshAll(); return 'List cleared.'; }
+  };
+  var DEV_SCENES = {
+    'day': function () { devClock = 'day'; devList(false); },
+    'day-clip': function () { devClock = 'day'; devList(true); },
+    'night-bed': function () { devClock = 'night'; devList(false); devQuietList(state.items); devQuietList(state.stash); },
+    'night-drowsy': function () { devClock = 'night'; devList(false); devShopping(state.items); },
+    'night-drowsy-clip': function () { devClock = 'night'; devList(true); devShopping(state.stash); devQuietList(state.items); }
+  };
+  window.deskDev = {
+    state: function () { return { scene: petScene(), clock: devClock, list: isTodo() ? 'to-do' : 'shopping' }; },
+    clock: function (v) { if (v !== 'auto' && v !== 'day' && v !== 'night') return 'No.'; devClock = v; devRefresh(); return { auto: 'Real clock.', day: 'Daytime.', night: 'Night.' }[v]; },
+    scene: function (id) { if (!DEV_SCENES[id]) return 'No.'; DEV_SCENES[id](); try { setBellAwake(false); } catch (e) { /* storage */ } save(); render(); devRefresh(); return 'Now: ' + id; },
+    run: function (id) { return DEV_RUN[id] ? String(DEV_RUN[id]() || 'Done.') : 'No.'; },
+    /** @returns {{g: string, n: string}[]} Every animation by group and name (the animation player's list). */
+    animations: function () { devAnims = animCatalogue(); return devAnims.map(function (a) { return { g: a.group, n: a.name }; }); },
+    play: function (i) {
+      var it = devAnims[i | 0]; if (!it) return 'No.';
+      clearTimeout(devAnimTimer);
+      if (devAnimBusy) busy = Math.max(0, busy - 1);
+      devAnimBusy = true; busy++; stopWalk();
+      var ms; try { ms = it.run(); } catch (e) { ms = 600; }
+      if (typeof ms !== 'number' || !isFinite(ms)) ms = 1800;
+      devAnimTimer = setTimeout(function () { devAnimBusy = false; busy = Math.max(0, busy - 1); if (!busy) settle(); }, Math.max(500, ms) + 500);
+      return it.group + ' › ' + it.name;
+    },
+    stop: function () { clearTimeout(devAnimTimer); if (devAnimBusy) { devAnimBusy = false; busy = Math.max(0, busy - 1); } if (!busy) settle(); return 'Stopped.'; }
+  };
+
   /** A short stroll inside the window, where his room is: the window itself stays put. */
   function strollInRoom(little) {
     if (typeof walkTo !== 'function' || typeof walkRange !== 'function') return;
