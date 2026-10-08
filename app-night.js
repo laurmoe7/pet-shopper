@@ -259,7 +259,7 @@ function bellFly(vx, vy, spin) {
   var gravity = field ? 950 : 1500, wallK = field ? 0.92 : 0.75, floorK = field ? 0.74 : 0.6;   // (over the whole screen it flies longer, like the toy)
   cancelAnimationFrame(bellFlight);
   if (field) { bell.style.visibility = 'hidden'; bellActive = field; bellField = null; }
-  function bounce(now, speed) { if (speed > 140 && now - lastBounce > 60) { lastBounce = now; sound('tink'); if (++bounces >= 2) { bellBreak(); return true; } } return false; }
+  function bounce(now, speed) { if (speed > 140 && now - lastBounce > 60) { lastBounce = now; sound('tink'); if (++bounces >= 4) { bellBreak(); return true; } } return false; }
   (function step(now) {
     var dt = Math.min(0.033, (now - last) / 1000); last = now;
     vy -= gravity * dt; bellX += vx * dt; bellY += vy * dt;

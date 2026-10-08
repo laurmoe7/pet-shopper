@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 349
+- The bell bounces four times before it breaks.
+- In a full-screen game or program he no longer catches the mouse (new switch "Mouse reaches him in games", off).
+
 ## Build 348
 - Wand sparkles come out of the wand tip again (on the to-do list they went to the corner).
 - The wand flicks four times over the longer alert.
