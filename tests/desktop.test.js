@@ -122,3 +122,92 @@ test('a glide eases from start to end and lands exactly', () => {
   assert.equal(place.tweenAt(a, z, 0.5).x, 200);
   assert.ok(place.tweenAt(a, z, 0.1).x < 40 && place.tweenAt(a, z, 0.9).x > 360);   // slow at both ends
 });
+
+// ---------- screens that change, idle, and sitting on other windows ----------
+const main1 = { x: 0, y: 0, width: 1920, height: 1040 };
+const side = { x: 1920, y: 0, width: 1280, height: 1024 };
+
+test('when his screen is unplugged he goes to the main screen, and back when it returns', () => {
+  const size = { width: 320, height: 250 }, onSide = { x: 2400, y: 500, width: 320, height: 250 };
+  const gone = P.afterScreensChange(onSide, { x: 2400, y: 500 }, size, [main1], main1, false);
+  assert.equal(gone.displaced, true);
+  assert.deepEqual(gone.bounds, P.defaultBounds(main1, size));
+  const back = P.afterScreensChange(gone.bounds, { x: 2400, y: 500 }, size, [main1, side], main1, true);
+  assert.deepEqual(back, { bounds: onSide, displaced: false });
+  const still = P.afterScreensChange(gone.bounds, { x: 2400, y: 500 }, size, [main1], main1, true);
+  assert.equal(still.displaced, true);
+});
+
+test('a window that still fits on a screen stays, and is pulled in when the screen shrank', () => {
+  const size = { width: 320, height: 250 };
+  assert.deepEqual(P.afterScreensChange({ x: 100, y: 100, width: 320, height: 250 }, { x: 100, y: 100 }, size, [main1], main1, false).bounds, { x: 100, y: 100, width: 320, height: 250 });
+  const shrunk = P.afterScreensChange({ x: 1700, y: 900, width: 320, height: 250 }, { x: 1700, y: 900 }, size, [{ x: 0, y: 0, width: 1920, height: 1000 }], main1, false);
+  assert.equal(shrunk.displaced, false);
+  assert.equal(shrunk.bounds.y + shrunk.bounds.height <= 1000, true);
+});
+
+test('idle starts after the set time and ends at the first input', () => {
+  assert.equal(P.idleStep(false, 100, 240), false);
+  assert.equal(P.idleStep(false, 240, 240), true);
+  assert.equal(P.idleStep(true, 400, 240), true);
+  assert.equal(P.idleStep(true, 1, 240), false);
+});
+
+const win = (id, x, y, width, height) => ({ id, x, y, width, height });
+
+test('perches are the top edges of windows, minus what lies under a window in front', () => {
+  const front = win('a', 300, 300, 400, 400), back = win('b', 160, 400, 1000, 500);
+  // back's top edge is at y 400, which lies behind the front window from x 300 to 700
+  const p = P.perches([front, back], [main1], 150);
+  const forBack = p.filter((s) => s.id === 'b').map((s) => [s.x1, s.x2]);
+  assert.deepEqual(forBack, [[700, 1160]]);   // the piece 160..300 is too narrow to sit on
+  assert.deepEqual(p.filter((s) => s.id === 'a'), [{ id: 'a', x1: 300, x2: 700, y: 300 }]);
+});
+
+test('a window with no room above it (maximized) is not a perch, and edges are cut to the screen', () => {
+  assert.deepEqual(P.perches([win('m', 0, 0, 1920, 1040)], [main1], 150), []);
+  const p = P.perches([win('w', 1700, 400, 600, 300)], [main1, side], 150);
+  assert.deepEqual(p.map((s) => [s.x1, s.x2]).sort((a, b) => a[0] - b[0]), [[1700, 1920], [1920, 2300]]);
+});
+
+test('he stands on an edge like on the taskbar, with his middle kept over it', () => {
+  const b = { x: 0, y: 0, width: 320, height: 250 }, seg = { id: 'a', x1: 500, x2: 900, y: 600 };
+  const on = P.perchBounds(b, seg);
+  assert.equal(on.y, 600 - 250 - P.MARGIN / 2);
+  assert.equal(on.x + 160 >= 500 + 80 && on.x + 160 <= 900 - 80, true);
+  assert.equal(P.perchBounds({ x: 3000, y: 0, width: 320, height: 250 }, seg).x + 160, 900 - 80);
+});
+
+test('a drop close to an edge snaps to it, a drop far above does not', () => {
+  const segs = [{ id: 'a', x1: 500, x2: 900, y: 600 }];
+  const close = { x: 540, y: 600 - 250 - P.MARGIN / 2 - 25, width: 320, height: 250 };
+  assert.equal(P.perchUnder(close, segs, 40).id, 'a');
+  assert.equal(P.perchUnder(Object.assign({}, close, { y: close.y - 200 }), segs, 40), null);
+  assert.equal(P.perchUnder(Object.assign({}, close, { x: 2000 }), segs, 40), null);
+});
+
+test('only perches on his own screen and within reach are candidates', () => {
+  const b = { x: 100, y: 700, width: 320, height: 250 };
+  const segs = [{ id: 'a', x1: 300, x2: 700, y: 400 }, { id: 'far', x1: 1500, x2: 1800, y: 400 }, { id: 'other', x1: 2000, x2: 2400, y: 400 }, { id: 'me', x1: 100, x2: 500, y: 500 }];
+  assert.deepEqual(P.perchesNear(b, segs, [main1, side], 600, 'me').map((s) => s.id), ['a']);
+});
+
+test('falling goes straight down to the floor; the hop arcs and ends where it should', () => {
+  const area = main1;
+  assert.deepEqual(P.floorBounds({ x: 700, y: 100, width: 320, height: 250 }, area), { x: 700, y: 1040 - 250 - P.MARGIN / 2, width: 320, height: 250 });
+  const a = { x: 0, y: 500, width: 320, height: 250 }, b2 = { x: 400, y: 500, width: 320, height: 250 };
+  assert.equal(P.arcAt(a, b2, 0.5, 60).y, 500 - 60);
+  assert.deepEqual(P.arcAt(a, b2, 1, 60), { x: 400, y: 500, width: 320, height: 250 });
+});
+
+test('the desktop shell lists every file it needs for the installer', () => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'desktop', 'package.json'), 'utf8'));
+  ['main.js', 'preload.js', 'place.js', 'windows.js'].forEach((f) => assert.ok(pkg.build.files.includes(f), f));
+  assert.ok(pkg.dependencies.koffi);
+  assert.ok(fs.existsSync(path.join(__dirname, '..', 'desktop', 'windows.js')));
+});
+
+test('the window lister never reads titles or process names', () => {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'desktop', 'windows.js'), 'utf8');
+  assert.equal(/GetWindowTextW|GetWindowTextA|GetClassName|QueryFullProcessImageName|GetModuleFileName/.test(src.replace(/\/\/.*$/gm, '')), false);
+});

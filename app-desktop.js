@@ -110,13 +110,13 @@
     row.innerHTML = '<span class="option-title">Shortcuts on this PC</span>';
     var t = document.createElement('span');
     t.className = 'option-text desk-keys';
-    t.innerHTML = '<b>Ctrl+Alt+F</b> small Fumu ⇄ whole app<br><b>Ctrl+Alt+T</b> shopping ⇄ to-do list<br>Middle-click Fumu: open the app. Double-click the bar: back to Fumu.<br>Right-click Fumu for size, position and more.';
+    t.innerHTML = '<b>Ctrl+Alt+F</b> small Fumu ⇄ whole app<br><b>Ctrl+Alt+T</b> shopping ⇄ to-do list<br><b>Ctrl+Alt+A</b> add an item from any program<br>Middle-click Fumu: open the app. Double-click the bar: back to Fumu.<br>Right-click Fumu for size, position and more.';
     row.appendChild(t);
     optionsList.insertBefore(row, optionsList.children[2] || null);
   })();
 
   // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------
-  var deskPrefs = { roam: true, remind: true };
+  var deskPrefs = { roam: true, remind: true, idle: true, perch: false };
   if (D.getPrefs) D.getPrefs().then(function (p) { if (p) deskPrefs = p; });
   if (D.onPrefs) D.onPrefs(function (p) { if (p) deskPrefs = p; });
 
@@ -179,9 +179,9 @@
   };
 
   // ---------- Fumu does things on his own: wander along the screen, peek round the edge, nap ----------
-  var peeking = false, roaming = false;
+  var peeking = false, roaming = false, away = false, awayAt = 0, awayNap = false, perched = false;
   function roamOk() {
-    return deskPrefs.roam !== false && isPet() && !document.hidden && !roaming && !peeking && !carried && !press && !busy && !walking && !dreaming &&
+    return deskPrefs.roam !== false && isPet() && !document.hidden && !roaming && !peeking && !away && !carried && !press && !busy && !walking && !dreaming &&
       !(typeof napping !== 'undefined' && napping) && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') &&
       !document.querySelector('dialog[open], .inbox-card') && bubble.hidden && suggestEl.hidden;
   }
@@ -234,11 +234,104 @@
   // touching him while he peeks brings him straight back; the page shows only a bit of him, so his click lands on the part you see
   pet.addEventListener('pointerdown', function () { if (peeking) endPeek(); }, true);
 
+
+  // ---------- adding an item from any program (the shell's shortcut) ----------
+  // In the small window a box opens by Fumu and takes the keyboard; Enter adds the item to the list in view and Esc closes it.
+  // In the whole app the shell just focuses the window and the usual box takes the words.
+  var quickAway = 0;
+  function quickCard() { return document.querySelector('.quick-card'); }
+  function closeQuick() {
+    var c = quickCard();
+    clearTimeout(quickAway);
+    if (c) c.remove();
+  }
+  function openQuick() {
+    if (!isPet()) { var box = $('addInput'); if (box) box.focus(); return; }
+    var old = quickCard();
+    if (old) { old.querySelector('input').focus(); return; }
+    if (peeking) endPeek();
+    if (typeof wakeFromNap === 'function') wakeFromNap(false);
+    var card = document.createElement('form');
+    card.className = 'inbox-card quick-card';
+    card.autocomplete = 'off';
+    var input = document.createElement('input');
+    input.type = 'text'; input.maxLength = 80; input.enterKeyHint = 'done';
+    input.placeholder = isTodo() ? 'Add a task…' : 'Add to the shopping list…';
+    input.setAttribute('aria-label', input.placeholder);
+    var go = document.createElement('button');
+    go.type = 'submit'; go.textContent = 'Add';
+    card.append(input, go);
+    card.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var text = input.value;
+      closeQuick();
+      if (text.trim()) addItem(text);
+    });
+    input.addEventListener('keydown', function (e) { e.stopPropagation(); if (e.key === 'Escape') closeQuick(); });
+    input.addEventListener('blur', function () { clearTimeout(quickAway); quickAway = setTimeout(closeQuick, 6000); });   // clicked elsewhere: it tidies itself away
+    input.addEventListener('focus', function () { clearTimeout(quickAway); });
+    document.querySelector('.stage').appendChild(card);
+    setFace(FACES.curious);
+    D.typing(true);
+    setTimeout(function () { input.focus(); }, 60);
+  }
+  if (D.onQuickAdd) D.onQuickAdd(openQuick);
+
+  // ---------- away from the computer ----------
+  // The shell says when nothing was touched for a few minutes (or the screen was locked): he curls up for a nap, and says hello again when you are back.
+  if (D.onIdle) D.onIdle(function (idle) {
+    if (idle) {
+      if (deskPrefs.idle === false || !isPet() || away) return;
+      away = true; awayAt = Date.now();
+      awayNap = !roaming && !peeking && typeof napNow === 'function' && napNow(8 * 3600 * 1000) > 0;
+      return;
+    }
+    if (!away) return;
+    away = false;
+    var gone = Date.now() - awayAt, hello = gone > 3600000 ? ['you were gone so long!', 'I missed you ♡', 'welcome back, finally!'] : ['welcome back!', 'there you are~', 'hello again ♡'];
+    if (awayNap && typeof napping !== 'undefined' && napping) {
+      wakeFromNap(false);
+      setTimeout(function () { if (!busy) { say(pick(hello), 1800); pulse('hop', 460); } }, 1800);
+    } else if (gone > 120000 && !busy && isPet()) {
+      say(pick(hello), 1800);
+      pulse('hop', 460);
+    }
+    awayNap = false;
+  });
+
+  // ---------- sitting on other windows (a switch in the tray menu; Windows only) ----------
+  // The shell finds the edges and moves the window; here he hops, looks pleased and gets down when it is bedtime.
+  if (D.onPerched) D.onPerched(function (yes) { perched = yes; });
+  function hopUp() {
+    if (!D.perch || roaming) return;
+    roaming = true;
+    setFace(FACES.curious);
+    pulse('hop', 700);
+    D.perch('up').then(function (on) {
+      roaming = false;
+      if (!on) { settle(); return; }
+      pulse('hop', 460);
+      setFace({ eyes: 'happy', mouth: 'smile', arms: 'idle', x: ['cheeks'] });
+      say(pick(['up here!', 'nice view~', 'hehe, a perch', 'fumu fumu~']), 1500);
+      setTimeout(function () { if (!busy) settle(); }, 1600);
+    }, function () { roaming = false; });
+  }
+  function hopDown() {
+    if (!D.perch || roaming) return;
+    roaming = true;
+    pulse('hop', 700);
+    D.perch('down').then(function () { roaming = false; if (!busy) { settle(); say(pick(['back down~', 'whee!']), 1200); } }, function () { roaming = false; });
+  }
+  // bedtime or sleep: he comes down to his cushion first
+  setInterval(function () {
+    if (perched && isPet() && !roaming && (stage.classList.contains('bedtime') || baseState() === 'sleepy')) hopDown();
+  }, 5000);
   /** For the animation player and tests: do one of them now (ignores the pause and the tray choice). */
   window.deskDo = function (what) {
     if (!isPet() || roaming || peeking) return 0;
     if (what === 'wander') { wander(); return 4500; }
     if (what === 'peek') { peek(); return 7000; }
+    if (what === 'perch') { if (perched) hopDown(); else hopUp(); return 3000; }
     return 0;
   };
   var roamTimer = 0;
@@ -247,9 +340,11 @@
     roamTimer = setTimeout(function () {
       if (roamOk()) {
         var r = Math.random();
-        if (r < 0.4) wander();
+        if (D.perch && deskPrefs.perch && r < 0.3) { if (perched) hopDown(); else hopUp(); }
+        else if (perched && r > 0.7) wander();
+        else if (r < 0.4) wander();
         else if (r < 0.7 && typeof napNow === 'function') napNow(18000 + Math.random() * 14000);
-        else peek();
+        else if (!perched) peek();
       }
       scheduleRoam(false);
     }, (first ? 90 : 240) * 1000 + Math.random() * (first ? 150 : 300) * 1000);

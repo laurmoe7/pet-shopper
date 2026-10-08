@@ -2820,6 +2820,13 @@ html.desktop-pet .dream-dot.d2 { left: -12px; top: 54px; }
 .inbox-actions .inbox-done { margin-left: auto; }
 .stage:has(.inbox-card) .bubble { display: none; }
 html.desktop-pet .stage .inbox-card { top: auto; bottom: calc(100% + 1px); }
+/* the quick-add box by Fumu (the shell's Ctrl+Alt+A): a field and an Add button */
+.quick-card { grid-template-columns: 1fr auto; gap: 6px; }
+.quick-card input { min-width: 0; font: inherit; font-size: .95rem; padding: 5px 10px; border: 1.5px solid var(--outline); border-radius: 12px; background: var(--surface); color: var(--ink); user-select: text; -webkit-user-select: text; }
+.quick-card input:focus { outline: 2px solid var(--outline); outline-offset: 0; }
+.quick-card button { border: 1.5px solid var(--outline); border-radius: 999px; background: var(--surface); color: var(--ink); font: inherit; font-size: .8rem; font-weight: 800; padding: 3px 12px; cursor: pointer; box-shadow: 0 2px 0 var(--outline); }
+.quick-card button:active { transform: translateY(2px); box-shadow: none; }
+html.desktop-pet .quick-card input { user-select: text; -webkit-user-select: text; }
 
 /* the Background picker in the Room sheet, under the furniture */
 .room-bg { margin-top: 12px; }

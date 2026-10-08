@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 262 (8 Oct)
+- Desktop: Ctrl+Alt+A opens a box by Fumu to add an item from any program.
+- Desktop: Fumu naps when you are away or the screen is locked, and says hello when you are back.
+- Desktop: he can sit on your open windows and ride along with them (a switch in the menu, off by default).
+- Desktop: if a screen is unplugged he moves to the main one and goes back when it returns.
+
 ## Build 261 (18 Oct)
 - Links and notes fly into Fumu's mouth again, bigger, when you send one and when one arrives.
 - Birds' food and links now land on the beak.

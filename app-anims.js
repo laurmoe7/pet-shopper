@@ -50,6 +50,7 @@ function animCatalogue() {
   if (window.deskDo) {
     add('Desktop', 'wander along the screen', function () { return window.deskDo('wander') || (say('only in the small pet window', 1800), 1200); });
     add('Desktop', 'peek round the edge', function () { return window.deskDo('peek') || (say('only in the small pet window', 1800), 1200); });
+    add('Desktop', 'hop on a window / down', function () { return window.deskDo('perch') || (say('only in the small pet window', 1800), 1200); });
   }
   add('Specials', 'wake with a start', function () { return wakeForSnack(); });
   add('Specials', 'hearts drifting', function () { drift(['♥', '✦', '♥'], petTop(), 4); return 2200; });

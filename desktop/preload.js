@@ -27,7 +27,7 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   /** Puts text on the clipboard. */
   copy: (text) => ipcRenderer.send('desk:copy', String(text).slice(0, 20000)),
   hide: () => ipcRenderer.send('desk:hide'),
-  /** The tray menu's choices that matter to the page: {roam, remind, size}. */
+  /** The tray menu's choices that matter to the page: {roam, remind, size, idle, perch}. */
   getPrefs: () => ipcRenderer.invoke('desk:getPrefs'),
   onPrefs: (fn) => ipcRenderer.on('desk:prefs', (_e, p) => fn(p)),
   /** Walks the window dx px along (negative = left) over ms; resolves how far it really went. */
@@ -37,6 +37,15 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   unpeek: (ms) => ipcRenderer.invoke('desk:unpeek', +ms || 700),
   /** The shortcut for swapping the shopping list and the to-do list was pressed. */
   onSwapList: (fn) => ipcRenderer.on('desk:swapList', () => fn()),
+  /** The shortcut for adding an item was pressed. typing(true) asks the shell to give the window the keyboard. */
+  onQuickAdd: (fn) => ipcRenderer.on('desk:quickAdd', () => fn()),
+  typing: (yes) => ipcRenderer.send('desk:typing', !!yes),
+  /** The computer went quiet (true) or someone is back (false): no input for a few minutes, or the screen was locked. */
+  onIdle: (fn) => ipcRenderer.on('desk:idle', (_e, idle) => fn(!!idle)),
+  /** Hops onto another window ('up') or down to the floor ('down'); resolves true (now on a window), false (down) or null (nothing happened). */
+  perch: (want) => ipcRenderer.invoke('desk:perch', want === 'down' ? 'down' : 'up'),
+  /** Whether he sits on a window now (also when the shell moved him, e.g. the window closed). */
+  onPerched: (fn) => ipcRenderer.on('desk:perched', (_e, yes) => fn(!!yes)),
   /** Shows Fumu if he was hidden (a reminder). */
   reveal: () => ipcRenderer.send('desk:reveal')
 });

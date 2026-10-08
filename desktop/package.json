@@ -21,6 +21,7 @@
       "main.js",
       "preload.js",
       "place.js",
+      "windows.js",
       "build/icon.png",
       "package.json"
     ],
@@ -54,6 +55,7 @@
     "compression": "maximum"
   },
   "dependencies": {
-    "electron-updater": "^6.8.9"
+    "electron-updater": "^6.8.9",
+    "koffi": "^3.3.2"
   }
 }
