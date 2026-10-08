@@ -10,7 +10,7 @@ var LEVELS = {
   },
   2: {
     title: 'Normal',
-    text: 'Adds the outline of your desktop: where your windows are (so he can sit on them) and, as it gets built, which program is in front (just its name, from a short list of games and common apps) or whether something is full-screen.'
+    text: 'Adds the outline of your desktop: where your windows are (so he can sit on them), which program is in front (its name, matched against a short list of games and common apps; anything else is just "something else") and whether it fills the screen. So he can tell when you are playing a game, and he stays quiet then.'
   }
 };
 /** Said under both levels. */

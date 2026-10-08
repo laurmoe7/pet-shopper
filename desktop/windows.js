@@ -1,6 +1,7 @@
-// Where other programs' windows are, for "Fumu sits on windows". Windows only; it asks the system for the frames of the
-// open windows (front to back) and nothing else: no titles, no contents, no program names. Only whether a window has any
-// title at all is used, to leave out invisible helper windows.
+// What the system can tell Fumu about other programs' windows. Windows only. Two things, and nothing else: the frames of the open windows
+// (front to back, for "Fumu sits on windows"), and the file name of the program in front (such as "chrome.exe", never its folder), which
+// programs.js matches against a short list of games and common apps. Never a window's title, its class, its tabs or its contents: only whether
+// a window has any title at all is used, to leave out invisible helper windows.
 'use strict';
 
 let api = null;   // null: not tried yet; false: not available (not Windows, or the library did not load)
@@ -11,7 +12,7 @@ function load() {
   if (process.platform !== 'win32') return api;
   try {
     const koffi = require('koffi');
-    const user32 = koffi.load('user32.dll'), dwm = koffi.load('dwmapi.dll');
+    const user32 = koffi.load('user32.dll'), dwm = koffi.load('dwmapi.dll'), kernel32 = koffi.load('kernel32.dll');
     const RECT = koffi.struct('RECT', { left: 'long', top: 'long', right: 'long', bottom: 'long' });
     const EnumProc = koffi.proto('bool __stdcall FumuEnumProc(void *hwnd, intptr_t lparam)');
     api = {
@@ -24,6 +25,11 @@ function load() {
       ThreadProcess: user32.func('uint32 __stdcall GetWindowThreadProcessId(void *hwnd, _Out_ uint32 *pid)'),
       ExStyle: user32.func('long __stdcall GetWindowLongW(void *hwnd, int index)'),
       FrameBounds: dwm.func('long __stdcall DwmGetWindowAttribute(void *hwnd, uint32 attr, _Out_ RECT *out, uint32 size)'),
+      Foreground: user32.func('void * __stdcall GetForegroundWindow()'),
+      Rect: user32.func('bool __stdcall GetWindowRect(void *hwnd, _Out_ RECT *r)'),
+      OpenProcess: kernel32.func('void * __stdcall OpenProcess(uint32 access, bool inherit, uint32 pid)'),
+      CloseHandle: kernel32.func('bool __stdcall CloseHandle(void *h)'),
+      ImageName: kernel32.func('bool __stdcall QueryFullProcessImageNameW(void *h, uint32 flags, _Out_ uint8_t *buf, _Inout_ uint32 *size)'),
       Cloaked: dwm.func('long __stdcall DwmGetWindowAttribute(void *hwnd, uint32 attr, _Out_ int *out, uint32 size)')
     };
   } catch (e) {
@@ -75,4 +81,34 @@ function list() {
   return out;
 }
 
-module.exports = { available, list };
+const PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
+/**
+ * @returns {{exe: string, rect: {x: number, y: number, width: number, height: number}}|null} The file name (lower case, without the folder)
+ * and frame of the program in front, or null when it cannot be told (nothing in front, Fumu himself, no permission).
+ */
+function foreground() {
+  const a = load();
+  if (!a) return null;
+  let handle = null;
+  try {
+    const hwnd = a.Foreground();
+    if (!hwnd) return null;
+    const pid = [0];
+    a.ThreadProcess(hwnd, pid);
+    if (!pid[0] || pid[0] === process.pid) return null;
+    handle = a.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid[0]);
+    if (!handle) return null;
+    const buf = Buffer.alloc(1040), size = [520];
+    if (!a.ImageName(handle, 0, buf, size)) return null;
+    const exe = require('path').win32.basename(buf.toString('utf16le', 0, size[0] * 2)).toLowerCase();   // only the file name, never the folder
+    const r = {};
+    if (!a.Rect(hwnd, r)) return null;
+    return { exe, rect: { x: r.left, y: r.top, width: r.right - r.left, height: r.bottom - r.top } };
+  } catch (e) {
+    return null;
+  } finally {
+    if (handle) { try { a.CloseHandle(handle); } catch (e) { /* ignore */ } }
+  }
+}
+
+module.exports = { available, list, foreground };

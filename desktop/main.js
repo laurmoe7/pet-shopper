@@ -9,6 +9,7 @@ const place = require('./place.js');
 const windows = require('./windows.js');
 const keys = require('./keys.js');
 const privacy = require('./privacy.js');
+const programs = require('./programs.js');
 const createPanel = require('./panel-main.js');
 
 const CHANNEL = require('./channel.js').pick(require('./package.json'));   // dev (follows main) or stable (follows only what was promoted)
@@ -26,11 +27,12 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, displaced = false, perch = null, perchTimer = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, keys: null };
+  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, chat: true, myGames: {}, keys: null };
   const DEFAULTS = Object.assign({}, prefs);
   try { prefs = Object.assign(prefs, JSON.parse(fs.readFileSync(prefsFile(), 'utf8'))); } catch (e) { /* first run */ }
   prefs.keys = keys.clean(prefs.keys);
   prefs.awareness = privacy.clean(prefs.awareness);
+  if (!prefs.myGames || typeof prefs.myGames !== 'object' || Array.isArray(prefs.myGames)) prefs.myGames = {};
   const savePrefs = () => { try { fs.writeFileSync(prefsFile(), JSON.stringify(prefs)); } catch (e) { /* ignore */ } };
   const areas = () => screen.getAllDisplays().map((d) => d.workArea);
   const here = () => screen.getDisplayMatching(win.getBounds()).workArea;
@@ -45,7 +47,7 @@ function start() {
     if (prefs.onTop && prefs.aboveFull) win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true });
     else win.setVisibleOnAllWorkspaces(false);
   };
-  const publicPrefs = () => ({ roam: prefs.roam, remind: prefs.remind, size: prefs.size, idle: prefs.idle, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion });
+  const publicPrefs = () => ({ roam: prefs.roam, remind: prefs.remind, size: prefs.size, idle: prefs.idle, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chat: prefs.chat, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion });
   const sendPrefs = () => { if (win) win.webContents.send('desk:prefs', publicPrefs()); panel.push(); };
   // moves the window smoothly (walking, peeking round the screen edge); anything that takes hold of it stops the move
   let tween = null;
@@ -145,11 +147,12 @@ function start() {
   function hideFumu() { if (win) win.hide(); refreshMenus(); }
 
   // one place that changes a setting, for the right-click menu and the settings window alike
-  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'roam', 'remind', 'idle', 'perch', 'hideToy', 'hideCushion', 'startWithWindows'];
+  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'roam', 'remind', 'idle', 'perch', 'hideToy', 'hideCushion', 'startWithWindows', 'chat'];
   function setPref(key, value) {
     if (key === 'awareness') {   // 1 = more privacy, 2 = normal; at 1 he stops sitting on windows (he can no longer see them)
       prefs.awareness = privacy.clean(+value); savePrefs();
       if (!privacy.allows(prefs.awareness, 'perch')) fall();
+      if (!privacy.allows(prefs.awareness, 'program')) forgetProgram();   // level 1: he stops looking at once, and the page is told there is nothing
       sendPrefs(); refreshMenus();
       return;
     }
@@ -401,6 +404,35 @@ function start() {
     setInterval(checkUpdates, 6 * 3600 * 1000);
   }
 
+  // ---------- which program is in front (awareness level 2) ----------
+  // Every few seconds the shell asks Windows for the file name of the program in front (never its title) and matches it against the short
+  // list in programs.js. The page is told only the kind and the name of a listed program, "something else" for the rest, and whether it fills
+  // the screen. It has to look the same twice in a row (about 5 s) before the page hears of it, so alt-tabbing past things says nothing.
+  let programNow = null, programSent = '', programMaybe = '', programCount = 0, lastUnknown = null;
+  function forgetProgram() { programNow = null; programSent = ''; programMaybe = ''; programCount = 0; if (win) win.webContents.send('desk:program', null); }
+  function watchProgram() {
+    setInterval(() => {
+      if (!win || !privacy.allows(prefs.awareness, 'program') || !windows.available()) return;
+      const f = windows.foreground();
+      if (!f) return;   // nothing readable in front, or Fumu himself: keep what he knew
+      const r = screen.screenToDipRect(null, f.rect), d = screen.getDisplayMatching(r).bounds;
+      const full = Math.abs(r.x - d.x) <= 2 && Math.abs(r.y - d.y) <= 2 && r.width >= d.width - 2 && r.height >= d.height - 2;
+      const now = programs.describe(f.exe, full, prefs.myGames);
+      if (now.kind === 'other' || now.kind === 'fullscreen') lastUnknown = f.exe;
+      const key = JSON.stringify(now);
+      if (key === programMaybe) programCount++; else { programMaybe = key; programCount = 1; }
+      if (programCount >= 2 && key !== programSent) { programSent = key; programNow = now; win.webContents.send('desk:program', now); log('program', now.kind, now.name); }
+    }, 2500);
+  }
+  // the player teaches him a game he does not know: the last program he could not name gets that name
+  function teachGame(name) {
+    name = String(name || '').trim().slice(0, 40);
+    if (!lastUnknown || !name) return false;
+    prefs.myGames[lastUnknown] = name; savePrefs();
+    programSent = ''; programMaybe = '';   // read it again, now as a game
+    return true;
+  }
+
   // ---------- the settings window (panel-main.js, panel.html): the bigger menu, with the shortcuts and some developer tools ----------
   function resetPosition() {
     if (!win || mode !== 'pet') return;
@@ -413,7 +445,7 @@ function start() {
     return {
       version: app.getVersion(), channel: CHANNEL.name, electron: process.versions.electron, packaged: app.isPackaged, page: APP_URL,
       mode, bounds: b, zoom: zoom(), screens: screen.getAllDisplays().map((d) => d.workArea.width + 'x' + d.workArea.height + ' @' + d.scaleFactor),
-      onPerch: perch ? perch.id : null, awareness: prefs.awareness, windowsSeen: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch') ? windows.list().length : null, perchesNow: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch') ? perchesNow().length : null,
+      onPerch: perch ? perch.id : null, awareness: prefs.awareness, program: programNow, lastUnknownProgram: lastUnknown, taughtGames: Object.keys(prefs.myGames).length, windowsSeen: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch') ? windows.list().length : null, perchesNow: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch') ? perchesNow().length : null,
       idleSeconds: powerMonitor.getSystemIdleTime(), idle, displaced, pointerOverFumu: solidNow,
       shortcutsHeld: Object.assign({}, registered, hoverKeyOn ? { options: hoverKeyOn } : {}), settingsFolder: app.getPath('userData')
     };
@@ -427,7 +459,9 @@ function start() {
       case 'corner': if (['br', 'bl', 'tr', 'tl'].includes(arg)) toCorner(arg); return true;
       case 'nudge': if (Array.isArray(arg)) nudgeBy(Math.max(-200, Math.min(200, +arg[0] || 0)), Math.max(-200, Math.min(200, +arg[1] || 0))); return true;
       case 'resetPosition': resetPosition(); return true;
-      case 'copyDiag': clipboard.writeText(JSON.stringify(diag(), null, 2)); return true;
+      case 'teachGame': return teachGame(arg);
+      case 'forgetGames': prefs.myGames = {}; savePrefs(); programSent = ''; programMaybe = ''; return true;
+      case 'copyDiag': { const d = diag(); delete d.lastUnknownProgram; clipboard.writeText(JSON.stringify(d, null, 2)); return true; }
       case 'openData': shell.openPath(app.getPath('userData')); return true;
       case 'checkUpdates': checkUpdates(); return true;
       case 'installUpdate': if (updateReady && autoUpdater) autoUpdater.quitAndInstall(); return true;
@@ -449,6 +483,7 @@ function start() {
     set: setPref, rebind, action, diag
   });
   setInterval(updateHoverKey, 120);
+  watchProgram();
 
   app.on('second-instance', () => showFumu());
   app.on('window-all-closed', () => app.quit());

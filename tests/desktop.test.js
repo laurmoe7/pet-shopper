@@ -202,14 +202,15 @@ test('falling goes straight down to the floor; the hop arcs and ends where it sh
 
 test('the desktop shell lists every file it needs for the installer', () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'desktop', 'package.json'), 'utf8'));
-  ['main.js', 'preload.js', 'place.js', 'windows.js', 'keys.js', 'panel-main.js', 'panel-preload.js', 'panel.html', 'panel-ui.js'].forEach((f) => assert.ok(pkg.build.files.includes(f), f));
+  ['main.js', 'preload.js', 'place.js', 'windows.js', 'privacy.js', 'programs.js', 'keys.js', 'panel-main.js', 'panel-preload.js', 'panel.html', 'panel-ui.js'].forEach((f) => assert.ok(pkg.build.files.includes(f), f));
   assert.ok(pkg.dependencies.koffi);
   assert.ok(fs.existsSync(path.join(__dirname, '..', 'desktop', 'windows.js')));
 });
 
-test('the window lister never reads titles or process names', () => {
-  const src = fs.readFileSync(path.join(__dirname, '..', 'desktop', 'windows.js'), 'utf8');
-  assert.equal(/GetWindowTextW|GetWindowTextA|GetClassName|QueryFullProcessImageName|GetModuleFileName/.test(src.replace(/\/\/.*$/gm, '')), false);
+test('the window lister never reads titles or classes, and only keeps the front program\'s file name, not its folder', () => {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'desktop', 'windows.js'), 'utf8').replace(/\/\/.*$/gm, '');
+  assert.equal(/GetWindowTextW|GetWindowTextA|GetClassName|InternalGetWindowText|SendMessage|GetModuleFileName/.test(src), false);
+  assert.match(src, /win32\.basename\(/);   // the path is cut down to the file name straight away
 });
 
 // ---------- shortcuts (desktop/keys.js) ----------
@@ -306,4 +307,21 @@ test('awareness levels: 1 is idle only, 2 adds the outline of the desktop; never
   assert.match(V.ALWAYS, /never reads window titles/);
   assert.equal(/\btitles? (are|is) read|reads? (the )?titles/i.test(V.LEVELS[1].text + V.LEVELS[2].text), false);
   assert.ok(V.LEVELS[1].title && V.LEVELS[2].title);
+});
+
+test('programs: listed games and apps are named, everything else is just "something else" and its name is not passed on', () => {
+  const G = require('../desktop/programs.js');
+  assert.deepEqual(G.identify('Valorant-Win64-Shipping.EXE'), { kind: 'game', name: 'Valorant' });
+  assert.deepEqual(G.identify('chrome.exe'), { kind: 'browser', name: 'Chrome' });
+  assert.equal(G.identify('some-unknown-thing.exe'), null);
+  assert.equal(G.identify(null), null);
+  assert.equal(G.identify('constructor'), null);              // not fooled by object property names
+  assert.equal(G.identify('__proto__'), null);
+  assert.deepEqual(G.describe('mystery.exe', true), { kind: 'fullscreen', name: '', fullscreen: true });
+  assert.deepEqual(G.describe('mystery.exe', false), { kind: 'other', name: '', fullscreen: false });
+  assert.equal(JSON.stringify(G.describe('mystery.exe', true)).includes('mystery'), false);
+  assert.deepEqual(G.describe(null, false), { kind: 'none', name: '', fullscreen: false });
+  // a game she taught him, on top of the list (names cut to 40 characters)
+  assert.deepEqual(G.describe('mygame.exe', false, { 'mygame.exe': 'My Game' }), { kind: 'game', name: 'My Game', fullscreen: false });
+  Object.keys(G.GAMES).concat(Object.keys(G.APPS)).forEach((k) => assert.equal(k, k.toLowerCase()));
 });

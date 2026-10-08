@@ -24,6 +24,7 @@
       "windows.js",
       "channel.js",
       "privacy.js",
+      "programs.js",
       "keys.js",
       "panel-main.js",
       "panel-preload.js",

@@ -210,7 +210,7 @@
   // ---------- Fumu does things on his own: wander along the screen, peek round the edge, nap ----------
   var peeking = false, roaming = false, away = false, awayAt = 0, awayNap = false, perched = false;
   function roamOk(ignoreRoamSwitch) {
-    return (ignoreRoamSwitch || deskPrefs.roam !== false) && isPet() && !document.hidden && !roaming && !peeking && !away && !carried && !press && !busy && !walking && !dreaming &&
+    return (ignoreRoamSwitch || deskPrefs.roam !== false) && isPet() && !document.hidden && !roaming && !peeking && !away && !quietNow() && !carried && !press && !busy && !walking && !dreaming &&
       !(typeof napping !== 'undefined' && napping) && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') &&
       !document.querySelector('dialog[open], .inbox-card') && bubble.hidden && suggestEl.hidden;
   }
@@ -381,6 +381,74 @@
     setTimeout(function () { input.focus(); }, 60);
   }
   if (D.onQuickAdd) D.onQuickAdd(openQuick);
+
+  // ---------- which program is in front (awareness level 2) ----------
+  // The shell says what kind of program it is (a game, a browser, an art program...) and, for programs on its short list, its name.
+  // He cheers when a game starts and says good game afterwards, makes a remark now and then about the rest (rarely: once per kind per
+  // hour, once per 20 minutes in all), and stays quiet while you play or are on a call: no wandering, peeking or napping. At More privacy
+  // the shell sends nothing and none of this happens.
+  var program = { kind: 'none', name: '', fullscreen: false }, gameSince = 0, lastRemark = 0, kindRemark = {}, programTimer = 0;
+  var QUIET_KINDS = { game: 1, call: 1, fullscreen: 1 };
+  function quietNow() { return deskAware(2) && !!QUIET_KINDS[program.kind]; }
+  window.deskQuiet = quietNow;   // for tests and the developer tools
+  window.deskMayRemark = function () { return mayRemark(); };
+  var PROGRAM_LINES = {
+    browser: ['browsing, hm?', 'so much internet~', 'looking something up?'],
+    code: ['hard at work!', 'so many tiny words…', 'tap tap tap~'],
+    chat: ['chatting with friends?', 'say hi from me!'],
+    music: ['nice music~ ♪', "what's playing?"],
+    video: ['movie time?', 'can I watch too?'],
+    office: ['working hard!', 'documents… zzz'],
+    mail: ['so many emails…', 'emails, ugh'],
+    art: ['ooh, are you drawing?', 'draw me next!', 'pretty colours~'],
+    'video-edit': ['editing! fancy~', 'make it cute!'],
+    launcher: ['going gaming?', 'what are we playing?']
+  };
+  var GAME_START = ['ooh, {name}! have fun~', '{name} time! good luck!', "go get 'em in {name}!", "{name}! I'll be quiet ♡"];
+  var GAME_END = ['good game~', 'how was {name}?', 'welcome back from {name}!'];
+  /** @returns {boolean} Whether he may say something about the program now (not at More privacy, not when switched off, not mid-something). */
+  function mayRemark() {
+    return deskAware(2) && deskPrefs.chat !== false && isPet() && !document.hidden && !busy && !dreaming && !walking && !carried && !press &&
+      !(typeof napping !== 'undefined' && napping) && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') &&
+      !document.querySelector('dialog[open], .inbox-card') && bubble.hidden;
+  }
+  /** Runs fn once he is free to speak (a bubble that is up goes away by itself), trying for up to 12 seconds; `still` says whether it is still wanted. */
+  function whenFree(still, fn, first) {
+    var tries = 0;
+    (function go() {
+      clearTimeout(programTimer);
+      if (!still()) return;
+      if (mayRemark()) { fn(); return; }
+      if (++tries < 12) programTimer = setTimeout(go, 1000);
+    })();
+    return first;
+  }
+  function remark(text, name) { say(text.replace(/\{name\}/g, name || 'it'), 4200, true); pulse('hopsmall', 450); }
+  if (D.onProgram) D.onProgram(function (p) {
+    var was = program;
+    program = p || { kind: 'none', name: '', fullscreen: false };
+    clearTimeout(programTimer);
+    var now = Date.now();
+    if (program.kind === 'game' && was.kind !== 'game') {
+      if (!gameSince) gameSince = now;
+      if (!(kindRemark['game:' + program.name] && now - kindRemark['game:' + program.name] < 30 * 60000)) {   // (whenFree waits for a quiet moment)
+        kindRemark['game:' + program.name] = now;
+        programTimer = setTimeout(function () { whenFree(function () { return program.kind === 'game'; }, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); remark(pick(GAME_START), program.name); setTimeout(function () { if (!busy) settle(); }, 2200); }); }, 1500);
+      }
+    } else if (was.kind === 'game' && program.kind !== 'game') {
+      var played = gameSince ? now - gameSince : 0; gameSince = 0;
+      if (played > 15 * 60000) programTimer = setTimeout(function () { whenFree(function () { return program.kind !== 'game'; }, function () { remark(pick(GAME_END), was.name); }); }, 2500);
+    } else if (PROGRAM_LINES[program.kind] && program.kind !== was.kind && now - lastRemark > 20 * 60000 && now - (kindRemark[program.kind] || 0) > 60 * 60000 && Math.random() < 0.6) {
+      // stay in the program for a little while first, so a quick alt-tab says nothing
+      var kind = program.kind;
+      programTimer = setTimeout(function () {
+        whenFree(function () { return program.kind === kind; }, function () {
+          lastRemark = Date.now(); kindRemark[kind] = lastRemark;
+          remark(pick(PROGRAM_LINES[kind]), program.name);
+        });
+      }, 20000);
+    }
+  });
 
   // ---------- where the solid parts are (for the shell's own, instant hit test) ----------
   // The shell used to ask the page "is the pointer over him?" and wait for the answer, which could take long enough for a quick press on the

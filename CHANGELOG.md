@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 272 (8 Oct)
+- Desktop: Fumu knows which program is in front and when you play a game (a short list of games and apps).
+- Desktop: he cheers when a game starts, says good game after, and stays quiet while you play or are on a call.
+- Desktop: teach him a game he does not know; a switch for his comments.
+
 ## Build 271 (8 Oct)
 - Desktop: a Privacy setting in Fumu settings: More privacy (he only knows idle and time of day, no window sitting, fewer comments) or Normal.
 
