@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 282 (8 Oct)
+- Monkey's foot bottoms are face-coloured.
+
 ## Build 281 (8 Oct)
 - Sketchpad: "Sitting (foot bottoms)" option for the pet.
 - Sitting hides the standing feet for every pet.

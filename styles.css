@@ -2039,7 +2039,8 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 .pet[data-species="cow"] .sole-hoof-base { fill: #6f5c5c; }
 .pet[data-species="cow"] .sole-hoof-toe { fill: #8a7474; }
 .pet[data-species="mochi"] { --sole-bean: #ffc4cf; }
-.pet[data-species="monkey"] { --sole-bean: #d9a08c; }
+.pet[data-species="monkey"] .sole-base { fill: var(--monkey-face, #ffe3c4); }
+.pet[data-species="monkey"] { --sole-bean: #f0c9a4; }
 .pet.seated:not(.walking, .shod) :is(.foot, .paw-feet, .hoof-feet, .bird-feet, .frog-feet, .monkey-feet) { display: none; }
 .pet.seated:not(.walking) .pet-svg { translate: 0 3px; overflow: visible; }
 .sole-base { fill: var(--pet-skin-shade); stroke: var(--pet-ink); stroke-width: 2.2; }
