@@ -81,6 +81,7 @@
     toggle(look, 'Room background', 'backdrop', 'The scene from the whole app.');
     toggle(look, 'Sounds', 'mute', 'In the small window.', { invert: true });
     toggle(look, 'Show his toy', 'hideToy', '', { invert: true });
+    toggle(look, 'Toy flies around the screen', 'toyRoam', '', { disabled: !!S.prefs.hideToy });
     toggle(look, 'Show the cushion under him', 'hideCushion', 'His bed still shows at bedtime.', { invert: true });
 
     var does = section('What he does on his own');
@@ -114,7 +115,7 @@
     if (S.canPerch && cur === 1) {
       var offRow = el('div', 'row off'); var offText = el('span', 'text', 'Sits on my windows'); offText.appendChild(el('small', '', 'Needs Normal awareness.')); offRow.appendChild(offText); does.appendChild(offRow);
     } else if (S.canPerch) {
-      toggle(does, 'Sits on my windows', 'perch', 'Hops onto other windows. He never sees their titles.');
+      toggle(does, 'Sits on my windows', 'perch');
       if (S.prefs.perch) { var hint = el('small', '', 'Looking…'); hint.id = 'perchHint'; does.lastChild.querySelector('.text').appendChild(hint); }
     }
     toggle(does, 'Reminds me of tasks', 'remind');

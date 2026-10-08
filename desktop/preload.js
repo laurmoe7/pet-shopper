@@ -49,6 +49,14 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   onSendCopied: (fn) => ipcRenderer.on('desk:sendCopied', (_e, text) => fn(String(text))),
   /** Which part of the window is on a screen: [left, right] in page pixels (he may be half out of it). */
   onVisible: (fn) => ipcRenderer.on('desk:visible', (_e, l, r) => fn(+l || 0, +r || 0)),
+  /** He runs back along the floor after getting off a window: 1 right, -1 left, 0 stopped. */
+  onRun: (fn) => ipcRenderer.on('desk:run', (_e, dir) => fn(+dir || 0)),
+  /** The toy roaming the screen: where his window is and the screen's work area, or null when the switch is off. */
+  toyField: () => ipcRenderer.invoke('desk:toyField'),
+  /** Shows the toy's picture (a PNG data URL, px wide) in its own window; toyAt moves it to a screen spot (the middle) turned by deg; toyHide takes it away. */
+  toyShow: (png, px) => ipcRenderer.send('desk:toyShow', String(png).slice(0, 80000), +px || 32),
+  toyAt: (x, y, deg) => ipcRenderer.send('desk:toyAt', +x || 0, +y || 0, +deg || 0),
+  toyHide: () => ipcRenderer.send('desk:toyHide'),
   typing: (yes) => ipcRenderer.send('desk:typing', !!yes),
   /** The computer went quiet (true) or someone is back (false): no input for a few minutes, or the screen was locked. */
   onIdle: (fn) => ipcRenderer.on('desk:idle', (_e, idle) => fn(!!idle)),

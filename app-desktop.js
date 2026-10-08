@@ -100,20 +100,22 @@
     if (typeof drawBody !== 'function') return;
     var run = carryRun = (typeof squishRun !== 'undefined' ? ++squishRun : carryRun + 1);
     carryT0 = performance.now(); carryLast = null; carryV = { x: 0, y: 0 };
+    pet.classList.add('carried');   // his feet dangle and kick (styles.css)
     if (typeof squishing !== 'undefined') squishing = true;
     var svg = pet.querySelector('.pet-svg');
     (function frame(now) {
       if (!carried || run !== carryRun) return;
       carryV.x *= .92; carryV.y *= .92;   // it fades when the cursor stops
       var t = (now - carryT0) / 1000, speed = Math.min(30, Math.hypot(carryV.x, carryV.y));
-      var wob = Math.sin(t * 13) * (.035 + speed * .002), stretch = Math.min(.16, speed * .006);
-      drawBody(1 - stretch * .7 - wob, 1 + stretch + wob, 0);
-      if (svg) svg.style.translate = Math.max(-9, Math.min(9, -carryV.x * .5 + Math.sin(t * 9) * 2)).toFixed(1) + 'px 0';
+      var wob = Math.sin(t * 13) * (.07 + speed * .005), stretch = Math.min(.3, speed * .013);
+      drawBody(1 - stretch * .75 - wob, 1 + stretch + wob, Math.sin(t * 7) * 1.5);
+      if (svg) svg.style.translate = Math.max(-14, Math.min(14, -carryV.x * .7 + Math.sin(t * 9) * 3)).toFixed(1) + 'px 0';
       requestAnimationFrame(frame);
     })(performance.now());
   }
   function stopCarry() {
     carryRun = 0;
+    pet.classList.remove('carried');
     var svg = pet.querySelector('.pet-svg'); if (svg) svg.style.translate = '';
     if (typeof squishRun !== 'undefined') squishRun++;
     if (typeof squishing !== 'undefined') squishing = false;
@@ -168,7 +170,7 @@
   })();
 
   // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------
-  var deskPrefs = { moveNormal: 'normal', moveFull: 'still', mute: false, remind: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, sparkles: true, backdrop: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare' };
+  var deskPrefs = { moveNormal: 'normal', moveFull: 'still', mute: false, remind: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare' };
   /** Awareness: 1 = more privacy (idle and time only), 2 = normal. Anything he says about what you are doing, or knows about your windows and programs, checks this first. */
   window.deskAware = function (level) { return (deskPrefs.awareness === 1 ? 1 : 2) >= level; };
   /** The small window's look choices from the settings window: no toy, no cushion (classes on <html>, CSS at the end of styles.css). */
@@ -207,6 +209,61 @@
     root.style.setProperty('--vis-r', full ? '100vw' : r + 'px');
     fitBubble();
   });
+
+  // ---------- the toy over the whole screen (the switch is in the settings window; see toyField in app-toy.js) ----------
+  // While he is carried or thrown the toy is drawn by a window of its own (the shell moves it where this page says), so it can bounce
+  // off the edges of the screen and not only off the sides of his little window. It stops being that when he catches it or it lands.
+  var fieldToken = 0, fieldZoom = 1;
+  /** @returns {Promise<string>} The toy as a small PNG data URL (its colours are read from the page's CSS, so a window with no styles can draw it). */
+  function toyPicture() {
+    return new Promise(function (resolve) {
+      var g = null, list = toyBall.querySelectorAll('[data-toy]');
+      for (var i = 0; i < list.length; i++) if (getComputedStyle(list[i]).display !== 'none') { g = list[i]; break; }
+      if (!g) { resolve(''); return; }
+      var copy = g.cloneNode(true), src = g.querySelectorAll('*'), dst = copy.querySelectorAll('*');
+      for (var j = 0; j < src.length; j++) {
+        var cs = getComputedStyle(src[j]);
+        ['fill', 'stroke', 'stroke-width', 'opacity', 'stroke-linecap', 'stroke-linejoin'].forEach(function (p) { dst[j].style.setProperty(p, cs.getPropertyValue(p)); });
+      }
+      copy.removeAttribute('class');
+      var xml = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26" width="104" height="104">' + new XMLSerializer().serializeToString(copy) + '</svg>';
+      var img = new Image();
+      img.onload = function () {
+        try { var c = document.createElement('canvas'); c.width = c.height = 104; c.getContext('2d').drawImage(img, 0, 0, 104, 104); resolve(c.toDataURL('image/png')); } catch (e) { resolve(''); }
+      };
+      img.onerror = function () { resolve(''); };
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+    });
+  }
+  /** Called when the toy is picked up: if the switch is on, from now on it can go anywhere on the screen. */
+  window.deskToyField = function () {
+    if (deskPrefs.toyRoam !== true || deskPrefs.hideToy || !isPet() || !D.toyField || !D.toyShow || toyField) return;
+    var token = ++fieldToken;
+    Promise.all([D.toyField(), toyPicture()]).then(function (r) {
+      var f = r[0], png = r[1];
+      if (!f || !png || token !== fieldToken || !playing || toyField) return;
+      var z = f.zoom || 1, st = stage.getBoundingClientRect(), mid = st.left + st.width / 2, fl = st.bottom - 19;
+      fieldZoom = z;
+      var spot = function (x, y) { return [f.wx + (mid + x) * z, f.wy + (fl - y) * z]; };
+      toyField = {
+        zoom: z,
+        lim: { minX: (f.area.x - f.wx) / z - mid + 18, maxX: (f.area.x + f.area.width - f.wx) / z - mid - 18, maxY: fl - (f.area.y - f.wy) / z - 20 },
+        show: function (x, y, spin) { toyEl.style.visibility = 'hidden'; var p = spot(x, y); D.toyAt(p[0], p[1], spin); },
+        hide: function () { D.toyHide(); }
+      };
+      D.toyShow(png, Math.round(32 * z));
+      toyField.show(toyX, held ? held.y : 0, 0);
+    });
+  };
+  /** The toy came down far from him: the window runs along the floor towards it. @param {number} dx Page px. @returns {Promise<number>} Page px really moved. */
+  window.deskToyChase = function (dx) {
+    var z = fieldZoom || 1, ms = Math.min(3500, 500 + Math.abs(dx) * 5);
+    pet.classList.add('walking'); lookToward(dx);
+    return D.walk(dx * z, ms).then(function (went) {
+      pet.classList.remove('walking'); stopLook();
+      return (went || 0) / z;
+    }, function () { pet.classList.remove('walking'); stopLook(); return 0; });
+  };
 
   // ---------- a reminder for a task's time ----------
   // timeCheck (app-todo.js) asks here first. In pet mode Fumu pops up if he was hidden and a card by him says what is
@@ -475,7 +532,7 @@
   function moveLevel() {
     var l = inFull() ? deskPrefs.moveFull : deskPrefs.moveNormal;
     if (l === 'room' && !deskPrefs.backdrop) l = 'normal';   // his room only exists while its background shows
-    return l === 'lots' || l === 'room' || l === 'still' ? l : 'normal';
+    return l === 'lots' || l === 'low' || l === 'room' || l === 'still' ? l : 'normal';
   }
   function moveOk() { var l = moveLevel(); return l === 'lots' || l === 'normal'; }
   window.deskMoveOk = moveOk;
@@ -672,6 +729,12 @@
       setTimeout(function () { if (!busy) settle(); }, 1600);
     }, function () { roaming = false; });
   }
+  // after getting off a window he runs back to where he was: the shell glides the window, here the feet go
+  var runOwn = false;
+  if (D.onRun) D.onRun(function (dir) {
+    if (dir) { pet.classList.add('walking'); lookToward(dir); if (!roaming) { roaming = true; runOwn = true; } }
+    else { pet.classList.remove('walking'); stopLook(); if (runOwn) { roaming = false; runOwn = false; } }
+  });
   function hopDown() {
     if (!D.perch || roaming) return;
     roaming = true;
@@ -694,9 +757,9 @@
     return 0;
   };
   /** A short stroll inside the window, where his room is: the window itself stays put. */
-  function strollInRoom() {
+  function strollInRoom(little) {
     if (typeof walkTo !== 'function' || typeof walkRange !== 'function') return;
-    var r = walkRange(), x = (Math.random() * 2 - 1) * r;
+    var r = walkRange() * (little ? 0.35 : 1), x = (Math.random() * 2 - 1) * r;
     if (Math.abs(x - walkX) < 30) x = walkX > 0 ? -r * 0.7 : r * 0.7;
     walkTo(x);
   }
@@ -713,7 +776,7 @@
         else if (move && r < 0.4) wander();
         else if (nap && r < 0.7) napNow(18000 + Math.random() * 14000);
         else if (move && !perched) peek();
-        else if (lvl === 'room' && r < 0.6) strollInRoom();
+        else if ((lvl === 'room' || lvl === 'low') && r < 0.6) strollInRoom(lvl === 'low');
       }
       scheduleRoam(false);
     }, ((first ? 90 : 240) * 1000 + Math.random() * (first ? 150 : 300) * 1000) / (moveLevel() === 'lots' ? 3 : 1));

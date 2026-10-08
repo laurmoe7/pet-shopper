@@ -27,7 +27,7 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, displaced = false, perch = null, perchTimer = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, mute: false, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
+  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, mute: false, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
   const DEFAULTS = Object.assign({}, prefs);
   try { prefs = Object.assign(prefs, JSON.parse(fs.readFileSync(prefsFile(), 'utf8'))); } catch (e) { /* first run */ }
   prefs.keys = keys.clean(prefs.keys);
@@ -59,7 +59,7 @@ function start() {
     if (prefs.onTop && prefs.aboveFull) win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true });
     else win.setVisibleOnAllWorkspaces(false);
   };
-  const publicPrefs = () => ({ moveNormal: prefs.moveNormal, moveFull: prefs.moveFull, mute: prefs.mute, remind: prefs.remind, size: prefs.size, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion, bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles, backdrop: prefs.backdrop });
+  const publicPrefs = () => ({ moveNormal: prefs.moveNormal, moveFull: prefs.moveFull, mute: prefs.mute, remind: prefs.remind, size: prefs.size, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion, bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles, backdrop: prefs.backdrop, toyRoam: prefs.toyRoam });
   const sendPrefs = () => { if (win) win.webContents.send('desk:prefs', publicPrefs()); panel.push(); };
   // moves the window smoothly (walking, peeking round the screen edge); anything that takes hold of it stops the move
   let tween = null;
@@ -88,7 +88,8 @@ function start() {
   const perchesNow = () => place.perches(frames(), areas(), petSize().height * 0.6);
   function tellPerched() { if (win) win.webContents.send('desk:perched', !!perch); }
   function stopFollow() { if (perchTimer) { clearInterval(perchTimer); perchTimer = null; } }
-  function leavePerch() { if (!perch) return; perch = null; stopFollow(); tellPerched(); }
+  let perchOrigin = null;   // where he stood before he hopped up: he runs back there when he gets off
+  function leavePerch() { if (!perch) return; perch = null; perchOrigin = null; stopFollow(); tellPerched(); }
   function startFollow() { stopFollow(); perchTimer = setInterval(followPerch, PERCH_TICK); }
   function sitOn(seg, rect) { perch = { id: seg.id, dx: win.getBounds().x - rect.x }; startFollow(); tellPerched(); }
   function followPerch() {
@@ -101,14 +102,26 @@ function start() {
     if (to.x !== b.x || to.y !== b.y) win.setBounds(to);
   }
   async function fall() {
+    const origin = perchOrigin;
     leavePerch();
     if (!win || mode !== 'pet') return;
-    if (await glide(place.floorBounds(win.getBounds(), here()), 450)) restHere();
+    if (!origin) { if (await glide(place.floorBounds(win.getBounds(), here()), 450)) restHere(); return; }
+    // off the window and back to where he was before: he drops straight down first, then runs along (the page shows his feet running)
+    const b = win.getBounds(), back = place.within(origin, here());
+    if (!(await glide({ x: b.x, y: back.y, width: b.width, height: b.height }, 380))) return;
+    if (Math.abs(back.x - b.x) > 20) {
+      win.webContents.send('desk:run', back.x > b.x ? 1 : -1);
+      const ok = await glide(back, Math.max(500, Math.min(2200, Math.abs(back.x - b.x) * 2)));
+      if (win) win.webContents.send('desk:run', 0);
+      if (!ok) return;
+    }
+    restHere();
   }
 
   function applyMode(next) {
     if (!win || next === mode) { if (win) win.webContents.send('desk:mode', mode); return; }
     if (next === 'list') {
+      hideToy();
       petBounds = win.getBounds();
       if (perch) { petBounds = place.floorBounds(petBounds, here()); leavePerch(); }
       mode = 'list';
@@ -159,7 +172,7 @@ function start() {
   function hideFumu() { if (win) win.hide(); refreshMenus(); }
 
   // one place that changes a setting, for the right-click menu and the settings window alike
-  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'remind', 'perch', 'hideToy', 'hideCushion', 'startWithWindows', 'bubbles', 'clouds', 'sparkles', 'backdrop', 'mute'];
+  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'remind', 'perch', 'hideToy', 'hideCushion', 'startWithWindows', 'bubbles', 'clouds', 'sparkles', 'backdrop', 'mute', 'toyRoam'];
   function setPref(key, value) {
     if (key === 'awareness') {   // 1 = more privacy, 2 = normal; at 1 he stops sitting on windows (he can no longer see them)
       prefs.awareness = privacy.clean(+value); savePrefs();
@@ -435,13 +448,53 @@ function start() {
     const near = place.perchesNear(b, place.perches(all, areas(), petSize().height * 0.6), areas(), 1100, perch && perch.id);
     if (!near.length) return 'none';
     const seg = near[Math.floor(Math.random() * near.length)], rect = all.find((f) => f.id === seg.id);
-    const to = place.perchBounds(b, seg);
+    const to = place.perchBounds(b, seg), origin = perch ? perchOrigin : b;
     leavePerch();
     const done = await glide(to, Math.max(500, Math.min(1400, Math.abs(to.x - b.x) + Math.abs(to.y - b.y))), 70);
     if (!done) return null;
     sitOn(seg, rect);
+    perchOrigin = origin;
     return true;
   });
+  // ---------- the toy flying about the whole screen (a switch in the settings window) ----------
+  // His own window is small, so while a thrown toy is in the air it is drawn by a second little transparent window that the page moves
+  // along with the toy (the page does the bouncing, the shell only places the picture). Clicks always go through it.
+  let toyWin = null, toyImg = '', toyPx = 0, toySpinAt = 0;
+  function toyWindow(px) {
+    if (!toyWin || toyWin.isDestroyed()) {
+      toyWin = new BrowserWindow({ width: px, height: px, frame: false, transparent: true, resizable: false, skipTaskbar: true, focusable: false, hasShadow: false, show: false, alwaysOnTop: true, webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false } });
+      toyWin.setIgnoreMouseEvents(true);
+      toyWin.setAlwaysOnTop(true, 'screen-saver');
+      toyImg = ''; toyPx = 0;
+    }
+    return toyWin;
+  }
+  function hideToy() { if (toyWin && !toyWin.isDestroyed()) toyWin.hide(); }
+  // where his window is and how big the screen is (what the page needs to let the toy fly over all of it)
+  ipcMain.handle('desk:toyField', () => {
+    if (!win || mode !== 'pet' || !prefs.toyRoam) return null;
+    const b = win.getBounds();
+    return { wx: b.x, wy: b.y, zoom: zoom(), area: screen.getDisplayMatching(b).workArea };
+  });
+  ipcMain.on('desk:toyShow', (_e, dataUrl, px) => {
+    if (!win || mode !== 'pet' || !prefs.toyRoam || typeof dataUrl !== 'string' || dataUrl.length > 80000 || !/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(dataUrl)) return;
+    px = Math.max(16, Math.min(120, Math.round(+px || 32)));
+    const w = toyWindow(px + 24);
+    if (dataUrl !== toyImg || px !== toyPx) {
+      toyImg = dataUrl; toyPx = px;
+      w.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent('<!doctype html><body style="margin:0;background:transparent;overflow:hidden;display:grid;place-items:center;height:100vh"><img id="t" src="' + dataUrl + '" style="width:' + px + 'px;height:' + px + 'px;display:block"></body>'));
+    }
+  });
+  ipcMain.on('desk:toyAt', (_e, x, y, deg) => {
+    if (!toyWin || toyWin.isDestroyed() || !toyPx) return;
+    const s = toyPx + 24;
+    toyWin.setBounds({ x: Math.round(+x - s / 2), y: Math.round(+y - s / 2), width: s, height: s });
+    if (!toyWin.isVisible()) toyWin.showInactive();
+    const now = Date.now();
+    if (now - toySpinAt > 30) { toySpinAt = now; toyWin.webContents.executeJavaScript('document.getElementById("t")&&(document.getElementById("t").style.transform="rotate(' + Math.round(+deg || 0) + 'deg)")').catch(() => {}); }
+  });
+  ipcMain.on('desk:toyHide', () => hideToy());
+  app.on('before-quit', () => { if (toyWin && !toyWin.isDestroyed()) toyWin.destroy(); });
   // a reminder: bring Fumu back if he was hidden (without taking the keyboard from what you are doing)
   ipcMain.on('desk:reveal', () => { if (win && !win.isVisible()) { win.showInactive(); refreshMenus(); } });
   ipcMain.on('desk:menu', () => { log('menu'); if (win) menu().popup({ window: win }); });

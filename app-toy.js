@@ -116,6 +116,7 @@ function getIt(side) {
 }
 /** The game is over: back to normal. */
 function endPlay() {
+  endField();
   pet.style.removeProperty('--look-x');
   pet.classList.remove('running');
   playing = false;
@@ -191,14 +192,26 @@ function hugToy() {
 // the room, and the pet runs underneath to catch it (in its mouth for a dog or bird, in its arms for the rest).
 // If it lands out of reach, the pet runs over and pounces on it. A plain tap still tosses it (playToy).
 var held = null, skipClick = false, flight = 0;
+// the desktop app can let the toy fly over the whole screen (app-desktop.js sets this while a throw is on): {lim, show(x, y, spin), hide(), zoom}
+var toyField = null;
+/** Ends the screen-wide flight: the toy is drawn in the page again (at toyX on the floor). */
+function endField(y) {
+  if (!toyField) return;
+  toyField.hide(); toyField = null;
+  toyEl.style.visibility = '';
+  toyEl.style.translate = Math.round(toyX) + 'px 0';
+  toyBall.style.transform = y > 0 ? 'translateY(' + (-y).toFixed(1) + 'px)' : '';
+}
 /** @returns {{minX: number, maxX: number, maxY: number}} Where the toy can go: px from the middle, px above the floor. */
 function toyLimits() {
+  if (toyField) return toyField.lim;
   var w = stage.clientWidth;
   return { minX: -w / 2 + 18, maxX: w / 2 - 18, maxY: stage.clientHeight - 3 - 32 - 8 };
 }
 /** Puts the toy at x (px from the middle), y (px above the floor), turned by spin degrees. */
 function placeToy(x, y, spin) {
   toyX = x;
+  if (toyField) { toyField.show(x, y, spin || 0); return; }
   toyEl.style.translate = Math.round(x) + 'px 0';
   toyBall.style.transform = 'translateY(' + (-y).toFixed(1) + 'px) rotate(' + Math.round(spin || 0) + 'deg)';
 }
@@ -220,10 +233,11 @@ toyEl.addEventListener('pointermove', function (e) {
     stopWalk();
     setFace({ eyes: 'sparkle', mouth: 'open', arms: 'reach', x: ['cheeks'] });
     pulse('hopsmall', 450);
+    if (typeof deskToyField === 'function') deskToyField();   // desktop app: the toy may fly over the whole screen
     talk('toyHeld', ['throw it! throw it!', 'ooh! ooh!', 'I\'m ready!', 'over here!'], 1300);
   }
   // the boxes are read again only a few times a second while dragging: reading them on every move forces the page to lay itself out each time
-  if (!held.box || e.timeStamp - held.box.t > 120) held.box = { t: e.timeStamp, st: stage.getBoundingClientRect(), pr: pet.getBoundingClientRect(), lim: toyLimits() };
+  if (!held.box || e.timeStamp - held.box.t > 120 || (toyField && !held.box.field)) held.box = { t: e.timeStamp, st: stage.getBoundingClientRect(), pr: pet.getBoundingClientRect(), lim: toyLimits(), field: !!toyField };
   var st = held.box.st, lim = held.box.lim;
   // dangling it over his head: he jumps for it, and after a few seconds of that he gets a little cross
   var pr = held.box.pr, over = e.clientY < pr.top + pr.height * 0.25 && Math.abs(e.clientX - (pr.left + pr.width / 2)) < pr.width * 0.5;
@@ -328,6 +342,7 @@ function fling(vx, vy, y) {
  * @param {number} y Px above the floor.
  */
 function caught(x, y) {
+  endField(y);
   pet.classList.remove('running');
   stopWalk();
   var style = playStyle();
@@ -344,7 +359,13 @@ function caught(x, y) {
 function landed() {
   var side = toyX >= walkX ? 1 : -1;
   pet.classList.add('running');
-  wait(walkTo(toyX - side * (playStyle() === 'tongue' ? 80 : 40), 7)).then(function () {
+  // it came down far from his window (the toy flies over the whole screen): the window runs along the floor to it first
+  var far = toyField ? toyX - clampWalk(toyX) : 0;
+  (far && typeof deskToyChase === 'function' ? deskToyChase(far) : Promise.resolve(0)).then(function (moved) {
+    toyX -= moved || 0;   // the window moved under it
+    endField();
+    return wait(walkTo(toyX - side * (playStyle() === 'tongue' ? 80 : 40), 7));
+  }).then(function () {
     pet.classList.remove('running');
     return getIt(side);
   }).then(endPlay);
@@ -411,6 +432,7 @@ function tongueGrab(x, y) {
 /** Puts the toy back at its spot beside the cushion (for when the pet's size changes with its species). */
 function toyBackHome() {
   if (playing) return;
+  endField();
   toyEl.style.translate = '';
   toyX = toyHome();
 }

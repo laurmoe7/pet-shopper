@@ -2,6 +2,14 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 292 (9 Oct)
+- Settings: "A little" movement (pacing on the spot), also for games and full-screen.
+- Settings: toy can fly around the whole screen (switch).
+- Carried: bigger squish and stretch, feet kick.
+- Sitting on a window: soles just clip into it.
+- Getting off a window: he drops and runs back to where he was.
+- Removed the "never sees their titles" hint.
+
 ## Build 291 (9 Oct)
 - Right-click: "Swap list".
 - Every switch now means on = enabled (Sounds, Show his toy, Show the cushion; "Quiet mode" became "Sounds").

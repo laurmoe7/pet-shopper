@@ -173,14 +173,14 @@ test('a window with no room above it (maximized) is not a perch, and edges are c
 test('he stands on an edge like on the taskbar, with his middle kept over it', () => {
   const b = { x: 0, y: 0, width: 320, height: 250 }, seg = { id: 'a', x1: 500, x2: 900, y: 600 };
   const on = P.perchBounds(b, seg);
-  assert.equal(on.y, 600 - 250 - P.MARGIN / 2);
+  assert.equal(on.y, 600 - 250 + 11);   // the soles clip a little into the window
   assert.equal(on.x + 160 >= 500 + 80 && on.x + 160 <= 900 - 80, true);
   assert.equal(P.perchBounds({ x: 3000, y: 0, width: 320, height: 250 }, seg).x + 160, 900 - 80);
 });
 
 test('a drop close to an edge snaps to it, a drop far above does not', () => {
   const segs = [{ id: 'a', x1: 500, x2: 900, y: 600 }];
-  const close = { x: 540, y: 600 - 250 - P.MARGIN / 2 - 25, width: 320, height: 250 };
+  const close = { x: 540, y: 600 - 250 + 11 - 25, width: 320, height: 250 };
   assert.equal(P.perchUnder(close, segs, 40).id, 'a');
   assert.equal(P.perchUnder(Object.assign({}, close, { y: close.y - 200 }), segs, 40), null);
   assert.equal(P.perchUnder(Object.assign({}, close, { x: 2000 }), segs, 40), null);
@@ -368,7 +368,7 @@ test('Claude is on the list of known programs', () => {
 
 test('movement choices: a lot, normal, in his room, still; anything else falls back', () => {
   const V = require('../desktop/privacy.js');
-  assert.deepEqual(V.MOVE_LEVELS.map((l) => l.id), ['lots', 'normal', 'room', 'still']);
+  assert.deepEqual(V.MOVE_LEVELS.map((l) => l.id), ['lots', 'normal', 'low', 'room', 'still']);
   assert.equal(V.cleanMove('room', 'normal'), 'room');
   assert.equal(V.cleanMove('walk', 'still'), 'still');
   assert.equal(V.cleanMove(undefined, 'normal'), 'normal');

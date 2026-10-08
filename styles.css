@@ -2890,3 +2890,10 @@ html.desktop-pet .quick-card input { user-select: text; -webkit-user-select: tex
 
 /* thought clouds hide while he moves about quickly (carried, strolling, gliding along the screen) */
 html.desk-moving :is(.dream, .wish), .stage:has(.pet.walking) :is(.dream, .wish) { visibility: hidden; }
+
+/* carried by the cursor (app-desktop.js): his feet dangle and kick */
+@keyframes dangle-a { 0%, 100% { rotate: -14deg; translate: 0 -1px; } 50% { rotate: 16deg; translate: 0 2.5px; } }
+@keyframes dangle-b { 0%, 100% { rotate: 16deg; translate: 0 2.5px; } 50% { rotate: -14deg; translate: 0 -1px; } }
+.pet.carried :is(.foot-side, .shoe-l, .shoe-r) { transform-box: fill-box; transform-origin: 50% 0; animation: dangle-a .28s ease-in-out infinite; }
+.pet.carried :is(.foot-r, .shoe-r) { animation-name: dangle-b; }
+@media (prefers-reduced-motion: reduce) { .pet.carried :is(.foot-side, .shoe-l, .shoe-r) { animation: none; } }

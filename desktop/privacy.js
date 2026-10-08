@@ -29,10 +29,11 @@ var CHAT_LEVELS = [
 /** @returns {string} A saved chatter level, or `fallback` when it is not one of them. */
 function cleanChat(v, fallback) { return CHAT_LEVELS.some(function (l) { return l.id === v; }) ? v : fallback; }
 
-/** How much he moves about on his own: a lot, normally, only inside his own little room (the small window, when it shows the room), or not at all. */
+/** How much he moves about on his own: a lot, normally, a little (pacing on the spot), only inside his own little room (the small window, when it shows the room), or not at all. */
 var MOVE_LEVELS = [
   { id: 'lots', label: 'A lot' },
   { id: 'normal', label: 'Normal' },
+  { id: 'low', label: 'A little' },
   { id: 'room', label: 'In his room' },
   { id: 'still', label: 'Still' }
 ];
