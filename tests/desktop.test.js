@@ -265,3 +265,28 @@ test('the sitting soles are drawn once for each foot, in front of the body, and 
   const css = fs.readFileSync(path.join(__dirname, '..', 'styles.css'), 'utf8');
   assert.match(css, /\.pet\.seated:not\(\.walking, \.shod\):is\(\[data-species="kitty"\], \[data-species="pig"\], \[data-species="birdie"\]\) \.sole-part/);
 });
+
+test('the installed program follows dev unless its package.json says stable', () => {
+  const C = require('../desktop/channel.js');
+  assert.deepEqual(C.pick({}), { name: 'dev', url: C.SITE });
+  assert.deepEqual(C.pick(null), { name: 'dev', url: C.SITE });
+  assert.deepEqual(C.pick({ fumuChannel: 'stable' }), { name: 'stable', url: C.SITE + 'stable/' });
+  assert.deepEqual(C.pick({ fumuChannel: 'beta' }), { name: 'dev', url: C.SITE });
+  const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'desktop', 'package.json'), 'utf8'));
+  assert.equal(pkg.fumuChannel, undefined);               // the repo's copy is dev: only the stable workflow sets it
+  assert.ok(pkg.build.files.includes('channel.js'));
+});
+
+test('the workflows keep stable apart: its own release, never marked as the latest one', () => {
+  const dir = path.join(__dirname, '..', '.github', 'workflows');
+  const stable = fs.readFileSync(path.join(dir, 'desktop-stable.yml'), 'utf8');
+  assert.match(stable, /branches: \[stable\]/);
+  assert.match(stable, /fumuChannel/);
+  assert.match(stable, /--prerelease/);      // so GitHub's "latest release" (what dev installs follow) never points at it
+  assert.match(stable, /provider: 'generic'|provider = 'generic'|provider:'generic'/);
+  const dev = fs.readFileSync(path.join(dir, 'desktop.yml'), 'utf8');
+  assert.match(dev, /branches: \[main\]/);
+  const pages = fs.readFileSync(path.join(dir, 'pages.yml'), 'utf8');
+  assert.match(pages, /branches: \[main, stable\]/);
+  assert.match(pages, /_site\/stable/);
+});

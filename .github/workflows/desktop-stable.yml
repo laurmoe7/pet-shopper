@@ -1,0 +1,71 @@
+name: Build the desktop app (Windows, stable)
+
+# The stable channel for people other than Lauren. Runs when the `stable` branch changes in the folder desktop/ (that is, when
+# main is promoted: `git push origin main:stable`), and by hand. It builds an installer that follows the stable page
+# (https://laurmoe7.github.io/pet-shopper/stable/) and updates itself from ONE release called `stable`, which is marked as a
+# pre-release so GitHub's "latest release" (what the dev installs of Lauren follow) never points at it.
+# The dev installer (desktop.yml, from main) is not touched by any of this.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch to build (normally stable)'
+        default: stable
+  push:
+    branches: [stable]
+    paths:
+      - 'desktop/**'
+      - '.github/workflows/desktop-stable.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || 'stable' }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      # stable versions start at 1.0 (dev ones are 0.1.N), so the two kinds can never be mistaken for each other
+      - run: npm version "1.0.${{ github.run_number }}" --no-git-tag-version
+      # this build follows the stable page and the `stable` release instead of main and the latest release
+      - name: Make it the stable build
+        shell: bash
+        run: |
+          node -e "
+            const fs = require('fs'), p = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            p.fumuChannel = 'stable';
+            p.build.publish = [{ provider: 'generic', url: 'https://github.com/laurmoe7/pet-shopper/releases/download/stable' }];
+            fs.writeFileSync('package.json', JSON.stringify(p, null, 2));
+          "
+      - run: npm run dist
+      - name: Publish to the stable release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VER=$(node -p "require('./package.json').version")
+          ls dist
+          if gh release view stable >/dev/null 2>&1; then
+            # drop the older installers so the release holds only the newest one
+            for a in $(gh release view stable --json assets --jq '.assets[].name'); do
+              case "$a" in Fumufumu-Setup-$VER.exe*|latest.yml) ;; Fumufumu-Setup-*) gh release delete-asset stable "$a" --yes ;; esac
+            done
+            gh release upload stable dist/Fumufumu-Setup-*.exe dist/*.blockmap dist/latest.yml --clobber
+          else
+            gh release create stable dist/Fumufumu-Setup-*.exe dist/*.blockmap dist/latest.yml --prerelease --target "$GITHUB_SHA" --title "Stable (follows what was promoted)" --notes "The stable channel of Fumufumu for Windows. Installed copies update themselves from here."
+          fi
+          # a release that already existed must stay a pre-release
+          gh release edit stable --prerelease --title "Stable $VER"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Fumufumu-Windows-stable-installer
+          path: desktop/dist/*.exe

@@ -22,6 +22,7 @@
       "preload.js",
       "place.js",
       "windows.js",
+      "channel.js",
       "keys.js",
       "panel-main.js",
       "panel-preload.js",

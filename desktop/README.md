@@ -12,6 +12,16 @@ the web (https://laurmoe7.github.io/pet-shopper/), so every big push updates it.
 4. In Fumu: right-click him → **Open my list** → Options → **Backup & sync** → join with your code. Your list and
    pet appear here too.
 
+## Channels: dev and stable
+
+There are two kinds of installer, so people you share Fumu with are not on your moving target.
+
+- **Dev** (yours): follows `main`. The page is `https://laurmoe7.github.io/pet-shopper/`, the program updates from the newest ordinary release (`v0.1.N`, built by `desktop.yml` whenever `desktop/` changes on `main`). Every big push reaches it.
+- **Stable** (everyone else): follows the `stable` branch, which only moves when you say "promote". Its page is under `/stable/` on the same site, built from the `stable` branch by `pages.yml`; its program updates from one release called **`stable`** (marked as a pre-release, so GitHub's "latest release", which dev installs follow, never points at it), built by `desktop-stable.yml` with versions `1.0.N`. Give friends the installer from that release (https://github.com/laurmoe7/pet-shopper/releases/tag/stable), never one of the `v0.1.N` ones.
+- **Promoting**: after a big push you are happy with, `npm test` and then `git push origin main:stable` (a fast-forward; the branch is created the first time). Pages then publishes the new stable page, and if `desktop/` changed since the last promotion the stable installer is rebuilt and its owners update themselves. The first time (or to rebuild by hand) run Actions > "Build the desktop app (Windows, stable)" > Run workflow.
+- The settings window shows which channel a program is on, and the right-click menu's version line says "(stable)".
+- Things that are shared between the channels: the sync server and the Send inbox (each person has their own recovery code, so lists stay separate), and the browser storage of anyone who opens both the main page and `/stable/` in the same browser (same site, so the same saved data: use one or the other).
+
 ## Updates
 
 - **The app itself** (the pet, the list, everything you see) is loaded from the web: a big push updates it. Restart Fumu

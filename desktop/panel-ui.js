@@ -20,7 +20,7 @@
 
   function render() {
     root.textContent = '';
-    document.getElementById('ver').textContent = S.packaged ? '' : 'running from source';
+    document.getElementById('ver').textContent = (S.packaged ? '' : 'running from source · ') + (S.channel === 'stable' ? 'stable channel' : 'dev channel');
     var look = section('His look');
     var sizeRow = el('div', 'row'); sizeRow.appendChild(el('span', 'text', 'Size'));
     var seg = el('span', 'seg');

@@ -10,7 +10,8 @@ const windows = require('./windows.js');
 const keys = require('./keys.js');
 const createPanel = require('./panel-main.js');
 
-const APP_URL = process.env.NIBBLE_URL || 'https://laurmoe7.github.io/pet-shopper/';
+const CHANNEL = require('./channel.js').pick(require('./package.json'));   // dev (follows main) or stable (follows only what was promoted)
+const APP_URL = process.env.NIBBLE_URL || CHANNEL.url;
 const PET_SIZE = { width: 320, height: 250 };
 const LIST_SIZE = { width: 440, height: 780 };
 const LOG = !!process.env.NIBBLE_LOG;
@@ -175,7 +176,7 @@ function start() {
       { label: 'Start with Windows', type: 'checkbox', checked: app.getLoginItemSettings().openAtLogin, click: (item) => setPref('startWithWindows', item.checked) },
       { type: 'separator' },
       { label: 'More Fumu settings…', accelerator: prefs.keys.options || undefined, registerAccelerator: false, click: () => panel.open() },
-      { label: 'Fumufumu ' + app.getVersion(), enabled: false },
+      { label: 'Fumufumu ' + app.getVersion() + (CHANNEL.name === 'stable' ? ' (stable)' : ''), enabled: false },
       { label: 'Quit Fumufumu', click: () => app.quit() }
     ]);
   }
@@ -401,7 +402,7 @@ function start() {
   function diag() {
     const b = win ? win.getBounds() : null;
     return {
-      version: app.getVersion(), electron: process.versions.electron, packaged: app.isPackaged, page: APP_URL,
+      version: app.getVersion(), channel: CHANNEL.name, electron: process.versions.electron, packaged: app.isPackaged, page: APP_URL,
       mode, bounds: b, zoom: zoom(), screens: screen.getAllDisplays().map((d) => d.workArea.width + 'x' + d.workArea.height + ' @' + d.scaleFactor),
       onPerch: perch ? perch.id : null, windowsSeen: prefs.perch && windows.available() ? windows.list().length : null, perchesNow: prefs.perch && windows.available() ? perchesNow().length : null,
       idleSeconds: powerMonitor.getSystemIdleTime(), idle, displaced, pointerOverFumu: solidNow,
@@ -434,7 +435,7 @@ function start() {
   const panel = createPanel({
     state: () => ({
       prefs: Object.assign({ onTop: prefs.onTop, aboveFull: prefs.aboveFull, hotkeys: prefs.hotkeys, startWithWindows: app.getLoginItemSettings().openAtLogin }, publicPrefs(), { perch: prefs.perch }),
-      keys: prefs.keys, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, update: updateReady
+      keys: prefs.keys, channel: CHANNEL.name, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, update: updateReady
     }),
     set: setPref, rebind, action, diag
   });

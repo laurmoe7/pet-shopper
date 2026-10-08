@@ -5,6 +5,7 @@ name: Build the desktop app (Windows)
 # It publishes a release with the installer. Installed copies of Fumufumu find the release and update themselves,
 # so you only run the installer yourself the first time. Changes to the app itself (everything outside desktop/)
 # need none of this: the desktop app loads the app from the web.
+# This is the DEV channel (Lauren's). Everyone else gets the stable channel: see desktop-stable.yml.
 on:
   workflow_dispatch:
   push:

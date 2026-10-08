@@ -2,7 +2,7 @@ name: Test and deploy
 
 on:
   push:
-    branches: [main]
+    branches: [main, stable]
   pull_request:
   workflow_dispatch:
 
@@ -26,20 +26,31 @@ jobs:
       - run: npm test
 
   deploy:
-    # only main goes live; pull requests just run the tests
-    if: github.ref == 'refs/heads/main'
+    # main and stable go live (stable under /stable/); pull requests just run the tests
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/stable'
     needs: test
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # the site is always built from the heads of both branches, so a push to either one gives the complete site
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
       - name: Collect the app files
         run: |
           mkdir _site
           cp *.html *.js *.css *.webmanifest *.svg *.png _site/
           cp -r emoji _site/
+          # the stable channel: the same files from the stable branch, under /stable/ (people with the stable installer load that page)
+          if git ls-remote --exit-code --heads origin stable >/dev/null 2>&1; then
+            git fetch origin stable
+            mkdir _stable _site/stable
+            git archive origin/stable | tar -x -C _stable
+            (cd _stable && cp *.html *.js *.css *.webmanifest *.svg *.png ../_site/stable/ && cp -r emoji ../_site/stable/)
+          fi
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
