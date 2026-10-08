@@ -2,7 +2,7 @@
  * Sounds.play(kind) where kind is one of:
  *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party,
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
- *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), bell and smash (the night bell ringing, and breaking), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
+ *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), bell, tink and smash (the night bell ringing, clinking and breaking), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
  *   notice (Claude's note arriving), done, sparkle, coin, ring (ticking off a to-do), stamp (the check mark landing), scribble (writing on the clipboard), shutter (the dressing room's camera),
  *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
@@ -253,6 +253,10 @@
     bell: function (t) {
       // a bright little hand bell: ding-ding
       chime(t, [2093, 2794], 0.0, 0.8, 'sine'); chime(t + 0.16, [2093, 2794], 0.0, 0.6, 'sine'); chime(t + 0.34, [2349], 0.0, 0.35, 'sine');
+    },
+    tink: function (t) {
+      // one small clink of the clapper
+      chime(t, [2637], 0.0, 0.45, 'sine');
     },
     smash: function (t) {
       // the bell cracks and tinkles into pieces

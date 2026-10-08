@@ -2968,14 +2968,18 @@ html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); scale: .7; t
 .stage.night-light .zzz text { animation-duration: 4s; }
 @media (prefers-reduced-motion: reduce) { .stage.night-light .night-glow { animation: none; } }
 
-/* the night bell (app-night.js): it sits where the toy would be; the toy is put away while it is out */
-.bell { position: absolute; left: calc(50% - 16px); bottom: 3px; width: 32px; height: 32px; padding: 0; border: 0; background: none; z-index: 6; cursor: grab; touch-action: none; translate: -138px 0; -webkit-tap-highlight-color: transparent; }
-.bell::after { content: ""; position: absolute; inset: -12px; }
+/* the night bell (app-night.js): it sits where the toy would be; the toy is put away while it is out. A brass hand bell with a wooden handle. */
+.bell { position: absolute; left: calc(50% - 18px); bottom: 3px; width: 36px; height: 48px; padding: 0; border: 0; background: none; z-index: 6; cursor: grab; touch-action: none; translate: -138px 0; -webkit-tap-highlight-color: transparent; }
+.bell::after { content: ""; position: absolute; inset: -10px; }
 .bell[hidden] { display: none; }
-.bell-img { display: block; width: 100%; height: 100%; pointer-events: none; filter: drop-shadow(0 2px 1px rgba(91, 66, 57, .3)); transform-origin: 50% 12%; }
+.bell-img { display: block; width: 100%; height: 100%; pointer-events: none; filter: drop-shadow(0 2px 1px rgba(91, 66, 57, .3)); }
+.bell-svg { display: block; overflow: visible; transform-origin: 50% 17%; }   /* it swings from the handle */
+.bl-handle { fill: #d6a066; stroke: #5b4239; stroke-width: 1.7; }
+.bl-body { fill: #f2c14e; stroke: #5b4239; stroke-width: 1.8; stroke-linejoin: round; }
+.bl-collar { fill: #e0a93a; stroke: #5b4239; stroke-width: 1.6; }
+.bl-shine { fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; opacity: .75; }
+.bl-clapper { fill: #c98f4f; stroke: #5b4239; stroke-width: 1.4; }
+.bell.held { cursor: grabbing; }
 .bell.held .bell-img { filter: drop-shadow(0 6px 3px rgba(91, 66, 57, .25)); }
 .bell.pop { animation: pop .35s cubic-bezier(.3, 1.6, .5, 1); }
-.bell.ringing .bell-img { animation: bell-swing .45s ease-out; }
-@keyframes bell-swing { 0% { rotate: 0deg; } 20% { rotate: -28deg; } 45% { rotate: 22deg; } 70% { rotate: -12deg; } 100% { rotate: 0deg; } }
 .stage.bell-mode .toy { display: none; }
-@media (prefers-reduced-motion: reduce) { .bell.ringing .bell-img { animation: none; } }

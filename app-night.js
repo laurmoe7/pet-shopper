@@ -140,13 +140,20 @@ function bellAwake() { try { return localStorage.getItem(BELL_KEY) === L.nightOf
 function setBellAwake(on) { try { if (on) localStorage.setItem(BELL_KEY, L.nightOf(petNow())); else localStorage.removeItem(BELL_KEY); } catch (e) { /* storage blocked */ } }
 var bell = document.createElement('button');
 bell.type = 'button'; bell.className = 'bell'; bell.hidden = true; bell.setAttribute('aria-label', 'Bell');
-var bellImg = emojiImg('🔔', ''); bellImg.className = 'bell-img';
-bell.appendChild(bellImg);
+// a brass hand bell with a wooden handle (36 x 48): he is held by the handle, and swings from it
+bell.innerHTML = '<span class="bell-img"><svg class="bell-svg" viewBox="0 0 36 48" width="36" height="48" aria-hidden="true">' +
+  '<rect class="bl-handle" x="14.2" y="1" width="7.6" height="19" rx="3.8"/>' +
+  '<path class="bl-body" d="M4 41 C4 28 10 21 18 21 C26 21 32 28 32 41 Z"/>' +
+  '<path class="bl-body" d="M2 41 Q18 46.5 34 41 Q34.4 44.6 30.5 44.6 L5.5 44.6 Q1.6 44.6 2 41 Z"/>' +
+  '<rect class="bl-collar" x="11.4" y="17.6" width="13.2" height="5.4" rx="2.4"/>' +
+  '<path class="bl-shine" d="M9 36 C9 31 11 27.6 14 25.6"/><circle class="bl-clapper" cx="18" cy="46" r="2.6"/></svg></span>';
+var bellImg = bell.querySelector('.bell-img'), bellSvg = bell.querySelector('.bell-svg');
 stage.appendChild(bell);
+var BELL_W = 36, BELL_H = 48, BELL_GRIP = 9;   // the pointer holds the handle, about 9 px down from the top
 var bellX = -138, bellY = 0, bellHeld = null, bellFlight = 0, bellRings = 0, bellRingTimer = 0;
 /** @returns {boolean} Whether the bell is out: in the small desktop window, at night, while he is in bed or was woken by it. */
 function bellOut() { return document.documentElement.classList.contains('desktop-pet') && L.isNight(petNow()) && !bellBroken && (stage.classList.contains('bedtime') || bellAwake()); }
-function placeBell() { bell.style.translate = Math.round(bellX) + 'px 0'; bellImg.style.transform = 'translateY(' + (-bellY).toFixed(1) + 'px)'; }
+function placeBell(turn) { bell.style.translate = Math.round(bellX) + 'px 0'; bellImg.style.transform = 'translateY(' + (-bellY).toFixed(1) + 'px)'; bellSvg.style.rotate = (turn || 0).toFixed(1) + 'deg'; }
 function showScene() {
   document.documentElement.dataset.scene = petScene();
   var out = bellOut();
@@ -196,20 +203,28 @@ function bellBreak() {
   showScene();
   setTimeout(function () { bellBroken = false; bellX = -138; bellY = 0; showScene(); }, 45000);   // a new one turns up
 }
-/** The bell flies on its own after a throw (or just drops when let go gently): gravity, a bounce off the sides; a throw breaks it on the first hit. */
-function bellFly(vx, vy, thrown) {
-  var lim = stage.clientWidth / 2 - 20, last = performance.now(), t0 = last;
+/** @returns {{minX: number, maxX: number, maxY: number}} Where the bell can go (as the toy's limits: px from the middle, px up). */
+function bellLimits() { return { minX: -stage.clientWidth / 2 + 20, maxX: stage.clientWidth / 2 - 20, maxY: stage.clientHeight - 3 - BELL_H - 8 }; }
+/**
+ * Let go: it flies like the toy does (the same gravity and bounces, the same speed cap), but breaks on its second bounce.
+ * @param {number} vx @param {number} vy Px/s (up is positive).
+ * @param {number} spin Degrees it is turned by when let go.
+ */
+function bellFly(vx, vy, spin) {
+  var lim = bellLimits(), last = performance.now(), bounces = 0, lastBounce = 0;
   cancelAnimationFrame(bellFlight);
+  function bounce(now, speed) { if (speed > 140 && now - lastBounce > 60) { lastBounce = now; sound('tink'); if (++bounces >= 2) { bellBreak(); return true; } } return false; }
   (function step(now) {
     var dt = Math.min(0.033, (now - last) / 1000); last = now;
-    vy -= 1800 * dt; bellX += vx * dt; bellY += vy * dt;
-    var hit = false;
-    if (bellX < -lim) { bellX = -lim; vx = Math.abs(vx) * 0.6; hit = true; }
-    if (bellX > lim) { bellX = lim; vx = -Math.abs(vx) * 0.6; hit = true; }
-    if (bellY < 0) { bellY = 0; vy = -vy * 0.35; vx *= 0.7; hit = true; if (Math.abs(vy) < 80) vy = 0; }
-    placeBell();
-    if (hit && thrown && now - t0 > 90) { bellBreak(); return; }
-    if (bellY === 0 && vy === 0 && Math.abs(vx) < 8) return;
+    vy -= 1500 * dt; bellX += vx * dt; bellY += vy * dt;
+    spin += vx * dt * 1.6;
+    if (bellX < lim.minX) { bellX = lim.minX; if (bounce(now, Math.abs(vx))) return; vx = Math.abs(vx) * 0.75; }
+    if (bellX > lim.maxX) { bellX = lim.maxX; if (bounce(now, Math.abs(vx))) return; vx = -Math.abs(vx) * 0.75; }
+    if (bellY > lim.maxY) { bellY = lim.maxY; if (bounce(now, Math.abs(vy))) return; vy = -Math.abs(vy) * 0.6; }
+    if (bellY < 0) { bellY = 0; if (bounce(now, Math.abs(vy))) return; vy = -vy * 0.6; if (vy < 70) vy = 0; vx *= 0.88; }
+    if (bellY === 0 && vy === 0) { vx *= Math.pow(0.3, dt); spin *= Math.pow(0.02, dt); }
+    placeBell(spin);
+    if (bellY === 0 && vy === 0 && Math.abs(vx) < 8) { placeBell(0); return; }
     bellFlight = requestAnimationFrame(step);
   })(last);
 }
@@ -218,32 +233,58 @@ bell.addEventListener('pointerdown', function (e) {
   e.preventDefault(); e.stopPropagation();
   try { bell.setPointerCapture(e.pointerId); } catch (err) { /* fine without */ }
   cancelAnimationFrame(bellFlight);
-  bellHeld = { pts: [], dir: 0, ext: e.clientX, turns: [] };
+  bellHeld = { pts: [], vx: 0, ax: 0, th: 0, w: 0, strikes: [], lastX: e.clientX, lastT: performance.now(), peak: 0 };
   bell.classList.add('held');
+  swingLoop(bellHeld);
 });
+/** While it is held it hangs from the handle and swings like a pendulum, driven by how the pointer speeds up and slows down; each hard swing the clapper strikes. */
+function swingLoop(h) {
+  var last = performance.now(), len = 30, g = 1800;
+  (function frame(now) {
+    if (bellHeld !== h) return;
+    var dt = Math.min(0.033, (now - last) / 1000); last = now;
+    var th = h.th * Math.PI / 180, w = h.w * Math.PI / 180;
+    var acc = -(g / len) * Math.sin(th) - 2.4 * w + (h.ax / len) * Math.cos(th);
+    w += acc * dt; th += w * dt;
+    var lim = 1.75;   // about 100 degrees
+    if (th > lim) { th = lim; w = -w * 0.3; } if (th < -lim) { th = -lim; w = -w * 0.3; }
+    var prev = h.w; h.th = th * 180 / Math.PI; h.w = w * 180 / Math.PI;
+    h.ax *= 0.5;
+    placeBell(h.th);
+    // the clapper strikes when the swing turns round, hard enough
+    if (prev * h.w <= 0 && Math.abs(h.th) > 24) {
+      sound('tink');
+      h.strikes.push(now); h.strikes = h.strikes.filter(function (t) { return now - t < 1700; });
+      if (h.strikes.length >= 4) { h.strikes = []; bellRing(); }
+    }
+    requestAnimationFrame(frame);
+  })(last);
+}
 bell.addEventListener('pointermove', function (e) {
-  if (!bellHeld) return;
-  var s = stage.getBoundingClientRect(), lim = s.width / 2 - 20, now = performance.now();
-  bellX = Math.max(-lim, Math.min(lim, e.clientX - (s.left + s.width / 2)));
-  bellY = Math.max(0, Math.min(s.height - 44, s.bottom - 19 - e.clientY));
-  placeBell();
-  var h = bellHeld;
-  h.pts.push({ t: now, x: bellX, y: bellY });
-  while (h.pts.length > 2 && now - h.pts[0].t > 120) h.pts.shift();
-  // shaking: it counts when he moves it back and forth, a good way each time
-  var x = e.clientX;
-  function turn() { h.turns.push(now); h.turns = h.turns.filter(function (t) { return now - t < 1100; }); if (h.turns.length >= 4) { h.turns = []; bellRing(); } }
-  if (h.dir === 0) { if (Math.abs(x - h.ext) > 14) { h.dir = x > h.ext ? 1 : -1; h.ext = x; } }
-  else if (h.dir === 1) { if (x > h.ext) h.ext = x; else if (h.ext - x > 14) { h.dir = -1; h.ext = x; turn(); } }
-  else { if (x < h.ext) h.ext = x; else if (x - h.ext > 14) { h.dir = 1; h.ext = x; turn(); } }
+  var h = bellHeld; if (!h) return;
+  if (e.buttons === 0 && e.pointerType === 'mouse') { bellLetGo(); return; }
+  var s = stage.getBoundingClientRect(), lim = bellLimits(), now = e.timeStamp;
+  bellX = Math.max(lim.minX, Math.min(lim.maxX, e.clientX - (s.left + s.width / 2)));
+  bellY = Math.max(0, Math.min(lim.maxY, s.bottom - 3 - BELL_H + BELL_GRIP - e.clientY));   // the handle is under the pointer
+  // how fast and how hard the pointer is pushing it sideways (px/s and px/s^2), for the swing
+  var dt = Math.max(0.008, (now - h.lastT) / 1000), vx = (e.clientX - h.lastX) / dt;
+  h.ax += Math.max(-9000, Math.min(9000, (vx - h.vx) / dt)) * 0.35; h.vx = vx; h.lastX = e.clientX; h.lastT = now;
+  h.pts.push({ x: e.clientX, y: e.clientY, t: now });
+  if (h.pts.length > 5) h.pts.shift();
+  placeBell(h.th);
 });
 function bellLetGo() {
-  if (!bellHeld) return;
-  var h = bellHeld, a = h.pts[0], b = h.pts[h.pts.length - 1];
+  var h = bellHeld;
+  if (!h) return;
   bellHeld = null; bell.classList.remove('held');
-  var sec = a && b && b.t > a.t ? (b.t - a.t) / 1000 : 0, vx = sec ? (b.x - a.x) / sec : 0, vy = sec ? (b.y - a.y) / sec : 0;
-  var thrown = Math.hypot(vx, vy) > 700;
-  bellFly(thrown ? vx : 0, thrown ? vy : 0, thrown);
+  var a = h.pts[0], z = h.pts[h.pts.length - 1];
+  var vx = 0, vy = 0;
+  if (a && z && z.t > a.t) { var dt = Math.max(16, z.t - a.t) / 1000; vx = (z.x - a.x) / dt; vy = -(z.y - a.y) / dt; }
+  var speed = Math.hypot(vx, vy), cap = 1500;   // the toy's own speed limit
+  if (speed > cap) { vx *= cap / speed; vy *= cap / speed; }
+  bellFly(vx, vy, h.th);
 }
 bell.addEventListener('pointerup', bellLetGo);
 bell.addEventListener('pointercancel', bellLetGo);
+bell.addEventListener('lostpointercapture', bellLetGo);
+window.addEventListener('blur', bellLetGo);

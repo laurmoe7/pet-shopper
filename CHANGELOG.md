@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 321 (9 Oct)
+- The night bell has a handle: you hold it by the handle and it swings like a real hand bell.
+- It flies like the toy when thrown, and breaks on its second bounce.
+
 ## Build 320 (9 Oct)
 - Five clear desktop scenes: day, day with clipboard, night in bed, night drowsy, night drowsy with clipboard.
 - Night bell in bed instead of the toy: shake it to wake him drowsy, throw it and it breaks and he goes back to bed.
