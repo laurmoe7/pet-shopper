@@ -265,7 +265,14 @@ function start() {
     if (mode === 'list') win.focus();
   }
   // the text on the clipboard (a link or a note) goes to the other device at once: the page does the sending
-  function sendCopied() { if (!win) return; if (!win.isVisible()) showFumu(); win.webContents.send('desk:sendCopied', String(clipboard.readText() || '').slice(0, 4100)); }
+  // (Promise.resolve: in newer Electron versions reading the clipboard can answer with a promise, and String() of that was "[object Promise]")
+  function sendCopied() {
+    if (!win) return;
+    if (!win.isVisible()) showFumu();
+    Promise.resolve(clipboard.readText()).then((text) => {
+      if (win && typeof text === 'string') win.webContents.send('desk:sendCopied', text.slice(0, 4100));
+    }).catch((e) => log('clipboard read failed', e && e.message));
+  }
   ipcMain.on('desk:typing', (_e, yes) => { if (win && yes) win.focus(); });
   const HANDLERS = { swapSize: toggleFull, swapList, quickAdd };
   const HOVER_HANDLERS = { options: () => panel.toggle(), sendCopied };   // held only while the pointer is over him

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 299 (9 Oct)
+- Fixed Ctrl+Alt+S sending "[object Promise]" instead of the copied text.
+
 ## Build 298 (9 Oct)
 - Fumu hears when Claude replies or needs you (a hook in the cloud sends a note through your sync inbox); the Claude Code link on the PC is gone.
 - Toy over the whole screen: harder throws, lighter gravity, livelier bounces, longer flights.

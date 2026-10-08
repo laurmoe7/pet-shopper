@@ -46,7 +46,7 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   /** The shortcut for adding an item was pressed. typing(true) asks the shell to give the window the keyboard. */
   onQuickAdd: (fn) => ipcRenderer.on('desk:quickAdd', () => fn()),
   /** The send-copied-text shortcut was pressed: the text that was on the clipboard. */
-  onSendCopied: (fn) => ipcRenderer.on('desk:sendCopied', (_e, text) => fn(String(text))),
+  onSendCopied: (fn) => ipcRenderer.on('desk:sendCopied', (_e, text) => { if (typeof text === 'string') fn(text); }),
   /** Which part of the window is on a screen: [left, right] in page pixels (he may be half out of it). */
   onVisible: (fn) => ipcRenderer.on('desk:visible', (_e, l, r) => fn(+l || 0, +r || 0)),
   /** He runs back along the floor after getting off a window: 1 right, -1 left, 0 stopped. */

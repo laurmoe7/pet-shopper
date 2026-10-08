@@ -383,3 +383,9 @@ test('blink timers leave a sleeping pet\'s eyes shut, and the "Tap to feed" labe
   assert.match(treats, /nibble-wish-fed/);
 });
 
+
+test('copied text is read from the clipboard as a string even when Electron answers with a promise', () => {
+  const m = fs.readFileSync(path.join(__dirname, '..', 'desktop', 'main.js'), 'utf8');
+  assert.match(m, /Promise\.resolve\(clipboard\.readText\(\)\)/);
+  assert.doesNotMatch(m, /String\(clipboard\.readText/);
+});
