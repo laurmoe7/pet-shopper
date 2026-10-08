@@ -417,7 +417,7 @@
   });
   if (D.onBounce) D.onBounce(function (hard) {
     if (headDown) { headDown = false; pet.classList.remove('thrown'); pet.classList.add('head-down'); }   // he stops spinning on his head
-    if (stage.classList.contains('bed-thrown')) { if (typeof sound === 'function') sound('bedbell'); return; }   // in his bed: a heavy thud and the faint bell in the bed
+    if (stage.classList.contains('bed-thrown')) { if (typeof sound === 'function') { sound('bounce'); sound('bedbell'); } return; }   // in his bed: the bounce and the faint bell in the bed
     if (typeof sound === 'function') sound('bounce');
     if (typeof pulse === 'function' && !carried) pulse(hard > .5 ? 'hop' : 'hopsmall', 400);
   });

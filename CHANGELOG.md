@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 352
+- Bouncing in bed plays the bounce sound and the bell clink together.
+
 ## Build 351
 - Thrown in bed he is heavier: no bouncing off walls, lands flat and bounces a few small times.
 - Each bounce in bed makes a faint bell clink.
