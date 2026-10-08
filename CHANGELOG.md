@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 284 (8 Oct)
+- Desktop: long speech bubbles shrink to fit the small window.
+- Thought bubbles switch only affects small Fumu.
+
 ## Build 283 (8 Oct)
 - Desktop: no shortcuts note in the whole app's Options.
 - Settings: thought bubbles switch for small Fumu.

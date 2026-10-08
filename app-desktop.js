@@ -153,6 +153,22 @@
   if (D.getPrefs) D.getPrefs().then(function (p) { if (p) { deskPrefs = p; applyLook(); applyChatter(); } });
   if (D.onPrefs) D.onPrefs(function (p) { if (p) { deskPrefs = p; applyLook(); applyChatter(); } });
 
+  // ---------- a long line must not run off the top of the small window: the text shrinks until it fits ----------
+  if (window.MutationObserver) {
+    var fitting = false;
+    new MutationObserver(function () {
+      if (fitting || bubble.hidden || !isPet()) return;
+      fitting = true;
+      // (measured with offsetHeight: the pop-in animation scales what getBoundingClientRect says)
+      var room = bubble.parentNode.getBoundingClientRect().top + 24 - 6;
+      bubble.style.fontSize = ''; bubble.style.maxHeight = ''; bubble.style.overflow = '';
+      var size = 15.2;   // .95rem
+      while (size > 10.5 && bubble.offsetHeight > room) { size -= 0.8; bubble.style.fontSize = size + 'px'; }
+      if (bubble.offsetHeight > room) { bubble.style.maxHeight = room + 'px'; bubble.style.overflow = 'hidden'; }
+      fitting = false;
+    }).observe(bubble, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['hidden'] });
+  }
+
   // ---------- a reminder for a task's time ----------
   // timeCheck (app-todo.js) asks here first. In pet mode Fumu pops up if he was hidden and a card by him says what is
   // due, with Done (when the task is on the list in view), "In 10 min" and a cross. Only one card at a time; more wait.

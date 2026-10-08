@@ -345,3 +345,9 @@ test('the Dark Souls games and the WoW classic programs are on the list', () => 
   assert.deepEqual(G.identify('DarkSoulsIII.exe'), { kind: 'game', name: 'Dark Souls III' });
   assert.deepEqual(G.identify('Wow.exe'), { kind: 'game', name: 'World of Warcraft' });
 });
+
+test('the thought bubbles switch only hides them in the small window, never in the whole app', () => {
+  const css = fs.readFileSync(path.join(__dirname, '..', 'styles.css'), 'utf8');
+  assert.match(css, /html\.desktop-pet\.desk-noclouds :is\(\.dream, \.wish\)/);
+  assert.doesNotMatch(css, /(^|\n)html\.desk-noclouds/);
+});
