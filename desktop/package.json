@@ -45,7 +45,12 @@
         "repo": "pet-shopper",
         "releaseType": "release"
       }
-    ]
+    ],
+    "electronLanguages": [
+      "en-US",
+      "nl"
+    ],
+    "compression": "maximum"
   },
   "dependencies": {
     "electron-updater": "^6.8.9"
