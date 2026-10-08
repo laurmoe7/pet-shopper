@@ -21,6 +21,20 @@
   function render() {
     root.textContent = '';
     document.getElementById('ver').textContent = (S.packaged ? '' : 'running from source · ') + (S.channel === 'stable' ? 'stable channel' : 'dev channel');
+    // friends use the stable channel: updating is a normal part of settings for them (for the dev channel it stays in the developer tools)
+    if (S.channel === 'stable') {
+      var upd = section('Updates'), us = S.updateState || { state: 'idle' };
+      var said = us.state === 'checking' ? 'Checking for updates…' : us.state === 'downloading' ? 'Downloading an update' + (us.percent ? ' (' + us.percent + '%)' : '…') : us.state === 'ready' ? 'An update is ready. Restart Fumufumu to get it.' : us.state === 'none' ? 'Fumufumu is up to date.' : us.state === 'error' ? 'Could not check for updates (are you online?).' : 'Fumufumu updates itself in the background.';
+      var urow = el('div', 'row'), utext = el('span', 'text', said);
+      utext.appendChild(el('small', '', 'The app itself (Fumu, the list, how he looks) loads fresh every time you start him. The program around him updates a few times a day and installs when you quit.'));
+      urow.appendChild(utext); upd.appendChild(urow);
+      var ubtns = el('div', 'btns');
+      if (S.update) button(ubtns, 'Restart to update', act('installUpdate'));
+      var chk = button(ubtns, 'Check for updates', act('checkUpdates')); chk.disabled = !S.packaged || us.state === 'checking' || us.state === 'downloading' || us.state === 'ready';
+      button(ubtns, 'Reload the app (get the latest page)', act('reload'));
+      upd.appendChild(ubtns);
+    }
+
     // how much he may notice (awareness level 1 or 2): the privacy choice comes first
     var priv = section('Privacy: what he can notice');
     var lv = S.privacy.levels, cur = S.prefs.awareness === 1 ? 1 : 2;
@@ -60,6 +74,15 @@
     toggle(look, 'Hide the cushion under him', 'hideCushion', 'He sits on nothing. At bedtime his bed still shows.');
 
     var does = section('What he does on his own');
+    // how much he talks on his own: his idle chatter, daydreams, asking for things. Reminders, greetings and answers to you are never held back.
+    function talkRow(label, hint, pref) {
+      var row = el('div', 'row'), text = el('span', 'text', label); text.appendChild(el('small', '', hint));
+      var seg3 = el('span', 'seg');
+      S.privacy.chatLevels.forEach(function (l) { var b = button(seg3, l.label, function () { P.set(pref, l.id).then(take); }); if (S.prefs[pref] === l.id) b.className = 'on'; });
+      row.append(text, seg3); does.appendChild(row);
+    }
+    talkRow('How much he chats on his own', 'His little remarks, daydreams and asking for things. Reminders, hellos and what he says back to you are never held back.', 'talkNormal');
+    talkRow('…while a game or something full-screen is in front', 'Needs Normal awareness (he has to know that something is full-screen).', 'talkFull');
     toggle(does, 'Wanders, peeks and naps', 'roam', 'Every few minutes, only when nothing is open.');
     toggle(does, 'Naps when I am away', 'idle', 'After about 4 minutes without keyboard or mouse, or when the screen is locked. Says hello when you are back.');
     if (S.canPerch && cur === 1) {

@@ -27,7 +27,7 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, displaced = false, perch = null, perchTimer = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', standStill: false, standStillFull: true, myGames: {}, keys: null };
+  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
   const DEFAULTS = Object.assign({}, prefs);
   try { prefs = Object.assign(prefs, JSON.parse(fs.readFileSync(prefsFile(), 'utf8'))); } catch (e) { /* first run */ }
   prefs.keys = keys.clean(prefs.keys);
@@ -35,6 +35,7 @@ function start() {
   if (prefs.chat === false) { prefs.chatNormal = 'off'; prefs.chatFull = 'off'; }   // the old on/off switch for his comments
   delete prefs.chat;
   prefs.chatNormal = privacy.cleanChat(prefs.chatNormal, 'normal'); prefs.chatFull = privacy.cleanChat(prefs.chatFull, 'normal');
+  prefs.talkNormal = privacy.cleanChat(prefs.talkNormal, 'normal'); prefs.talkFull = privacy.cleanChat(prefs.talkFull, 'rare');
   if (!prefs.myGames || typeof prefs.myGames !== 'object' || Array.isArray(prefs.myGames)) prefs.myGames = {};
   const savePrefs = () => { try { fs.writeFileSync(prefsFile(), JSON.stringify(prefs)); } catch (e) { /* ignore */ } };
   const areas = () => screen.getAllDisplays().map((d) => d.workArea);
@@ -50,7 +51,7 @@ function start() {
     if (prefs.onTop && prefs.aboveFull) win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true });
     else win.setVisibleOnAllWorkspaces(false);
   };
-  const publicPrefs = () => ({ roam: prefs.roam, remind: prefs.remind, size: prefs.size, idle: prefs.idle, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, standStill: prefs.standStill, standStillFull: prefs.standStillFull, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion });
+  const publicPrefs = () => ({ roam: prefs.roam, remind: prefs.remind, size: prefs.size, idle: prefs.idle, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, standStill: prefs.standStill, standStillFull: prefs.standStillFull, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion });
   const sendPrefs = () => { if (win) win.webContents.send('desk:prefs', publicPrefs()); panel.push(); };
   // moves the window smoothly (walking, peeking round the screen edge); anything that takes hold of it stops the move
   let tween = null;
@@ -159,7 +160,7 @@ function start() {
       sendPrefs(); refreshMenus();
       return;
     }
-    if (key === 'chatNormal' || key === 'chatFull') {   // how often he remarks on what you are doing: never, rarely, normal, often
+    if (key === 'chatNormal' || key === 'chatFull' || key === 'talkNormal' || key === 'talkFull') {   // how often he remarks on what you are doing: never, rarely, normal, often
       prefs[key] = privacy.cleanChat(value, prefs[key]); savePrefs(); sendPrefs();
       return;
     }
@@ -175,6 +176,10 @@ function start() {
       if (key === 'perch' && value && win && mode === 'pet' && privacy.allows(prefs.awareness, 'perch')) setTimeout(() => { if (win && prefs.perch) win.webContents.send('desk:do', 'perch'); }, 700);   // try right away, so you can see it working
     }
     sendPrefs(); refreshMenus();
+  }
+  function updateLabel() {
+    const u = updateState;
+    return u.state === 'checking' ? 'Checking for updates…' : u.state === 'downloading' ? 'Downloading an update' + (u.percent ? ' (' + u.percent + '%)' : '…') : u.state === 'ready' ? 'An update is ready' : u.state === 'none' ? 'Fumufumu is up to date ✓ (check again)' : u.state === 'error' ? 'Could not check (try again)' : 'Check for app updates';
   }
   // the short menu (right-click and tray): the everyday things; the rest is in the settings window
   function menu() {
@@ -194,6 +199,11 @@ function start() {
       { label: 'Start with Windows', type: 'checkbox', checked: app.getLoginItemSettings().openAtLogin, click: (item) => setPref('startWithWindows', item.checked) },
       { type: 'separator' },
       { label: 'More Fumu settings…', accelerator: prefs.keys.options || undefined, registerAccelerator: false, click: () => panel.open() },
+      ...(CHANNEL.name === 'stable' ? [   // the stable channel is for friends: updating is in the normal menu, not only in the developer tools
+        { label: updateLabel(), enabled: app.isPackaged && !['checking', 'downloading', 'ready'].includes(updateState.state), click: () => checkUpdates() },
+        ...(updateReady ? [{ label: 'Restart to update Fumufumu', click: () => autoUpdater && autoUpdater.quitAndInstall() }] : []),
+        { label: 'Reload (get the latest page)', click: () => win && win.webContents.reloadIgnoringCache() }
+      ] : []),
       { label: 'Fumufumu ' + app.getVersion() + (CHANNEL.name === 'stable' ? ' (stable)' : ''), enabled: false },
       { label: 'Quit Fumufumu', click: () => app.quit() }
     ]);
@@ -396,17 +406,24 @@ function start() {
   // The page (the app itself) updates by itself because it is loaded from the web. This is for the shell: the
   // installed program. It checks GitHub's releases, downloads quietly and installs when Fumu is next closed.
   let autoUpdater = null;
+  // what the updater is doing, for the menu and the settings window: idle, checking, downloading (with a percent), ready, none (up to date) or error
+  let updateState = { state: 'idle', percent: 0, checkedAt: 0 };
+  function setUpdate(state, extra) { updateState = Object.assign({ state, percent: 0, checkedAt: updateState.checkedAt }, extra || {}); refreshMenus(); panel.push(); }
   function checkUpdates() {
-    if (!autoUpdater) return;
-    autoUpdater.checkForUpdates().catch((e) => log('update check failed', e && e.message));
+    if (!autoUpdater || updateReady) return;
+    setUpdate('checking');
+    autoUpdater.checkForUpdates().catch((e) => { log('update check failed', e && e.message); setUpdate('error'); });
   }
   function setupUpdates() {
     if (!app.isPackaged) return;   // not when started from the source folder
     try { autoUpdater = require('electron-updater').autoUpdater; } catch (e) { return; }
     autoUpdater.autoDownload = true;
     autoUpdater.autoInstallOnAppQuit = true;
-    autoUpdater.on('update-downloaded', () => { updateReady = true; panel.push(); if (tray) tray.setToolTip('Fumufumu (update ready: right-click the tray icon)'); refreshMenus(); log('update ready'); });
-    autoUpdater.on('error', (e) => log('updater', e && e.message));
+    autoUpdater.on('update-not-available', () => setUpdate('none', { checkedAt: Date.now() }));
+    autoUpdater.on('update-available', () => setUpdate('downloading'));
+    autoUpdater.on('download-progress', (p) => setUpdate('downloading', { percent: Math.round((p && p.percent) || 0) }));
+    autoUpdater.on('update-downloaded', () => { updateReady = true; setUpdate('ready', { checkedAt: Date.now() }); panel.push(); if (tray) tray.setToolTip('Fumufumu (update ready: right-click the tray icon)'); refreshMenus(); log('update ready'); });
+    autoUpdater.on('error', (e) => { log('updater', e && e.message); if (updateState.state === 'checking' || updateState.state === 'downloading') setUpdate('error'); });
     setTimeout(checkUpdates, 15000);
     setInterval(checkUpdates, 6 * 3600 * 1000);
   }
@@ -485,7 +502,7 @@ function start() {
   const panel = createPanel({
     state: () => ({
       prefs: Object.assign({ onTop: prefs.onTop, aboveFull: prefs.aboveFull, hotkeys: prefs.hotkeys, startWithWindows: app.getLoginItemSettings().openAtLogin }, publicPrefs(), { perch: prefs.perch }),
-      keys: prefs.keys, channel: CHANNEL.name, privacy: { levels: privacy.LEVELS, always: privacy.ALWAYS, chatLevels: privacy.CHAT_LEVELS }, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, update: updateReady
+      keys: prefs.keys, channel: CHANNEL.name, privacy: { levels: privacy.LEVELS, always: privacy.ALWAYS, chatLevels: privacy.CHAT_LEVELS }, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, update: updateReady, updateState
     }),
     set: setPref, rebind, action, diag
   });

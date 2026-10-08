@@ -207,8 +207,10 @@ function bubbleToStage() {
  * @param {number} [ms=1500] How long it stays.
  * @param {boolean} [own] Already in the personality's voice (from `line`), so not restyled.
  */
+var idleQuiet = false;   // set while an idle moment runs that he was told not to talk during (app-idle.js); a touch or key press ends it
+var chatterRate = 1;     // how much he talks on his own: 0 never, .35 rarely, 1 normal, 2.5 often (the desktop app's settings change it)
 function say(text, ms, own) {
-  if (!text) return;
+  if (!text || idleQuiet) return;
   text = text.replace(/\bFumu\b/g, petName());   // lines are written with his first name; use the one you gave him
   bubble.hidden = true;
   void bubble.offsetWidth;

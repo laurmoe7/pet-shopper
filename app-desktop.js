@@ -136,7 +136,7 @@
   })();
 
   // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------
-  var deskPrefs = { roam: true, remind: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', standStill: false, standStillFull: true };
+  var deskPrefs = { roam: true, remind: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', standStill: false, standStillFull: true, talkNormal: 'normal', talkFull: 'rare' };
   /** Awareness: 1 = more privacy (idle and time only), 2 = normal. Anything he says about what you are doing, or knows about your windows and programs, checks this first. */
   window.deskAware = function (level) { return (deskPrefs.awareness === 1 ? 1 : 2) >= level; };
   /** The small window's look choices from the settings window: no toy, no cushion (classes on <html>, CSS at the end of styles.css). */
@@ -146,8 +146,8 @@
     lastSolidReset();
   }
   function lastSolidReset() { lastSolid = null; }
-  if (D.getPrefs) D.getPrefs().then(function (p) { if (p) { deskPrefs = p; applyLook(); } });
-  if (D.onPrefs) D.onPrefs(function (p) { if (p) { deskPrefs = p; applyLook(); } });
+  if (D.getPrefs) D.getPrefs().then(function (p) { if (p) { deskPrefs = p; applyLook(); applyChatter(); } });
+  if (D.onPrefs) D.onPrefs(function (p) { if (p) { deskPrefs = p; applyLook(); applyChatter(); } });
 
   // ---------- a reminder for a task's time ----------
   // timeCheck (app-todo.js) asks here first. In pet mode Fumu pops up if he was hidden and a card by him says what is
@@ -229,7 +229,7 @@
       return went;
     }).then(function () {
       pet.classList.remove('walking'); stopLook(); roaming = false;
-      if (!busy) { settle(); if (Math.random() < 0.5) say(pick(['nice walk~', 'hmm hm hm ♪', 'fumu fumu~']), 1400); }
+      if (!busy) { settle(); if (Math.random() < 0.5) chat(pick(['nice walk~', 'hmm hm hm ♪', 'fumu fumu~']), 1400); }
     }, function () { pet.classList.remove('walking'); stopLook(); roaming = false; });
   }
   /** Slides half out of the screen at the nearest free side, looks about, and comes back. */
@@ -256,7 +256,7 @@
     D.unpeek(800).then(function () {
       if (busy) return;
       pulse('hop', 460);
-      say(pick(['hehe, boo!', 'peekaboo!', 'found you!']), 1400);
+      chat(pick(['hehe, boo!', 'peekaboo!', 'found you!']), 1400);
       setTimeout(function () { if (!busy) settle(); }, 1500);
     });
   }
@@ -401,6 +401,15 @@
   /** @param {boolean} full  Whether a game or something full-screen is involved. @returns {number} 0 (never), .35, 1 or 2.5: bigger means more often. */
   function chatRate(full) { var v = FREQ[full ? deskPrefs.chatFull : deskPrefs.chatNormal]; return v === undefined ? 1 : v; }
   window.deskChatRate = chatRate;
+  /** How much he talks on his own right now (the global chatterRate that app-idle.js reads): the full-screen choice while a game or something full-screen is in front. */
+  function applyChatter() {
+    var v = FREQ[inFull() ? deskPrefs.talkFull : deskPrefs.talkNormal];
+    chatterRate = v === undefined ? 1 : v;
+    if (chatterRate === 0 && !bubble.hidden && !busy) { /* a line already up just finishes */ }
+  }
+  /** A small remark of his own (not an answer to you): said only as often as the chatter choice allows. */
+  function chat(text, ms) { if (chatterRate > 0 && Math.random() < Math.min(1, chatterRate)) say(text, ms); }
+  window.deskChatter = function () { return chatterRate; };
   window.deskQuiet = quietNow;   // for tests and the developer tools
   window.deskMayRemark = function () { return mayRemark(); };
   var PROGRAM_LINES = {
@@ -471,6 +480,7 @@
   if (D.onProgram) D.onProgram(function (p) {
     var was = program;
     program = p || { kind: 'none', name: '', fullscreen: false };
+    applyChatter();   // a game or full-screen program switches him to the other chatter choice
     clearTimeout(programTimer);
     var now = Date.now();
     var full = chatRate(true), usual = chatRate(!!program.fullscreen);
@@ -574,7 +584,7 @@
       }
       pulse('hop', 460);
       setFace({ eyes: 'happy', mouth: 'smile', arms: 'idle', x: ['cheeks'] });
-      say(pick(['up here!', 'nice view~', 'hehe, a perch', 'fumu fumu~']), 1500);
+      chat(pick(['up here!', 'nice view~', 'hehe, a perch', 'fumu fumu~']), 1500);
       setTimeout(function () { if (!busy) settle(); }, 1600);
     }, function () { roaming = false; });
   }
@@ -582,7 +592,7 @@
     if (!D.perch || roaming) return;
     roaming = true;
     pulse('hop', 700);
-    D.perch('down').then(function () { roaming = false; if (!busy) { settle(); say(pick(['back down~', 'whee!']), 1200); } }, function () { roaming = false; });
+    D.perch('down').then(function () { roaming = false; if (!busy) { settle(); chat(pick(['back down~', 'whee!']), 1200); } }, function () { roaming = false; });
   }
   // bedtime or sleep: he comes down to his cushion first
   setInterval(function () {

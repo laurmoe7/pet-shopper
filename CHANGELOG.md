@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 274 (8 Oct)
+- Desktop: choose how much he chats on his own (never, rarely, normal, often), and a second choice for when a game or something full-screen is in front.
+- Desktop: friends on the stable app can check for updates, see their progress and restart to update from the normal menu and settings.
+
 ## Build 273 (8 Oct)
 - Desktop: choose how often he remarks on what you are doing (never, rarely, normal, often), separately for games and full-screen.
 - Desktop: stand in place options, one for games and full-screen, one for the rest.

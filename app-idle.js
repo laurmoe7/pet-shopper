@@ -16,9 +16,11 @@ function idle() {
   scheduleDream();
   if (busy || dreaming || napping || document.hidden || document.querySelector('dialog[open]:not(#roomSheet)')) return;
   // while it's awake it asks for something now and then (offerSuggestion keeps that to once every three minutes at most)
-  if (Math.random() < 0.3 && dueNag(true)) return;
-  if (baseState() !== 'sleepy' && Math.random() < 0.2 && offerSuggestion()) return;
-  if (state.settings.daydreams && Math.random() < 0.3) daydream();
+  // chatterRate (1 = as usual) scales how often it talks on its own: 0 never, below 1 less, above 1 more
+  var c = chatterRate;
+  if (c > 0 && Math.random() < Math.min(0.9, 0.3 * c) && dueNag(true)) return;
+  if (c > 0 && baseState() !== 'sleepy' && Math.random() < Math.min(0.9, 0.2 * c) && offerSuggestion()) return;
+  if (c > 0 && state.settings.daydreams && Math.random() < Math.min(0.9, 0.3 * c)) daydream();
   else idleMove();
 }
 /** Shows a thought cloud with an item and lets the pet react to it. */
@@ -342,9 +344,15 @@ function idleMove() {
   if (isTodo() && !late && mood !== 'sleepy' && Math.random() < 0.45) moves = TODO_MOVES.map(function (run) { return { run: run }; });
   if (!moves.length) return;
   busy++;
+  // told to talk less (or never): this move happens, but silently, until it is over or you touch him
+  var mute = chatterRate < 1 && Math.random() >= chatterRate;
+  if (mute) idleQuiet = true;
   var ms = pick(moves).run();
   setTimeout(function () { busy--; if (!busy) settle(); }, Math.max(1600, ms || 0));
+  if (mute) setTimeout(function () { idleQuiet = false; }, Math.max(1600, ms || 0) + 2500);   // (a line that is said a moment after the move is muted too)
 }
+// anything you do ends a muted idle moment: what he says back to you is never held back
+['pointerdown', 'keydown'].forEach(function (type) { document.addEventListener(type, function () { idleQuiet = false; }, true); });
 scheduleDream();
 
 // ---------- a soft settle ----------
