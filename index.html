@@ -1142,7 +1142,7 @@
   <form method="dialog" class="picker-inner" id="accountForm">
     <h2 id="accountTitle">Backup &amp; sync</h2>
     <div id="accountOut">
-      <p class="option-text">Keeps your shopping list and <span class="pet-name">Fumu</span> safe, and the same on all your devices. To-do lists stay on this device. No email or password: you get a code.</p>
+      <p class="option-text">Syncs your shopping list and <span class="pet-name">Fumu</span> between devices. No password: you get a code.</p>
       <div class="account-actions"><button type="button" class="pill-btn" id="acctMake">Start a backup</button></div>
       <label class="account-field"><span class="option-title">Already have a code?</span>
         <input id="acctCode" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX" aria-label="Your backup code"></label>
@@ -1151,7 +1151,7 @@
     <div id="accountIn" hidden>
       <p class="account-status" id="acctStatus" aria-live="polite"></p>
       <p class="account-code" id="acctShown" aria-live="polite"></p>
-      <p class="option-text" id="acctWarn" hidden>Write this code down or copy it somewhere safe. It is the only way to get your data on another device, and nobody can recover it for you. Anyone who has it can see your list and pet.</p>
+      <p class="option-text" id="acctWarn" hidden>Keep this code safe. It is the only way to restore your data, and anyone with it can see your list and pet.</p>
       <div class="account-actions">
         <button type="button" class="pill-btn" id="acctNow">Sync now</button>
         <button type="button" class="pill-btn" id="acctShow">Show my code</button>
@@ -1169,18 +1169,15 @@
     </details>
   </form>
 </dialog>
-<dialog class="picker pet-sheet cal-full send-sheet" id="sendSheet" aria-labelledby="sendTitle">
+<dialog class="picker pet-sheet send-sheet" id="sendSheet" aria-labelledby="sendTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="sendTitle">Send to another device</h2>
-    <p class="option-text">Paste a link or type a note. <span class="pet-name">Fumu</span> brings it to your other device (phone to PC or PC to phone). Both need the same Backup &amp; sync code.</p>
-    <textarea id="sendText" rows="3" maxlength="4000" placeholder="https://… or a note" aria-label="What to send"></textarea>
+    <p class="option-text">Paste a link or type a note. <span class="pet-name">Fumu</span> brings it to your other device.</p>
+    <textarea id="sendText" rows="2" maxlength="4000" placeholder="https://… or a note" aria-label="What to send"></textarea>
     <div class="account-actions"><button type="button" class="pill-btn" id="sendGo">Send</button></div>
     <p class="dev-status" id="sendMsg" aria-live="polite"></p>
     <h3 class="send-recent-head" id="sendRecentHead" hidden>Received lately</h3>
     <div class="send-recent" id="sendRecent"></div>
-    <label class="option"><span class="option-title">Receive on this device</span>
-      <input type="checkbox" role="switch" id="sendReceive">
-      <span class="option-text">Show links and notes sent from your other devices here. Always on in the desktop app.</span></label>
   </form>
 </dialog>
 <dialog class="picker pet-sheet" id="optionsSheet" aria-labelledby="optionsTitle">
@@ -1201,7 +1198,7 @@
     <label class="option">
       <span class="option-title">Skip the 15-minute wait</span>
       <input type="checkbox" role="switch" id="devNoWait">
-      <span class="option-text">Items count as soon as you tick them off. The once-a-day and daily limits still apply.</span>
+      <span class="option-text">Items count as soon as you tick them off.</span>
     </label>
     <div class="dev-actions" id="devActions"></div>
     <button type="button" class="pill-btn" id="animBtn">Animation player</button>

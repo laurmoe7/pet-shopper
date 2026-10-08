@@ -18,10 +18,10 @@ var optionsSheet = $('optionsSheet'), optionsList = $('optionsList');
 var OPTIONS = [
   { key: 'quiet', title: 'Quiet mode', text: '' },
   { key: 'vibration', title: 'Vibration', text: '' },
-  { key: 'aisles', title: 'Sort by aisle', text: 'Groups the shopping list into fruit & veg, meat, dairy and so on, in the order you walk round a shop.' },
+  { key: 'aisles', title: 'Sort by aisle', text: '' },
   { key: 'time24', title: '24-hour time', text: '' },
   { key: 'goalToasts', title: 'Goal progress display', text: '' },
-  { key: 'fairPlayTips', title: 'Fair-play tips', text: 'Mentions the 15-minute rule and the once-a-day rule. The rules still apply when this is off.' }
+  { key: 'fairPlayTips', title: 'Fair-play tips', text: 'The rules still apply when off.' }
 ];
 var themeRow = document.createElement('div');
 themeRow.className = 'option option-theme';
@@ -66,7 +66,7 @@ optionsList.addEventListener('change', function (e) {
   if (!state.quiet) sound(e.target.checked ? 'on' : 'off');
 });
 $('optionsBtn').addEventListener('click', function () {
-  optionsList.querySelectorAll('input').forEach(function (b) { b.checked = b.dataset.key === 'quiet' ? state.quiet : state.settings[b.dataset.key]; });
+  optionsList.querySelectorAll('input[data-key]').forEach(function (b) { b.checked = b.dataset.key === 'quiet' ? state.quiet : state.settings[b.dataset.key]; });
   openDialog(optionsSheet);
 });
 optionsSheet.addEventListener('click', function (e) { if (e.target === optionsSheet) optionsSheet.close(); });

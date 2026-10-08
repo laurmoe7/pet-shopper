@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 287 (9 Oct)
+- Send sheet is a normal-height sheet again, tighter, so the sending animation stays visible.
+- "Receive from my other devices" moved to Options.
+- Shorter descriptions across Options, Backup & sync and Send.
+
 ## Build 286 (9 Oct)
 - Desktop: Ctrl+Alt+S sends copied text or a link, only while pointing at him (also in right-click).
 - Send sheet: last 5 received links and notes, taller sheet.

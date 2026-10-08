@@ -4,7 +4,7 @@
 // scope, loaded in the order listed in index.html.
 'use strict';
 
-var sendSheet = $('sendSheet'), sendText = $('sendText'), sendMsg = $('sendMsg'), sendGo = $('sendGo'), sendReceive = $('sendReceive');
+var sendSheet = $('sendSheet'), sendText = $('sendText'), sendMsg = $('sendMsg'), sendGo = $('sendGo'), sendReceive = null;   // (the Receive switch is a row in Options, made below)
 var INBOX_POLL_MS = 10000, RECEIVE_KEY = 'nibble.receive';
 var deskShell = window.nibbleDesktop || null;   // the desktop app (desktop/): it always receives
 
@@ -13,8 +13,7 @@ function sendSay(text) { sendMsg.textContent = text || ''; }
 function openSend(prefill) {
   optionsSheet.close();
   sendText.value = prefill || '';
-  sendSay(account.code ? '' : 'Turn on Backup & sync first (Options), here and on your other device, so both have the same code.');
-  sendReceive.checked = receivingHere();
+  sendSay(account.code ? '' : 'Turn on Backup & sync first, on both devices.');
   renderRecent();
   openDialog(sendSheet);
 }
@@ -55,10 +54,6 @@ function sendToOther(quickText) {
 var quickSending = false;
 sendGo.addEventListener('click', function () { sound('tap'); sendToOther(); });
 sendSheet.addEventListener('click', function (e) { if (e.target === sendSheet) sendSheet.close(); });
-sendReceive.addEventListener('change', function () {
-  try { localStorage.setItem(RECEIVE_KEY, sendReceive.checked ? '1' : '0'); } catch (e) { /* storage blocked */ }
-  if (sendReceive.checked) setTimeout(inboxPoll, 300);
-});
 /** @returns {boolean} Whether this device shows what is sent to it (the desktop app always does; elsewhere it is on unless switched off). */
 function receivingHere() {
   if (deskShell) return true;
@@ -75,6 +70,20 @@ function receivingHere() {
   b.addEventListener('click', function () { sound('tap'); openSend(); });
   row.appendChild(b);
   optionsList.insertBefore(row, optionsList.children[1] || null);
+  // whether this device shows what the others send (the desktop app always does, so it has no switch)
+  if (deskShell) return;
+  var rx = document.createElement('label');
+  rx.className = 'option';
+  rx.innerHTML = '<span class="option-title">Receive from my other devices</span>';
+  sendReceive = document.createElement('input');
+  sendReceive.type = 'checkbox'; sendReceive.setAttribute('role', 'switch');
+  rx.appendChild(sendReceive);
+  optionsList.insertBefore(rx, optionsList.children[2] || null);
+  sendReceive.addEventListener('change', function () {
+    try { localStorage.setItem(RECEIVE_KEY, sendReceive.checked ? '1' : '0'); } catch (e) { /* storage blocked */ }
+    if (sendReceive.checked) setTimeout(inboxPoll, 300);
+  });
+  $('optionsBtn').addEventListener('click', function () { sendReceive.checked = receivingHere(); });
 })();
 
 // shared from another app (the share menu, once Fumufumu is installed on the phone): the link is ready to send

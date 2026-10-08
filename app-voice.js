@@ -102,7 +102,7 @@ if (Voice.supported && /[?&]voice=1\b/.test(location.search)) {
 if (Voice.supported) {
   var voiceRow = document.createElement('div');
   voiceRow.className = 'option option-theme';
-  voiceRow.innerHTML = '<span class="option-title">Voice language</span><span class="option-text">Speech is turned into text by your phone\'s speech service.</span>';
+  voiceRow.innerHTML = '<span class="option-title">Voice language</span>';
   var voiceBtns = document.createElement('span');
   voiceBtns.className = 'theme-btns';
   VOICE_LANGS.forEach(function (l) {
