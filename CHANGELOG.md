@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 347
+- A thrown bell flies across the screen like the toy when "Toy flies around the screen" is on.
+- Night light glow fades out at the bottom, no hard line.
+- Sitting in shoes: his own feet are hidden; the sole pictures are 15% bigger.
+- He carries the toy up when he hops onto a window, then it sits next to him.
+- On a fall or throw the toy falls with him; he picks it up and carries it on the walk back.
+
 ## Build 346
 - Swiped alerts slide away instead of fading.
 - Claude alerts last twice as long (speech, wand, jingle).

@@ -276,6 +276,46 @@
       img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
     });
   }
+  /**
+   * Like the toy, anything else that is thrown (the night bell) can fly over the whole screen when the switch is on.
+   * @param {SVGElement} svg The thing's drawing. @param {number} w @param {number} h Its size (the drawing's own units, px).
+   * @returns {Promise<Object|null>} {lim, show(x, y, spin), hide(), localX()} in the toy's terms (px from the middle, px up from the floor), or null.
+   */
+  window.deskFlyField = function (svg, w, h) {
+    if (deskPrefs.toyRoam !== true || !isPet() || !D.toyField || !D.toyShow) return Promise.resolve(null);
+    return Promise.all([D.toyField(), svgPicture(svg, w, h)]).then(function (r) {
+      var f = r[0], png = r[1];
+      if (!f || !png) return null;
+      var z = f.zoom || 1, st = stage.getBoundingClientRect(), mid = st.left + st.width / 2, fl = st.bottom - 3 - h / 2;
+      D.toyShow(png, Math.round(48 * z));
+      return {
+        zoom: z, ax: 0,
+        lim: { minX: (f.area.x - f.wx) / z - mid + w / 2 + 2, maxX: (f.area.x + f.area.width - f.wx) / z - mid - w / 2 - 2, maxY: fl - (f.area.y - f.wy) / z - h / 2 - 8 },
+        localX: function () { return (this.ax - f.wx) / z - mid; },
+        show: function (x, y, spin) { var px = f.wx + (mid + x) * z, py = f.wy + (fl - y) * z; this.ax = px; D.toyAt(px, py, spin); },
+        hide: function () { D.toyHide(); }
+      };
+    });
+  };
+  /** @returns {Promise<string>} A drawing as a small square PNG (its colours read from the page's CSS), centred, for the window that draws a flying thing. */
+  function svgPicture(svg, w, h) {
+    return new Promise(function (resolve) {
+      var copy = svg.cloneNode(true), src = svg.querySelectorAll('*'), dst = copy.querySelectorAll('*');
+      for (var j = 0; j < src.length; j++) {
+        var cs = getComputedStyle(src[j]);
+        ['fill', 'stroke', 'stroke-width', 'opacity', 'stroke-linecap', 'stroke-linejoin'].forEach(function (p) { dst[j].style.setProperty(p, cs.getPropertyValue(p)); });
+        dst[j].removeAttribute('class'); dst[j].style.removeProperty('rotate');
+      }
+      copy.removeAttribute('class'); copy.removeAttribute('style');
+      copy.setAttribute('xmlns', 'http://www.w3.org/2000/svg'); copy.setAttribute('width', String(w * 2)); copy.setAttribute('height', String(h * 2));
+      var img = new Image();
+      img.onload = function () {
+        try { var c = document.createElement('canvas'); c.width = c.height = 96; c.getContext('2d').drawImage(img, (96 - w * 2) / 2, (96 - h * 2) / 2, w * 2, h * 2); resolve(c.toDataURL('image/png')); } catch (e) { resolve(''); }
+      };
+      img.onerror = function () { resolve(''); };
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(copy));
+    });
+  }
   /** Called when the toy is picked up: if the switch is on, from now on it can go anywhere on the screen. */
   window.deskToyField = function () {
     if (deskPrefs.toyRoam !== true || deskPrefs.hideToy || !isPet() || !D.toyField || !D.toyShow || toyField) return;
@@ -357,7 +397,6 @@
     stage.classList.toggle('flying', !!on);
     pet.style.setProperty('--spin-dir', dir < 0 ? -1 : 1);
     headDown = !!on && !!extra.head;   // spinning round, he lands on his head at the first bounce (onBounce)
-    if (on) tripStart(); else tripEnd(900);
     if (on && !bed) setFace({ eyes: 'dizzy', mouth: 'o', arms: 'idle', x: ['sweat'] });
     if (!on) {
       pet.classList.remove('thrown');
@@ -907,9 +946,8 @@
     perched = yes;
     pet.classList.toggle('seated', yes);
     if (yes && !busy) { pulse('hopsmall', 450); drift(['♪'], petTop(), 1); }
-    // he keeps hold of his toy while he sits on a window, and puts it down when he is off again (unless he is falling or running back with it)
-    if (yes) { if (typeof toyCarry === 'function') toyCarry(true); }
-    else setTimeout(function () { if (!perched && !tripHold && !carried && typeof toyCarry === 'function') toyCarry(false); }, 250);
+    // he held his toy for the hop up: sitting, it lies next to him
+    if (yes && typeof toyCarry === 'function') toyCarry(false);
   });
   /** @param {boolean} [manual] Asked for from the settings or animation player: say why when nothing happens. */
   function hopUp(manual) {
@@ -917,9 +955,11 @@
     roaming = true;
     setFace(FACES.curious);
     pulse('hop', 700);
+    if (typeof toyCarry === 'function') toyCarry(true);   // the toy goes up in his arms
     D.perch('up').then(function (on) {
       roaming = false;
       if (on !== true) {
+        if (typeof toyCarry === 'function') toyCarry(false);
         settle();
         if (manual) say(on === 'private' ? 'awareness is on More privacy, so I cannot see your windows' : on === 'off' ? 'switch on "Sits on my windows" in the settings' : 'no window with room above it to sit on', 3500);
         return;
@@ -931,17 +971,11 @@
     }, function () { roaming = false; });
   }
   // after getting off a window he runs back to where he was: the shell glides the window, here the feet go
-  // a fall, a throw or a run back: he keeps the toy in his arms the whole way and puts it down where he ends up
-  var tripHold = false, tripRun = false;
+  // the toy falls along with him (it is in his window); then he picks it up and carries it as he walks back, and puts it down where he ends up
+  var tripHold = false;
   function tripStart() { tripHold = true; if (typeof toyCarry === 'function' && !carried) toyCarry(true); }
-  function tripEnd(afterMs) {
-    setTimeout(function () {
-      if (tripRun || carried) return;   // he is running back: the end of the run puts it down
-      tripHold = false;
-      if (!perched && typeof toyCarry === 'function') toyCarry(false);
-    }, afterMs);
-  }
-  if (D.onFall) D.onFall(function (on) { if (on) tripStart(); else tripEnd(900); pet.classList.toggle('falling', on); if (on) setFace({ eyes: 'sparkle', mouth: 'o', arms: 'idle', x: [] }); else if (!busy) settle(); });
+  function tripEnd() { tripHold = false; if (!perched && !carried && typeof toyCarry === 'function') toyCarry(false); }
+  if (D.onFall) D.onFall(function (on) { pet.classList.toggle('falling', on); if (on) setFace({ eyes: 'sparkle', mouth: 'o', arms: 'idle', x: [] }); else if (!busy) settle(); });
   var runOwn = false;
   // up at night and tired: the shell takes his walk back slowly, and his feet go slowly too
   if (D.setDrowsy) new MutationObserver(function () {
@@ -950,7 +984,7 @@
     pet.classList.toggle('plod', sc.indexOf('night-drowsy') === 0);
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-scene'] });
   if (D.onRun) D.onRun(function (dir) {
-    if (dir) { tripRun = true; tripStart(); } else { tripRun = false; tripEnd(150); }
+    if (dir) tripStart(); else if (tripHold) tripEnd();
     if (dir) { pet.classList.add('walking'); lookToward(dir); if (!roaming) { roaming = true; runOwn = true; } }
     else { pet.classList.remove('walking'); stopLook(); if (runOwn) { roaming = false; runOwn = false; } }
   });

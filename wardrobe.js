@@ -748,7 +748,7 @@ function boa() {
   root.Wardrobe.forEach(function (w) {
     if (w.slot !== 'feet' || !SOLES[w.id]) return;
     w.sole = [54, 106].map(function (x, i) {
-      return '<g transform="translate(' + x + ' 137.5) rotate(' + (i ? 12 : -12) + ') scale(1.1)">' + SOLES[w.id]() + '</g>';
+      return '<g transform="translate(' + x + ' 137.5) rotate(' + (i ? 12 : -12) + ') scale(1.265)">' + SOLES[w.id]() + '</g>';
     }).join('');
   });
 })(typeof self !== 'undefined' ? self : globalThis);

@@ -156,6 +156,7 @@ bell.innerHTML = '<span class="bell-img"><svg class="bell-svg" viewBox="0 0 36 4
   '<path class="bl-shine" d="M9 36 C9 31 11 27.6 14 25.6"/></svg></span>';
 var bellImg = bell.querySelector('.bell-img'), bellSvg = bell.querySelector('.bell-svg'), bellClap = bell.querySelector('.bl-clap');
 stage.appendChild(bell);
+var bellField = null, bellFieldTok = 0;   // while a thrown bell flies over the whole screen (app-desktop.js deskFlyField)
 var BELL_W = 36, BELL_H = 48, BELL_GRIP = 9;   // the pointer holds the handle, about 9 px down from the top
 var bellX = 100, bellY = 20, bellTilt = 18, bellHeld = null, bellFlight = 0, bellRings = 0, bellRingTimer = 0;
 /** @returns {boolean} Whether the bell is out: in the small desktop window, at night, only while his bed is out (awake with no bed there is no bell: he has his toy). */
@@ -225,12 +226,23 @@ function bellToBed(lines, notTucked) {
   say(pick(lines), 2000);
   showScene();
 }
+var bellActive = null;   // the field the bell is flying in, until it lands or breaks
+/** The bell's flight over the screen is over: it is drawn in the page again, in his window (as near to where it came down as the window reaches). */
+function endBellField() {
+  var f = bellActive || bellField;
+  if (!f) return;
+  bellActive = null; bellField = null;
+  if (f.localX) { var lim = bellLimits(); bellX = Math.max(lim.minX, Math.min(lim.maxX, f.localX())); bellY = 0; }
+  f.hide();
+  bell.style.visibility = '';
+}
 function bellBreak() {
   cancelAnimationFrame(bellFlight);
-  var r = bell.getBoundingClientRect(), at = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  var r = bell.getBoundingClientRect(), at = { x: r.left + r.width / 2, y: r.top + r.height / 2 }, wide = !!bellActive;
+  endBellField();
   bell.hidden = true; bellBroken = true; bellY = 0;
   sound('smash');
-  drift(['✦', '✧', '·', '✦'], at, 6);
+  if (!wide) drift(['✦', '✧', '·', '✦'], at, 6);
   bellToBed(petScene() !== 'night-bed' ? ['oh… so sleepy… night night', '…bed…', 'mm… back to bed…'] : ['mm…', '…zzz…']);
   setTimeout(function () { bellBroken = false; showScene(); }, 4000);   // a new one turns up a few seconds later
 }
@@ -243,20 +255,22 @@ function bellLimits() { return { minX: -stage.clientWidth / 2 + 20, maxX: stage.
  */
 function bellFly(vx, vy, spin) {
   bell.classList.remove('nested');
-  var lim = bellLimits(), last = performance.now(), bounces = 0, lastBounce = 0;
+  var field = bellField, lim = field ? field.lim : bellLimits(), last = performance.now(), bounces = 0, lastBounce = 0;
+  var gravity = field ? 950 : 1500, wallK = field ? 0.92 : 0.75, floorK = field ? 0.74 : 0.6;   // (over the whole screen it flies longer, like the toy)
   cancelAnimationFrame(bellFlight);
+  if (field) { bell.style.visibility = 'hidden'; bellActive = field; bellField = null; }
   function bounce(now, speed) { if (speed > 140 && now - lastBounce > 60) { lastBounce = now; sound('tink'); if (++bounces >= 2) { bellBreak(); return true; } } return false; }
   (function step(now) {
     var dt = Math.min(0.033, (now - last) / 1000); last = now;
-    vy -= 1500 * dt; bellX += vx * dt; bellY += vy * dt;
+    vy -= gravity * dt; bellX += vx * dt; bellY += vy * dt;
     spin += vx * dt * 1.6;
-    if (bellX < lim.minX) { bellX = lim.minX; if (bounce(now, Math.abs(vx))) return; vx = Math.abs(vx) * 0.75; }
-    if (bellX > lim.maxX) { bellX = lim.maxX; if (bounce(now, Math.abs(vx))) return; vx = -Math.abs(vx) * 0.75; }
-    if (bellY > lim.maxY) { bellY = lim.maxY; if (bounce(now, Math.abs(vy))) return; vy = -Math.abs(vy) * 0.6; }
-    if (bellY < 0) { bellY = 0; if (bounce(now, Math.abs(vy))) return; vy = -vy * 0.6; if (vy < 70) vy = 0; vx *= 0.88; }
+    if (bellX < lim.minX) { bellX = lim.minX; if (bounce(now, Math.abs(vx))) return; vx = Math.abs(vx) * wallK; }
+    if (bellX > lim.maxX) { bellX = lim.maxX; if (bounce(now, Math.abs(vx))) return; vx = -Math.abs(vx) * wallK; }
+    if (bellY > lim.maxY) { bellY = lim.maxY; if (bounce(now, Math.abs(vy))) return; vy = -Math.abs(vy) * floorK; }
+    if (bellY < 0) { bellY = 0; if (bounce(now, Math.abs(vy))) return; vy = -vy * floorK; if (vy < 70) vy = 0; vx *= 0.88; }
     if (bellY === 0 && vy === 0) { vx *= Math.pow(0.3, dt); spin *= Math.pow(0.02, dt); }
-    placeBell(spin);
-    if (bellY === 0 && vy === 0 && Math.abs(vx) < 8) { bellTilt = spin % 360; bellNest(false); return; }
+    if (field) field.show(bellX, bellY, spin); else placeBell(spin);
+    if (bellY === 0 && vy === 0 && Math.abs(vx) < 8) { bellTilt = spin % 360; endBellField(); bellNest(false); return; }
     bellFlight = requestAnimationFrame(step);
   })(last);
 }
@@ -266,6 +280,8 @@ bell.addEventListener('pointerdown', function (e) {
   try { bell.setPointerCapture(e.pointerId); } catch (err) { /* fine without */ }
   cancelAnimationFrame(bellFlight);
   bell.classList.remove('nested');
+  bellField = null;
+  if (typeof deskFlyField === 'function') { var tok = ++bellFieldTok; deskFlyField(bellSvg, BELL_W, BELL_H).then(function (f) { if (f && tok === bellFieldTok && bellHeld) bellField = f; else if (f) f.hide(); }); }   // (desktop app, "toy flies around the screen": it can fly over the whole screen)
   bellHeld = { pts: [], vx: 0, ax: 0, th: 0, w: 0, cp: 0, cw: 0, strikes: [], lastX: e.clientX, lastT: performance.now(), peak: 0 };
   bell.classList.add('held');
   swingLoop(bellHeld);
@@ -318,7 +334,7 @@ function bellLetGo() {
   var a = h.pts[0], z = h.pts[h.pts.length - 1];
   var vx = 0, vy = 0;
   if (a && z && z.t > a.t) { var dt = Math.max(16, z.t - a.t) / 1000; vx = (z.x - a.x) / dt; vy = -(z.y - a.y) / dt; }
-  var speed = Math.hypot(vx, vy), cap = 1500;   // the toy's own speed limit
+  var speed = Math.hypot(vx, vy), cap = bellField ? 3300 : 1500;   // the toy's own speed limit
   if (speed > cap) { vx *= cap / speed; vy *= cap / speed; }
   bellFly(vx, vy, h.th);
 }
