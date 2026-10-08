@@ -122,6 +122,47 @@ function start() {
     restHere();
   }
 
+  /** He is let go while moving fast: he flies on, bounces off the edges of the screens and the floor, then runs back to where he was picked up. */
+  async function throwWindow(vx, vy, home) {
+    stopTween();
+    if (!win || mode !== 'pet') return;
+    const all = areas(), b0 = win.getBounds();
+    const box = { x: Math.min(...all.map((a) => a.x)), y: Math.min(...all.map((a) => a.y)), r: Math.max(...all.map((a) => a.x + a.width)), b: Math.max(...all.map((a) => a.y + a.height)) };
+    const insetX = Math.round(b0.width * 0.2), insetTop = Math.round(b0.height * 0.3);   // the window has clear space round him: he touches the edge, not the window
+    let x = b0.x, y = b0.y;
+    const t0 = Date.now();
+    let last = t0;
+    win.webContents.send('desk:fall', true);   // arms flap while he flies
+    const ok = await new Promise((resolve) => {
+      const timer = setInterval(() => {
+        if (!win) { stopTween(); return; }
+        const now = Date.now(), dt = Math.min(0.034, (now - last) / 1000);
+        last = now;
+        vy += 2400 * dt; x += vx * dt; y += vy * dt;
+        if (x < box.x - insetX) { x = box.x - insetX; vx = Math.abs(vx) * 0.8; }
+        if (x > box.r - b0.width + insetX) { x = box.r - b0.width + insetX; vx = -Math.abs(vx) * 0.8; }
+        if (y < box.y - insetTop) { y = box.y - insetTop; vy = Math.abs(vy) * 0.8; }
+        const wa = screen.getDisplayNearestPoint({ x: Math.round(x + b0.width / 2), y: Math.round(y + b0.height) }).workArea;
+        const floorY = wa.y + wa.height - b0.height - place.MARGIN / 2;
+        let rest = false;
+        if (y >= floorY) { y = floorY; if (Math.abs(vy) > 260) vy = -vy * 0.62; else { vy = 0; rest = true; } vx *= 0.85; }
+        win.setBounds({ x: Math.round(x), y: Math.round(y), width: b0.width, height: b0.height });
+        if ((rest && Math.abs(vx) < 30) || now - t0 > 7000) { clearInterval(timer); tween = null; resolve(true); }
+      }, 16);
+      tween = { timer, done: resolve };
+    });
+    if (win) win.webContents.send('desk:fall', false);
+    if (!ok || !win) return;
+    const back = place.within(home, here()), cur = win.getBounds();
+    if (Math.abs(back.x - cur.x) > 20 || Math.abs(back.y - cur.y) > 20) {
+      win.webContents.send('desk:run', back.x > cur.x ? 1 : -1);
+      const done = await glide(back, Math.max(600, Math.min(2800, Math.hypot(back.x - cur.x, back.y - cur.y) * 1.6)));
+      if (win) win.webContents.send('desk:run', 0);
+      if (!done) return;
+    }
+    restHere();
+  }
+
   function applyMode(next) {
     if (!win || next === mode) { if (win) win.webContents.send('desk:mode', mode); return; }
     if (next === 'list') {
@@ -406,13 +447,17 @@ function start() {
   // carrying follows the real pointer (the page's own numbers change with the zoom)
   let dragCursor = null;
   // while he is carried the shell itself follows the cursor about 120 times a second, so he stays under it however fast it moves
-  let dragTimer = null;
+  let dragTimer = null, dragHome = null, dragTrail = [];
   function dragFollow() {
     if (!win || !dragFrom || !dragCursor) return;
     const p = screen.getCursorScreenPoint();
-    win.setBounds(place.dragBounds(dragFrom, p.x - dragCursor.x, p.y - dragCursor.y));
+    const nb = place.dragBounds(dragFrom, p.x - dragCursor.x, p.y - dragCursor.y);
+    win.setBounds(nb);
+    const now = Date.now();
+    dragTrail.push({ t: now, x: nb.x, y: nb.y });
+    while (dragTrail.length > 2 && now - dragTrail[0].t > 110) dragTrail.shift();   // only the last moments count: how fast he was let go
   }
-  ipcMain.on('desk:dragStart', () => { if (win && mode === 'pet') { leavePerch(); stopTween(); peekRest = null; dragFrom = win.getBounds(); dragCursor = screen.getCursorScreenPoint(); clearInterval(dragTimer); dragTimer = setInterval(dragFollow, 8); } });
+  ipcMain.on('desk:dragStart', () => { if (win && mode === 'pet') { dragHome = perchOrigin ? place.within(perchOrigin, here()) : win.getBounds(); dragTrail = []; leavePerch(); stopTween(); peekRest = null; dragFrom = win.getBounds(); dragCursor = screen.getCursorScreenPoint(); clearInterval(dragTimer); dragTimer = setInterval(dragFollow, 8); } });
   ipcMain.on('desk:dragMove', (_e, dx, dy) => {
     if (!win || !dragFrom) return;
     const p = screen.getCursorScreenPoint();
@@ -423,6 +468,12 @@ function start() {
     if (!win || !dragFrom) return;
     dragFrom = null;
     const b = win.getBounds();
+    // let go while still moving fast: he is thrown (see throwWindow)
+    const first = dragTrail[0], last = dragTrail[dragTrail.length - 1];
+    if (first && last && last.t - first.t >= 30 && Date.now() - last.t < 120) {
+      const sec = (last.t - first.t) / 1000, vx = (last.x - first.x) / sec, vy = (last.y - first.y) / sec;
+      if (Math.hypot(vx, vy) > 1400) { throwWindow(Math.max(-3500, Math.min(3500, vx)), Math.max(-3500, Math.min(3500, vy)), dragHome || b); return; }
+    }
     // let go close above another window's edge and he sits on it
     if (prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch')) {
       const all = frames(), seg = place.perchUnder(b, place.perches(all, areas(), petSize().height * 0.6), 40);

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 314 (9 Oct)
+- Throw him: let go while moving fast and he bounces off the screen edges, then runs back to his spot.
+
 ## Build 313 (9 Oct)
 - Claude alerts no longer show twice.
 
