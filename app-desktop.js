@@ -150,13 +150,14 @@
   })();
 
   // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------
-  var deskPrefs = { roam: true, remind: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', standStill: false, standStillFull: true, talkNormal: 'normal', talkFull: 'rare' };
+  var deskPrefs = { roam: true, remind: true, idle: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, awareness: 2, chatNormal: 'normal', chatFull: 'normal', standStill: false, standStillFull: true, talkNormal: 'normal', talkFull: 'rare' };
   /** Awareness: 1 = more privacy (idle and time only), 2 = normal. Anything he says about what you are doing, or knows about your windows and programs, checks this first. */
   window.deskAware = function (level) { return (deskPrefs.awareness === 1 ? 1 : 2) >= level; };
   /** The small window's look choices from the settings window: no toy, no cushion (classes on <html>, CSS at the end of styles.css). */
   function applyLook() {
     root.classList.toggle('desk-notoy', !!deskPrefs.hideToy);
     root.classList.toggle('desk-nocushion', !!deskPrefs.hideCushion);
+    root.classList.toggle('desk-nobubbles', deskPrefs.bubbles === false);   // speech bubbles in the small window only; cards (reminders, links) are separate
     lastSolidReset();
   }
   function lastSolidReset() { lastSolid = null; }
@@ -377,17 +378,30 @@
       if (open) drawOpts();
     });
 
+    // the box stays open for the next one: Enter adds and clears it; Enter on an empty box, Esc, the cross or a click anywhere else closes it
+    var close = qEl('button', 'quick-close', '✕');
+    close.type = 'button'; close.setAttribute('aria-label', 'Close'); close.title = 'Close';
+    close.addEventListener('click', closeQuick);
+    card.insertBefore(close, null);
+    var placeholder = input.placeholder, flashTimer = 0;
     card.addEventListener('submit', function (e) {
       e.preventDefault();
       var text = input.value;
-      closeQuick();
-      if (!text.trim()) return;
+      if (!text.trim()) { closeQuick(); return; }
+      input.value = '';
       var item = addItem(text);
       if (item && todo && (opts.due || opts.time || opts.repeat)) applyQuickOptions(item, opts);
+      if (todo) {   // each task starts clean
+        opts.due = ''; opts.time = ''; opts.repeat = ''; opts.days = []; opts.span = '';
+        open = false; panel.hidden = true; card.classList.remove('opts-open'); more.setAttribute('aria-expanded', 'false'); drawOpts();
+      }
+      input.placeholder = 'Added ✓ next one…';
+      clearTimeout(flashTimer); flashTimer = setTimeout(function () { input.placeholder = placeholder; }, 1500);
+      input.focus();
     });
     card.addEventListener('keydown', function (e) { e.stopPropagation(); if (e.key === 'Escape') closeQuick(); });
-    // clicked somewhere else: it tidies itself away after a while (not while a choice inside it is being made)
-    card.addEventListener('focusout', function (e) { if (!card.contains(e.relatedTarget)) { clearTimeout(quickAway); quickAway = setTimeout(closeQuick, 8000); } });
+    // clicked somewhere else (or into another program): it closes, but not while a choice inside it is being made
+    card.addEventListener('focusout', function (e) { if (!card.contains(e.relatedTarget)) { clearTimeout(quickAway); quickAway = setTimeout(closeQuick, 250); } });
     card.addEventListener('focusin', function () { clearTimeout(quickAway); });
     document.querySelector('.stage').appendChild(card);
     setFace(FACES.curious);

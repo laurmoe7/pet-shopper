@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 278 (8 Oct)
+- Desktop: the quick-add box stays open for more items; close it with the cross, Esc or by clicking away.
+- Desktop: a switch for speech bubbles in the small window.
+- Desktop: the sitting feet are smaller and cuter.
+- Links: the arriving link now always plays its eating animation (he waits until he is free), and there is a short pause so both animations can be watched.
+
 ## Build 277 (8 Oct)
 - Desktop: shorter descriptions in the settings window and Options.
 

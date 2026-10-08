@@ -2846,9 +2846,11 @@ html.desktop-pet .stage .inbox-card { top: auto; bottom: calc(100% + 1px); }
 /* choices from the settings window: no toy, no cushion under him (the bed at night stays) */
 html.desktop-pet.desk-notoy .toy { display: none !important; }
 html.desktop-pet.desk-nocushion .stage:not(.bedtime) .cushion { display: none; }
+html.desktop-pet.desk-nobubbles .bubble { display: none !important; }
 /* the quick-add box by Fumu (the shell's Ctrl+Alt+A): a field and an Add button */
-.quick-card { grid-template-columns: 1fr auto; gap: 6px; }
-.quick-card:has(.quick-more) { grid-template-columns: 1fr auto auto; }
+.quick-card { grid-template-columns: 1fr auto auto; gap: 6px; }
+.quick-card:has(.quick-more) { grid-template-columns: 1fr auto auto auto; }
+.quick-card .quick-close { padding: 3px 9px; }
 .quick-card .quick-more { padding: 3px 9px; white-space: nowrap; }
 .quick-card .quick-more.set { background: var(--accent); }
 .quick-opts { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 5px; padding-top: 2px; }

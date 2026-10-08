@@ -32,9 +32,14 @@ function sendToOther() {
       syncLogAdd('Sent a ' + (m.kind === 'link' ? 'link' : 'note') + ' to the other device', 'sync');
       if (sendSheet.open) sendSheet.close();   // at once: nothing more to wait for
       var sentLine = function () { say(pick(['off it goes!', 'on its way ♡', 'fumu fumu~ sent!']), 1400); };
-      if (!canShowEating()) { sentLine(); return; }
-      busy++;
-      eatMessage(m.kind === 'link', fromPt).then(function () { sentLine(); setTimeout(function () { busy--; if (!busy) settle(); }, 700); });
+      // a moment for the sheet to close, then he eats it (waiting for his own moves to end rather than skipping the animation)
+      setTimeout(function () {
+        whenCanEat(function (ok) {
+          if (!ok) { sentLine(); return; }
+          busy++;
+          eatMessage(m.kind === 'link', fromPt).then(function () { sentLine(); setTimeout(function () { busy--; if (!busy) settle(); }, 700); });
+        }, 4000);
+      }, 450);
     } else if (r.status === 401) sendSay('The server does not know this code. Check Backup & sync.');
     else if (r.status === 503) sendSay('The server is not ready for this yet: it needs the new inbox table (see worker/sync/README.md).');
     else if (r.status === 413) sendSay('That is too long to send.');
@@ -133,21 +138,38 @@ function eatMessage(link, from) {
 }
 /** Whether the eating can be shown now (not while he eats something else, and not with reduced motion). */
 function canShowEating() { return !busy && !reduceMotion && !!pet.getBoundingClientRect().width; }
+/**
+ * Calls fn(true) as soon as the eating can be shown, waiting for what he is doing to end (his idle moves would otherwise make the
+ * animation skip); fn(false) when it cannot be shown at all (reduced motion, no room) or he stays busy for `maxMs`.
+ */
+function whenCanEat(fn, maxMs) {
+  var t0 = Date.now();
+  (function check() {
+    if (canShowEating()) { fn(true); return; }
+    if (reduceMotion || !pet.getBoundingClientRect().width || Date.now() - t0 > maxMs) { fn(false); return; }
+    setTimeout(check, 150);
+  })();
+}
 /** Fumu eats the thing that arrived (it flies in from above), then the card shows. */
 function receiveMessage(msg, more) {
   var link = msg.kind === 'link';
-  if (!canShowEating()) { showInboxCard(msg, more); return; }
-  var mouth = mouthPoint();
-  busy++;
-  inboxCard = document.createElement('div');   // holds the place while he eats, so a second message does not start
-  eatMessage(link, { x: mouth.x + 70, y: Math.max(8, mouth.y - 170) }).then(function () {
-    say(link ? 'a link for you!' : 'a note for you!', 1900);
-    setTimeout(function () {
-      busy--; if (!busy) settle();
-      inboxCard = null;
-      showInboxCard(msg, more);
-    }, 520);
-  });
+  inboxCard = document.createElement('div');   // holds the place from the start, so a second message does not begin
+  // a short wait first (long enough to have watched it leave the other device), then he eats it as soon as he is free
+  setTimeout(function () {
+    whenCanEat(function (ok) {
+      if (!ok) { inboxCard = null; showInboxCard(msg, more); return; }
+      var mouth = mouthPoint();
+      busy++;
+      eatMessage(link, { x: mouth.x + 70, y: Math.max(8, mouth.y - 170) }).then(function () {
+        say(link ? 'a link for you!' : 'a note for you!', 1900);
+        setTimeout(function () {
+          busy--; if (!busy) settle();
+          inboxCard = null;
+          showInboxCard(msg, more);
+        }, 520);
+      });
+    }, 8000);
+  }, 1800);
 }
 /**
  * Looks for something another device left (only while the window is showing and nothing is on the card). The server leaves

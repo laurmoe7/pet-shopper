@@ -72,6 +72,7 @@
     var seg = el('span', 'seg');
     [['small', 'Small'], ['normal', 'Normal'], ['large', 'Large']].forEach(function (o) { var b = button(seg, o[1], function () { P.set('size', o[0]).then(take); }); if (S.prefs.size === o[0]) b.className = 'on'; });
     sizeRow.appendChild(seg); look.appendChild(sizeRow);
+    toggle(look, 'Speech bubbles', 'bubbles', 'In the small window. Cards still show.');
     toggle(look, 'Hide his toy', 'hideToy');
     toggle(look, 'Hide the cushion under him', 'hideCushion', 'His bed still shows at bedtime.');
 
