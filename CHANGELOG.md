@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 360
+- No ring of buttons while the mouse passes through him in a game.
+
 ## Build 359
 - Landing on his head no longer cuts him off at the bottom.
 - Developer tool to try the head landing.

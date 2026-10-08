@@ -58,7 +58,7 @@
     return ['ball', 'pat', 'snack', 'dance', 'swap', 'wave'];
   }
   function canShow() {
-    return isDesk() && !document.hidden && Date.now() > quietUntil &&
+    return isDesk() && !document.hidden && Date.now() > quietUntil && !(window.deskPassThrough && window.deskPassThrough()) &&
       !pet.classList.contains('carried') && !pet.classList.contains('thrown') && !pet.classList.contains('falling') &&
       !document.querySelector('.inbox-card, .quick-card, dialog[open]');
   }
