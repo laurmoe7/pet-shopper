@@ -149,11 +149,13 @@ function castWand() {
   var before = pet.dataset.prop;
   pet.dataset.prop = 'wand';
   pet.classList.add('wanding');
-  var tip = pet.querySelector('.wand .wd-star');
   [700, 1500, 2300, 3100].forEach(function (ms, i) {
     setTimeout(function () {
-      if (!pet.classList.contains('wanding') || !tip) return;
-      var r = tip.getBoundingClientRect();
+      if (!pet.classList.contains('wanding')) return;
+      // there is a wand in each hand: the one in use is the one that is drawn (the other has no size)
+      var stars = pet.querySelectorAll('.wand .wd-star'), r = null;
+      for (var k = 0; k < stars.length && !r; k++) { var b = stars[k].getBoundingClientRect(); if (b.width > 0) r = b; }
+      if (!r) return;
       drift(i % 2 ? ['✨', '✦', '♥'] : ['✦', '⭐', '✨'], { x: r.left + r.width / 2, y: r.top + r.height / 2 }, 4);
     }, ms);
   });
@@ -208,6 +210,7 @@ function showInboxCard(msg, more) {
     if (!card.querySelector('.inbox-done')) return;
     drag = { card: card, id: e.pointerId, x: e.clientX, dx: 0, t: Date.now() };
     card.style.touchAction = 'pan-y';
+    card.style.animation = 'none';   // (the pop-in and the Claude card's nudge would otherwise hold its position)
     try { card.setPointerCapture(e.pointerId); } catch (err) { /* gone */ }
   });
   document.addEventListener('pointermove', function (e) {
@@ -219,7 +222,7 @@ function showInboxCard(msg, more) {
     if (!drag || e.pointerId !== drag.id) return;
     var d = drag, fast = Math.abs(d.dx) / Math.max(1, Date.now() - d.t) > .5;
     drag = null;
-    if (Math.abs(d.dx) < 70 && !(fast && Math.abs(d.dx) > 30)) {   // not far enough: it springs back
+    if (Math.abs(d.dx) < 40 && !(fast && Math.abs(d.dx) > 18)) {   // not far enough: it springs back
       d.card.style.transition = 'translate .18s';
       d.card.style.translate = '';
       setTimeout(function () { d.card.style.transition = ''; }, 200);

@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 348
+- Wand sparkles come out of the wand tip again (on the to-do list they went to the corner).
+- The wand flicks four times over the longer alert.
+- Swiping an alert: the card follows your pointer and goes with a shorter swipe.
+
 ## Build 347
 - A thrown bell flies across the screen like the toy when "Toy flies around the screen" is on.
 - Night light glow fades out at the bottom, no hard line.
