@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -14 180 170" width="720" height="680">
+<title>Leo the lion cub (Fumu style)</title>
+<style>
+  :root { --ink:#5b4239; --mane:#7a5a4c; --fur:#ffdfa6; --cream:#fff4de; --orange:#ffa94d; }
+  .ink { stroke:var(--ink); stroke-width:2.6; stroke-linejoin:round; stroke-linecap:round; }
+  .tuft-line circle { fill:var(--mane); stroke:var(--ink); stroke-width:5.2; }
+  .tuft-fill circle { fill:var(--mane); }
+  .hop, .bob, .eyes, .tail, .arm-r, .fringe, .mane { transform-box:fill-box; }
+  .bob   { animation:bob 2.6s ease-in-out infinite; transform-origin:50% 100%; }
+  .eyes  { animation:blink 4.4s infinite; transform-origin:50% 50%; }
+  .tail  { animation:wag 1.7s ease-in-out infinite; transform-origin:0% 100%; }
+  .arm-r { animation:wave 7s ease-in-out infinite; transform-origin:30% 15%; }
+  .fringe{ animation:sway 3.4s ease-in-out infinite; transform-origin:50% 100%; }
+  .mane  { animation:sway 4.2s ease-in-out infinite reverse; transform-origin:50% 60%; }
+  .shadow{ animation:shadow 2.6s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+  svg:hover .hop { animation:hop .7s ease-out 1; }
+  @keyframes bob   { 0%,100%{translate:0 0} 50%{translate:0 -2px} }
+  @keyframes blink { 0%,92%,100%{scale:1 1} 95%{scale:1 .1} }
+  @keyframes wag   { 0%,100%{rotate:-9deg} 50%{rotate:11deg} }
+  @keyframes wave  { 0%,70%,100%{rotate:0deg} 76%{rotate:-38deg} 82%{rotate:-12deg} 88%{rotate:-38deg} 94%{rotate:0deg} }
+  @keyframes sway  { 0%,100%{rotate:-1.2deg} 50%{rotate:1.2deg} }
+  @keyframes hop   { 0%{translate:0 0} 35%{translate:0 -14px} 60%{translate:0 0} 78%{translate:0 -4px} 100%{translate:0 0} }
+  @keyframes shadow{ 0%,100%{opacity:.22} 50%{opacity:.16} }
+  @media (prefers-reduced-motion:reduce) { * { animation:none !important; } }
+</style>
+<ellipse class="shadow" cx="80" cy="134" rx="52" ry="6" fill="#5b4239" opacity=".22"/>
+<g class="hop"><g class="bob">
+  <!-- tail -->
+  <g class="tail">
+    <path class="ink" d="M126 114 C144 122 156 112 153 100" fill="none" stroke-width="4.5"/>
+    <path d="M126 114 C144 122 156 112 153 100" fill="none" stroke="var(--fur)" stroke-width="2"/>
+    <circle class="ink" cx="153" cy="98" r="8" fill="var(--mane)"/>
+  </g>
+  <!-- mane behind -->
+  <g class="mane">
+    <g class="tuft-line"><circle cx="25.5" cy="95.1" r="14"/><circle cx="22.0" cy="79.5" r="14"/><circle cx="24.4" cy="63.7" r="14"/><circle cx="32.5" cy="49.3" r="14"/><circle cx="45.4" cy="37.9" r="14"/><circle cx="61.8" cy="30.5" r="14"/><circle cx="80.0" cy="28.0" r="14"/><circle cx="98.2" cy="30.5" r="14"/><circle cx="114.6" cy="37.9" r="14"/><circle cx="127.5" cy="49.3" r="14"/><circle cx="135.6" cy="63.7" r="14"/><circle cx="138.0" cy="79.5" r="14"/><circle cx="134.5" cy="95.1" r="14"/></g>
+    <g class="tuft-fill"><circle cx="25.5" cy="95.1" r="14"/><circle cx="22.0" cy="79.5" r="14"/><circle cx="24.4" cy="63.7" r="14"/><circle cx="32.5" cy="49.3" r="14"/><circle cx="45.4" cy="37.9" r="14"/><circle cx="61.8" cy="30.5" r="14"/><circle cx="80.0" cy="28.0" r="14"/><circle cx="98.2" cy="30.5" r="14"/><circle cx="114.6" cy="37.9" r="14"/><circle cx="127.5" cy="49.3" r="14"/><circle cx="135.6" cy="63.7" r="14"/><circle cx="138.0" cy="79.5" r="14"/><circle cx="134.5" cy="95.1" r="14"/></g>
+  </g>
+  <!-- ears -->
+  <circle class="ink" cx="37" cy="38" r="11" fill="var(--fur)"/><circle cx="37" cy="39" r="5.5" fill="var(--orange)"/>
+  <circle class="ink" cx="123" cy="38" r="11" fill="var(--fur)"/><circle cx="123" cy="39" r="5.5" fill="var(--orange)"/>
+  <!-- body -->
+  <path class="ink" fill="var(--fur)" d="M80 30 C112 30 136 52 136 84 C136 108 120 120 80 120 C40 120 24 108 24 84 C24 52 48 30 80 30Z"/>
+  <ellipse cx="80" cy="106" rx="24" ry="11" fill="var(--cream)" opacity=".75"/>
+  <!-- cheek tufts and fringe -->
+  <g class="tuft-line"><circle cx="29" cy="88" r="7.5"/><circle cx="29" cy="99" r="6"/><circle cx="131" cy="88" r="7.5"/><circle cx="131" cy="99" r="6"/></g><g class="tuft-fill"><circle cx="29" cy="88" r="7.5"/><circle cx="29" cy="99" r="6"/><circle cx="131" cy="88" r="7.5"/><circle cx="131" cy="99" r="6"/></g>
+  <!-- arms -->
+  <ellipse class="ink" cx="27" cy="112" rx="7" ry="10" fill="var(--fur)" transform="rotate(12 27 112)"/>
+  <g class="arm-r"><ellipse class="ink" cx="133" cy="112" rx="7" ry="10" fill="var(--fur)" transform="rotate(-12 133 112)"/></g>
+  <g class="fringe"><g class="tuft-line"><circle cx="52" cy="44" r="8"/><circle cx="64" cy="40" r="8.5"/><circle cx="80" cy="38" r="9"/><circle cx="96" cy="40" r="8.5"/><circle cx="108" cy="44" r="8"/></g><g class="tuft-fill"><circle cx="52" cy="44" r="8"/><circle cx="64" cy="40" r="8.5"/><circle cx="80" cy="38" r="9"/><circle cx="96" cy="40" r="8.5"/><circle cx="108" cy="44" r="8"/></g></g>
+  <!-- face -->
+  <path d="M80 50 C86 56 87 66 80 74 C73 66 74 56 80 50Z" fill="var(--orange)"/>
+  <ellipse cx="46" cy="93" rx="8" ry="5" fill="#ffadb5" opacity=".75"/>
+  <ellipse cx="114" cy="93" rx="8" ry="5" fill="#ffadb5" opacity=".75"/>
+  <g class="eyes">
+    <ellipse cx="58" cy="82" rx="5.5" ry="6.5" fill="#3b2a24"/><circle cx="60" cy="79.5" r="2" fill="#fff"/><circle cx="56.5" cy="84.5" r="1" fill="#fff"/>
+    <ellipse cx="102" cy="82" rx="5.5" ry="6.5" fill="#3b2a24"/><circle cx="104" cy="79.5" r="2" fill="#fff"/><circle cx="100.5" cy="84.5" r="1" fill="#fff"/>
+  </g>
+  <ellipse cx="80" cy="95" rx="14" ry="9.5" fill="var(--cream)"/>
+  <path class="ink" d="M75.5 88.5 H84.5 Q84 93 80 94 Q76 93 75.5 88.5Z" fill="var(--orange)" stroke-width="1.6"/>
+  <path class="ink" d="M80 94 V96.5 M80 96.5 Q76 101 72.5 97.5 M80 96.5 Q84 101 87.5 97.5" fill="none" stroke-width="1.8"/>
+</g>
+<!-- feet -->
+<g class="ink">
+  <ellipse cx="58" cy="121" rx="13" ry="7.5" fill="var(--orange)"/><path d="M54 124 V128 M62 124 V128" fill="none" stroke-width="1.6" transform="translate(0 -3)"/>
+  <ellipse cx="102" cy="121" rx="13" ry="7.5" fill="var(--orange)"/><path d="M98 124 V128 M106 124 V128" fill="none" stroke-width="1.6" transform="translate(0 -3)"/>
+</g>
+</g>
+</svg>
