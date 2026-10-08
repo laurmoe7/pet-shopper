@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '268';
+var BUILD = '269';
 
 var STORE_KEY = 'nibble.v1';
 var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -205,6 +205,8 @@ document.addEventListener('click', function (e) {
   function measure() { if (!document.documentElement.classList.contains('typing')) document.documentElement.style.setProperty('--dock-h', dock.offsetHeight + 'px'); }
   measure();
   addEventListener('resize', measure);
+  // also when the bar itself appears, disappears or changes size without the window changing (the desktop app hides it in the small window)
+  if (window.ResizeObserver) new ResizeObserver(measure).observe(dock);
 })();
 
 // ---------- elements ----------

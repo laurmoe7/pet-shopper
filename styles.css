@@ -851,6 +851,9 @@ button { font: inherit; color: inherit; }
 /* the room panel stays low and has no dimmed backdrop, so the room is always in view */
 .picker.room-sheet { position: fixed; inset: auto 0 0 0; max-height: calc(42vh + var(--dock-h, 64px)); z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
 .picker.room-sheet .picker-inner { max-height: calc(42vh + var(--dock-h, 64px) - 14px) !important; }
+/* in the desktop app's whole-app window the room sheet is as tall as the other tall menus */
+html.desktop-list .picker.room-sheet { max-height: calc(var(--sheet-h) + var(--dock-h, 64px)); }
+html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--sheet-h) + var(--dock-h, 64px) - 14px) !important; }
 .hat-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .hat-strip button { gap: 4px; padding: 8px 4px; min-width: 0; font-size: .78rem; line-height: 1.2; text-align: center; }
 .hat-strip svg { width: 100%; max-width: 64px; height: 40px; overflow: visible; }

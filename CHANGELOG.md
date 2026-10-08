@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 269 (8 Oct)
+- Desktop: the build number and the room options no longer hide behind the bottom bar.
+- Desktop: the room menu is as tall as the other tall menus.
+
 ## Build 268 (8 Oct)
 - Desktop: update options moved from right-click to the developer tools; "Restart to update" stays in the menu when one is ready.
 

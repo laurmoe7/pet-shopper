@@ -36,6 +36,7 @@
     if (mode !== 'list') for (var i = 0, open = document.querySelectorAll('dialog[open]'); i < open.length; i++) open[i].close();
     if (typeof fadeSoon === 'function') fadeSoon();
     if (typeof refreshBedtime === 'function') refreshBedtime();   // the small window has no lamp: at night the light is off there
+    dispatchEvent(new Event('resize'));   // the bottom bar shows or hides with the mode: measure it again, or the sheets lose their room above it
   }
   D.onMode(showMode);
   D.getMode().then(function (m) { showMode(m); D.ready(); });
