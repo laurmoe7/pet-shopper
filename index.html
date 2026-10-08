@@ -80,6 +80,8 @@
             <!-- the rainbow axolotl's pastel body and the pigeon's shiny neck -->
             <linearGradient id="axoRainbow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc9dc"/><stop offset=".25" stop-color="#ffe2bd"/><stop offset=".45" stop-color="#fff3b8"/><stop offset=".65" stop-color="#ccf2d8"/><stop offset=".82" stop-color="#c9e5ff"/><stop offset="1" stop-color="#e2d3ff"/></linearGradient>
             <linearGradient id="pigeonSheen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8fd9bf"/><stop offset=".5" stop-color="#b9a3e8"/><stop offset="1" stop-color="#8fd9bf"/></linearGradient>
+            <linearGradient id="pigeonChest" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5b3cc" stop-opacity="0"/><stop offset=".45" stop-color="#f5b3cc" stop-opacity=".1"/><stop offset="1" stop-color="#f5b3cc" stop-opacity=".34"/></linearGradient>
+            <radialGradient id="pigeonIris" cx=".5" cy=".38" r=".7"><stop offset="0" stop-color="#ffc56e"/><stop offset="1" stop-color="#f0832e"/></radialGradient>
             <!-- the Siamese mask: darkest round the nose, fading out towards the eyes and cheeks -->
             <radialGradient id="siameseFade" cx=".5" cy=".58" r=".5"><stop offset="0" stop-color="#7a5a49" stop-opacity=".92"/><stop offset=".45" stop-color="#86685a" stop-opacity=".8"/><stop offset="1" stop-color="#a98670" stop-opacity="0"/></radialGradient>
           </defs>
@@ -369,8 +371,15 @@
               <g data-sk="ragdoll" class="ragdoll">
                 <path class="ragdoll-mask" d="M32 96 C28 80 40 64 56 62 C66 61 72 66 76 72 L80 78 L84 72 C88 66 94 61 104 62 C120 64 132 80 128 96 C124 106 110 108 100 102 C94 98 90 94 86 92 L80 96 L74 92 C70 94 66 98 60 102 C50 108 36 106 32 96 Z"/>
               </g>
+              <!-- the old pigeon (kept in case the new one is not wanted): grey, a shiny neck band, small wing nubs -->
+              <g data-sk="oldpigeon" class="oldpigeon">
+                <path class="oldpigeon-sheen" clip-path="url(#bodyClip)" d="M-4 100 C34 124 126 124 164 100 L164 114 C126 138 34 138 -4 114 Z"/>
+                <path class="skin-outline" d="M80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 Z"/>
+              </g>
+              <!-- the pigeon: lilac-grey, a faint pink chest, a shiny neck band right to the outline, orange eyes (see the pigeon rules in styles.css) -->
               <g data-sk="pigeon" class="pigeon">
-                <path class="pigeon-sheen" clip-path="url(#bodyClip)" d="M-4 100 C34 124 126 124 164 100 L164 114 C126 138 34 138 -4 114 Z"/>
+                <rect class="pigeon-chest" x="0" y="108" width="160" height="40" clip-path="url(#bodyClip)"/>
+                <path class="pigeon-sheen" clip-path="url(#bodyClip)" d="M-4 100 C34 122 126 122 164 100 L164 118 C126 140 34 140 -4 118 Z"/>
                 <path class="skin-outline" d="M80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 Z"/>
               </g>
 
@@ -449,6 +458,8 @@
                   <ellipse cx="102" cy="92" rx="4.6" ry="5.2" class="eye-r ink"/>
                   <circle cx="56.6" cy="90" r="1.6" class="eye-l glint"/>
                   <circle cx="100.6" cy="90" r="1.6" class="eye-r glint"/>
+                  <circle data-sk="pigeon" cx="60.2" cy="94.6" r="1.4" class="eye-l glint glint2"/>
+                  <circle data-sk="pigeon" cx="104.2" cy="94.6" r="1.4" class="eye-r glint glint2"/>
                   <!-- heavy lids for when it's up at night (.pet.tired); in the pupils' group so they move with the eyes -->
                   <path class="tired-lid eye-l" d="M52.4 90.6 Q58 88.6 63.6 90.6"/>
                   <path class="tired-lid eye-r" d="M96.4 90.6 Q102 88.6 107.6 90.6"/>
@@ -530,6 +541,7 @@
               </g>
               <path data-sk="chicken" class="chicken-wattle" d="M77.4 101.4 C75.4 107.6 78 111 80 108.6 C82 111 84.6 107.6 82.6 101.4 Z"/>
               <path data-sp="birdie" class="beak" d="M75 99 Q80 95 85 99 Q80 103 75 99Z"/>
+              <path data-sk="pigeon" class="pigeon-cere" d="M77.4 97 Q80 92.6 82.6 97 Q80 98.6 77.4 97 Z"/>
               <path data-sk="kiwi" class="beak kiwi-beak" d="M77.4 96 Q80 94.2 82.6 96 Q82.3 112 80.7 125 Q80 127 79.3 125 Q77.7 112 77.4 96 Z"/>
               <path data-sk="parrot" class="beak parrot-beak" d="M72.5 97 C73 91 87 91 87.5 97 C88 103 85 108 80.5 108.6 C77 108 74.4 105 74 102 C73 100 72.6 98.6 72.5 97 Z"/>
               <!-- hats are drawn at a slightly bigger scale, centred on the top of the head -->
@@ -587,7 +599,7 @@
                     <rect class="cb-clip" x="73.6" y="109" width="12.8" height="6.4" rx="1.8"/>
                     <circle class="cb-hole" cx="80" cy="140" r="1.4"/>
                   </g>
-                </g><ellipse cx="27" cy="117" rx="7" ry="9"/><path class="arm-cuff" d="M20.4 120.4 Q27 123.4 33.6 120.4"/><path class="arm-hand" d="M21.4 121.6 Q27 124 32.6 121.6 Q32 126 27 126 Q22 126 21.4 121.6 Z"/><path data-sp="frog" class="frog-web frog-web-hand" d="M21.2 122 Q19.4 133 23 132 Q25 128.5 27 132.5 Q29 128.5 31 132 Q34.6 133 32.8 122"/><g class="paw-part paw-hand"><path class="paw-line paw-toe-lines" d="M24.6 122 v3 M29.4 122 v3"/><g class="paw-beans"><path class="paw-bean" d="M24.7 119.8 a2.3 1.7 0 1 0 4.6 0 a2.3 1.7 0 1 0 -4.6 0 Z"/><circle class="paw-bean" cx="24" cy="122.8" r="1.05"/><circle class="paw-bean" cx="27" cy="123.7" r="1.05"/><circle class="paw-bean" cx="30" cy="122.8" r="1.05"/></g></g><g class="hoof-part hoof-hand"><path class="hoof" d="M20.3 119.6 Q27 122.8 33.7 119.6 Q33.2 126.2 27 126.2 Q20.8 126.2 20.3 119.6 Z"/><path class="hoof-split" d="M27 121.6 V126"/></g><ellipse class="arm-hi" cx="25" cy="114" rx="2.4" ry="3"/></g>
+                </g><ellipse cx="27" cy="117" rx="7" ry="9"/><path data-sk="pigeon" class="wing-bar" d="M20.4 116 Q27 112.6 33.6 116"/><path class="arm-cuff" d="M20.4 120.4 Q27 123.4 33.6 120.4"/><path class="arm-hand" d="M21.4 121.6 Q27 124 32.6 121.6 Q32 126 27 126 Q22 126 21.4 121.6 Z"/><path data-sp="frog" class="frog-web frog-web-hand" d="M21.2 122 Q19.4 133 23 132 Q25 128.5 27 132.5 Q29 128.5 31 132 Q34.6 133 32.8 122"/><g class="paw-part paw-hand"><path class="paw-line paw-toe-lines" d="M24.6 122 v3 M29.4 122 v3"/><g class="paw-beans"><path class="paw-bean" d="M24.7 119.8 a2.3 1.7 0 1 0 4.6 0 a2.3 1.7 0 1 0 -4.6 0 Z"/><circle class="paw-bean" cx="24" cy="122.8" r="1.05"/><circle class="paw-bean" cx="27" cy="123.7" r="1.05"/><circle class="paw-bean" cx="30" cy="122.8" r="1.05"/></g></g><g class="hoof-part hoof-hand"><path class="hoof" d="M20.3 119.6 Q27 122.8 33.7 119.6 Q33.2 126.2 27 126.2 Q20.8 126.2 20.3 119.6 Z"/><path class="hoof-split" d="M27 121.6 V126"/></g><ellipse class="arm-hi" cx="25" cy="114" rx="2.4" ry="3"/></g>
               <g class="arm arm-r"><!-- props for the right hand on the to-do list: a chubby pencil and a magnifying glass (app-todo.js shows one at a time) -->
                 <g class="pencil" transform="translate(121 128) rotate(-52) scale(1.4)">
                   <path class="pc-wood" d="M0 5 L7 .6 V9.4 Z"/><path class="pc-lead" d="M0 5 L2.1 3.7 V6.3 Z"/>
@@ -601,7 +613,7 @@
                 <g class="magnifier">
                   <path class="mg-handle-edge" d="M128.9 120.2 L141.5 134.5"/>
                   <path class="mg-handle" d="M128.9 120.2 L141.5 134.5"/>
-                </g><ellipse cx="133" cy="117" rx="7" ry="9"/><path class="arm-cuff" d="M126.4 120.4 Q133 123.4 139.6 120.4"/><path class="arm-hand" d="M127.4 121.6 Q133 124 138.6 121.6 Q138 126 133 126 Q128 126 127.4 121.6 Z"/><path data-sp="frog" class="frog-web frog-web-hand" d="M127.2 122 Q125.4 133 129 132 Q131 128.5 133 132.5 Q135 128.5 137 132 Q140.6 133 138.8 122"/><g class="paw-part paw-hand"><path class="paw-line paw-toe-lines" d="M130.6 122 v3 M135.4 122 v3"/><g class="paw-beans"><path class="paw-bean" d="M130.7 119.8 a2.3 1.7 0 1 0 4.6 0 a2.3 1.7 0 1 0 -4.6 0 Z"/><circle class="paw-bean" cx="130" cy="122.8" r="1.05"/><circle class="paw-bean" cx="133" cy="123.7" r="1.05"/><circle class="paw-bean" cx="136" cy="122.8" r="1.05"/></g></g><g class="hoof-part hoof-hand"><path class="hoof" d="M126.3 119.6 Q133 122.8 139.7 119.6 Q139.2 126.2 133 126.2 Q126.8 126.2 126.3 119.6 Z"/><path class="hoof-split" d="M133 121.6 V126"/></g><ellipse class="arm-hi" cx="131" cy="114" rx="2.4" ry="3"/>
+                </g><ellipse cx="133" cy="117" rx="7" ry="9"/><path data-sk="pigeon" class="wing-bar" d="M126.4 116 Q133 112.6 139.6 116"/><path class="arm-cuff" d="M126.4 120.4 Q133 123.4 139.6 120.4"/><path class="arm-hand" d="M127.4 121.6 Q133 124 138.6 121.6 Q138 126 133 126 Q128 126 127.4 121.6 Z"/><path data-sp="frog" class="frog-web frog-web-hand" d="M127.2 122 Q125.4 133 129 132 Q131 128.5 133 132.5 Q135 128.5 137 132 Q140.6 133 138.8 122"/><g class="paw-part paw-hand"><path class="paw-line paw-toe-lines" d="M130.6 122 v3 M135.4 122 v3"/><g class="paw-beans"><path class="paw-bean" d="M130.7 119.8 a2.3 1.7 0 1 0 4.6 0 a2.3 1.7 0 1 0 -4.6 0 Z"/><circle class="paw-bean" cx="130" cy="122.8" r="1.05"/><circle class="paw-bean" cx="133" cy="123.7" r="1.05"/><circle class="paw-bean" cx="136" cy="122.8" r="1.05"/></g></g><g class="hoof-part hoof-hand"><path class="hoof" d="M126.3 119.6 Q133 122.8 139.7 119.6 Q139.2 126.2 133 126.2 Q126.8 126.2 126.3 119.6 Z"/><path class="hoof-split" d="M133 121.6 V126"/></g><ellipse class="arm-hi" cx="131" cy="114" rx="2.4" ry="3"/>
                 <!-- the lens is drawn after the hand, so a sleeve never covers the eye seen through the glass -->
                 <g class="magnifier">
                   <g transform="translate(120 110) scale(1.3) translate(-120 -110)">

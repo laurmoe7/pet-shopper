@@ -1301,7 +1301,8 @@ button { font: inherit; color: inherit; }
 .pet[data-species="hedgehog"][data-skin="fasthedgehog"] { --pet-skin: #fff6ea; --pet-skin-shade: #eed8bd; --pet-ear-in: #ffc4cf; --pet-mark: #3d78e6; }
 .pet[data-species="frog"][data-skin="toad"] { --pet-skin: #c9a878; --pet-skin-shade: #a98a5c; --pet-mark: #a98a5c; }
 /* skins added in build 115 */
-.pet[data-skin="pigeon"] { --pet-skin: #b4bccd; --pet-skin-shade: #f2939f; }
+.pet[data-skin="oldpigeon"] { --pet-skin: #b4bccd; --pet-skin-shade: #f2939f; }
+.pet[data-skin="pigeon"] { --pet-skin: #c0bddb; --pet-skin-shade: #f2939f; }
 .pet[data-skin="orangecat"] { --pet-skin: #f8b96f; --pet-skin-shade: #eb9d4f; --pet-ear-in: #ffc4cf; --pet-mark: #dd8530; }
 .pet[data-skin="munchkin"] { --pet-skin: #fffaf4; --pet-skin-shade: #efe4d8; --pet-ear-in: #ffc4cf; --pet-mark: #a9a3ae; }
 .pet[data-skin="ragdoll"] { --pet-skin: #fff7ec; --pet-skin-shade: #efdfcd; --pet-ear-in: #f6b4c0; --pet-mark: #b49a86; }
@@ -1316,7 +1317,7 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="potbelly"] { --pet-skin: #9a94a2; --pet-skin-shade: #837d8c; --pet-ear-in: #e8a6b6; }
 .pet[data-species="hedgehog"][data-skin="brandt"] { --pet-skin: #f3e1cc; --pet-skin-shade: #dfc4a6; --pet-ear-in: #f2a8b6; --pet-mark: #5a4a43; }
 .pet[data-species="axolotl"][data-skin="rainbowaxo"] { --pet-skin: #fbe6f2; --pet-skin-shade: #f0cfe4; }
-.pet[data-skin="pigeon"] [data-sk~="pigeon"], .pet[data-skin="orangecat"] [data-sk~="orangecat"], .pet[data-skin="munchkin"] [data-sk~="munchkin"],
+.pet[data-skin="pigeon"] [data-sk~="pigeon"], .pet[data-skin="oldpigeon"] [data-sk~="oldpigeon"], .pet[data-skin="orangecat"] [data-sk~="orangecat"], .pet[data-skin="munchkin"] [data-sk~="munchkin"],
 .pet[data-skin="ragdoll"] [data-sk~="ragdoll"], .pet[data-skin="shiba"] [data-sk~="shiba"], .pet[data-skin="frenchie"] [data-sk~="frenchie"],
 .pet[data-skin="shepherd"] [data-sk~="shepherd"], .pet[data-skin="scottishfold"] [data-sk~="scottishfold"],
 .pet[data-skin="chicken"] [data-sk~="chicken"], .pet[data-skin="potbelly"] [data-sk~="potbelly"],
@@ -1335,11 +1336,23 @@ button { font: inherit; color: inherit; }
 .pet[data-species="puppy"] .up-ears .ear-g { transform-origin: 50% 100%; }
 .pet[data-species="puppy"] .up-ears .ear { fill: var(--pet-skin); }
 .pet[data-skin="shepherd"] .up-ears .ear { fill: #4d3d37; }
-/* pigeon: grey with a shiny green-purple neck, a grey beak and pink feet; no tuft */
-.pet[data-skin="pigeon"] .tuft { display: none; }
-.pigeon-sheen { fill: url(#pigeonSheen); }
-.pet[data-skin="pigeon"] .beak { fill: #8a8592; }
-.pet[data-skin="pigeon"] .arm ellipse { fill: #9ea7ba; }
+/* old pigeon (kept, pick "Pigeon (old)"): grey with a shiny green-purple neck, a grey beak and pink feet; no tuft */
+.pet[data-skin="oldpigeon"] .tuft, .pet[data-skin="pigeon"] .tuft { display: none; }
+.oldpigeon-sheen, .pigeon-sheen { fill: url(#pigeonSheen); }
+.pet[data-skin="oldpigeon"] .beak, .pet[data-skin="pigeon"] .beak { fill: #8a8592; }
+.pet[data-skin="oldpigeon"] .arm ellipse { fill: #9ea7ba; }
+/* pigeon: lilac-grey, a faint pink chest under a shiny neck band that reaches the outline, bigger wings with a pale bar,
+   a white bump over the beak, pink feet and big orange eyes with two glints (no pupil, so they look soft, not stern) */
+.pigeon-chest { fill: url(#pigeonChest); }
+.pet[data-skin="pigeon"] .arm > ellipse { fill: #a9a7cc; rx: 8.8px; ry: 12.4px; cy: 118px; }
+.pet[data-skin="pigeon"] .arm .arm-hi { display: none; }
+.wing-bar { fill: none; stroke: #fff; stroke-width: 2.1; stroke-linecap: round; }
+.pigeon-cere { fill: #f6f3f8; stroke: var(--pet-ink); stroke-width: 1.3; stroke-linejoin: round; }
+.pet[data-skin="pigeon"] .bird-part .bird-toe { fill: #f3869b; }
+.pet[data-skin="pigeon"] .pupils .ink { fill: url(#pigeonIris); stroke: #6b4a3e; stroke-width: 1; rx: 5.43px; ry: 6.14px; }
+.pet[data-skin="pigeon"] .pupils .glint:not(.glint2).eye-l { cx: 56.1px; cy: 90px; r: 2.83px; }
+.pet[data-skin="pigeon"] .pupils .glint:not(.glint2).eye-r { cx: 100.1px; cy: 90px; r: 2.83px; }
+.pet[data-skin="pigeon"] .pupils .glint2 { r: 1.42px; }
 /* cats */
 .pet[data-skin="orangecat"] .tabby-muzzle { fill: #fff1df; }
 .munchkin-cap { fill: #aca6b2; }

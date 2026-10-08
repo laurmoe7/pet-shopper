@@ -43,6 +43,13 @@ Decisions from the design talk. Do not start building until Lauren says so.
 - Tested on Linux (Xvfb) with real pointer events: mode switching, carrying, strokes not carrying, back to the same place. Not yet run on Windows. Installer by `.github/workflows/desktop.yml` (windows-latest, electron-builder, unsigned: SmartScreen warns).
 - Next: send to PC / send to phone, recipes on the PC, awareness level 1-2 and pausing for full-screen apps, size option, signing and updates.
 
+## Mascot and name (decided for now, build 252)
+
+- App name **Fumufumu**, mascot **Fumu**, a pigeon (the head bob is the "fumu fumu" nod; pigeons eat anything). Nibble is still the name used in the code and on screen until a rename build; saved-data keys (`nibble.v1`...) and the installer id (`com.laurmoe.nibble`) must not change.
+- The pigeon skin (`pigeon`) is the new design (lilac-grey, orange eyes with two glints, bigger wings with a pale bar, faint pink chest, shiny neck band to the outline, white bump over the beak); the earlier one is the skin `oldpigeon` ("Pigeon (old)").
+- Icon: Fumu on a pink-lavender-mint sunburst, transparent corners (`icon-*.png`, `icon-maskable-512.png`, `desktop/build/icon.ico`). Trademark checks are not done (Lauren decided not to worry yet; Japan has many "ふむふむ" marks, see the earlier notes).
+- Ideas not done: a head-bob nod when an item is added ("fumu fumu~"), a tail, food falling around the icon (Lauren will add her own).
+
 ## Shared lists (open, see below)
 
 Each person owns a pet; lists can be shared. Avoid a pile of separate lists. Proposed shape (not decided):

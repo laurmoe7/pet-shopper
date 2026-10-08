@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 252 (16 Oct)
+- New pigeon: orange eyes, bigger wings, soft pink chest.
+- The old pigeon is still there as Pigeon (old).
+
 ## Build 251 (16 Oct)
 - New icon: Fumu on a sunburst, for the phone, the web and the desktop.
 

@@ -12,6 +12,7 @@
     { id: 'parrot', base: 'birdie', label: 'Parrot' },
     { id: 'kiwi', base: 'birdie', label: 'Kiwi' },
     { id: 'pigeon', base: 'birdie', label: 'Pigeon' },
+    { id: 'oldpigeon', base: 'birdie', label: 'Pigeon (old)' },
     { id: 'chicken', base: 'birdie', label: 'Chicken' },
     { id: 'strawberry', base: 'mochi', label: 'Strawberry' },
     { id: 'chocolate', base: 'mochi', label: 'Chocolate' },
