@@ -145,22 +145,37 @@ var bell = document.createElement('button');
 bell.type = 'button'; bell.className = 'bell'; bell.hidden = true; bell.setAttribute('aria-label', 'Bell');
 // a brass hand bell with a wooden handle (36 x 48): he is held by the handle, and swings from it
 bell.innerHTML = '<span class="bell-img"><svg class="bell-svg" viewBox="0 0 36 48" width="36" height="48" aria-hidden="true">' +
+  '<g class="bl-clap"><path class="bl-clap-arm" d="M18 28 V43"/><circle class="bl-clapper" cx="18" cy="46.2" r="3.9"/></g>' +   // (the clapper hangs inside, drawn first so the bell is in front of it, and swings)
   '<rect class="bl-handle" x="14.2" y="1" width="7.6" height="19" rx="3.8"/>' +
   '<path class="bl-body" d="M4 40 C4 28 10 21 18 21 C26 21 32 28 32 40 Z"/>' +
   '<path class="bl-body" d="M2 39.6 H34 L34.2 43.2 Q34.2 44.8 32.4 44.8 L3.6 44.8 Q1.8 44.8 1.8 43.2 Z"/>' +   // (a flat band round the open end)
   '<rect class="bl-collar" x="11.4" y="17.6" width="13.2" height="5.4" rx="2.4"/>' +
-  '<path class="bl-shine" d="M9 36 C9 31 11 27.6 14 25.6"/><circle class="bl-clapper" cx="18" cy="46" r="2.6"/></svg></span>';
-var bellImg = bell.querySelector('.bell-img'), bellSvg = bell.querySelector('.bell-svg');
+  '<path class="bl-shine" d="M9 36 C9 31 11 27.6 14 25.6"/></svg></span>';
+var bellImg = bell.querySelector('.bell-img'), bellSvg = bell.querySelector('.bell-svg'), bellClap = bell.querySelector('.bl-clap');
 stage.appendChild(bell);
 var BELL_W = 36, BELL_H = 48, BELL_GRIP = 9;   // the pointer holds the handle, about 9 px down from the top
-var bellX = -138, bellY = 0, bellHeld = null, bellFlight = 0, bellRings = 0, bellRingTimer = 0;
+var bellX = 100, bellY = 20, bellTilt = 18, bellHeld = null, bellFlight = 0, bellRings = 0, bellRingTimer = 0;
 /** @returns {boolean} Whether the bell is out: in the small desktop window, at night, while he is in bed or was woken by it. */
 function bellOut() { return document.documentElement.classList.contains('desktop-pet') && L.isNight(petNow()) && !bellBroken && (stage.classList.contains('bedtime') || bellAwake()); }
-function placeBell(turn) { bell.style.translate = Math.round(bellX) + 'px 0'; bellImg.style.transform = 'translateY(' + (-bellY).toFixed(1) + 'px)'; bellSvg.style.rotate = (turn || 0).toFixed(1) + 'deg'; }
+/** Where it rests: tucked into his bed beside him (when the bed is out), otherwise on the floor. */
+function bellRest() { return stage.classList.contains('bedtime') ? { x: 100, y: 20, tilt: 18 } : { x: -128, y: 0, tilt: 0 }; }
+function placeBell(turn, clap) { bell.style.translate = Math.round(bellX) + 'px 0'; bellImg.style.transform = 'translateY(' + (-bellY).toFixed(1) + 'px)'; bellSvg.style.rotate = (turn || 0).toFixed(1) + 'deg'; bellClap.style.rotate = (clap || 0).toFixed(1) + 'deg'; }
+/** Puts it back where it rests (a short hop), tilted, behind the front of the bed. */
+function bellNest(quick) {
+  var to = bellRest(), from = { x: bellX, y: bellY, t: bellTilt }, t0 = performance.now(), ms = quick ? 1 : 320;
+  cancelAnimationFrame(bellFlight);
+  (function step(now) {
+    var u = Math.min(1, (now - t0) / ms), e = u * u * (3 - 2 * u);
+    bellX = from.x + (to.x - from.x) * e; bellY = from.y + (to.y - from.y) * e + Math.sin(u * Math.PI) * 14;
+    bellTilt = from.t + (to.t - from.t) * e;
+    placeBell(bellTilt, 0);
+    if (u < 1) bellFlight = requestAnimationFrame(step); else bell.classList.add('nested');
+  })(t0);
+}
 function showScene() {
   document.documentElement.dataset.scene = petScene();
   var out = bellOut();
-  if (out && bell.hidden) { bell.hidden = false; placeBell(); bell.classList.remove('pop'); void bell.offsetWidth; bell.classList.add('pop'); }
+  if (out && bell.hidden) { bell.hidden = false; var rest = bellRest(); bellX = rest.x; bellY = rest.y; bellTilt = rest.tilt; bell.classList.add('nested'); placeBell(bellTilt, 0); bell.classList.remove('pop'); void bell.offsetWidth; bell.classList.add('pop'); }
   else if (!out && !bellHeld) bell.hidden = true;
   stage.classList.toggle('bell-mode', out);   // (the bell takes the toy's place)
 }
@@ -204,7 +219,7 @@ function bellBreak() {
   refreshBedtime();
   say(wasUp ? pick(['oh… so sleepy… night night', '…bed…', 'mm… back to bed…']) : pick(['mm…', '…zzz…']), 2000);
   showScene();
-  setTimeout(function () { bellBroken = false; bellX = -138; bellY = 0; showScene(); }, 45000);   // a new one turns up
+  setTimeout(function () { bellBroken = false; showScene(); }, 45000);   // a new one turns up
 }
 /** @returns {{minX: number, maxX: number, maxY: number}} Where the bell can go (as the toy's limits: px from the middle, px up). */
 function bellLimits() { return { minX: -stage.clientWidth / 2 + 20, maxX: stage.clientWidth / 2 - 20, maxY: stage.clientHeight - 3 - BELL_H - 8 }; }
@@ -214,6 +229,7 @@ function bellLimits() { return { minX: -stage.clientWidth / 2 + 20, maxX: stage.
  * @param {number} spin Degrees it is turned by when let go.
  */
 function bellFly(vx, vy, spin) {
+  bell.classList.remove('nested');
   var lim = bellLimits(), last = performance.now(), bounces = 0, lastBounce = 0;
   cancelAnimationFrame(bellFlight);
   function bounce(now, speed) { if (speed > 140 && now - lastBounce > 60) { lastBounce = now; sound('tink'); if (++bounces >= 2) { bellBreak(); return true; } } return false; }
@@ -227,7 +243,7 @@ function bellFly(vx, vy, spin) {
     if (bellY < 0) { bellY = 0; if (bounce(now, Math.abs(vy))) return; vy = -vy * 0.6; if (vy < 70) vy = 0; vx *= 0.88; }
     if (bellY === 0 && vy === 0) { vx *= Math.pow(0.3, dt); spin *= Math.pow(0.02, dt); }
     placeBell(spin);
-    if (bellY === 0 && vy === 0 && Math.abs(vx) < 8) { placeBell(0); return; }
+    if (bellY === 0 && vy === 0 && Math.abs(vx) < 8) { bellTilt = spin % 360; bellNest(false); return; }
     bellFlight = requestAnimationFrame(step);
   })(last);
 }
@@ -236,7 +252,8 @@ bell.addEventListener('pointerdown', function (e) {
   e.preventDefault(); e.stopPropagation();
   try { bell.setPointerCapture(e.pointerId); } catch (err) { /* fine without */ }
   cancelAnimationFrame(bellFlight);
-  bellHeld = { pts: [], vx: 0, ax: 0, th: 0, w: 0, strikes: [], lastX: e.clientX, lastT: performance.now(), peak: 0 };
+  bell.classList.remove('nested');
+  bellHeld = { pts: [], vx: 0, ax: 0, th: 0, w: 0, cp: 0, cw: 0, strikes: [], lastX: e.clientX, lastT: performance.now(), peak: 0 };
   bell.classList.add('held');
   swingLoop(bellHeld);
 });
@@ -252,8 +269,13 @@ function swingLoop(h) {
     var lim = 1.75;   // about 100 degrees
     if (th > lim) { th = lim; w = -w * 0.3; } if (th < -lim) { th = -lim; w = -w * 0.3; }
     var prev = h.w; h.th = th * 180 / Math.PI; h.w = w * 180 / Math.PI;
+    // the clapper is a shorter pendulum inside the bell: it swings later and further, and knocks against the sides
+    var cp = h.cp * Math.PI / 180, cw = h.cw * Math.PI / 180, cacc = -(g / 16) * Math.sin(cp) - 1.3 * cw + (h.ax / 16) * Math.cos(cp);
+    cw += cacc * dt; cp += cw * dt; h.cp = cp * 180 / Math.PI; h.cw = cw * 180 / Math.PI;
+    var rel = h.cp - h.th, relLim = 40;
+    if (rel > relLim) { h.cp = h.th + relLim; h.cw = -Math.abs(h.cw) * 0.4; rel = relLim; } if (rel < -relLim) { h.cp = h.th - relLim; h.cw = Math.abs(h.cw) * 0.4; rel = -relLim; }
     h.ax *= 0.5;
-    placeBell(h.th);
+    placeBell(h.th, rel);
     // the clapper strikes when the swing turns round, hard enough
     if (prev * h.w <= 0 && Math.abs(h.th) > 24) {
       sound('tink');

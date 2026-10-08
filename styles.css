@@ -2984,9 +2984,14 @@ html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); scale: .7; t
 .bl-body { fill: #f2c14e; stroke: #5b4239; stroke-width: 1.8; stroke-linejoin: round; }
 .bl-collar { fill: #e0a93a; stroke: #5b4239; stroke-width: 1.6; }
 .bl-shine { fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; opacity: .75; }
-.bl-clapper { fill: #c98f4f; stroke: #5b4239; stroke-width: 1.4; }
+.bl-clapper { fill: #c98f4f; stroke: #5b4239; stroke-width: 1.5; }
+.bl-clap { transform-box: view-box; transform-origin: 18px 26px; }
+.bl-clap-arm { fill: none; stroke: #5b4239; stroke-width: 1.5; stroke-linecap: round; }
 .bell.held { cursor: grabbing; }
 .bell.held .bell-img { filter: drop-shadow(0 6px 3px rgba(91, 66, 57, .25)); }
 .bell.pop { animation: pop .35s cubic-bezier(.3, 1.6, .5, 1); }
 .stage.bell-mode .toy { display: none; }
 
+
+/* resting, it is tucked into the bed beside him: the bed's front edge is over its lower half */
+.bell.nested { z-index: 1; }

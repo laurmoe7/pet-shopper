@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 324 (9 Oct)
+- The bell's clapper is behind the bell, bigger, and swings when you ring it.
+- The bell rests tucked into his bed beside him, not on the floor.
+
 ## Build 323 (9 Oct)
 - The bell's open end is a flat band.
 - The night light is a little plug-in moon lamp by his bed (the glow is back to how it was).
