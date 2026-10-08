@@ -265,6 +265,17 @@
     }, function () { pet.classList.remove('walking'); stopLook(); return 0; });
   };
 
+  // ---------- an update finished downloading: he says so (once he is free to speak) ----------
+  if (D.onUpdateReady) D.onUpdateReady(function () {
+    var tries = 0;
+    (function go() {
+      if (!busy && bubble.hidden && !document.querySelector('.inbox-card')) {
+        say(pick(['a new version is ready! right-click me, then Updates', 'I have an update! restart me when you like ♡', 'new me incoming~ right-click, Updates, Restart']), 6500, true);
+        pulse('hopsmall', 450);
+      } else if (++tries < 30) setTimeout(go, 2000);
+    })();
+  });
+
   // ---------- a reminder for a task's time ----------
   // timeCheck (app-todo.js) asks here first. In pet mode Fumu pops up if he was hidden and a card by him says what is
   // due, with Done (when the task is on the list in view), "In 10 min" and a cross. Only one card at a time; more wait.

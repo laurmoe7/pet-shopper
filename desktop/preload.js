@@ -57,6 +57,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   toyShow: (png, px) => ipcRenderer.send('desk:toyShow', String(png).slice(0, 80000), +px || 32),
   toyAt: (x, y, deg) => ipcRenderer.send('desk:toyAt', +x || 0, +y || 0, +deg || 0),
   toyHide: () => ipcRenderer.send('desk:toyHide'),
+  /** A new version of the program finished downloading. */
+  onUpdateReady: (fn) => ipcRenderer.on('desk:updateReady', () => fn()),
   typing: (yes) => ipcRenderer.send('desk:typing', !!yes),
   /** The computer went quiet (true) or someone is back (false): no input for a few minutes, or the screen was locked. */
   onIdle: (fn) => ipcRenderer.on('desk:idle', (_e, idle) => fn(!!idle)),

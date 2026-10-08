@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 294 (9 Oct)
+- Desktop: he says so when an update is ready.
+- Carried: feet kick much more.
+
 ## Build 293 (9 Oct)
 - "Tap to feed" label and how-to lines go away after you have fed him 4 times.
 - Fixed him napping with his eyes open.
