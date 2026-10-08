@@ -16,7 +16,7 @@
   var INBOX_MAX = 50;               // messages waiting for a device (the oldest go first)
   var INBOX_TEXT_MAX = 4000;        // characters in one message
   var INBOX_TTL_MS = 24 * 3600 * 1000;   // an unread message is deleted after a day
-  var INBOX_TO = ['pc', 'phone'];
+  var INBOX_TO = ['any', 'pc', 'phone'];   // 'any' = whichever other device picks it up; 'pc' and 'phone' are from earlier builds
   var INBOX_KINDS = ['link', 'text'];
   var TRIES = 4;                    // compare-and-swap retries when two devices write at the same moment
 
@@ -131,14 +131,15 @@
   }
 
   /**
-   * The inbox: small things sent from one device to another (a link or a note from the phone to the PC).
-   * GET /v1/inbox?to=pc lists what waits; POST /v1/inbox {to, kind, text} leaves a message; POST /v1/inbox/ack {ids} removes read ones.
+   * The inbox: small things sent from one device to another (a link or a note, phone to PC or the other way).
+   * GET /v1/inbox?device=<id> lists what other devices left (never what this one sent); POST /v1/inbox {kind, text, from} leaves a
+   * message; POST /v1/inbox/ack {ids} removes read ones. (?to=pc|phone is the earlier way, kept for old copies of the app.)
    */
   async function inbox(request, store, acct, path, method, now) {
     if (path === '/v1/inbox' && method === 'GET') {
-      var to = new URL(request.url).searchParams.get('to') || 'pc';
-      if (INBOX_TO.indexOf(to) < 0) return fail(400, 'to must be pc or phone');
-      return reply({ messages: await store.inboxList(acct, to, now) });
+      var q = new URL(request.url).searchParams, device = cleanDevice(q.get('device')), to = q.get('to') || 'pc';
+      if (!device && INBOX_TO.indexOf(to) < 0) return fail(400, 'to must be pc or phone');
+      return reply({ messages: await store.inboxList(acct, to, now, device) });
     }
     var raw = await request.text();
     if (raw.length > MAX_BODY) return fail(413, 'Too much data');
@@ -150,15 +151,19 @@
       return reply({ deleted: ids.length ? await store.inboxRemove(acct, ids) : 0 });
     }
     var text = typeof sent.text === 'string' ? sent.text.trim() : '';
-    if (INBOX_TO.indexOf(sent.to) < 0) return fail(400, 'to must be pc or phone');
+    if (sent.to === undefined) sent.to = 'any';
+    if (INBOX_TO.indexOf(sent.to) < 0) return fail(400, 'to must be any, pc or phone');
     if (INBOX_KINDS.indexOf(sent.kind) < 0) return fail(400, 'kind must be link or text');
     if (!text) return fail(400, 'Nothing to send');
     if (text.length > INBOX_TEXT_MAX) return fail(413, 'That is too long to send (' + INBOX_TEXT_MAX + ' characters at most)');
     if (sent.kind === 'link' && !/^https?:\/\/[^\s]+$/i.test(text)) return fail(400, 'A link must start with http:// or https://');
-    var msg = { id: randomId(), to: sent.to, kind: sent.kind, text: text, at: now, from: typeof sent.from === 'string' ? sent.from.replace(/[^a-z0-9]/gi, '').slice(0, 12) : '' };
+    var msg = { id: randomId(), to: sent.to, kind: sent.kind, text: text, at: now, from: cleanDevice(sent.from) };
     await store.inboxAdd(acct, msg, now);
     return reply({ id: msg.id }, 201);
   }
+
+  /** @returns {string} A device id with only letters and digits, at most 12 long ('' if it is not one). */
+  function cleanDevice(v) { return typeof v === 'string' ? v.replace(/[^a-z0-9]/gi, '').slice(0, 12) : ''; }
 
   /** Storage in a Cloudflare D1 database (the tables are in schema.sql). */
   function d1Store(db) {
@@ -182,22 +187,29 @@
         await db.prepare('DELETE FROM docs WHERE id = ?').bind(id).run();
         try { await db.prepare('DELETE FROM inbox WHERE acct = ?').bind(id).run(); } catch (e) { /* no inbox table on an older database */ }
       },
-      /** What waits for a device (older than a day is deleted first), oldest first. */
-      async inboxList(acct, to, now) {
-        await db.prepare('DELETE FROM inbox WHERE acct = ? AND at < ?').bind(acct, now - INBOX_TTL_MS).run();
-        var r = await db.prepare('SELECT id, at, kind, body, src FROM inbox WHERE acct = ? AND dest = ? ORDER BY at ASC LIMIT ?').bind(acct, to, INBOX_MAX).all();
+      /**
+       * What waits for a device, oldest first (a day old and older is not shown; the next message left clears it away).
+       * With a device id: everything another device left. Without: what was addressed to `to` (the earlier way).
+       * Only reads, since a device asks every few seconds.
+       */
+      async inboxList(acct, to, now, device) {
+        var since = now - INBOX_TTL_MS, r;
+        if (device) r = await db.prepare('SELECT id, at, kind, body, src FROM inbox WHERE acct = ? AND at >= ? AND src != ? ORDER BY at ASC LIMIT ?').bind(acct, since, device, INBOX_MAX).all();
+        else r = await db.prepare('SELECT id, at, kind, body, src FROM inbox WHERE acct = ? AND at >= ? AND dest = ? ORDER BY at ASC LIMIT ?').bind(acct, since, to, INBOX_MAX).all();
         return (r.results || []).map(function (m) { return { id: m.id, at: m.at, kind: m.kind, text: m.body, from: m.src }; });
       },
       /** Leaves a message and keeps the newest INBOX_MAX. */
       async inboxAdd(acct, m, now) {
-        await db.prepare('INSERT INTO inbox (id, acct, dest, at, kind, body, src) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(m.id, acct, m.to, m.at, m.kind, m.text, m.from).run();
-        await db.prepare('DELETE FROM inbox WHERE acct = ? AND (at < ? OR id NOT IN (SELECT id FROM inbox WHERE acct = ? ORDER BY at DESC LIMIT ?))').bind(acct, now - INBOX_TTL_MS, acct, INBOX_MAX).run();
+        var add = db.prepare('INSERT INTO inbox (id, acct, dest, at, kind, body, src) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(m.id, acct, m.to, m.at, m.kind, m.text, m.from);
+        var tidy = db.prepare('DELETE FROM inbox WHERE acct = ? AND (at < ? OR id NOT IN (SELECT id FROM inbox WHERE acct = ? ORDER BY at DESC LIMIT ?))').bind(acct, now - INBOX_TTL_MS, acct, INBOX_MAX);
+        if (typeof db.batch === 'function') await db.batch([add, tidy]);   // one round trip to the database instead of two
+        else { await add.run(); await tidy.run(); }
       },
       /** @returns {Promise<number>} How many were removed. */
       async inboxRemove(acct, ids) {
-        var n = 0;
-        for (var i = 0; i < ids.length; i++) n += (await db.prepare('DELETE FROM inbox WHERE acct = ? AND id = ?').bind(acct, ids[i]).run()).meta.changes;
-        return n;
+        if (!ids.length) return 0;
+        var st = db.prepare('DELETE FROM inbox WHERE acct = ? AND id IN (' + ids.map(function () { return '?'; }).join(',') + ')');
+        return (await st.bind.apply(st, [acct].concat(ids)).run()).meta.changes;
       },
       /**
        * Counts one sign-up for this connection in this hour (and forgets older hours). Returns how many so far.

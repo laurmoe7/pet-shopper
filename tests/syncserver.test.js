@@ -15,9 +15,9 @@ function memoryStore() {
   return {
     rows,
     get inbox() { return inbox; },
-    async inboxList(acct, to, now) {
+    async inboxList(acct, to, now, device) {
       inbox = inbox.filter((m) => now - m.at <= S.INBOX_TTL_MS);
-      return inbox.filter((m) => m.acct === acct && m.to === to).sort((a, b) => a.at - b.at).map((m) => ({ id: m.id, at: m.at, kind: m.kind, text: m.text, from: m.from }));
+      return inbox.filter((m) => m.acct === acct && (device ? m.from !== device : m.to === to)).sort((a, b) => a.at - b.at).map((m) => ({ id: m.id, at: m.at, kind: m.kind, text: m.text, from: m.from }));
     },
     async inboxAdd(acct, m) {
       inbox.push({ ...m, acct });
@@ -259,6 +259,7 @@ test('the limit counts in the real SQL table too, and a missing table does not b
 
 // ---------- the inbox: a link or a note from the phone to the PC ----------
 const send = (store, code, body, now) => call(store, 'POST', '/v1/inbox', code, body, now);
+const waitingFor = async (store, code, device, now) => (await call(store, 'GET', '/v1/inbox?device=' + device, code, undefined, now)).json.messages;
 const waiting = async (store, code, to, now) => (await call(store, 'GET', '/v1/inbox?to=' + (to || 'pc'), code, undefined, now)).json.messages;
 
 test('a link sent from the phone waits for the PC until it is read', async () => {
@@ -329,7 +330,8 @@ test('the inbox works in the real SQL tables, and a database without them answer
   const wrap = (db) => ({ prepare(sql) { const st = db.prepare(sql); return { bind(...a) { return {
     async first() { return st.get(...a) || null; },
     async all() { return { results: st.all(...a) }; },
-    async run() { return { meta: { changes: Number(st.run(...a).changes) } }; } }; } }; } });
+    async run() { return { meta: { changes: Number(st.run(...a).changes) } }; } }; } };
+  }, async batch(list) { const out = []; for (const s of list) out.push(await s.run()); return out; } });   // like D1's batch: several statements, one trip
   const db = new sqlite.DatabaseSync(':memory:');
   db.exec(fs.readFileSync(path.join(__dirname, '../worker/sync/schema.sql'), 'utf8'));
   const store = S.d1Store(wrap(db)), code = await signUp(store);
@@ -342,6 +344,11 @@ test('the inbox works in the real SQL tables, and a database without them answer
   assert.equal((await call(store, 'POST', '/v1/inbox/ack', code, { ids: [list[0].id, list[1].id] }, T + 5000)).json.deleted, 2);
   assert.equal((await waiting(store, code, 'pc', T + 5000)).length, S.INBOX_MAX - 2);
   assert.equal((await waiting(store, code, 'pc', T + S.INBOX_TTL_MS + 100000)).length, 0);   // a day later they are gone
+  // by device: another device sees them, the one that left them does not
+  await send(store, code, { kind: 'text', text: 'by device', from: 'abc123' }, T + 6000);
+  assert.ok((await waitingFor(store, code, 'zzz', T + 7000)).some((m) => m.text === 'by device'));
+  assert.ok(!(await waitingFor(store, code, 'abc123', T + 7000)).some((m) => m.text === 'by device'));
+  assert.equal((await call(store, 'POST', '/v1/inbox/ack', code, { ids: [] }, T + 7000)).json.deleted, 0);
   await call(store, 'DELETE', '/v1/account', code);
   assert.equal(db.prepare('SELECT COUNT(*) AS c FROM inbox').get().c, 0);
   // an older database without the inbox table
@@ -350,4 +357,20 @@ test('the inbox works in the real SQL tables, and a database without them answer
   const oldStore = S.d1Store(wrap(old)), oldCode = await signUp(oldStore);
   assert.equal((await send(oldStore, oldCode, { to: 'pc', kind: 'text', text: 'x' })).status, 503);
   assert.equal((await call(oldStore, 'POST', '/v1/sync', oldCode, { doc: { v: 1, items: {}, fields: {}, counters: {} } })).status, 200);   // everything else still works
+});
+
+test('a device gets what its other devices left, never its own, and no destination is needed', async () => {
+  const store = memoryStore(), code = await signUp(store);
+  assert.equal((await send(store, code, { kind: 'link', text: 'https://example.com/a', from: 'phone1' }, T)).status, 201);   // no "to"
+  await send(store, code, { to: 'any', kind: 'text', text: 'from the pc', from: 'pc01' }, T + 1000);
+  const pc = await waitingFor(store, code, 'pc01', T + 2000), phone = await waitingFor(store, code, 'phone1', T + 2000);
+  assert.deepEqual(pc.map((m) => m.text), ['https://example.com/a']);
+  assert.deepEqual(phone.map((m) => m.text), ['from the pc']);
+  assert.equal((await waitingFor(store, code, 'other9', T + 2000)).length, 2);   // a third device sees both
+  // a message from an earlier build (to: pc) still reaches the PC, and the device filter still keeps it from the phone that sent it
+  await send(store, code, { to: 'pc', kind: 'text', text: 'old style', from: 'phone1' }, T + 3000);
+  assert.ok((await waitingFor(store, code, 'pc01', T + 4000)).some((m) => m.text === 'old style'));
+  assert.ok(!(await waitingFor(store, code, 'phone1', T + 4000)).some((m) => m.text === 'old style'));
+  assert.equal((await waiting(store, code, 'pc', T + 4000)).length, 1);   // the earlier way of asking still works
+  assert.equal((await send(store, code, { to: 'tablet', kind: 'text', text: 'x' }, T)).status, 400);
 });

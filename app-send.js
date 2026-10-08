@@ -1,10 +1,11 @@
-// Send to my PC: a link or a note from the phone waits on the sync server (worker/sync/, the inbox), and Fumu on the PC eats it
-// and shows it on a little card. The rules for what is a link or a note are in send.js. These files are plain scripts that share one
+// Send to another device: a link or a note from one device (phone or PC) waits on the sync server (worker/sync/, the inbox), and
+// Fumu on the other device eats it and shows it on a little card. The sender never gets its own message back.
+// The rules for what is a link or a note are in send.js. These files are plain scripts that share one
 // scope, loaded in the order listed in index.html.
 'use strict';
 
 var sendSheet = $('sendSheet'), sendText = $('sendText'), sendMsg = $('sendMsg'), sendGo = $('sendGo'), sendReceive = $('sendReceive');
-var INBOX_POLL_MS = 15000, RECEIVE_KEY = 'nibble.receive';
+var INBOX_POLL_MS = 5000, RECEIVE_KEY = 'nibble.receive';
 var deskShell = window.nibbleDesktop || null;   // the desktop app (desktop/): it always receives
 
 function sendSay(text) { sendMsg.textContent = text || ''; }
@@ -12,54 +13,54 @@ function sendSay(text) { sendMsg.textContent = text || ''; }
 function openSend(prefill) {
   optionsSheet.close();
   sendText.value = prefill || '';
-  sendSay(account.code ? '' : 'Turn on Backup & sync first (Options), here and on your PC, so both have the same code.');
+  sendSay(account.code ? '' : 'Turn on Backup & sync first (Options), here and on your other device, so both have the same code.');
   sendReceive.checked = receivingHere();
   openDialog(sendSheet);
 }
-/** Sends what is in the box to the PC. */
-function sendToPc() {
+/** Sends what is in the box to the other device. */
+function sendToOther() {
   var m = Send.classify(sendText.value);
   if (!m) { sendSay('Type or paste something to send.'); return; }
-  if (!account.code) { sendSay('Turn on Backup & sync first, here and on your PC.'); return; }
+  if (!account.code) { sendSay('Turn on Backup & sync first, here and on your other device.'); return; }
   sendGo.disabled = true;
   sendSay('Sending…');
-  accountApi('/v1/inbox', 'POST', account.code, { to: 'pc', kind: m.kind, text: m.text, from: state.sync.device }).then(function (r) {
+  accountApi('/v1/inbox', 'POST', account.code, { kind: m.kind, text: m.text, from: inboxDevice() }).then(function (r) {
     sendGo.disabled = false;
     if (r.ok) {
       sendText.value = '';
-      sendSay('Sent! Fumu on your PC will bring it.');
-      syncLogAdd('Sent a ' + (m.kind === 'link' ? 'link' : 'note') + ' to the PC', 'sync');
-      setTimeout(function () { if (sendSheet.open) sendSheet.close(); }, 1300);
+      syncLogAdd('Sent a ' + (m.kind === 'link' ? 'link' : 'note') + ' to the other device', 'sync');
+      if (sendSheet.open) sendSheet.close();   // at once: nothing more to wait for
+      say(pick(['off it goes!', 'on its way ♡', 'fumu fumu~ sent!']), 1400);
     } else if (r.status === 401) sendSay('The server does not know this code. Check Backup & sync.');
     else if (r.status === 503) sendSay('The server is not ready for this yet: it needs the new inbox table (see worker/sync/README.md).');
     else if (r.status === 413) sendSay('That is too long to send.');
     else sendSay(r.status ? 'The server said no (' + r.status + ').' : 'Could not reach the server. Check your connection.');
   });
 }
-sendGo.addEventListener('click', function () { sound('tap'); sendToPc(); });
+sendGo.addEventListener('click', function () { sound('tap'); sendToOther(); });
 sendSheet.addEventListener('click', function (e) { if (e.target === sendSheet) sendSheet.close(); });
 sendReceive.addEventListener('change', function () {
   try { localStorage.setItem(RECEIVE_KEY, sendReceive.checked ? '1' : '0'); } catch (e) { /* storage blocked */ }
   if (sendReceive.checked) setTimeout(inboxPoll, 300);
 });
-/** @returns {boolean} Whether this device shows what is sent to it (the desktop app always does). */
+/** @returns {boolean} Whether this device shows what is sent to it (the desktop app always does; elsewhere it is on unless switched off). */
 function receivingHere() {
   if (deskShell) return true;
-  try { return localStorage.getItem(RECEIVE_KEY) === '1'; } catch (e) { return false; }
+  try { return localStorage.getItem(RECEIVE_KEY) !== '0'; } catch (e) { return true; }
 }
 
 // the Options row, under Backup & sync
 (function () {
   var row = document.createElement('div');
   row.className = 'option';
-  row.innerHTML = '<span class="option-title">Send to my PC</span>';
+  row.innerHTML = '<span class="option-title">Send to another device</span>';
   var b = document.createElement('button');
   b.type = 'button'; b.className = 'pill-btn'; b.textContent = 'Send a link or note';
   b.addEventListener('click', function () { sound('tap'); openSend(); });
   row.appendChild(b);
   var t = document.createElement('span');
   t.className = 'option-text';
-  t.textContent = 'A link or a note for your PC: Fumu eats it there and brings it to you. Needs the same Backup & sync code on both.';
+  t.textContent = 'A link or a note for your other device (phone to PC or PC to phone): Fumu eats it there and brings it over. Needs the same Backup & sync code on both.';
   row.appendChild(t);
   optionsList.insertBefore(row, optionsList.children[1] || null);
 })();
@@ -124,26 +125,34 @@ function receiveMessage(msg, more) {
   var to = center(pet.getBoundingClientRect()), from = { x: to.x + 70, y: Math.max(8, to.y - 150) };
   busy++;
   inboxCard = document.createElement('div');   // holds the place while he eats, so a second message does not start
-  fly(link ? '🔗' : '📝', from, to, { duration: 700, scaleTo: .5, lift: 40 }).then(function () {
+  fly(link ? '🔗' : '📝', from, to, { duration: 420, scaleTo: .5, lift: 30 }).then(function () {
     setFace(CHEW); pulse('chomp', 360); crumbs(to, '#e7c9a0', 6);
-    say(link ? 'a link from your phone!' : 'a note from your phone!', 1900);
-    setTimeout(function () {
-      busy--; if (!busy) settle();
-      inboxCard = null;
-      showInboxCard(msg, more);
-    }, 520);
+    busy--;
+    inboxCard = null;
+    showInboxCard(msg, more);   // the card is up as he swallows: no waiting for the chewing
+    setTimeout(function () { if (!busy) settle(); }, 520);
   });
 }
-/** Looks for something waiting for this PC (only while the window is showing and nothing is on the card). */
+/**
+ * Looks for something another device left (only while the window is showing and nothing is on the card). The server leaves
+ * out what this device sent itself; the check on `from` is for a server that has not been updated yet.
+ */
+var polling = false;
+/** @returns {string} This device's id as the server keeps it (letters and digits, at most 12). */
+function inboxDevice() { return String(state.sync.device || '').replace(/[^a-z0-9]/gi, '').slice(0, 12); }
 function inboxPoll() {
-  if (!receivingHere() || !account.code || syncState.stopped || inboxCard || document.querySelector('.remind-card') || document.visibilityState === 'hidden') return;
-  accountApi('/v1/inbox?to=pc', 'GET', account.code).then(function (r) {
+  if (polling || !receivingHere() || !account.code || syncState.stopped || inboxCard || document.querySelector('.remind-card') || document.visibilityState === 'hidden') return;
+  polling = true;
+  accountApi('/v1/inbox?device=' + encodeURIComponent(inboxDevice()), 'GET', account.code).then(function (r) {
+    polling = false;
     var list = r.ok && r.json && r.json.messages;
+    list = list && list.filter(function (m) { return m.from !== inboxDevice(); });
     if (!list || !list.length || inboxCard) return;
-    syncLogAdd('Got a ' + (list[0].kind === 'link' ? 'link' : 'note') + ' from your phone', 'sync');
+    syncLogAdd('Got a ' + (list[0].kind === 'link' ? 'link' : 'note') + ' from your other device', 'sync');
     receiveMessage(list[0], list.length - 1);
   });
 }
 setInterval(inboxPoll, INBOX_POLL_MS);
-document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') setTimeout(inboxPoll, 400); });
-setTimeout(inboxPoll, 3000);
+document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') setTimeout(inboxPoll, 200); });
+window.addEventListener('focus', function () { setTimeout(inboxPoll, 200); });
+setTimeout(inboxPoll, 1000);

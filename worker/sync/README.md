@@ -40,9 +40,9 @@ wrangler. It needs two repository secrets (GitHub > Settings > Secrets and varia
 (a custom token with Account > Workers Scripts > Edit and Account > D1 > Edit, limited to her account) and
 `CLOUDFLARE_ACCOUNT_ID`. Pasting `dist/worker.js` into the dashboard still works as a fallback.
 
-## The inbox (Send to my PC)
+## The inbox (Send to another device)
 
-A link or a note from the phone waits here for the PC (and the other way round, later). It needs two more lines of `schema.sql` (the `inbox`
+A link or a note from one device waits here for the others (phone to PC or PC to phone; the sender never gets its own back: `GET /v1/inbox?device=<id>`). It needs two more lines of `schema.sql` (the `inbox`
 table and its index): in D1 → Console paste each line and Execute, then paste the new `dist/worker.js` over the Worker's code. Without the
 table everything else works and sending says "the inbox is not set up". Messages are deleted when read, after a day, or past 50 waiting.
 

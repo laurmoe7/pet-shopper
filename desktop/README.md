@@ -21,10 +21,10 @@ the web (https://laurmoe7.github.io/pet-shopper/), so every big push updates it.
   next close Fumu. The tray menu then shows **Restart to update Fumu**, and **Check for app updates** looks right away.
   You only run an installer by hand the first time (and when moving to a new PC).
 
-## Things sent from your phone
+## Things sent between your devices
 
-Phone: Options → **Send to my PC** → paste a link or type a note → Send (once Fumufumu is installed on the phone, the browser's Share menu
-also offers it). Both devices need the same Backup & sync code. On the PC, Fumu eats it and a little card shows what it is with
+Options → **Send to another device** → paste a link or type a note → Send (once Fumufumu is installed on the phone, the browser's Share menu
+also offers it). It works both ways, phone to PC and PC to phone, and only the other device shows it. Both devices need the same Backup & sync code. On the receiving device, Fumu eats it and a little card shows what it is with
 **Open** (links), **Copy** and ✕. The next one waits until you are done with this one. Needs the server's inbox table (worker/sync/README.md).
 
 ## Using it
