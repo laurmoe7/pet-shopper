@@ -128,7 +128,7 @@ function start() {
     if (!landedOk) return;
     if (Math.abs(back.x - b.x) > 20) {
       win.webContents.send('desk:run', back.x > b.x ? 1 : -1);
-      const ok = await glide(back, Math.max(500, Math.min(2200, Math.abs(back.x - b.x) * 2)));
+      const ok = await glide(back, Math.max(500, Math.min(2200, Math.abs(back.x - b.x) * 2)) * (drowsy ? 3 : 1));
       if (win) win.webContents.send('desk:run', 0);
       if (!ok) return;
     }
@@ -179,7 +179,7 @@ function start() {
     const back = place.within(home, here()), cur = win.getBounds();
     if (Math.abs(back.x - cur.x) > 20 || Math.abs(back.y - cur.y) > 20) {
       win.webContents.send('desk:run', back.x > cur.x ? 1 : -1);
-      const done = await glide(back, Math.max(600, Math.min(2800, Math.hypot(back.x - cur.x, back.y - cur.y) * 1.6)));
+      const done = await glide(back, Math.max(600, Math.min(2800, Math.hypot(back.x - cur.x, back.y - cur.y) * 1.6)) * (drowsy ? 3 : 1));
       if (win) win.webContents.send('desk:run', 0);
       if (!done) return;
     }
@@ -507,6 +507,8 @@ function start() {
   });
   ipcMain.handle('desk:getPrefs', () => publicPrefs());
   // where the window is now (the page notes his spot before the toy takes him away, to come back to it exactly)
+  let drowsy = false;   // up at night and tired (the page tells us): he walks back slowly
+  ipcMain.on('desk:drowsy', (_e, on) => { drowsy = !!on; });
   ipcMain.handle('desk:where', () => (win && !win.isDestroyed() ? win.getBounds().x : null));
   // Fumu walks along where he sits: the page plays the walking, the window glides
   ipcMain.handle('desk:walk', async (_e, dx, ms) => {

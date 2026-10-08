@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 343
+- Drowsy at night, he walks back slowly after a throw or a jump off a window.
+
 ## Build 342
 - Claude alert: the jingle played up to three times, now once; six jingles, a random one each time.
 - Sitting with shoes on: his own feet are hidden, and the shoe soles are 10% bigger.

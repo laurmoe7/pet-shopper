@@ -922,6 +922,12 @@
   // after getting off a window he runs back to where he was: the shell glides the window, here the feet go
   if (D.onFall) D.onFall(function (on) { pet.classList.toggle('falling', on); if (on) setFace({ eyes: 'sparkle', mouth: 'o', arms: 'idle', x: [] }); else if (!busy) settle(); });
   var runOwn = false;
+  // up at night and tired: the shell takes his walk back slowly, and his feet go slowly too
+  if (D.setDrowsy) new MutationObserver(function () {
+    var sc = document.documentElement.dataset.scene || '';
+    D.setDrowsy(sc.indexOf('night-drowsy') === 0);
+    pet.classList.toggle('plod', sc.indexOf('night-drowsy') === 0);
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-scene'] });
   if (D.onRun) D.onRun(function (dir) {
     if (dir) { pet.classList.add('walking'); lookToward(dir); if (!roaming) { roaming = true; runOwn = true; } }
     else { pet.classList.remove('walking'); stopLook(); if (runOwn) { roaming = false; runOwn = false; } }

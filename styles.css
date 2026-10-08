@@ -2011,6 +2011,8 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 /* walking about: one foot then the other */
 .pet:is(.stroll, .waddle, .shuffle, .scoot, .boogie, .walking) :is(.foot-l, .shoe-l) { animation: step .5s ease-in-out infinite; }
 .pet:is(.stroll, .waddle, .shuffle, .scoot, .boogie, .walking) :is(.foot-r, .shoe-r) { animation: step .5s ease-in-out -.25s infinite; }
+.pet.plod.walking :is(.foot-l, .shoe-l) { animation-duration: 1.3s; }
+.pet.plod.walking :is(.foot-r, .shoe-r) { animation-duration: 1.3s; animation-delay: -.65s; }
 /* hops: both feet tuck up in the air */
 .pet.hop :is(.foot-side, .shoe-l, .shoe-r) { animation: tuck .5s ease-in-out; }
 .pet.hopsmall :is(.foot-side, .shoe-l, .shoe-r) { animation: tuck .45s ease-in-out; }
