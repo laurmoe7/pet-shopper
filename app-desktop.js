@@ -249,20 +249,39 @@
         zoom: z,
         lim: { minX: (f.area.x - f.wx) / z - mid + 18, maxX: (f.area.x + f.area.width - f.wx) / z - mid - 18, maxY: fl - (f.area.y - f.wy) / z - 20 },
         show: function (x, y, spin) { toyEl.style.visibility = 'hidden'; var p = spot(x, y); D.toyAt(p[0], p[1], spin); },
-        hide: function () { D.toyHide(); }
+        hide: function () { D.toyHide(); },
+        shift: function (p) { f.wx += p * z; this.lim.minX -= p; this.lim.maxX -= p; }   // his window moved p page px to the right
       };
       D.toyShow(png, Math.round(32 * z));
       toyField.show(toyX, held ? held.y : 0, 0);
     });
   };
   /** The toy came down far from him: the window runs along the floor towards it. @param {number} dx Page px. @returns {Promise<number>} Page px really moved. */
-  window.deskToyChase = function (dx) {
-    var z = fieldZoom || 1, ms = Math.min(3500, 500 + Math.abs(dx) * 5);
+  var fieldMoved = 0;   // how far (screen px) his window ran after the toy, so he can run back
+  /** Runs his window along the floor by dx page px over ms; keeps the toy's screen-wide field in step. @returns {Promise<number>} Page px really moved. */
+  function runWindow(dx, ms) {
+    var z = fieldZoom || 1;
     pet.classList.add('walking'); lookToward(dx);
     return D.walk(dx * z, ms).then(function (went) {
       pet.classList.remove('walking'); stopLook();
-      return (went || 0) / z;
+      went = went || 0;
+      fieldMoved += went;
+      if (toyField && toyField.shift) toyField.shift(went / z);
+      return went / z;
     }, function () { pet.classList.remove('walking'); stopLook(); return 0; });
+  }
+  window.deskToyChase = function (dx) { return runWindow(dx, Math.min(3500, 500 + Math.abs(dx) * 5)); };
+  window.deskToyFollow = function (dx) { return runWindow(dx, 450); };
+  /** After the game: he runs back to where he stood when the toy was thrown. */
+  window.deskToyReturn = function () {
+    if (!fieldMoved || !D.walk) return;
+    var back = -fieldMoved; fieldMoved = 0;
+    var z = fieldZoom || 1, wasRoaming = roaming;
+    roaming = true;
+    pet.classList.add('walking'); lookToward(back);
+    D.walk(back, Math.min(3500, 600 + Math.abs(back) * 2)).then(function () {}, function () {}).then(function () {
+      pet.classList.remove('walking'); stopLook(); roaming = wasRoaming;
+    });
   };
 
   /** A card (so it shows even with speech bubbles off) saying an update is ready, with Restart and a cross for later. */
@@ -762,6 +781,7 @@
     }, function () { roaming = false; });
   }
   // after getting off a window he runs back to where he was: the shell glides the window, here the feet go
+  if (D.onFall) D.onFall(function (on) { pet.classList.toggle('falling', on); if (on) setFace({ eyes: 'sparkle', mouth: 'o', arms: 'idle', x: [] }); else if (!busy) settle(); });
   var runOwn = false;
   if (D.onRun) D.onRun(function (dir) {
     if (dir) { pet.classList.add('walking'); lookToward(dir); if (!roaming) { roaming = true; runOwn = true; } }

@@ -50,6 +50,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   /** Which part of the window is on a screen: [left, right] in page pixels (he may be half out of it). */
   onVisible: (fn) => ipcRenderer.on('desk:visible', (_e, l, r) => fn(+l || 0, +r || 0)),
   /** He runs back along the floor after getting off a window: 1 right, -1 left, 0 stopped. */
+  /** He is falling off a window (true) or has landed (false): the arms wave. */
+  onFall: (fn) => ipcRenderer.on('desk:fall', (_e, on) => fn(!!on)),
   onRun: (fn) => ipcRenderer.on('desk:run', (_e, dir) => fn(+dir || 0)),
   /** The toy roaming the screen: where his window is and the screen's work area, or null when the switch is off. */
   toyField: () => ipcRenderer.invoke('desk:toyField'),

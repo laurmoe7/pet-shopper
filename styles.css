@@ -2907,6 +2907,6 @@ html.desk-moving :is(.dream, .wish), .stage:has(.pet.walking) :is(.dream, .wish)
 /* carried by the cursor: his arms flap about (the feet kick too, above) */
 @keyframes flap-l { from { transform: rotate(10deg); } to { transform: rotate(125deg); } }
 @keyframes flap-r { from { transform: rotate(-10deg); } to { transform: rotate(-125deg); } }
-.pet.carried .arm-l { animation: flap-l .17s ease-in-out infinite alternate; }
-.pet.carried .arm-r { animation: flap-r .17s ease-in-out infinite alternate .085s; }
-@media (prefers-reduced-motion: reduce) { .pet.carried .arm-l, .pet.carried .arm-r { animation: none; } }
+.pet:is(.carried, .falling) .arm-l { animation: flap-l .17s ease-in-out infinite alternate; }
+.pet:is(.carried, .falling) .arm-r { animation: flap-r .17s ease-in-out infinite alternate .085s; }
+@media (prefers-reduced-motion: reduce) { .pet:is(.carried, .falling) .arm-l, .pet:is(.carried, .falling) .arm-r { animation: none; } }

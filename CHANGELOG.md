@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 303 (9 Oct)
+- Falling off a window is slower and he waves his arms.
+- He chases the thrown toy harder, also across the screen, and runs back to where he started after catching it.
+
 ## Build 302 (9 Oct)
 - A soft chime when Claude's alert arrives.
 - Carried: arms flap about; feet kick like before.

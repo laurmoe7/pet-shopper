@@ -117,6 +117,7 @@ function getIt(side) {
 /** The game is over: back to normal. */
 function endPlay() {
   endField();
+  if (typeof deskToyReturn === 'function') deskToyReturn();   // desktop: back to where he stood when it was thrown
   pet.style.removeProperty('--look-x');
   pet.classList.remove('running');
   playing = false;
@@ -304,7 +305,7 @@ function fling(vx, vy, y) {
   var lim = toyLimits(), x = toyX, spin = 0, start = performance.now(), last = start, chaseAt = 0;
   var catchAt = playStyle() === 'fetch' ? mouthHeight() : 14, frog = playStyle() === 'tongue';
   // over the whole screen it flies longer: lighter gravity, livelier bounces, and he waits a while before he may catch it
-  var wide = !!toyField, gravity = wide ? 950 : 1500, wallK = wide ? 0.92 : 0.75, floorK = wide ? 0.74 : 0.6, grace = wide ? 3000 : 250, maxMs = wide ? 12000 : 7000;
+  var followAt = 0, wide = !!toyField, gravity = wide ? 950 : 1500, wallK = wide ? 0.92 : 0.75, floorK = wide ? 0.74 : 0.6, grace = wide ? 3000 : 250, maxMs = wide ? 12000 : 7000;
   cancelAnimationFrame(flight);
   if (reduceMotion) { placeToy(x, 0, 0); landed(); return; }
   function step(now) {
@@ -328,7 +329,12 @@ function fling(vx, vy, y) {
     spin += vx * dt * 2.4;
     placeToy(x, y, spin);
     // the pet runs to where the toy is heading
-    if (now > chaseAt) { chaseAt = now + 200; walkTo(x + vx * 0.2, 6); }
+    if (now > chaseAt) { chaseAt = now + 110; walkTo(x + vx * 0.3, 5); }
+    // over the whole screen his window runs after it too, once it is well past where he can reach inside the window
+    if (wide && now > followAt && typeof deskToyFollow === 'function') {
+      var far = x - clampWalk(x);
+      if (Math.abs(far) > 60) { followAt = now + 600; deskToyFollow(far * 0.8).then(function (moved) { x -= moved || 0; }); }
+    }
     pet.style.setProperty('--look-x', (x > walkX ? 3.2 : -3.2) + 'px');
     // caught: coming down at the right height, right in front of the pet
     var px = parseFloat(getComputedStyle(pet).translate) || 0;

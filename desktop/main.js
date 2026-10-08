@@ -105,10 +105,14 @@ function start() {
     const origin = perchOrigin;
     leavePerch();
     if (!win || mode !== 'pet') return;
-    if (!origin) { if (await glide(place.floorBounds(win.getBounds(), here()), 450)) restHere(); return; }
+    const fallMs = 1000;   // a slow fall: he waves his arms on the way down (the page shows that while "fall" is on)
+    if (!origin) { win.webContents.send('desk:fall', true); const ok = await glide(place.floorBounds(win.getBounds(), here()), fallMs); if (win) win.webContents.send('desk:fall', false); if (ok) restHere(); return; }
     // off the window and back to where he was before: he drops straight down first, then runs along (the page shows his feet running)
     const b = win.getBounds(), back = place.within(origin, here());
-    if (!(await glide({ x: b.x, y: back.y, width: b.width, height: b.height }, 380))) return;
+    win.webContents.send('desk:fall', true);
+    const landedOk = await glide({ x: b.x, y: back.y, width: b.width, height: b.height }, fallMs);
+    if (win) win.webContents.send('desk:fall', false);
+    if (!landedOk) return;
     if (Math.abs(back.x - b.x) > 20) {
       win.webContents.send('desk:run', back.x > b.x ? 1 : -1);
       const ok = await glide(back, Math.max(500, Math.min(2200, Math.abs(back.x - b.x) * 2)));
