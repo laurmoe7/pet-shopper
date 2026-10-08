@@ -2996,3 +2996,17 @@ html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); scale: .7; t
 /* resting, it is tucked into the bed beside him: the bed's front edge is over its lower half */
 .bell.nested { z-index: 1; }
 .bell.putaway { transition: opacity .4s ease, scale .4s ease; opacity: 0; scale: .5; pointer-events: none; }
+
+/* the daily gift lives in the Profile sheet for now: a box to the right of the title, and a count on the Profile button */
+.profile-head { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.profile-head h2 { margin: 0; }
+.profile-gift { position: relative; width: 38px; height: 38px; padding: 0; border: 0; background: none; cursor: pointer; animation: gift-wiggle 3.2s ease-in-out infinite; }
+.profile-gift[hidden], .dock-badge[hidden] { display: none; }
+.profile-gift-img svg { display: block; width: 100%; height: 100%; }
+.profile-gift-img { display: block; width: 100%; height: 100%; }
+.profile-gift-count { position: absolute; right: -5px; top: -4px; min-width: 18px; padding: 0 5px; border-radius: 999px; background: var(--accent); color: #fff; border: 1.5px solid #fff; font-size: .7rem; font-weight: 800; line-height: 1.35; text-align: center; }
+.profile-gift-count:empty { display: none; }
+@keyframes gift-wiggle { 0%, 82%, 100% { rotate: 0deg; } 86% { rotate: -9deg; } 90% { rotate: 9deg; } 94% { rotate: -5deg; } }
+.dock #profileBtn { position: relative; }
+.dock-badge { position: absolute; top: 0; left: calc(50% + 8px); min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 999px; background: var(--accent); color: #fff; border: 1.8px solid #fff; font-size: .68rem; font-weight: 800; line-height: 15px; text-align: center; z-index: 2; box-shadow: 0 1px 0 rgba(91, 66, 57, .25); }
+@media (prefers-reduced-motion: reduce) { .profile-gift { animation: none; } }
