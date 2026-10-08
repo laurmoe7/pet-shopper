@@ -173,6 +173,9 @@ function start() {
       { label: 'Remind me of tasks', type: 'checkbox', checked: prefs.remind, click: (item) => setPref('remind', item.checked) },
       { label: 'Start with Windows', type: 'checkbox', checked: app.getLoginItemSettings().openAtLogin, click: (item) => setPref('startWithWindows', item.checked) },
       { type: 'separator' },
+      { label: 'Reload (get the latest)', click: () => win && win.webContents.reloadIgnoringCache() },
+      { label: 'Check for app updates', enabled: app.isPackaged, click: () => checkUpdates() },
+      { type: 'separator' },
       { label: 'More Fumu settings…', accelerator: prefs.keys.options || undefined, registerAccelerator: false, click: () => panel.open() },
       { label: 'Fumufumu ' + app.getVersion(), enabled: false },
       { label: 'Quit Fumufumu', click: () => app.quit() }
@@ -384,7 +387,7 @@ function start() {
     try { autoUpdater = require('electron-updater').autoUpdater; } catch (e) { return; }
     autoUpdater.autoDownload = true;
     autoUpdater.autoInstallOnAppQuit = true;
-    autoUpdater.on('update-downloaded', () => { updateReady = true; if (tray) tray.setToolTip('Fumufumu (update ready: right-click the tray icon)'); refreshMenus(); log('update ready'); });
+    autoUpdater.on('update-downloaded', () => { updateReady = true; panel.push(); if (tray) tray.setToolTip('Fumufumu (update ready: right-click the tray icon)'); refreshMenus(); log('update ready'); });
     autoUpdater.on('error', (e) => log('updater', e && e.message));
     setTimeout(checkUpdates, 15000);
     setInterval(checkUpdates, 6 * 3600 * 1000);
@@ -419,6 +422,7 @@ function start() {
       case 'copyDiag': clipboard.writeText(JSON.stringify(diag(), null, 2)); return true;
       case 'openData': shell.openPath(app.getPath('userData')); return true;
       case 'checkUpdates': checkUpdates(); return true;
+      case 'installUpdate': if (updateReady && autoUpdater) autoUpdater.quitAndInstall(); return true;
       case 'resetSettings': {
         const keep = { x: prefs.x, y: prefs.y };
         prefs = Object.assign({}, DEFAULTS, keep, { keys: keys.clean(null) });

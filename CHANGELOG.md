@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 266 (8 Oct)
+- Desktop: update options are back in the right-click menu and in the settings window.
+
 ## Build 265 (8 Oct)
 - Desktop: the toy catches clicks instantly, so picking it up and throwing it feels smooth.
 - Desktop: the welcome-back message after being away shows longer and a bit later.
