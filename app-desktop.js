@@ -32,6 +32,7 @@
   function showMode(mode) {
     root.classList.toggle('desktop-pet', mode !== 'list');
     root.classList.toggle('desktop-list', mode === 'list');
+    var sel = window.getSelection && window.getSelection(); if (sel) sel.removeAllRanges();   // nothing stays highlighted across a switch
     if (mode !== 'list') for (var i = 0, open = document.querySelectorAll('dialog[open]'); i < open.length; i++) open[i].close();
     if (typeof fadeSoon === 'function') fadeSoon();
   }
@@ -45,15 +46,22 @@
   }).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['open'] });
 
   // clicks go to Fumu only where something solid is under the pointer; elsewhere they pass to the desktop
-  var lastSolid = null;
+  var lastSolid = null, lastSent = 0;
   var SOLID = '#pet, .bubble, .gift, .wish, .toy, .suggest, .dream';
-  function hover(e) {
-    if (!isPet()) return;
-    var el = document.elementFromPoint(e.clientX, e.clientY), yes = !!(el && el.closest && el.closest(SOLID));
-    if (yes !== lastSolid) { lastSolid = yes; D.solid(yes); }
+  /** Tells the shell whether clicks should be caught; sent when it changes and now and then anyway, so the two can't drift apart. */
+  function setSolid(yes) {
+    var now = Date.now();
+    if (yes !== lastSolid || now - lastSent > 800) { lastSolid = yes; lastSent = now; D.solid(yes); }
   }
-  document.addEventListener('mousemove', hover, true);
-  document.addEventListener('mouseleave', function () { if (isPet() && lastSolid) { lastSolid = false; D.solid(false); } });
+  function hoverAt(x, y) {
+    if (!isPet()) return;
+    if (x < 0) { setSolid(false); return; }
+    var el = document.elementFromPoint(x, y);
+    setSolid(!!(el && el.closest && el.closest(SOLID)));
+  }
+  document.addEventListener('mousemove', function (e) { hoverAt(e.clientX, e.clientY); }, true);
+  D.onCursor(hoverAt);   // the shell also reports where the pointer is (Windows can stop forwarding it after a resize)
+  document.addEventListener('mouseleave', function () { hoverAt(-1, -1); });
   new MutationObserver(function () { lastSolid = null; }).observe(root, { attributes: true, attributeFilter: ['class'] });
 
   // pick Fumu up: hold still on him for a moment, then drag the window; letting go puts him down

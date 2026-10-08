@@ -26,7 +26,7 @@ the web (https://laurmoe7.github.io/pet-shopper/), so every big push updates it.
 - **Move him:** press and hold on Fumu until he says "wheee", then drag. Stroking him (moving while pressing) pets him.
 - **Right-click** him (or the tray icon): Open my list, Hide, Always on top, Start with Windows, Reload, Quit.
 - **Tray icon** (by the clock): click to hide or show him.
-- Clicks pass through the empty part of his window to whatever is underneath; only Fumu himself catches them.
+- Clicks pass through the empty part of his window to whatever is underneath; only Fumu himself catches them. The shell also watches the pointer itself (about 25 times a second) because Windows can stop forwarding it to the page after the window changes size.
 - Quiet by default: sounds start switched off (Options → Quiet mode).
 - Tapping a gift or opening any sheet switches to the bigger window; **Back to Fumu** returns.
 

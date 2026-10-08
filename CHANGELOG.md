@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 255 (18 Oct)
+- Desktop: no leftover band, highlight or stuck clicks after opening the list and going back.
+
 ## Build 254 (17 Oct)
 - New players start as the pigeon; the pet list begins with bird, cat, dog, mochi.
 - Fumu closes his eyes happily while he nods.

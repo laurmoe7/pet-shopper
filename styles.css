@@ -2784,6 +2784,8 @@ html.desktop-pet, html:root.desktop-pet body { background: none !important; }
 html.desktop-pet .scene-bar, html.desktop-pet .list-area, html.desktop-pet .dock, html.desktop-pet .backdrop, html.desktop-pet .room,
 html.desktop-pet .nightshade, html.desktop-pet .lamp, html.desktop-pet .lamp-light, html.desktop-pet .cart, html.desktop-pet .receipt,
 html.desktop-pet .cart-bag, html.desktop-pet .suggest, html.desktop-pet #deskBar { display: none !important; }
+html.desktop-pet .page-fade { display: none !important; }   /* the scrolling list's bottom fade would paint a band over the transparent window */
+html.desktop-pet, html.desktop-pet * { user-select: none; -webkit-user-select: none; }   /* no blue text selection on his speech bubble */
 html.desktop-pet .app { max-width: none; min-height: 0; height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; }
 html.desktop-pet .scene { position: static; padding: 0; background: none !important; }
 html.desktop-pet .scene::after { display: none; }

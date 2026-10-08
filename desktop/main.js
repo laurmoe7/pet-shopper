@@ -46,6 +46,19 @@ function start() {
     log('mode', mode);
     refreshMenus();
   }
+  // Windows is meant to forward the pointer to the page while clicks pass through, but that can stop working after the window
+  // changes size. So the shell also watches the pointer itself and tells the page where it is; the page decides if it is on Fumu.
+  let cursorTimer = null, wasInside = false;
+  function watchCursor() {
+    if (!THROUGH || cursorTimer) return;
+    cursorTimer = setInterval(() => {
+      if (!win || mode !== 'pet' || !win.isVisible() || dragFrom) { wasInside = false; return; }
+      const p = screen.getCursorScreenPoint(), b = win.getBounds();
+      const inside = p.x >= b.x && p.x < b.x + b.width && p.y >= b.y && p.y < b.y + b.height;
+      if (inside) { wasInside = true; win.webContents.send('desk:cursor', p.x - b.x, p.y - b.y); }
+      else if (wasInside) { wasInside = false; win.webContents.send('desk:cursor', -1, -1); }
+    }, 40);
+  }
   function showFumu() { if (win) { win.show(); if (mode === 'list') win.focus(); } refreshMenus(); }
   function hideFumu() { if (win) win.hide(); refreshMenus(); }
 
@@ -87,7 +100,7 @@ function start() {
   ipcMain.handle('desk:getMode', () => mode);
   ipcMain.on('desk:setMode', (_e, next) => applyMode(next === 'list' ? 'list' : 'pet'));
   ipcMain.on('desk:ready', () => { if (win && !shown) { shown = true; win.showInactive(); log('shown'); } });
-  ipcMain.on('desk:solid', (_e, yes) => { if (win && mode === 'pet' && THROUGH) win.setIgnoreMouseEvents(!yes, { forward: true }); });
+  ipcMain.on('desk:solid', (_e, yes) => { log('solid', yes); if (win && mode === 'pet' && THROUGH) win.setIgnoreMouseEvents(!yes, { forward: true }); });
   ipcMain.on('desk:dragStart', () => { if (win && mode === 'pet') dragFrom = win.getBounds(); });
   ipcMain.on('desk:dragMove', (_e, dx, dy) => { if (win && dragFrom) win.setBounds(place.dragBounds(dragFrom, dx, dy)); });
   ipcMain.on('desk:dragEnd', () => { if (win && dragFrom) { const b = win.getBounds(); prefs.x = b.x; prefs.y = b.y; savePrefs(); dragFrom = null; } });
@@ -120,6 +133,7 @@ function start() {
     // the page may only use the clipboard for writing; no camera, microphone, location, notifications
     session.defaultSession.setPermissionRequestHandler((_wc, permission, cb) => cb(permission === 'clipboard-sanitized-write'));
     createWindow();
+    watchCursor();
     const icon = nativeImage.createFromPath(path.join(__dirname, 'build', 'icon.png')).resize({ width: 32, height: 32 });
     tray = new Tray(icon);
     tray.setToolTip('Fumufumu');

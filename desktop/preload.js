@@ -10,6 +10,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   /** Switch between Fumu alone ('pet') and the whole app ('list'). */
   setMode: (mode) => ipcRenderer.send('desk:setMode', mode === 'list' ? 'list' : 'pet'),
   onMode: (fn) => ipcRenderer.on('desk:mode', (_e, mode) => fn(mode)),
+  /** Where the pointer is, in the window's own coordinates (-1, -1 when it is outside), about 25 times a second. */
+  onCursor: (fn) => ipcRenderer.on('desk:cursor', (_e, x, y) => fn(x, y)),
   /** The page has applied its mode: the window can be shown. */
   ready: () => ipcRenderer.send('desk:ready'),
   /** Whether the pointer is over something solid (pet, bubble...) so clicks are caught; elsewhere they go through to the desktop. */
