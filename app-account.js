@@ -249,10 +249,6 @@ function openAccount(code) {
   b.append(st, document.createTextNode(' · set up'));
   b.addEventListener('click', function () { sound('tap'); openAccount(); });
   row.appendChild(b);
-  var t = document.createElement('span');
-  t.className = 'option-text';
-  t.textContent = 'Keeps your shopping list and Fumu safe and the same on all your devices. To-do lists stay here.';
-  row.appendChild(t);
   optionsList.insertBefore(row, optionsList.firstChild);
 })();
 

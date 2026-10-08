@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 261 (18 Oct)
+- Links and notes fly into Fumu's mouth again, bigger, when you send one and when one arrives.
+- Birds' food and links now land on the beak.
+- Backup & sync and Send to another device lose their descriptions in Options.
+- Background picker moved from Options to the Room sheet.
+- Options on the PC app lists the shortcuts.
+
 ## Build 260 (18 Oct)
 - Desktop: at night the small Fumu has no lamp to switch off; a tap tucks him in.
 - Desktop shortcuts: Ctrl+Alt+F swaps small Fumu and the whole app, Ctrl+Alt+T swaps shopping and to-do.

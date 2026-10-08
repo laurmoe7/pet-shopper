@@ -250,10 +250,10 @@ function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
  */
 function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
-/** @returns {{x: number, y: number}} The pet's mouth in viewport coordinates. */
+/** @returns {{x: number, y: number}} The pet's mouth in viewport coordinates (a bird's beak sits higher than a mouth). */
 function mouthPoint() {
   var r = petSvg.getBoundingClientRect();
-  return { x: r.left + r.width * (80 / 160), y: r.top + r.height * (107 / 150) };
+  return { x: r.left + r.width * (80 / 160), y: r.top + r.height * ((pet.classList.contains('beaked') ? 100 : 107) / 150) };
 }
 /** Makes a sheet as tall as it can be while still leaving the pet's face in view: it opens to just below the pet's mouth. */
 function sheetUnderMouth(dlg) {
@@ -276,7 +276,7 @@ function center(rect) { return { x: rect.left + rect.width / 2, y: rect.top + re
  * @param {string} emoji
  * @param {{x: number, y: number}} from
  * @param {{x: number, y: number}} to
- * @param {{duration?: number, lift?: number, scaleFrom?: number, scaleTo?: number, spin?: number}} [opts]
+ * @param {{duration?: number, lift?: number, scaleFrom?: number, scaleTo?: number, spin?: number, size?: number}} [opts]  size: the emoji's width in px (34 by default).
  * @returns {Promise<void>} Resolves when it lands.
  */
 function fly(emoji, from, to, opts) {
@@ -284,7 +284,8 @@ function fly(emoji, from, to, opts) {
   var el = emojiImg(emoji, '');
   el.className = 'flyer';
   document.body.appendChild(el);
-  var size = 34, half = size / 2;
+  var size = opts.size || 34, half = size / 2;
+  el.style.width = el.style.height = size + 'px';
   var duration = reduceMotion ? 1 : (opts.duration || 600);
   var lift = opts.lift != null ? opts.lift : Math.max(60, Math.abs(to.y - from.y) * 0.35 + 50);
   var frames = [];

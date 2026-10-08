@@ -24,13 +24,17 @@ function sendToOther() {
   if (!account.code) { sendSay('Turn on Backup & sync first, here and on your other device.'); return; }
   sendGo.disabled = true;
   sendSay('Sending…');
+  var fromPt = center(sendGo.getBoundingClientRect());   // the emoji flies from the button
   accountApi('/v1/inbox', 'POST', account.code, { kind: m.kind, text: m.text, from: inboxDevice() }).then(function (r) {
     sendGo.disabled = false;
     if (r.ok) {
       sendText.value = '';
       syncLogAdd('Sent a ' + (m.kind === 'link' ? 'link' : 'note') + ' to the other device', 'sync');
       if (sendSheet.open) sendSheet.close();   // at once: nothing more to wait for
-      say(pick(['off it goes!', 'on its way ♡', 'fumu fumu~ sent!']), 1400);
+      var sentLine = function () { say(pick(['off it goes!', 'on its way ♡', 'fumu fumu~ sent!']), 1400); };
+      if (!canShowEating()) { sentLine(); return; }
+      busy++;
+      eatMessage(m.kind === 'link', fromPt).then(function () { sentLine(); setTimeout(function () { busy--; if (!busy) settle(); }, 700); });
     } else if (r.status === 401) sendSay('The server does not know this code. Check Backup & sync.');
     else if (r.status === 503) sendSay('The server is not ready for this yet: it needs the new inbox table (see worker/sync/README.md).');
     else if (r.status === 413) sendSay('That is too long to send.');
@@ -58,10 +62,6 @@ function receivingHere() {
   b.type = 'button'; b.className = 'pill-btn'; b.textContent = 'Send a link or note';
   b.addEventListener('click', function () { sound('tap'); openSend(); });
   row.appendChild(b);
-  var t = document.createElement('span');
-  t.className = 'option-text';
-  t.textContent = 'A link or a note for your other device (phone to PC or PC to phone): Fumu eats it there and brings it over. Needs the same Backup & sync code on both.';
-  row.appendChild(t);
   optionsList.insertBefore(row, optionsList.children[1] || null);
 })();
 
@@ -118,19 +118,35 @@ function finishInboxCard(msg) {
   accountApi('/v1/inbox/ack', 'POST', account.code, { ids: [msg.id] });
   setTimeout(inboxPoll, 800);
 }
+/**
+ * A link or a note flies into Fumu's mouth (big enough to see) and he chews it. Used when sending and when something arrives.
+ * @param {boolean} link
+ * @param {{x: number, y: number}} from
+ * @returns {Promise<void>} Resolves once it has landed in his mouth.
+ */
+function eatMessage(link, from) {
+  var to = mouthPoint();
+  setFace(FACES.catching);
+  return fly(link ? '🔗' : '📝', from, to, { duration: 700, scaleFrom: 1, scaleTo: .75, lift: 40, size: 56 }).then(function () {
+    setFace(CHEW); pulse('chomp', 360); crumbs(to, '#e7c9a0', 6);
+  });
+}
+/** Whether the eating can be shown now (not while he eats something else, and not with reduced motion). */
+function canShowEating() { return !busy && !reduceMotion && !!pet.getBoundingClientRect().width; }
 /** Fumu eats the thing that arrived (it flies in from above), then the card shows. */
 function receiveMessage(msg, more) {
   var link = msg.kind === 'link';
-  if (busy || reduceMotion || !pet.getBoundingClientRect().width) { showInboxCard(msg, more); return; }
-  var to = center(pet.getBoundingClientRect()), from = { x: to.x + 70, y: Math.max(8, to.y - 150) };
+  if (!canShowEating()) { showInboxCard(msg, more); return; }
+  var mouth = mouthPoint();
   busy++;
   inboxCard = document.createElement('div');   // holds the place while he eats, so a second message does not start
-  fly(link ? '🔗' : '📝', from, to, { duration: 420, scaleTo: .5, lift: 30 }).then(function () {
-    setFace(CHEW); pulse('chomp', 360); crumbs(to, '#e7c9a0', 6);
-    busy--;
-    inboxCard = null;
-    showInboxCard(msg, more);   // the card is up as he swallows: no waiting for the chewing
-    setTimeout(function () { if (!busy) settle(); }, 520);
+  eatMessage(link, { x: mouth.x + 70, y: Math.max(8, mouth.y - 170) }).then(function () {
+    say(link ? 'a link for you!' : 'a note for you!', 1900);
+    setTimeout(function () {
+      busy--; if (!busy) settle();
+      inboxCard = null;
+      showInboxCard(msg, more);
+    }, 520);
   });
 }
 /**

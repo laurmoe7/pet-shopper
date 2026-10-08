@@ -103,6 +103,18 @@
 
   document.addEventListener('contextmenu', function (e) { e.preventDefault(); D.menu(); });
 
+  // a note on the shortcuts, in Options, only here in the PC app (the phone has none of them)
+  (function () {
+    var row = document.createElement('div');
+    row.className = 'option';
+    row.innerHTML = '<span class="option-title">Shortcuts on this PC</span>';
+    var t = document.createElement('span');
+    t.className = 'option-text desk-keys';
+    t.innerHTML = '<b>Ctrl+Alt+F</b> small Fumu ⇄ whole app<br><b>Ctrl+Alt+T</b> shopping ⇄ to-do list<br>Middle-click Fumu: open the app. Double-click the bar: back to Fumu.<br>Right-click Fumu for size, position and more.';
+    row.appendChild(t);
+    optionsList.insertBefore(row, optionsList.children[2] || null);
+  })();
+
   // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------
   var deskPrefs = { roam: true, remind: true };
   if (D.getPrefs) D.getPrefs().then(function (p) { if (p) deskPrefs = p; });

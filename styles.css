@@ -2820,3 +2820,8 @@ html.desktop-pet .dream-dot.d2 { left: -12px; top: 54px; }
 .inbox-actions .inbox-done { margin-left: auto; }
 .stage:has(.inbox-card) .bubble { display: none; }
 html.desktop-pet .stage .inbox-card { top: auto; bottom: calc(100% + 1px); }
+
+/* the Background picker in the Room sheet, under the furniture */
+.room-bg { margin-top: 12px; }
+.room-bg-title { display: block; }
+.desk-keys b { font-weight: 800; white-space: nowrap; }
