@@ -178,6 +178,10 @@ function start() {
     }
     sendPrefs(); refreshMenus();
   }
+  function updateStatus() {
+    const u = updateState;
+    return u.state === 'checking' ? 'Checking…' : u.state === 'downloading' ? 'Downloading' + (u.percent ? ' (' + u.percent + '%)' : '…') : u.state === 'ready' ? 'An update is ready' : u.state === 'none' ? 'Up to date ✓' : u.state === 'error' ? 'Could not check' : app.isPackaged ? 'Not checked yet' : 'Running from source';
+  }
   function updateLabel() {
     const u = updateState;
     return u.state === 'checking' ? 'Checking for updates…' : u.state === 'downloading' ? 'Downloading an update' + (u.percent ? ' (' + u.percent + '%)' : '…') : u.state === 'ready' ? 'An update is ready' : u.state === 'none' ? 'Fumufumu is up to date ✓ (check again)' : u.state === 'error' ? 'Could not check (try again)' : 'Check for app updates';
@@ -199,11 +203,13 @@ function start() {
       { label: 'Start with Windows', type: 'checkbox', checked: app.getLoginItemSettings().openAtLogin, click: (item) => setPref('startWithWindows', item.checked) },
       { type: 'separator' },
       { label: 'More settings…', accelerator: prefs.keys.options || undefined, registerAccelerator: false, click: () => panel.open() },
-      ...(CHANNEL.name === 'stable' ? [   // the stable channel is for friends: updating is in the normal menu, not only in the developer tools
-        { label: updateLabel(), enabled: app.isPackaged && !['checking', 'downloading', 'ready'].includes(updateState.state), click: () => checkUpdates() },
-        ...(updateReady ? [{ label: 'Restart to update Fumufumu', click: () => autoUpdater && autoUpdater.quitAndInstall() }] : []),
+      // every step of updating is here: look for an update, (it downloads by itself), restart to install it, and reload the page
+      { label: updateReady ? 'Updates (ready ✓)' : 'Updates', submenu: [
+        { label: updateStatus(), enabled: false },
+        { label: 'Check for updates', enabled: app.isPackaged && !['checking', 'downloading', 'ready'].includes(updateState.state), click: () => checkUpdates() },
+        { label: 'Restart to update', enabled: updateReady, click: () => autoUpdater && autoUpdater.quitAndInstall() },
         { label: 'Reload (get the latest page)', click: () => win && win.webContents.reloadIgnoringCache() }
-      ] : []),
+      ] },
       { label: 'Fumufumu ' + app.getVersion() + (CHANNEL.name === 'stable' ? ' (stable)' : ''), enabled: false },
       { label: 'Quit Fumufumu', click: () => app.quit() }
     ]);

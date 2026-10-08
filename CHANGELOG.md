@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 279 (8 Oct)
+- Desktop: every step of updating is in the right-click Updates menu (check, restart, reload).
+- Desktop: the sitting feet are a little bigger.
+
 ## Build 278 (8 Oct)
 - Desktop: the quick-add box stays open for more items; close it with the cross, Esc or by clicking away.
 - Desktop: a switch for speech bubbles in the small window.
