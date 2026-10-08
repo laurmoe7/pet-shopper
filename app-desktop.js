@@ -805,8 +805,8 @@
       var r = el.getBoundingClientRect();
       if (r.width < 1 || r.height < 1 || getComputedStyle(el).display === 'none') continue;
       out.push([Math.round(r.left), Math.round(r.top), Math.round(r.right), Math.round(r.bottom)]);
-      if (el === pet && stage.classList.contains('bedtime')) {   // the bed under him is part of him too (there is no cushion in the small window; see #pet::after in styles.css)
-        var bed = true, w = bed ? 250 : 164, h = bed ? 52 : 44, cx = (r.left + r.right) / 2;
+      if (el === pet) {   // the cushion (or bed) under him is part of him too (see #pet::after in styles.css)
+        var bed = stage.classList.contains('bedtime'), w = bed ? 250 : 164, h = bed ? 52 : 44, cx = (r.left + r.right) / 2;
         out.push([Math.round(cx - w / 2), Math.round(r.bottom + 12 - h), Math.round(cx + w / 2), Math.round(r.bottom + 12)]);
       }
     }

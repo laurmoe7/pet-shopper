@@ -111,7 +111,7 @@ var nightLightOn = false;
 try { nightLightOn = localStorage.getItem(NIGHT_LIGHT_KEY) === '1'; } catch (e) { /* storage blocked */ }
 function showNightLight() {
   var bed = stage.classList.contains('bedtime');   // (the switch belongs to the room: it is there whenever the bed is out)
-  nightBtn.hidden = !bed || document.documentElement.classList.contains('desktop-pet');   // (in the small desktop window the switch is in his ring menu, app-ring.js)
+  nightBtn.hidden = !bed;
   nightBtn.setAttribute('aria-pressed', nightLightOn ? 'true' : 'false');
   nightBtn.setAttribute('aria-label', 'Night light');
   stage.classList.toggle('night-light', bed && nightLightOn);
@@ -216,11 +216,11 @@ function bellRing() {
   setTimeout(function () { bell.classList.remove('putaway'); showScene(); }, 450);
   showScene();
 }
-/** Back to bed: tucked in and asleep (the small window has no lamp), saying one of the lines. */
-function bellToBed(lines) {
+/** Back to bed (the small window has no lamp), saying one of the lines: tucked in and asleep, or (notTucked) only in bed, waiting to be tucked in. */
+function bellToBed(lines, notTucked) {
   setBellAwake(false);
   refreshBedtime();
-  var bed = bedtime(); bed.dark = true; bed.tucked = true; saveBedtime(bed);
+  var bed = bedtime(); bed.dark = true; bed.tucked = !notTucked; saveBedtime(bed);
   refreshBedtime();
   say(pick(lines), 2000);
   showScene();

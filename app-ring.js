@@ -1,6 +1,6 @@
 // The ring menu: in the small desktop window, rest the pointer on him and a ring of little buttons opens above him (play ball, pat, a snack,
 // a dance, swap the list, and at night the lights or the night light). It lives in his own window, so it never has to fit round the edge of the
-// screen. What it offers follows his scene (petScene): asleep in bed he only has the night light; drowsy at night he can be put to bed.
+// screen. What it offers follows his scene (petScene): nothing while he is in bed; drowsy at night he can be sent to bed (then you tuck him in).
 // Plain script, shares one scope, loaded after app-night.js.
 'use strict';
 
@@ -36,7 +36,7 @@
     say(pick(['hi hi!', 'hello~', 'hi! ♡']), 1400);
     setTimeout(function () { busy--; if (!busy) settle(); }, 1500);
   }
-  function ringSleep() { bellToBed(['lights off… night night', '*yawn* sleepy… night night ♡', 'night night…']); }
+  function ringSleep() { bellToBed(['lights off… so sleepy…', '*yawn* bed time…', 'to bed we go…'], true); }   // (he only gets into bed: you still tuck him in)
 
   /** Everything the ring can offer. `on` is for switches. */
   var ITEMS = {
@@ -46,13 +46,12 @@
     dance: { icon: '🎉', label: 'Dance', run: ringDance },
     wave: { icon: '👋', label: 'Wave', run: ringWave },
     swap: { icon: '📝', label: 'Swap list', run: function () { if (typeof switchList === 'function') switchList(); } },
-    lights: { icon: '💡', label: 'Lights off', run: ringSleep },
-    night: { icon: '🌙', label: 'Night light', keep: true, on: function () { return nightLightOn; }, run: function () { toggleNightLight(); } }
+    lights: { icon: '💡', label: 'Lights off', run: ringSleep }
   };
   /** @returns {string[]} The buttons for the scene he is in now. */
   function items() {
     var scene = petScene();
-    if (scene === 'night-bed') return ['night'];
+    if (scene === 'night-bed') return [];   // asleep in bed: nothing to play (the night light is on the bed)
     if (scene.indexOf('night-drowsy') === 0) return ['ball', 'pat', 'snack', 'dance', 'swap', 'lights'];
     return ['ball', 'pat', 'snack', 'dance', 'swap', 'wave'];
   }
@@ -86,7 +85,7 @@
     });
   }
   function show() {
-    if (shown || !canShow()) return;
+    if (shown || !canShow() || !items().length) return;
     build();
     ring.hidden = false; shown = true;
   }

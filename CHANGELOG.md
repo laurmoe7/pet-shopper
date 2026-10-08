@@ -2,8 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
-## Build 330
-- The small desktop window no longer has the cushion (it is for the whole app); the setting is gone.
+## Build 331
+- Lights off only gets him into bed: you still tuck him in.
+- The night light is a little lamp on his bed, not a floating moon (the glow is the same).
+- The cushion is back in the small window (its setting too).
 
 ## Build 329
 - If the window he sits on is moved, he falls off, bounces once on the ground and runs back.
