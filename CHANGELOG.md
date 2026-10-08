@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 340
+- Alert cards can be swiped away.
+- Every pair of shoes has a sole view for when he sits with his feet showing.
+
 ## Build 339
 - Settings window: the "Move him" pad is gone; "His place" has a "Put him back" button for when he is stuck off screen.
 

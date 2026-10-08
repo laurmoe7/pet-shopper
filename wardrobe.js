@@ -693,4 +693,62 @@ function boa() {
     return m[1] + '<g class="shoe-l">' + sides.l + '</g><g class="shoe-r">' + sides.r + '</g></g>';
   }
   root.Wardrobe.forEach(function (w) { if (w.slot === 'feet') w.svg = splitShoes(w.svg); });
+
+  /**
+   * The same shoes seen from underneath, for the sitting pose (his soles show). Each draws one shoe around 0,0, toe up, about as big as
+   * his own soles (17 x 19); `w.sole` holds the pair, placed where the soles are and tilted like them (styles.css shows it when seated).
+   */
+  var SOLES = {
+    boots: function () {
+      var cuff = '';
+      [-5, 0, 5].forEach(function (c) { cuff += '<circle cx="' + c + '" cy="-8.6" r="2.6"/>'; });
+      return '<g class="ss-cuff">' + cuff + '</g>' +
+        '<ellipse class="ss-boot" cx="0" cy="0" rx="8.3" ry="9.2"/><ellipse class="ss-boot-in" cx="0" cy="-.4" rx="5.6" ry="6.4"/>' +
+        '<path class="ss-tread" d="M-3.4 -3.6 H3.4 M-4 -.6 H4 M-3.4 2.4 H3.4"/><path class="ss-tread" d="M-5 5.6 Q0 7.6 5 5.6"/>';
+    },
+    featherslides: function () {
+      var puff = '';
+      [[-5.6, -6.8, 3.2], [-2, -8.4, 3.4], [2, -8.4, 3.4], [5.6, -6.8, 3.2], [0, -5.6, 3.2]].forEach(function (c) { puff += '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="' + c[2] + '"/>'; });
+      return '<ellipse class="slide-sole" cx="0" cy="0" rx="8.3" ry="9.2"/>' +
+        '<path class="ss-gold-in" d="M-4.8 1 Q0 5.6 4.8 1"/>' +
+        '<g class="boa-edge">' + puff + '</g><g class="boa-puff">' + puff + '</g>' +
+        '<path class="slide-gem" d="M0 2.6 l2.4 2.4 l-2.4 2.6 l-2.4 -2.6 Z"/>';
+    },
+    bunnyslippers: function () {
+      var fluff = '';
+      for (var i = 0; i < 14; i++) {
+        var a = i * Math.PI * 2 / 14;
+        fluff += '<circle cx="' + (Math.cos(a) * 7.4).toFixed(1) + '" cy="' + (Math.sin(a) * 8.3).toFixed(1) + '" r="2.3"/>';
+      }
+      return '<path class="bunny-ear" d="M-5.4 -7 C-8.6 -13 -4.4 -15 -2.8 -12.6 C-2 -11 -2 -8.6 -2 -7 Z"/>' +
+        '<path class="bunny-ear" d="M5.4 -7 C8.6 -13 4.4 -15 2.8 -12.6 C2 -11 2 -8.6 2 -7 Z"/>' +
+        '<g class="bunny-fluff-edge">' + fluff + '</g><ellipse class="bunny-fluff" cx="0" cy="0" rx="7.4" ry="8.3"/><g class="bunny-fluff">' + fluff + '</g>' +
+        '<ellipse class="bunny-nose" cx="0" cy="2.6" rx="3.4" ry="2.8"/>' +
+        '<ellipse class="bunny-nose" cx="-4" cy="-2.2" rx="1.3" ry="1.7"/><ellipse class="bunny-nose" cx="-1.4" cy="-4.4" rx="1.3" ry="1.7"/>' +
+        '<ellipse class="bunny-nose" cx="1.4" cy="-4.4" rx="1.3" ry="1.7"/><ellipse class="bunny-nose" cx="4" cy="-2.2" rx="1.3" ry="1.7"/>';
+    },
+    cowboyboots: function () {
+      return '<path class="cb-foot" d="M0 -10.6 C5.2 -8.2 7.2 -3 5.2 1 C4.2 3 6.2 4.6 6.2 7.6 Q0 9.8 -6.2 7.6 C-6.2 4.6 -4.2 3 -5.2 1 C-7.2 -3 -5.2 -8.2 0 -10.6 Z"/>' +
+        '<path class="cb-stitch" d="M0 -8 C3.4 -6 4.6 -3 3.2 0 M0 -8 C-3.4 -6 -4.6 -3 -3.2 0"/>' +
+        '<rect class="cb-heel" x="-5" y="3.2" width="10" height="5.4" rx="1.6"/>' +
+        '<path class="ss-tread" d="M-3 5.9 H3"/>';
+    },
+    clogs: function () {
+      return '<ellipse class="clog" cx="0" cy="0" rx="8.2" ry="9.3"/>' +
+        '<path class="clog-grain" d="M-4.6 -4 q2 -1.4 4.4 0 M1 -1 q2 -1.2 4 0 M-3.6 1.4 q2 -1.2 4 0"/>' +
+        '<path class="clog-sole" d="M-5.2 3.2 H5.2 Q6.4 6.4 4.6 8.2 Q0 9.4 -4.6 8.2 Q-6.4 6.4 -5.2 3.2 Z"/>' +
+        '<path class="clog-heart" d="M0 -5.2 c-.8 -1.4 -3 -.6 -2 .9 l2 2 l2 -2 c1 -1.5 -1.2 -2.3 -2 -.9z"/>';
+    },
+    clownshoes: function () {
+      return '<ellipse class="clown-shoe" cx="0" cy="0" rx="10.8" ry="11"/><ellipse class="clown-sole" cx="0" cy="0.4" rx="9" ry="9.4"/>' +
+        '<circle class="clown-dot" cx="-3.6" cy="-3.4" r="1.9"/><circle class="clown-dot" cx="3.8" cy="-1.4" r="1.7"/><circle class="clown-dot" cx="-1" cy="4.4" r="1.9"/>' +
+        '<circle class="clown-pom" cx="0" cy="-10.6" r="2.4"/>';
+    }
+  };
+  root.Wardrobe.forEach(function (w) {
+    if (w.slot !== 'feet' || !SOLES[w.id]) return;
+    w.sole = [54, 106].map(function (x, i) {
+      return '<g transform="translate(' + x + ' 137.5) rotate(' + (i ? 12 : -12) + ')">' + SOLES[w.id]() + '</g>';
+    }).join('');
+  });
 })(typeof self !== 'undefined' ? self : globalThis);

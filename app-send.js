@@ -200,6 +200,41 @@ function showInboxCard(msg, more) {
   stageEl.appendChild(card);
   inboxCard = card;
 }
+/** Swipe an alert card sideways to dismiss it (the same as its cross). Any .inbox-card with a cross button; not the quick-add box. */
+(function () {
+  var drag = null;
+  document.addEventListener('pointerdown', function (e) {
+    var card = e.target.closest && e.target.closest('.inbox-card');
+    if (!card || card.classList.contains('quick-card') || e.target.closest('button, input, textarea') || e.button > 0) return;
+    if (!card.querySelector('.inbox-done')) return;
+    drag = { card: card, id: e.pointerId, x: e.clientX, dx: 0, t: Date.now() };
+    card.style.touchAction = 'pan-y';
+    try { card.setPointerCapture(e.pointerId); } catch (err) { /* gone */ }
+  });
+  document.addEventListener('pointermove', function (e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    drag.dx = e.clientX - drag.x;
+    drag.card.style.translate = drag.dx + 'px 0';
+    drag.card.style.opacity = String(Math.max(.3, 1 - Math.abs(drag.dx) / 260));
+  });
+  function end(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    var d = drag, fast = Math.abs(d.dx) / Math.max(1, Date.now() - d.t) > .5;
+    drag = null;
+    if (Math.abs(d.dx) < 70 && !(fast && Math.abs(d.dx) > 30)) {   // not far enough: it springs back
+      d.card.style.transition = 'translate .18s, opacity .18s';
+      d.card.style.translate = ''; d.card.style.opacity = '';
+      setTimeout(function () { d.card.style.transition = ''; }, 200);
+      return;
+    }
+    var done = d.card.querySelector('.inbox-done');
+    d.card.style.transition = 'translate .18s ease-in, opacity .18s';
+    d.card.style.translate = (d.dx < 0 ? -1 : 1) * 320 + 'px 0'; d.card.style.opacity = '0';
+    setTimeout(function () { if (d.card.parentNode && done) done.click(); }, 170);
+  }
+  document.addEventListener('pointerup', end);
+  document.addEventListener('pointercancel', end);
+})();
 /** Takes the card away and tells the server it was read, so it is not shown again. */
 function finishInboxCard(msg) {
   if (inboxCard) { inboxCard.remove(); inboxCard = null; }
