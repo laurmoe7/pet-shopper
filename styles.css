@@ -2910,6 +2910,11 @@ html.desk-moving :is(.dream, .wish), .stage:has(.pet.walking) :is(.dream, .wish)
 @keyframes flap-r { from { transform: rotate(-10deg); } to { transform: rotate(-125deg); } }
 .pet:is(.carried, .falling) .arm-l { animation: flap-l .17s ease-in-out infinite alternate; }
 .pet:is(.carried, .falling) .arm-r { animation: flap-r .17s ease-in-out infinite alternate .085s; }
+/* holding his toy while carried: both arms hug it (app-toy.js toyCarry) and only jiggle a little */
+.pet.carried.holds-toy .arm-l { animation: hold-l .17s ease-in-out infinite alternate; }
+.pet.carried.holds-toy .arm-r { animation: hold-r .17s ease-in-out infinite alternate .085s; }
+@keyframes hold-l { from { transform: translate(18px, 9px) rotate(-86deg); } to { transform: translate(19px, 12px) rotate(-82deg); } }
+@keyframes hold-r { from { transform: translate(-18px, 9px) rotate(86deg); } to { transform: translate(-19px, 12px) rotate(82deg); } }
 @media (prefers-reduced-motion: reduce) { .pet:is(.carried, .falling) .arm-l, .pet:is(.carried, .falling) .arm-r { animation: none; } }
 
 /* Claude's alert: he flicks a cartoon magic wand (app-send.js castWand) */

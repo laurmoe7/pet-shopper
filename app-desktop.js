@@ -115,6 +115,10 @@
       if (dir !== carryDir) { carryDir = dir; if (dir) lookToward(dir); else stopLook(); }
       drawBody(1 - stretch * .75 - wob, 1 + stretch + wob, Math.sin(t * 7) * 1.5);
       if (svg) svg.style.rotate = Math.max(-16, Math.min(16, carryV.x * 1.1)).toFixed(1) + 'deg';   // leans the way he is taken
+      if (typeof toyCarried !== 'undefined' && toyCarried) {   // the toy is in his arms: it sways and bobs with him
+        toyEl.style.translate = (walkX - carryV.x * .7 * .5 + Math.sin(t * 9) * 3).toFixed(1) + 'px 0';
+        toyBall.style.transform = 'translateY(' + (-14 + Math.sin(t * 13) * 2).toFixed(1) + 'px)';
+      }
       if (svg) svg.style.translate = Math.max(-14, Math.min(14, -carryV.x * .7 + Math.sin(t * 9) * 3)).toFixed(1) + 'px 0';
       requestAnimationFrame(frame);
     })(performance.now());
@@ -247,6 +251,7 @@
   window.deskToyField = function () {
     if (deskPrefs.toyRoam !== true || deskPrefs.hideToy || !isPet() || !D.toyField || !D.toyShow || toyField) return;
     var token = ++fieldToken;
+    if (homeX === null && D.where) D.where().then(function (x) { if (homeX === null && x !== null) homeX = x; });
     Promise.all([D.toyField(), toyPicture()]).then(function (r) {
       var f = r[0], png = r[1];
       if (!f || !png || token !== fieldToken || !playing || toyField) return;
@@ -265,6 +270,7 @@
     });
   };
   /** The toy came down far from him: the window runs along the floor towards it. @param {number} dx Page px. @returns {Promise<number>} Page px really moved. */
+  var homeX = null;     // where his window stood when the toy was picked up (screen px)
   var fieldMoved = 0;   // how far (screen px) his window ran after the toy, so he can run back
   /** Runs his window along the floor by dx page px over ms; keeps the toy's screen-wide field in step. @returns {Promise<number>} Page px really moved. */
   function runWindow(dx, ms) {
@@ -280,16 +286,21 @@
   }
   window.deskToyChase = function (dx) { return runWindow(dx, Math.min(3500, 500 + Math.abs(dx) * 5)); };
   window.deskToyFollow = function (dx) { return runWindow(dx, 450); };
-  /** After the game: he runs back to where he stood when the toy was thrown. */
+  /** After the game: he runs back to where he stood when the toy was thrown. @returns {Promise<void>} Resolves when he is there. */
   window.deskToyReturn = function () {
-    if (!fieldMoved || !D.walk) return;
-    var back = -fieldMoved; fieldMoved = 0;
-    var z = fieldZoom || 1, wasRoaming = roaming;
-    roaming = true;
-    pet.classList.add('walking'); lookToward(back);
-    D.walk(back, Math.min(3500, 600 + Math.abs(back) * 2)).then(function () {}, function () {}).then(function () {
-      pet.classList.remove('walking'); stopLook(); roaming = wasRoaming;
-    });
+    var home = homeX, moved = fieldMoved;
+    homeX = null; fieldMoved = 0;
+    if (!D.walk || (home === null && !moved)) return Promise.resolve();
+    var wasRoaming = roaming;
+    // the exact spot he started from (the shell's own count of his moves misses a run that was cut short by the next one)
+    return (home !== null && D.where ? D.where().then(function (x) { return x === null ? -moved : home - x; }) : Promise.resolve(-moved)).then(function (back) {
+      if (Math.abs(back) < 4) return;
+      roaming = true;
+      pet.classList.add('walking'); lookToward(back);
+      return D.walk(back, Math.min(3500, 600 + Math.abs(back) * 2)).then(function () {}, function () {}).then(function () {
+        pet.classList.remove('walking'); stopLook(); roaming = wasRoaming;
+      });
+    }).catch(function () { roaming = wasRoaming; });
   };
 
   /** A card (so it shows even with speech bubbles off) saying an update is ready, with Restart and a cross for later. */

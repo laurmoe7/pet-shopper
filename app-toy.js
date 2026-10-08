@@ -74,13 +74,14 @@ function toyCarry(on) {
   if (on) {
     if (!toyFree()) return;
     toyCarried = true;
-    toyHold(26, 30 * (parseFloat(getComputedStyle(stage).getPropertyValue('--pet-size')) || 1) + 10, 220);
+    pet.classList.add('holds-toy');   // both arms hug it instead of flapping (styles.css)
+    toyHold(14, walkX, 220);
   } else if (toyCarried) {
     toyCarried = false;
-    var from = toyX;
-    toyX = from;   // it falls from his hands onto the floor beside him
+    pet.classList.remove('holds-toy');
+    toyEl.style.translate = Math.round(toyX) + 'px 0';
     toyBall.style.transform = '';
-    toyBounce(toyHome(), 600, 10, 26);
+    toyBounce(toyHome(), 600, 10, 14);   // it falls from his arms onto the floor beside him
   }
 }
 /** @returns {number} How far up the pet's mouth is from the floor, in px. */
@@ -174,12 +175,19 @@ function batAbout(side) {
     }).then(function () { pet.classList.remove('running'); });
   });
 }
+/** With the toy in his mouth or arms (h px up) he carries it back to where he stood when it was thrown (the desktop app; the window runs). */
+function carryBack(h) {
+  toyHold(h, walkX, 150);
+  if (typeof deskToyReturn !== 'function') return Promise.resolve();
+  pet.classList.add('running');
+  return deskToyReturn().then(function () { pet.classList.remove('running'); });
+}
 /** Picks the toy up in its mouth, trots back to the middle and drops it there for another throw. */
 function fetchBack() {
   sound('squeak');
   setFace({ eyes: 'happy', mouth: 'o', arms: 'idle', x: ['cheeks'] });
   toyHold(mouthHeight(), walkX);
-  return wait(350).then(function () {
+  return wait(350).then(function () { return carryBack(mouthHeight()); }).then(function () {
     var ms = walkTo(0, 12);
     toyHold(mouthHeight(), walkX, ms || 200);
     return wait(ms + 100);
@@ -194,8 +202,11 @@ function fetchBack() {
 /** Hugs the toy for a moment, then lets it roll off a little. */
 function hugToy() {
   sound('squeak');
-  setFace({ eyes: 'happy', mouth: 'open', arms: 'rub', x: ['cheeks', 'hearts'] });
   toyHold(14, walkX);
+  return carryBack(14).then(hugIt);
+}
+function hugIt() {
+  setFace({ eyes: 'happy', mouth: 'open', arms: 'rub', x: ['cheeks', 'hearts'] });
   pulse('pat', 1300);
   drift(['♥', '♡'], petTop(), 3);
   talk('toyGot', ['got it!', 'mine! ♡', 'caught it!', 'hehe, gotcha!'], 1400);
@@ -330,11 +341,13 @@ function fling(vx, vy, y) {
   // if the chase drags on he jumps at the toy and gets it
   var leapAfter = wide ? 6500 : 3200;
   function leap() {
-    var px0 = parseFloat(getComputedStyle(pet).translate) || 0, fx = x, fy = y, t0 = performance.now();
+    var px0 = parseFloat(getComputedStyle(pet).translate) || 0, fx = x, fy = y, t0 = performance.now(), svg = pet.querySelector('.pet-svg');
+    // he springs up off the floor as the toy swings in to him in an arc, and catches it at the top
+    if (svg && svg.animate) svg.animate([{ translate: '0 0' }, { translate: '0 -6px', offset: .15 }, { translate: '0 -38px', offset: .7 }, { translate: '0 0' }], { duration: 760, easing: 'ease-out' });
     pulse('hop', 500);
     (function fly(n) {
-      var u = Math.min(1, (n - t0) / 260);
-      placeToy(fx + (px0 - fx) * u, fy + (catchAt - fy) * u, spin);
+      var u = Math.min(1, (n - t0) / 600), e = u * u * (3 - 2 * u);
+      placeToy(fx + (px0 - fx) * e, fy + (catchAt + 14 - fy) * e + 34 * 4 * u * (1 - u), spin + u * 200);
       if (u < 1) flight = requestAnimationFrame(fly); else if (frog) caught(px0, catchAt); else caught();
     })(t0);
   }

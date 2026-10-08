@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 306 (9 Oct)
+- The toy chase ends with a real jump and the toy swings in to him.
+- He carries the toy back to where he started, and always gets there.
+- Carried: he hugs his toy in both arms.
+
 ## Build 305 (9 Oct)
 - Carried: his body leans the way he is taken.
 - A long toy chase ends with a jump and a catch.

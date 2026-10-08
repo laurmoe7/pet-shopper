@@ -430,6 +430,8 @@ function start() {
     restHere();
   });
   ipcMain.handle('desk:getPrefs', () => publicPrefs());
+  // where the window is now (the page notes his spot before the toy takes him away, to come back to it exactly)
+  ipcMain.handle('desk:where', () => (win && !win.isDestroyed() ? win.getBounds().x : null));
   // Fumu walks along where he sits: the page plays the walking, the window glides
   ipcMain.handle('desk:walk', async (_e, dx, ms) => {
     if (!win || mode !== 'pet' || dragFrom || peekRest) return 0;
