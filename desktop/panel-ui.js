@@ -28,7 +28,7 @@
       var upd = section('Updates'), us = S.updateState || { state: 'idle' };
       var said = us.state === 'checking' ? 'Checking for updates…' : us.state === 'downloading' ? 'Downloading an update' + (us.percent ? ' (' + us.percent + '%)' : '…') : us.state === 'ready' ? 'An update is ready. Restart Fumufumu to get it.' : us.state === 'none' ? 'Fumufumu is up to date.' : us.state === 'error' ? 'Could not check for updates (are you online?).' : 'Fumufumu updates itself in the background.';
       var urow = el('div', 'row'), utext = el('span', 'text', said);
-      utext.appendChild(el('small', '', 'The app itself (' + nm() + ', the list, how he looks) loads fresh every time you start him. The program around him updates a few times a day and installs when you quit.'));
+      utext.appendChild(el('small', '', 'Updates install when you quit.'));
       urow.appendChild(utext); upd.appendChild(urow);
       var ubtns = el('div', 'btns');
       if (S.update) button(ubtns, 'Restart to update', act('installUpdate'));
@@ -56,11 +56,11 @@
         S.privacy.chatLevels.forEach(function (l) { var b = button(seg2, l.label, function () { P.set(pref, l.id).then(take); }); if (S.prefs[pref] === l.id) b.className = 'on'; });
         row.append(text, seg2); priv.appendChild(row);
       }
-      chatRow('Remarks about what I am doing', 'Now and then he comments on the program you are using ("are you drawing?"). "Never" stops them; nothing else he says changes.', 'chatNormal');
-      chatRow('…while a game or something full-screen is in front', 'A cheer when a game starts, a line now and then while you play, and "good game" after. "Never" stops all of those.', 'chatFull');
+      chatRow('Remarks about what I am doing', 'Like "are you drawing?"', 'chatNormal');
+      chatRow('…in a game or full-screen', 'Cheers, lines while you play, "good game".', 'chatFull');
       var seeRow = el('div', 'row note'), seeText = el('span', 'text', 'Right now he sees: …'); seeText.id = 'progHint';
       seeRow.appendChild(seeText); priv.appendChild(seeRow);
-      var teach = el('div', 'row note'), teachText = el('span', 'text', 'Teach him a game'), tsmall = el('small', '', 'Switch to the game, come back here, then type its name (for the WoW Forever beta: "WoW Forever beta"). He learns the last program he could not name.');
+      var teach = el('div', 'row note'), teachText = el('span', 'text', 'Teach him a game'), tsmall = el('small', '', 'Switch to the game, come back, type its name.');
       tsmall.id = 'teachHint'; teachText.appendChild(tsmall);
       var tin = el('input'); tin.type = 'text'; tin.maxLength = 40; tin.placeholder = 'Name of the game'; tin.id = 'teachName'; tin.style.cssText = 'font:inherit;font-size:.85rem;padding:3px 8px;border:1.8px solid var(--outline);border-radius:10px;background:var(--surface);color:var(--ink);width:150px';
       var tgo = button(teach, 'Teach him', function () { if (!tin.value.trim()) return; P.action('teachGame', tin.value.trim()).then(function (ok) { document.getElementById('teachHint').textContent = ok ? 'Learned. Next time he will cheer for it.' : 'He has not seen an unknown program yet.'; tin.value = ''; }); });
@@ -72,8 +72,8 @@
     var seg = el('span', 'seg');
     [['small', 'Small'], ['normal', 'Normal'], ['large', 'Large']].forEach(function (o) { var b = button(seg, o[1], function () { P.set('size', o[0]).then(take); }); if (S.prefs.size === o[0]) b.className = 'on'; });
     sizeRow.appendChild(seg); look.appendChild(sizeRow);
-    toggle(look, 'Hide his toy', 'hideToy', 'The ball (or yarn) beside him.');
-    toggle(look, 'Hide the cushion under him', 'hideCushion', 'He sits on nothing. At bedtime his bed still shows.');
+    toggle(look, 'Hide his toy', 'hideToy');
+    toggle(look, 'Hide the cushion under him', 'hideCushion', 'His bed still shows at bedtime.');
 
     var does = section('What he does on his own');
     // how much he talks on his own: his idle chatter, daydreams, asking for things. Reminders, greetings and answers to you are never held back.
@@ -83,23 +83,23 @@
       S.privacy.chatLevels.forEach(function (l) { var b = button(seg3, l.label, function () { P.set(pref, l.id).then(take); }); if (S.prefs[pref] === l.id) b.className = 'on'; });
       row.append(text, seg3); does.appendChild(row);
     }
-    talkRow('How much he chats on his own', 'His little remarks, daydreams and asking for things. Reminders, hellos and what he says back to you are never held back.', 'talkNormal');
-    talkRow('…while a game or something full-screen is in front', 'Needs Normal awareness (he has to know that something is full-screen).', 'talkFull');
-    toggle(does, 'Wanders, peeks and naps', 'roam', 'Every few minutes, only when nothing is open.');
-    toggle(does, 'Naps when I am away', 'idle', 'After about 4 minutes without keyboard or mouse, or when the screen is locked. Says hello when you are back.');
+    talkRow('How much he chats on his own', 'Reminders and replies are never held back.', 'talkNormal');
+    talkRow('…in a game or full-screen', 'Needs Normal awareness.', 'talkFull');
+    toggle(does, 'Wanders, peeks and naps', 'roam');
+    toggle(does, 'Naps when I am away', 'idle', 'After 4 idle minutes or a locked screen.');
     if (S.canPerch && cur === 1) {
-      var offRow = el('div', 'row off'); var offText = el('span', 'text', 'Sits on my windows'); offText.appendChild(el('small', '', 'Off while awareness is on More privacy: he cannot see your windows.')); offRow.appendChild(offText); does.appendChild(offRow);
+      var offRow = el('div', 'row off'); var offText = el('span', 'text', 'Sits on my windows'); offText.appendChild(el('small', '', 'Needs Normal awareness.')); offRow.appendChild(offText); does.appendChild(offRow);
     } else if (S.canPerch) {
-      toggle(does, 'Sits on my windows', 'perch', 'Every minute or two he hops onto the top edge of another window, sits there with his feet out, and rides along if you move it. He only looks at where windows are, never at their titles.');
-      if (S.prefs.perch) { var hint = el('small', '', 'Looking for windows…'); hint.id = 'perchHint'; does.lastChild.querySelector('.text').appendChild(hint); }
+      toggle(does, 'Sits on my windows', 'perch', 'Hops onto other windows. He never sees their titles.');
+      if (S.prefs.perch) { var hint = el('small', '', 'Looking…'); hint.id = 'perchHint'; does.lastChild.querySelector('.text').appendChild(hint); }
     }
-    toggle(does, 'Reminds me of tasks', 'remind', 'A card by him when a task\'s time comes.');
-    toggle(does, 'Stands in place', 'standStill', 'No wandering, peeking or hopping onto windows. He can still nap and talk.');
-    toggle(does, 'Stands in place while a game or something full-screen is in front', 'standStillFull', 'Needs Normal awareness: he has to know that a game or a full-screen program is in front.', { disabled: cur === 1 });
+    toggle(does, 'Reminds me of tasks', 'remind');
+    toggle(does, 'Stands in place', 'standStill', 'No wandering, peeking or hopping.');
+    toggle(does, 'Stands in place in a game or full-screen', 'standStillFull', 'Needs Normal awareness.', { disabled: cur === 1 });
 
     var win = section('His window');
     toggle(win, 'Always on top', 'onTop');
-    toggle(win, 'Stay above full-screen apps', 'aboveFull', 'Not games in exclusive full-screen.', { disabled: !S.prefs.onTop });
+    toggle(win, 'Stay above full-screen apps', 'aboveFull', 'Not exclusive full-screen games.', { disabled: !S.prefs.onTop });
     toggle(win, 'Start with Windows', 'startWithWindows');
     var pos = el('div', 'row'); pos.appendChild(el('span', 'text', 'Move him'));
     var pad = el('span', 'pad');
@@ -110,12 +110,12 @@
     pos.appendChild(pad); win.appendChild(pos);
 
     var keys = section('Shortcuts');
-    toggle(keys, 'Shortcuts on', 'hotkeys', 'Works from any program.');
+    toggle(keys, 'Shortcuts on', 'hotkeys');
     S.keyList.forEach(function (k) {
       var row = el('div', 'row' + (S.prefs.hotkeys ? '' : ' off')), text = el('span', 'text', k.label.replace('{name}', nm()));
       var held = S.held[k.id], accel = S.keys[k.id];
-      if (S.prefs.hotkeys && accel && !k.hover && !held) text.appendChild(el('small', '', 'Another program is using these keys. Pick others.'));
-      if (k.hover && accel) text.appendChild(el('small', '', 'Hold the pointer over ' + nm() + ', then press the keys. Also in the right-click menu.'));
+      if (S.prefs.hotkeys && accel && !k.hover && !held) text.appendChild(el('small', '', 'Another program uses these keys.'));
+      if (k.hover && accel) text.appendChild(el('small', '', 'Point at ' + nm() + ' and press.'));
       var cap = capture === k.id, kbd = el('kbd', accel && !cap ? '' : 'off', cap ? 'press the keys…' : accel ? accel.replace('CommandOrControl', 'Ctrl') : 'off');
       row.append(text, kbd);
       var change = button(row, cap ? 'Cancel' : 'Change', function () { capture = cap ? null : k.id; note = ''; render(); });
@@ -144,7 +144,7 @@
     button(tools, 'Open DevTools', act('devtools'));
     button(tools, 'Open the settings folder', act('openData'));
     button(tools, 'Copy diagnostics', act('copyDiag'));
-    button(tools, 'Reset all these settings', function () { if (window.confirm('Put every setting here back to how it was at the start? (Your list and ' + nm() + ' stay as they are.)')) P.action('resetSettings').then(function () { return P.get(); }).then(take); }, 'warn');
+    button(tools, 'Reset all these settings', function () { if (window.confirm('Reset all these settings?')) P.action('resetSettings').then(function () { return P.get(); }).then(take); }, 'warn');
     dev.appendChild(tools);
     var d = el('details'); d.open = devOpen;
     d.appendChild(el('summary', '', 'What the shell sees right now'));
@@ -173,7 +173,7 @@
     P.diag().then(function (x) {
       if (!x || !document.getElementById('perchHint')) return;
       var n = x.perchesNow;
-      document.getElementById('perchHint').textContent = n === null ? '' : n ? 'Right now he could sit on ' + n + ' window edge' + (n > 1 ? 's' : '') + '.' : 'No window has room above it right now (a maximized window has none).';
+      document.getElementById('perchHint').textContent = n === null ? '' : n ? 'Could sit on ' + n + ' window edge' + (n > 1 ? 's' : '') + ' now.' : 'No window has room above it.';
     });
   }, 2000);
 

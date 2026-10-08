@@ -130,7 +130,7 @@
     row.innerHTML = '<span class="option-title">Shortcuts on this PC</span>';
     var t = document.createElement('span');
     t.className = 'option-text desk-keys';
-    t.innerHTML = '<b>Ctrl+Alt+F</b> small <span class="pet-name">Fumu</span> ⇄ whole app<br><b>Ctrl+Alt+T</b> shopping ⇄ to-do list<br><b>Ctrl+Alt+A</b> add an item from any program<br><b>Ctrl+Alt+O</b> more settings (with the pointer over him)<br>Middle-click <span class="pet-name">Fumu</span>: open the app. Double-click the bar: back to Fumu.<br>Right-click Fumu for the everyday choices. Keys can be changed in the settings.';
+    t.innerHTML = 'Right-click <span class="pet-name">Fumu</span> and choose More settings to see and change the keys.';
     row.appendChild(t);
     optionsList.insertBefore(row, optionsList.children[2] || null);
   })();

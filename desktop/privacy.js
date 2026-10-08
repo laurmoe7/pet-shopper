@@ -6,15 +6,15 @@
 var LEVELS = {
   1: {
     title: 'More privacy',
-    text: 'He only knows whether you are at the keyboard (busy or quiet), the time of day and how long you have worked without a break. He cannot tell which programs or windows you have open, and he comments much less on what you are doing. Sitting on your windows is off.'
+    text: 'Only knows if you are at the keyboard, and the time of day. Cannot see your windows or programs.'
   },
   2: {
     title: 'Normal',
-    text: 'Adds the outline of your desktop: where your windows are (so he can sit on them), which program is in front (its name, matched against a short list of games and common apps; anything else is just "something else") and whether it fills the screen. So he can tell when you are playing a game, and he stays quiet then.'
+    text: 'Also knows where your windows are and which program is in front (by name, from a short list). Quiet while you play.'
   }
 };
 /** Said under both levels. */
-var ALWAYS = 'At either level he never reads window titles, tab names, page text or your screen, and nothing about what you do leaves this PC.';
+var ALWAYS = 'He never reads window titles, tabs, page text or your screen. Nothing leaves this PC.';
 
 /** What each thing needs: the lowest level that allows it. */
 var NEEDS = { idle: 1, perch: 2, program: 2 };

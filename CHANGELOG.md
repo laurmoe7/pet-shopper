@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 277 (8 Oct)
+- Desktop: shorter descriptions in the settings window and Options.
+
 ## Build 275 (8 Oct)
 - Desktop: right-click and settings use the name you gave him ("Hide Mochi"), and the app name where it is about the app.
 - Desktop: size and wandering moved out of the right-click menu (they stay in settings).
