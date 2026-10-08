@@ -2027,12 +2027,19 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 .pet.sit :is(.foot-r, .shoe-r) { animation: sit-r 2.6s ease-in-out; }
 @media (prefers-reduced-motion: reduce) { .foot-side, .shoe-l, .shoe-r { animation: none !important; } }
 /* sitting for a while (on a window edge on the desktop; app-desktop.js adds .seated): he sinks a little, his feet come out in front, tilted
-   so the soles show: cat toe beans, a pig's split hooves, a pigeon's pink toes. Only the cat, pig and pigeon have it so far. */
-.sole-part, .sole-paw, .sole-hoof, .sole-bird { display: none; }
-.pet.seated:not(.walking, .shod):is([data-species="kitty"], [data-species="pig"], [data-species="birdie"]) .sole-part { display: inline; }
-.pet.seated:not(.walking, .shod)[data-species="kitty"] .sole-paw,
-.pet.seated:not(.walking, .shod)[data-species="pig"] .sole-hoof,
-.pet.seated:not(.walking, .shod)[data-species="birdie"] .sole-bird { display: inline; }
+   so the soles show: toe beans, split hooves, pigeon toes, frog toes. Every species has a pair. */
+.sole-part, .sole-paw, .sole-hoof, .sole-bird, .sole-frog { display: none; }
+.pet.seated:not(.walking, .shod) .sole-part { display: inline; }
+.pet.seated:not(.walking, .shod):is([data-species="kitty"], [data-species="puppy"], [data-species="bunny"], [data-species="hamster"], [data-species="hedgehog"], [data-species="mouse"], [data-species="dragon"], [data-species="mochi"], [data-species="monkey"]) .sole-paw,
+.pet.seated:not(.walking, .shod):is([data-species="pig"], [data-species="cow"]) .sole-hoof,
+.pet.seated:not(.walking, .shod)[data-species="birdie"] .sole-bird,
+.pet.seated:not(.walking, .shod):is([data-species="frog"], [data-species="axolotl"]) .sole-frog { display: inline; }
+.sole-frog-base { fill: var(--pet-skin-shade); stroke: var(--pet-ink); stroke-width: 2.2; }
+.sole-frog-toe { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 1.6; }
+.pet[data-species="cow"] .sole-hoof-base { fill: #6f5c5c; }
+.pet[data-species="cow"] .sole-hoof-toe { fill: #8a7474; }
+.pet[data-species="mochi"] { --sole-bean: #ffc4cf; }
+.pet[data-species="monkey"] { --sole-bean: #d9a08c; }
 .pet.seated:not(.walking, .shod):is([data-species="kitty"], [data-species="pig"], [data-species="birdie"]) :is(.foot, .paw-feet, .hoof-feet, .bird-feet) { display: none; }
 .pet.seated:not(.walking):is([data-species="kitty"], [data-species="pig"], [data-species="birdie"]) .pet-svg { translate: 0 3px; overflow: visible; }
 .sole-base { fill: var(--pet-skin-shade); stroke: var(--pet-ink); stroke-width: 2.2; }
@@ -2872,3 +2879,6 @@ html.desktop-pet .quick-card input { user-select: text; -webkit-user-select: tex
 .room-bg { margin-top: 12px; }
 .room-bg-title { display: block; }
 .desk-keys b { font-weight: 800; white-space: nowrap; }
+
+/* thought clouds hide while he moves about quickly (carried, strolling, gliding along the screen) */
+html.desk-moving :is(.dream, .wish), .stage:has(.pet.walking) :is(.dream, .wish) { visibility: hidden; }

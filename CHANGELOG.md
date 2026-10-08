@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 280 (8 Oct)
+- Sitting feet for every pet.
+- Thought clouds hide while he is carried or walking.
+
 ## Build 279 (8 Oct)
 - Desktop: every step of updating is in the right-click Updates menu (check, restart, reload).
 - Desktop: the sitting feet are a little bigger.

@@ -258,13 +258,16 @@ test('the shell decides from the page\'s rectangles whether the pointer is on so
   assert.equal(P.hitTest([], 25, 25, 6), false);
 });
 
-test('the sitting soles are drawn once for each foot, in front of the body, and only some species show them', () => {
+test('the sitting soles are drawn once for each foot, in front of the body, and every species shows a pair', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
   assert.equal((html.match(/class="sole-part"/g) || []).length, 2);
   assert.ok(html.indexOf('class="soles"') > html.indexOf('class="foot-side foot-r"'));
   assert.ok(html.indexOf('class="soles"') < html.indexOf('class="arm arm-l"'));
   const css = fs.readFileSync(path.join(__dirname, '..', 'styles.css'), 'utf8');
-  assert.match(css, /\.pet\.seated:not\(\.walking, \.shod\):is\(\[data-species="kitty"\], \[data-species="pig"\], \[data-species="birdie"\]\) \.sole-part/);
+  assert.match(css, /\.pet\.seated:not\(\.walking, \.shod\) \.sole-part \{ display: inline; \}/);
+  const shown = css.split('\n').filter((l) => /^\.pet\.seated:not\(\.walking, \.shod\)/.test(l) && /\.sole-(paw|hoof|bird|frog)/.test(l)).join(' ');
+  const species = ['birdie', 'kitty', 'puppy', 'mochi', 'pig', 'bunny', 'cow', 'hamster', 'mouse', 'monkey', 'dragon', 'frog', 'hedgehog', 'axolotl'];
+  species.forEach((sp) => assert.ok(shown.includes('data-species="' + sp + '"'), sp));
 });
 
 test('the installed program follows dev unless its package.json says stable', () => {

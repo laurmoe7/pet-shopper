@@ -229,6 +229,10 @@
       !(typeof napping !== 'undefined' && napping) && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') &&
       !document.querySelector('dialog[open], .inbox-card') && bubble.hidden && suggestEl.hidden;
   }
+  // thought clouds (daydream, wish) stay hidden while he is carried, strolling or gliding: they would trail behind
+  setInterval(function () {
+    document.documentElement.classList.toggle('desk-moving', !!(carried || roaming || pet.classList.contains('walking')));
+  }, 120);
   function lookToward(dir) { pet.style.setProperty('--look-x', (dir > 0 ? 3.2 : -3.2) + 'px'); }
   function stopLook() { pet.style.removeProperty('--look-x'); }
   /** A stroll along where he sits: the window glides, the feet go. */
