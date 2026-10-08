@@ -403,6 +403,15 @@
       tone(t, 0.2, 'sine', 960, 1700, env(t, 0.03, 0.16, 0.04));
     },
     // ---- menu sounds: each is a list of variants ----
+    // Claude's alert: a different little jingle each time
+    claude: [
+      function (t) { chime(t, [988, 1319], 0.12, 0.85, 'sine'); chime(t + 0.34, [1568], 0.1, 0.5, 'sine'); },
+      function (t) { chime(t, [523, 659, 784], 0.1, 0.8, 'sine'); chime(t + 0.42, [1047], 0.1, 1, 'triangle'); },
+      function (t) { chime(t, [1319, 1760, 1568, 2093], 0.08, 0.6, 'triangle'); },
+      function (t) { chime(t, [1175], 0.1, 0.9, 'sine'); chime(t + 0.24, [880], 0.1, 0.8, 'sine'); chime(t + 0.5, [1568], 0.1, 0.5, 'sine'); },
+      function (t) { chime(t, [523, 659, 784, 1047, 1319, 1568, 2093], 0.055, 0.6, 'sine'); },
+      function (t) { chime(t, [988, 988, 1319], 0.11, 0.7, 'sine'); chime(t + 0.5, [1760, 2349], 0.07, 0.45, 'triangle'); }
+    ],
     tap: [
       function (t) { tone(t, 0.06, 'sine', rnd(650, 760), 1150, env(t, 0.003, 0.06, 0.22)); },
       function (t) { tone(t, 0.08, 'triangle', 560, 380, env(t, 0.004, 0.08, 0.2)); },

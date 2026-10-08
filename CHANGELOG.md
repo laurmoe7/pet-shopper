@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 342
+- Claude alert: the jingle played up to three times, now once; six jingles, a random one each time.
+- Sitting with shoes on: his own feet are hidden, and the shoe soles are 10% bigger.
+
 ## Build 341
 - Ring menu: at the screen side the buttons fan out beside him, none overlap.
 

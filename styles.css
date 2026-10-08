@@ -2046,7 +2046,7 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 .pet.seated:not(.walking) .pet-svg { translate: 0 3px; overflow: visible; }
 .outfit-soles { display: none; }
 .pet.seated.shod:not(.walking) .outfit-soles { display: inline; animation: sole-plop .5s ease-out; }
-.pet.seated.shod:not(.walking) .outfit-feet { display: none; }
+.pet.seated.shod:not(.walking) :is(.outfit-feet, .soles, .foot, .paw-feet, .hoof-feet, .bird-feet, .frog-feet, .monkey-feet) { display: none !important; }
 .ss-boot { fill: #8a5f47; stroke: var(--pet-ink); stroke-width: 1.8; }
 .ss-boot-in { fill: #c08a62; stroke: none; }
 .ss-cuff circle { fill: #fff6ea; stroke: var(--pet-ink); stroke-width: 1.3; }
