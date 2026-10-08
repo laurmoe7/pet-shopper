@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 259 (18 Oct)
+- Desktop Fumu: no snack clouds, daydreams beside his head, speech bubble a little lower.
+- Links and notes between devices are checked every 10 seconds.
+
 ## Build 258 (18 Oct)
 - "Send to another device": phone to PC and PC to phone; only the other device shows it.
 - Sending and receiving links is faster.

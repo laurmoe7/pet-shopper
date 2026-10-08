@@ -2790,7 +2790,7 @@ html.desktop-pet .app { max-width: none; min-height: 0; height: 100vh; display: 
 html.desktop-pet .scene { position: static; padding: 0; background: none !important; }
 html.desktop-pet .scene::after { display: none; }
 html.desktop-pet .stage { width: 100vw; }   /* the stage keeps its own height at the bottom; the free room above is for the speech bubble */
-html.desktop-pet .stage .bubble { left: 0 !important; right: 0 !important; top: auto !important; bottom: calc(100% - 10px); margin: 0 auto; max-width: calc(100vw - 24px) !important; transform-origin: 50% 100% !important; }
+html.desktop-pet .stage .bubble { left: 0 !important; right: 0 !important; top: auto !important; bottom: calc(100% - 24px); margin: 0 auto; max-width: calc(100vw - 24px) !important; transform-origin: 50% 100% !important; }
 html.desktop-list #deskBar { display: flex; }
 #deskBar { display: none; position: fixed; top: 0; left: 0; right: 0; height: 34px; z-index: 50; align-items: center; gap: 8px; padding: 0 8px 0 14px;
   background: var(--surface); color: var(--ink); border-bottom: 1.5px dashed var(--cb-edge, var(--outline)); -webkit-app-region: drag; user-select: none; font-weight: 800; font-size: .85rem; }
@@ -2801,7 +2801,10 @@ html.desktop-list .scene { top: 34px; }
 /* the cushion (or the bed at night) is part of him: an invisible area under him catches clicks, so they don't pass through to the desktop */
 html.desktop-pet #pet::after { content: ""; position: absolute; left: calc(50% - 82px); width: 164px; bottom: -12px; height: 44px; border-radius: 22px; }
 html.desktop-pet .stage.bedtime #pet::after { left: calc(50% - 125px); width: 250px; height: 52px; }
-html.desktop-pet .stage:has(.bubble:not([hidden])) .dream { visibility: hidden; }   /* a thought and a speech bubble at once would overlap */
+/* a daydream sits beside his head, not above it, so it never meets the speech bubble; its little dots lead back to him */
+html.desktop-pet .dream { left: calc(50% + 66px + var(--walk-x, 0px)); top: 34px; }
+html.desktop-pet .dream-dot.d1 { left: -4px; top: 44px; }
+html.desktop-pet .dream-dot.d2 { left: -12px; top: 54px; }
 
 /* ---------- Send to my PC (app-send.js) ---------- */
 .send-sheet textarea { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1.5px solid var(--outline); border-radius: 12px; background: var(--surface); color: var(--ink); font: inherit; font-size: .95rem; resize: none; margin: 8px 0 2px; }

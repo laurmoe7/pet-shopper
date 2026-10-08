@@ -5,7 +5,7 @@
 'use strict';
 
 var sendSheet = $('sendSheet'), sendText = $('sendText'), sendMsg = $('sendMsg'), sendGo = $('sendGo'), sendReceive = $('sendReceive');
-var INBOX_POLL_MS = 5000, RECEIVE_KEY = 'nibble.receive';
+var INBOX_POLL_MS = 10000, RECEIVE_KEY = 'nibble.receive';
 var deskShell = window.nibbleDesktop || null;   // the desktop app (desktop/): it always receives
 
 function sendSay(text) { sendMsg.textContent = text || ''; }
