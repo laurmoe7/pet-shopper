@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 300 (9 Oct)
+- Claude's "replied" alert: no Copy button, nudges gently.
+- Cards and bubbles keep a margin from the screen edge.
+
 ## Build 299 (9 Oct)
 - Fixed Ctrl+Alt+S sending "[object Promise]" instead of the copied text.
 

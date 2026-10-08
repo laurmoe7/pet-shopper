@@ -328,6 +328,11 @@ function start() {
       if (h > l) { lo = Math.min(lo, l); hi = Math.max(hi, h); }
     });
     if (lo === Infinity) { lo = 0; hi = b.width; }
+    // right at the edge of the screen a card or bubble would touch it and look cut off: keep a margin there
+    const EDGE = 16, left = Math.min.apply(null, screen.getAllDisplays().filter((d) => cy >= d.bounds.y && cy < d.bounds.y + d.bounds.height).map((d) => d.bounds.x).concat([Infinity]));
+    const right = Math.max.apply(null, screen.getAllDisplays().filter((d) => cy >= d.bounds.y && cy < d.bounds.y + d.bounds.height).map((d) => d.bounds.x + d.bounds.width).concat([-Infinity]));
+    if (b.x - left < EDGE) lo = Math.max(lo, EDGE - (b.x - left));
+    if (right - (b.x + b.width) < EDGE) hi = Math.min(hi, b.width - (EDGE - (right - (b.x + b.width))));
     const msg = Math.round(lo / z) + ',' + Math.round(hi / z);
     if (msg !== visibleSent) { visibleSent = msg; win.webContents.send('desk:visible', Math.round(lo / z), Math.round(hi / z)); }
   }, 150);

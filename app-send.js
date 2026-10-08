@@ -149,7 +149,7 @@ var inboxCard = null;
 function showInboxCard(msg, more) {
   var pv = Send.preview(msg), stageEl = document.querySelector('.stage');
   var card = document.createElement('div');
-  card.className = 'inbox-card';
+  card.className = 'inbox-card' + (msg.from === 'claude' ? ' claude-card' : '');   // (Claude's "replied" note: no Copy, and it nudges now and then)
   card.setAttribute('role', 'status');
   var img = emojiImg(pv.icon, '');
   img.className = 'inbox-icon';
@@ -171,7 +171,7 @@ function showInboxCard(msg, more) {
     if (deskShell && deskShell.open) deskShell.open(msg.text); else window.open(msg.text, '_blank', 'noopener');
     finishInboxCard(msg);
   });
-  button('Copy', function (b) {
+  if (msg.from !== 'claude') button('Copy', function (b) {
     if (deskShell && deskShell.copy) deskShell.copy(msg.text); else if (navigator.clipboard) navigator.clipboard.writeText(msg.text).catch(function () { /* blocked */ });
     b.textContent = 'Copied ✓';
   });
