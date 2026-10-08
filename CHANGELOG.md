@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 354
+- He remarks about the game you are playing more often, with more lines.
+
 ## Build 353
 - The bed settles back softly after a throw.
 - Fewer server requests: while you are away from the computer he checks for messages once a minute.

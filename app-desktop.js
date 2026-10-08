@@ -793,7 +793,7 @@
   };
   var GAME_START = ['ooh, {name}! have fun~', '{name} time! good luck!', "go get 'em in {name}!", "{name}! I'll be quiet ♡"];
   var GAME_END = ['good game~', 'how was {name}?', 'welcome back from {name}!'];
-  var GAME_DURING = ['you can do it!', "don't die!", 'I believe in you ♡', 'focus focus~', 'snack break soon?'];
+  var GAME_DURING = ['you can do it!', "don't die!", 'I believe in you ♡', 'focus focus~', 'snack break soon?', 'wow, you are so good at {name}!', 'careful careful…', 'drink some water~', 'sit up straight!', 'I am watching quietly ♡', 'ooh, what was that?', 'one more round?'];
   // Lines for particular games, to be filled in (any list can stay empty: he then uses the ones above). The key is the game's name as the list
   // in desktop/programs.js (or a game you taught him) spells it, in any case and ignoring spaces and punctuation. start: when it begins;
   // during: now and then while you play; end: when you stop after a while. {name} is replaced by the name.
@@ -832,7 +832,7 @@
   /** Whether a 0..1 chance (already scaled by how often he is allowed to talk) comes up. */
   function chance(p) { return Math.random() < Math.min(1, p); }
   var duringTimer = 0;
-  // while a game is in front he says something about it now and then (every 5 to 9 minutes at Normal), only if comments there are not on Never
+  // while a game is in front he says something about it now and then (every 2.5 to 5 minutes at Normal), only if comments there are not on Never
   function scheduleDuring() {
     clearTimeout(duringTimer);
     var rate = chatRate(true);
@@ -842,7 +842,7 @@
         whenFree(function () { return program.kind === 'game' && program.name === name; }, function () { remark(pick(linesFor(name, 'during')), name); });
       }
       if (program.kind === 'game') scheduleDuring();
-    }, (rate > 0 ? (8 + Math.random() * 7) * 60000 / rate : 120000));
+    }, (rate > 0 ? (4 + Math.random() * 4) * 60000 / rate : 120000));
   }
   var whileTimer = 0;
   // staying in the same kind of program he says something about it now and then too (every 5 to 9 minutes at Normal)
