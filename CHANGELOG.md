@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 341
+- Ring menu: at the screen side the buttons fan out beside him, none overlap.
+
 ## Build 340
 - Alert cards can be swiped away.
 - Every pair of shoes has a sole view for when he sits with his feet showing.
