@@ -405,7 +405,7 @@
 
   // thrown (the shell flies his window about): he spins round and is dizzy, and every hit on an edge or the floor goes "boing"
   var headDown = false;
-  if (D.onThrown) D.onThrown(function (on, dir, bed, extra) {
+  function pageThrown(on, dir, bed, extra) {
     extra = extra || {};
     pet.classList.toggle('thrown', !!on && !bed);
     stage.classList.toggle('flying', !!on);
@@ -427,18 +427,20 @@
       setTimeout(function () { stage.classList.remove('bed-settle'); }, 800);
     }
     stage.classList.toggle('bed-thrown', !!on && !!bed);
-  });
+  }
+  if (D.onThrown) D.onThrown(pageThrown);
   // in bed the bed always leads: it turns to face the way he is flying, so it is the bed that hits the wall, the ceiling or the floor
   if (D.onFlight) D.onFlight(function (vx, vy) {
     if (Math.hypot(vx, vy) < 120) { stage.style.setProperty('--bed-turn', '0deg'); return; }   // on the ground: flat
     stage.style.setProperty('--bed-turn', (Math.atan2(-vx, vy) * 180 / Math.PI).toFixed(0) + 'deg');
   });
-  if (D.onBounce) D.onBounce(function (hard) {
+  function pageBounce(hard) {
     if (headDown) { headDown = false; pet.classList.remove('thrown'); pet.classList.add('head-down'); }   // he stops spinning on his head
     if (stage.classList.contains('bed-thrown')) { if (typeof sound === 'function') { sound('bounce'); sound('bedbell'); } return; }   // in his bed: the bounce and the faint bell in the bed
     if (typeof sound === 'function') sound('bounce');
     if (typeof pulse === 'function' && !carried) pulse(hard > .5 ? 'hop' : 'hopsmall', 400);
-  });
+  }
+  if (D.onBounce) D.onBounce(pageBounce);
 
   /** A card (so it shows even with speech bubbles off) saying an update is ready, with Restart and a cross for later. */
   function showUpdateCard() {
@@ -1064,6 +1066,13 @@
     link: function () { return devAlert('link'); },
     update: function () { showUpdateCard(); return 'Update card.'; },
     ring: function () { return window.deskRing && window.deskRing() ? 'Ring menu open.' : 'Not now.'; },
+    headfall: function () {   // the page side of being knocked off a window and landing on his head (the window itself does not move)
+      if (!isPet() || stage.classList.contains('bedtime')) return 'Not while he is in bed.';
+      pageThrown(true, 1, false, { head: true });
+      setTimeout(function () { pageBounce(0.8); }, 600);
+      setTimeout(function () { pageThrown(false, 0, false, { ouch: true, head: true }); }, 900);
+      return 'He lands on his head.';
+    },
     bellring: function () { if (!bellOut()) return 'The bell is only out while he is in bed.'; bellRing(); return 'Ding.'; },
     bellbreak: function () { if (!bellOut()) return 'The bell is only out while he is in bed.'; bellBreak(); return 'Smash.'; },
     nightlight: function () { toggleNightLight(); return 'Night light ' + (nightLightOn ? 'on' : 'off') + '.'; },

@@ -3040,9 +3040,9 @@ html.desktop-pet .night-btn { display: none !important; }   /* in the small wind
 @media (prefers-reduced-motion: reduce) { .ring-btn { animation: none; } }
 
 /* landed on his head after a fall (app-desktop.js): upside down for a moment, then he rights himself */
-.pet.head-down .pet-svg { rotate: 180deg; translate: 0 36px; }
-.pet.righting .pet-svg { animation: right-up .4s cubic-bezier(.3, 1.5, .5, 1); }
-@keyframes right-up { from { rotate: 180deg; translate: 0 36px; } to { rotate: 360deg; translate: 0 0; } }
+.pet.head-down .pet-svg { rotate: 180deg; translate: 0 10px; scale: .92; }   /* (the window ends 10 px below him: any lower and his head is cut off) */
+.pet.righting .pet-svg { animation: right-up .45s cubic-bezier(.3, 1.2, .5, 1); }
+@keyframes right-up { from { rotate: 180deg; translate: 0 10px; scale: .92; } 55% { translate: 0 -8px; scale: 1; } to { rotate: 360deg; translate: 0 0; scale: 1; } }
 
 /* newer body moves (build 354): tilts and turns of the drawing are fine now, so these rotate and scale it */
 @keyframes tilt { 0%, 100% { transform: rotate(0deg); } 22%, 62% { transform: rotate(-13deg) translate(-2px, 1px); } 80% { transform: rotate(6deg); } }

@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 359
+- Landing on his head no longer cuts him off at the bottom.
+- Developer tool to try the head landing.
+
 ## Build 358
 - A little hop when he jumps down from a window.
 - The bell and ball stay visible when grabbed with the room background on.
