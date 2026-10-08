@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 263 (8 Oct)
+- Desktop: the toy no longer gets stuck in the air when dragged fast over a window behind him.
+- Desktop: picking up and throwing the toy is smoother.
+
 ## Build 262 (8 Oct)
 - Desktop: Ctrl+Alt+A opens a box by Fumu to add an item from any program.
 - Desktop: Fumu naps when you are away or the screen is locked, and says hello when you are back.

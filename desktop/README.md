@@ -40,7 +40,7 @@ also offers it). It works both ways, phone to PC and PC to phone, and only the o
 - **Task reminders:** when a task's time comes, Fumu pops up (even if hidden) with a card: **Done ✓** (when the to-do list is showing), **In 10 min** or ✕. The page asks `window.deskRemind` from `timeCheck`.
 - **On his own:** every 4 to 9 minutes (the first after 1.5 to 4) he may stroll along where he sits (the shell glides the window, `walk`), peek round the nearest screen side that has no other monitor beside it (`peek`, back with `unpeek` or a tap) or take a nap (`napNow` in `app-idle.js`, ends with a stretch; a tap wakes him). Not while a sheet, card or bubble is up, at bedtime or asleep. Switch it off in the menu.
 - **Tray icon** (by the clock): click to hide or show him.
-- Clicks pass through the empty part of his window to whatever is underneath; only Fumu himself catches them. The shell also watches the pointer itself (about 25 times a second) because Windows can stop forwarding it to the page after the window changes size.
+- Clicks pass through the empty part of his window to whatever is underneath; only Fumu himself catches them. The shell also watches the pointer itself (about 60 times a second) because Windows can stop forwarding it to the page after the window changes size.
 - Quiet by default: sounds start switched off (Options → Quiet mode).
 - Tapping a gift or opening any sheet switches to the bigger window; **Back to Fumu** returns.
 

@@ -209,6 +209,7 @@ toyEl.addEventListener('pointerdown', function (e) {
 });
 toyEl.addEventListener('pointermove', function (e) {
   if (!held) return;
+  if (e.buttons === 0 && e.pointerType === 'mouse') { letGoToy(); return; }   // the button is already up: let go
   if (!held.moved) {
     if (Math.hypot(e.clientX - held.x0, e.clientY - held.y0) < 8) return;
     held.moved = true;
@@ -261,6 +262,8 @@ function letGoToy() {
 }
 toyEl.addEventListener('pointerup', letGoToy);
 toyEl.addEventListener('pointercancel', letGoToy);
+toyEl.addEventListener('lostpointercapture', letGoToy);
+window.addEventListener('blur', letGoToy);   // the release went elsewhere (another window): never leave it stuck in the air
 // which toy shows (yarn, tennis ball or ball) is set in styles.css by the species
 toyEl.addEventListener('click', function (e) {
   e.stopPropagation();

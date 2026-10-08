@@ -121,7 +121,7 @@ function start() {
       const inside = p.x >= b.x && p.x < b.x + b.width && p.y >= b.y && p.y < b.y + b.height;
       if (inside) { wasInside = true; win.webContents.send('desk:cursor', (p.x - b.x) / zoom(), (p.y - b.y) / zoom()); }
       else if (wasInside) { wasInside = false; win.webContents.send('desk:cursor', -1, -1); }
-    }, 40);
+    }, 16);
   }
   function showFumu() { if (win) { win.show(); if (mode === 'list') win.focus(); } refreshMenus(); }
   function hideFumu() { if (win) win.hide(); refreshMenus(); }

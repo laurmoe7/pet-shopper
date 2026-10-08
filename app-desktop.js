@@ -54,13 +54,30 @@
     var now = Date.now();
     if (yes !== lastSolid || now - lastSent > 800) { lastSolid = yes; lastSent = now; D.solid(yes); }
   }
+  // While a button is held that went down on him (or the toy), the window stays solid whatever is under the pointer: the toy trails behind
+  // a fast drag, and a window that turns click-through mid-drag sends the release to the program behind, leaving the toy stuck.
+  var pressing = false, lastPt = null;
+  function releasePress() {
+    if (!pressing) return;
+    pressing = false; lastSolid = null;
+    if (lastPt) hoverAt(lastPt.x, lastPt.y);
+  }
   function hoverAt(x, y) {
     if (!isPet()) return;
+    if (x >= 0) lastPt = { x: x, y: y };
+    if (pressing) { setSolid(true); return; }
     if (x < 0) { setSolid(false); return; }
     var el = document.elementFromPoint(x, y);
     setSolid(!!(el && el.closest && el.closest(SOLID)));
   }
-  document.addEventListener('mousemove', function (e) { hoverAt(e.clientX, e.clientY); }, true);
+  document.addEventListener('mousemove', function (e) {
+    if (pressing && e.buttons === 0) releasePress();   // the release was missed: don't stay solid for ever
+    hoverAt(e.clientX, e.clientY);
+  }, true);
+  document.addEventListener('pointerdown', function (e) { if (isPet() && e.button === 0) { pressing = true; setSolid(true); } }, true);
+  document.addEventListener('pointerup', releasePress, true);
+  document.addEventListener('pointercancel', releasePress, true);
+  window.addEventListener('blur', releasePress);
   // the shell also reports where the pointer is (Windows can stop forwarding it after a resize). An older shell has no such call, so ask first:
   // the page is loaded from the web and can be newer than the installed program
   if (D.onCursor) D.onCursor(hoverAt);

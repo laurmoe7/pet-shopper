@@ -10,7 +10,7 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   /** Switch between Fumu alone ('pet') and the whole app ('list'). */
   setMode: (mode) => ipcRenderer.send('desk:setMode', mode === 'list' ? 'list' : 'pet'),
   onMode: (fn) => ipcRenderer.on('desk:mode', (_e, mode) => fn(mode)),
-  /** Where the pointer is, in the window's own coordinates (-1, -1 when it is outside), about 25 times a second. */
+  /** Where the pointer is, in the window's own coordinates (-1, -1 when it is outside), about 60 times a second. */
   /** The window was just changed by the shell, so the page should say again whether clicks are caught. */
   onResync: (fn) => ipcRenderer.on('desk:resync', () => fn()),
   onCursor: (fn) => ipcRenderer.on('desk:cursor', (_e, x, y) => fn(x, y)),
