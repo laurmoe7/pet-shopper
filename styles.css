@@ -2914,6 +2914,11 @@ html.desk-moving :is(.dream, .wish), .stage:has(.pet.walking) :is(.dream, .wish)
 /* holding his toy while carried: both arms hug it (app-toy.js toyCarry) and only jiggle a little */
 .pet.carried.holds-toy .arm-l { animation: hold-l .17s ease-in-out infinite alternate; }
 .pet.carried.holds-toy .arm-r { animation: hold-r .17s ease-in-out infinite alternate .085s; }
+/* or in one hand held out to the side: that arm lifts and jiggles, the other flaps */
+.pet.carried.holds-toy-l .arm-l { animation: hand-l .17s ease-in-out infinite alternate; }
+.pet.carried.holds-toy-r .arm-r { animation: hand-r .17s ease-in-out infinite alternate; }
+@keyframes hand-l { from { transform: rotate(50deg); } to { transform: rotate(56deg); } }
+@keyframes hand-r { from { transform: rotate(-50deg); } to { transform: rotate(-56deg); } }
 @keyframes hold-l { from { transform: translate(18px, 9px) rotate(-86deg); } to { transform: translate(19px, 12px) rotate(-82deg); } }
 @keyframes hold-r { from { transform: translate(-18px, 9px) rotate(86deg); } to { transform: translate(-19px, 12px) rotate(82deg); } }
 @media (prefers-reduced-motion: reduce) { .pet:is(.carried, .falling) .arm-l, .pet:is(.carried, .falling) .arm-r { animation: none; } }

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 308 (9 Oct)
+- Carried: he holds his toy with both hands or just one, at random.
+
 ## Build 307 (9 Oct)
 - Developer tools: test Claude, note, link and task alerts (also in the desktop settings).
 - The wand is in his other hand.

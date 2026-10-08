@@ -116,8 +116,8 @@
       drawBody(1 - stretch * .75 - wob, 1 + stretch + wob, Math.sin(t * 7) * 1.5);
       if (svg) svg.style.rotate = Math.max(-16, Math.min(16, carryV.x * 1.1)).toFixed(1) + 'deg';   // leans the way he is taken
       if (typeof toyCarried !== 'undefined' && toyCarried) {   // the toy is in his arms: it sways and bobs with him
-        toyEl.style.translate = (walkX - carryV.x * .7 * .5 + Math.sin(t * 9) * 3).toFixed(1) + 'px 0';
-        toyBall.style.transform = 'translateY(' + (-14 + Math.sin(t * 13) * 2).toFixed(1) + 'px)';
+        toyEl.style.translate = (walkX + toyHoldX - carryV.x * .7 * .5 + Math.sin(t * 9) * 3).toFixed(1) + 'px 0';
+        toyBall.style.transform = 'translateY(' + (-toyHoldY + Math.sin(t * 13) * 2).toFixed(1) + 'px)';
       }
       if (svg) svg.style.translate = Math.max(-14, Math.min(14, -carryV.x * .7 + Math.sin(t * 9) * 3)).toFixed(1) + 'px 0';
       requestAnimationFrame(frame);

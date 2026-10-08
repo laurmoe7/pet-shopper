@@ -64,7 +64,7 @@ function toyHold(y, x, ms) {
   }
   toyBall.style.transform = to;
 }
-var toyCarried = false;
+var toyCarried = false, toyHoldX = 0, toyHoldY = 14;   // while carried: where in his arms it sits (px from him, px up)
 /** @returns {boolean} Whether the toy is out and free to be picked up (not put away, hidden, in a game or already held). */
 function toyFree() {
   return !playing && !held && !toyField && getComputedStyle(toyEl).display !== 'none' && !stage.classList.contains('bedtime');
@@ -74,11 +74,14 @@ function toyCarry(on) {
   if (on) {
     if (!toyFree()) return;
     toyCarried = true;
-    pet.classList.add('holds-toy');   // both arms hug it instead of flapping (styles.css)
-    toyHold(14, walkX, 220);
+    // now and then in both arms, now and then in one hand held out to the side (the other arm flaps as usual; styles.css)
+    var side = Math.random() < .5 ? 0 : (Math.random() < .5 ? -1 : 1), k = pet.offsetWidth / 160;
+    toyHoldX = side * 66 * k; toyHoldY = side ? 24 * k : 14;
+    pet.classList.add(side === 0 ? 'holds-toy' : side < 0 ? 'holds-toy-l' : 'holds-toy-r');
+    toyHold(toyHoldY, walkX + toyHoldX, 220);
   } else if (toyCarried) {
     toyCarried = false;
-    pet.classList.remove('holds-toy');
+    pet.classList.remove('holds-toy', 'holds-toy-l', 'holds-toy-r');
     toyEl.style.translate = Math.round(toyX) + 'px 0';
     toyBall.style.transform = '';
     toyBounce(toyHome(), 600, 10, 14);   // it falls from his arms onto the floor beside him
