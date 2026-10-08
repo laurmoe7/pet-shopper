@@ -2859,7 +2859,8 @@ html.desktop-pet .dream-dot.d2 { left: -12px; top: 54px; }
 .inbox-actions button:active { transform: translateY(2px); box-shadow: none; }
 .inbox-actions .inbox-done { margin-left: auto; }
 .stage:has(.inbox-card) .bubble { display: none; }
-html.desktop-pet .stage .inbox-card { top: auto; bottom: calc(100% + 1px); left: calc(var(--vis-l, 0px) + 8px); right: calc(100vw - var(--vis-r, 100vw) + 8px); }   /* (and only over the part of his window that is on a screen) */
+html.desktop-pet .stage .inbox-card { top: auto; bottom: calc(100% + 1px); }   /* normal size: if he is at the side of the screen his window slides onto it while the card shows (app-desktop.js) */
+html.desktop-pet.card-narrow .stage .inbox-card { left: calc(var(--vis-l, 0px) + 8px); right: calc(100vw - var(--vis-r, 100vw) + 8px); }   /* (only when it cannot slide: then it is as wide as the part of the window that shows) */
 /* choices from the settings window: no toy, no cushion under him (the bed at night stays) */
 html.desktop-pet.desk-notoy .toy { display: none !important; }
 html.desktop-pet.desk-nocushion .stage:not(.bedtime) .cushion { display: none; }
@@ -3026,3 +3027,8 @@ html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); scale: .7; t
 @keyframes ring-pop { from { opacity: 0; scale: .3; } to { opacity: 1; scale: 1; } }
 html.desktop-pet .night-btn { display: none !important; }   /* in the small window the night light switch is in his ring menu */
 @media (prefers-reduced-motion: reduce) { .ring-btn { animation: none; } }
+
+/* landed on his head after a fall (app-desktop.js): upside down for a moment, then he rights himself */
+.pet.head-down .pet-svg { rotate: 180deg; translate: 0 36px; }
+.pet.righting .pet-svg { animation: right-up .4s cubic-bezier(.3, 1.5, .5, 1); }
+@keyframes right-up { from { rotate: 180deg; translate: 0 36px; } to { rotate: 360deg; translate: 0 0; } }

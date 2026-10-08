@@ -2,6 +2,16 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 339
+- Settings window: the "Move him" pad is gone; "His place" has a "Put him back" button for when he is stuck off screen.
+
+## Build 338
+- Knocked off a window, he bounces a few times, sometimes spins and lands on his head, and says "Ow! I'm okay".
+
+## Build 337
+- The ring menu turns away from the side of the screen so every button shows.
+- Alerts keep their normal size at the side of the screen: his window slides onto the screen while the alert shows, then back.
+
 ## Build 336
 - The lamp in the whole app works again after the desktop bell has woken him.
 

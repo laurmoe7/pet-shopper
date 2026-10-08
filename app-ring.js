@@ -65,14 +65,35 @@
     var names = items(), n = names.length;
     var pr = pet.getBoundingClientRect(), sr = stage.getBoundingClientRect();
     center = { x: pr.left + pr.width / 2 - sr.left, y: pr.top + pr.height * 0.55 - sr.top, r: Math.max(86, pr.width * 0.62) };
-    var span = Math.min(150, (n - 1) * 32), start = -90 - span / 2;
-    ring.replaceChildren();
+    // the part of his window that is on a screen (the shell sends it; --vis-l / --vis-r): near the side of the screen the arc turns
+    // towards the middle of the screen so every button stays visible
+    var cs = getComputedStyle(document.documentElement), vl = parseFloat(cs.getPropertyValue('--vis-l')) || 0;
+    var vr = /vw/.test(cs.getPropertyValue('--vis-r')) || !cs.getPropertyValue('--vis-r') ? window.innerWidth : parseFloat(cs.getPropertyValue('--vis-r'));
+    var minX = vl - sr.left + 22, maxX = vr - sr.left - 22;
+    function okAt(a) { var x = center.x + Math.cos(a * Math.PI / 180) * center.r; return x >= minX && x <= maxX; }
+    var gap = n > 4 ? 30 : 34, span = (n - 1) * gap, start = -90 - span / 2;
+    if (n > 1) {
+      // slide the arc away from the edge until its two ends are on screen (between -176 and -4 degrees: above him, never below)
+      var best = null;
+      for (var off = 0; off <= 86 && best === null; off += 2) {
+        var tries = off === 0 ? [0] : [off, -off];
+        for (var t = 0; t < tries.length; t++) {
+          var s0 = -90 - span / 2 + tries[t];
+          if (s0 >= -176 && s0 + span <= -4 && okAt(s0) && okAt(s0 + span)) { best = s0; break; }
+        }
+      }
+      if (best === null) {   // not even a squeezed arc fits: bunch it up next to the edge it can use
+        gap = 24; span = (n - 1) * gap;
+        for (var a0 = -176; a0 + span <= -4 && best === null; a0 += 2) if (okAt(a0) && okAt(a0 + span)) best = a0;
+      }
+      if (best !== null) start = best;
+    } else if (!okAt(-38)) start = -142;   // a single button goes to the side with room
     names.forEach(function (name, i) {
       var it = ITEMS[name], b = document.createElement('button');
       b.type = 'button'; b.className = 'ring-btn'; b.setAttribute('role', 'menuitem'); b.title = it.label; b.setAttribute('aria-label', it.label);
       if (it.on) b.setAttribute('aria-pressed', it.on() ? 'true' : 'false');
-      var a = (n === 1 ? -38 : start + (span / (n - 1)) * i) * Math.PI / 180;
-      var x = Math.max(20, Math.min(sr.width - 20, center.x + Math.cos(a) * center.r)), y = Math.max(20, center.y + Math.sin(a) * center.r);
+      var a = (n === 1 ? (okAt(-38) ? -38 : -142) : start + gap * i) * Math.PI / 180;
+      var x = Math.max(minX, Math.min(maxX, center.x + Math.cos(a) * center.r)), y = Math.max(20, center.y + Math.sin(a) * center.r);
       b.style.left = (x - 17) + 'px'; b.style.top = (y - 17) + 'px'; b.style.setProperty('--i', i);
       b.appendChild(emojiImg(it.icon, ''));
       b.addEventListener('click', function (e) {

@@ -97,7 +97,7 @@ function start() {
     const all = frames(), r = all.find((f) => f.id === perch.id);
     const b = win.getBounds(), cx = b.x + b.width / 2;
     const seg = r && place.perches(all, areas(), petSize().height * 0.6).find((s) => s.id === perch.id && cx >= s.x1 - 30 && cx <= s.x2 + 30);
-    if (!seg) { fall(); return; }
+    if (!seg) { knockOff(); return; }   // the window closed or went away: he falls too
     // the window he sits on was moved: he does not ride along, he falls off, bounces once on the ground and runs back
     if (perch.last && (Math.abs(r.x - perch.last.x) > 2 || Math.abs(r.y - perch.last.y) > 2)) { knockOff(); return; }
     perch.last = { x: r.x, y: r.y };
@@ -110,7 +110,9 @@ function start() {
     leavePerch();
     if (!win || mode !== 'pet') return;
     const b = win.getBounds();
-    throwWindow(0, 0, home || b, false, { oneBounce: true, noSpin: true });
+    // he drops with a flap of arms, bounces a few times, and now and then spins round and lands on his head; "Ow! I'm okay"
+    const head = Math.random() < 0.4;
+    throwWindow(head ? (Math.random() < 0.5 ? 140 : -140) : 0, head ? -200 : 0, home || b, false, { maxBounces: 3, noSpin: !head, head, ouch: true });
   }
   async function fall() {
     const origin = perchOrigin;
@@ -147,7 +149,7 @@ function start() {
     const t0 = Date.now();
     let last = t0;
     if (!inBed) win.webContents.send('desk:fall', true);   // arms flap while he flies (asleep in bed he does not)
-    if (!opts.noSpin) win.webContents.send('desk:thrown', true, spinDir, inBed);   // and he spins round (in bed, the bed turns to face where it is going)
+    if (!opts.noSpin) win.webContents.send('desk:thrown', true, spinDir, inBed, { head: !!opts.head });   // and he spins round (in bed, the bed turns to face where it is going)
     let lastFlight = 0;
     const ok = await new Promise((resolve) => {
       const timer = setInterval(() => {
@@ -162,7 +164,7 @@ function start() {
         const wa = screen.getDisplayNearestPoint({ x: Math.round(x + b0.width / 2), y: Math.round(y + b0.height) }).workArea;
         const floorY = wa.y + wa.height - b0.height - place.MARGIN / 2;
         let rest = false;
-        if (y >= floorY) { y = floorY; if (Math.abs(vy) > 260 && !(opts.oneBounce && floorHits >= 1)) { floorHits++; hit = Math.max(hit, Math.abs(vy)); vy = -vy * FLOOR; } else { vy = 0; rest = true; } vx *= 0.85; }
+        if (y >= floorY) { y = floorY; if (Math.abs(vy) > 260 && !(opts.maxBounces && floorHits >= opts.maxBounces)) { floorHits++; hit = Math.max(hit, Math.abs(vy)); vy = -vy * FLOOR; } else { vy = 0; rest = true; } vx *= 0.85; }
         if (hit > 220 && now - lastHit > 90) { lastHit = now; win.webContents.send('desk:bounce', Math.min(1, hit / 2500)); }
         if (Math.abs(vx) > 60) spinDir = vx > 0 ? 1 : -1;
         if (inBed && now - lastFlight > 40) { lastFlight = now; win.webContents.send('desk:flight', vx, vy); }
@@ -171,7 +173,7 @@ function start() {
       }, 8);
       tween = { timer, done: resolve };
     });
-    if (win) { if (!inBed) win.webContents.send('desk:fall', false); if (!opts.noSpin) win.webContents.send('desk:thrown', false, 0, inBed); }
+    if (win) { if (!inBed) win.webContents.send('desk:fall', false); if (!opts.noSpin || opts.ouch) win.webContents.send('desk:thrown', false, 0, inBed, { ouch: !!opts.ouch, head: !!opts.head }); }
     if (!ok || !win) return;
     if (inBed) { restHere(); return; }   // in his bed he stays where he landed (he has bounced about on the floor already)
     const back = place.within(home, here()), cur = win.getBounds();
@@ -313,8 +315,6 @@ function start() {
     }
     sendPrefs(); refreshMenus();
   }
-  function nudgeBy(dx, dy) { if (win && mode === 'pet') { leavePerch(); stopTween(); peekRest = null; win.setBounds(place.nudge(win.getBounds(), dx, dy, here())); restHere(); } }
-  function toCorner(which) { if (win && mode === 'pet') { leavePerch(); stopTween(); peekRest = null; win.setBounds(place.corner(win.getBounds(), here(), which)); restHere(); } }
   // shortcuts that work from any program (which keys is chosen in the settings window); the settings one only while the pointer is over Fumu
   const registered = {};
   const hoverKeyOn = {};   // id -> accelerator, for the shortcuts held right now
@@ -515,7 +515,7 @@ function start() {
     let to = place.walkEnd(from, here(), want);
     if (perch) {   // along the edge he sits on, not past its ends
       const seg = perchesNow().find((s) => s.id === perch.id && from.x + from.width / 2 >= s.x1 - 30 && from.x + from.width / 2 <= s.x2 + 30);
-      if (!seg) { fall(); return 0; }
+      if (!seg) { knockOff(); return 0; }
       to = place.perchBounds({ x: from.x + want, y: from.y, width: from.width, height: from.height }, seg);
     }
     if (Math.abs(to.x - from.x) < 4) return 0;
@@ -666,8 +666,10 @@ function start() {
 
   // ---------- the settings window (panel-main.js, panel.html): the bigger menu, with the shortcuts and some developer tools ----------
   function resetPosition() {
-    if (!win || mode !== 'pet') return;
-    leavePerch(); stopTween(); peekRest = null;
+    if (!win) return;
+    if (mode !== 'pet') applyMode('pet');   // (from the whole app too)
+    if (!win.isVisible()) win.show();
+    leavePerch(); stopTween(); peekRest = null; dragFrom = null; clearInterval(dragTimer);
     win.setBounds(place.defaultBounds(screen.getPrimaryDisplay().workArea, petSize()));
     restHere();
   }
@@ -687,8 +689,6 @@ function start() {
       case 'reload': win.webContents.reloadIgnoringCache(); return true;
       case 'devtools': win.webContents.openDevTools({ mode: 'detach' }); return true;
       case 'do': if (['wander', 'peek', 'nap', 'perch', 'sit', 'remind', 'claude', 'note'].includes(arg)) { if (mode !== 'pet') applyMode('pet'); win.webContents.send('desk:do', arg); } return true;
-      case 'corner': if (['br', 'bl', 'tr', 'tl'].includes(arg)) toCorner(arg); return true;
-      case 'nudge': if (Array.isArray(arg)) nudgeBy(Math.max(-200, Math.min(200, +arg[0] || 0)), Math.max(-200, Math.min(200, +arg[1] || 0))); return true;
       case 'resetPosition': resetPosition(); return true;
       case 'teachGame': return teachGame(arg);
       case 'forgetGames': prefs.myGames = {}; savePrefs(); programSent = ''; programMaybe = ''; return true;

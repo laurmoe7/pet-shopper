@@ -124,13 +124,11 @@
     toggle(win, 'Always on top', 'onTop');
     toggle(win, 'Stay above full-screen apps', 'aboveFull', 'Not exclusive full-screen games.', { disabled: !S.prefs.onTop });
     toggle(win, 'Start with Windows', 'startWithWindows');
-    var pos = el('div', 'row'); pos.appendChild(el('span', 'text', 'Move him'));
-    var pad = el('span', 'pad');
-    [['↖', 'tl'], ['▲', null, [0, -20]], ['↗', 'tr'], ['◀', null, [-20, 0]], ['•', 'reset'], ['▶', null, [20, 0]], ['↙', 'bl'], ['▼', null, [0, 20]], ['↘', 'br']].forEach(function (b) {
-      var btn = button(pad, b[0], b[1] === 'reset' ? act('resetPosition') : b[1] ? act('corner', b[1]) : act('nudge', b[2]));
-      btn.title = b[1] === 'reset' ? 'Back to the bottom right' : b[1] ? 'To this corner' : 'Nudge';
-    });
-    pos.appendChild(pad); win.appendChild(pos);
+    var pos = el('div', 'row'), ptext = el('span', 'text', 'His place');
+    ptext.appendChild(el('small', '', 'If he gets stuck off the screen.'));
+    pos.appendChild(ptext);
+    button(pos, 'Put him back', act('resetPosition'));
+    win.appendChild(pos);
 
     var keys = section('Shortcuts');
     toggle(keys, 'Shortcuts on', 'hotkeys');

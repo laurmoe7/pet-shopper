@@ -343,14 +343,25 @@
   };
 
   // thrown (the shell flies his window about): he spins round and is dizzy, and every hit on an edge or the floor goes "boing"
-  if (D.onThrown) D.onThrown(function (on, dir, bed) {
+  var headDown = false;
+  if (D.onThrown) D.onThrown(function (on, dir, bed, extra) {
+    extra = extra || {};
     pet.classList.toggle('thrown', !!on && !bed);
     stage.classList.toggle('flying', !!on);
-    stage.classList.toggle('bed-thrown', !!on && !!bed);   // asleep in bed: the whole bed turns, no spinning (see onFlight)
     pet.style.setProperty('--spin-dir', dir < 0 ? -1 : 1);
+    headDown = !!on && !!extra.head;   // spinning round, he lands on his head at the first bounce (onBounce)
     if (on && !bed) setFace({ eyes: 'dizzy', mouth: 'o', arms: 'idle', x: ['sweat'] });
-    else if (!on && !bed) setTimeout(function () { if (!pet.classList.contains('thrown') && !carried && !busy) settle(); }, 900);
+    if (!on) {
+      pet.classList.remove('thrown');
+      if (extra.ouch && !bed) {   // knocked off a window: "Ow! I'm okay"
+        say(pick(['Ow! I\'m okay', 'Ow! …I\'m okay!', 'Ouch! I\'m okay~']), 2200, true);
+        setFace({ eyes: 'dizzy', mouth: 'o', arms: 'idle', x: ['sweat'] });
+        if (extra.head) setTimeout(function () { pet.classList.remove('head-down'); pet.classList.add('righting'); setTimeout(function () { pet.classList.remove('righting'); }, 450); }, 1100);
+        setTimeout(function () { if (!pet.classList.contains('thrown') && !carried && !busy) settle(); }, extra.head ? 1700 : 1000);
+      } else if (!bed) setTimeout(function () { if (!pet.classList.contains('thrown') && !carried && !busy) settle(); }, 900);
+    }
     if (!on) stage.style.removeProperty('--bed-turn');
+    stage.classList.toggle('bed-thrown', !!on && !!bed);
   });
   // in bed the bed always leads: it turns to face the way he is flying, so it is the bed that hits the wall, the ceiling or the floor
   if (D.onFlight) D.onFlight(function (vx, vy) {
@@ -358,6 +369,7 @@
     stage.style.setProperty('--bed-turn', (Math.atan2(-vx, vy) * 180 / Math.PI).toFixed(0) + 'deg');
   });
   if (D.onBounce) D.onBounce(function (hard) {
+    if (headDown) { headDown = false; pet.classList.remove('thrown'); pet.classList.add('head-down'); }   // he stops spinning on his head
     if (typeof sound === 'function') sound('bounce');
     if (typeof pulse === 'function' && !carried) pulse(hard > .5 ? 'hop' : 'hopsmall', 400);
   });
@@ -394,6 +406,39 @@
       } else if (++tries < 30) setTimeout(go, 2000);
     })();
   });
+
+  // ---------- an alert card keeps its normal size: if he is at the side of the screen, his window slides onto it while the card shows ----------
+  var cardShift = 0, cardBusy = false, cardBackTimer = 0, cardShiftAt = 0;
+  function cardZoom() { return window.outerWidth && window.innerWidth ? window.outerWidth / window.innerWidth : 1; }
+  function cardCheck() {
+    if (!isPet() || !D.walk) return;
+    var card = document.querySelector('.stage .inbox-card');
+    if (!card) {
+      if (cardShift && !cardBackTimer && !cardBusy) cardBackTimer = setTimeout(function () {   // a moment after the last card is gone he slides back
+        cardBackTimer = 0;
+        if (document.querySelector('.stage .inbox-card') || !cardShift) return;
+        var back = -cardShift; cardShift = 0;
+        root.classList.remove('card-narrow');
+        D.walk(back, 400).then(function () {}, function () {});
+      }, 700);
+      return;
+    }
+    clearTimeout(cardBackTimer); cardBackTimer = 0;
+    if (cardBusy || Date.now() - cardShiftAt < 1800) return;   // (the shell tells the page where the window is a moment after it moved)
+    var cs = getComputedStyle(root), vl = parseFloat(cs.getPropertyValue('--vis-l')) || 0, vrRaw = cs.getPropertyValue('--vis-r');
+    var vr = !vrRaw || /vw/.test(vrRaw) ? window.innerWidth : parseFloat(vrRaw);
+    var need = vl > 3 ? vl : vr < window.innerWidth - 3 ? -(window.innerWidth - vr) : 0;   // page px: right (+) or left (-)
+    if (!need) return;
+    cardBusy = true;
+    D.walk(need * cardZoom(), 350).then(function (went) {
+      cardBusy = false; cardShiftAt = Date.now();
+      went = went || 0;
+      cardShift += went;
+      root.classList.toggle('card-narrow', Math.abs(went) < 2);   // could not slide (he sits on a window, say): the card shrinks to fit instead
+    }, function () { cardBusy = false; });
+  }
+  new MutationObserver(cardCheck).observe(document.querySelector('.stage'), { childList: true });
+  setInterval(cardCheck, 700);
 
   // ---------- a reminder for a task's time ----------
   // timeCheck (app-todo.js) asks here first. In pet mode Fumu pops up if he was hidden and a card by him says what is
