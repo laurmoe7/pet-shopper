@@ -3,6 +3,8 @@
 (function () {
   var P = window.fumuPanel, root = document.getElementById('root'), S = null, capture = null, note = '', diagTimer = 0, devOpen = false;
 
+  /** His name, the one the player gave him (the shell passes it on). */
+  function nm() { return (S && S.petName) || 'Fumu'; }
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
   function section(title) { var s = el('section'); s.appendChild(el('h2', '', title)); root.appendChild(s); return s; }
   /** A row with a switch. `pref` is the setting's name; `invert` shows the opposite (for "hide" choices written as "show"). */
@@ -26,7 +28,7 @@
       var upd = section('Updates'), us = S.updateState || { state: 'idle' };
       var said = us.state === 'checking' ? 'Checking for updates…' : us.state === 'downloading' ? 'Downloading an update' + (us.percent ? ' (' + us.percent + '%)' : '…') : us.state === 'ready' ? 'An update is ready. Restart Fumufumu to get it.' : us.state === 'none' ? 'Fumufumu is up to date.' : us.state === 'error' ? 'Could not check for updates (are you online?).' : 'Fumufumu updates itself in the background.';
       var urow = el('div', 'row'), utext = el('span', 'text', said);
-      utext.appendChild(el('small', '', 'The app itself (Fumu, the list, how he looks) loads fresh every time you start him. The program around him updates a few times a day and installs when you quit.'));
+      utext.appendChild(el('small', '', 'The app itself (' + nm() + ', the list, how he looks) loads fresh every time you start him. The program around him updates a few times a day and installs when you quit.'));
       urow.appendChild(utext); upd.appendChild(urow);
       var ubtns = el('div', 'btns');
       if (S.update) button(ubtns, 'Restart to update', act('installUpdate'));
@@ -110,10 +112,10 @@
     var keys = section('Shortcuts');
     toggle(keys, 'Shortcuts on', 'hotkeys', 'Works from any program.');
     S.keyList.forEach(function (k) {
-      var row = el('div', 'row' + (S.prefs.hotkeys ? '' : ' off')), text = el('span', 'text', k.label);
+      var row = el('div', 'row' + (S.prefs.hotkeys ? '' : ' off')), text = el('span', 'text', k.label.replace('{name}', nm()));
       var held = S.held[k.id], accel = S.keys[k.id];
       if (S.prefs.hotkeys && accel && !k.hover && !held) text.appendChild(el('small', '', 'Another program is using these keys. Pick others.'));
-      if (k.hover && accel) text.appendChild(el('small', '', 'Hold the pointer over Fumu, then press the keys. Also in the right-click menu.'));
+      if (k.hover && accel) text.appendChild(el('small', '', 'Hold the pointer over ' + nm() + ', then press the keys. Also in the right-click menu.'));
       var cap = capture === k.id, kbd = el('kbd', accel && !cap ? '' : 'off', cap ? 'press the keys…' : accel ? accel.replace('CommandOrControl', 'Ctrl') : 'off');
       row.append(text, kbd);
       var change = button(row, cap ? 'Cancel' : 'Change', function () { capture = cap ? null : k.id; note = ''; render(); });
@@ -142,7 +144,7 @@
     button(tools, 'Open DevTools', act('devtools'));
     button(tools, 'Open the settings folder', act('openData'));
     button(tools, 'Copy diagnostics', act('copyDiag'));
-    button(tools, 'Reset all these settings', function () { if (window.confirm('Put every setting here back to how it was at the start? (Your list and Fumu stay as they are.)')) P.action('resetSettings').then(function () { return P.get(); }).then(take); }, 'warn');
+    button(tools, 'Reset all these settings', function () { if (window.confirm('Put every setting here back to how it was at the start? (Your list and ' + nm() + ' stay as they are.)')) P.action('resetSettings').then(function () { return P.get(); }).then(take); }, 'warn');
     dev.appendChild(tools);
     var d = el('details'); d.open = devOpen;
     d.appendChild(el('summary', '', 'What the shell sees right now'));

@@ -54,6 +54,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   onPerched: (fn) => ipcRenderer.on('desk:perched', (_e, yes) => fn(!!yes)),
   /** The settings window asked him to do something now: 'wander', 'peek', 'nap', 'perch' or 'remind'. */
   onDo: (fn) => ipcRenderer.on('desk:do', (_e, what) => fn(String(what))),
+  /** His name (the one the player gave him), for the right-click menu and the settings window. */
+  setPetName: (name) => ipcRenderer.send('desk:petName', String(name).slice(0, 16)),
   /** Shows Fumu if he was hidden (a reminder). */
   reveal: () => ipcRenderer.send('desk:reveal')
 });

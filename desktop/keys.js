@@ -2,12 +2,12 @@
 // A shortcut is an Electron accelerator such as 'CommandOrControl+Alt+F'; an empty string means the shortcut is off.
 'use strict';
 
-/** The shortcuts and what they are for; `hover` ones only work while the pointer is over Fumu. */
+/** The shortcuts and what they are for (`{name}` is his name, filled in where they are shown); `hover` ones only work while the pointer is over him. */
 var KEY_LIST = [
-  { id: 'swapSize', label: 'Small Fumu / whole app', def: 'CommandOrControl+Alt+F' },
+  { id: 'swapSize', label: 'Small {name} / whole app', def: 'CommandOrControl+Alt+F' },
   { id: 'swapList', label: 'Shopping list / to-do list', def: 'CommandOrControl+Alt+T' },
   { id: 'quickAdd', label: 'Add an item from anywhere', def: 'CommandOrControl+Alt+A' },
-  { id: 'options', label: 'Open Fumu settings (while the pointer is over him)', def: 'CommandOrControl+Alt+O', hover: true }
+  { id: 'options', label: 'Open the settings (while the pointer is over {name})', def: 'CommandOrControl+Alt+O', hover: true }
 ];
 
 var MODIFIERS = ['CommandOrControl', 'Alt', 'Shift'];

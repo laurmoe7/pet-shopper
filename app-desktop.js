@@ -24,7 +24,7 @@
   // the small bar over the list: drag to move the window, back to Fumu, hide
   var bar = document.createElement('div');
   bar.id = 'deskBar';
-  bar.innerHTML = '<span class="desk-title">Fumufumu</span><button type="button" id="deskBack">Back to Fumu</button><button type="button" id="deskHide" aria-label="Hide Fumu">Hide</button>';
+  bar.innerHTML = '<span class="desk-title">Fumufumu</span><button type="button" id="deskBack">Back to <span class="pet-name">Fumu</span></button><button type="button" id="deskHide" aria-label="Hide Fumu">Hide</button>';
   document.body.appendChild(bar);
   $('deskBack').addEventListener('click', function () { D.setMode('pet'); });
   $('deskHide').addEventListener('click', function () { D.hide(); });
@@ -130,9 +130,23 @@
     row.innerHTML = '<span class="option-title">Shortcuts on this PC</span>';
     var t = document.createElement('span');
     t.className = 'option-text desk-keys';
-    t.innerHTML = '<b>Ctrl+Alt+F</b> small Fumu ⇄ whole app<br><b>Ctrl+Alt+T</b> shopping ⇄ to-do list<br><b>Ctrl+Alt+A</b> add an item from any program<br><b>Ctrl+Alt+O</b> more settings (with the pointer over him)<br>Middle-click Fumu: open the app. Double-click the bar: back to Fumu.<br>Right-click Fumu for the everyday choices. Keys can be changed in the settings.';
+    t.innerHTML = '<b>Ctrl+Alt+F</b> small <span class="pet-name">Fumu</span> ⇄ whole app<br><b>Ctrl+Alt+T</b> shopping ⇄ to-do list<br><b>Ctrl+Alt+A</b> add an item from any program<br><b>Ctrl+Alt+O</b> more settings (with the pointer over him)<br>Middle-click <span class="pet-name">Fumu</span>: open the app. Double-click the bar: back to Fumu.<br>Right-click Fumu for the everyday choices. Keys can be changed in the settings.';
     row.appendChild(t);
     optionsList.insertBefore(row, optionsList.children[2] || null);
+  })();
+
+  // his name (the one you gave him) is used in the bar, the shortcut note, the right-click menu and the settings window: the page's own
+  // `.pet-name` spans follow it by themselves (applyPet); the shell is told, and the button labels that are not text are set here
+  (function () {
+    var shown = $('brandName');   // the title of the list: applyPet puts his name there whenever it changes
+    function nameChanged() {
+      var name = typeof petName === 'function' ? petName() : 'Fumu';
+      document.querySelectorAll('#deskBar .pet-name, .desk-keys .pet-name').forEach(function (el) { el.textContent = name; });
+      $('deskHide').setAttribute('aria-label', 'Hide ' + name);
+      if (D.setPetName) D.setPetName(name);
+    }
+    nameChanged();
+    if (shown && window.MutationObserver) new MutationObserver(nameChanged).observe(shown, { childList: true, characterData: true, subtree: true });
   })();
 
   // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------

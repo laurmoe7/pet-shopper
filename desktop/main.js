@@ -27,11 +27,12 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, displaced = false, perch = null, perchTimer = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
+  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
   const DEFAULTS = Object.assign({}, prefs);
   try { prefs = Object.assign(prefs, JSON.parse(fs.readFileSync(prefsFile(), 'utf8'))); } catch (e) { /* first run */ }
   prefs.keys = keys.clean(prefs.keys);
   prefs.awareness = privacy.clean(prefs.awareness);
+  prefs.petName = typeof prefs.petName === 'string' && prefs.petName.trim() ? prefs.petName.trim().slice(0, 16) : 'Fumu';
   if (prefs.chat === false) { prefs.chatNormal = 'off'; prefs.chatFull = 'off'; }   // the old on/off switch for his comments
   delete prefs.chat;
   prefs.chatNormal = privacy.cleanChat(prefs.chatNormal, 'normal'); prefs.chatFull = privacy.cleanChat(prefs.chatFull, 'normal');
@@ -185,20 +186,19 @@ function start() {
   function menu() {
     const visible = win && win.isVisible();
     const accel = (id) => (prefs.hotkeys && registered[id] ? registered[id] : undefined);
+    const pet = prefs.petName;   // the name the player gave him
     return Menu.buildFromTemplate([
       ...(updateReady ? [{ label: 'Restart to update Fumufumu', click: () => autoUpdater.quitAndInstall() }, { type: 'separator' }] : []),
-      mode === 'list' ? { label: 'Back to Fumu', accelerator: accel('swapSize'), registerAccelerator: false, click: () => applyMode('pet') } : { label: 'Open my list', accelerator: accel('swapSize'), registerAccelerator: false, click: () => { showFumu(); applyMode('list'); } },
+      mode === 'list' ? { label: 'Back to ' + pet, accelerator: accel('swapSize'), registerAccelerator: false, click: () => applyMode('pet') } : { label: 'Open my list', accelerator: accel('swapSize'), registerAccelerator: false, click: () => { showFumu(); applyMode('list'); } },
       { label: 'Add an item…', accelerator: accel('quickAdd'), registerAccelerator: false, click: () => quickAdd() },
       { label: 'Shopping list / to-do list', accelerator: accel('swapList'), registerAccelerator: false, click: () => swapList() },
-      { label: visible ? 'Hide Fumu' : 'Show Fumu', click: () => (visible ? hideFumu() : showFumu()) },
+      { label: visible ? 'Hide ' + pet : 'Show ' + pet, click: () => (visible ? hideFumu() : showFumu()) },
       { type: 'separator' },
       { label: 'Always on top', type: 'checkbox', checked: prefs.onTop, click: (item) => setPref('onTop', item.checked) },
-      { label: 'Size', submenu: [['small', 'Small'], ['normal', 'Normal'], ['large', 'Large']].map(([id, label]) => ({ label, type: 'radio', checked: prefs.size === id, click: () => setPref('size', id) })) },
-      { label: 'Fumu wanders and naps on his own', type: 'checkbox', checked: prefs.roam, click: (item) => setPref('roam', item.checked) },
       { label: 'Remind me of tasks', type: 'checkbox', checked: prefs.remind, click: (item) => setPref('remind', item.checked) },
       { label: 'Start with Windows', type: 'checkbox', checked: app.getLoginItemSettings().openAtLogin, click: (item) => setPref('startWithWindows', item.checked) },
       { type: 'separator' },
-      { label: 'More Fumu settings…', accelerator: prefs.keys.options || undefined, registerAccelerator: false, click: () => panel.open() },
+      { label: 'More settings…', accelerator: prefs.keys.options || undefined, registerAccelerator: false, click: () => panel.open() },
       ...(CHANNEL.name === 'stable' ? [   // the stable channel is for friends: updating is in the normal menu, not only in the developer tools
         { label: updateLabel(), enabled: app.isPackaged && !['checking', 'downloading', 'ready'].includes(updateState.state), click: () => checkUpdates() },
         ...(updateReady ? [{ label: 'Restart to update Fumufumu', click: () => autoUpdater && autoUpdater.quitAndInstall() }] : []),
@@ -257,7 +257,7 @@ function start() {
   function rebind(id, accel) {
     if (!keys.KEY_LIST.some((k) => k.id === id)) return { ok: false, reason: 'Unknown shortcut.' };
     if (!keys.valid(accel)) return { ok: false, reason: 'Use Ctrl or Alt together with a letter, number or F-key.' };
-    if (accel && keys.KEY_LIST.some((k) => k.id !== id && prefs.keys[k.id].toLowerCase() === accel.toLowerCase())) return { ok: false, reason: 'Another Fumu shortcut already uses that.' };
+    if (accel && keys.KEY_LIST.some((k) => k.id !== id && prefs.keys[k.id].toLowerCase() === accel.toLowerCase())) return { ok: false, reason: 'Another Fumufumu shortcut already uses that.' };
     if (accel && accel !== prefs.keys[id]) {   // is it free? (try it, then let go)
       let free = false;
       try { free = globalShortcut.register(accel, () => {}); if (free) globalShortcut.unregister(accel); } catch (e) { free = false; }
@@ -400,6 +400,10 @@ function start() {
   ipcMain.on('desk:reveal', () => { if (win && !win.isVisible()) { win.showInactive(); refreshMenus(); } });
   ipcMain.on('desk:menu', () => { log('menu'); if (win) menu().popup({ window: win }); });
   ipcMain.on('desk:hide', () => hideFumu());
+  ipcMain.on('desk:petName', (_e, name) => {   // the name the player gave him: the menu and the settings window use it
+    const n = typeof name === 'string' && name.trim() ? name.trim().slice(0, 16) : 'Fumu';
+    if (n !== prefs.petName) { prefs.petName = n; savePrefs(); refreshMenus(); panel.push(); }
+  });
   ipcMain.on('desk:open', (_e, url) => { if (typeof url === 'string' && /^https?:\/\/[^\s]+$/i.test(url)) shell.openExternal(url); });
   ipcMain.on('desk:copy', (_e, text) => { if (typeof text === 'string') clipboard.writeText(text.slice(0, 20000)); });
 
@@ -502,7 +506,7 @@ function start() {
   const panel = createPanel({
     state: () => ({
       prefs: Object.assign({ onTop: prefs.onTop, aboveFull: prefs.aboveFull, hotkeys: prefs.hotkeys, startWithWindows: app.getLoginItemSettings().openAtLogin }, publicPrefs(), { perch: prefs.perch }),
-      keys: prefs.keys, channel: CHANNEL.name, privacy: { levels: privacy.LEVELS, always: privacy.ALWAYS, chatLevels: privacy.CHAT_LEVELS }, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, update: updateReady, updateState
+      keys: prefs.keys, channel: CHANNEL.name, privacy: { levels: privacy.LEVELS, always: privacy.ALWAYS, chatLevels: privacy.CHAT_LEVELS }, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, petName: prefs.petName, update: updateReady, updateState
     }),
     set: setPref, rebind, action, diag
   });

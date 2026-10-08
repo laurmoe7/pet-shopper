@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 275 (8 Oct)
+- Desktop: right-click and settings use the name you gave him ("Hide Mochi"), and the app name where it is about the app.
+- Desktop: size and wandering moved out of the right-click menu (they stay in settings).
+- Options text on the PC says his name too.
+
 ## Build 274 (8 Oct)
 - Desktop: choose how much he chats on his own (never, rarely, normal, often), and a second choice for when a game or something full-screen is in front.
 - Desktop: friends on the stable app can check for updates, see their progress and restart to update from the normal menu and settings.

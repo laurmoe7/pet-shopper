@@ -16,7 +16,7 @@ module.exports = function createPanel(ctx) {
   function open() {
     if (win && !win.isDestroyed()) { if (win.isMinimized()) win.restore(); win.show(); win.focus(); return; }
     win = new BrowserWindow({
-      width: 520, height: 720, minWidth: 420, minHeight: 420, title: 'Fumu settings', autoHideMenuBar: true, show: false,
+      width: 520, height: 720, minWidth: 420, minHeight: 420, title: 'Fumufumu settings', autoHideMenuBar: true, show: false,
       backgroundColor: nativeTheme.shouldUseDarkColors ? '#3a2c22' : '#dcb987',
       webPreferences: { preload: path.join(__dirname, 'panel-preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true }
     });
