@@ -225,12 +225,14 @@ function receiveMessage(msg, more) {
       var mouth = mouthPoint();
       busy++;
       eatMessage(link, { x: mouth.x + 70, y: Math.max(8, mouth.y - 170) }).then(function () {
-        say(msg.from === 'claude' ? msg.text + '!' : link ? 'a link for you!' : 'a note for you!', msg.from === 'claude' ? 3200 : 1900);
+        var fromClaude = msg.from === 'claude';
+        say(fromClaude ? msg.text + '!' : link ? 'a link for you!' : 'a note for you!', fromClaude ? 3200 : 1900);
+        if (fromClaude) { setFace(FACES.tada); pulse('hophop', 1500); drift(['✦', '♥', '✦'], petTop(), 3); sound('excited'); }   // Claude's note gets a little celebration
         setTimeout(function () {
           busy--; if (!busy) settle();
           inboxCard = null;
           showInboxCard(msg, more);
-        }, 520);
+        }, fromClaude ? 1600 : 520);
       });
     }, 8000);
   }, 1800);

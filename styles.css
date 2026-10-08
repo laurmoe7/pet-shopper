@@ -2901,5 +2901,5 @@ html.desk-moving :is(.dream, .wish), .stage:has(.pet.walking) :is(.dream, .wish)
 
 /* Claude's "replied" note nudges gently now and then, so it is noticed */
 @keyframes claude-nudge { 0%, 78%, 100% { translate: 0 0; rotate: 0deg; } 82% { translate: -2px 0; rotate: -1.2deg; } 86% { translate: 2px 0; rotate: 1.2deg; } 90% { translate: -1.5px 0; rotate: -.8deg; } 94% { translate: 1px 0; rotate: .5deg; } }
-.inbox-card.claude-card { animation: claude-nudge 2.6s ease-in-out infinite; transform-origin: 50% 100%; }
+.inbox-card.claude-card { animation: pop .3s cubic-bezier(.3, 1.6, .5, 1), claude-nudge 2.6s ease-in-out .5s infinite; transform-origin: 50% 100%; }   /* pops in, then nudges */
 @media (prefers-reduced-motion: reduce) { .inbox-card.claude-card { animation: none; } }

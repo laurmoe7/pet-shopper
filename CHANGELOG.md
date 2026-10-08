@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 301 (9 Oct)
+- Claude's alert pops in, then nudges; Fumu celebrates when it arrives.
+
 ## Build 300 (9 Oct)
 - Claude's "replied" alert: no Copy button, nudges gently.
 - Cards and bubbles keep a margin from the screen edge.
