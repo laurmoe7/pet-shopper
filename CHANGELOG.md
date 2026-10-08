@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 334
+- A broken bell comes back after a few seconds.
+
 ## Build 333
 - Sitting on a window, the lowest 15 px of him let clicks through to its buttons.
 - Falling from a window always takes him back to where he was before (also when you carried him onto it).

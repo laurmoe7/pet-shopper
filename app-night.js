@@ -232,7 +232,7 @@ function bellBreak() {
   sound('smash');
   drift(['✦', '✧', '·', '✦'], at, 6);
   bellToBed(petScene() !== 'night-bed' ? ['oh… so sleepy… night night', '…bed…', 'mm… back to bed…'] : ['mm…', '…zzz…']);
-  setTimeout(function () { bellBroken = false; showScene(); }, 45000);   // a new one turns up
+  setTimeout(function () { bellBroken = false; showScene(); }, 4000);   // a new one turns up a few seconds later
 }
 /** @returns {{minX: number, maxX: number, maxY: number}} Where the bell can go (as the toy's limits: px from the middle, px up). */
 function bellLimits() { return { minX: -stage.clientWidth / 2 + 20, maxX: stage.clientWidth / 2 - 20, maxY: stage.clientHeight - 3 - BELL_H - 8 }; }
