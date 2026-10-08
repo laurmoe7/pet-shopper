@@ -265,6 +265,19 @@
     }, function () { pet.classList.remove('walking'); stopLook(); return 0; });
   };
 
+  // ---------- Claude Code says it is done or needs you (dev build, switched on in the developer tools) ----------
+  if (D.onClaude) D.onClaude(function (kind) {
+    var tries = 0;
+    (function go() {
+      if (!busy && !carried && bubble.hidden) {
+        setFace({ eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['cheeks'] });
+        say(pick(kind === 'needs' ? ['Claude needs you!', 'psst… Claude is waiting for you', 'Claude has a question~'] : ['Claude is done!', 'Claude finished something!', 'ooh, Claude has news~']), 5000, true);
+        pulse('hop', 460);
+        setTimeout(function () { if (!busy) settle(); }, 2200);
+      } else if (++tries < 15) setTimeout(go, 1500);
+    })();
+  });
+
   // ---------- an update finished downloading: he says so (once he is free to speak) ----------
   if (D.onUpdateReady) D.onUpdateReady(function () {
     var tries = 0;

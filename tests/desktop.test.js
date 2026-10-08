@@ -382,3 +382,12 @@ test('blink timers leave a sleeping pet\'s eyes shut, and the "Tap to feed" labe
   assert.match(treats, /WISH_LEARNED = 4/);
   assert.match(treats, /nibble-wish-fed/);
 });
+
+test('the Claude Code link is dev-only, loopback-only and needs the secret token', () => {
+  const m = fs.readFileSync(path.join(__dirname, '..', 'desktop', 'main.js'), 'utf8');
+  assert.match(m, /CHANNEL\.name === 'dev' && prefs\.claudeLink/);
+  assert.match(m, /listen\(CLAUDE_PORT, '127\.0\.0\.1'\)/);
+  assert.match(m, /x-fumu-token'\] === prefs\.claudeToken/);
+  assert.match(m, /case 'copyClaudeHook': \{ if \(CHANNEL\.name !== 'dev'\) return false;/);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'desktop', 'package.json'), 'utf8')).fumuChannel, undefined);
+});

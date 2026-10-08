@@ -59,6 +59,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   toyHide: () => ipcRenderer.send('desk:toyHide'),
   /** A new version of the program finished downloading. */
   onUpdateReady: (fn) => ipcRenderer.on('desk:updateReady', () => fn()),
+  /** Claude Code (through a hook on this computer) says it is done ('done') or needs you ('needs'). Dev build only. */
+  onClaude: (fn) => ipcRenderer.on('desk:claude', (_e, kind) => fn(kind === 'needs' ? 'needs' : 'done')),
   typing: (yes) => ipcRenderer.send('desk:typing', !!yes),
   /** The computer went quiet (true) or someone is back (false): no input for a few minutes, or the screen was locked. */
   onIdle: (fn) => ipcRenderer.on('desk:idle', (_e, idle) => fn(!!idle)),

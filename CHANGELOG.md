@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 295 (9 Oct)
+- Desktop (dev build only): Claude Code link, he reacts when Claude Code finishes or needs you.
+
 ## Build 294 (9 Oct)
 - Desktop: he says so when an update is ready.
 - Carried: feet kick much more.

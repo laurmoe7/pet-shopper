@@ -169,6 +169,13 @@
     button(tools, 'Copy diagnostics', act('copyDiag'));
     button(tools, 'Reset all these settings', function () { if (window.confirm('Reset all these settings?')) P.action('resetSettings').then(function () { return P.get(); }).then(take); }, 'warn');
     dev.appendChild(tools);
+    if (S.channel === 'dev') {   // only for the dev build (not for the friends' stable one)
+      toggle(dev, 'Claude Code link', 'claudeLink', 'He reacts when Claude Code finishes or needs you.');
+      if (S.claudeLink) {
+        var hookRow = el('div', 'btns'); button(hookRow, 'Copy the hook for Claude Code', act('copyClaudeHook')); dev.appendChild(hookRow);
+        dev.appendChild(el('p', '', 'Paste it into ~/.claude/settings.json on this PC (Stop and Notification hooks).')).style.cssText = 'margin:0 0 8px;font-size:.78rem;color:var(--muted)';
+      }
+    }
     var d = el('details'); d.open = devOpen;
     d.appendChild(el('summary', '', 'What the shell sees right now'));
     var pre = el('pre', '', '…'); pre.id = 'diag'; d.appendChild(pre);
