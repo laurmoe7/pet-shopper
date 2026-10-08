@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 315 (9 Oct)
+- Desktop: he goes to bed only after a few minutes alone, and gets up when you touch him.
+- Thrown: he spins round and goes boing at every bounce.
+- Smoother window movement (more steps a second).
+
 ## Build 314 (9 Oct)
 - Throw him: let go while moving fast and he bounces off the screen edges, then runs back to his spot.
 

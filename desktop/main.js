@@ -74,7 +74,7 @@ function start() {
         const t = Math.min(1, (Date.now() - t0) / Math.max(1, ms));
         win.setBounds(lift ? place.arcAt(from, to, t, lift) : place.tweenAt(from, to, t));
         if (t >= 1) { clearInterval(timer); tween = null; resolve(true); }
-      }, 16);
+      }, 8);
       tween = { timer, done: resolve };
     });
   }
@@ -129,29 +129,33 @@ function start() {
     const all = areas(), b0 = win.getBounds();
     const box = { x: Math.min(...all.map((a) => a.x)), y: Math.min(...all.map((a) => a.y)), r: Math.max(...all.map((a) => a.x + a.width)), b: Math.max(...all.map((a) => a.y + a.height)) };
     const insetX = Math.round(b0.width * 0.2), insetTop = Math.round(b0.height * 0.3);   // the window has clear space round him: he touches the edge, not the window
-    let x = b0.x, y = b0.y;
+    let x = b0.x, y = b0.y, lastHit = 0, spinDir = vx >= 0 ? 1 : -1;
     const t0 = Date.now();
     let last = t0;
     win.webContents.send('desk:fall', true);   // arms flap while he flies
+    win.webContents.send('desk:thrown', true, spinDir);   // and he spins round
     const ok = await new Promise((resolve) => {
       const timer = setInterval(() => {
         if (!win) { stopTween(); return; }
         const now = Date.now(), dt = Math.min(0.034, (now - last) / 1000);
         last = now;
         vy += 2400 * dt; x += vx * dt; y += vy * dt;
-        if (x < box.x - insetX) { x = box.x - insetX; vx = Math.abs(vx) * 0.8; }
-        if (x > box.r - b0.width + insetX) { x = box.r - b0.width + insetX; vx = -Math.abs(vx) * 0.8; }
-        if (y < box.y - insetTop) { y = box.y - insetTop; vy = Math.abs(vy) * 0.8; }
+        let hit = 0;   // how hard he hit an edge this step (px/s)
+        if (x < box.x - insetX) { x = box.x - insetX; hit = Math.abs(vx); vx = Math.abs(vx) * 0.8; }
+        if (x > box.r - b0.width + insetX) { x = box.r - b0.width + insetX; hit = Math.abs(vx); vx = -Math.abs(vx) * 0.8; }
+        if (y < box.y - insetTop) { y = box.y - insetTop; hit = Math.max(hit, Math.abs(vy)); vy = Math.abs(vy) * 0.8; }
         const wa = screen.getDisplayNearestPoint({ x: Math.round(x + b0.width / 2), y: Math.round(y + b0.height) }).workArea;
         const floorY = wa.y + wa.height - b0.height - place.MARGIN / 2;
         let rest = false;
-        if (y >= floorY) { y = floorY; if (Math.abs(vy) > 260) vy = -vy * 0.62; else { vy = 0; rest = true; } vx *= 0.85; }
+        if (y >= floorY) { y = floorY; if (Math.abs(vy) > 260) { hit = Math.max(hit, Math.abs(vy)); vy = -vy * 0.62; } else { vy = 0; rest = true; } vx *= 0.85; }
+        if (hit > 220 && now - lastHit > 90) { lastHit = now; win.webContents.send('desk:bounce', Math.min(1, hit / 2500)); }
+        if (Math.abs(vx) > 60) spinDir = vx > 0 ? 1 : -1;
         win.setBounds({ x: Math.round(x), y: Math.round(y), width: b0.width, height: b0.height });
         if ((rest && Math.abs(vx) < 30) || now - t0 > 7000) { clearInterval(timer); tween = null; resolve(true); }
-      }, 16);
+      }, 8);
       tween = { timer, done: resolve };
     });
-    if (win) win.webContents.send('desk:fall', false);
+    if (win) { win.webContents.send('desk:fall', false); win.webContents.send('desk:thrown', false, 0); }
     if (!ok || !win) return;
     const back = place.within(home, here()), cur = win.getBounds();
     if (Math.abs(back.x - cur.x) > 20 || Math.abs(back.y - cur.y) > 20) {
