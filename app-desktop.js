@@ -797,6 +797,7 @@
   // toy to fall through to the window behind. Now the page tells it where the solid things are (about 30 times a second, only when they move)
   // and the shell checks the pointer against them itself, many times a second, without any waiting.
   var lastRects = '';
+  var PERCH_CLICK_THROUGH = 15;
   function solidRects() {
     var out = [], list = document.querySelectorAll(SOLID);
     for (var i = 0; i < list.length; i++) {
@@ -804,10 +805,12 @@
       if (el.hidden || el.closest('[hidden]')) continue;
       var r = el.getBoundingClientRect();
       if (r.width < 1 || r.height < 1 || getComputedStyle(el).display === 'none') continue;
-      out.push([Math.round(r.left), Math.round(r.top), Math.round(r.right), Math.round(r.bottom)]);
+      // sitting on a window his bottom edge overlaps that window (its buttons, its title bar): the lowest 15 px of him let clicks through
+      var cut = el === pet && perched ? PERCH_CLICK_THROUGH : 0;
+      out.push([Math.round(r.left), Math.round(r.top), Math.round(r.right), Math.round(r.bottom - Math.min(cut, r.height - 8))]);
       if (el === pet) {   // the cushion (or bed) under him is part of him too (see #pet::after in styles.css)
         var bed = stage.classList.contains('bedtime'), w = bed ? 250 : 164, h = bed ? 52 : 44, cx = (r.left + r.right) / 2;
-        out.push([Math.round(cx - w / 2), Math.round(r.bottom + 12 - h), Math.round(cx + w / 2), Math.round(r.bottom + 12)]);
+        out.push([Math.round(cx - w / 2), Math.round(r.bottom + 12 - h), Math.round(cx + w / 2), Math.round(r.bottom + 12 - cut)]);
       }
     }
     return out;

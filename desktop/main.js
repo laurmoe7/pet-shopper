@@ -500,7 +500,7 @@ function start() {
       const all = frames(), seg = place.perchUnder(b, place.perches(all, areas(), petSize().height * 0.6), 40);
       if (seg) {
         const rect = all.find((f) => f.id === seg.id);
-        if (await glide(place.perchBounds(b, seg), 200)) { sitOn(seg, rect); return; }
+        if (await glide(place.perchBounds(b, seg), 200)) { sitOn(seg, rect); perchOrigin = dragHome ? place.within(dragHome, here()) : null; return; }   // (when he gets off he goes back to where he was picked up)
       }
     }
     restHere();
