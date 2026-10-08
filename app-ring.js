@@ -5,7 +5,8 @@
 'use strict';
 
 (function () {
-  var desktop = document.documentElement.classList.contains('desktop-pet');
+  /** The small window's class can arrive after this script has run (the shell says which mode it is a moment later): look each time. */
+  function isDesk() { return document.documentElement.classList.contains('desktop-pet'); }
   var ring = document.createElement('div');
   ring.className = 'ring'; ring.hidden = true; ring.setAttribute('role', 'menu'); ring.setAttribute('aria-label', 'Play');
   stage.appendChild(ring);
@@ -57,7 +58,7 @@
     return ['ball', 'pat', 'snack', 'dance', 'swap', 'wave'];
   }
   function canShow() {
-    return desktop && document.documentElement.classList.contains('desktop-pet') && !document.hidden && Date.now() > quietUntil &&
+    return isDesk() && !document.hidden && Date.now() > quietUntil &&
       !pet.classList.contains('carried') && !pet.classList.contains('thrown') && !pet.classList.contains('falling') &&
       !document.querySelector('.inbox-card, .quick-card, dialog[open]');
   }
@@ -122,7 +123,7 @@
   }
   // opens after the pointer has rested on him for a moment, and closes when it has gone well away from him
   document.addEventListener('mousemove', function (e) {
-    if (!desktop) return;
+    if (!isDesk()) return;
     var pr = pet.getBoundingClientRect(), sr = stage.getBoundingClientRect();
     var onHim = e.clientX >= pr.left && e.clientX <= pr.right && e.clientY >= pr.top && e.clientY <= pr.bottom;
     if (!shown) {
