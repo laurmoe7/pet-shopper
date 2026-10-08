@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 267 (8 Oct)
+- Desktop: on a window he now sits with his feet out and the soles showing (cat, pig and pigeon first).
+- Desktop: he tries to hop onto a window every minute or two, and right away when you switch it on.
+- Desktop: settings say how many windows he could sit on; a message says when none fits.
+- Animation player: sit with soles showing.
+
 ## Build 266 (8 Oct)
 - Desktop: update options are back in the right-click menu and in the settings window.
 

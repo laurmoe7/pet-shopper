@@ -206,8 +206,8 @@
 
   // ---------- Fumu does things on his own: wander along the screen, peek round the edge, nap ----------
   var peeking = false, roaming = false, away = false, awayAt = 0, awayNap = false, perched = false;
-  function roamOk() {
-    return deskPrefs.roam !== false && isPet() && !document.hidden && !roaming && !peeking && !away && !carried && !press && !busy && !walking && !dreaming &&
+  function roamOk(ignoreRoamSwitch) {
+    return (ignoreRoamSwitch || deskPrefs.roam !== false) && isPet() && !document.hidden && !roaming && !peeking && !away && !carried && !press && !busy && !walking && !dreaming &&
       !(typeof napping !== 'undefined' && napping) && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') &&
       !document.querySelector('dialog[open], .inbox-card') && bubble.hidden && suggestEl.hidden;
   }
@@ -431,15 +431,25 @@
 
   // ---------- sitting on other windows (a switch in the tray menu; Windows only) ----------
   // The shell finds the edges and moves the window; here he hops, looks pleased and gets down when it is bedtime.
-  if (D.onPerched) D.onPerched(function (yes) { perched = yes; });
-  function hopUp() {
+  // on a window he sits: soles out in front (the .seated look in styles.css; walking along the edge stands him up for a moment)
+  if (D.onPerched) D.onPerched(function (yes) {
+    perched = yes;
+    pet.classList.toggle('seated', yes);
+    if (yes && !busy) { pulse('hopsmall', 450); drift(['♪'], petTop(), 1); }
+  });
+  /** @param {boolean} [manual] Asked for from the settings or animation player: say why when nothing happens. */
+  function hopUp(manual) {
     if (!D.perch || roaming) return;
     roaming = true;
     setFace(FACES.curious);
     pulse('hop', 700);
     D.perch('up').then(function (on) {
       roaming = false;
-      if (!on) { settle(); return; }
+      if (on !== true) {
+        settle();
+        if (manual) say(on === 'off' ? 'switch on "Sits on my windows" in the settings' : 'no window with room above it to sit on', 3500);
+        return;
+      }
       pulse('hop', 460);
       setFace({ eyes: 'happy', mouth: 'smile', arms: 'idle', x: ['cheeks'] });
       say(pick(['up here!', 'nice view~', 'hehe, a perch', 'fumu fumu~']), 1500);
@@ -461,7 +471,8 @@
     if (!isPet() || roaming || peeking) return 0;
     if (what === 'wander') { wander(); return 4500; }
     if (what === 'peek') { peek(); return 7000; }
-    if (what === 'perch') { if (perched) hopDown(); else hopUp(); return 3000; }
+    if (what === 'perch') { if (perched) hopDown(); else hopUp(true); return 3000; }
+    if (what === 'sit') { var sit = !pet.classList.contains('seated'); pet.classList.toggle('seated', sit); if (sit) pulse('hopsmall', 450); return 0; }
     if (what === 'nap') return typeof napNow === 'function' ? napNow(15000) : 0;
     if (what === 'remind') { window.deskRemind([{ id: 'test', text: 'A test reminder', emoji: '⏰', time: '', done: false }]); return 4000; }
     return 0;
@@ -482,6 +493,16 @@
     }, (first ? 90 : 240) * 1000 + Math.random() * (first ? 150 : 300) * 1000);
   }
   scheduleRoam(true);
+  // with "sits on my windows" on he tries every minute or two, so it is easy to see: he hops up, stays a while, comes down again
+  (function scheduleSeat() {
+    setTimeout(function () {
+      if (deskPrefs.perch && D.perch && roamOk(true)) {
+        if (!perched) { if (Math.random() < 0.8) hopUp(); }
+        else if (Math.random() < 0.35) hopDown();
+      }
+      scheduleSeat();
+    }, 45000 + Math.random() * 45000);
+  })();
   // the settings window's "make him do it now" buttons
   if (D.onDo) D.onDo(function (what) {
     if (what === 'remind') { var old = deskPrefs.remind; deskPrefs.remind = true; window.deskDo('remind'); deskPrefs.remind = old; }

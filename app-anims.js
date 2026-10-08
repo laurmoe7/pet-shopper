@@ -47,6 +47,7 @@ function animCatalogue() {
   add('Specials', 'goodnight kiss', function () { kissGoodnight(); return 2600; });
   add('Specials', 'snore', function () { snore(); return 2400; });
   add('Specials', 'nap (22 seconds, tap to wake)', function () { return napNow(22000) || 600; });
+  add('Body', 'sit with soles showing (5 seconds; cat, pig, pigeon)', function () { pet.classList.add('seated'); setTimeout(function () { pet.classList.remove('seated'); }, 5000); return 5200; });
   if (window.deskDo) {
     add('Desktop', 'wander along the screen', function () { return window.deskDo('wander') || (say('only in the small pet window', 1800), 1200); });
     add('Desktop', 'peek round the edge', function () { return window.deskDo('peek') || (say('only in the small pet window', 1800), 1200); });

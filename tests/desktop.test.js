@@ -256,3 +256,12 @@ test('the shell decides from the page\'s rectangles whether the pointer is on so
   assert.equal(P.hitTest(rects, 25, 25, 0), true);
   assert.equal(P.hitTest([], 25, 25, 6), false);
 });
+
+test('the sitting soles are drawn once for each foot, in front of the body, and only some species show them', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  assert.equal((html.match(/class="sole-part"/g) || []).length, 2);
+  assert.ok(html.indexOf('class="soles"') > html.indexOf('class="foot-side foot-r"'));
+  assert.ok(html.indexOf('class="soles"') < html.indexOf('class="arm arm-l"'));
+  const css = fs.readFileSync(path.join(__dirname, '..', 'styles.css'), 'utf8');
+  assert.match(css, /\.pet\.seated:not\(\.walking, \.shod\):is\(\[data-species="kitty"\], \[data-species="pig"\], \[data-species="birdie"\]\) \.sole-part/);
+});

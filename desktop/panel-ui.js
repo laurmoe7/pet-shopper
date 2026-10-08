@@ -42,7 +42,10 @@
     var does = section('What he does on his own');
     toggle(does, 'Wanders, peeks and naps', 'roam', 'Every few minutes, only when nothing is open.');
     toggle(does, 'Naps when I am away', 'idle', 'After about 4 minutes without keyboard or mouse, or when the screen is locked. Says hello when you are back.');
-    if (S.canPerch) toggle(does, 'Sits on my windows', 'perch', 'Hops onto the top edge of other windows and rides along with them. He only looks at where windows are, never at their titles.');
+    if (S.canPerch) {
+      toggle(does, 'Sits on my windows', 'perch', 'Every minute or two he hops onto the top edge of another window, sits there with his feet out, and rides along if you move it. He only looks at where windows are, never at their titles.');
+      if (S.prefs.perch) { var hint = el('small', '', 'Looking for windows…'); hint.id = 'perchHint'; does.lastChild.querySelector('.text').appendChild(hint); }
+    }
     toggle(does, 'Reminds me of tasks', 'remind', 'A card by him when a task\'s time comes.');
 
     var win = section('His window');
@@ -83,7 +86,7 @@
     var dev = section('Developer tools');
     var info = el('p', '', 'Make him do something now (in the small window):'); info.style.margin = '4px 0 0'; dev.appendChild(info);
     var doBtns = el('div', 'btns');
-    [['wander', 'Wander'], ['peek', 'Peek round the edge'], ['nap', 'Nap'], ['perch', 'Hop on a window / down'], ['remind', 'Test reminder']].forEach(function (d) { button(doBtns, d[1], act('do', d[0])); });
+    [['wander', 'Wander'], ['peek', 'Peek round the edge'], ['nap', 'Nap'], ['perch', 'Hop on a window / down'], ['sit', 'Sit / stand (soles)'], ['remind', 'Test reminder']].forEach(function (d) { button(doBtns, d[1], act('do', d[0])); });
     dev.appendChild(doBtns);
     var tools = el('div', 'btns');
     button(tools, 'Open DevTools', act('devtools'));
@@ -105,6 +108,16 @@
     P.diag().then(function (x) { if (x && document.getElementById('diag')) { document.getElementById('diag').textContent = JSON.stringify(x, null, 2); diagTimer = setTimeout(poll, 1000); } });
   }
   function take(s) { if (s) { S = s; render(); } }
+  // while "sits on my windows" is on, say how many windows he could sit on right now (so you can tell it is working)
+  setInterval(function () {
+    var h = document.getElementById('perchHint');
+    if (!h) return;
+    P.diag().then(function (x) {
+      if (!x || !document.getElementById('perchHint')) return;
+      var n = x.perchesNow;
+      document.getElementById('perchHint').textContent = n === null ? '' : n ? 'Right now he could sit on ' + n + ' window edge' + (n > 1 ? 's' : '') + '.' : 'No window has room above it right now (a maximized window has none).';
+    });
+  }, 2000);
 
   // changing a shortcut: the next key combination pressed becomes the shortcut (Esc cancels)
   var CODES = { Space: 'Space', Enter: 'Enter', NumpadEnter: 'Enter', Tab: 'Tab', Delete: 'Delete', Home: 'Home', End: 'End', PageUp: 'PageUp', PageDown: 'PageDown', Insert: 'Insert', ArrowUp: 'Up', ArrowDown: 'Down', ArrowLeft: 'Left', ArrowRight: 'Right' };

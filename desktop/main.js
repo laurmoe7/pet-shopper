@@ -153,6 +153,7 @@ function start() {
       if (key === 'onTop' || key === 'aboveFull') applyTop();
       if (key === 'hotkeys') setupKeys();
       if (key === 'perch' && !value) fall();
+      if (key === 'perch' && value && win && mode === 'pet') setTimeout(() => { if (win && prefs.perch) win.webContents.send('desk:do', 'perch'); }, 700);   // try right away, so you can see it working
     }
     sendPrefs(); refreshMenus();
   }
@@ -356,10 +357,10 @@ function start() {
   ipcMain.handle('desk:perch', async (_e, want) => {
     if (!win || mode !== 'pet' || dragFrom || peekRest) return null;
     if (want === 'down') { if (!perch) return null; await fall(); return false; }
-    if (!prefs.perch || !windows.available()) return null;
+    if (!prefs.perch || !windows.available()) return 'off';
     const all = frames(), b = win.getBounds();
     const near = place.perchesNear(b, place.perches(all, areas(), petSize().height * 0.6), areas(), 1100, perch && perch.id);
-    if (!near.length) return null;
+    if (!near.length) return 'none';
     const seg = near[Math.floor(Math.random() * near.length)], rect = all.find((f) => f.id === seg.id);
     const to = place.perchBounds(b, seg);
     leavePerch();
@@ -405,7 +406,7 @@ function start() {
     return {
       version: app.getVersion(), electron: process.versions.electron, packaged: app.isPackaged, page: APP_URL,
       mode, bounds: b, zoom: zoom(), screens: screen.getAllDisplays().map((d) => d.workArea.width + 'x' + d.workArea.height + ' @' + d.scaleFactor),
-      onPerch: perch ? perch.id : null, windowsSeen: prefs.perch && windows.available() ? windows.list().length : null,
+      onPerch: perch ? perch.id : null, windowsSeen: prefs.perch && windows.available() ? windows.list().length : null, perchesNow: prefs.perch && windows.available() ? perchesNow().length : null,
       idleSeconds: powerMonitor.getSystemIdleTime(), idle, displaced, pointerOverFumu: solidNow,
       shortcutsHeld: Object.assign({}, registered, hoverKeyOn ? { options: hoverKeyOn } : {}), settingsFolder: app.getPath('userData')
     };
@@ -415,7 +416,7 @@ function start() {
     switch (name) {
       case 'reload': win.webContents.reloadIgnoringCache(); return true;
       case 'devtools': win.webContents.openDevTools({ mode: 'detach' }); return true;
-      case 'do': if (['wander', 'peek', 'nap', 'perch', 'remind'].includes(arg)) { if (mode !== 'pet') applyMode('pet'); win.webContents.send('desk:do', arg); } return true;
+      case 'do': if (['wander', 'peek', 'nap', 'perch', 'sit', 'remind'].includes(arg)) { if (mode !== 'pet') applyMode('pet'); win.webContents.send('desk:do', arg); } return true;
       case 'corner': if (['br', 'bl', 'tr', 'tl'].includes(arg)) toCorner(arg); return true;
       case 'nudge': if (Array.isArray(arg)) nudgeBy(Math.max(-200, Math.min(200, +arg[0] || 0)), Math.max(-200, Math.min(200, +arg[1] || 0))); return true;
       case 'resetPosition': resetPosition(); return true;
