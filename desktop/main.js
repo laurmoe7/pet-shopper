@@ -91,15 +91,26 @@ function start() {
   let perchOrigin = null;   // where he stood before he hopped up: he runs back there when he gets off
   function leavePerch() { if (!perch) return; perch = null; perchOrigin = null; stopFollow(); tellPerched(); }
   function startFollow() { stopFollow(); perchTimer = setInterval(followPerch, PERCH_TICK); }
-  function sitOn(seg, rect) { perch = { id: seg.id, dx: win.getBounds().x - rect.x }; startFollow(); tellPerched(); }
+  function sitOn(seg, rect) { perch = { id: seg.id, dx: win.getBounds().x - rect.x, last: { x: rect.x, y: rect.y } }; startFollow(); tellPerched(); }
   function followPerch() {
     if (!win || !perch || tween || dragFrom || mode !== 'pet') return;
     const all = frames(), r = all.find((f) => f.id === perch.id);
     const b = win.getBounds(), cx = b.x + b.width / 2;
     const seg = r && place.perches(all, areas(), petSize().height * 0.6).find((s) => s.id === perch.id && cx >= s.x1 - 30 && cx <= s.x2 + 30);
     if (!seg) { fall(); return; }
+    // the window he sits on was moved: he does not ride along, he falls off, bounces once on the ground and runs back
+    if (perch.last && (Math.abs(r.x - perch.last.x) > 2 || Math.abs(r.y - perch.last.y) > 2)) { knockOff(); return; }
+    perch.last = { x: r.x, y: r.y };
     const to = place.perchBounds({ x: r.x + perch.dx, y: b.y, width: b.width, height: b.height }, seg);
     if (to.x !== b.x || to.y !== b.y) win.setBounds(to);
+  }
+  /** The window he sits on was moved: he drops with the flap of arms, bounces once on the ground, then runs back to where he was before. */
+  function knockOff() {
+    const home = perchOrigin ? place.within(perchOrigin, here()) : null;
+    leavePerch();
+    if (!win || mode !== 'pet') return;
+    const b = win.getBounds();
+    throwWindow(0, 0, home || b, false, { oneBounce: true, noSpin: true });
   }
   async function fall() {
     const origin = perchOrigin;
@@ -123,7 +134,8 @@ function start() {
   }
 
   /** He is let go while moving fast: he flies on, bounces off the edges of the screens and the floor, then runs back to where he was picked up. */
-  async function throwWindow(vx, vy, home, inBed) {
+  async function throwWindow(vx, vy, home, inBed, opts) {
+    opts = opts || {};
     stopTween();
     if (!win || mode !== 'pet') return;
     const all = areas(), b0 = win.getBounds();
@@ -131,11 +143,11 @@ function start() {
     const insetX = Math.round(b0.width * 0.14), insetTop = Math.round(b0.height * 0.3);   // the window has clear space round him: he touches the edge, not the window
     if (inBed) { vx *= 0.42; vy *= 0.42; }   // asleep in his bed he is heavy: he does not go nearly as far
     const G = inBed ? 3800 : 2400, WALL = inBed ? 0.45 : 0.8, FLOOR = inBed ? 0.35 : 0.62;
-    let x = b0.x, y = b0.y, lastHit = 0, spinDir = vx >= 0 ? 1 : -1;
+    let floorHits = 0, x = b0.x, y = b0.y, lastHit = 0, spinDir = vx >= 0 ? 1 : -1;
     const t0 = Date.now();
     let last = t0;
     if (!inBed) win.webContents.send('desk:fall', true);   // arms flap while he flies (asleep in bed he does not)
-    win.webContents.send('desk:thrown', true, spinDir, inBed);   // and he spins round (in bed, the bed turns to face where it is going)
+    if (!opts.noSpin) win.webContents.send('desk:thrown', true, spinDir, inBed);   // and he spins round (in bed, the bed turns to face where it is going)
     let lastFlight = 0;
     const ok = await new Promise((resolve) => {
       const timer = setInterval(() => {
@@ -150,7 +162,7 @@ function start() {
         const wa = screen.getDisplayNearestPoint({ x: Math.round(x + b0.width / 2), y: Math.round(y + b0.height) }).workArea;
         const floorY = wa.y + wa.height - b0.height - place.MARGIN / 2;
         let rest = false;
-        if (y >= floorY) { y = floorY; if (Math.abs(vy) > 260) { hit = Math.max(hit, Math.abs(vy)); vy = -vy * FLOOR; } else { vy = 0; rest = true; } vx *= 0.85; }
+        if (y >= floorY) { y = floorY; if (Math.abs(vy) > 260 && !(opts.oneBounce && floorHits >= 1)) { floorHits++; hit = Math.max(hit, Math.abs(vy)); vy = -vy * FLOOR; } else { vy = 0; rest = true; } vx *= 0.85; }
         if (hit > 220 && now - lastHit > 90) { lastHit = now; win.webContents.send('desk:bounce', Math.min(1, hit / 2500)); }
         if (Math.abs(vx) > 60) spinDir = vx > 0 ? 1 : -1;
         if (inBed && now - lastFlight > 40) { lastFlight = now; win.webContents.send('desk:flight', vx, vy); }
@@ -159,7 +171,7 @@ function start() {
       }, 8);
       tween = { timer, done: resolve };
     });
-    if (win) { if (!inBed) win.webContents.send('desk:fall', false); win.webContents.send('desk:thrown', false, 0, inBed); }
+    if (win) { if (!inBed) win.webContents.send('desk:fall', false); if (!opts.noSpin) win.webContents.send('desk:thrown', false, 0, inBed); }
     if (!ok || !win) return;
     if (inBed) { restHere(); return; }   // in his bed he stays where he landed (he has bounced about on the floor already)
     const back = place.within(home, here()), cur = win.getBounds();

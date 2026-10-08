@@ -2,6 +2,17 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 330
+- The small desktop window no longer has the cushion (it is for the whole app); the setting is gone.
+
+## Build 329
+- If the window he sits on is moved, he falls off, bounces once on the ground and runs back.
+
+## Build 328
+- Desktop: a ring menu opens above him when you rest the pointer on him: play ball, pat, snack, dance, swap list, wave.
+- Drowsy at night, the ring has "Lights off" and he goes to sleep.
+- Asleep, the ring holds the night light, so the lamp no longer floats on the desktop.
+
 ## Build 327
 - Thrown: he spins a little smaller, so no part of him is cut off.
 - Carried or thrown: no shadow or cushion left behind on the floor.

@@ -36,6 +36,7 @@
     setTimeout(function () { busy--; if (!busy) settle(); }, Math.max(1700, r.move[1]));
   }
 
+  window.petHim = petted;   // the ring menu's Pat (app-ring.js)
   pet.addEventListener('pointerdown', function (e) {
     stopWalk();
     down = { x: e.clientX, y: e.clientY };

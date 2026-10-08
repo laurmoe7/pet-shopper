@@ -82,7 +82,6 @@
     toggle(look, 'Sounds', 'mute', 'In the small window.', { invert: true });
     toggle(look, 'Show his toy', 'hideToy', '', { invert: true });
     toggle(look, 'Toy flies around the screen', 'toyRoam', '', { disabled: !!S.prefs.hideToy });
-    toggle(look, 'Show the cushion under him', 'hideCushion', 'His bed still shows at bedtime.', { invert: true });
 
     var does = section('What he does on his own');
     // how much he talks on his own: his idle chatter, daydreams, asking for things. Reminders, greetings and answers to you are never held back.

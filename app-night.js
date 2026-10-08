@@ -111,20 +111,22 @@ var nightLightOn = false;
 try { nightLightOn = localStorage.getItem(NIGHT_LIGHT_KEY) === '1'; } catch (e) { /* storage blocked */ }
 function showNightLight() {
   var bed = stage.classList.contains('bedtime');   // (the switch belongs to the room: it is there whenever the bed is out)
-  nightBtn.hidden = !bed;
+  nightBtn.hidden = !bed || document.documentElement.classList.contains('desktop-pet');   // (in the small desktop window the switch is in his ring menu, app-ring.js)
   nightBtn.setAttribute('aria-pressed', nightLightOn ? 'true' : 'false');
   nightBtn.setAttribute('aria-label', 'Night light');
   stage.classList.toggle('night-light', bed && nightLightOn);
 }
-nightBtn.addEventListener('click', function (e) {
-  e.stopPropagation();
+/** Switches the night light (the little lamp in the big app, the ring menu in the small desktop window). */
+function toggleNightLight() {
   nightLightOn = !nightLightOn;
   try { localStorage.setItem(NIGHT_LIGHT_KEY, nightLightOn ? '1' : '0'); } catch (err) { /* storage blocked */ }
   sound(nightLightOn ? 'on' : 'off');
   showNightLight();
   if (nightLightOn && inBedAsleep()) { say('mm… warm… ♡', 1800); drift(['✦', '♡', '✦'], petTop(), 3); }
-});
+}
+nightBtn.addEventListener('click', function (e) { e.stopPropagation(); toggleNightLight(); });
 new MutationObserver(showNightLight).observe(stage, { attributes: true, attributeFilter: ['class'] });
+new MutationObserver(showNightLight).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 showNightLight();
 
 // ---------- the desktop pet's five scenes ----------

@@ -2833,8 +2833,8 @@ html.desktop-list .picker.pet-sheet:is(.cal-full, .fav-full, .dress-full) { inse
 html.desktop-list .app { padding-top: 34px; }
 html.desktop-list .scene { top: 34px; }
 /* the cushion (or the bed at night) is part of him: an invisible area under him catches clicks, so they don't pass through to the desktop */
-html.desktop-pet #pet::after { content: ""; position: absolute; left: calc(50% - 82px); width: 164px; bottom: -12px; height: 44px; border-radius: 22px; }
-html.desktop-pet .stage.bedtime #pet::after { left: calc(50% - 125px); width: 250px; height: 52px; }
+html.desktop-pet #pet::after { content: ""; position: absolute; left: calc(50% - 82px); width: 164px; bottom: -12px; height: 44px; border-radius: 22px; display: none; }
+html.desktop-pet .stage.bedtime #pet::after { left: calc(50% - 125px); width: 250px; height: 52px; display: block; }
 /* a daydream sits beside his head, not above it, so it never meets the speech bubble; its little dots lead back to him */
 html.desktop-pet .dream { left: calc(50% + 66px + var(--walk-x, 0px)); top: 34px; }
 html.desktop-pet .dream-dot.d1 { left: -4px; top: 44px; }
@@ -3014,3 +3014,18 @@ html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); scale: .7; t
 /* in the air (carried or thrown) he has no shadow on the floor under him, and no cushion */
 .pet.carried::before, .pet.thrown::before, .pet.falling::before { display: none; }
 .stage.flying .cushion { display: none; }
+
+/* the ring menu (app-ring.js): little round buttons in an arc above him when the pointer rests on him (small desktop window only) */
+.ring { position: absolute; inset: 0; z-index: 9; pointer-events: none; }
+.ring[hidden] { display: none; }
+.ring-btn { position: absolute; width: 34px; height: 34px; padding: 5px; border: 1.8px solid var(--outline); border-radius: 50%; background: var(--surface); box-shadow: 0 2px 0 var(--outline); cursor: pointer; pointer-events: auto; animation: ring-pop .28s cubic-bezier(.3, 1.6, .5, 1) both; animation-delay: calc(var(--i, 0) * 40ms); -webkit-tap-highlight-color: transparent; }
+.ring-btn img { display: block; width: 100%; height: 100%; pointer-events: none; }
+.ring-btn:hover { background: #fff4d6; translate: 0 -2px; }
+.ring-btn:active { translate: 0 1px; box-shadow: none; }
+.ring-btn[aria-pressed="true"] { background: #ffe3a8; box-shadow: 0 0 10px 3px rgba(255, 205, 120, .7), 0 2px 0 var(--outline); }
+@keyframes ring-pop { from { opacity: 0; scale: .3; } to { opacity: 1; scale: 1; } }
+html.desktop-pet .night-btn { display: none !important; }   /* the night light switch is in the ring there */
+@media (prefers-reduced-motion: reduce) { .ring-btn { animation: none; } }
+
+/* the small desktop window never has the cushion under him (that is for the whole app); at bedtime the bed takes its place */
+html.desktop-pet .cushion { display: none; }

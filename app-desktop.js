@@ -49,7 +49,7 @@
 
   // clicks go to Fumu only where something solid is under the pointer; elsewhere they pass to the desktop
   var lastSolid = null, lastSent = 0;
-  var SOLID = '#pet, .bubble, .gift, .wish, .toy, .suggest, .dream, .inbox-card, .teddy-btn, .night-btn, .bell';   // (the reminder card is an .inbox-card too)
+  var SOLID = '#pet, .bubble, .gift, .wish, .toy, .suggest, .dream, .inbox-card, .teddy-btn, .night-btn, .bell, .ring-btn';   // (the reminder card is an .inbox-card too)
   /** Tells the shell whether clicks should be caught; sent when it changes and now and then anyway, so the two can't drift apart. */
   function setSolid(yes) {
     if (D.setRects) return;   // a newer shell decides by itself from the rectangles below (no round trip to the page)
@@ -805,8 +805,8 @@
       var r = el.getBoundingClientRect();
       if (r.width < 1 || r.height < 1 || getComputedStyle(el).display === 'none') continue;
       out.push([Math.round(r.left), Math.round(r.top), Math.round(r.right), Math.round(r.bottom)]);
-      if (el === pet) {   // the cushion (or bed) under him is part of him too (see #pet::after in styles.css)
-        var bed = stage.classList.contains('bedtime'), w = bed ? 250 : 164, h = bed ? 52 : 44, cx = (r.left + r.right) / 2;
+      if (el === pet && stage.classList.contains('bedtime')) {   // the bed under him is part of him too (there is no cushion in the small window; see #pet::after in styles.css)
+        var bed = true, w = bed ? 250 : 164, h = bed ? 52 : 44, cx = (r.left + r.right) / 2;
         out.push([Math.round(cx - w / 2), Math.round(r.bottom + 12 - h), Math.round(cx + w / 2), Math.round(r.bottom + 12)]);
       }
     }
