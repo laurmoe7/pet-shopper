@@ -363,5 +363,5 @@ test('the send-copied shortcut exists, is unique and only works while the pointe
 test('Claude is on the list of known programs', () => {
   const Pr = require('../desktop/programs.js');
   assert.deepEqual(Pr.identify('Claude.exe'), { kind: 'ai', name: 'Claude' });
-  assert.deepEqual(Pr.describe('claude.exe', true), { kind: 'ai', name: 'Claude', fullscreen: false });
+  assert.deepEqual(Pr.describe('claude.exe', false), { kind: 'ai', name: 'Claude', fullscreen: false });
 });
