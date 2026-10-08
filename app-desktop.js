@@ -114,7 +114,7 @@
       var dir = Math.abs(carryV.x) > 1.5 ? (carryV.x > 0 ? 1 : -1) : 0;
       if (dir !== carryDir) { carryDir = dir; if (dir) lookToward(dir); else stopLook(); }
       drawBody(1 - stretch * .75 - wob, 1 + stretch + wob, Math.sin(t * 7) * 1.5);
-      if (svg) svg.style.rotate = Math.max(-16, Math.min(16, carryV.x * 1.1)).toFixed(1) + 'deg';   // leans the way he is taken
+      if (svg) svg.style.rotate = Math.max(-34, Math.min(34, carryV.x * 2.4)).toFixed(1) + 'deg';   // leans the way he is taken
       if (typeof toyCarried !== 'undefined' && toyCarried) {   // the toy is in his arms: it sways and bobs with him
         toyEl.style.translate = (walkX + toyHoldX - carryV.x * .7 * .5 + Math.sin(t * 9) * 3).toFixed(1) + 'px 0';
         toyBall.style.transform = 'translateY(' + (-toyHoldY + Math.sin(t * 13) * 2).toFixed(1) + 'px)';

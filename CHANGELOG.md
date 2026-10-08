@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 309 (9 Oct)
+- Carried: he tilts much more.
+
 ## Build 308 (9 Oct)
 - Carried: he holds his toy with both hands or just one, at random.
 
