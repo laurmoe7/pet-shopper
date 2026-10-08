@@ -265,13 +265,34 @@
     }, function () { pet.classList.remove('walking'); stopLook(); return 0; });
   };
 
+  /** A card (so it shows even with speech bubbles off) saying an update is ready, with Restart and a cross for later. */
+  function showUpdateCard() {
+    if (!D.installUpdate || document.querySelector('.update-card')) return;
+    var card = document.createElement('div');
+    card.className = 'inbox-card update-card';
+    card.setAttribute('role', 'status');
+    var text = document.createElement('div'), t = document.createElement('b'), d = document.createElement('span');
+    text.className = 'inbox-text'; t.textContent = 'Update ready'; d.textContent = 'A new version is downloaded.';
+    text.append(t, d);
+    var acts = document.createElement('div');
+    acts.className = 'inbox-actions';
+    var go = document.createElement('button'); go.type = 'button'; go.textContent = 'Restart now';
+    go.addEventListener('click', function (e) { e.stopPropagation(); D.installUpdate(); });
+    var later = document.createElement('button'); later.type = 'button'; later.textContent = '✕'; later.className = 'inbox-done'; later.setAttribute('aria-label', 'Later');
+    later.addEventListener('click', function (e) { e.stopPropagation(); card.remove(); });
+    acts.append(go, later);
+    card.append(document.createElement('span'), text, acts);
+    stage.appendChild(card);
+    setTimeout(function () { if (card.parentNode) card.remove(); }, 60000);
+  }
   // ---------- an update finished downloading: he says so (once he is free to speak) ----------
   if (D.onUpdateReady) D.onUpdateReady(function () {
     var tries = 0;
     (function go() {
       if (!busy && bubble.hidden && !document.querySelector('.inbox-card')) {
-        say(pick(['a new version is ready! right-click me, then Updates', 'I have an update! restart me when you like ♡', 'new me incoming~ right-click, Updates, Restart']), 6500, true);
+        say(pick(['a new version is ready! restart me when you like', 'I have an update! ♡', 'new me incoming~']), 6500, true);
         pulse('hopsmall', 450);
+        showUpdateCard();
       } else if (++tries < 30) setTimeout(go, 2000);
     })();
   });

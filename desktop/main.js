@@ -382,6 +382,7 @@ function start() {
     win.webContents.on('dom-ready', applyZoom);
     win.on('closed', () => { win = null; });
     win.loadURL(APP_URL);
+    win.webContents.on('did-finish-load', () => { if (updateReady) win.webContents.send('desk:updateReady'); });   // a page that opens after the download finished is told too
     setTimeout(() => { if (win && !shown) { shown = true; win.showInactive(); } }, 6000);   // show it anyway if the page never says it is ready
   }
 
@@ -514,6 +515,8 @@ function start() {
   });
   ipcMain.on('desk:toyHide', () => hideToy());
   app.on('before-quit', () => { if (toyWin && !toyWin.isDestroyed()) toyWin.destroy(); });
+  ipcMain.on('desk:installUpdate', () => { if (updateReady && autoUpdater) autoUpdater.quitAndInstall(); });
+  setInterval(() => { if (updateReady && win && win.isVisible()) win.webContents.send('desk:updateReady'); }, 3 * 3600 * 1000);   // still waiting: a gentle reminder now and then
   // a reminder: bring Fumu back if he was hidden (without taking the keyboard from what you are doing)
   ipcMain.on('desk:reveal', () => { if (win && !win.isVisible()) { win.showInactive(); refreshMenus(); } });
   ipcMain.on('desk:menu', () => { log('menu'); if (win) menu().popup({ window: win }); });

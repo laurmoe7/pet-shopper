@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 302 (9 Oct)
+- A soft chime when Claude's alert arrives.
+- Carried: arms flap about; feet kick like before.
+- Update ready: a card with Restart now, shown again after a few hours and when the app opens.
+
 ## Build 301 (9 Oct)
 - Claude's alert pops in, then nudges; Fumu celebrates when it arrives.
 

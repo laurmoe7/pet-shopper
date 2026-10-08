@@ -227,7 +227,7 @@ function receiveMessage(msg, more) {
       eatMessage(link, { x: mouth.x + 70, y: Math.max(8, mouth.y - 170) }).then(function () {
         var fromClaude = msg.from === 'claude';
         say(fromClaude ? msg.text + '!' : link ? 'a link for you!' : 'a note for you!', fromClaude ? 3200 : 1900);
-        if (fromClaude) { setFace(FACES.tada); pulse('hophop', 1500); drift(['✦', '♥', '✦'], petTop(), 3); sound('excited'); }   // Claude's note gets a little celebration
+        if (fromClaude) { setFace(FACES.tada); pulse('hophop', 1500); drift(['✦', '♥', '✦'], petTop(), 3); sound('notice'); }   // Claude's note gets a little celebration
         setTimeout(function () {
           busy--; if (!busy) settle();
           inboxCard = null;

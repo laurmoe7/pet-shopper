@@ -2892,9 +2892,9 @@ html.desktop-pet .quick-card input { user-select: text; -webkit-user-select: tex
 html.desk-moving :is(.dream, .wish), .stage:has(.pet.walking) :is(.dream, .wish) { visibility: hidden; }
 
 /* carried by the cursor (app-desktop.js): his feet dangle and kick */
-@keyframes dangle-a { 0%, 100% { rotate: -38deg; translate: -3px -3px; } 50% { rotate: 42deg; translate: 3px 6px; } }
-@keyframes dangle-b { 0%, 100% { rotate: 42deg; translate: 3px 6px; } 50% { rotate: -38deg; translate: -3px -3px; } }
-.pet.carried :is(.foot-side, .shoe-l, .shoe-r) { transform-box: fill-box; transform-origin: 50% 0; animation: dangle-a .2s ease-in-out infinite; }
+@keyframes dangle-a { 0%, 100% { rotate: -14deg; translate: 0 -1px; } 50% { rotate: 16deg; translate: 0 2.5px; } }
+@keyframes dangle-b { 0%, 100% { rotate: 16deg; translate: 0 2.5px; } 50% { rotate: -14deg; translate: 0 -1px; } }
+.pet.carried :is(.foot-side, .shoe-l, .shoe-r) { transform-box: fill-box; transform-origin: 50% 0; animation: dangle-a .28s ease-in-out infinite; }
 .pet.carried :is(.foot-r, .shoe-r) { animation-name: dangle-b; }
 @media (prefers-reduced-motion: reduce) { .pet.carried :is(.foot-side, .shoe-l, .shoe-r) { animation: none; } }
 .wish.wish-learned .wish-tag { display: none; }   /* fed him a few times: the label is not needed any more */
@@ -2903,3 +2903,10 @@ html.desk-moving :is(.dream, .wish), .stage:has(.pet.walking) :is(.dream, .wish)
 @keyframes claude-nudge { 0%, 78%, 100% { translate: 0 0; rotate: 0deg; } 82% { translate: -2px 0; rotate: -1.2deg; } 86% { translate: 2px 0; rotate: 1.2deg; } 90% { translate: -1.5px 0; rotate: -.8deg; } 94% { translate: 1px 0; rotate: .5deg; } }
 .inbox-card.claude-card { animation: pop .3s cubic-bezier(.3, 1.6, .5, 1), claude-nudge 2.6s ease-in-out .5s infinite; transform-origin: 50% 100%; }   /* pops in, then nudges */
 @media (prefers-reduced-motion: reduce) { .inbox-card.claude-card { animation: none; } }
+
+/* carried by the cursor: his arms flap about (the feet kick too, above) */
+@keyframes flap-l { from { transform: rotate(10deg); } to { transform: rotate(125deg); } }
+@keyframes flap-r { from { transform: rotate(-10deg); } to { transform: rotate(-125deg); } }
+.pet.carried .arm-l { animation: flap-l .17s ease-in-out infinite alternate; }
+.pet.carried .arm-r { animation: flap-r .17s ease-in-out infinite alternate .085s; }
+@media (prefers-reduced-motion: reduce) { .pet.carried .arm-l, .pet.carried .arm-r { animation: none; } }

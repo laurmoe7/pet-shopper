@@ -4,7 +4,7 @@
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
  *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
- *   done, sparkle, coin, ring (ticking off a to-do), stamp (the check mark landing), scribble (writing on the clipboard), shutter (the dressing room's camera),
+ *   notice (Claude's note arriving), done, sparkle, coin, ring (ticking off a to-do), stamp (the check mark landing), scribble (writing on the clipboard), shutter (the dressing room's camera),
  *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
  * Every play is pitch-shifted a little, and kinds with several variants pick a
  * different one each time, so nothing sounds exactly the same twice in a row.
@@ -249,6 +249,8 @@
       noise(t, 0.06, 'bandpass', 1800, 1.5, env(t, 0.002, 0.05, 1.1));
       tone(t + 0.02, 0.14, 'sine', 620, 190, env(t + 0.02, 0.005, 0.13, 0.6));
     },
+    // Claude's note arriving: two soft bells
+    notice: function (t) { chime(t, [988, 1319], 0.12, 0.85, 'sine'); chime(t + 0.34, [1568], 0.1, 0.5, 'sine'); },
     party: function (t) { chime(t, [523, 659, 784, 1047, 1319], 0.09, 1.1); },
     jiggle: function (t) {
       // a belly wobble: soft boings that get smaller and lower
