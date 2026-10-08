@@ -1,0 +1,190 @@
+<title>Fumu Pal Test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/* layout: one stage with the pet centred, two sticker buttons under it */
+:root {
+  --bg: #f1e3cc;
+  --ground: #e6d2b3;
+  --ink: #5b4239;
+  --skin: #ffe6cf;
+  --skin-shade: #f7cba6;
+  --belly: #fff4e6;
+  --inner: #ffb3b8;
+  --btn: #fffaf1;
+  --font: ui-rounded, "Nunito", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #2f2623; --ground: #3d3330; --btn: #4a3d39; --ink: #fbefdc; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #2f2623; --ground: #3d3330; --btn: #4a3d39; --ink: #fbefdc; color-scheme: dark; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); }
+main { min-height: 100%; box-sizing: border-box; padding-block: 24px; padding-inline: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+h1 { margin: 0; font-size: 1.2rem; font-weight: 800; text-wrap: balance; text-align: center; }
+.stage { width: min(88vw, 420px); aspect-ratio: 1; background: var(--ground); border-radius: 28px; display: grid; place-items: center; }
+svg { width: 100%; height: 100%; display: block; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+button { font: inherit; font-weight: 800; color: var(--ink); background: var(--btn); border: 2px solid var(--ink); border-radius: 999px; padding: 8px 22px; box-shadow: 0 3px 0 var(--ink); cursor: pointer; }
+button:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+button:focus-visible { outline: 3px solid #ff8fa3; outline-offset: 2px; }
+p { margin: 0; font-size: .85rem; opacity: .75; text-align: center; }
+</style>
+
+<main>
+  <h1>New pal, test build</h1>
+  <div class="stage">
+    <svg id="pal" viewBox="-20 -42 200 214" fill="none" stroke="#5b4239" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="A round cream creature with pointy ears">
+      <defs>
+        <!-- the body shape, so the shade stays inside the outline -->
+        <clipPath id="bodyClip"><path id="bodyShape" d="M31.7 90.2C10.4 104.8 10.7 135.6 35 147C48.9 153.4 65.5 152.6 80 152.5C94.5 152.6 111.1 153.4 125 147C149.3 135.6 149.6 104.8 128.3 90.2Z"/></clipPath>
+      </defs>
+
+      <ellipse id="shadow" cx="80" cy="161" rx="52" ry="6" fill="#5b4239" fill-opacity=".14" stroke="none"/>
+
+      <g id="all">
+        <!-- feet sit behind the body, so the body's bottom edge covers their tops -->
+        <g id="feetL"><path d="M46 146 C46.4 152 46 154.6 48 157.2 C51 162.4 60.4 161.4 62.4 155.2 C63 153 63.2 150.4 63.4 146 Z" fill="#ffe6cf" stroke-width="2.3"/><path d="M52.6 157.2 V161 M57.4 157.6 V161.4" stroke-width="1.8"/></g>
+        <g id="feetR"><path d="M110.8 146 C110.4 152 110.8 154.6 108.8 157.2 C105.8 162.4 96.4 161.4 94.4 155.2 C93.8 153 93.6 150.4 93.4 146 Z" fill="#ffe6cf" stroke-width="2.3"/><path d="M104.2 157.2 V161 M99.4 157.6 V161.4" stroke-width="1.8"/></g>
+
+        <g id="bodyg">
+          <path d="M31.7 90.2C10.4 104.8 10.7 135.6 35 147C48.9 153.4 65.5 152.6 80 152.5C94.5 152.6 111.1 153.4 125 147C149.3 135.6 149.6 104.8 128.3 90.2L118 88C100 84 60 84 42 88Z" fill="#ffe6cf"/>
+          <g clip-path="url(#bodyClip)" stroke="none">
+            <ellipse cx="96" cy="156" rx="78" ry="30" fill="#f7cba6" fill-opacity=".7"/>
+            <ellipse cx="80" cy="126" rx="31" ry="22" fill="#fff4e6"/>
+          </g>
+          <path d="M31.7 90.2C10.4 104.8 10.7 135.6 35 147C48.9 153.4 65.5 152.6 80 152.5C94.5 152.6 111.1 153.4 125 147C149.3 135.6 149.6 104.8 128.3 90.2" fill="none"/>
+
+          <!-- arms: rounded mitts drawn over the body, each pivots at its shoulder -->
+          <g id="armL"><g transform="rotate(-14 24 116)"><ellipse cx="24" cy="116" rx="8.6" ry="11.4" fill="#ffe6cf"/><path d="M16.2 116.4 C21 118.6 25.4 120 30.4 121.6" stroke-width="1.9"/><path d="M21.4 118.9 L19.6 124" stroke-width="1.9"/></g></g>
+          <g id="armR"><g transform="rotate(14 136 116)"><ellipse cx="136" cy="116" rx="8.6" ry="11.4" fill="#ffe6cf"/><path d="M143.8 116.4 C139 118.6 134.6 120 129.6 121.6" stroke-width="1.9"/><path d="M138.6 118.9 L140.4 124" stroke-width="1.9"/></g></g>
+
+          <g id="head">
+            <!-- ears behind the head; their flat sides are hidden by the head fill -->
+            <g id="earL"><path d="M57.2 35 C51.9 29.5 49 25.2 43.1 26.5 C38.9 31.9 39.5 36.3 40.1 45 Z" fill="#ffe6cf"/><path d="M52 36 C49 33 47.5 31 44.8 31.6 C43.2 34 43.4 37 43.8 41 Z" fill="#ffb3b8" stroke="none"/></g>
+            <g id="earR"><path d="M102.8 35 C108.1 29.5 111 25.2 116.9 26.5 C121.1 31.9 120.5 36.3 119.9 45 Z" fill="#ffe6cf"/><path d="M108 36 C111 33 112.5 31 115.2 31.6 C116.8 34 116.6 37 116.2 41 Z" fill="#ffb3b8" stroke="none"/></g>
+
+            <!-- head fill, closed at the bottom over the body; the outline is only the open top arc -->
+            <path d="M36.9 94.4C21.5 82.9 28.9 53.5 41.9 42.6C53.8 32.7 64.4 31.6 80 31.9C95.6 31.6 106.2 32.7 118.1 42.6C131.1 53.5 138.5 82.9 123.1 94.4C110 104 50 104 36.9 94.4Z" fill="#ffe6cf" stroke="none"/>
+            <path d="M36.9 94.4C21.5 82.9 28.9 53.5 41.9 42.6C53.8 32.7 64.4 31.6 80 31.9C95.6 31.6 106.2 32.7 118.1 42.6C131.1 53.5 138.5 82.9 123.1 94.4"/>
+
+            <!-- face -->
+            <ellipse cx="40" cy="88" rx="7.5" ry="4.2" fill="#ff9fb2" fill-opacity=".55" stroke="none"/>
+            <ellipse cx="120" cy="88" rx="7.5" ry="4.2" fill="#ff9fb2" fill-opacity=".55" stroke="none"/>
+            <g id="eyeL" transform="translate(50 75)"><ellipse rx="5.8" ry="6.4" fill="#5b4239" stroke="none"/><circle cx="-1.7" cy="-2.2" r="1.7" fill="#fff" stroke="none"/></g>
+            <g id="eyeR" transform="translate(110 75)"><ellipse rx="5.8" ry="6.4" fill="#5b4239" stroke="none"/><circle cx="-1.7" cy="-2.2" r="1.7" fill="#fff" stroke="none"/></g>
+            <path id="happyL" d="M43.6 78 Q50 68 56.4 78" stroke-width="3" visibility="hidden"/>
+            <path id="happyR" d="M103.6 78 Q110 68 116.4 78" stroke-width="3" visibility="hidden"/>
+            <rect x="72.9" y="70.5" width="14.2" height="9.6" rx="4.8" fill="#ffb3bf" stroke-width="2"/>
+            <path id="mouthShut" d="M75.9 85.2 L80 87.4 L84.1 85.2 M77.8 91 Q80 92.4 82.2 91" stroke-width="1.9"/>
+            <path id="mouthOpen" d="M74.5 85.5 Q80 84.5 85.5 85.5 Q85 94.5 80 94.5 Q75 94.5 74.5 85.5Z" fill="#c75b6b" stroke-width="1.9" visibility="hidden"/>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <div class="row">
+    <button id="hopBtn" type="button">Hop</button>
+    <button id="waveBtn" type="button">Wave</button>
+  </div>
+  <p>Tap the pal to make it hop.</p>
+</main>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var all = $('all'), bodyg = $('bodyg'), head = $('head'), shadow = $('shadow');
+  var armL = $('armL'), armR = $('armR'), earL = $('earL'), earR = $('earR');
+  var eyeL = $('eyeL'), eyeR = $('eyeR'), happyL = $('happyL'), happyR = $('happyR');
+  var mouthShut = $('mouthShut'), mouthOpen = $('mouthOpen');
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var HOP = 1100, WAVE = 2200;
+  var move = null, blinkAt = 2000, nextBlink = 2500, twitchAt = 5000;
+
+  function ease(p) { return p * p * (3 - 2 * p); }
+  function lerp(a, b, p) { return a + (b - a) * p; }
+
+  // one pose per frame; everything is an SVG transform (no CSS scaling)
+  function pose(t) {
+    var P = { lift: 0, sx: 1, sy: 1, headRot: 0, headDy: 0, aL: 0, aR: 0, earL: 0, earR: 0, happy: false, open: 0 };
+
+    if (!reduce) {
+      var b = Math.sin(t / 700);                       // idle breathing
+      P.sy = 1 + 0.012 * b; P.sx = 1 - 0.008 * b; P.headDy = -0.6 * b;
+      P.aL = 2 * b; P.aR = -2 * b;
+      if (t > twitchAt && t < twitchAt + 450) {        // now and then an ear flicks
+        P.earL = 9 * Math.sin((t - twitchAt) / 450 * Math.PI * 3);
+      } else if (t > twitchAt + 450) { twitchAt = t + 4500 + Math.random() * 4000; }
+    }
+
+    if (move) {
+      var e = t - move.start, p = e / move.dur;
+      if (p >= 1) { move = null; }
+      else if (move.kind === 'hop') {
+        if (p < 0.2) {                                  // crouch
+          var c = ease(p / 0.2);
+          P.sy = lerp(1, 0.84, c); P.sx = lerp(1, 1.1, c); P.headDy = 2 * c; P.aL = 12 * c; P.aR = -12 * c;
+        } else if (p < 0.72) {                          // in the air
+          var a = (p - 0.2) / 0.52, h = Math.sin(a * Math.PI);
+          P.lift = 34 * h;
+          var st = a < 0.5 ? lerp(0.84, 1.1, ease(a * 2)) : lerp(1.1, 0.98, ease((a - 0.5) * 2));
+          P.sy = st; P.sx = 2 - st * 1.0 + 0; P.sx = 1 / Math.sqrt(st);
+          P.aL = 70 * h; P.aR = -70 * h; P.earL = P.earR = -10 * h;
+          P.happy = true; P.open = h;
+        } else {                                        // land and settle
+          var l = (p - 0.72) / 0.28, d = Math.exp(-4 * l) * Math.cos(l * 9);
+          P.sy = 1 - 0.14 * d; P.sx = 1 + 0.09 * d; P.headDy = 2 * d; P.aL = 8 * d; P.aR = -8 * d;
+          P.happy = l < 0.55;
+        }
+      } else if (move.kind === 'wave') {
+        var up = Math.min(1, e / 260) * Math.min(1, (move.dur - e) / 260);
+        P.aR = -(40 + 95 * ease(Math.max(0, up))) + 22 * Math.sin(e / 95) * up;
+        P.headRot = -5 * up; P.happy = up > 0.2; P.earR = 5 * Math.sin(e / 95 + 1) * up;
+        P.sx = 1 + 0.01 * Math.sin(e / 95) * up;
+      }
+    }
+
+    // blink
+    var blink = 1;
+    if (!reduce && t > nextBlink) {
+      var q = (t - nextBlink) / 150;
+      if (q < 1) blink = Math.abs(1 - 2 * q) * 0.9 + 0.1; else nextBlink = t + 2200 + Math.random() * 2600;
+    }
+
+    var s = 'translate(80 152.5) scale(' + P.sx.toFixed(4) + ' ' + P.sy.toFixed(4) + ') translate(-80 -152.5)';
+    all.setAttribute('transform', 'translate(0 ' + (-P.lift).toFixed(2) + ')');
+    bodyg.setAttribute('transform', s);
+    head.setAttribute('transform', 'translate(0 ' + P.headDy.toFixed(2) + ') rotate(' + P.headRot.toFixed(2) + ' 80 98)');
+    armL.setAttribute('transform', 'rotate(' + P.aL.toFixed(2) + ' 26 106)');
+    armR.setAttribute('transform', 'rotate(' + P.aR.toFixed(2) + ' 134 106)');
+    earL.setAttribute('transform', 'rotate(' + P.earL.toFixed(2) + ' 50 40)');
+    earR.setAttribute('transform', 'rotate(' + (-P.earR).toFixed(2) + ' 110 40)');
+    var sc = 'scale(1 ' + blink.toFixed(3) + ')';
+    eyeL.setAttribute('transform', 'translate(50 75) ' + sc);
+    eyeR.setAttribute('transform', 'translate(110 75) ' + sc);
+    var eyes = P.happy ? 'hidden' : 'visible', hap = P.happy ? 'visible' : 'hidden';
+    eyeL.style.visibility = eyeR.style.visibility = eyes;
+    happyL.style.visibility = happyR.style.visibility = hap;
+    var open = P.open > 0.25;
+    mouthOpen.style.visibility = open ? 'visible' : 'hidden';
+    mouthShut.style.visibility = open ? 'hidden' : 'visible';
+    // the shadow shrinks as he rises
+    var k = 1 - P.lift / 90;
+    shadow.setAttribute('rx', (52 * k).toFixed(1));
+    shadow.setAttribute('fill-opacity', (0.14 * k).toFixed(3));
+  }
+
+  function start(kind) {
+    var now = performance.now();
+    if (move && now - move.start < move.dur * 0.6) return;   // let a move finish
+    move = { kind: kind, start: now, dur: kind === 'hop' ? HOP : WAVE };
+  }
+
+  function frame(now) { pose(now); requestAnimationFrame(frame); }
+  requestAnimationFrame(frame);
+
+  $('hopBtn').addEventListener('click', function () { start('hop'); });
+  $('waveBtn').addEventListener('click', function () { start('wave'); });
+  $('pal').addEventListener('click', function () { start('hop'); });
+  window.palStart = start;
+})();
+</script>
