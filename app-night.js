@@ -2,8 +2,10 @@
 // swapping his teddy (take it, give it back), and a night light. Plain script, shares one scope, loaded after app-bedtime.js.
 'use strict';
 
+/** @returns {boolean} Whether he is lying in his bed right now (the bed is out and he is on it: not up and about at night, not away from it). */
+function inBed() { return stage.classList.contains('bedtime') && Math.abs(typeof walkX === 'number' ? walkX : 0) < 24 && !pet.classList.contains('walking') && !pet.classList.contains('running'); }
 /** @returns {boolean} Whether he is asleep in his bed right now. */
-function inBedAsleep() { return stage.classList.contains('bedtime') && baseState() === 'sleepy'; }
+function inBedAsleep() { return inBed() && baseState() === 'sleepy'; }
 
 // ---------- 1. the lullaby: rest the pointer on him for a moment and he hums in his sleep ----------
 var lullabyTimer = 0, lullabyAt = 0;
@@ -105,7 +107,7 @@ stage.append(nightGlow, nightBtn);
 var nightLightOn = false;
 try { nightLightOn = localStorage.getItem(NIGHT_LIGHT_KEY) === '1'; } catch (e) { /* storage blocked */ }
 function showNightLight() {
-  var bed = stage.classList.contains('bedtime');
+  var bed = stage.classList.contains('bedtime');   // (the switch belongs to the room: it is there whenever the bed is out)
   nightBtn.hidden = !bed;
   nightBtn.setAttribute('aria-pressed', nightLightOn ? 'true' : 'false');
   nightBtn.setAttribute('aria-label', 'Night light');

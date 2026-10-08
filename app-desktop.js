@@ -150,7 +150,7 @@
   }
   function drop() {
     if (press && press.timer) clearTimeout(press.timer);
-    if (carried) { stopCarry(); D.dragEnd(stage.classList.contains('bedtime')); noClickUntil = Date.now() + 400; carried = false; }
+    if (carried) { stopCarry(); D.dragEnd(typeof inBed === 'function' && inBed()); noClickUntil = Date.now() + 400; carried = false; }
     press = null;
   }
   if (D.dragEnd) D.dragEnd();   // a page that has just loaded is not carrying anyone: if the shell still follows the cursor (the page reloaded mid-carry), let him go

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 318 (9 Oct)
+- Night play and the bed throw only apply while he is lying in his bed, not when he is up at night.
+
 ## Build 317 (9 Oct)
 - Night: rest the pointer on him and he hums a lullaby in his sleep.
 - Night: pick up his teddy, he reaches for it; put it back and he hugs it.
