@@ -2961,7 +2961,7 @@ html:not([data-list="todo"]) #pet.wanding .arm-l { transform-box: view-box; tran
 @media (prefers-reduced-motion: reduce) { .pet.thrown .pet-svg { animation: none; } }
 
 /* thrown while asleep in bed (app-desktop.js onFlight): the bed turns to face where it is flying */
-html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); scale: .7; translate: 0 -38px; transform-origin: 50% 58%; transition: rotate .14s ease-out; }
+html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); translate: 0 -38px; transform-origin: 50% 58%; transition: rotate .14s ease-out; }
 @media (prefers-reduced-motion: reduce) { html.desktop-pet .stage.bed-thrown { transition: none; } }
 
 /* night play (app-night.js): the teddy to pick up, the night light and its glow */

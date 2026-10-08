@@ -977,6 +977,8 @@
   function tripEnd() { tripHold = false; if (!perched && !carried && typeof toyCarry === 'function') toyCarry(false); }
   if (D.onFall) D.onFall(function (on) { pet.classList.toggle('falling', on); if (on) setFace({ eyes: 'sparkle', mouth: 'o', arms: 'idle', x: [] }); else if (!busy) settle(); });
   var runOwn = false;
+  // the shortcut that makes him catch the mouse in a full-screen game (or lets go again)
+  if (D.onGrab) D.onGrab(function (on) { say(on ? pick(['you can click me now!', 'here I am~', 'grab me!']) : pick(['back to the game!', 'I\'ll stay out of the way', 'shh, play on~']), 2200, true); });
   // up at night and tired: the shell takes his walk back slowly, and his feet go slowly too
   if (D.setDrowsy) new MutationObserver(function () {
     var sc = document.documentElement.dataset.scene || '';

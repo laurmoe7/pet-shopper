@@ -228,7 +228,7 @@ function start() {
       if (rects) {
         const z = zoom(), x = (p.x - b.x) / z, y = (p.y - b.y) / z;
         // in a full-screen program or a game the window lets every click and move through, so the game keeps the mouse (its camera, say)
-        const gaming = !prefs.catchGames && programNow && (programNow.fullscreen || programNow.kind === 'game');
+        const gaming = !prefs.catchGames && !gameGrab && programNow && (programNow.fullscreen || programNow.kind === 'game');
         const want = !gaming && (holdSolid || (inside && place.hitTest(rects, x, y, HIT_PAD)));
         if (want !== solidState) { solidState = want; solidNow = want; win.setIgnoreMouseEvents(!want, { forward: true }); }
         return;
@@ -342,7 +342,10 @@ function start() {
     }).catch((e) => log('clipboard read failed', e && e.message));
   }
   ipcMain.on('desk:typing', (_e, yes) => { if (win && yes) win.focus(); });
-  const HANDLERS = { swapSize: toggleFull, swapList, quickAdd };
+  // in a full-screen game he lets the mouse through; this key makes him catch it for a while (to move him or clear an alert), and again lets go
+  let gameGrab = false;
+  function grabMouse() { if (!win) return; gameGrab = !gameGrab; solidState = null; win.webContents.send('desk:grab', gameGrab); }
+  const HANDLERS = { swapSize: toggleFull, swapList, quickAdd, grab: grabMouse };
   const HOVER_HANDLERS = { options: () => panel.toggle(), sendCopied };   // held only while the pointer is over him
   function setupKeys() {
     Object.keys(registered).forEach((k) => { if (registered[k]) globalShortcut.unregister(registered[k]); delete registered[k]; });
@@ -656,7 +659,7 @@ function start() {
       if (now.kind === 'other' || now.kind === 'fullscreen') lastUnknown = f.exe;
       const key = JSON.stringify(now);
       if (key === programMaybe) programCount++; else { programMaybe = key; programCount = 1; }
-      if (programCount >= 2 && key !== programSent) { programSent = key; programNow = now; win.webContents.send('desk:program', now); log('program', now.kind, now.name); }
+      if (programCount >= 2 && key !== programSent) { gameGrab = false; programSent = key; programNow = now; win.webContents.send('desk:program', now); log('program', now.kind, now.name); }
     }, 2500);
   }
   // the player teaches him a game he does not know: the last program he could not name gets that name

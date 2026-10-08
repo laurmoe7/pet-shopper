@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 350
+- The bell can be shaken anywhere on the screen when "Toy flies around the screen" is on.
+- New shortcut Ctrl+Alt+G: in a full-screen game he catches the mouse (to move him or clear an alert); again to let go.
+- He no longer shrinks when thrown in bed.
+
 ## Build 349
 - The bell bounces four times before it breaks.
 - In a full-screen game or program he no longer catches the mouse (new switch "Mouse reaches him in games", off).

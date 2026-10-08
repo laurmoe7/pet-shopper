@@ -163,7 +163,9 @@ var bellX = 100, bellY = 20, bellTilt = 18, bellHeld = null, bellFlight = 0, bel
 function bellOut() { return document.documentElement.classList.contains('desktop-pet') && L.isNight(petNow()) && !bellBroken && stage.classList.contains('bedtime'); }
 /** Where it rests: tucked into his bed beside him (when the bed is out), otherwise on the floor. */
 function bellRest() { var side = roomOnRight(120) ? 1 : -1; return stage.classList.contains('bedtime') ? { x: 100 * side, y: 20, tilt: 18 * side } : { x: -128, y: 0, tilt: 0 }; }
-function placeBell(turn, clap) { bell.style.translate = Math.round(bellX) + 'px 0'; bellImg.style.transform = 'translateY(' + (-bellY).toFixed(1) + 'px)'; bellSvg.style.rotate = (turn || 0).toFixed(1) + 'deg'; bellClap.style.rotate = (clap || 0).toFixed(1) + 'deg'; }
+function placeBell(turn, clap) {
+  if (bellField && bellHeld) { bellField.show(bellX, bellY, turn || 0); bell.style.visibility = 'hidden'; return; }   // held out in the screen-wide field: the bell is drawn by the window of its own
+  bell.style.translate = Math.round(bellX) + 'px 0'; bellImg.style.transform = 'translateY(' + (-bellY).toFixed(1) + 'px)'; bellSvg.style.rotate = (turn || 0).toFixed(1) + 'deg'; bellClap.style.rotate = (clap || 0).toFixed(1) + 'deg'; }
 /** Puts it back where it rests (a short hop), tilted, behind the front of the bed. */
 function bellNest(quick) {
   var to = bellRest(), from = { x: bellX, y: bellY, t: bellTilt }, t0 = performance.now(), ms = quick ? 1 : 320;
@@ -213,7 +215,7 @@ function bellRing() {
   say(pick(['wha—? who rang?', 'mm?! I\'m up…', 'ding…? I\'m awake…']), 2200);
   setTimeout(function () { if (!busy) settle(); }, 1800);
   // with no bed there is no bell: it is put away (he has his toy again)
-  bellHeld = null; bell.classList.remove('held'); bell.classList.add('putaway'); cancelAnimationFrame(bellFlight);
+  bellHeld = null; endBellField(); bell.classList.remove('held'); bell.classList.add('putaway'); cancelAnimationFrame(bellFlight);
   setTimeout(function () { bell.classList.remove('putaway'); showScene(); }, 450);
   showScene();
 }
@@ -317,7 +319,7 @@ function swingLoop(h) {
 bell.addEventListener('pointermove', function (e) {
   var h = bellHeld; if (!h) return;
   if (e.buttons === 0 && e.pointerType === 'mouse') { bellLetGo(); return; }
-  var s = stage.getBoundingClientRect(), lim = bellLimits(), now = e.timeStamp;
+  var s = stage.getBoundingClientRect(), lim = bellField ? bellField.lim : bellLimits(), now = e.timeStamp;
   bellX = Math.max(lim.minX, Math.min(lim.maxX, e.clientX - (s.left + s.width / 2)));
   bellY = Math.max(0, Math.min(lim.maxY, s.bottom - 3 - BELL_H + BELL_GRIP - e.clientY));   // the handle is under the pointer
   // how fast and how hard the pointer is pushing it sideways (px/s and px/s^2), for the swing

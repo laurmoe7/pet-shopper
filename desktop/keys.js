@@ -7,6 +7,7 @@ var KEY_LIST = [
   { id: 'swapSize', label: 'Small {name} / whole app', def: 'CommandOrControl+Alt+F' },
   { id: 'swapList', label: 'Swap list', def: 'CommandOrControl+Alt+T' },
   { id: 'quickAdd', label: 'Add an item from anywhere', def: 'CommandOrControl+Alt+A' },
+  { id: 'grab', label: '{name} catches the mouse in a game (again to let go)', def: 'CommandOrControl+Alt+G' },
   { id: 'sendCopied', label: 'Send my copied text or link (while the pointer is over {name})', def: 'CommandOrControl+Alt+S', hover: true },
   { id: 'options', label: 'Open the settings (while the pointer is over {name})', def: 'CommandOrControl+Alt+O', hover: true }
 ];
