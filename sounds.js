@@ -1,4 +1,4 @@
-/* Nibble's sounds, synthesised with the Web Audio API (no audio files).
+/* Fumu's sounds, synthesised with the Web Audio API (no audio files).
  * Sounds.play(kind) where kind is one of:
  *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party,
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),

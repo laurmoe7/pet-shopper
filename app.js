@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '252';
+var BUILD = '253';
 
 var STORE_KEY = 'nibble.v1';
 var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -227,7 +227,7 @@ function petNow() {
 function updateEmptyHint() {
   var name = document.createElement('span');
   name.className = 'pet-name';
-  name.textContent = state.pet.name || 'Nibble';
+  name.textContent = state.pet.name || 'Fumu';
   var night = L.isNight(petNow()), asleep = night && L.restingMood(state.items, petNow(), state.pet.dozing) === 'sleepy';
   if (state.mode === 'todo') {
     emptyHint.replaceChildren(name, asleep

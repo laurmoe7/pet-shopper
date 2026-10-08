@@ -10,13 +10,13 @@ test('a first launch opens with the sample list and the default pet', () => {
   assert.equal(s.items[0].text, 'Bananas');
   assert.equal(s.items[0].emoji, '🍌');
   assert.ok(s.items.every((i) => !i.done));
-  assert.deepEqual(s.pet, { name: 'Nibble', species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, achievements: {}, room: {}, closet: [], personality: 'foodie', tastes: {}, stamps: {}, gifts: {}, prizes: {}, favourites: {}, dozing: '', treats: { day: '', used: [] }, guard: { day: '', words: [], lastSeen: 0 } });
+  assert.deepEqual(s.pet, { name: 'Fumu', species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, achievements: {}, room: {}, closet: [], personality: 'foodie', tastes: {}, stamps: {}, gifts: {}, prizes: {}, favourites: {}, dozing: '', treats: { day: '', used: [] }, guard: { day: '', words: [], lastSeen: 0 } });
 });
 
 test('broken saved data falls back to a fresh start', () => {
   const s = PetLogic.parseState('{not json', ids());
   assert.equal(s.items.length, 8);
-  assert.equal(s.pet.name, 'Nibble');
+  assert.equal(s.pet.name, 'Fumu');
 });
 
 test('name, species and hat survive a save and load', () => {
@@ -34,7 +34,7 @@ test('name, species and hat survive a save and load', () => {
 test('older saves without pet details get the defaults', () => {
   const old = JSON.stringify({ items: [], overrides: {}, quiet: true });
   const s = PetLogic.parseState(old, ids());
-  assert.deepEqual(s.pet, { name: 'Nibble', species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, achievements: {}, room: {}, closet: [], personality: 'foodie', tastes: {}, stamps: {}, gifts: {}, prizes: {}, favourites: {}, dozing: '', treats: { day: '', used: [] }, guard: { day: '', words: [], lastSeen: 0 } });
+  assert.deepEqual(s.pet, { name: 'Fumu', species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, achievements: {}, room: {}, closet: [], personality: 'foodie', tastes: {}, stamps: {}, gifts: {}, prizes: {}, favourites: {}, dozing: '', treats: { day: '', used: [] }, guard: { day: '', words: [], lastSeen: 0 } });
   assert.equal(s.quiet, true);
   const noHat = PetLogic.parseState(JSON.stringify({ items: [], pet: { name: 'Bo', species: 'cow' } }), ids());
   assert.deepEqual(noHat.pet, { name: 'Bo', species: 'cow', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, achievements: {}, room: {}, closet: [], personality: 'foodie', tastes: {}, stamps: {}, gifts: {}, prizes: {}, favourites: {}, dozing: '', treats: { day: '', used: [] }, guard: { day: '', words: [], lastSeen: 0 } });
@@ -120,10 +120,10 @@ test('renaming needs a double-tap: two taps close together, not one', () => {
 });
 
 test('a typed name is tidied, and an empty one keeps the old name', () => {
-  assert.equal(PetLogic.cleanName('  Mochi  ', 'Nibble'), 'Mochi');
+  assert.equal(PetLogic.cleanName('  Mochi  ', 'Fumu'), 'Mochi');
   assert.equal(PetLogic.cleanName('   ', 'Mochi'), 'Mochi');
   assert.equal(PetLogic.cleanName('a really long pet name', 'x').length, 16);
-  assert.equal(PetLogic.cleanName('', ''), 'Nibble');
+  assert.equal(PetLogic.cleanName('', ''), 'Fumu');
 });
 
 test('sunglasses are their own slot, worn alongside a hat', () => {
@@ -187,4 +187,12 @@ test('the cow hoodie moved from hats to clothes in old saves', () => {
   const out = PetLogic.parseState(JSON.stringify({ items: [], pet: { outfit: { hat: 'hoodie' } } }), () => 'x').pet.outfit;
   assert.equal(out.body, 'hoodie');
   assert.equal(out.hat, 'none');
+});
+
+test('a save that still has the first name, Nibble, becomes Fumu; a name you chose is kept', () => {
+  const old = JSON.parse(JSON.stringify(PetLogic.parseState(null, () => '1')));
+  old.pet.name = 'Nibble';
+  assert.equal(PetLogic.parseState(JSON.stringify(old), () => '1').pet.name, 'Fumu');
+  old.pet.name = 'Bean';
+  assert.equal(PetLogic.parseState(JSON.stringify(old), () => '1').pet.name, 'Bean');
 });

@@ -4,7 +4,7 @@ Decisions from the design talk. Do not start building until Lauren says so.
 
 ## Decisions
 
-- **No AI chat, ever.** Nibble's lines are hand-written (the `voice` system). No per-message cost.
+- **No AI chat, ever.** Fumu's lines are hand-written (the `voice` system). No per-message cost.
 - **Desktop awareness stops at level 2.** He may know: idle or busy, time of day, work length without a break, a full-screen app running, and *which program* is in front (process name, from a curated list of games and common apps). He never reads window titles, tab names, page text or the screen. Never level 3, not even as an option.
 - **Everything he notices is worked out on the PC** and never leaves it (not sent to the server or the phone).
 - **Sync comes first and must work right away.** Accounts, backup and phone-to-PC sync come before the desktop pet shell.
@@ -20,7 +20,7 @@ Decisions from the design talk. Do not start building until Lauren says so.
 - Merge per item, not whole lists: each item has an id and a "changed at" time; the latest change per item wins; deletions are kept as markers for a while.
 - Pet state: latest device wins per field. Counters (stamps, goal progress, unlock progress) merge by taking the larger value, so no progress is lost.
 - The merge rules are pure functions in `logic.js` with many tests (offline edits, same item changed twice, delete vs. edit).
-- Needs: privacy policy, account export and delete, EU hosting. Backup ("your Nibble is safe if you lose your phone") is a feature.
+- Needs: privacy policy, account export and delete, EU hosting. Backup ("your Fumu is safe if you lose your phone") is a feature.
 - A synced web page on the PC can prove sync before the desktop app exists.
 
 ## Built so far (build 232)
@@ -38,14 +38,14 @@ Decisions from the design talk. Do not start building until Lauren says so.
 
 ## Built: desktop shell v0 (build 248, Electron)
 
-- `desktop/` (main.js, preload.js, place.js, README.md) and the page side `app-desktop.js`. One transparent frameless always-on-top window (320 x 300) shows the real app, loaded from the Pages address, in "pet" mode (`html.desktop-pet`: only Nibble, bubble above him); "list" mode (`html.desktop-list`) makes the same window bigger and opaque with a small bar. One window on purpose: two windows would both write `nibble.v1` and overwrite each other.
+- `desktop/` (main.js, preload.js, place.js, README.md) and the page side `app-desktop.js`. One transparent frameless always-on-top window (320 x 250) shows the real app, loaded from the Pages address, in "pet" mode (`html.desktop-pet`: only Fumu, bubble above him); "list" mode (`html.desktop-list`) makes the same window bigger and opaque with a small bar. One window on purpose: two windows would both write `nibble.v1` and overwrite each other.
 - Hold still on him to pick him up and drag the window; right-click or the tray icon for the menu; click-through on empty parts (Windows/macOS only; hit-tested in the page); quiet by default; opening any sheet switches to list mode.
 - Tested on Linux (Xvfb) with real pointer events: mode switching, carrying, strokes not carrying, back to the same place. Not yet run on Windows. Installer by `.github/workflows/desktop.yml` (windows-latest, electron-builder, unsigned: SmartScreen warns).
 - Next: send to PC / send to phone, recipes on the PC, awareness level 1-2 and pausing for full-screen apps, size option, signing and updates.
 
 ## Mascot and name (decided for now, build 252)
 
-- App name **Fumufumu**, mascot **Fumu**, a pigeon (the head bob is the "fumu fumu" nod; pigeons eat anything). Nibble is still the name used in the code and on screen until a rename build; saved-data keys (`nibble.v1`...) and the installer id (`com.laurmoe.nibble`) must not change.
+- App name **Fumufumu**, mascot **Fumu**, a pigeon (the head bob is the "fumu fumu" nod; pigeons eat anything). Renamed in build 253 (Nibble became Fumu on screen); saved-data keys (`nibble.v1`...) and the installer id (`com.laurmoe.nibble`) must not change.
 - The pigeon skin (`pigeon`) is the new design (lilac-grey, orange eyes with two glints, bigger wings with a pale bar, faint pink chest, shiny neck band to the outline, white bump over the beak); the earlier one is the skin `oldpigeon` ("Pigeon (old)").
 - Icon: Fumu on a pink-lavender-mint sunburst, transparent corners (`icon-*.png`, `icon-maskable-512.png`, `desktop/build/icon.ico`). Trademark checks are not done (Lauren decided not to worry yet; Japan has many "ふむふむ" marks, see the earlier notes).
 - Ideas not done: a head-bob nod when an item is added ("fumu fumu~"), a tail, food falling around the icon (Lauren will add her own).
@@ -63,7 +63,7 @@ Each person owns a pet; lists can be shared. Avoid a pile of separate lists. Pro
 
 ## Desktop features (wish list)
 
-- Drop a link or text on Nibble: he eats it and it shows on the phone; "Send to PC" from the phone and the Share menu.
+- Drop a link or text on Fumu: he eats it and it shows on the phone; "Send to PC" from the phone and the Share menu.
 - Recipe parser on the PC (same `recipe.js` and Worker), ingredients with checkboxes, "Send to phone".
 - Images from phone to PC (small, deleted after about a day).
 - Reminders from tasks (`due`/`time`), kind work-break nudges (stretch, water, eyes), a focus mode (quiet pet, nap or snack at the end).
@@ -84,12 +84,12 @@ Each person owns a pet; lists can be shared. Avoid a pile of separate lists. Pro
 ## Cautions
 
 - This is a second product (installer, updates, code signing, support). Windows only at first.
-- Check that "Nibble" is free as an app name and trademark before a store release.
+- Check that "Fumufumu" is free as an app name and trademark before a store release.
 - Other desktop pets exist (Shimeji, Desktop Goose); the new part is list + pet + phone-to-PC.
 
-## Name shortlist (not decided, not checked)
+## Names (decided: Fumufumu for the app, Fumu for the mascot; shortlist kept for history)
 
 - Pet name: **Fumufumu** (ふむふむ, Japanese "hmm, uh-huh"). Searches found no exact match, but the tool was weak: still check the App Store, Google Play, EUIPO TMview and J-PlatPat. Close neighbours: Fuwamuu (a pet-care game) and FumiFumi (a photo app).
 - App name idea: **FumuList**.
 - Other ideas: Nomlet, Snaffle, Munchlet, Gulpie.
-- Nibble stays the working name until one is chosen.
+- Decided: app **Fumufumu**, mascot **Fumu**. Nibble was the working name; internal keys keep `nibble` on purpose.

@@ -31,7 +31,7 @@ document.addEventListener('pointerdown', function unlockAudio() {
 function buzz(ms) { try { if (state.settings.vibration && navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* ignore */ } }
 
 // ---------- the eating queue ----------
-// Taps update the list at once; Nibble works through what you checked in order.
+// Taps update the list at once; Fumu works through what you checked in order.
 var queue = Promise.resolve();
 var pending = 0;
 /**
@@ -181,16 +181,16 @@ function addItem(text) {
   if (baseState() === 'sleepy') { pulse('rocksmall', 1300); say(pick(state.mode === 'todo' ? ['tomorrow…', 'mm… later…', 'to-do… zzz'] : ['for me…', 'mm… yum…', 'snack…']), 1300); return; }
   if (state.mode === 'todo') { addedTask(item); return; }
   if (!busy) {
-    pulse('hop', 460);
+    pulse('nod', 900);   // the "fumu fumu" nod
     var face = isBagged(item) ? null : FACES.catching;
     if (face) { setFace(face); setTimeout(function () { if (!busy) settle(); }, 500); }
   }
   // something you buy a lot gets a remark from its history; the rest get a quick cheer
   var memory = L.memoryLine(state.pet, text);
   if (memory) talk(memory.key, MEMORY_LINES[memory.key], 1900, memory.vars);
-  else say(item.cat === 'mystery' ? 'ooh, mystery!' : pick(['ooh!', 'for me?', 'yes please', 'noted!', 'yum?']), 1100);
+  else say(item.cat === 'mystery' ? 'ooh, mystery!' : pick(['fumu fumu~', 'mhm, mhm!', 'fumu fumu~', 'ooh!', 'for me?', 'yes please', 'noted!']), 1300);
 }
-// what Nibble says about things you buy often ({item}, {n} times, #{rank} in the Top 10)
+// what Fumu says about things you buy often ({item}, {n} times, #{rank} in the Top 10)
 var MEMORY_LINES = {
   memoryTop: ['{item} again? your #1!', 'ah, {item}, my favourite to see', '{item}! {n} times now'],
   memoryFav: ['{item} is #{rank} in the Top 10!', 'we do love {item}', '{item} again, {n} times now'],
@@ -266,7 +266,7 @@ function toggle(id) {
     delete item.counted;
     delete item.countedDay;
   }
-  if (!todoMode) { if (item.done) item.doneAt = Date.now(); else delete item.doneAt; }   // when it was ticked: shopping right now keeps Nibble up at night
+  if (!todoMode) { if (item.done) item.doneAt = Date.now(); else delete item.doneAt; }   // when it was ticked: shopping right now keeps Fumu up at night
   if (todoMode) { repeatTask(item); L.addStamp(state.pet, item.cat, item.done ? 1 : -1); }   // the stamp book
   buzz(12);
   save();

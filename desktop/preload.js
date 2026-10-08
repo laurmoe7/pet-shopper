@@ -7,7 +7,7 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   version: 1,
   /** @returns {Promise<'pet'|'list'>} */
   getMode: () => ipcRenderer.invoke('desk:getMode'),
-  /** Switch between Nibble alone ('pet') and the whole app ('list'). */
+  /** Switch between Fumu alone ('pet') and the whole app ('list'). */
   setMode: (mode) => ipcRenderer.send('desk:setMode', mode === 'list' ? 'list' : 'pet'),
   onMode: (fn) => ipcRenderer.on('desk:mode', (_e, mode) => fn(mode)),
   /** The page has applied its mode: the window can be shown. */

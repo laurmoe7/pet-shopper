@@ -175,12 +175,12 @@ function walkPath(spots, pause) {
   return t;
 }
 var SHOPPING_WINDOW_MS = 30 * 60 * 1000;
-/** @returns {boolean} Whether you are in the middle of shopping: something on the shopping list was ticked off in the last half hour and more is still to buy. Only that keeps Nibble up at night. */
+/** @returns {boolean} Whether you are in the middle of shopping: something on the shopping list was ticked off in the last half hour and more is still to buy. Only that keeps Fumu up at night. */
 function shoppingNow() {
   var list = isTodo() ? state.stash : state.items, now = Date.now();
   return list.some(function (i) { return !i.done; }) && list.some(function (i) { return i.done && i.doneAt && now - i.doneAt < SHOPPING_WINDOW_MS; });
 }
-/** @returns {boolean} Whether nothing is left to buy. Only the shopping list counts: tasks never keep Nibble up. */
+/** @returns {boolean} Whether nothing is left to buy. Only the shopping list counts: tasks never keep Fumu up. */
 function nothingLeft() { return !(isTodo() ? state.stash : state.items).some(function (i) { return !i.done; }); }
 /** @returns {boolean} True when the pet may wander off its cushion: nothing left to buy, and not bedtime. */
 function mayWander() { return nothingLeft() && !stage.classList.contains('bedtime'); }

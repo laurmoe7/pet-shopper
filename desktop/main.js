@@ -1,4 +1,4 @@
-// Nibble on your desktop (Windows first): a small transparent window that is always on top and shows the
+// Fumu on your desktop (Windows first): a small transparent window that is always on top and shows the
 // real app in "pet only" mode, a tray icon, and the whole app in a bigger window when you open your list.
 // The app itself is loaded from the web (so a big push updates it), see NIBBLE_URL below.
 'use strict';
@@ -46,22 +46,22 @@ function start() {
     log('mode', mode);
     refreshMenus();
   }
-  function showNibble() { if (win) { win.show(); if (mode === 'list') win.focus(); } refreshMenus(); }
-  function hideNibble() { if (win) win.hide(); refreshMenus(); }
+  function showFumu() { if (win) { win.show(); if (mode === 'list') win.focus(); } refreshMenus(); }
+  function hideFumu() { if (win) win.hide(); refreshMenus(); }
 
   function menu() {
     const visible = win && win.isVisible();
     return Menu.buildFromTemplate([
-      ...(updateReady ? [{ label: 'Restart to update Nibble', click: () => autoUpdater.quitAndInstall() }, { type: 'separator' }] : []),
-      mode === 'list' ? { label: 'Back to Nibble', click: () => applyMode('pet') } : { label: 'Open my list', click: () => { showNibble(); applyMode('list'); } },
-      { label: visible ? 'Hide Nibble' : 'Show Nibble', click: () => (visible ? hideNibble() : showNibble()) },
+      ...(updateReady ? [{ label: 'Restart to update Fumufumu', click: () => autoUpdater.quitAndInstall() }, { type: 'separator' }] : []),
+      mode === 'list' ? { label: 'Back to Fumu', click: () => applyMode('pet') } : { label: 'Open my list', click: () => { showFumu(); applyMode('list'); } },
+      { label: visible ? 'Hide Fumu' : 'Show Fumu', click: () => (visible ? hideFumu() : showFumu()) },
       { type: 'separator' },
       { label: 'Always on top', type: 'checkbox', checked: prefs.onTop, click: (item) => { prefs.onTop = item.checked; savePrefs(); if (win && mode === 'pet') win.setAlwaysOnTop(prefs.onTop); } },
       { label: 'Start with Windows', type: 'checkbox', checked: app.getLoginItemSettings().openAtLogin, click: (item) => app.setLoginItemSettings({ openAtLogin: item.checked }) },
       { label: 'Reload (get the latest)', click: () => win && win.webContents.reloadIgnoringCache() },
       { label: 'Check for app updates', enabled: app.isPackaged, click: () => checkUpdates() },
       { type: 'separator' },
-      { label: 'Quit Nibble', click: () => app.quit() }
+      { label: 'Quit Fumufumu', click: () => app.quit() }
     ]);
   }
   function refreshMenus() { if (tray) tray.setContextMenu(menu()); }
@@ -70,7 +70,7 @@ function start() {
     const bounds = place.startBounds(prefs.x === null ? null : prefs, PET_SIZE, areas(), screen.getPrimaryDisplay().workArea);
     win = new BrowserWindow(Object.assign({}, bounds, {
       frame: false, transparent: true, backgroundColor: '#00000000', hasShadow: false, resizable: false, maximizable: false, fullscreenable: false,
-      skipTaskbar: true, alwaysOnTop: prefs.onTop, show: false, title: 'Nibble',
+      skipTaskbar: true, alwaysOnTop: prefs.onTop, show: false, title: 'Fumufumu',
       webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true, backgroundThrottling: false }
     }));
     if (THROUGH) win.setIgnoreMouseEvents(true, { forward: true });
@@ -92,10 +92,10 @@ function start() {
   ipcMain.on('desk:dragMove', (_e, dx, dy) => { if (win && dragFrom) win.setBounds(place.dragBounds(dragFrom, dx, dy)); });
   ipcMain.on('desk:dragEnd', () => { if (win && dragFrom) { const b = win.getBounds(); prefs.x = b.x; prefs.y = b.y; savePrefs(); dragFrom = null; } });
   ipcMain.on('desk:menu', () => { log('menu'); if (win) menu().popup({ window: win }); });
-  ipcMain.on('desk:hide', () => hideNibble());
+  ipcMain.on('desk:hide', () => hideFumu());
 
   // The page (the app itself) updates by itself because it is loaded from the web. This is for the shell: the
-  // installed program. It checks GitHub's releases, downloads quietly and installs when Nibble is next closed.
+  // installed program. It checks GitHub's releases, downloads quietly and installs when Fumu is next closed.
   let autoUpdater = null;
   function checkUpdates() {
     if (!autoUpdater) return;
@@ -106,13 +106,13 @@ function start() {
     try { autoUpdater = require('electron-updater').autoUpdater; } catch (e) { return; }
     autoUpdater.autoDownload = true;
     autoUpdater.autoInstallOnAppQuit = true;
-    autoUpdater.on('update-downloaded', () => { updateReady = true; if (tray) tray.setToolTip('Nibble (update ready: right-click the tray icon)'); refreshMenus(); log('update ready'); });
+    autoUpdater.on('update-downloaded', () => { updateReady = true; if (tray) tray.setToolTip('Fumufumu (update ready: right-click the tray icon)'); refreshMenus(); log('update ready'); });
     autoUpdater.on('error', (e) => log('updater', e && e.message));
     setTimeout(checkUpdates, 15000);
     setInterval(checkUpdates, 6 * 3600 * 1000);
   }
 
-  app.on('second-instance', () => showNibble());
+  app.on('second-instance', () => showFumu());
   app.on('window-all-closed', () => app.quit());
 
   app.whenReady().then(() => {
@@ -122,8 +122,8 @@ function start() {
     createWindow();
     const icon = nativeImage.createFromPath(path.join(__dirname, 'build', 'icon.png')).resize({ width: 32, height: 32 });
     tray = new Tray(icon);
-    tray.setToolTip('Nibble');
-    tray.on('click', () => { if (win && win.isVisible()) hideNibble(); else showNibble(); });
+    tray.setToolTip('Fumufumu');
+    tray.on('click', () => { if (win && win.isVisible()) hideFumu(); else showFumu(); });
     refreshMenus();
     setupUpdates();
   });

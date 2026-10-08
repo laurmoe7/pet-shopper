@@ -92,7 +92,7 @@ test('skipping days moves favourites back, so the next day counts', () => {
   assert.ok(L.recordFavourite(state.pet, { text: 'milk', emoji: '🥛', cat: 'dairy', added: 0 }, now));
 });
 
-test('Nibble remembers what you buy often: only after three times, and the top one is special', () => {
+test('Fumu remembers what you buy often: only after three times, and the top one is special', () => {
   const p = pet();
   const buy = (text, day) => L.recordFavourite(p, item(text, `2026-10-0${day}T08:00`), at(`2026-10-0${day}T09:00`));
   buy('milk', 1); buy('eggs', 1); buy('milk', 2); buy('eggs', 2);
@@ -117,7 +117,7 @@ test('treats: three different ones a day, each once, and a new day starts fresh'
   assert.equal(L.giveTreat(p, 'apple', at('2026-10-02T09:00')).left, 2, 'a new day');
 });
 
-test('wishes: Nibble asks for a treat not fed yet, and stops once the day is full', () => {
+test('wishes: Fumu asks for a treat not fed yet, and stops once the day is full', () => {
   const p = pet();
   const day = at('2026-10-01T09:00');
   assert.ok(L.TREAT_WORDS.includes(L.nextWish(p, day, () => 0)));

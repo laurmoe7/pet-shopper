@@ -204,7 +204,7 @@ $('acctLink').addEventListener('click', function () {
 $('acctLeave').addEventListener('click', function () {
   sound('tap');
   accountLeave();
-  say2('Signed out on this device. Your list and Nibble stay here, and the backup stays on the server.');
+  say2('Signed out on this device. Your list and Fumu stay here, and the backup stays on the server.');
 });
 $('acctDelete').addEventListener('click', function () {
   var btn = $('acctDelete');
@@ -212,7 +212,7 @@ $('acctDelete').addEventListener('click', function () {
     sound('tap');
     deleteArmed = setTimeout(function () { deleteArmed = 0; btn.textContent = 'Delete my backup'; }, 5000);
     btn.textContent = 'Tap again to delete it';
-    say2('This removes your backup from the server for good. Your list and Nibble stay on this device.');
+    say2('This removes your backup from the server for good. Your list and Fumu stay on this device.');
     return;
   }
   clearTimeout(deleteArmed); deleteArmed = 0; btn.textContent = 'Delete my backup';
@@ -251,7 +251,7 @@ function openAccount(code) {
   row.appendChild(b);
   var t = document.createElement('span');
   t.className = 'option-text';
-  t.textContent = 'Keeps your shopping list and Nibble safe and the same on all your devices. To-do lists stay here.';
+  t.textContent = 'Keeps your shopping list and Fumu safe and the same on all your devices. To-do lists stay here.';
   row.appendChild(t);
   optionsList.insertBefore(row, optionsList.firstChild);
 })();

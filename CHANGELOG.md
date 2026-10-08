@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 253 (17 Oct)
+- The app is now Fumufumu and the pet is Fumu.
+- Fumu nods twice when you add something.
+- Pigeon sleeves look right, and the wing stripe stays out of clothes.
+
 ## Build 252 (16 Oct)
 - New pigeon: orange eyes, bigger wings, soft pink chest.
 - The old pigeon is still there as Pigeon (old).

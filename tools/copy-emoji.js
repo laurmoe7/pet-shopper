@@ -1,5 +1,5 @@
 // Copies the OpenMoji SVGs the app uses into ./emoji, recoloring their black
-// outlines to Nibble's soft cocoa brown and softening their colours (emoji-style.js) so they match the hand-drawn style.
+// outlines to Fumu's soft cocoa brown and softening their colours (emoji-style.js) so they match the hand-drawn style.
 // Usage: node tools/copy-emoji.js <path to openmoji package>/color/svg
 const fs = require('fs');
 const { restyle } = require('./emoji-style');

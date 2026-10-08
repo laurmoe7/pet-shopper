@@ -94,19 +94,19 @@ var DEV_ACTIONS = [
   { label: 'Unlock everything', run: function () { L.unlockAll(state.pet, Achievements, Personalities); return 'All goals finished and personalities earned.'; } },
   { label: 'Lock everything again', run: function () { L.lockAll(state.pet, Achievements, FreeUnlocks); return 'Progress wiped. Locked items are locked again.'; } },
   { label: 'Skip to tomorrow', run: function () { L.skipDays(state, 1); return 'A day has passed: daily limits are fresh.'; } },
-  { label: 'Reset names: yours, your birthday and Nibble\'s', run: function () {
+  { label: 'Reset names: yours, your birthday and Fumu\'s', run: function () {
     state.player = { name: '', birthday: '' };
-    state.pet.name = 'Nibble';
+    state.pet.name = 'Fumu';
     save();
     applyPet();
     showName();
     refreshGift();
-    return 'Your name and birthday are empty again and he is back to Nibble. Open Pet to see the pencil wiggle.';
+    return 'Your name and birthday are empty again and he is back to Fumu. Open Pet to see the pencil wiggle.';
   } },
-  { label: 'Make Nibble ask for a snack', run: function () { return devWish(); } },
+  { label: 'Make Fumu ask for a snack', run: function () { return devWish(); } },
   { label: 'Pretend it is the next special day (gifts)', run: function () { return devGiftCalendar(); } },
   { label: 'Shut today\'s gift boxes again', run: function () { return devGiftReset(); } },
-  { label: 'Make Nibble suggest an item', run: function () { return devSuggest(); } },
+  { label: 'Make Fumu suggest an item', run: function () { return devSuggest(); } },
   { label: 'Fill with sample items', run: function () {
     if (isTodo()) { state.items = L.sortByDue(state.items.concat(sampleTodos()), todayKey()); return 'Sample to-dos added.'; }
     state.items = state.items.concat(L.parseState(null, newId).items); return 'Sample items added.';

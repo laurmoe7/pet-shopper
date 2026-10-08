@@ -1,4 +1,4 @@
-/* Layout: a sticky stage where Nibble sits on its cushion, the list scrolls underneath, the pet buttons sit in a
+/* Layout: a sticky stage where Fumu sits on its cushion, the list scrolls underneath, the pet buttons sit in a
    bottom bar. Look: a kraft-cardboard box (see "the cardboard look" at the end), rounded Japanese type. */
 :root {
   --bg: #dcb987;
@@ -11,7 +11,7 @@
   --outline: #7b5a3d;
   /* outlines of the toy, lamp, bed, quilt, clipboard and teddy: the pet's own dark brown, in light and dark mode */
   --prop-ink: #5b4239;
-  /* how tall a bottom sheet may be: short enough that Nibble stays in view above it */
+  /* how tall a bottom sheet may be: short enough that Fumu stays in view above it */
   --sheet-h: max(240px, min(75vh, calc(100dvh - 320px)));
   --sheet-h-s: max(220px, min(62vh, calc(100dvh - 320px)));
   --accent: #ff8fab;
@@ -24,7 +24,7 @@
   --danger: #c4505f;
   --shadow: rgba(110, 72, 36, .28);
 
-  /* Nibble's own colours stay the same in both themes */
+  /* Fumu's own colours stay the same in both themes */
   --pet-skin: #fff4ec;
   --pet-skin-hi: #ffffff;
   --pet-skin-shade: #ffe4d8;
@@ -181,7 +181,7 @@ button { font: inherit; color: inherit; }
 @keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes twinkle { 0%, 100% { transform: scale(.6) rotate(0); opacity: .25; } 50% { transform: scale(1) rotate(20deg); opacity: .8; } }
 
-/* ---------- Nibble ---------- */
+/* ---------- Fumu ---------- */
 .skin-under { fill: var(--pet-skin); }
 .skin { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.6; stroke-linejoin: round; }
 .shine { fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; opacity: .8; }
@@ -1177,7 +1177,7 @@ button { font: inherit; color: inherit; }
 .cnose { fill: #ee3a4c; stroke: var(--pet-ink); stroke-width: 1.4; }
 .cnose-shine { fill: #fff; opacity: .85; }
 
-/* treats (a wish is Nibble asking for one) */
+/* treats (a wish is Fumu asking for one) */
 
 /* medals and the #1 pedestal in the Top 10 */
 .fav-rank .medal { width: 22px; height: 28px; display: block; margin: 0 auto; }
@@ -1353,6 +1353,9 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="pigeon"] .pupils .glint:not(.glint2).eye-l { cx: 56.1px; cy: 90px; r: 2.83px; }
 .pet[data-skin="pigeon"] .pupils .glint:not(.glint2).eye-r { cx: 100.1px; cy: 90px; r: 2.83px; }
 .pet[data-skin="pigeon"] .pupils .glint2 { r: 1.42px; }
+/* in sleeves the wing goes back to the normal arm size (the sleeve ends in its cuff with the hand peeking out) and the pale bar is hidden */
+.pet.sleeved .wing-bar { display: none; }
+.pet[data-skin="pigeon"].sleeved .arm > ellipse { rx: 7px; ry: 9px; cy: 117px; }
 /* cats */
 .pet[data-skin="orangecat"] .tabby-muzzle { fill: #fff1df; }
 .munchkin-cap { fill: #aca6b2; }
@@ -1643,7 +1646,7 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
 .pet.has-teddy.hugging .teddy-hug { translate: 0 0; }
 .pet.tucked .arm-r { transition: transform .55s ease-in-out, translate .55s ease-in-out; }
 .pet.tucked[data-arms="grab"] .arm-r { transform: translate(36px, -12px) rotate(-18deg); translate: -6px -4px; }
-/* the teddy's lines are Nibble's own dark brown, so he does not look faded next to him */
+/* the teddy's lines are Fumu's own dark brown, so he does not look faded next to him */
 .teddy-fur { fill: #b9814f; stroke: #5b4239; stroke-width: 1.8; stroke-linejoin: round; }
 .teddy-in { fill: #dfae80; }
 .teddy-muzzle { fill: #f0d2ad; stroke: #5b4239; stroke-width: 1.2; }
@@ -2067,7 +2070,7 @@ html[data-list="todo"] .item:not(.done) .item-text { cursor: pointer; }
 .task-note { margin: 8px 0 0; font-size: .82rem; color: var(--muted); }
 .task-actions { display: flex; justify-content: space-between; }
 .task-delete { color: var(--danger); text-decoration-color: var(--danger); }
-/* the clipboard Nibble holds while the to-do list is showing: one paw holds its side (the other stays free), and a line is ticked for each third of the list done */
+/* the clipboard Fumu holds while the to-do list is showing: one paw holds its side (the other stays free), and a line is ticked for each third of the list done */
 .pet .clipboard { display: none; }
 html[data-list="todo"] #pet:not([data-state="sleepy"]) .clipboard { display: inline; }
 .clipboard .cb-board { fill: #d49a5c; stroke: var(--prop-ink); stroke-width: 1.7; }
@@ -2272,7 +2275,7 @@ html::-webkit-scrollbar { display: none; }
 .page-fade.on { opacity: 1; }
 html.typing .page-fade { display: none; }
 
-/* developer tool: the animation player (app-anims.js), a low panel that leaves Nibble in view */
+/* developer tool: the animation player (app-anims.js), a low panel that leaves Fumu in view */
 .picker.anim-sheet { position: fixed; inset: auto 0 0 0; max-height: calc(var(--sheet-h-s) + var(--dock-h, 64px)); z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
 .picker.anim-sheet .picker-inner { max-height: calc(var(--sheet-h-s) + var(--dock-h, 64px) - 14px) !important; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
 .anim-bar { display: flex; align-items: center; gap: 8px; flex: none; }
@@ -2325,7 +2328,7 @@ html.typing .page-fade { display: none; }
 .closet-del.armed { background: #ffd9d4; color: #a3342b; border-color: #e58c84; }
 .closet-empty { grid-column: 1 / -1; }
 
-/* ---------- a wish: Nibble asking for a snack (app-treats.js) ---------- */
+/* ---------- a wish: Fumu asking for a snack (app-treats.js) ---------- */
 .wish { position: absolute; left: calc(50% - 100px * var(--pet-size, 1) + var(--walk-x, 0px)); top: 2px; z-index: 4; width: 58px; height: 62px; padding: 0; border: 0; background: none; cursor: pointer; animation: wish-in .4s cubic-bezier(.3, 1.6, .5, 1); }
 .wish[hidden] { display: none; }
 .wish-cloud { position: absolute; left: 0; top: 0; width: 58px; height: 44px; display: grid; place-items: center; background: var(--surface); border: 1.8px solid var(--outline); border-radius: 24px; box-shadow: 0 2px 0 var(--shadow); animation: wish-bob 3.4s ease-in-out .5s infinite; }
@@ -2706,7 +2709,7 @@ html[data-list="todo"] .recipe-btn { display: none; }
 @media (prefers-reduced-motion: reduce) { .recipe-more { animation: none; } }
 .picker.pet-sheet.recipe-sheet.results:not(.dress-full):not(.fav-full) .picker-inner { display: flex; flex-direction: column; overflow: hidden; }
 .recipe-sheet.results .recipe-result { flex: 1; }
-/* with ingredients showing, the sheet is kept low so Nibble stays in view above it */
+/* with ingredients showing, the sheet is kept low so Fumu stays in view above it */
 .picker.pet-sheet.recipe-sheet.results { max-height: calc(var(--recipe-h) + var(--dock-h, 64px)); }
 .picker.pet-sheet.recipe-sheet.results:not(.dress-full):not(.fav-full) .picker-inner { max-height: calc(var(--recipe-h) + var(--dock-h, 64px) - 14px); }
 .recipe-sheet { --recipe-h: max(260px, min(62vh, calc(100dvh - 345px))); }
@@ -2738,7 +2741,7 @@ html[data-list="todo"] .recipe-btn { display: none; }
 .photo-btn { padding: 10px 22px; }
 .photo-btn[hidden] { display: none; }
 
-/* the recipe helper is open: Nibble searches with the magnifying glass (app-recipe.js), sweeping it and his eyes about */
+/* the recipe helper is open: Fumu searches with the magnifying glass (app-recipe.js), sweeping it and his eyes about */
 #pet.searching:not([data-state="sleepy"], .tucked) .arm-r { transform: rotate(0deg); translate: -15px -16px; animation: search-sweep 2.6s ease-in-out infinite alternate; }
 #pet.searching:not([data-state="sleepy"], .tucked) .pupils { animation: search-look 2.6s ease-in-out infinite alternate; }
 #pet.searching.inspecting:not(.mg-aha) .magnifier .mg-eye { animation: mg-look 2.6s ease-in-out infinite alternate; }
@@ -2775,7 +2778,7 @@ html[data-list="todo"] .recipe-btn { display: none; }
 .account-sheet .pill-btn.danger { color: var(--danger); }
 
 /* ---------- the desktop shell (app-desktop.js; only inside the Electron window in desktop/) ----------
-   'pet' mode: Nibble alone, everything else transparent. 'list' mode: the whole app with a small bar on top. */
+   'pet' mode: Fumu alone, everything else transparent. 'list' mode: the whole app with a small bar on top. */
 html.desktop-pet, html:root.desktop-pet body { background: none !important; }
 html.desktop-pet .scene-bar, html.desktop-pet .list-area, html.desktop-pet .dock, html.desktop-pet .backdrop, html.desktop-pet .room,
 html.desktop-pet .nightshade, html.desktop-pet .lamp, html.desktop-pet .lamp-light, html.desktop-pet .cart, html.desktop-pet .receipt,

@@ -1,34 +1,34 @@
-# Nibble on your desktop (Windows first)
+# Fumu on your desktop (Windows first)
 
-A small transparent window that stays on top of your other windows and shows Nibble. It is the real app, loaded from
+A small transparent window that stays on top of your other windows and shows Fumu. It is the real app, loaded from
 the web (https://laurmoe7.github.io/pet-shopper/), so every big push updates it. Your list is one click away.
 
 ## How to get it (no installs needed)
 
-1. On GitHub open the repo's **Releases** (right side of the main page) and download the newest `Nibble Setup ….exe`.
+1. On GitHub open the repo's **Releases** (right side of the main page) and download the newest `Fumufumu Setup ….exe`.
    (Or **Actions** → **Build the desktop app (Windows)** → a finished run → **Artifacts**.)
 2. Double-click the `.exe`. Windows will say "Windows protected your PC" because the app isn't signed yet: click
-   **More info** → **Run anyway**. It installs for you only (no admin needed) and starts Nibble.
-4. In Nibble: right-click him → **Open my list** → Options → **Backup & sync** → join with your code. Your list and
+   **More info** → **Run anyway**. It installs for you only (no admin needed) and starts Fumu.
+4. In Fumu: right-click him → **Open my list** → Options → **Backup & sync** → join with your code. Your list and
    pet appear here too.
 
 ## Updates
 
-- **The app itself** (the pet, the list, everything you see) is loaded from the web: a big push updates it. Restart Nibble
+- **The app itself** (the pet, the list, everything you see) is loaded from the web: a big push updates it. Restart Fumu
   or right-click → **Reload (get the latest)**.
 - **The shell** (this `desktop/` folder: the window, tray, menu) updates itself. Whenever `desktop/` changes on `main`,
   GitHub builds a new release by itself; installed copies check every few hours, download quietly and install when you
-  next close Nibble. The tray menu then shows **Restart to update Nibble**, and **Check for app updates** looks right away.
+  next close Fumu. The tray menu then shows **Restart to update Fumu**, and **Check for app updates** looks right away.
   You only run an installer by hand the first time (and when moving to a new PC).
 
 ## Using it
 
-- **Move him:** press and hold on Nibble until he says "wheee", then drag. Stroking him (moving while pressing) pets him.
+- **Move him:** press and hold on Fumu until he says "wheee", then drag. Stroking him (moving while pressing) pets him.
 - **Right-click** him (or the tray icon): Open my list, Hide, Always on top, Start with Windows, Reload, Quit.
 - **Tray icon** (by the clock): click to hide or show him.
-- Clicks pass through the empty part of his window to whatever is underneath; only Nibble himself catches them.
+- Clicks pass through the empty part of his window to whatever is underneath; only Fumu himself catches them.
 - Quiet by default: sounds start switched off (Options → Quiet mode).
-- Tapping a gift or opening any sheet switches to the bigger window; **Back to Nibble** returns.
+- Tapping a gift or opening any sheet switches to the bigger window; **Back to Fumu** returns.
 
 ## For development
 

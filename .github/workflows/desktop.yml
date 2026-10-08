@@ -2,7 +2,7 @@ name: Build the desktop app (Windows)
 
 # Runs by itself whenever the desktop shell changes on main (the folder desktop/), and by hand:
 # Actions > "Build the desktop app (Windows)" > Run workflow.
-# It publishes a release with the installer. Installed copies of Nibble find the release and update themselves,
+# It publishes a release with the installer. Installed copies of Fumufumu find the release and update themselves,
 # so you only run the installer yourself the first time. Changes to the app itself (everything outside desktop/)
 # need none of this: the desktop app loads the app from the web.
 on:
@@ -35,5 +35,5 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v4
         with:
-          name: Nibble-Windows-installer
+          name: Fumufumu-Windows-installer
           path: desktop/dist/*.exe

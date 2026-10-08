@@ -1,5 +1,5 @@
 // The desktop shell (desktop/ folder, Electron): only active inside it, where the shell gives the page `window.nibbleDesktop`.
-// In a browser or on the phone nothing here runs. The window has two modes: 'pet' (Nibble alone on a transparent
+// In a browser or on the phone nothing here runs. The window has two modes: 'pet' (Fumu alone on a transparent
 // window, clicks pass through everywhere except on him) and 'list' (the whole app in a bigger window with a small bar).
 // The mode lives in the shell; this file shows it as a class on <html> and passes the pointer on to it.
 'use strict';
@@ -21,10 +21,10 @@
 
   function isPet() { return root.classList.contains('desktop-pet'); }
 
-  // the small bar over the list: drag to move the window, back to Nibble, hide
+  // the small bar over the list: drag to move the window, back to Fumu, hide
   var bar = document.createElement('div');
   bar.id = 'deskBar';
-  bar.innerHTML = '<span class="desk-title">Nibble</span><button type="button" id="deskBack">Back to Nibble</button><button type="button" id="deskHide" aria-label="Hide Nibble">Hide</button>';
+  bar.innerHTML = '<span class="desk-title">Fumufumu</span><button type="button" id="deskBack">Back to Fumu</button><button type="button" id="deskHide" aria-label="Hide Fumu">Hide</button>';
   document.body.appendChild(bar);
   $('deskBack').addEventListener('click', function () { D.setMode('pet'); });
   $('deskHide').addEventListener('click', function () { D.hide(); });
@@ -44,7 +44,7 @@
     for (var i = 0; i < list.length; i++) if (list[i].target.tagName === 'DIALOG' && list[i].target.open) { D.setMode('list'); return; }
   }).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['open'] });
 
-  // clicks go to Nibble only where something solid is under the pointer; elsewhere they pass to the desktop
+  // clicks go to Fumu only where something solid is under the pointer; elsewhere they pass to the desktop
   var lastSolid = null;
   var SOLID = '#pet, .bubble, .gift, .wish, .toy, .suggest, .dream';
   function hover(e) {
@@ -56,7 +56,7 @@
   document.addEventListener('mouseleave', function () { if (isPet() && lastSolid) { lastSolid = false; D.solid(false); } });
   new MutationObserver(function () { lastSolid = null; }).observe(root, { attributes: true, attributeFilter: ['class'] });
 
-  // pick Nibble up: hold still on him for a moment, then drag the window; letting go puts him down
+  // pick Fumu up: hold still on him for a moment, then drag the window; letting go puts him down
   var press = null, carried = false, noClickUntil = 0;
   function drop() {
     if (press && press.timer) clearTimeout(press.timer);

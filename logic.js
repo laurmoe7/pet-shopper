@@ -176,7 +176,7 @@
     if (species === 'chick') species = 'birdie';
     else if (species === 'penguin') { species = 'birdie'; skin = 'penguin'; }
     return {
-      name: typeof saved.name === 'string' ? saved.name : 'Nibble',
+      name: typeof saved.name === 'string' ? (saved.name === 'Nibble' ? 'Fumu' : saved.name) : 'Fumu',   // the first name was Nibble: saves that kept it become Fumu
       species: species,
       skin: skin,
       outfit: parseOutfit(saved.outfit || {}),
@@ -983,7 +983,7 @@
    */
   function cleanName(typed, old) {
     var name = String(typed || '').trim().slice(0, 16).trim();
-    return name || old || 'Nibble';
+    return name || old || 'Fumu';
   }
 
   /** How many outfits the closet holds. */
@@ -1257,7 +1257,7 @@
   }
 
   /**
-   * What Nibble says when you add something you often buy.
+   * What Fumu says when you add something you often buy.
    * @param {PetProfile} profile
    * @param {string} text  The item as typed.
    * @returns {?{key: string, vars: {item: string, n: number, rank: number}}} A voice key
@@ -1274,10 +1274,10 @@
   }
 
   // ---------- treats ----------
-  // Free snacks Nibble asks for now and then (up to three a day, each once) and you can feed him. They count for goals and tastes
+  // Free snacks Fumu asks for now and then (up to three a day, each once) and you can feed him. They count for goals and tastes
   // under the same daily limits as shopping, but never for the Top 10.
 
-  /** How many treats Nibble takes a day. */
+  /** How many treats Fumu takes a day. */
   var TREATS_PER_DAY = 3;
   /** The treats you can pick from, as item words (each maps to a food emoji and kind). */
   var TREAT_WORDS = ['apple', 'strawberry', 'carrot', 'broccoli', 'bread', 'cheese', 'peanuts', 'fish', 'cookie'];
@@ -1294,7 +1294,7 @@
   }
 
   /**
-   * Feeds Nibble a treat if there is room: three a day, each one once a day.
+   * Feeds Fumu a treat if there is room: three a day, each one once a day.
    * @param {PetProfile} profile  Changed in place.
    * @param {string} word  One of TREAT_WORDS.
    * @param {Date} now
@@ -1310,7 +1310,7 @@
   }
 
   /**
-   * What Nibble could ask for next: a treat not yet fed today, or nothing once the day's treats are used up.
+   * What Fumu could ask for next: a treat not yet fed today, or nothing once the day's treats are used up.
    * @param {PetProfile} profile  A new day starts a fresh list.
    * @param {Date} now
    * @param {function(): number} rand  Like Math.random.
@@ -1998,7 +1998,7 @@
   }
 
   /**
-   * What Nibble says about a recipe he has just read: by the dish in its title, else by what is in it, else by how big it is.
+   * What Fumu says about a recipe he has just read: by the dish in its title, else by what is in it, else by how big it is.
    * @param {string} title  The recipe's name ("" for pasted ingredients).
    * @param {{name: string}[]} found  The ingredients found.
    * @param {function(): number} [random]

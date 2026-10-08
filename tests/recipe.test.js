@@ -175,7 +175,7 @@ test('a mixed number with a hyphen: 1-3/4 cups', () => {
   assert.deepStrictEqual(R.parseIngredient('4 cups cubed cooked chicken'), { name: 'Chicken', qty: '4 cups' });
 });
 
-test('Nibble remarks on a recipe by its dish, then its food, then its size', () => {
+test('Fumu remarks on a recipe by its dish, then its food, then its size', () => {
   const { PetLogic } = require('./load');
   const r = () => 0;
   assert.strictEqual(PetLogic.recipeRemark('Crockpot Mac and Cheese', [], r), 'cheesy!! yes please');

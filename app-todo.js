@@ -33,7 +33,7 @@ function applyListMode(animate) {
   if (!todo) { if ($('calSheet').open) $('calSheet').close(); if ($('stampSheet').open) $('stampSheet').close(); }   // those two belong to the to-do list
 }
 
-/** Swaps the shopping list and the to-do list; Nibble notices. */
+/** Swaps the shopping list and the to-do list; Fumu notices. */
 function switchList() {
   if (pending > 0) { pulse('rocksmall', 500); return; }   // still eating or cheering: wait for it
   var shown = state.items;
@@ -62,7 +62,7 @@ brandEl.addEventListener('keydown', function (e) {
   if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); switchList(); }
 });
 
-// ---------- what Nibble says and does for each kind of task ----------
+// ---------- what Fumu says and does for each kind of task ----------
 // face, a move, symbols that float up, the colour of the sparkle crumbs, the sound and the lines
 var TASK_REACTIONS = {
   chore: { face: { eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['sparkles', 'cheeks'] }, move: ['wiggle', 800], bits: ['✧', '○', '✦', '◦'], color: '#a8dff2', sound: 'sparkle', lines: ['squeaky clean!', 'sparkly! ✧', 'tidy tidy~', 'shine shine!'] },
@@ -76,7 +76,7 @@ var TASK_REACTIONS = {
   fun: { face: { eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['sparkles', 'cheeks'] }, move: ['wiggle', 800], bits: ['♪', '★', '✦'], color: '#d6b9f2', sound: 'done', lines: ['fun time!', 'nice break ♡', 'treat yourself!', 'whee!'] },
   travel: { face: { eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['sparkles', 'cheeks'] }, move: ['hop', 460], bits: ['✦', '➜', '★'], color: '#9fd3e8', sound: 'done', lines: ['adventure ahead!', 'ready to go!', 'bon voyage!', 'pack the snacks!'] },
   care: { face: { eyes: 'happy', mouth: 'smile', arms: 'cheer', x: ['hearts', 'cheeks'] }, bits: ['♥', '✧', '✦'], color: '#b8e3a8', sound: 'done', lines: ['good caretaker!', 'they say thanks ♡', 'so kind!', 'well looked after!'] },
-  cook: { face: { eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }, move: ['wiggle', 800], bits: ['♨', '✦', '♥'], color: '#f6cf86', sound: 'done', lines: ['chef Nibble!', 'smells so good!', 'mmm, cooked!', 'ding! ready!'] },
+  cook: { face: { eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }, move: ['wiggle', 800], bits: ['♨', '✦', '♥'], color: '#f6cf86', sound: 'done', lines: ['chef Fumu!', 'smells so good!', 'mmm, cooked!', 'ding! ready!'] },
   other: { face: { eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['sparkles', 'cheeks'] }, move: ['hop', 460], bits: ['✦', '✧', '♥'], color: '#9bdcb4', sound: 'done', lines: ['done! ✓', 'nice one!', 'tick tick!', 'checked off!'] }
 };
 // a few tasks get their own words, and a sound or float-ups where it fits (matched on what you typed)
@@ -112,7 +112,7 @@ var TIRED_DONE = ['done… *yawn*', 'ticked… zzz', 'one less… *yawn*', 'good
 
 /**
  * @param {Item} item
- * @returns {Object} How Nibble reacts to this task being done: its kind's reaction, with any words of its own.
+ * @returns {Object} How Fumu reacts to this task being done: its kind's reaction, with any words of its own.
  */
 function taskReactionOf(item) {
   var base = TASK_REACTIONS[item.cat] || TASK_REACTIONS.other, text = (item.text || '').toLowerCase(), out = {};
@@ -151,7 +151,7 @@ function stampAt(at) {
 }
 
 /**
- * Queues what Nibble does for a ticked task: it catches the emoji, stamps it done and cheers.
+ * Queues what Fumu does for a ticked task: it catches the emoji, stamps it done and cheers.
  * @param {Item} item
  * @param {?DOMRect} fromRect Where the task's emoji was before the list re-rendered.
  */
@@ -223,7 +223,7 @@ function undoTask(item) {
 
 // ---------- the desk: writing on the clipboard, inspecting it ----------
 /**
- * Both paws bring the clipboard and a prop to the middle: Nibble leans over its list.
+ * Both paws bring the clipboard and a prop to the middle: Fumu leans over its list.
  * @param {'pencil'|'glass'|''} prop  What the free hand holds.
  */
 function deskOn(prop) {
@@ -273,7 +273,7 @@ function inspectList() {
   return wait(120).then(function () {   // the paw brings the glass over in .2s (styles.css): magnify as it arrives
     pet.classList.add('inspecting');
     eyesDo('wide');
-    talk('inspect', ['hmm… let me look…', 'inspecting the list…', 'detective Nibble!', 'what do we have here…'], 1500);
+    talk('inspect', ['hmm… let me look…', 'inspecting the list…', 'detective Fumu!', 'what do we have here…'], 1500);
     return wait(1100);
   }).then(function () {
     // after a moment he squints through the glass: his eye and the enlarged one in the lens both narrow
@@ -316,7 +316,7 @@ var TODO_MOVES = [
 ];
 
 /**
- * Nibble's reaction to a task you just added: it writes it on its clipboard.
+ * Fumu's reaction to a task you just added: it writes it on its clipboard.
  * @param {Item} item
  */
 function addedTask(item) {
@@ -638,7 +638,7 @@ taskSheet.addEventListener('close', function () {
 });
 
 // a task you tick off that repeats puts its next one back on the list (and un-ticking takes that one away again)
-var repeatNote = {};   // task id -> when its next one is due, for Nibble to mention
+var repeatNote = {};   // task id -> when its next one is due, for Fumu to mention
 /**
  * @param {Item} item  The task that was just ticked or un-ticked.
  */
@@ -662,10 +662,10 @@ function repeatTask(item) {
   }
 }
 
-// ---------- Nibble reminds you ----------
+// ---------- Fumu reminds you ----------
 var lastNag = 0;
 /**
- * Nibble mentions tasks that are due today or late.
+ * Fumu mentions tasks that are due today or late.
  * @param {boolean} [idle]  Called from its idle moments: only on the to-do list, and not too often.
  * @returns {boolean} Whether it said something.
  */
@@ -688,7 +688,7 @@ function dueNag(idle) {
 }
 
 /**
- * When a task's time comes while the app is open, Nibble tells you (once). Tasks already past their time when
+ * When a task's time comes while the app is open, Fumu tells you (once). Tasks already past their time when
  * the app opens are only marked, as the start-up reminder covers them.
  * @param {boolean} [quiet]  Only mark them.
  */

@@ -1,4 +1,4 @@
-// The colour style of the app's emoji. OpenMoji's colours are bright and glossy; Nibble's look is soft kraft board and
+// The colour style of the app's emoji. OpenMoji's colours are bright and glossy; Fumu's look is soft kraft board and
 // cocoa-brown outlines, so every fill is made a little softer and creamier (less saturated, a touch lighter), while whites,
 // the outline brown and very dark parts are left alone. Used by copy-emoji.js (the outlines are recoloured there).
 const OUTLINE = '#5b4239';
@@ -24,7 +24,7 @@ function hslToHex([h, s, l]) {
   const [r, g, b] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
   return '#' + [r, g, b].map((v) => Math.round((v + m) * 255).toString(16).padStart(2, '0')).join('');
 }
-/** @returns {string} One hex colour in Nibble's softer style. */
+/** @returns {string} One hex colour in Fumu's softer style. */
 function soften(hex) {
   const [h, s, l] = rgbToHsl(hexToRgb(hex));
   if (l > 0.96 || l < 0.2) return hex.toLowerCase();   // whites and the darkest browns/blacks stay as they are

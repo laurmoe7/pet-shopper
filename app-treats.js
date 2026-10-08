@@ -1,4 +1,4 @@
-// Treats: now and then Nibble asks for a snack (a little thought cloud with the food in it) and you feed it by tapping the cloud.
+// Treats: now and then Fumu asks for a snack (a little thought cloud with the food in it) and you feed it by tapping the cloud.
 // Up to three a day, each one once; they count for goals and personalities like shopping does (same daily limits),
 // but never for the Top 10. Nothing is lost by ignoring a wish: the cloud goes away by itself.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
@@ -23,7 +23,7 @@ function mayWish() {
   return !busy && !document.hidden && !wishWord && suggestEl.hidden && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') && !stage.classList.contains('night-lamp') &&
     !document.querySelector('dialog[open]:not(#roomSheet)');
 }
-/** Nibble asks for a snack he has not had today. @param {boolean} [force] Ask now whatever else is going on (the developer tool). */
+/** Fumu asks for a snack he has not had today. @param {boolean} [force] Ask now whatever else is going on (the developer tool). */
 function askForTreat(force) {
   var word = L.nextWish(state.pet, new Date(), Math.random);
   if (!word) { scheduleWish(wishDelay([30 * 60000, 10 * 60000])); return; }   // all treats used today: look again much later
@@ -97,10 +97,10 @@ function thankForTreat() {
 
 scheduleWish(wishDelay(WISH_FIRST_MS));
 
-/** Developer tool: makes Nibble ask for a snack right now. @returns {string} What happened. */
+/** Developer tool: makes Fumu ask for a snack right now. @returns {string} What happened. */
 function devWish() {
   if (wishWord) return 'He is already asking for ' + wishWord + '. Tap the cloud above his head.';
   if (!L.nextWish(state.pet, new Date(), Math.random)) return 'All ' + L.TREATS_PER_DAY + ' treats are used for today. "Skip to tomorrow" gives fresh ones.';
   askForTreat(true);
-  return 'Nibble is asking for ' + wishWord + '. Close this sheet and tap the cloud.';
+  return 'Fumu is asking for ' + wishWord + '. Close this sheet and tap the cloud.';
 }

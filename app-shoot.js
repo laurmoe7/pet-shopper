@@ -109,7 +109,7 @@ function stopCamera() {
 }
 /** Turns the camera on behind the pet (asks the phone for permission the first time). */
 function startCamera() {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { camNote('This phone or browser has no camera for Nibble to use.'); return; }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { camNote('This phone or browser has no camera for Fumu to use.'); return; }
   camNote('Waking the camera\u2026');
   navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: camFacing } }, audio: false }).then(function (stream) {
     if (shootEl.hidden) { stream.getTracks().forEach(function (t) { t.stop(); }); return; }

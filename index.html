@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Nibble's List</title>
+<title>Fumufumu</title>
 <meta name="description" content="A grocery list with a little pet who eats what you check off.">
 <meta name="theme-color" content="#fdf1f3">
 <link rel="manifest" href="manifest.webmanifest">
@@ -21,7 +21,7 @@
   <header class="scene" id="scene">
     <div class="scene-bar">
       <!-- tap the title to swap between the shopping list and the to-do list (app-todo.js) -->
-      <h1 class="brand" id="brand" role="button" tabindex="0" aria-label="Switch between the shopping list and the to-do list"><span class="pet-name" id="brandName">Nibble</span><span class="brand-sub" id="brandSub">'s <span class="brand-kind" id="brandKind">shopping list</span></span><svg class="brand-swap" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h9.5M9.5 3 12.5 6 9.5 9M13 11H3.5M6.5 8 3.5 11l3 3"/></svg><span class="brand-due" id="brandDue" hidden></span></h1>
+      <h1 class="brand" id="brand" role="button" tabindex="0" aria-label="Switch between the shopping list and the to-do list"><span class="pet-name" id="brandName">Fumu</span><span class="brand-sub" id="brandSub">'s <span class="brand-kind" id="brandKind">shopping list</span></span><svg class="brand-swap" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h9.5M9.5 3 12.5 6 9.5 9M13 11H3.5M6.5 8 3.5 11l3 3"/></svg><span class="brand-due" id="brandDue" hidden></span></h1>
       <div class="scene-tools">
         <button class="pill-btn gear-btn" id="optionsBtn" type="button" aria-label="Options"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 2.6h3.4l.5 2.6c.6.2 1.2.5 1.7.9l2.5-.9 1.7 2.9-2 1.7c.1.6.1 1.3 0 1.9l2 1.7-1.7 2.9-2.5-.9c-.5.4-1.1.7-1.7.9l-.5 2.6h-3.4l-.5-2.6c-.6-.2-1.2-.5-1.7-.9l-2.5.9-1.7-2.9 2-1.7c-.1-.6-.1-1.3 0-1.9l-2-1.7 1.7-2.9 2.5.9c.5-.4 1.1-.7 1.7-.9z"/><circle cx="12" cy="11.6" r="3"/></svg></button>
       </div>
@@ -50,9 +50,9 @@
       </svg></button>
       <div class="bubble" id="bubble" role="status" aria-live="polite" hidden></div>
       <!-- a daydream: a thought cloud with something from the list -->
-      <!-- what Nibble is asking for (app-treats.js): tap it to feed him -->
+      <!-- what Fumu is asking for (app-treats.js): tap it to feed him -->
       <button type="button" class="wish" id="wish" hidden><span class="wish-cloud" id="wishCloud"></span><span class="wish-tag" aria-hidden="true">Tap to feed</span><span class="wish-dot d1"></span><span class="wish-dot d2"></span></button>
-      <!-- what Nibble suggests buying: it stays on the stage, so it does not scroll with the list -->
+      <!-- what Fumu suggests buying: it stays on the stage, so it does not scroll with the list -->
       <div class="suggest" id="suggest" hidden>
         <button type="button" class="suggest-btn" id="suggestBtn"></button>
         <button type="button" class="text-btn suggest-no" id="suggestNo" aria-label="No thanks">✕</button>
@@ -60,7 +60,7 @@
       <!-- today's gift box (app-gift.js): tap to open it -->
       <button type="button" class="gift" id="gift" hidden aria-label="Gift"><span class="gift-img" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="6" y="20" width="36" height="24" rx="5" fill="#ffb3c7" stroke="#5b4239" stroke-width="2.4"/><rect x="3" y="13" width="42" height="11" rx="4.5" fill="#ffb3c7" stroke="#5b4239" stroke-width="2.4"/><path d="M24 13 V44" stroke="#fff6ec" stroke-width="6"/><path d="M24 13 C16 3 8 8 15 13 M24 13 C32 3 40 8 33 13" fill="none" stroke="#5b4239" stroke-width="2.4" stroke-linecap="round"/></svg></span><span class="gift-count"></span></button>
       <div class="dream" id="dream" aria-hidden="true" hidden><span class="dream-dot d1"></span><span class="dream-dot d2"></span><span class="dream-cloud" id="dreamCloud"></span></div>
-      <div class="pet" id="pet" data-state="sleepy" data-species="mochi" data-arms="rest" aria-label="Nibble, your pet">
+      <div class="pet" id="pet" data-state="sleepy" data-species="mochi" data-arms="rest" aria-label="Fumu, your pet">
         <div class="squash"><svg viewBox="0 0 160 150" class="pet-svg" aria-hidden="true">
           <defs>
             <!-- a slight wobble so the lines look drawn by hand -->
@@ -823,8 +823,8 @@
     <div class="dress-panel" data-tab="pet" role="tabpanel">
       <div class="field">
         <span class="field-label" id="petNameLabel">Name</span>
-        <div class="name-show" id="petNameShow"><span id="petNameText">Nibble</span><button type="button" class="name-edit" id="petNameEdit" aria-label="Edit name"><span class="name-pen" aria-hidden="true">✎</span> Edit</button></div>
-        <input id="petNameInput" type="text" maxlength="16" autocomplete="off" enterkeyhint="done" placeholder="Nibble" aria-labelledby="petNameLabel" hidden>
+        <div class="name-show" id="petNameShow"><span id="petNameText">Fumu</span><button type="button" class="name-edit" id="petNameEdit" aria-label="Edit name"><span class="name-pen" aria-hidden="true">✎</span> Edit</button></div>
+        <input id="petNameInput" type="text" maxlength="16" autocomplete="off" enterkeyhint="done" placeholder="Fumu" aria-labelledby="petNameLabel" hidden>
       </div>
       <fieldset class="species">
         <legend class="field-label">Species</legend>
@@ -967,7 +967,7 @@
   <form method="dialog" class="picker-inner">
     <div id="recipeInputBox" class="recipe-inputbox">
       <h2 id="recipeTitle">Let's cook <span class="cook-heart" aria-hidden="true">♥</span></h2>
-      <p class="stamp-sub">✦ <span class="pet-name">Nibble</span> will find the ingredients ✦</p>
+      <p class="stamp-sub">✦ <span class="pet-name">Fumu</span> will find the ingredients ✦</p>
       <textarea id="recipeInput" class="recipe-input" rows="4" placeholder="Paste a recipe link…&#10;or type one ingredient per line" maxlength="4000" enterkeyhint="go"></textarea>
       <button type="button" class="pill-btn recipe-go" id="recipeGo">Find ingredients</button>
       <p class="recipe-status" id="recipeStatus" role="status" aria-live="polite"></p>
@@ -1027,7 +1027,7 @@
   <form method="dialog" class="picker-inner">
     <h2 id="goalsTitle">Goals</h2>
     <p class="stamp-sub">✦ little things to work towards ✦</p>
-    <p class="goals-intro"><span id="goalsFeed">Feed <span class="pet-name">Nibble</span></span><span id="goalsIntroText"> to unlock new friends and hats. Only a few count each day, so come back tomorrow for more.</span><span id="goalsFairPlay"> Items count once they've been on your list for 15 minutes, and each item once a day.</span></p>
+    <p class="goals-intro"><span id="goalsFeed">Feed <span class="pet-name">Fumu</span></span><span id="goalsIntroText"> to unlock new friends and hats. Only a few count each day, so come back tomorrow for more.</span><span id="goalsFairPlay"> Items count once they've been on your list for 15 minutes, and each item once a day.</span></p>
     <ul class="goal-list" id="goalList"></ul>
   </form>
 </dialog>
@@ -1037,7 +1037,7 @@
     <h2 id="favTitle">Top 10</h2>
     <p class="stamp-sub">✦ the things you love most ✦</p>
     <ol class="fav-list" id="favList"></ol>
-    <p class="fav-empty" id="favEmpty" hidden><span class="pet-name">Nibble</span> hasn't seen you buy anything yet. Tick things off and your favourites show up here.</p>
+    <p class="fav-empty" id="favEmpty" hidden><span class="pet-name">Fumu</span> hasn't seen you buy anything yet. Tick things off and your favourites show up here.</p>
   </form>
 </dialog>
 <dialog class="picker pet-sheet cal-sheet cal-full" id="calSheet" aria-label="Calendar">
@@ -1138,7 +1138,7 @@
   <form method="dialog" class="picker-inner" id="accountForm">
     <h2 id="accountTitle">Backup &amp; sync</h2>
     <div id="accountOut">
-      <p class="option-text">Keeps your shopping list and Nibble safe, and the same on all your devices. To-do lists stay on this device. No email or password: you get a code.</p>
+      <p class="option-text">Keeps your shopping list and Fumu safe, and the same on all your devices. To-do lists stay on this device. No email or password: you get a code.</p>
       <div class="account-actions"><button type="button" class="pill-btn" id="acctMake">Start a backup</button></div>
       <label class="account-field"><span class="option-title">Already have a code?</span>
         <input id="acctCode" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX" aria-label="Your backup code"></label>

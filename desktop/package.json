@@ -2,7 +2,7 @@
   "name": "nibble-desktop",
   "version": "0.1.0",
   "private": true,
-  "description": "Nibble on your desktop: a small always-on-top window with your pet, and your list one click away.",
+  "description": "Fumufumu on your desktop: a small always-on-top window with your pet, and your list one click away.",
   "author": "Lauren",
   "main": "main.js",
   "scripts": {
@@ -16,7 +16,7 @@
   },
   "build": {
     "appId": "com.laurmoe.nibble",
-    "productName": "Nibble",
+    "productName": "Fumufumu",
     "files": [
       "main.js",
       "preload.js",

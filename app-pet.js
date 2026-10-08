@@ -1,8 +1,8 @@
-// Nibble: faces, speech bubbles, flying food and crumbs.
+// Fumu: faces, speech bubbles, flying food and crumbs.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
-// ---------- Nibble ----------
+// ---------- Fumu ----------
 // eyes, mouth, arm pose and extras for each mood
 var FACES = {
   sleepy: { eyes: 'closed', mouth: 'o', arms: 'rest', x: ['zzz'] },
@@ -161,7 +161,9 @@ var SQUISH = {
   // a belly jiggle: quick wobbles side to side that die down (see bellyJiggle)
   jiggle: { ms: 1200, steps: [[0, 1, 1, 0], [.08, 1.08, .95, 0], [.18, .94, 1.04, 0], [.28, 1.07, .96, 0], [.38, .95, 1.035, 0],
     [.48, 1.05, .97, 0], [.58, .97, 1.02, 0], [.68, 1.03, .985, 0], [.8, .99, 1.008, 0], [.9, 1.01, .995, 0], [1, 1, 1, 0]] },
-  breath: { ms: 2400, steps: [[0, 1, 1, 0], [.45, .98, 1.035, 0], [1, 1, 1, 0]] }
+  breath: { ms: 2400, steps: [[0, 1, 1, 0], [.45, .98, 1.035, 0], [1, 1, 1, 0]] },
+  // the "fumu fumu" nod: two quick bobs of the head, down and up, like a pigeon (or someone saying mhm)
+  nod: { ms: 900, steps: [[0, 1, 1, 0], [.13, 1.035, .93, 3.4], [.3, .995, 1.012, -.7], [.47, 1.035, .93, 3.4], [.65, .995, 1.012, -.7], [.82, 1.008, .99, .4], [1, 1, 1, 0]] }
 };
 var squishBody = petSvg.querySelector('.pet-body'), squishRun = 0, squishing = false;
 /**
@@ -206,7 +208,7 @@ function bubbleToStage() {
  */
 function say(text, ms, own) {
   if (!text) return;
-  text = text.replace(/\bNibble\b/g, petName());   // lines are written with his first name; use the one you gave him
+  text = text.replace(/\bFumu\b/g, petName());   // lines are written with his first name; use the one you gave him
   bubble.hidden = true;
   void bubble.offsetWidth;
   var line = own ? text : L.styleLine(personality(), text);

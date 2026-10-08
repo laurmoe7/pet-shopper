@@ -71,7 +71,7 @@ function updateRecipeAdd() {
   $('recipeAdd').disabled = !n;
 }
 
-/** While the recipe helper is open Nibble searches with his magnifying glass; when ingredients turn up he finds them. @param {boolean} [found] */
+/** While the recipe helper is open Fumu searches with his magnifying glass; when ingredients turn up he finds them. @param {boolean} [found] */
 function recipeSearch(found) {
   var on = recipeSheet.open && baseState() !== 'sleepy' && !pet.classList.contains('tucked');   // asleep or under the blanket: the glass is put away
   pet.classList.toggle('searching', on);
@@ -119,7 +119,7 @@ function recipeGo() {
   showRecipe('', names);
 }
 
-/** Puts the ticked ingredients on the shopping list in one go, then Nibble reacts once. */
+/** Puts the ticked ingredients on the shopping list in one go, then Fumu reacts once. */
 function recipeAddAll() {
   var names = recipeChosen();
   if (!names.length || isTodo()) return;
