@@ -365,3 +365,11 @@ test('Claude is on the list of known programs', () => {
   assert.deepEqual(Pr.identify('Claude.exe'), { kind: 'ai', name: 'Claude' });
   assert.deepEqual(Pr.describe('claude.exe', false), { kind: 'ai', name: 'Claude', fullscreen: false });
 });
+
+test('movement choices: a lot, normal, in his room, still; anything else falls back', () => {
+  const V = require('../desktop/privacy.js');
+  assert.deepEqual(V.MOVE_LEVELS.map((l) => l.id), ['lots', 'normal', 'room', 'still']);
+  assert.equal(V.cleanMove('room', 'normal'), 'room');
+  assert.equal(V.cleanMove('walk', 'still'), 'still');
+  assert.equal(V.cleanMove(undefined, 'normal'), 'normal');
+});

@@ -168,10 +168,11 @@
   })();
 
   // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------
-  var deskPrefs = { roam: true, remind: true, idle: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, sparkles: true, backdrop: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', standStill: false, standStillFull: true, talkNormal: 'normal', talkFull: 'rare' };
+  var deskPrefs = { moveNormal: 'normal', moveFull: 'still', mute: false, remind: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, sparkles: true, backdrop: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare' };
   /** Awareness: 1 = more privacy (idle and time only), 2 = normal. Anything he says about what you are doing, or knows about your windows and programs, checks this first. */
   window.deskAware = function (level) { return (deskPrefs.awareness === 1 ? 1 : 2) >= level; };
   /** The small window's look choices from the settings window: no toy, no cushion (classes on <html>, CSS at the end of styles.css). */
+  deskMuted = function () { return !!deskPrefs.mute && isPet(); };   // sounds off in the small window only
   function applyLook() {
     root.classList.toggle('desk-notoy', !!deskPrefs.hideToy);
     root.classList.toggle('desk-nocushion', !!deskPrefs.hideCushion);
@@ -267,8 +268,8 @@
 
   // ---------- Fumu does things on his own: wander along the screen, peek round the edge, nap ----------
   var peeking = false, roaming = false, away = false, awayAt = 0, awayNap = false, perched = false;
-  function roamOk(ignoreRoamSwitch) {
-    return (ignoreRoamSwitch || deskPrefs.roam !== false) && isPet() && !document.hidden && !roaming && !peeking && !away && !carried && !press && !busy && !walking && !dreaming &&
+  function roamOk() {
+    return isPet() && !document.hidden && !roaming && !peeking && !away && !carried && !press && !busy && !walking && !dreaming &&
       !(typeof napping !== 'undefined' && napping) && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') &&
       !document.querySelector('dialog[open], .inbox-card') && bubble.hidden && suggestEl.hidden;
   }
@@ -471,7 +472,12 @@
   /** Whether a game or something full-screen is in front: the "full-screen" choices in the settings apply instead of the usual ones. */
   function inFull() { return deskAware(2) && (!!program.fullscreen || program.kind === 'game'); }
   /** @returns {boolean} Whether he may move about (wander, peek, hop onto windows): not when "stand still" is on for the situation he is in. */
-  function moveOk() { return !(inFull() ? deskPrefs.standStillFull !== false : !!deskPrefs.standStill); }
+  function moveLevel() {
+    var l = inFull() ? deskPrefs.moveFull : deskPrefs.moveNormal;
+    if (l === 'room' && !deskPrefs.backdrop) l = 'normal';   // his room only exists while its background shows
+    return l === 'lots' || l === 'room' || l === 'still' ? l : 'normal';
+  }
+  function moveOk() { var l = moveLevel(); return l === 'lots' || l === 'normal'; }
   window.deskMoveOk = moveOk;
   // how often he remarks on what you are doing (settings: Never / Rarely / Normal / Often, one for the usual case and one for games and full-screen)
   var FREQ = { off: 0, rare: 0.35, normal: 1, often: 2.5 };
@@ -619,7 +625,7 @@
   // The shell says when nothing was touched for a few minutes (or the screen was locked): he curls up for a nap, and says hello again when you are back.
   if (D.onIdle) D.onIdle(function (idle) {
     if (idle) {
-      if (deskPrefs.idle === false || !isPet() || away) return;
+      if (!isPet() || away) return;
       away = true; awayAt = Date.now();
       awayNap = !roaming && !peeking && typeof napNow === 'function' && napNow(8 * 3600 * 1000) > 0;
       return;
@@ -687,28 +693,36 @@
     if (what === 'remind') { window.deskRemind([{ id: 'test', text: 'A test reminder', emoji: '⏰', time: '', done: false }]); return 4000; }
     return 0;
   };
+  /** A short stroll inside the window, where his room is: the window itself stays put. */
+  function strollInRoom() {
+    if (typeof walkTo !== 'function' || typeof walkRange !== 'function') return;
+    var r = walkRange(), x = (Math.random() * 2 - 1) * r;
+    if (Math.abs(x - walkX) < 30) x = walkX > 0 ? -r * 0.7 : r * 0.7;
+    walkTo(x);
+  }
   var roamTimer = 0;
   function scheduleRoam(first) {
     clearTimeout(roamTimer);
     roamTimer = setTimeout(function () {
       if (roamOk()) {
         // what he may do now: moving about (wander, peek, hop onto a window) only when "stand still" is not on for the situation, napping when nothing quiet is in front
-        var move = moveOk(), nap = !quietNow() && typeof napNow === 'function', hop = move && D.perch && deskPrefs.perch;
+        var lvl = moveLevel(), move = moveOk(), nap = !quietNow() && typeof napNow === 'function', hop = move && D.perch && deskPrefs.perch;
         var r = Math.random();
         if (hop && r < 0.3) { if (perched) hopDown(); else hopUp(); }
         else if (move && perched && r > 0.7) wander();
         else if (move && r < 0.4) wander();
         else if (nap && r < 0.7) napNow(18000 + Math.random() * 14000);
         else if (move && !perched) peek();
+        else if (lvl === 'room' && r < 0.6) strollInRoom();
       }
       scheduleRoam(false);
-    }, (first ? 90 : 240) * 1000 + Math.random() * (first ? 150 : 300) * 1000);
+    }, ((first ? 90 : 240) * 1000 + Math.random() * (first ? 150 : 300) * 1000) / (moveLevel() === 'lots' ? 3 : 1));
   }
   scheduleRoam(true);
   // with "sits on my windows" on he tries every minute or two, so it is easy to see: he hops up, stays a while, comes down again
   (function scheduleSeat() {
     setTimeout(function () {
-      if (deskPrefs.perch && D.perch && roamOk(true) && moveOk()) {
+      if (deskPrefs.perch && D.perch && roamOk() && moveOk()) {
         if (!perched) { if (Math.random() < 0.8) hopUp(); }
         else if (Math.random() < 0.35) hopDown();
       }

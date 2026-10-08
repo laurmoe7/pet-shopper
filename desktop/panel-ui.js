@@ -79,6 +79,7 @@
     toggle(look, 'Thought bubbles', 'clouds', 'Daydreams and wishes.');
     toggle(look, 'Sparkles around him', 'sparkles');
     toggle(look, 'Room background', 'backdrop', 'The scene from the whole app.');
+    toggle(look, 'Mute him', 'mute', 'No sounds in the small window.');
     toggle(look, 'Hide his toy', 'hideToy');
     toggle(look, 'Hide the cushion under him', 'hideCushion', 'His bed still shows at bedtime.');
 
@@ -94,8 +95,22 @@
     if (cur === 1) {
       var tfRow = el('div', 'row off'), tfText = el('span', 'text', '…in a game or full-screen'); tfText.appendChild(el('small', '', 'Needs Normal awareness.')); tfRow.appendChild(tfText); does.appendChild(tfRow);
     } else talkRow('…in a game or full-screen', 'Needs Normal awareness.', 'talkFull');
-    toggle(does, 'Wanders, peeks and naps', 'roam');
-    toggle(does, 'Naps when I am away', 'idle', 'After 4 idle minutes or a locked screen.');
+    // how much he moves about on his own: one choice for the usual case, one for games and full-screen (his room only when its background shows)
+    function moveRow(label, hint, pref, off) {
+      var row = el('div', 'row' + (off ? ' off' : '')), text = el('span', 'text', label); if (hint) text.appendChild(el('small', '', hint));
+      row.appendChild(text);
+      if (!off) {
+        var seg4 = el('span', 'seg');
+        S.privacy.moveLevels.filter(function (l) { return l.id !== 'room' || S.prefs.backdrop; }).forEach(function (l) {
+          var cur4 = S.prefs[pref] === 'room' && !S.prefs.backdrop ? 'normal' : S.prefs[pref];
+          var b = button(seg4, l.label, function () { P.set(pref, l.id).then(take); }); if (cur4 === l.id) b.className = 'on';
+        });
+        row.appendChild(seg4);
+      }
+      does.appendChild(row);
+    }
+    moveRow('How much he moves about', '', 'moveNormal');
+    moveRow('…in a game or full-screen', cur === 1 ? 'Needs Normal awareness.' : '', 'moveFull', cur === 1);
     if (S.canPerch && cur === 1) {
       var offRow = el('div', 'row off'); var offText = el('span', 'text', 'Sits on my windows'); offText.appendChild(el('small', '', 'Needs Normal awareness.')); offRow.appendChild(offText); does.appendChild(offRow);
     } else if (S.canPerch) {
@@ -103,8 +118,6 @@
       if (S.prefs.perch) { var hint = el('small', '', 'Looking…'); hint.id = 'perchHint'; does.lastChild.querySelector('.text').appendChild(hint); }
     }
     toggle(does, 'Reminds me of tasks', 'remind');
-    toggle(does, 'Stands in place', 'standStill', 'No wandering, peeking or hopping.');
-    toggle(does, 'Stands in place in a game or full-screen', 'standStillFull', 'Needs Normal awareness.', { disabled: cur === 1 });
 
     var win = section('His window');
     toggle(win, 'Always on top', 'onTop');

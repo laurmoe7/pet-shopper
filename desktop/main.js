@@ -27,7 +27,7 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, displaced = false, perch = null, perchTimer = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
+  let prefs = { x: null, y: null, onTop: true, aboveFull: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, mute: false, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
   const DEFAULTS = Object.assign({}, prefs);
   try { prefs = Object.assign(prefs, JSON.parse(fs.readFileSync(prefsFile(), 'utf8'))); } catch (e) { /* first run */ }
   prefs.keys = keys.clean(prefs.keys);
@@ -37,6 +37,13 @@ function start() {
   delete prefs.chat;
   prefs.chatNormal = privacy.cleanChat(prefs.chatNormal, 'normal'); prefs.chatFull = privacy.cleanChat(prefs.chatFull, 'normal');
   prefs.talkNormal = privacy.cleanChat(prefs.talkNormal, 'normal'); prefs.talkFull = privacy.cleanChat(prefs.talkFull, 'rare');
+  // the old switches (wander, nap, stand still) became two movement choices
+  if (!prefs.moveSaved) {
+    prefs.moveNormal = prefs.standStill || prefs.roam === false ? 'still' : 'normal';
+    prefs.moveFull = prefs.standStillFull === false && prefs.roam !== false ? 'normal' : 'still';
+    prefs.moveSaved = true;
+  }
+  prefs.moveNormal = privacy.cleanMove(prefs.moveNormal, 'normal'); prefs.moveFull = privacy.cleanMove(prefs.moveFull, 'still');
   if (!prefs.myGames || typeof prefs.myGames !== 'object' || Array.isArray(prefs.myGames)) prefs.myGames = {};
   const savePrefs = () => { try { fs.writeFileSync(prefsFile(), JSON.stringify(prefs)); } catch (e) { /* ignore */ } };
   const areas = () => screen.getAllDisplays().map((d) => d.workArea);
@@ -52,7 +59,7 @@ function start() {
     if (prefs.onTop && prefs.aboveFull) win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true });
     else win.setVisibleOnAllWorkspaces(false);
   };
-  const publicPrefs = () => ({ roam: prefs.roam, remind: prefs.remind, size: prefs.size, idle: prefs.idle, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, standStill: prefs.standStill, standStillFull: prefs.standStillFull, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion, bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles, backdrop: prefs.backdrop });
+  const publicPrefs = () => ({ moveNormal: prefs.moveNormal, moveFull: prefs.moveFull, mute: prefs.mute, remind: prefs.remind, size: prefs.size, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion, bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles, backdrop: prefs.backdrop });
   const sendPrefs = () => { if (win) win.webContents.send('desk:prefs', publicPrefs()); panel.push(); };
   // moves the window smoothly (walking, peeking round the screen edge); anything that takes hold of it stops the move
   let tween = null;
@@ -152,7 +159,7 @@ function start() {
   function hideFumu() { if (win) win.hide(); refreshMenus(); }
 
   // one place that changes a setting, for the right-click menu and the settings window alike
-  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'roam', 'remind', 'idle', 'perch', 'hideToy', 'hideCushion', 'startWithWindows', 'standStill', 'standStillFull', 'bubbles', 'clouds', 'sparkles', 'backdrop'];
+  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'remind', 'perch', 'hideToy', 'hideCushion', 'startWithWindows', 'bubbles', 'clouds', 'sparkles', 'backdrop', 'mute'];
   function setPref(key, value) {
     if (key === 'awareness') {   // 1 = more privacy, 2 = normal; at 1 he stops sitting on windows (he can no longer see them)
       prefs.awareness = privacy.clean(+value); savePrefs();
@@ -165,6 +172,7 @@ function start() {
       prefs[key] = privacy.cleanChat(value, prefs[key]); savePrefs(); sendPrefs();
       return;
     }
+    if (key === 'moveNormal' || key === 'moveFull') { prefs[key] = privacy.cleanMove(value, prefs[key]); savePrefs(); sendPrefs(); return; }
     if (key === 'size') { if (['small', 'normal', 'large'].includes(value)) setSize(value); return; }
     if (!BOOLS.includes(key)) return;
     value = !!value;
@@ -544,7 +552,7 @@ function start() {
   const panel = createPanel({
     state: () => ({
       prefs: Object.assign({ onTop: prefs.onTop, aboveFull: prefs.aboveFull, hotkeys: prefs.hotkeys, startWithWindows: app.getLoginItemSettings().openAtLogin }, publicPrefs(), { perch: prefs.perch }),
-      keys: prefs.keys, channel: CHANNEL.name, privacy: { levels: privacy.LEVELS, always: privacy.ALWAYS, chatLevels: privacy.CHAT_LEVELS }, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, petName: prefs.petName, update: updateReady, updateState
+      keys: prefs.keys, channel: CHANNEL.name, privacy: { levels: privacy.LEVELS, always: privacy.ALWAYS, chatLevels: privacy.CHAT_LEVELS, moveLevels: privacy.MOVE_LEVELS }, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, petName: prefs.petName, update: updateReady, updateState
     }),
     set: setPref, rebind, action, diag
   });

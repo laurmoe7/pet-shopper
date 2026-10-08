@@ -29,9 +29,19 @@ var CHAT_LEVELS = [
 /** @returns {string} A saved chatter level, or `fallback` when it is not one of them. */
 function cleanChat(v, fallback) { return CHAT_LEVELS.some(function (l) { return l.id === v; }) ? v : fallback; }
 
+/** How much he moves about on his own: a lot, normally, only inside his own little room (the small window, when it shows the room), or not at all. */
+var MOVE_LEVELS = [
+  { id: 'lots', label: 'A lot' },
+  { id: 'normal', label: 'Normal' },
+  { id: 'room', label: 'In his room' },
+  { id: 'still', label: 'Still' }
+];
+/** @returns {string} A saved movement level, or `fallback` when it is not one of them. */
+function cleanMove(v, fallback) { return MOVE_LEVELS.some(function (l) { return l.id === v; }) ? v : fallback; }
+
 /** @returns {1|2} A saved value as a level (normal when it is missing or not one). */
 function clean(v) { return v === 1 || v === '1' ? 1 : 2; }
 /** @returns {boolean} Whether a level allows a thing ('idle', 'perch', 'program'). */
 function allows(level, thing) { return clean(level) >= (NEEDS[thing] || 2); }
 
-module.exports = { CHAT_LEVELS: CHAT_LEVELS, cleanChat: cleanChat, LEVELS: LEVELS, ALWAYS: ALWAYS, NEEDS: NEEDS, clean: clean, allows: allows };
+module.exports = { MOVE_LEVELS: MOVE_LEVELS, cleanMove: cleanMove, CHAT_LEVELS: CHAT_LEVELS, cleanChat: cleanChat, LEVELS: LEVELS, ALWAYS: ALWAYS, NEEDS: NEEDS, clean: clean, allows: allows };
