@@ -342,18 +342,6 @@
     }).catch(function () { pet.classList.remove('walking'); roaming = wasRoaming; });
   };
 
-  // at night he only goes to bed once you have left him alone for a few minutes, and gets up when you touch him (bedtimeNow asks deskBedOk)
-  var lastTouch = Date.now(), BED_AFTER_MS = 4 * 60000;
-  window.deskBedOk = function () { return !isPet() || Date.now() - lastTouch > BED_AFTER_MS; };
-  function touched() {
-    lastTouch = Date.now();
-    if (isPet() && stage.classList.contains('bedtime') && typeof refreshBedtime === 'function') refreshBedtime();
-  }
-  document.addEventListener('pointerdown', touched, true);
-  document.addEventListener('keydown', touched, true);
-  if (D.onDo) D.onDo(touched);
-  setInterval(function () { if (isPet() && typeof refreshBedtime === 'function' && L.isNight(petNow())) refreshBedtime(); }, 20000);
-
   // thrown (the shell flies his window about): he spins round and is dizzy, and every hit on an edge or the floor goes "boing"
   if (D.onThrown) D.onThrown(function (on, dir) {
     pet.classList.toggle('thrown', !!on);

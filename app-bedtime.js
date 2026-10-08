@@ -30,7 +30,7 @@ pet.querySelector('.teddy-hug').innerHTML = TEDDY;
 
 var bedtimeKnown = false, wasAsleep = false;
 /** @returns {boolean} True when it is bedtime by the clock and the list: night, unless you are in the middle of shopping (items waiting on the list or tasks don't keep it up). */
-function bedtimeNow() { return L.isNight(petNow()) && (baseState() === 'sleepy' || !shoppingNow()) && (typeof window.deskBedOk !== 'function' || window.deskBedOk()); }
+function bedtimeNow() { return L.isNight(petNow()) && (baseState() === 'sleepy' || !shoppingNow()); }
 /**
  * Shows the lamp, bed, quilt and dark room for the time and the list, and the tired eyes when it's up at night.
  * Bedtime starts fresh (lamp on, not tucked in) each time it begins or the pet wakes while the app is open,
@@ -47,8 +47,7 @@ function refreshBedtime() {
   // The lamp hangs all night. The bed scene (bed, quilt, teddy) comes with bedtime, or when you switch the lamp off
   // while shopping: then it gets into bed so you can tuck it in.
   var asleep = baseState() === 'sleepy', night = L.isNight(petNow()), base = bedtimeNow();
-  var deskPet = document.documentElement.classList.contains('desktop-pet');   // the small desktop window: no lamp, he goes to bed by himself when left alone and gets up when you touch him
-  var bedNow = base || (!deskPet && night && bedtime().dark);
+  var bedNow = base || (night && bedtime().dark);
   var wasBed = stage.classList.contains('bedtime');
   if (bedtimeKnown && ((bedNow && !wasBed && base) || (!bedNow && wasBed) || (wasAsleep && !asleep))) {
     try { localStorage.removeItem(BED_KEY); } catch (e) { /* storage blocked */ }
@@ -59,7 +58,7 @@ function refreshBedtime() {
   wasAsleep = asleep;
   var bed = bedtime();
   // the small desktop window has no lamp to pull, so the light counts as off there: a tap tucks him in (the big window shows it off)
-  if (bedNow && deskPet && (!bed.dark || !bed.tucked)) { bed.dark = true; bed.tucked = true; saveBedtime(bed); }   // (the lamp counts as off and he tucks himself in)
+  if (bedNow && !bed.dark && document.documentElement.classList.contains('desktop-pet')) { bed.dark = true; saveBedtime(bed); }
   var wasTucked = pet.classList.contains('tucked');
   if (bedNow && !wasBed) owlSoon(true);
   stage.classList.toggle('bedtime', bedNow);
@@ -78,10 +77,10 @@ function refreshBedtime() {
   if (bedNow && !asleep && bed.tucked && bed.dark && !busy) fallAsleep();
   bedSoon();
   // morning: up it gets, with a stretch (at night only a snack wakes it: wakeForSnack)
-  if (wasTucked && !bedNow && (!night || deskPet) && !busy) {
+  if (wasTucked && !bedNow && !night && !busy) {
     setFace(FACES.wake);
     pulse('stretch', 1000);
-    if (night) say(pick(['*yawn* oh, hi!', 'huh? I\'m up!', 'mm? hello…']), 1500); else talk('tuckMorning', ['good morning!', 'slept so well!', '*yaaawn* morning!'], 1500);
+    talk('tuckMorning', ['good morning!', 'slept so well!', '*yaaawn* morning!'], 1500);
     setTimeout(function () { if (!busy) settle(); }, 1200);
   }
 }
