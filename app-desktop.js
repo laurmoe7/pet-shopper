@@ -114,6 +114,7 @@
       var dir = Math.abs(carryV.x) > 1.5 ? (carryV.x > 0 ? 1 : -1) : 0;
       if (dir !== carryDir) { carryDir = dir; if (dir) lookToward(dir); else stopLook(); }
       drawBody(1 - stretch * .75 - wob, 1 + stretch + wob, Math.sin(t * 7) * 1.5);
+      if (svg) svg.style.rotate = Math.max(-16, Math.min(16, carryV.x * 1.1)).toFixed(1) + 'deg';   // leans the way he is taken
       if (svg) svg.style.translate = Math.max(-14, Math.min(14, -carryV.x * .7 + Math.sin(t * 9) * 3)).toFixed(1) + 'px 0';
       requestAnimationFrame(frame);
     })(performance.now());
@@ -123,7 +124,7 @@
     pet.classList.remove('carried');
     stopLook();
     if (typeof toyCarry === 'function') toyCarry(false);   // he puts the toy down
-    var svg = pet.querySelector('.pet-svg'); if (svg) svg.style.translate = '';
+    var svg = pet.querySelector('.pet-svg'); if (svg) { svg.style.translate = ''; svg.style.rotate = ''; }
     if (typeof squishRun !== 'undefined') squishRun++;
     if (typeof squishing !== 'undefined') squishing = false;
     if (typeof drawBody === 'function') drawBody(1, 1, 0);

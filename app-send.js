@@ -144,6 +144,26 @@ function renderRecent() {
   });
 }
 
+/** Claude's alert: he holds a cartoon magic wand, flicks it a few times and sparkles and magic come out of its star. */
+function castWand() {
+  var before = pet.dataset.prop;
+  pet.dataset.prop = 'wand';
+  pet.classList.add('wanding');
+  var tip = pet.querySelector('.wand .wd-star');
+  [350, 750, 1150, 1550].forEach(function (ms, i) {
+    setTimeout(function () {
+      if (!pet.classList.contains('wanding') || !tip) return;
+      var r = tip.getBoundingClientRect();
+      drift(i % 2 ? ['✨', '✦', '♥'] : ['✦', '⭐', '✨'], { x: r.left + r.width / 2, y: r.top + r.height / 2 }, 4);
+      if (i % 2 === 0) sound('notice');
+    }, ms);
+  });
+  setTimeout(function () {
+    pet.classList.remove('wanding');
+    if (before) pet.dataset.prop = before; else delete pet.dataset.prop;
+  }, 1900);
+}
+
 var inboxCard = null;
 /** The little card: what it is, and Open / Copy / done. Only one at a time; the next waits on the server. */
 function showInboxCard(msg, more) {
@@ -151,7 +171,7 @@ function showInboxCard(msg, more) {
   var card = document.createElement('div');
   card.className = 'inbox-card' + (msg.from === 'claude' ? ' claude-card' : '');   // (Claude's "replied" note: no Copy, and it nudges now and then)
   card.setAttribute('role', 'status');
-  var img = emojiImg(pv.icon, '');
+  var img = emojiImg(msg.from === 'claude' ? '🔔' : pv.icon, '');   // Claude's note is a bell
   img.className = 'inbox-icon';
   var text = document.createElement('div'), t = document.createElement('b'), d = document.createElement('span');
   text.className = 'inbox-text';
@@ -227,7 +247,7 @@ function receiveMessage(msg, more) {
       eatMessage(link, { x: mouth.x + 70, y: Math.max(8, mouth.y - 170) }).then(function () {
         var fromClaude = msg.from === 'claude';
         say(fromClaude ? msg.text + '!' : link ? 'a link for you!' : 'a note for you!', fromClaude ? 3200 : 1900);
-        if (fromClaude) { setFace(FACES.tada); pulse('hophop', 1500); drift(['✦', '♥', '✦'], petTop(), 3); sound('notice'); }   // Claude's note gets a little celebration
+        if (fromClaude) { setFace(FACES.tada); castWand(); sound('notice'); }   // Claude's note gets a little celebration
         setTimeout(function () {
           busy--; if (!busy) settle();
           inboxCard = null;

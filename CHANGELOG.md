@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 305 (9 Oct)
+- Carried: his body leans the way he is taken.
+- A long toy chase ends with a jump and a catch.
+- Claude's alert shows a bell.
+- Claude's alert: he flicks a magic wand, with sparkles.
+
 ## Build 304 (9 Oct)
 - The update notice isn't talked over by his chatter.
 - Carried: he looks the way he is taken.

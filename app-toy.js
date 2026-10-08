@@ -327,6 +327,17 @@ function fling(vx, vy, y) {
   var followAt = 0, wide = !!toyField, gravity = wide ? 950 : 1500, wallK = wide ? 0.92 : 0.75, floorK = wide ? 0.74 : 0.6, grace = wide ? 3000 : 250, maxMs = wide ? 12000 : 7000;
   cancelAnimationFrame(flight);
   if (reduceMotion) { placeToy(x, 0, 0); landed(); return; }
+  // if the chase drags on he jumps at the toy and gets it
+  var leapAfter = wide ? 6500 : 3200;
+  function leap() {
+    var px0 = parseFloat(getComputedStyle(pet).translate) || 0, fx = x, fy = y, t0 = performance.now();
+    pulse('hop', 500);
+    (function fly(n) {
+      var u = Math.min(1, (n - t0) / 260);
+      placeToy(fx + (px0 - fx) * u, fy + (catchAt - fy) * u, spin);
+      if (u < 1) flight = requestAnimationFrame(fly); else if (frog) caught(px0, catchAt); else caught();
+    })(t0);
+  }
   function step(now) {
     var dt = Math.min(0.033, (now - last) / 1000);
     last = now;
@@ -355,6 +366,7 @@ function fling(vx, vy, y) {
       if (Math.abs(far) > 60) { followAt = now + 600; deskToyFollow(far * 0.8).then(function (moved) { x -= moved || 0; }); }
     }
     pet.style.setProperty('--look-x', (x > walkX ? 3.2 : -3.2) + 'px');
+    if (now - start > leapAfter) { leap(); return; }
     // caught: coming down at the right height, right in front of the pet
     var px = parseFloat(getComputedStyle(pet).translate) || 0;
     // a frog snatches it out of the air with its tongue once it is within reach
