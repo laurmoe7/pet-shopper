@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 312 (9 Oct)
+- Alerts and bubbles stay on screen when he is at the edge (the shell now repeats where the screen edge is).
+- Spinning: he swings round the cursor in an arc.
+- No more sticking to the cursor if the page reloads while he is carried.
+
 ## Build 311 (9 Oct)
 - Carried: he tilts even more, and spins round if you move him fast, with a dizzy face.
 - Back to where he started after the toy: no longer cut short by a run still going.

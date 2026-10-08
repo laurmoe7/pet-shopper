@@ -124,11 +124,14 @@
       else if (dizzy && Math.abs(spinW) < 60 && !dizzyOff) dizzyOff = setTimeout(function () { dizzyOff = 0; if (!dizzy) return; dizzy = false; if (carried) { settle(); say('so dizzy…', 1400); } }, 1600);
       else if (dizzy && Math.abs(spinW) >= 60) { clearTimeout(dizzyOff); dizzyOff = 0; }
       if (svg) svg.style.rotate = (Math.max(-55, Math.min(55, carryV.x * 4.5)) * (spinA ? 0 : 1) + spinA).toFixed(1) + 'deg';   // leans the way he is taken
+      // spinning, he swings round the cursor in a wide arc (the faster, the wider); slowing down, the arc closes up
+      var orbit = Math.min(38, Math.abs(spinW) / 16), th = spinA * Math.PI / 180;
+      var ox = orbit * Math.sin(th), oy = -orbit * (1 - Math.cos(th));
       if (typeof toyCarried !== 'undefined' && toyCarried) {   // the toy is in his arms: it sways and bobs with him
-        toyEl.style.translate = (walkX + toyHoldX - carryV.x * .7 * .5 + Math.sin(t * 9) * 3).toFixed(1) + 'px 0';
-        toyBall.style.transform = 'translateY(' + (-toyHoldY + Math.sin(t * 13) * 2).toFixed(1) + 'px)';
+        toyEl.style.translate = (walkX + toyHoldX - carryV.x * .7 * .5 + Math.sin(t * 9) * 3 + ox).toFixed(1) + 'px 0';
+        toyBall.style.transform = 'translateY(' + (-toyHoldY + oy + Math.sin(t * 13) * 2).toFixed(1) + 'px)';
       }
-      if (svg) svg.style.translate = Math.max(-14, Math.min(14, -carryV.x * .7 + Math.sin(t * 9) * 3)).toFixed(1) + 'px 0';
+      if (svg) svg.style.translate = (Math.max(-14, Math.min(14, -carryV.x * .7 + Math.sin(t * 9) * 3)) + ox).toFixed(1) + 'px ' + oy.toFixed(1) + 'px';
       requestAnimationFrame(frame);
     })(performance.now());
   }
@@ -150,6 +153,7 @@
     if (carried) { stopCarry(); D.dragEnd(); noClickUntil = Date.now() + 400; carried = false; }
     press = null;
   }
+  if (D.dragEnd) D.dragEnd();   // a page that has just loaded is not carrying anyone: if the shell still follows the cursor (the page reloaded mid-carry), let him go
   pet.addEventListener('pointerdown', function (e) {
     if (!isPet() || e.button !== 0) return;
     press = { x: e.screenX, y: e.screenY, id: e.pointerId, timer: setTimeout(function () {
@@ -226,7 +230,21 @@
   }
   if (window.MutationObserver) new MutationObserver(fitBubble).observe(bubble, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['hidden'] });
   // half out of the screen (peeking): the bubble keeps to the part that shows
+  // until the shell has said which part of the window is on a screen (an older shell, or the first moments), work it out here from the window's place on its screen
+  var shellVisible = false;
+  function ownVisible() {
+    if (shellVisible || !isPet()) return;
+    var zoom = window.outerWidth && window.innerWidth ? window.outerWidth / window.innerWidth : 1, sx = window.screenX, sc = window.screen || {};
+    if (!isFinite(sx) || !sc.availWidth || !(zoom > 0.3 && zoom < 4)) return;
+    var left = sc.availLeft || 0, l = Math.max(0, (left + 16 - sx) / zoom), r = Math.min(window.innerWidth, (left + sc.availWidth - 16 - sx) / zoom);
+    if (r <= l + 120) return;   // nonsense: leave it
+    var full = l <= 0 && r >= window.innerWidth - 1;
+    root.style.setProperty('--vis-l', full ? '0px' : l + 'px');
+    root.style.setProperty('--vis-r', full ? '100vw' : r + 'px');
+  }
+  setInterval(ownVisible, 700);
   if (D.onVisible) D.onVisible(function (l, r) {
+    shellVisible = true;
     var full = l <= 0 && r >= window.innerWidth - 1;
     root.style.setProperty('--vis-l', full ? '0px' : l + 'px');
     root.style.setProperty('--vis-r', full ? '100vw' : r + 'px');

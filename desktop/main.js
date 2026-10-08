@@ -320,7 +320,7 @@ function start() {
     return { ok: true };
   }
   // which part of his window is on a screen (he may be half out of it, peeking): the page keeps his speech bubble inside that part
-  let visibleSent = '';
+  let visibleSent = '', visibleAt = 0;
   setInterval(() => {
     if (!win || !win.isVisible() || mode !== 'pet') return;
     const b = win.getBounds(), cy = b.y + b.height / 2, z = zoom();
@@ -338,7 +338,7 @@ function start() {
     if (b.x - left < EDGE) lo = Math.max(lo, EDGE - (b.x - left));
     if (right - (b.x + b.width) < EDGE) hi = Math.min(hi, b.width - (EDGE - (right - (b.x + b.width))));
     const msg = Math.round(lo / z) + ',' + Math.round(hi / z);
-    if (msg !== visibleSent) { visibleSent = msg; win.webContents.send('desk:visible', Math.round(lo / z), Math.round(hi / z)); }
+    if (msg !== visibleSent || Date.now() - visibleAt > 5000) { visibleSent = msg; visibleAt = Date.now(); win.webContents.send('desk:visible', Math.round(lo / z), Math.round(hi / z)); }
   }, 150);
   // ---------- screens that come and go, and the computer going quiet ----------
   // A screen is unplugged or changes size: he goes to the main screen but remembers his own spot, and goes back when that screen returns.
@@ -386,7 +386,11 @@ function start() {
     win.webContents.on('dom-ready', applyZoom);
     win.on('closed', () => { win = null; });
     win.loadURL(APP_URL);
-    win.webContents.on('did-finish-load', () => { if (updateReady) win.webContents.send('desk:updateReady'); });   // a page that opens after the download finished is told too
+    win.webContents.on('did-finish-load', () => {
+      if (updateReady) win.webContents.send('desk:updateReady');
+      visibleSent = '';   // a fresh page knows nothing yet: tell it which part of the window shows
+      if (dragFrom) ipcMain.emit('desk:dragEnd');   // the page reloaded while he was carried: nobody is left to let go, so he is put down
+    });   // a page that opens after the download finished is told too
     setTimeout(() => { if (win && !shown) { shown = true; win.showInactive(); } }, 6000);   // show it anyway if the page never says it is ready
   }
 
