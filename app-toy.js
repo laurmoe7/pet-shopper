@@ -5,7 +5,18 @@
 
 var toyEl = $('toy'), toyBall = toyEl.querySelector('.toy-ball'), toyX = toyHome(), playing = false;
 /** @returns {number} The toy's spot beside the cushion: a bigger pet takes more room (its size is --pet-size on the stage). */
-function toyHome() { return Math.round(58 * (parseFloat(getComputedStyle(stage).getPropertyValue('--pet-size')) || 1)); }
+/** @returns {boolean} Whether `px` to the right of him is still on a screen (the small window can hang over the screen's right edge). Always true in the app. */
+function roomOnRight(px) {
+  var root = document.documentElement;
+  if (!root.classList.contains('desktop-pet')) return true;
+  var raw = getComputedStyle(root).getPropertyValue('--vis-r'), vr = !raw || /vw/.test(raw) ? window.innerWidth : parseFloat(raw);
+  return window.innerWidth / 2 + px + 20 <= vr;
+}
+/** @returns {number} Where the toy rests: beside him on the right, or on the left when the right is off the screen. */
+function toyHome() {
+  var h = Math.round(58 * (parseFloat(getComputedStyle(stage).getPropertyValue('--pet-size')) || 1));
+  return roomOnRight(h) ? h : -h;
+}
 /** @returns {boolean} Whether he is up at night and drowsy (not in his bed): he goes after the toy very slowly then. */
 function toyTired() { return typeof petScene === 'function' && petScene().indexOf('night-drowsy') === 0; }
 /** @param {number} pace Ms per px for a walk. @returns {number} The pace, many times slower when he is drowsy. */
@@ -499,3 +510,10 @@ function toyBackHome() {
   toyEl.style.translate = '';
   toyX = toyHome();
 }
+
+// the small window moved to the edge of the screen: a toy resting on the side that is off the screen comes over to the other side
+setInterval(function () {
+  if (typeof held === 'undefined' || playing || held || toyField || toyCarried || stage.classList.contains('bedtime') || getComputedStyle(toyEl).display === 'none') return;
+  var h = toyHome();
+  if (Math.abs(Math.abs(toyX) - Math.abs(h)) < 2 && toyX !== h) toyBounce(h, 500, 8, 10);
+}, 2000);

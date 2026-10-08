@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 344
+- At the right edge of the screen the bell and the toy rest on his left, where you can see them.
+
 ## Build 343
 - Drowsy at night, he walks back slowly after a throw or a jump off a window.
 
