@@ -20,7 +20,7 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   solid: (yes) => ipcRenderer.send('desk:solid', !!yes),
   dragStart: () => ipcRenderer.send('desk:dragStart'),
   dragMove: (dx, dy) => ipcRenderer.send('desk:dragMove', +dx || 0, +dy || 0),
-  dragEnd: () => ipcRenderer.send('desk:dragEnd'),
+  dragEnd: (inBed) => ipcRenderer.send('desk:dragEnd', !!inBed),   // inBed: he is asleep in his bed (a throw then turns the bed to the wall)
   menu: () => ipcRenderer.send('desk:menu'),
   /** Opens a web link in the browser (only http and https are passed on by the shell). */
   open: (url) => ipcRenderer.send('desk:open', String(url).slice(0, 4100)),
@@ -53,7 +53,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   /** He runs back along the floor after getting off a window: 1 right, -1 left, 0 stopped. */
   /** He is falling off a window (true) or has landed (false): the arms wave. */
   /** He was thrown (on, spin direction) and is flying; and each time he hits an edge (0..1: how hard). */
-  onThrown: (fn) => ipcRenderer.on('desk:thrown', (_e, on, dir) => fn(!!on, +dir || 1)),
+  onThrown: (fn) => ipcRenderer.on('desk:thrown', (_e, on, dir, bed) => fn(!!on, +dir || 1, !!bed)),
+  onFlight: (fn) => ipcRenderer.on('desk:flight', (_e, vx, vy) => fn(+vx || 0, +vy || 0)),
   onBounce: (fn) => ipcRenderer.on('desk:bounce', (_e, hard) => fn(+hard || 0)),
   onFall: (fn) => ipcRenderer.on('desk:fall', (_e, on) => fn(!!on)),
   onRun: (fn) => ipcRenderer.on('desk:run', (_e, dir) => fn(+dir || 0)),

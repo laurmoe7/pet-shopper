@@ -150,7 +150,7 @@
   }
   function drop() {
     if (press && press.timer) clearTimeout(press.timer);
-    if (carried) { stopCarry(); D.dragEnd(); noClickUntil = Date.now() + 400; carried = false; }
+    if (carried) { stopCarry(); D.dragEnd(stage.classList.contains('bedtime')); noClickUntil = Date.now() + 400; carried = false; }
     press = null;
   }
   if (D.dragEnd) D.dragEnd();   // a page that has just loaded is not carrying anyone: if the shell still follows the cursor (the page reloaded mid-carry), let him go
@@ -343,11 +343,18 @@
   };
 
   // thrown (the shell flies his window about): he spins round and is dizzy, and every hit on an edge or the floor goes "boing"
-  if (D.onThrown) D.onThrown(function (on, dir) {
-    pet.classList.toggle('thrown', !!on);
+  if (D.onThrown) D.onThrown(function (on, dir, bed) {
+    pet.classList.toggle('thrown', !!on && !bed);
+    stage.classList.toggle('bed-thrown', !!on && !!bed);   // asleep in bed: the whole bed turns, no spinning (see onFlight)
     pet.style.setProperty('--spin-dir', dir < 0 ? -1 : 1);
-    if (on) setFace({ eyes: 'dizzy', mouth: 'o', arms: 'idle', x: ['sweat'] });
-    else setTimeout(function () { if (!pet.classList.contains('thrown') && !carried && !busy) settle(); }, 900);
+    if (on && !bed) setFace({ eyes: 'dizzy', mouth: 'o', arms: 'idle', x: ['sweat'] });
+    else if (!on && !bed) setTimeout(function () { if (!pet.classList.contains('thrown') && !carried && !busy) settle(); }, 900);
+    if (!on) stage.style.removeProperty('--bed-turn');
+  });
+  // in bed the bed always leads: it turns to face the way he is flying, so it is the bed that hits the wall, the ceiling or the floor
+  if (D.onFlight) D.onFlight(function (vx, vy) {
+    if (Math.hypot(vx, vy) < 120) return;
+    stage.style.setProperty('--bed-turn', (Math.atan2(-vx, vy) * 180 / Math.PI).toFixed(0) + 'deg');
   });
   if (D.onBounce) D.onBounce(function (hard) {
     if (typeof sound === 'function') sound('bounce');

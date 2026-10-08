@@ -123,7 +123,7 @@ function start() {
   }
 
   /** He is let go while moving fast: he flies on, bounces off the edges of the screens and the floor, then runs back to where he was picked up. */
-  async function throwWindow(vx, vy, home) {
+  async function throwWindow(vx, vy, home, inBed) {
     stopTween();
     if (!win || mode !== 'pet') return;
     const all = areas(), b0 = win.getBounds();
@@ -132,8 +132,9 @@ function start() {
     let x = b0.x, y = b0.y, lastHit = 0, spinDir = vx >= 0 ? 1 : -1;
     const t0 = Date.now();
     let last = t0;
-    win.webContents.send('desk:fall', true);   // arms flap while he flies
-    win.webContents.send('desk:thrown', true, spinDir);   // and he spins round
+    if (!inBed) win.webContents.send('desk:fall', true);   // arms flap while he flies (asleep in bed he does not)
+    win.webContents.send('desk:thrown', true, spinDir, inBed);   // and he spins round (in bed, the bed turns to face where it is going)
+    let lastFlight = 0;
     const ok = await new Promise((resolve) => {
       const timer = setInterval(() => {
         if (!win) { stopTween(); return; }
@@ -150,13 +151,15 @@ function start() {
         if (y >= floorY) { y = floorY; if (Math.abs(vy) > 260) { hit = Math.max(hit, Math.abs(vy)); vy = -vy * 0.62; } else { vy = 0; rest = true; } vx *= 0.85; }
         if (hit > 220 && now - lastHit > 90) { lastHit = now; win.webContents.send('desk:bounce', Math.min(1, hit / 2500)); }
         if (Math.abs(vx) > 60) spinDir = vx > 0 ? 1 : -1;
+        if (inBed && now - lastFlight > 40) { lastFlight = now; win.webContents.send('desk:flight', vx, vy); }
         win.setBounds({ x: Math.round(x), y: Math.round(y), width: b0.width, height: b0.height });
         if ((rest && Math.abs(vx) < 30) || now - t0 > 7000) { clearInterval(timer); tween = null; resolve(true); }
       }, 8);
       tween = { timer, done: resolve };
     });
-    if (win) { win.webContents.send('desk:fall', false); win.webContents.send('desk:thrown', false, 0); }
+    if (win) { if (!inBed) win.webContents.send('desk:fall', false); win.webContents.send('desk:thrown', false, 0, inBed); }
     if (!ok || !win) return;
+    if (inBed) { restHere(); return; }   // in his bed he stays where he landed (he has bounced about on the floor already)
     const back = place.within(home, here()), cur = win.getBounds();
     if (Math.abs(back.x - cur.x) > 20 || Math.abs(back.y - cur.y) > 20) {
       win.webContents.send('desk:run', back.x > cur.x ? 1 : -1);
@@ -467,7 +470,7 @@ function start() {
     const p = screen.getCursorScreenPoint();
     win.setBounds(place.dragBounds(dragFrom, dragCursor ? p.x - dragCursor.x : dx, dragCursor ? p.y - dragCursor.y : dy));
   });
-  ipcMain.on('desk:dragEnd', async () => {
+  ipcMain.on('desk:dragEnd', async (_e, inBed) => {
     clearInterval(dragTimer); dragTimer = null;
     if (!win || !dragFrom) return;
     dragFrom = null;
@@ -476,7 +479,7 @@ function start() {
     const first = dragTrail[0], last = dragTrail[dragTrail.length - 1];
     if (first && last && last.t - first.t >= 30 && Date.now() - last.t < 120) {
       const sec = (last.t - first.t) / 1000, vx = (last.x - first.x) / sec, vy = (last.y - first.y) / sec;
-      if (Math.hypot(vx, vy) > 1400) { throwWindow(Math.max(-3500, Math.min(3500, vx)), Math.max(-3500, Math.min(3500, vy)), dragHome || b); return; }
+      if (Math.hypot(vx, vy) > 1400) { throwWindow(Math.max(-3500, Math.min(3500, vx)), Math.max(-3500, Math.min(3500, vy)), dragHome || b, !!inBed); return; }
     }
     // let go close above another window's edge and he sits on it
     if (prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch')) {

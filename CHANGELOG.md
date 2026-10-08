@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 316 (9 Oct)
+- Thrown in bed: the bed turns to face the wall it hits, and he stays bouncing where he lands.
+
 ## Build 315 (9 Oct)
 - Thrown: he spins round and goes boing at every bounce.
 - Smoother window movement (more steps a second).
