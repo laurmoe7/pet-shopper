@@ -127,6 +127,7 @@ function wreckFling(vx, vy, y0) {
     var back = walkTo(0, 7);   // (the wand needs room: from the middle it is not cut off by the window's edge)
     setTimeout(function () {
       if (typeof castWand === 'function') castWand();   // (about 4 seconds; the windows mend as the sparkles come out)
+      sound('magic');
       setTimeout(function () { D.wreckFix().then(function () {}, function () {}); }, 900);
     }, back);
     wait(back + 4000).then(endPlay);
@@ -139,6 +140,59 @@ function wreckFling(vx, vy, y0) {
 // the add bar, the dock's buttons, the gear and the lamp. Each one cracks, then shatters piece by piece (a row: the picture first, then the words,
 // then the bar) and the pieces fall with whatever was on them (copies of the page's own elements, so nothing is captured or drawn over a program);
 // then he waves the wand and they pop back. A see-through shield keeps taps from reaching the page meanwhile.
+/** The marks of one hit (the same shapes are drawn by desktop/wreck.html), as shapes ({p: points, fill?, close?, soft?}) around (x, y): a web, a bullet hole, a long fracture, a mosaic, a dent with ripples or a chipped wedge. */
+var CRACK_TYPES = ['web', 'bullet', 'long', 'mosaic', 'dent', 'chip'];
+function crackShapes(type, x, y, size) {
+  var out = [], i, j, n, a, TAU = Math.PI * 2;
+  function R(lo, hi) { return lo + Math.random() * (hi - lo); }
+  function ray(a0, len, steps, wob) { var pts = [[x, y]], px = x, py = y; for (var k = 1; k <= steps; k++) { a0 += R(-wob, wob); px += Math.cos(a0) * len / steps; py += Math.sin(a0) * len / steps; pts.push([px, py]); } return pts; }
+  function ring(r, a0, span, cnt, jit) { var pts = []; for (var k = 0; k <= cnt; k++) { var an = a0 + k / cnt * span; pts.push([x + Math.cos(an) * r * R(1 - jit, 1 + jit), y + Math.sin(an) * r * R(1 - jit, 1 + jit)]); } return pts; }
+  if (type === 'bullet') {   // a jagged dark hole with short sharp rays
+    var hole = []; n = 9;
+    for (i = 0; i < n; i++) { a = i / n * TAU + R(-.2, .2); var rr = (i % 2 ? R(.05, .09) : R(.1, .16)) * size; hole.push([x + Math.cos(a) * rr, y + Math.sin(a) * rr]); }
+    out.push({ p: hole, fill: 'rgba(8,8,14,.88)', close: true });
+    n = 7 + ((Math.random() * 3) | 0);
+    for (i = 0; i < n; i++) out.push({ p: ray(i / n * TAU + R(-.3, .3), size * R(.3, .65), 2, .25) });
+  } else if (type === 'long') {   // one or two long fractures straight across, with little branches
+    var base = R(0, TAU);
+    for (i = 0; i < 2; i++) { var a2 = base + i * R(1.2, 2), f = ray(a2, size * R(.9, 1.4), 5, .5), b = ray(a2 + Math.PI, size * R(.9, 1.4), 5, .5); out.push({ p: b.reverse().concat(f.slice(1)) }); }
+    for (i = 0; i < 5; i++) {
+      var s = out[(Math.random() * 2) | 0].p, q = s[(Math.random() * s.length) | 0], br = [[q[0], q[1]]], bx = q[0], by = q[1], ba = R(0, TAU);
+      for (j = 0; j < 3; j++) { ba += R(-.4, .4); bx += Math.cos(ba) * size * .1; by += Math.sin(ba) * size * .1; br.push([bx, by]); }
+      out.push({ p: br });
+    }
+  } else if (type === 'mosaic') {   // many rays and four jagged rings: a dense shattered web
+    n = 12;
+    for (i = 0; i < n; i++) out.push({ p: ray(i / n * TAU + R(-.15, .15), size * R(.5, 1), 3, .2) });
+    for (i = 0; i < 4; i++) out.push({ p: ring(size * (.1 + i * .14), R(0, TAU), TAU * .95, 14, .12) });
+  } else if (type === 'dent') {   // smooth ripples round a dent, and a few thin cracks
+    for (i = 0; i < 4; i++) out.push({ p: ring(size * (.08 + i * .11), 0, TAU, 18, .03), soft: true });
+    for (i = 0; i < 4; i++) out.push({ p: ray(i / 4 * TAU + R(0, 1), size * R(.3, .6), 3, .3) });
+  } else if (type === 'chip') {   // a wedge of glass gone, and cracks running off it
+    var a0 = R(0, TAU), wedge = [[x, y]];
+    for (i = 0; i < 4; i++) { var aa = a0 + (i - 1.5) * .35; wedge.push([x + Math.cos(aa) * size * R(.25, .5), y + Math.sin(aa) * size * R(.25, .5)]); }
+    out.push({ p: wedge, fill: 'rgba(8,8,14,.85)', close: true });
+    for (i = 0; i < 6; i++) out.push({ p: ray(a0 + R(-1.4, 1.4), size * R(.4, .9), 3, .35) });
+  } else {   // web
+    n = 8 + ((Math.random() * 4) | 0);
+    for (i = 0; i < n; i++) out.push({ p: ray(i / n * TAU + R(-.25, .25), size * R(.45, 1.05), 3 + ((Math.random() * 2) | 0), .35) });
+    for (i = 0; i < 2; i++) out.push({ p: ring(size * (.14 + i * .17), R(0, 6), TAU * .75, 9, .15) });
+  }
+  return out;
+}
+
+/** @returns {string} An SVG of one hit's marks over a w x h box, the hit at (lx, ly). */
+function crackSvg(w, h, lx, ly) {
+  var size = Math.max(44, Math.min(170, Math.max(w, h) * 0.7)), d = '';
+  var shapes = crackShapes(CRACK_TYPES[Math.floor(Math.random() * CRACK_TYPES.length)], lx, ly, size);
+  function path(sh) { return sh.p.map(function (q, i) { return (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1); }).join('') + (sh.close ? 'Z' : ''); }
+  shapes.forEach(function (sh) { if (sh.fill) d += '<path d="' + path(sh) + '" fill="' + sh.fill + '" stroke="none"/>'; });
+  [['rgba(8,8,16,.72)', 2.2, 0], ['rgba(255,255,255,.55)', .8, .8]].forEach(function (st) {
+    shapes.forEach(function (sh) { d += '<path d="' + path(sh) + '" fill="none" stroke="' + (sh.soft ? st[0].replace(/[\d.]+\)$/, '.35)') : st[0]) + '" stroke-width="' + (sh.soft ? st[1] * .7 : st[1]) + '"' + (st[2] ? ' transform="translate(.8 .8)"' : '') + '/>'; });
+  });
+  return '<svg viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h + '" style="position:absolute;left:0;top:0;overflow:visible" fill="none" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+}
+
 var WRECK_TARGETS = '.items .item, .items .aisle, .add-wrap, .dock > button, .scene .brand, #optionsBtn, #lamp';
 
 /** @returns {boolean} Whether a throw now is the page's wrecking-ball game: it is the toy, and this is not the small desktop window (that one has its own, over the screen). */
@@ -172,19 +226,6 @@ function pageWreck(vx, vy, px, py) {
     return { el: el, r: r, hit: false, timers: [], mended: false };
   }).filter(function (t) { return t.r.width > 8 && t.r.height > 8 && t.r.bottom > 0 && t.r.top < H; });
 
-  /** A crack where the ball hit, for a moment. */
-  function crackAt(cx, cy) {
-    var d = '', i, a, len, mx, my;
-    for (i = 0; i < 9; i++) {
-      a = i / 9 * Math.PI * 2 + Math.random() * .5; len = 22 + Math.random() * 20; mx = Math.cos(a) * len * .5 + (Math.random() - .5) * 8; my = Math.sin(a) * len * .5 + (Math.random() - .5) * 8;
-      d += 'M0 0 L' + mx.toFixed(1) + ' ' + my.toFixed(1) + ' L' + (Math.cos(a) * len).toFixed(1) + ' ' + (Math.sin(a) * len).toFixed(1);
-    }
-    var c = document.createElement('div');
-    c.style.cssText = 'position:fixed;left:' + (cx - 45) + 'px;top:' + (cy - 45) + 'px;width:90px;height:90px;z-index:9992;pointer-events:none;';
-    c.innerHTML = '<svg viewBox="-45 -45 90 90" width="90" height="90" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '" stroke="rgba(10,10,16,.75)" stroke-width="2.4"/><path d="' + d + '" stroke="rgba(255,255,255,.7)" stroke-width=".9" transform="translate(.8 .8)"/></svg>';
-    document.body.appendChild(c);
-    c.animate([{ opacity: 1 }, { opacity: 1, offset: .6 }, { opacity: 0 }], { duration: 700 }).onfinish = function () { c.remove(); };
-  }
   /** A copy of an element with every style written into it, so it looks the same wherever it is put (the page's own rules would not reach it). */
   function frozen(src, r) {
     var dst = src.cloneNode(true), a = [src].concat([].slice.call(src.querySelectorAll('*'))), b = [dst].concat([].slice.call(dst.querySelectorAll('*')));
@@ -224,12 +265,14 @@ function pageWreck(vx, vy, px, py) {
     }
     tris.sort(function (m, n) { return m.cat - n.cat || m.d - n.d; });
     t.r2 = r; t.tris = tris; t.tpl = frozen(t.el, r); t.gone = []; t.lx = lx; t.ly = ly;
+    if (t.mark) { var m = t.mark.cloneNode(true); m.style.left = '0'; m.style.top = '0'; t.tpl.appendChild(m); }   // (every shard carries its part of the cracks)
   }
   /** The thing itself loses the pieces that have fallen (it stays whole under the rest). */
   function cutOut(t) {
     var r = t.r2, d = 'M-300 -300 H' + (r.width + 300) + ' V' + (r.height + 300) + ' H-300 Z';
     t.gone.forEach(function (g) { d += ' M' + g.p[0][0].toFixed(1) + ' ' + g.p[0][1].toFixed(1) + ' L' + g.p[1][0].toFixed(1) + ' ' + g.p[1][1].toFixed(1) + ' L' + g.p[2][0].toFixed(1) + ' ' + g.p[2][1].toFixed(1) + ' Z'; });
     t.el.style.clipPath = 'path(evenodd, "' + d + '")';
+    if (t.mark) t.mark.style.clipPath = 'path(evenodd, "' + d + '")';
   }
   /** One shard comes away: a copy of the thing, cut to the triangle, flies out from the hit and falls. */
   function shard(t, g) {
@@ -246,11 +289,16 @@ function pageWreck(vx, vy, px, py) {
     t.gone.push(g);
     cutOut(t);
   }
-  /** A thing the ball touched: it cracks, then shatters piece by piece. */
+  /** A thing the ball touched: the cracks appear on it, then it shatters piece by piece (the cracks go with the pieces). */
   var shatterSound = 0;
   function knock(t, hx, hy) {
     t.hit = true;
-    crackAt(hx, hy);
+    var r = t.el.getBoundingClientRect(), cs = getComputedStyle(t.el);
+    var mark = document.createElement('div');
+    mark.style.cssText = 'position:absolute;left:' + r.left + 'px;top:' + r.top + 'px;width:' + r.width + 'px;height:' + r.height + 'px;overflow:hidden;pointer-events:none;border-radius:' + cs.borderRadius + ';';
+    mark.innerHTML = crackSvg(r.width, r.height, Math.max(0, Math.min(r.width, hx - r.left)), Math.max(0, Math.min(r.height, hy - r.top)));
+    shardBox.appendChild(mark);
+    t.mark = mark;
     setTimeout(function () {
       if (ended || !t.el.animate) return;
       prepare(t, hx, hy);
@@ -262,7 +310,7 @@ function pageWreck(vx, vy, px, py) {
           if (i % 3 === 0 && performance.now() - shatterSound > 90) { shatterSound = performance.now(); sound('glass'); }
         }, i * 48 + Math.random() * 30));
       });
-    }, 220);
+    }, 260);
   }
 
   function step(now) {
@@ -331,11 +379,12 @@ function pageWreck(vx, vy, px, py) {
     var back = walkTo(0, 7);   // (the wand needs room)
     setTimeout(function () {
       if (typeof castWand === 'function') castWand();
+      sound('magic');
       setTimeout(function () {   // everything pops back, one after the other
         targets.forEach(function (t, n) {
           setTimeout(function () {
             t.mended = true; t.timers.forEach(clearTimeout);
-            t.el.style.clipPath = ''; t.el.style.visibility = '';
+            t.el.style.clipPath = ''; t.el.style.visibility = ''; if (t.mark) { t.mark.remove(); t.mark = null; }
             if (t.hit && t.el.animate) t.el.animate([{ transform: 'scale(.6)', opacity: 0 }, { transform: 'scale(1.08)', opacity: 1, offset: .6 }, { transform: 'scale(1)', opacity: 1 }], { duration: 380, easing: 'ease-out' });
             if (t.hit && n % 2 === 0) drift(['✨', '✦', '⭐'], { x: t.r.left + t.r.width / 2, y: t.r.top + t.r.height / 2 }, 2);
           }, n * 35);

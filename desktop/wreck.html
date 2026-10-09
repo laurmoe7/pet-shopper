@@ -21,36 +21,59 @@ function init(w, h, list) {
   wins = (list || []).map(function (r) { return { r: r, broke: {} }; });
 }
 
-/** A crack from (x, y): rays that bend, with a few branches, and a ring or two round the point. */
+/** The marks of one hit (the same shapes are drawn by app-wreck.js in the page), as shapes ({p: points, fill?, close?, soft?}) around (x, y): a web, a bullet hole, a long fracture, a mosaic, a dent with ripples or a chipped wedge. */
+var CRACK_TYPES = ['web', 'bullet', 'long', 'mosaic', 'dent', 'chip'];
+function crackShapes(type, x, y, size) {
+  var out = [], i, j, n, a, TAU = Math.PI * 2;
+  function R(lo, hi) { return lo + Math.random() * (hi - lo); }
+  function ray(a0, len, steps, wob) { var pts = [[x, y]], px = x, py = y; for (var k = 1; k <= steps; k++) { a0 += R(-wob, wob); px += Math.cos(a0) * len / steps; py += Math.sin(a0) * len / steps; pts.push([px, py]); } return pts; }
+  function ring(r, a0, span, cnt, jit) { var pts = []; for (var k = 0; k <= cnt; k++) { var an = a0 + k / cnt * span; pts.push([x + Math.cos(an) * r * R(1 - jit, 1 + jit), y + Math.sin(an) * r * R(1 - jit, 1 + jit)]); } return pts; }
+  if (type === 'bullet') {   // a jagged dark hole with short sharp rays
+    var hole = []; n = 9;
+    for (i = 0; i < n; i++) { a = i / n * TAU + R(-.2, .2); var rr = (i % 2 ? R(.05, .09) : R(.1, .16)) * size; hole.push([x + Math.cos(a) * rr, y + Math.sin(a) * rr]); }
+    out.push({ p: hole, fill: 'rgba(8,8,14,.88)', close: true });
+    n = 7 + ((Math.random() * 3) | 0);
+    for (i = 0; i < n; i++) out.push({ p: ray(i / n * TAU + R(-.3, .3), size * R(.3, .65), 2, .25) });
+  } else if (type === 'long') {   // one or two long fractures straight across, with little branches
+    var base = R(0, TAU);
+    for (i = 0; i < 2; i++) { var a2 = base + i * R(1.2, 2), f = ray(a2, size * R(.9, 1.4), 5, .5), b = ray(a2 + Math.PI, size * R(.9, 1.4), 5, .5); out.push({ p: b.reverse().concat(f.slice(1)) }); }
+    for (i = 0; i < 5; i++) {
+      var s = out[(Math.random() * 2) | 0].p, q = s[(Math.random() * s.length) | 0], br = [[q[0], q[1]]], bx = q[0], by = q[1], ba = R(0, TAU);
+      for (j = 0; j < 3; j++) { ba += R(-.4, .4); bx += Math.cos(ba) * size * .1; by += Math.sin(ba) * size * .1; br.push([bx, by]); }
+      out.push({ p: br });
+    }
+  } else if (type === 'mosaic') {   // many rays and four jagged rings: a dense shattered web
+    n = 12;
+    for (i = 0; i < n; i++) out.push({ p: ray(i / n * TAU + R(-.15, .15), size * R(.5, 1), 3, .2) });
+    for (i = 0; i < 4; i++) out.push({ p: ring(size * (.1 + i * .14), R(0, TAU), TAU * .95, 14, .12) });
+  } else if (type === 'dent') {   // smooth ripples round a dent, and a few thin cracks
+    for (i = 0; i < 4; i++) out.push({ p: ring(size * (.08 + i * .11), 0, TAU, 18, .03), soft: true });
+    for (i = 0; i < 4; i++) out.push({ p: ray(i / 4 * TAU + R(0, 1), size * R(.3, .6), 3, .3) });
+  } else if (type === 'chip') {   // a wedge of glass gone, and cracks running off it
+    var a0 = R(0, TAU), wedge = [[x, y]];
+    for (i = 0; i < 4; i++) { var aa = a0 + (i - 1.5) * .35; wedge.push([x + Math.cos(aa) * size * R(.25, .5), y + Math.sin(aa) * size * R(.25, .5)]); }
+    out.push({ p: wedge, fill: 'rgba(8,8,14,.85)', close: true });
+    for (i = 0; i < 6; i++) out.push({ p: ray(a0 + R(-1.4, 1.4), size * R(.4, .9), 3, .35) });
+  } else {   // web
+    n = 8 + ((Math.random() * 4) | 0);
+    for (i = 0; i < n; i++) out.push({ p: ray(i / n * TAU + R(-.25, .25), size * R(.45, 1.05), 3 + ((Math.random() * 2) | 0), .35) });
+    for (i = 0; i < 2; i++) out.push({ p: ring(size * (.14 + i * .17), R(0, 6), TAU * .75, 9, .15) });
+  }
+  return out;
+}
+
+/** Draws one hit's marks at (x, y). */
 function crack(x, y, size) {
-  var n = 8 + (Math.random() * 4 | 0), i, j, a, px, py, len, nx, ny;
+  var shapes = crackShapes(CRACK_TYPES[Math.floor(Math.random() * CRACK_TYPES.length)], x, y, size);
   g.lineCap = 'round'; g.lineJoin = 'round';
   var haze = g.createRadialGradient(x, y, 0, x, y, size * .8);
-  haze.addColorStop(0, 'rgba(255,255,255,.22)'); haze.addColorStop(1, 'rgba(255,255,255,0)');
+  haze.addColorStop(0, 'rgba(255,255,255,.2)'); haze.addColorStop(1, 'rgba(255,255,255,0)');
   g.fillStyle = haze; g.beginPath(); g.arc(x, y, size * .8, 0, 7); g.fill();
-  var paths = [];
-  for (i = 0; i < n; i++) {
-    a = i / n * Math.PI * 2 + rnd(-.25, .25); len = size * rnd(.45, 1.05); px = x; py = y;
-    var pts = [[x, y]], steps = 3 + (Math.random() * 2 | 0);
-    for (j = 1; j <= steps; j++) {
-      a += rnd(-.35, .35); nx = px + Math.cos(a) * len / steps; ny = py + Math.sin(a) * len / steps; pts.push([nx, ny]);
-      if (Math.random() < .35) { var b = a + (Math.random() < .5 ? -1 : 1) * rnd(.5, 1); paths.push([[nx, ny], [nx + Math.cos(b) * len * .28, ny + Math.sin(b) * len * .28]]); }
-      px = nx; py = ny;
-    }
-    paths.push(pts);
-  }
-  for (j = 0; j < 2; j++) {   // rings
-    var rr = size * (.14 + j * .17), seg = [], k0 = Math.random() * 6;
-    for (i = 0; i <= 9; i++) { var ang = k0 + i / 9 * (Math.PI * 1.4); seg.push([x + Math.cos(ang) * rr * rnd(.85, 1.15), y + Math.sin(ang) * rr * rnd(.85, 1.15)]); }
-    paths.push(seg);
-  }
-  [['rgba(8,8,16,.7)', 2.2], ['rgba(255,255,255,.55)', .8]].forEach(function (st, pass) {
-    g.strokeStyle = st[0]; g.lineWidth = st[1];
-    paths.forEach(function (p) { g.beginPath(); g.moveTo(p[0][0] + pass * .8, p[0][1] + pass * .8); for (var m = 1; m < p.length; m++) g.lineTo(p[m][0] + pass * .8, p[m][1] + pass * .8); g.stroke(); });
+  function trace(sh, dx) { g.beginPath(); sh.p.forEach(function (q, i) { if (i) g.lineTo(q[0] + dx, q[1] + dx); else g.moveTo(q[0] + dx, q[1] + dx); }); if (sh.close) g.closePath(); }
+  shapes.forEach(function (sh) { if (sh.fill) { trace(sh, 0); g.fillStyle = sh.fill; g.fill(); } });
+  [['rgba(8,8,16,.72)', 2.2, 0], ['rgba(255,255,255,.55)', .8, .8]].forEach(function (st) {
+    shapes.forEach(function (sh) { g.strokeStyle = sh.soft ? st[0].replace(/[\d.]+\)$/, '.35)') : st[0]; g.lineWidth = sh.soft ? st[1] * .7 : st[1]; trace(sh, st[2]); g.stroke(); });
   });
-  g.fillStyle = 'rgba(10,10,18,.8)'; g.beginPath();   // the chip at the point of impact
-  for (i = 0; i < 7; i++) { var ca = i / 7 * Math.PI * 2, cr = rnd(4, 9); g.lineTo(x + Math.cos(ca) * cr, y + Math.sin(ca) * cr); }
-  g.closePath(); g.fill();
 }
 
 /** One piece (cell k) of window i was hit where the ball was (ix, iy): the glass cracks there and a few shards fall. */

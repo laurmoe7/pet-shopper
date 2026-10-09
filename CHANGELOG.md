@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 492
+- Broken marks come in several looks (web, bullet hole, long crack, mosaic, dent, chip); in the app they sit on the things that break and fall with the pieces
+- The wand makes a magic sound when it fixes the wreckage
+
 ## Build 491
 - Fumu sneaks an emoji off the shopping list and eats it; poke him and he spits it back
 - Dev tool: Make Fumu steal an emoji

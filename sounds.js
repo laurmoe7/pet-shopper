@@ -359,6 +359,13 @@
       noise(t, 0.02, 'bandpass', 3200, 3, env(t, 0.001, 0.018, 0.5));
       chime(t + 0.05, [784, 1175], 0.1, 0.9, 'sine');
     },
+    magic: function (t) {
+      // a magic spell: an airy shimmer sweeping up, a harp run climbing over it and a few high twinkles at the end
+      tone(t, 1.4, 'sine', 300, 1500, env(t, 0.35, 1.0, 0.045));
+      [523, 659, 784, 988, 1175, 1319, 1568, 1976, 2349, 2637, 3136].forEach(function (hz, i) { tone(t + i * 0.1, 0.55, 'sine', hz, null, env(t + i * 0.1, 0.004, 0.5, 0.1)); });
+      for (var k = 0; k < 7; k++) { var at = t + 1.1 + rnd(0, 0.9); tone(at, 0.28, 'sine', rnd(2400, 4200), null, env(at, 0.003, 0.25, 0.05)); }
+      chime(t + 1.15, [1568, 2093, 2637], 0.12, 0.8, 'sine');
+    },
     sparkle: function (t) {
       // a cleaning sparkle: a quick run of tiny bells climbing up
       [1568, 1976, 2349, 2637, 3136].forEach(function (hz, i) { tone(t + i * 0.055, 0.2, 'sine', hz, null, env(t + i * 0.055, 0.004, 0.18, 0.13)); });
