@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 404
+- Quest bubble gradient is dark again, darker at the bottom.
+- The pointer's border fades into the bubble's, so no hard seam on any screen.
+
 ## Build 403
 - Swiping an alert away plays only the swoosh, nothing else.
 
