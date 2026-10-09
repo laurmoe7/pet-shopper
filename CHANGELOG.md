@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 465
+- Alert cards no longer push Fumu down: the card sits a little lower, and he only drops if a tall card really needs the room.
+
 ## Build 464
 - The ball chase lasts 5 seconds at most, then he jumps and gets it.
 - He jumps now and then while chasing the ball.

@@ -619,8 +619,22 @@
   // ---------- an alert card keeps its normal size: if he is at the side of the screen, his window slides onto it while the card shows ----------
   var cardShift = 0, cardBusy = false, cardBackTimer = 0, cardShiftAt = 0;
   function cardZoom() { return window.outerWidth && window.innerWidth ? window.outerWidth / window.innerWidth : 1; }
+  var cardDrop = 0;
+  /** He drops only as far as a card needs room above him (a short card needs none, a tall one more): the rest of the time he stays where he is. */
+  function cardRoom(card) {
+    var need = 0;
+    if (card) {
+      var top = card.getBoundingClientRect().top;
+      need = Math.max(0, Math.min(28, Math.ceil(2 - top + cardDrop)));   // (top already includes the drop he has now)
+    }
+    if (need === cardDrop) return;
+    cardDrop = need;
+    if (need) root.style.setProperty('--card-drop', need + 'px'); else root.style.removeProperty('--card-drop');
+  }
   function cardCheck() {
-    if (!isPet() || !D.walk) return;
+    if (!isPet()) return;
+    cardRoom(document.querySelector('.stage .inbox-card'));
+    if (!D.walk) return;
     var card = document.querySelector('.stage .inbox-card');
     if (!card) {
       if (cardShift && !cardBackTimer && !cardBusy) cardBackTimer = setTimeout(function () {   // a moment after the last card is gone he slides back
