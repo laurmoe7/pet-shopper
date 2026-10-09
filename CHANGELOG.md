@@ -765,6 +765,7 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 - Sketchpad: Open and Save project; Cut, Copy, Paste, Duplicate, Deselect and Invert in Edit; Canvas menu (size, crop, flip); Help with keyboard shortcuts.
 - Sketchpad: number above a slider while it moves; Ctrl+Z and Ctrl+Y work on Pick object and Plain background; Upload to Claude and Undo shapes buttons removed.
 - Sketchpad: History box lists every step; click one to go back to it.
+- Sketchpad: click the pig mascot for a hop and an oink.
 - Sketchpad: Click a picture to pick it, click empty space to let go.
 - Sketchpad: Trace renamed To shapes.
 - Sketchpad: Layer name outline only shows while it can be edited.

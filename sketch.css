@@ -512,3 +512,19 @@ body.skp-nopanel .skp-panel { display: none; }
 .skp-hist button:hover { background: rgba(255, 143, 171, .16); }
 .skp-hist .now button { background: linear-gradient(180deg, #ffa3bb, #ff8fab); color: #3b1f2b; }
 .skp-hist .later button { opacity: .5; font-style: italic; }
+
+/* the pig mascot answers a click */
+.sk-mascot { cursor: pointer; transform-origin: 50% 90%; outline: none; }
+.sk-mascot:focus-visible { filter: drop-shadow(0 0 0 2px #fff) drop-shadow(0 0 6px #fff); }
+.sk-mascot.oink { animation: sk-oink .75s cubic-bezier(.3, .7, .4, 1); }
+.sk-mascot.oink .mt { animation: sk-oink-ear .75s ease-in-out; }
+@keyframes sk-oink {
+  0% { transform: scale(1, 1); }
+  14% { transform: scale(1.18, .8) translateY(2px); }
+  34% { transform: scale(.9, 1.2) translateY(-9px) rotate(-8deg); }
+  52% { transform: scale(1.08, .9) translateY(0) rotate(6deg); }
+  70% { transform: scale(.97, 1.05) translateY(-3px) rotate(-3deg); }
+  100% { transform: scale(1, 1) rotate(0); }
+}
+@keyframes sk-oink-ear { 20% { transform: rotate(-18deg); } 45% { transform: rotate(14deg); } 70% { transform: rotate(-8deg); } }
+@media (prefers-reduced-motion: reduce) { .sk-mascot.oink, .sk-mascot.oink .mt { animation: none !important; } }
