@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 498
+- Emoji snack: quick until you catch him each day, then rare until tomorrow
+
 ## Build 497
 - Fumu steals emojis quicker and more often (first one about 20 seconds after opening)
 

@@ -4,8 +4,13 @@
 // Plain script, shares one scope, loaded after app-wreck.js.
 'use strict';
 
-var STEAL_MIN_MS = 45000, STEAL_MAX_MS = 110000;   // (the first one comes sooner after the app opens: STEAL_FIRST_MS)
+var STEAL_MIN_MS = 45000, STEAL_MAX_MS = 110000;   // (each day, until you catch him: the first comes sooner after the app opens, STEAL_FIRST_MS)
 var STEAL_FIRST_MS = 20000;
+var STEAL_RARE_MIN_MS = 8 * 60000, STEAL_RARE_MAX_MS = 16 * 60000;   // (once you have caught him today it is much rarer, until tomorrow)
+var STEAL_KEY = 'nibble-steal-caught', stealNotBefore = 0;
+/** @returns {boolean} Whether you have already poked him and made him spit one out today. */
+function caughtToday() { try { return localStorage.getItem(STEAL_KEY) === todayKey(); } catch (e) { return false; } }
+function stealRare() { return STEAL_RARE_MIN_MS + Math.random() * (STEAL_RARE_MAX_MS - STEAL_RARE_MIN_MS); }
 var stolen = null;   // the emoji he has: { id, src, phase: 'sneak' | 'eaten' | 'spit' }
 var stealTimer = 0, guiltTimer = 0;
 
@@ -20,7 +25,7 @@ function stealable() {
 }
 /** @returns {boolean} Whether he may sneak a snack now by himself: the shopping list in the app, awake, nothing else going on. */
 function stealOk() {
-  return !document.hidden && !busy && !playing && !stolen && !isTodo() && !document.documentElement.classList.contains('desktop-pet') &&
+  return !document.hidden && !busy && !playing && !stolen && Date.now() >= stealNotBefore && !isTodo() && !document.documentElement.classList.contains('desktop-pet') &&
     !stage.classList.contains('bedtime') && baseState() !== 'sleepy' && !document.querySelector('dialog[open]') && stealable().length > 0;
 }
 function stealMouth() { var r = pet.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height * 0.55 }; }
@@ -100,6 +105,8 @@ function stealSpit() {
   (to ? flyEmoji(s.src, m, to, 750, 90, false) : Promise.resolve()).then(function () {
     stolen = null;
     applyStolen();
+    try { localStorage.setItem(STEAL_KEY, todayKey()); } catch (e) { /* storage blocked */ }
+    stealNotBefore = Date.now() + stealRare();   // (caught him: it is rare from now on, today)
     if (li) li.classList.remove('stolen');
     if (to) { sound('tink'); drift(['✦'], { x: to.x, y: to.y }, 2); }
     return wait(1500);
@@ -115,8 +122,9 @@ function scheduleSteal(first) {
   clearTimeout(stealTimer);
   stealTimer = setTimeout(function () {
     if (stealOk()) { stealNow(); scheduleSteal(); } else { stealTimer = setTimeout(scheduleSteal, 12000); }
-  }, first ? STEAL_FIRST_MS + Math.random() * 15000 : STEAL_MIN_MS + Math.random() * (STEAL_MAX_MS - STEAL_MIN_MS));
+  }, caughtToday() ? stealRare() : first ? STEAL_FIRST_MS + Math.random() * 15000 : STEAL_MIN_MS + Math.random() * (STEAL_MAX_MS - STEAL_MIN_MS));
 }
+if (caughtToday()) stealNotBefore = Date.now() + stealRare();   // (opened again after catching him today: rare right away)
 scheduleSteal(true);
 // while he has it he looks a little guilty now and then
 guiltTimer = setInterval(function () {
