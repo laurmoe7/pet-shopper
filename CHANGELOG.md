@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 427
+- The ring menu no longer closes itself the moment it opens on a double click.
+- Two quick taps on him also open it.
+
 ## Build 426
 - Getting back on his feet after a throw is smoother.
 - He no longer shrinks while spinning.
