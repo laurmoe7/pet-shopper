@@ -189,7 +189,7 @@ function start() {
   }
 
   function applyMode(next) {
-    if (!win || next === mode) { if (win) win.webContents.send('desk:mode', mode); return; }
+    if (!win || next === mode) { if (win) { win.webContents.send('desk:mode', mode); if (mode === 'list') { win.show(); win.moveTop(); win.focus(); } } return; }
     if (next === 'list') {
       hideToy();
       petBounds = win.getBounds();
@@ -197,12 +197,14 @@ function start() {
       mode = 'list';
       win.setIgnoreMouseEvents(false); solidState = null;
       win.setAlwaysOnTop(false);
+      win.setSkipTaskbar(false);   // the whole app is an ordinary window: it shows in the taskbar and Alt+Tab, so a full-screen game cannot hide it for good
       stopTween(); peekRest = null;
       win.setBounds(place.listBounds(petBounds, here(), LIST_SIZE));
       applyZoom();
       win.focus();
     } else {
       mode = 'pet';
+      win.setSkipTaskbar(true);
       applyZoom();
       win.setBounds(place.startBounds(petBounds, petSize(), areas(), screen.getPrimaryDisplay().workArea));
       if (THROUGH) win.setIgnoreMouseEvents(true, { forward: true });
@@ -242,7 +244,7 @@ function start() {
       else if (wasInside) { wasInside = false; win.webContents.send('desk:cursor', -1, -1); }
     }, 8);
   }
-  function showFumu() { if (win) { win.show(); if (mode === 'list') win.focus(); } refreshMenus(); }
+  function showFumu() { if (win) { win.show(); if (mode === 'list') { win.moveTop(); win.focus(); } } refreshMenus(); }
   function hideFumu() { if (win) win.hide(); refreshMenus(); }
 
   // one place that changes a setting, for the right-click menu and the settings window alike

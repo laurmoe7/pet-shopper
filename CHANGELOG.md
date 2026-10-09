@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 368
+- The whole app shows in the taskbar and Alt+Tab, so a game cannot hide it for good.
+
 ## Build 367
 - Sweeping alerts is more forgiving: faster or slower, starting outside the card.
 - Different moves for the grab key: a spinning hop when he is solid, a duck and "shh" when the mouse passes through.
