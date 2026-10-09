@@ -185,7 +185,7 @@ function start() {
   // The clock and the tray icons show a small hover note above the taskbar's right end, and he stands in front of it (his window is above the taskbar).
   // While the mouse is over that part of the taskbar he steps aside to the left; a moment after the mouse leaves he goes back to exactly where he was.
   const TRAY_W = 440, TRAY_H = 150;
-  let sideStep = null, sideAway = 0;
+  let sideStep = null, sideAway = 0, trayAt = 0;
   function trayHover() {
     const p = screen.getCursorScreenPoint(), d = screen.getDisplayNearestPoint(p), b = d.bounds, wa = d.workArea;
     const bar = (b.y + b.height) - (wa.y + wa.height);
@@ -201,7 +201,10 @@ function start() {
     if (dragFrom || perch || peekRest) sideStep = null;   // (picked up or moved on his own: his new place stays, nothing to go back to)
     if (!win || mode !== 'pet' || !win.isVisible() || dragFrom || perch || peekRest || tween || (typeof toyFollowT !== 'undefined' && toyFollowT)) return;
     const hover = trayHover(), wb = win.getBounds();
-    if (hover || (sideStep && flyoutHover())) {
+    if (hover) trayAt = Date.now();
+    // (the hold over the tall column lasts only a few seconds after the mouse was on the clock or tray: a menu is open for a moment, but the mouse
+    // may stay in that part of the screen long after it has closed, and he must not wait for it to leave)
+    if (hover || (sideStep && flyoutHover() && Date.now() - trayAt < 7000)) {
       sideAway = 0;
       if (sideStep || !hover) return;
       const d = screen.getDisplayMatching(wb).bounds, bi = bodyIn(wb), zx = d.x + d.width - TRAY_W, zy = d.y + d.height - TRAY_H;

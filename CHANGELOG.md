@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 478
+- Fumu runs back to his spot after the clock or tray menu, even if the mouse stays in that corner.
+
 ## Build 477
 - The wrecking ball breaks windows piece by piece: each piece it touches breaks off with a glass noise (needs the new installer).
 
