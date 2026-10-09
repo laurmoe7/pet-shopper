@@ -685,7 +685,7 @@ function start() {
     return toyWin;
   }
   // (it is parked far off the screen rather than hidden: a hidden transparent window needs a moment to appear again, and the toy blinked out when it was picked up)
-  function hideToy() { try { if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) { const b = toyWin.getBounds(); toyWin.setBounds({ x: -10000, y: -10000, width: b.width, height: b.height }); } } catch (e) { /* gone */ } }
+  function hideToy() { try { if (typeof stopToyFollow === 'function') stopToyFollow(); if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) { const b = toyWin.getBounds(); toyWin.setBounds({ x: -10000, y: -10000, width: b.width, height: b.height }); } } catch (e) { /* gone */ } }
   setTimeout(() => { if (prefs.toyRoam && win && mode === 'pet') toyWindow(56); }, 3000);   // (made ahead of time: picking the toy up must not wait for a new window)
   // where his window is and how big the screen is (what the page needs to let the toy fly over all of it)
   ipcMain.handle('desk:toyField', () => {
@@ -704,6 +704,28 @@ function start() {
     }
   });
   ipcMain.handle('desk:toyReady', () => toyReady);
+  // while the toy is held, THIS process moves its window to the mouse (every 8 ms, straight from the cursor position): nothing waits for the page, so it follows without stutter
+  let toyFollowT = null;
+  function stopToyFollow() { if (toyFollowT) { clearInterval(toyFollowT); toyFollowT = null; } }
+  ipcMain.on('desk:toyFollow', (_e, on) => {
+    stopToyFollow();
+    if (!on || !toyWin || toyWin.isDestroyed() || !toyPx) return;
+    const s = toyPx + 24, t0 = Date.now();
+    let lx = null, ly = null, top = 0;
+    const step = () => {
+      if (!toyWin || toyWin.isDestroyed() || Date.now() - t0 > 20000) { stopToyFollow(); return; }
+      try {
+        const p = screen.getCursorScreenPoint(), nx = Math.round(p.x - s / 2), ny = Math.round(p.y - s / 2);
+        if (!isFinite(nx) || !isFinite(ny)) return;
+        if (nx !== lx || ny !== ly) { if (lx === null) toyWin.setBounds({ x: nx, y: ny, width: s, height: s }); else toyWin.setPosition(nx, ny); lx = nx; ly = ny; }
+        if (!toyWin.isVisible()) toyWin.showInactive();
+        const now = Date.now();
+        if (now - top > 300) { top = now; toyWin.moveTop(); }
+      } catch (e) { stopToyFollow(); }
+    };
+    step();
+    toyFollowT = setInterval(step, 8);
+  });
   ipcMain.on('desk:toyAt', (_e, x, y, deg) => {
     if (!toyWin || toyWin.isDestroyed() || !toyPx) return;
     const s = toyPx + 24;

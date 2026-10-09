@@ -43,6 +43,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   /** Where the solid parts are, as [left, top, right, bottom] in page pixels: the shell checks the pointer against them itself. */
   /** Resolves when the toy window has its picture up (until then the page keeps drawing the toy). */
   toyReady: () => ipcRenderer.invoke('desk:toyReady'),
+  /** While the toy is held the shell moves its window to the mouse itself (true), until it is let go (false). */
+  toyFollow: (on) => ipcRenderer.send('desk:toyFollow', !!on),
   setBody: (box) => ipcRenderer.send('desk:body', Array.isArray(box) ? box.slice(0, 4) : []),
   setRects: (rects) => ipcRenderer.send('desk:rects', Array.isArray(rects) ? rects.slice(0, 40) : []),
   /** A mouse button is held that went down on Fumu or the toy: stay solid until it is let go. */

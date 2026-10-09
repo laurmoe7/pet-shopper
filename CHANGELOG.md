@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 469
+- New way to hold the ball: the app moves it to the mouse itself, so it follows smoothly (needs the new installer).
+
 ## Build 468
 - Fixed an error window that could pop up while the ball was moved (needs the new installer).
 

@@ -324,6 +324,7 @@ function letGoToy() {
   stopOverHead(h);
   held = null;
   if (!h.moved) return; // a tap: the click tosses it
+  if (toyField && toyField.release) toyField.release();   // (the shell stops following the mouse; the throw moves the window from the page)
   skipClick = true;
   var a = h.pts[0], z = h.pts[h.pts.length - 1], dt = Math.max(16, z.t - a.t) / 1000;
   var vx = (z.x - a.x) / dt, vy = -(z.y - a.y) / dt, speed = Math.hypot(vx, vy);

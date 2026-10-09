@@ -443,10 +443,14 @@
         lim: { minX: (f.area.x - f.wx) / z - mid + 18, maxX: (f.area.x + f.area.width - f.wx) / z - mid - 18, maxY: fl - (f.area.y - f.wy) / z - 20 },
         ax: 0,   // where the toy is on the screen (px), so that wherever his window has got to, its place in the window can be worked out again
         localX: function () { return (this.ax - f.wx) / z - mid; },
-        show: function (x, y, spin) { var p = spot(x, y); this.ax = p[0]; sendToyAt(p[0], p[1], spin); if (!this.shown) { this.shown = true; setTimeout(function () { if (toyField) toyEl.style.visibility = 'hidden'; }, 90); } },   // (the page's own toy goes only once the window's one is up: no blink)
-        hide: function () { cancelAnimationFrame(toyAtRaf); toyAtRaf = 0; D.toyHide(); },
+        follow: false,   // true while it is held: the shell moves the window to the mouse itself (no messages from here)
+        show: function (x, y, spin) { var p = spot(x, y); this.ax = p[0]; if (!this.follow) sendToyAt(p[0], p[1], spin); if (!this.shown) { this.shown = true; setTimeout(function () { if (toyField) toyEl.style.visibility = 'hidden'; }, 90); } },
+        /** Let go: from here the page moves the window again (the throw). */
+        release: function () { if (this.follow) { this.follow = false; if (D.toyFollow) D.toyFollow(false); } },   // (the page's own toy goes only once the window's one is up: no blink)
+        hide: function () { cancelAnimationFrame(toyAtRaf); toyAtRaf = 0; if (D.toyFollow) D.toyFollow(false); D.toyHide(); },
         shift: function (p) { f.wx += p * z; this.lim.minX -= p; this.lim.maxX -= p; }   // his window moved p page px to the right
       };
+      if (D.toyFollow) { toyField.follow = true; D.toyFollow(true); }
       toyField.show(toyX, held ? held.y : 0, 0);
     });
   };
