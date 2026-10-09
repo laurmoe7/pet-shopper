@@ -1851,18 +1851,26 @@
     var step = Math.max(1, Math.floor(n / 20000)), samples = [];
     for (i = 0; i < n; i += step) samples.push([rgb[i * 3], rgb[i * 3 + 1], rgb[i * 3 + 2]]);
     function dist(c, p) { return (c[0] - p[0]) * (c[0] - p[0]) + (c[1] - p[1]) * (c[1] - p[1]) + (c[2] - p[2]) * (c[2] - p[2]); }
-    k = Math.max(2, Math.min(12, k | 0));
-    // start from the most common colours that are clearly different from each other (edge blends are rare, so they do not get a colour)
+    k = Math.max(2, Math.min(32, k | 0));
+    // start from the common colours, each next one chosen for being both common and far from those already picked, so a small
+    // but clearly different colour (a green apple in a brown picture) still gets its own place
     var bins = {}, cent = [];
     samples.forEach(function (p) {
-      var key = (p[0] >> 4) * 256 + (p[1] >> 4) * 16 + (p[2] >> 4), b = bins[key] || (bins[key] = { n: 0, c: [0, 0, 0] });
+      var key = (p[0] >> 3) * 1024 + (p[1] >> 3) * 32 + (p[2] >> 3), b = bins[key] || (bins[key] = { n: 0, c: [0, 0, 0] });
       b.n++; b.c[0] += p[0]; b.c[1] += p[1]; b.c[2] += p[2];
     });
-    Object.keys(bins).map(function (key) { var b = bins[key]; return { n: b.n, c: [b.c[0] / b.n, b.c[1] / b.n, b.c[2] / b.n] }; })
-      .sort(function (a, b) { return b.n - a.n; })
-      .forEach(function (b) {
-        if (cent.length < k && cent.every(function (c) { return dist(c, b.c) > 48 * 48; })) cent.push(b.c);
+    var list = Object.keys(bins).map(function (key) { var b = bins[key]; return { n: b.n, c: [b.c[0] / b.n, b.c[1] / b.n, b.c[2] / b.n], d: Infinity }; });
+    list.sort(function (a, b) { return b.n - a.n; });
+    while (cent.length < k && list.length) {
+      var bestAt = -1, bestScore = -1;
+      list.forEach(function (b, q) {
+        if (cent.length) b.d = Math.min(b.d, dist(cent[cent.length - 1], b.c));
+        var score = cent.length ? Math.sqrt(b.n) * b.d : b.n;
+        if (score > bestScore) { bestScore = score; bestAt = q; }
       });
+      if (bestScore <= 0) break;
+      cent.push(list[bestAt].c); list[bestAt].d = 0;
+    }
     var it, m, sums;
     for (it = 0; it < 8; it++) {
       sums = cent.map(function () { return [0, 0, 0, 0]; });

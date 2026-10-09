@@ -1448,10 +1448,13 @@ async function skTrace() {
         jobs.push({ mask: L.despeckle(m, W, H, 8), color: hex(t.c), overlap: true });
       });
     }
-    var made = [], LIMIT = 250, lay = null;
-    jobs.forEach(function (job) {
-      L.traceParts(job.mask, W, H, LIMIT).forEach(function (part) {
-        if (made.length >= LIMIT) return;
+    var made = [], LIMIT = 600, cands = [];
+    jobs.forEach(function (job) { L.traceParts(job.mask, W, H, LIMIT).forEach(function (part) { cands.push({ job: job, part: part }); }); });
+    cands.sort(function (a, b) { return b.part.size - a.part.size; });   // the biggest patches win when there are more than the limit
+    var capped = cands.length > LIMIT;
+    cands.slice(0, LIMIT).forEach(function (cd) {
+      var job = cd.job, part = cd.part;
+      {
         var raw = L.traceLoops(part.mask, part.w, part.h);
         if (job.overlap) {   // a colour patch only a pixel or two thick is the blurred rim between two colours, not a shape
           var perim = 0;
@@ -1474,7 +1477,7 @@ async function skTrace() {
         if (!loops.length) return;
         var outer = loops.slice().sort(function (a, b) { return b.length - a.length; })[0];
         made.push({ d: loops.map(function (lp) { return 'M' + lp.map(function (p) { return p[0] + ' ' + p[1]; }).join('L') + 'Z'; }).join(''), pts: outer, color: job.color, width: job.overlap ? +(1.2 / scale).toFixed(2) : 0.2, fill: true, closed: true, style: 'solid' });
-      });
+      }
     });
     if (!made.length) { skStatus.textContent = mode === 'lines' ? 'No ink found. Slide the ink level towards “more”, or try Colours.' : 'Nothing to trace in that picture.'; return; }
     var lays = skLays(), x = { id: 'l' + Date.now().toString(36), name: 'Trace', show: true };
@@ -1484,7 +1487,7 @@ async function skTrace() {
     SK.strokes[SK.mode] = SK.strokes[SK.mode].concat(made);
     im.visible = false; skRenderImages(); skLayersUI(); skSaveImages();
     skLinesUI(); skMarkActive(); skRedraw(); skSave();
-    skStatus.textContent = 'Traced ' + made.length + (made.length === 1 ? ' shape' : ' shapes') + (made.length >= LIMIT ? ' (the biggest; small bits left out)' : '') + ' onto a new layer, “Trace”. The picture is hidden: tick Show to see it again.';
+    skStatus.textContent = 'Traced ' + made.length + (made.length === 1 ? ' shape' : ' shapes') + (capped ? ' (the biggest; small bits left out)' : '') + ' onto a new layer, “Trace”. The picture is hidden: tick Show to see it again.';
   } catch (err) {
     skStatus.textContent = 'Could not trace that picture.';
   } finally { btn.disabled = false; }
