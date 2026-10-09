@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 507
+- Wrecking ball over your desktop: after hitting a window it flies off in a random direction
+
 ## Build 506
 - Quest2 alert cards: smooth metal, no stone noise
 

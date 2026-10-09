@@ -76,7 +76,7 @@ function wreckFling(vx, vy, y0) {
     }
     spin += vx * dt * 2.2;
     placeToy(x, y, spin);
-    // windows are solid: the ball bounces off one every time it meets it (it never just flies across), and each hit breaks the piece it struck
+    // windows are solid: every time the ball meets one it is sent off in a random direction away from it (it never just flies across), and each hit breaks the piece it struck
     var broke = 0, zm = f.zoom || 1, BR = 16 * zm;
     for (var wi = 0; wi < rects.length; wi++) {
       var q = rects[wi], cx = Math.max(q.x, Math.min(f.ax, q.x + q.w)), cy = Math.max(q.y, Math.min(f.ay, q.y + q.h)), dx = f.ax - cx, dy = f.ay - cy, d = Math.hypot(dx, dy);
@@ -94,10 +94,11 @@ function wreckFling(vx, vy, y0) {
       }
       var push = (BR - d + 1) / zm;
       x += ux * push; y -= uy * push;   // (the toy's y goes up, the screen's down)
-      var vn = vx * ux - vy * uy;
-      if (vn < 0) { vx -= 1.9 * vn * ux; vy += 1.9 * vn * uy; }
       if (now > (wcool[wi] || 0)) {
-        wcool[wi] = now + 140;
+        wcool[wi] = now + 220;
+        // it flies off in a random direction away from the window (a plain bounce could trap it against a big window), at about the speed it had
+        var spd = Math.max(900, Math.hypot(vx, vy) * 0.95), ang = Math.atan2(-uy, ux) + (Math.random() - 0.5) * Math.PI * 0.85;
+        vx = Math.cos(ang) * spd; vy = Math.sin(ang) * spd;
         var best = -1, bd = Infinity;
         for (var i = 0; i < wins.length; i++) {
           var w = wins[i];
