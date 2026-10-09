@@ -35,3 +35,11 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
   });
   navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () { /* not available here */ });
 }
+
+// the app is built: the loading card fades out and the page shows (index.html)
+(function () {
+  var boot = document.getElementById('boot');
+  if (boot) boot.classList.add('out');
+  document.documentElement.classList.remove('booting');
+  setTimeout(function () { if (boot && boot.parentNode) boot.parentNode.removeChild(boot); }, 500);
+})();

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 511
+- Loading card while the app starts
+
 ## Build 510
 - Click-through only when you turn it on
 - Mini Fumu settings: Click-through switch (Ctrl+Alt+G)
