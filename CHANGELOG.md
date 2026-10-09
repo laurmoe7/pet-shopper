@@ -605,7 +605,6 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 - Sketchpad: Picked-lines buttons float by the selection, grouped and labelled.
 - Sketchpad: Outline and Repeat settings open as small pop-ups.
 - Sketchpad: Pictures box folds away.
-- Sketchpad: Messages also show by the canvas.
 - Sketchpad: Pen and eraser show a size ring.
 - Sketchpad: Undo takes away the empty Trace layer.
 - Sketchpad: icon has both ear insides and rounded corners, Clip lines meet the edge.

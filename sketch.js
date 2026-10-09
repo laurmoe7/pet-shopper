@@ -1471,15 +1471,6 @@ function skPickBarPlace() {
 }
 new ResizeObserver(function () { skPickBarPlace(); }).observe($('skStage'));
 skView.addEventListener('scroll', skPickBarPlace);
-/** Every message also shows for a few seconds by the canvas, where you are looking. */
-var skToastTimer = 0;
-new MutationObserver(function () {
-  var t = $('skToast'), text = skStatus.textContent;
-  if (!text) { t.classList.remove('on'); return; }
-  t.textContent = text; t.classList.add('on');
-  clearTimeout(skToastTimer);
-  skToastTimer = setTimeout(function () { t.classList.remove('on'); }, 4200);
-}).observe(skStatus, { childList: true, characterData: true, subtree: true });
 /** A ring the size of the pen or eraser follows the pointer over the drawing. */
 function skRingMove(e) {
   var ring = $('skRing');

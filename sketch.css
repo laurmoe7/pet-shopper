@@ -416,13 +416,11 @@ html:root body.skp .cs-pop::after { background: linear-gradient(transparent, var
 .skp-pop input[type="range"] { width: 72px; }
 .skp-pop input[type="number"] { width: 52px; padding: 3px 5px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font: inherit; }
 .skp-pop input[type="color"] { width: 30px; height: 24px; padding: 0; border: 1.5px solid var(--line); border-radius: 8px; background: none; }
-/* messages by the canvas, and the pen and eraser size ring */
-.skp-toast { position: absolute; left: 50%; bottom: 18px; z-index: 7; translate: -50% 8px; max-width: min(520px, calc(100% - 24px)); padding: 8px 14px; border-radius: 999px; background: rgba(43, 31, 46, .94); border: 1.5px solid var(--sk-edge, #6b4a66); color: #ffd3e1; font-size: .86rem; font-weight: 700; line-height: 1.35; text-align: center; opacity: 0; pointer-events: none; transition: opacity .2s, translate .2s; }
-.skp-toast.on { opacity: 1; translate: -50% 0; }
+/* the pen and eraser size ring */
 .skp-ring { position: absolute; z-index: 5; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, .55); pointer-events: none; }
 .skp-pics > summary { cursor: pointer; list-style: none; }
 .skp-pics > summary::-webkit-details-marker { display: none; }
 .skp-pics > summary h2::after { content: " ▾"; font-size: .8em; color: var(--muted); }
 .skp-pics[open] > summary h2::after { content: " ▴"; }
 .skp-pics[open] > summary { margin-bottom: 8px; }
-@media (prefers-reduced-motion: reduce) { .skp-toast { transition: none; } }
+@media (prefers-reduced-motion: reduce) { 
