@@ -16,11 +16,13 @@
 <header class="skp-top">
   <div class="sk-flies" id="skFlies" aria-hidden="true"></div>
   <h1><svg class="sk-mascot" viewBox="0 0 40 34" aria-hidden="true"><path class="mt" d="M9 12L7 3.500l8 3z" fill="#ffb3c4" stroke="#5b4239" stroke-width="1.600" stroke-linejoin="round"/><path class="mt" d="M31 12l2-8.500-8 3z" fill="#ffb3c4" stroke="#5b4239" stroke-width="1.600" stroke-linejoin="round"/><ellipse cx="20" cy="19" rx="16" ry="13.500" fill="#ffc9d6" stroke="#5b4239" stroke-width="1.800"/><g class="me"><ellipse cx="12.500" cy="16" rx="1.800" ry="2.300" fill="#5b4239"/><ellipse cx="27.500" cy="16" rx="1.800" ry="2.300" fill="#5b4239"/></g><ellipse cx="8" cy="21" rx="2.800" ry="1.700" fill="#ff8fab" opacity=".7"/><ellipse cx="32" cy="21" rx="2.800" ry="1.700" fill="#ff8fab" opacity=".7"/><ellipse cx="20" cy="22" rx="6.500" ry="4.800" fill="#ffaabd" stroke="#5b4239" stroke-width="1.500"/><ellipse cx="17.500" cy="22" rx="1.200" ry="1.700" fill="#5b4239"/><ellipse cx="22.500" cy="22" rx="1.200" ry="1.700" fill="#5b4239"/></svg>Sketchpad</h1>
+  <div class="skp-canvasbar"><button type="button" class="skp-btn skp-small" id="skNewCanvas" title="Start a free canvas of any size, with nothing underneath">＋ New canvas</button><button type="button" class="skp-btn skp-small" id="skResize" title="Change the size of the free canvas (only while it is the one open)" disabled>⤢ Resize</button></div>
   <div class="sk-seg" id="skModes" role="group" aria-label="What to draw on">
     <button type="button" data-mode="pet" aria-pressed="true">Pet</button>
     <button type="button" data-mode="scene" aria-pressed="false">Scene</button>
     <button type="button" data-mode="toy" aria-pressed="false">Toy</button>
     <button type="button" data-mode="room" aria-pressed="false">Furniture</button>
+    <button type="button" data-mode="canvas" aria-pressed="false" title="A free canvas: make one with New canvas">Canvas</button>
   </div>
   <div class="sk-seg" id="skZoom" role="group" aria-label="Zoom">
     <button type="button" data-zoom="1" aria-pressed="true">1×</button>
@@ -33,6 +35,14 @@
   <label class="sk-check"><input type="checkbox" id="skRef" checked> <span id="skRefLabel">Pet</span></label>
   <label class="sk-check" title="How strong the picture underneath is">Ghost <input type="range" id="skGhost" min="15" max="100" value="100" aria-label="Ghost"></label>
 </header>
+<div class="skp-canvaspop" id="skCanvasPop" hidden role="dialog" aria-label="Canvas size">
+  <strong id="skCanvasTitle">New canvas</strong>
+  <div class="sk-row" id="skCanvasPresets"></div>
+  <div class="sk-row"><label>Width <input type="number" id="skCanvasW" min="16" max="4000" value="800"></label><span>×</span><label>Height <input type="number" id="skCanvasH" min="16" max="4000" value="600"></label><span class="skp-hint">px</span></div>
+  <label class="sk-check" id="skCanvasStretchWrap" hidden><input type="checkbox" id="skCanvasStretch"> Stretch the drawing with it</label>
+  <span class="skp-hint" id="skCanvasNote"></span>
+  <button type="button" class="skp-btn skp-small" id="skCanvasGo">Create</button>
+</div>
 <p class="skp-status" id="skStatus" aria-live="polite"></p>
 
 <div class="skp-wrap">
@@ -142,7 +152,7 @@
         <div class="sk-row"><button type="button" class="skp-btn skp-small" id="skCut" title="Make the plain background of the picked picture see-through (it works from the edges, on colours like the corners; no internet needed)">Plain background</button><label class="sk-row">Strength <input type="range" id="skCutTol" min="10" max="120" value="45" aria-label="How different from the corners a colour may be and still count as background"></label></div>
       </div>
       <div class="skp-trace">
-        <div class="sk-row"><button type="button" class="skp-btn skp-small" id="skTrace" title="Trace the picked picture into shapes you can edit (on a new layer)">✦ Trace</button><button type="button" class="skp-btn skp-small" id="skTraceUndo" title="Take the latest trace away and show the picture again" disabled>Undo trace</button><select id="skTraceMode" aria-label="What to trace"><option value="lines">Lines (dark ink)</option><option value="colours">Colours (flat patches)</option></select></div>
+        <div class="sk-row"><button type="button" class="skp-btn skp-small" id="skTrace" title="Trace the picked picture into shapes you can edit (on a new layer)">✦ Trace</button><button type="button" class="skp-btn skp-small" id="skTraceUndo" title="Take the latest trace away and show the picture again" disabled>Undo trace</button><select id="skTraceMode" aria-label="What to trace: Lines (dark ink) or Colours (flat patches)" title="Lines: dark ink. Colours: flat patches"><option value="lines">Lines</option><option value="colours">Colours</option></select></div>
         <label class="sk-row" id="skTraceLevelRow">Ink <input type="range" id="skTraceLevel" min="-60" max="60" value="0" aria-label="How dark counts as ink"><span class="skp-hint">less &larr; &rarr; more</span></label>
         <label class="sk-row" id="skTraceKRow" hidden>Colours <input type="range" id="skTraceK" min="2" max="24" value="10" aria-label="How many colours"></label>
       </div>

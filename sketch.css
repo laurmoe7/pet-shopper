@@ -423,4 +423,17 @@ html:root body.skp .cs-pop::after { background: linear-gradient(transparent, var
 .skp-pics > summary h2::after { content: " ▾"; font-size: .8em; color: var(--muted); }
 .skp-pics[open] > summary h2::after { content: " ▴"; }
 .skp-pics[open] > summary { margin-bottom: 8px; }
-@media (prefers-reduced-motion: reduce) { 
+.skp-trace > .sk-row:first-child, .skp-cut > .sk-row { flex-wrap: nowrap; gap: 6px; }
+.skp-trace > .sk-row:first-child .skp-small, .skp-cut > .sk-row .skp-small { padding-inline: 9px; white-space: nowrap; flex: none; }
+.skp-trace > .sk-row:first-child .cs-wrap, .skp-trace > .sk-row:first-child select { min-width: 0; flex: 1 1 0; }
+.skp-trace > .sk-row:first-child .cs-btn, .skp-trace > .sk-row:first-child select { padding: 5px 24px 5px 10px; font-size: .8rem; }
+
+/* the free canvas: its buttons by the title, and the size box */
+.skp-canvasbar { display: flex; gap: 6px; align-items: center; }
+.skp-canvaspop { position: fixed; z-index: 30; display: grid; gap: 8px; width: 290px; padding: 12px; border: 2px solid var(--sk-edge, #6b4a66); border-radius: 16px; background: var(--sk-panel, #2b1f2e); box-shadow: 0 8px 22px rgba(0, 0, 0, .5); font-size: .8rem; color: var(--muted, #c9a3b8); }
+.skp-canvaspop[hidden] { display: none; }
+.skp-canvaspop strong { color: #ffd3e1; font-size: .92rem; }
+.skp-canvaspop .sk-row { flex-wrap: wrap; align-items: center; gap: 6px; }
+.skp-canvaspop label { display: inline-flex; align-items: center; gap: 4px; }
+.skp-canvaspop input[type="number"] { width: 72px; padding: 4px 6px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font: inherit; }
+.skp-canvaspop .skp-btn { justify-self: start; }

@@ -12,7 +12,7 @@ var skStage = $('skStage'), skView = $('skView'), skStatus = $('skStatus');
 var L = PetLogic;
 
 /** The drawing area of each mode, in the coordinates of what is underneath. The pet is 160 x 150 with room round it for hats. */
-var SK_VIEW = { pet: { x: -30, y: -50, w: 220, h: 220 }, scene: { x: 0, y: 0, w: 400, h: 160 }, toy: { x: 0, y: 0, w: 26, h: 26 }, room: { x: 0, y: 0, w: 400, h: 160 } };
+var SK_VIEW = { pet: { x: -30, y: -50, w: 220, h: 220 }, scene: { x: 0, y: 0, w: 400, h: 160 }, toy: { x: 0, y: 0, w: 26, h: 26 }, room: { x: 0, y: 0, w: 400, h: 160 }, canvas: { x: 0, y: 0, w: 800, h: 600 } };
 var SK_COLOURS = ['#5b4239', '#000000', '#ffffff', '#ff8fb1', '#ff6b6b', '#ffa94d', '#ffd166', '#7bd389', '#6ec6ff', '#b69cff'];
 var SK_PEN = 0.001;   // each step of the thickness slider, as a share of the drawing area's width
 var SPECIES = [['mochi', 'Mochi'], ['pig', 'Pig'], ['kitty', 'Cat'], ['puppy', 'Dog'], ['bunny', 'Bunny'], ['birdie', 'Birdie'], ['cow', 'Cow'], ['hamster', 'Hamster'], ['frog', 'Frog'], ['hedgehog', 'Hedgehog'], ['axolotl', 'Axolotl'], ['mouse', 'Mouse'], ['monkey', 'Monkey'], ['dragon', 'Dragon']];
@@ -21,11 +21,11 @@ var SLOTS = [['hat', 'Hat'], ['body', 'Clothes'], ['face', 'Glasses'], ['mouth',
 var P = { seated: false, species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, backdrop: 'meadow', night: false, room: {} };
 var SK = {
   mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, tab: 'draw', clean: true, style: 'solid', shape: 'heart', bodyClip: false, radial: 0, pressure: true, fillMode: 'none', colour2: '#ffc9d6', clip: [], pasteN: 0, tidy: 6, space: false, sel: null, mirror: false, pick: [],
-  strokes: { pet: [], scene: [], toy: [], room: [] }, hist: { pet: [], scene: [], toy: [], room: [] }, redo: { pet: [], scene: [], toy: [], room: [] },
+  strokes: { pet: [], scene: [], toy: [], room: [], canvas: [] }, hist: { pet: [], scene: [], toy: [], room: [], canvas: [] }, redo: { pet: [], scene: [], toy: [], room: [], canvas: [] },
   /** Pictures to trace, one layer each, in the same coordinates as the drawing: {id, name, src, cx, cy, bw, bh, scale, opacity, visible, behind} */
-  images: { pet: [], scene: [], toy: [], room: [] },
+  images: { pet: [], scene: [], toy: [], room: [], canvas: [] },
   /** Layers for the lines, bottom first: {id, name, show}; each stroke has `lay` (a layer id), and `active` is where new lines go */
-  layers: { pet: [], scene: [], toy: [], room: [] }, layerSet: { pet: [], scene: [], toy: [], room: [] }, active: { pet: 'l1', scene: 'l1', toy: 'l1', room: 'l1' }
+  layers: { pet: [], scene: [], toy: [], room: [], canvas: [] }, layerSet: { pet: [], scene: [], toy: [], room: [], canvas: [] }, active: { pet: 'l1', scene: 'l1', toy: 'l1', room: 'l1', canvas: 'l1' }
 };
 var SK_PEN_DEFAULT = 9;
 var SK_OWNER = false, skDraw = null, skDrawing = false, skPan = null, skPetSvg = null, skToys = null, skImgUnder = null, skImgOver = null, skSelBox = null, skXf = null, skCv = null, skCurve = null;
@@ -82,7 +82,7 @@ function dressUp(el, outfit) {
 // ---------- keeping the work on this computer ----------
 function skSave() {
   try {
-    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, style: SK.style, tab: SK.tab, clean: SK.clean, shape: SK.shape, fillMode: SK.fillMode, colour2: SK.colour2, layers: SK.layers, active: SK.active, snap: $('skSnap').checked, mirror: SK.mirror, bodyClip: SK.bodyClip, radial: SK.radial, pressure: SK.pressure }));
+    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, style: SK.style, tab: SK.tab, clean: SK.clean, shape: SK.shape, fillMode: SK.fillMode, colour2: SK.colour2, layers: SK.layers, active: SK.active, snap: $('skSnap').checked, mirror: SK.mirror, bodyClip: SK.bodyClip, radial: SK.radial, pressure: SK.pressure, canvas: SK_VIEW.canvas }));
   } catch (e) { /* storage not available */ }
 }
 function skLoad() {
@@ -95,7 +95,8 @@ function skLoad() {
       Object.keys(P.outfit).forEach(function (s) { if (d.P.outfit && d.P.outfit[s]) P.outfit[s] = d.P.outfit[s]; });
       P.backdrop = d.P.backdrop || 'meadow'; P.night = !!d.P.night; P.room = d.P.room || {}; P.template = !!d.P.template; P.seated = !!d.P.seated;
     }
-    ['pet', 'scene', 'toy', 'room'].forEach(function (m) { if (d.strokes && Array.isArray(d.strokes[m])) SK.strokes[m] = d.strokes[m]; });
+    ['pet', 'scene', 'toy', 'room', 'canvas'].forEach(function (m) { if (d.strokes && Array.isArray(d.strokes[m])) SK.strokes[m] = d.strokes[m]; });
+    if (d.canvas && d.canvas.w >= 16 && d.canvas.h >= 16) SK_VIEW.canvas = { x: 0, y: 0, w: Math.min(4000, Math.round(d.canvas.w)), h: Math.min(4000, Math.round(d.canvas.h)) };
     if (d.kind) $('skKind').value = d.kind;
     $('skNote').value = d.note || '';
     if (typeof d.tidy === 'number') SK.tidy = d.tidy;
@@ -106,7 +107,7 @@ function skLoad() {
     if (/^#[0-9a-f]{6}$/i.test(d.colour2 || '')) SK.colour2 = d.colour2;
     if (d.clean === false) SK.clean = false;
     if (['draw', 'under', 'send', 'sent'].indexOf(d.tab) !== -1) SK.tab = d.tab;
-    ['pet', 'scene', 'toy', 'room'].forEach(function (m) {
+    ['pet', 'scene', 'toy', 'room', 'canvas'].forEach(function (m) {
       if (d.layers && Array.isArray(d.layers[m])) SK.layers[m] = d.layers[m].filter(function (l) { return l && l.id; }).map(function (l) { return { id: String(l.id), name: String(l.name || 'Layer').slice(0, 24), show: l.show !== false }; });
       if (d.active && d.active[m]) SK.active[m] = d.active[m];
     });
@@ -246,11 +247,11 @@ function skBuild() {
       skPlace(toy, v, 295, 124, 26, 26);   // the toy's usual place, on the right
       ref.appendChild(toy);
     }
-  } else {
+  } else if (SK.mode === 'toy') {
     var t = skToy();
     skPlace(t, v, 0, 0, 26, 26);
     ref.appendChild(t);
-  }
+  }   // a free canvas has nothing underneath
   skDraw = document.createElementNS(SVGNS, 'svg');
   skDraw.setAttribute('viewBox', [v.x, v.y, v.w, v.h].join(' '));
   skDraw.setAttribute('class', 'sk-draw');
@@ -344,10 +345,12 @@ function skApplyLook() {
   $('skTemplate').checked = !!P.template;
   $('skSeated').checked = !!P.seated;
   $('skRefLabel').textContent = SK.mode === 'toy' ? 'Toy' : 'Pet';
-  $('skTabUnder').hidden = SK.mode === 'toy';
+  $('skTabUnder').hidden = SK.mode === 'toy' || SK.mode === 'canvas';
+  $('skRef').closest('label').hidden = SK.mode === 'canvas'; $('skGhost').closest('label').hidden = SK.mode === 'canvas';
+  $('skResize').disabled = SK.mode !== 'canvas';
   $('skTabUnder').textContent = SK.mode === 'pet' ? 'Pet' : 'Room';
   $('skItemRow').hidden = !(SK.mode === 'pet' && SK_ITEM_SLOTS[$('skKind').value]);
-  skTab(SK.mode === 'toy' && SK.tab === 'under' ? 'draw' : SK.tab);
+  skTab((SK.mode === 'toy' || SK.mode === 'canvas') && SK.tab === 'under' ? 'draw' : SK.tab);
 }
 var SK_ITEM_SLOTS = { hat: 'hat', clothes: 'body', face: 'face', mouth: 'mouth', neck: 'neck', feet: 'feet' };
 /** Shows one of the panel's pages (Draw, Pet or Room, Send, Sent). */
@@ -1804,7 +1807,7 @@ function skMeta() {
     furniture: SK.mode === 'room' ? Object.keys(P.room).filter(function (k) { return P.room[k]; }) : undefined,
     placement: SK.mode === 'room' ? 'room 400 x 160 (about the stage): draw ONE new piece of furniture; the pet box is x125 y18 w150 h140, placed furniture is shown behind it; convert the piece to a decor.js entry (x, y = its centre / 400 and / 160, w, h in px, own view box)'
       : SK.mode === 'scene' ? 'pet box x125 y18 w150 h140, toy x295 y124 w26'
-      : SK.mode === 'pet' ? 'pet drawing is 160 x 150 at 0,0' : 'toy drawing is 26 x 26'
+      : SK.mode === 'pet' ? 'pet drawing is 160 x 150 at 0,0' : SK.mode === 'canvas' ? 'free canvas ' + v.w + ' x ' + v.h + ', nothing underneath' : 'toy drawing is 26 x 26'
   };
 }
 /** @returns {Object[]} The lines in drawing order, each with its layer's name when there are several layers. */
@@ -2102,7 +2105,7 @@ function skSaveImages() {
 function skLoadImages() {
   try {
     var d = JSON.parse(localStorage.getItem('nibble-sketchpad-img') || 'null');
-    if (d) ['pet', 'scene', 'toy', 'room'].forEach(function (m) { if (Array.isArray(d[m])) SK.images[m] = d[m].filter(function (i) { return i && i.src && i.bw > 0; }); });
+    if (d) ['pet', 'scene', 'toy', 'room', 'canvas'].forEach(function (m) { if (Array.isArray(d[m])) SK.images[m] = d[m].filter(function (i) { return i && i.src && i.bw > 0; }); });
   } catch (e) { /* nothing kept */ }
 }
 /** Adds a picture as a new layer, shrunk to at most 1600 px so it stays light. */
@@ -2349,11 +2352,10 @@ skStage.addEventListener('pointerdown', function (e) { if (skDraw && e.target ==
 skStage.addEventListener('pointermove', function (e) { if (skDraw && (e.target === skDraw || skDrawing || skPan)) skMove(e); });
 skStage.addEventListener('pointerup', skUp);
 skStage.addEventListener('pointercancel', skCancel);
-$('skModes').addEventListener('click', function (e) {
-  var b = e.target.closest('button');
-  if (!b || b.dataset.mode === SK.mode) return;
-  SK.mode = b.dataset.mode;
-  var kind = { room: 'furniture', toy: 'toy', scene: 'background' }[SK.mode];
+/** Switches to another drawing area (Pet, Scene, Toy, Furniture or the free Canvas). */
+function skSetMode(m) {
+  SK.mode = m;
+  var kind = { room: 'furniture', toy: 'toy', scene: 'background', canvas: 'other' }[SK.mode];
   if (kind) $('skKind').value = kind;
   skPress($('skModes'), 'mode', SK.mode);
   SK.pick = [];
@@ -2362,7 +2364,73 @@ $('skModes').addEventListener('click', function (e) {
   skLayersUI();
   skLinesUI();
   skBuild();
+}
+$('skModes').addEventListener('click', function (e) {
+  var b = e.target.closest('button');
+  if (!b || b.dataset.mode === SK.mode) return;
+  skSetMode(b.dataset.mode);
 });
+// ---------- a new canvas of any size, and resizing it ----------
+var SK_CANVAS_PRESETS = [['Square', 600, 600], ['Wide', 960, 540], ['Tall', 540, 960], ['Icon', 256, 256], ['Banner', 1200, 300]];
+var skCanvasKind = 'new';
+/** Opens the size box under its button: for a new canvas, or to resize the one you are on. */
+function skCanvasPop(kind) {
+  var pop = $('skCanvasPop'), btn = kind === 'new' ? $('skNewCanvas') : $('skResize');
+  if (!pop.hidden && skCanvasKind === kind) { pop.hidden = true; return; }
+  skCanvasKind = kind;
+  var v = SK_VIEW.canvas;
+  $('skCanvasW').value = v.w; $('skCanvasH').value = v.h;
+  $('skCanvasTitle').textContent = kind === 'new' ? 'New canvas' : 'Resize canvas';
+  $('skCanvasGo').textContent = kind === 'new' ? 'Create' : 'Resize';
+  $('skCanvasStretchWrap').hidden = kind === 'new';
+  $('skCanvasNote').textContent = kind === 'new' ? 'Starts blank and replaces the free canvas you have now.' : 'Drawing outside the new size is kept but hidden. Resize cannot be undone.';
+  var r = btn.getBoundingClientRect();
+  pop.hidden = false;
+  pop.style.left = Math.max(8, Math.min(innerWidth - pop.offsetWidth - 8, r.left)) + 'px';
+  pop.style.top = (r.bottom + 8) + 'px';
+}
+function skCanvasApply() {
+  var w = Math.max(16, Math.min(4000, Math.round(+$('skCanvasW').value) || 0)), h = Math.max(16, Math.min(4000, Math.round(+$('skCanvasH').value) || 0)), old = SK_VIEW.canvas;
+  if (!w || !h) { skStatus.textContent = 'Give a width and a height.'; return; }
+  if (skCanvasKind === 'new') {
+    if ((SK.strokes.canvas.length || SK.images.canvas.length) && !confirm('Start a new canvas? The drawing on the free canvas now will be cleared.')) return;
+    SK.strokes.canvas = []; SK.hist.canvas = []; SK.redo.canvas = []; SK.images.canvas = []; SK.layers.canvas = []; SK.layerSet.canvas = []; SK.active.canvas = 'l1';
+    SK_VIEW.canvas = { x: 0, y: 0, w: w, h: h };
+    skStatus.textContent = 'New canvas, ' + w + ' × ' + h + '.';
+  } else {
+    var sx = w / old.w, sy = h / old.h;
+    if ($('skCanvasStretch').checked) {
+      SK.strokes.canvas.forEach(function (st) {
+        var r = L.sketchXform({ pts: st.pts, d: st.d, width: st.width }, { kind: 'scale', ax: 0, ay: 0, sx: sx, sy: sy });
+        st.pts = r.pts; st.width = r.width; if (st.d) st.d = r.d; delete st.cv;
+      });
+      SK.images.canvas.forEach(function (im) { im.cx *= sx; im.cy *= sy; im.scale *= Math.sqrt(sx * sy); });
+    }
+    SK_VIEW.canvas = { x: 0, y: 0, w: w, h: h };
+    SK.hist.canvas = []; SK.redo.canvas = [];
+    skStatus.textContent = 'Canvas is now ' + w + ' × ' + h + '.';
+  }
+  $('skCanvasPop').hidden = true;
+  SK.zoom = 1; skSave(); skSaveImages();
+  if (SK.mode !== 'canvas') skSetMode('canvas'); else { SK.pick = []; skLayersUI(); skLinesUI(); skBuild(); }
+}
+$('skNewCanvas').addEventListener('click', function () { skCanvasPop('new'); });
+$('skResize').addEventListener('click', function () { if (SK.mode === 'canvas') skCanvasPop('resize'); });
+$('skCanvasGo').addEventListener('click', skCanvasApply);
+$('skCanvasPop').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); skCanvasApply(); } else if (e.key === 'Escape') $('skCanvasPop').hidden = true; });
+$('skCanvasPresets').addEventListener('click', function (e) {
+  var b = e.target.closest('button');
+  if (b) { $('skCanvasW').value = b.dataset.w; $('skCanvasH').value = b.dataset.h; }
+});
+document.addEventListener('pointerdown', function (e) {
+  var pop = $('skCanvasPop');
+  if (!pop.hidden && !pop.contains(e.target) && !e.target.closest('#skNewCanvas, #skResize')) pop.hidden = true;
+});
+$('skCanvasPresets').replaceChildren.apply($('skCanvasPresets'), SK_CANVAS_PRESETS.map(function (p) {
+  var b = document.createElement('button');
+  b.type = 'button'; b.className = 'skp-btn skp-small'; b.dataset.w = p[1]; b.dataset.h = p[2]; b.textContent = p[0]; b.title = p[1] + ' × ' + p[2];
+  return b;
+}));
 $('skZoom').addEventListener('click', function (e) {
   var b = e.target.closest('button');
   if (!b) return;
