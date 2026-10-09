@@ -3180,5 +3180,5 @@ html:root .dock-label { position: relative; z-index: 3; margin-top: -9px; font-s
 html:root .closet-btn { width: 40px; padding: 3px 0 2px; border-radius: 12px; font-size: .56rem; right: 8px; bottom: 6px; }
 .closet-btn svg { width: 18px; height: 18px; }
 html:root .shoot-btn { bottom: 50px; }
-/* Quest bubble: the pointer is the only tail, so every corner is round (the older sharp corner is gone) */
+/* POINTER BUBBLES (Quest) only; arrow bubbles are a separate style and must not share these rules. Quest bubble: the pointer is the only tail, so every corner is round (the older sharp corner is gone) */
 html:root.al-quest .stage .bubble:not(.in-sheet) { border-radius: 9px; }

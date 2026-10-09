@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 409
+- Nothing visible; the pointer bubble style is now marked as its own style.
+
 ## Build 408
 - Quest bubble has no leftover sharp corner next to the new pointer.
 
