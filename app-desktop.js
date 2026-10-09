@@ -216,7 +216,7 @@
     root.classList.toggle('desk-noclouds', deskPrefs.clouds === false);
     // the look of alert cards and speech bubbles: the small pet uses the style chosen in the settings window; the whole app always has the
     // Classic look, which follows its own Light or Dark appearance
-    var style = root.classList.contains('desktop-pet') ? (deskPrefs.alertStyle || 'paper') : 'classic';   // (the whole app keeps the Classic look: its own light or dark)
+    var style = root.classList.contains('desktop-pet') ? (deskPrefs.alertStyle || 'paper') : (root.dataset.skin === 'quest' ? 'quest' : 'classic');   // (the whole app: Classic, or Quest when that is its appearance)
     var want = style === 'classic' ? '' : ({ night: 'al-night', sweet: 'al-sweet', cool: 'al-cool', quest: 'al-quest' }[style] || 'al-paper');
     var have = ['al-paper', 'al-night', 'al-sweet', 'al-cool', 'al-quest'].filter(function (c) { return root.classList.contains(c); });
     if (have.length !== (want ? 1 : 0) || (want && have[0] !== want)) {   // (only touched when it is wrong, so this is cheap to call often)
@@ -232,7 +232,7 @@
   window.addEventListener('focus', function () { applyLook(); });
   document.addEventListener('visibilitychange', function () { if (!document.hidden) applyLook(); });
   // the whole app's light or dark changed: its alerts and bubbles follow
-  try { new MutationObserver(function () { applyLook(); }).observe(root, { attributes: true, attributeFilter: ['data-theme'] }); if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyLook); } catch (e) { /* old browser */ }
+  try { new MutationObserver(function () { applyLook(); }).observe(root, { attributes: true, attributeFilter: ['data-theme', 'data-skin'] }); if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyLook); } catch (e) { /* old browser */ }
   if (D.getPrefs) D.getPrefs().then(function (p) { if (p) { deskPrefs = p; applyLook(); applyChatter(); } });
   if (D.onPrefs) D.onPrefs(function (p) {
     if (!p) return;

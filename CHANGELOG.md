@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 412
+- New Quest appearance for the whole app (App settings > Appearance): dark, gold-framed, serif, with Quest bubbles and alerts.
+
 ## Build 411
 - The Plain alert style (Mini Fumu settings) and the Dark appearance (App settings) are both called Classic.
 

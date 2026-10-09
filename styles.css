@@ -3182,3 +3182,35 @@ html:root .closet-btn { width: 40px; padding: 3px 0 2px; border-radius: 12px; fo
 html:root .shoot-btn { bottom: 50px; }
 /* ARROW BUBBLES (Quest, the curved fin) only; pointer bubbles (the other looks) are a separate style and must not share these rules. Quest bubble: the pointer is the only tail, so every corner is round (the older sharp corner is gone) */
 html:root.al-quest .stage .bubble:not(.in-sheet) { border-radius: 9px; }
+
+/* ---------- Quest appearance for the whole app (App settings > Appearance > Quest) ----------
+   Dark, gold-framed and serif like the Quest alerts and bubbles. It rides on top of the Classic (dark) look: data-theme stays "dark". */
+:root[data-skin="quest"] {
+  --bg: #120d08; --grid: rgba(201, 162, 39, .05); --surface: #2a1f10; --surface-2: #1b140c; --ink: #f2e6c4; --muted: #b9a77c;
+  --line: #5a420f; --outline: #c9a227; --accent: #8a1f17; --accent-ink: #ffd100; --mint: #8a1f17; --butter: #4a3a14;
+  --stage-top: #1b140c; --cushion: #6b1a14; --cushion-stitch: #c9a227; --danger: #e0584a; --shadow: rgba(0, 0, 0, .6);
+  --cb-edge: rgba(201, 162, 39, .45); --cb-edge-strong: #c9a227; --cb-fade: rgba(27, 20, 12, 0); --cb-done: rgba(20, 14, 8, .6);
+  --cb-dock-a: #2a1d10; --cb-dock-b: #140e08; --cb-shine: rgba(255, 215, 120, .12); --cb-back: #3a2a14;
+  --font-display: "Palatino Linotype", Palatino, Georgia, serif; --font-body: "Palatino Linotype", Palatino, Georgia, serif;
+}
+html:root[data-skin="quest"] body { background-image: radial-gradient(ellipse at 50% 0, rgba(201, 162, 39, .08), transparent 60%), repeating-linear-gradient(90deg, var(--grid) 0 2px, transparent 2px 8px); background-size: auto; background-position: 0 0; }
+html:root[data-skin="quest"] :is(.add, .item, .goal, .fav, .options, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .picker .closet-wear) {
+  border-radius: 6px; outline: none; background: linear-gradient(180deg, #2f2314, #1b140c);
+  box-shadow: 0 0 0 1.5px #c9a227, 0 0 0 3px #000, 0 4px 8px rgba(0, 0, 0, .55), inset 0 0 0 1.5px #0a0704;
+}
+html:root[data-skin="quest"] .item, html:root[data-skin="quest"] .item:nth-child(even) { transform: none; }
+html:root[data-skin="quest"] .item::before { top: -4px; left: 50%; width: 40px; height: 6px; margin-left: -20px; transform: none; clip-path: none; border-radius: 3px; background: linear-gradient(180deg, #f0cf66, #b8891c); border: 1px solid #5a420f; opacity: 1; }
+html:root[data-skin="quest"] .picker h2::before { top: -4px; width: 34px; height: 6px; margin-left: -17px; transform: none; clip-path: none; border-radius: 3px; background: linear-gradient(180deg, #f0cf66, #b8891c); border: 1px solid #5a420f; opacity: 1; }
+html:root[data-skin="quest"] .picker h2 { transform: none; border-radius: 4px; color: #ffd100; text-shadow: 0 1px 0 #000, 0 0 5px rgba(0, 0, 0, .8); background: linear-gradient(180deg, #2f2314, #1b140c); box-shadow: 0 0 0 1.5px #c9a227, 0 0 0 3px #000; }
+html:root[data-skin="quest"] .brand { color: #ffd100; text-shadow: 0 1px 0 #000, 0 0 6px rgba(0, 0, 0, .8); }
+html:root[data-skin="quest"] :is(.add-btn, .dock-icon) { border-color: #c9a227; }
+html:root[data-skin="quest"] .add-btn { background: linear-gradient(180deg, #a52a1f, #5c120d); color: #ffd100; box-shadow: 0 0 0 1.5px #000, 0 3px 3px rgba(0, 0, 0, .6); }
+html:root[data-skin="quest"] .pill-btn { background: linear-gradient(180deg, #2f2314, #1b140c); color: #f2e6c4; border: 1.5px solid #c9a227; box-shadow: 0 0 0 1px #000; border-radius: 5px; }
+html:root[data-skin="quest"] .pill-btn[aria-pressed="true"] { background: linear-gradient(180deg, #a52a1f, #5c120d); color: #ffd100; }
+html:root[data-skin="quest"] .picker [aria-pressed="true"]:is(button) { box-shadow: 0 0 0 1.5px #ffd100, 0 0 0 3px #000, 0 0 8px rgba(255, 209, 0, .5); }
+html:root[data-skin="quest"] .dock-icon { background: radial-gradient(ellipse at 50% 0, rgba(255, 215, 120, .18), transparent 70%), linear-gradient(180deg, #2a1d10, #140e08); color: #ffd100; box-shadow: 0 0 0 1.5px #000, 0 3px 3px rgba(0, 0, 0, .6); }
+html:root[data-skin="quest"] .dock-icon::after { background: rgba(255, 215, 120, .35); }
+html:root[data-skin="quest"] .dock-label { color: #ffd100; --lbl-edge: #0a0704; }
+html:root[data-skin="quest"] .dock-icon::before { display: none; }
+html:root[data-skin="quest"] .item.done { opacity: .7; }
+html:root[data-skin="quest"] .item.done .check::before { background-color: #8a1f17; }
