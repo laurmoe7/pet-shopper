@@ -376,7 +376,9 @@ function fling(vx, vy, y) {
   function step(now) {
     var dt = Math.min(0.033, (now - last) / 1000);
     last = now;
-    vy -= gravity * dt;
+    var tired = now - start > leapAfter;   // the chase drags on: the toy drifts in towards him and drops, so he can jump up and grab it where he stands
+    if (tired) { var pxNow = parseFloat(getComputedStyle(pet).translate) || 0; vx += (pxNow - x) * 2.5 * dt; vx *= 1 - 1.2 * dt; }
+    vy -= gravity * (tired ? 1.7 : 1) * dt;
     x += vx * dt;
     y += vy * dt;
     // bounce off the sides, the top and the floor of the room
@@ -403,12 +405,12 @@ function fling(vx, vy, y) {
     pet.style.setProperty('--look-x', (x > walkX ? 3.2 : -3.2) + 'px');
     var px = parseFloat(getComputedStyle(pet).translate) || 0;
     // (only when it is close: a toy far across the screen would otherwise swing over to him in one jump)
-    if (now - start > leapAfter && Math.abs(x - px) < 240) { leap(); return; }
+    if (now - start > leapAfter + 2500 && Math.abs(x - px) < 240 && y < 160) { leap(); return; }   // (a last resort: a short swing, never from the top of the screen)
     // caught: coming down at the right height, right in front of the pet
     // a frog snatches it out of the air with its tongue once it is within reach
     if (frog && now - start > grace && y > 6 && Math.hypot(x - px, y - mouthHeight()) < 115) { caught(x, y); return; }
     // a cat does not catch it out of the air: it waits for it to land, then hunts it on the floor (landed > getIt > batAbout)
-    if (playStyle() !== 'bat' && now - start > grace && vy <= 0 && y < catchAt + 18 && y > catchAt - 24 && Math.abs(x - px) < 30) { caught(); return; }
+    if (playStyle() !== 'bat' && now - start > grace && vy <= 0 && y < catchAt + (tired ? 44 : 18) && y > catchAt - 24 && Math.abs(x - px) < (tired ? 45 : 30)) { caught(); return; }   // (tired: he jumps up for it)
     if ((y === 0 && vy === 0 && Math.abs(vx) < 14) || now - start > maxMs) { landed(); return; }
     flight = requestAnimationFrame(step);
   }

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 450
+- When a ball chase drags on, the ball drifts in and drops to him, and he jumps up and grabs it (no more flying across the screen).
+
 ## Build 449
 - Fumu's catch is a proper jump: the ball swings into his hands at the top and comes down with him.
 
