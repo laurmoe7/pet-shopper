@@ -3391,4 +3391,10 @@ html:root[data-skin="quest"][data-quest="slots"] :is(.picker .species-grid butto
 html:root[data-skin="quest"][data-quest="slots"] .picker .species-grid { gap: 7px; }
 /* Quest 2: hats and the like: smaller lettering and no cream plate behind the picture, so every one fits a square slot */
 html:root[data-skin="quest"][data-quest="slots"] .dress-panel .hat-strip button { padding: 5px 2px 3px; gap: 2px; font-size: .68rem; line-height: 1.1; overflow: hidden; justify-content: center; }
-html:root[data-skin="quest"][data-quest="slots"] .dress-panel .hat-strip button > svg { width: 52px; height: 38px; padding: 0; background: none; border-radius: 0; }
+html:root[data-skin="quest"][data-quest="slots"] .dress-panel .hat-strip button > svg { width: 100%; max-width: 78px; height: 56px; padding: 0; background: none; border-radius: 0; }
+
+/* Quest 2: the pictures fill more of their square (species, and the picker grids' icons) */
+html:root[data-skin="quest"][data-quest="slots"] .picker .species-grid button .pet.mini { width: 94px; height: 86px; background: none; }
+html:root[data-skin="quest"][data-quest="slots"] .picker .species-grid button { padding: 4px 2px 5px; }
+html:root[data-skin="quest"][data-quest="slots"] .picker-grid button { padding: 3px; }
+html:root[data-skin="quest"][data-quest="slots"] .picker-grid button img { width: 100%; height: 100%; }

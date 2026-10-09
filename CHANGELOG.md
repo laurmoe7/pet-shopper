@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 502
+- Quest 2: the pictures in the Pet menu squares are bigger
+
 ## Build 501
 - Quest 2: smooth bottom bar (no texture); Pet menu choices are square inventory slots
 
