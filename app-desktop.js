@@ -176,7 +176,11 @@
   pet.addEventListener('click', function (e) { if (Date.now() < noClickUntil) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
 
   // quick ways between the small Fumu and the whole app: a middle click on him, a double click on the bar, or the shell's shortcuts
-  pet.addEventListener('auxclick', function (e) { if (e.button === 1 && isPet()) { e.preventDefault(); D.setMode('list'); } });
+  pet.addEventListener('auxclick', function (e) {   // (a middle click on him swaps the two: small Fumu to the whole app, and back)
+    if (e.button !== 1) return;
+    if (isPet()) { e.preventDefault(); D.setMode('list'); }
+    else if (root.classList.contains('desktop-list')) { e.preventDefault(); D.setMode('pet'); }
+  });
   pet.addEventListener('mousedown', function (e) { if (e.button === 1) e.preventDefault(); });   // no autoscroll circle
   bar.addEventListener('dblclick', function (e) { if (e.target === bar || e.target.className === 'desk-title') D.setMode('pet'); });
   if (D.onSwapList) D.onSwapList(function () { if (typeof switchList === 'function') switchList(); });   // the shortcut for shopping / to-do

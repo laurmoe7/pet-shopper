@@ -3259,3 +3259,6 @@ html.desktop-pet.ring-open .stage .bubble.ring-moved { left: var(--rl, 4px) !imp
 @keyframes wall-squish-x { 0% { scale: 1 1; } 16% { scale: var(--squish, .4) calc(1 + (1 - var(--squish, .4)) * 1.1); } 42% { scale: calc(var(--squish, .4) + .04) calc(1 + (1 - var(--squish, .4)) * 1.0); } 70% { scale: 1.16 .86; } 86% { scale: .96 1.05; } 100% { scale: 1 1; } }
 @keyframes wall-squish-y { 0% { scale: 1 1; } 16% { scale: calc(1 + (1 - var(--squish, .4)) * 1.1) var(--squish, .4); } 42% { scale: calc(1 + (1 - var(--squish, .4)) * 1.0) calc(var(--squish, .4) + .04); } 70% { scale: .86 1.16; } 86% { scale: 1.05 .96; } 100% { scale: 1 1; } }
 @media (prefers-reduced-motion: reduce) { .pet.wall-l, .pet.wall-r, .pet.wall-t { animation: none; } }
+
+/* the night light's button sits in the same corner as the food suggestion: the suggestion goes above it so its ✕ can be pressed */
+.stage:has(.night-btn:not([hidden])) .suggest { bottom: 46px; }

@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 428
+- A middle click on Fumu in the whole app switches back to small Fumu.
+- The night light button no longer covers the ✕ on the food suggestion.
+
 ## Build 427
 - The ring menu no longer closes itself the moment it opens on a double click.
 - Two quick taps on him also open it.
