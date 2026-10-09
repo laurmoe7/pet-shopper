@@ -172,8 +172,28 @@
   // it comes back a moment after the stroking ends, not during it
   document.addEventListener('pointerup', function () { hoverAt = 0; quietUntil = Math.max(quietUntil, Date.now() + 700); }, true);
   // his scene changed under the open ring (it got dark, the list was swapped): build it again
-  new MutationObserver(function () { if (shown) { if (canShow(false, previewing)) build(); else hide(); } }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-scene', 'data-list'] });
+  // (only when the scene or list really changed: the page writes these attributes again with the same value, which must not close the ring; and the
+  // short quiet time after a click is not a reason to close it either)
+  var lastSceneKey = '';
+  new MutationObserver(function () {
+    var key = document.documentElement.dataset.scene + '|' + document.documentElement.dataset.list;
+    if (key === lastSceneKey) return;
+    lastSceneKey = key;
+    if (shown) { if (canShow(true, true)) build(); else hide(true); }
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-scene', 'data-list'] });
   pet.addEventListener('dblclick', function () { show(true); });
+  // the browser's own double click did not always arrive in the small window (a click on him makes him move and speak), so two quick taps on him
+  // are counted here as well: same result, and it does not matter which of the two notices it first
+  var tapDown = null, lastTap = null;
+  pet.addEventListener('pointerdown', function (e) { tapDown = { t: Date.now(), x: e.screenX, y: e.screenY }; }, true);
+  pet.addEventListener('pointerup', function (e) {
+    var d = tapDown; tapDown = null;
+    if (!d || !isDesk() || e.button > 0) return;
+    var now = Date.now();
+    if (now - d.t > 400 || Math.hypot(e.screenX - d.x, e.screenY - d.y) > 12) { lastTap = null; return; }   // a hold or a stroke is not a tap
+    if (lastTap && now - lastTap.t < 520 && Math.hypot(e.screenX - lastTap.x, e.screenY - lastTap.y) < 24) { lastTap = null; show(true); }
+    else lastTap = { t: now, x: e.screenX, y: e.screenY };
+  }, true);
   document.addEventListener('pointerdown', function (e) { if (shown && !e.target.closest('.ring, #pet')) hide(); }, true);
   document.addEventListener('keydown', function (e) { if (shown && e.key === 'Escape') hide(); });
   /** Choosing an alert style in the mini settings: the ring shows for `ms`, then goes by itself. */

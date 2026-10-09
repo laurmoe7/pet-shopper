@@ -176,7 +176,11 @@
   pet.addEventListener('click', function (e) { if (Date.now() < noClickUntil) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
 
   // quick ways between the small Fumu and the whole app: a middle click on him, a double click on the bar, or the shell's shortcuts
-  pet.addEventListener('auxclick', function (e) { if (e.button === 1 && isPet()) { e.preventDefault(); D.setMode('list'); } });
+  pet.addEventListener('auxclick', function (e) {   // (a middle click on him swaps the two: small Fumu to the whole app, and back)
+    if (e.button !== 1) return;
+    if (isPet()) { e.preventDefault(); D.setMode('list'); }
+    else if (root.classList.contains('desktop-list')) { e.preventDefault(); D.setMode('pet'); }
+  });
   pet.addEventListener('mousedown', function (e) { if (e.button === 1) e.preventDefault(); });   // no autoscroll circle
   bar.addEventListener('dblclick', function (e) { if (e.target === bar || e.target.className === 'desk-title') D.setMode('pet'); });
   if (D.onSwapList) D.onSwapList(function () { if (typeof switchList === 'function') switchList(); });   // the shortcut for shopping / to-do
@@ -472,9 +476,23 @@
   };
 
   // thrown (the shell flies his window about): he spins round and is dizzy, and every hit on an edge or the floor goes "boing"
+  /** The spin ends in mid-turn: he eases round to upright from wherever the turn stopped instead of snapping. */
+  function glideUpright() {
+    var svg = pet.querySelector('.pet-svg');
+    if (!svg) return;
+    var cs = getComputedStyle(svg), ang = parseFloat(cs.rotate) || 0;
+    ang = ((ang + 180) % 360 + 360) % 360 - 180;
+    if (Math.abs(ang) < 3) return;
+    svg.style.transition = 'none'; svg.style.rotate = ang.toFixed(1) + 'deg'; svg.style.translate = cs.translate === 'none' ? '' : cs.translate;
+    void svg.offsetWidth;
+    svg.style.transition = 'rotate .55s cubic-bezier(.3, 1.25, .5, 1), translate .55s ease-out';
+    svg.style.rotate = '0deg'; svg.style.translate = '0 0';
+    setTimeout(function () { svg.style.transition = ''; svg.style.rotate = ''; svg.style.translate = ''; }, 620);
+  }
   var headDown = false;
   function pageThrown(on, dir, bed, extra) {
     extra = extra || {};
+    if (!on && !bed && pet.classList.contains('thrown')) glideUpright();   // (before the spin stops: he turns the last way smoothly, not with a jump)
     pet.classList.toggle('thrown', !!on && !bed);
     stage.classList.toggle('flying', !!on);
     pet.style.setProperty('--spin-dir', dir < 0 ? -1 : 1);
@@ -502,16 +520,29 @@
     if (Math.hypot(vx, vy) < 120) { stage.style.setProperty('--bed-turn', '0deg'); return; }   // on the ground: flat
     stage.style.setProperty('--bed-turn', (Math.atan2(-vx, vy) * 180 / Math.PI).toFixed(0) + 'deg');
   });
+  /** He hits a wall or the ceiling: a gentle squish into it, a small lean away as he rebounds, and a little burst where he touched. */
+  window.wallHit = function (wall, hard) {
+    hard = Math.min(1, hard || .5);
+    pet.classList.remove('wall-l', 'wall-r', 'wall-t'); void pet.offsetWidth;
+    pet.classList.add('wall-' + wall);
+    pet.style.setProperty('--squish', (.7 + .12 * (1 - hard)).toFixed(2));
+    setTimeout(function () { pet.classList.remove('wall-l', 'wall-r', 'wall-t'); }, 640);
+    var sr = stage.getBoundingClientRect(), pr = pet.getBoundingClientRect(), x, y, rot;
+    if (wall === 'l') { x = pr.left - sr.left + 2; y = pr.top - sr.top + pr.height * .5; rot = 0; }
+    else if (wall === 'r') { x = pr.right - sr.left - 2; y = pr.top - sr.top + pr.height * .5; rot = 180; }
+    else { x = pr.left - sr.left + pr.width / 2; y = pr.top - sr.top + 6; rot = 90; }
+    var b = document.createElement('div');
+    b.className = 'wall-burst'; b.setAttribute('aria-hidden', 'true');
+    b.style.left = x + 'px'; b.style.top = y + 'px'; b.style.setProperty('--rot', rot + 'deg'); b.style.setProperty('--burst', (.8 + .5 * hard).toFixed(2));
+    b.innerHTML = '<svg viewBox="-24 -24 48 48" width="48" height="48"><path class="wb-star" d="M0 -12 L3.2 -3.4 L12 0 L3.2 3.4 L0 12 L-3.2 3.4 L-12 0 L-3.2 -3.4 Z"/><g class="wb-lines"><path d="M-14 -13 L-20 -17"/><path d="M-16 0 L-23 0"/><path d="M-14 13 L-20 17"/></g></svg>';
+    stage.appendChild(b);
+    setTimeout(function () { if (b.parentNode) b.remove(); }, 480);
+  };
   function pageBounce(hard, wall) {
     if (headDown) { headDown = false; pet.classList.remove('thrown'); pet.classList.add('head-down'); }   // he stops spinning on his head
     if (stage.classList.contains('bed-thrown')) { if (typeof sound === 'function') { sound('bounce'); sound('bedbell'); } return; }   // in his bed: the bounce and the faint bell in the bed
     if (typeof sound === 'function') sound('bounce');
-    if (wall && !carried) {   // against a wall or the ceiling he squishes flat into it (the squish is a CSS animation on his whole box, see .wall-l)
-      pet.classList.remove('wall-l', 'wall-r', 'wall-t'); void pet.offsetWidth;
-      pet.classList.add('wall-' + wall); pet.style.setProperty('--squish', (.62 + .3 * (1 - Math.min(1, hard))).toFixed(2));
-      setTimeout(function () { pet.classList.remove('wall-l', 'wall-r', 'wall-t'); }, 460);
-      return;
-    }
+    if (wall && !carried) { window.wallHit(wall, hard); return; }
     if (typeof pulse === 'function' && !carried) pulse(hard > .5 ? 'hop' : 'hopsmall', 400);
   }
   if (D.onBounce) D.onBounce(pageBounce);
@@ -536,6 +567,11 @@
     stage.appendChild(card);
     setTimeout(function () { if (card.parentNode) card.remove(); }, 60000);
   }
+  // ---------- an update is downloading: a short line, only if he is free to say it (it is not waited for) ----------
+  if (D.onUpdateDownloading) D.onUpdateDownloading(function () {
+    if (!isPet() || busy || !bubble.hidden || document.querySelector('.inbox-card') || (typeof petScene === 'function' && petScene() === 'night-bed')) return;
+    say(pick(['downloading something new…', 'a new me is on the way~', 'getting an update…']), 3500, true);
+  });
   // ---------- an update finished downloading: he says so (once he is free to speak) ----------
   if (D.onUpdateReady) D.onUpdateReady(function () {
     var tries = 0;

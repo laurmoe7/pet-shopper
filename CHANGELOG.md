@@ -2,6 +2,30 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 430
+- He sits down while he naps.
+- Gentler squish against a wall, with a little lean and a burst where he hits.
+
+## Build 429
+- Fumu says a short line while an update is downloading.
+- Claude alerts show at once, with no speech or celebration from Fumu.
+
+## Build 428
+- A middle click on Fumu in the whole app switches back to small Fumu.
+- The night light button no longer covers the ✕ on the food suggestion.
+
+## Build 427
+- The ring menu no longer closes itself the moment it opens on a double click.
+- Two quick taps on him also open it.
+
+## Build 426
+- Getting back on his feet after a throw is smoother.
+- He no longer shrinks while spinning.
+- The squish against a wall is much stronger.
+
+## Build 425
+- Alert cards are not cut off at the top of the window any more.
+
 ## Build 424
 - He can sit over the taskbar again; his window is kept on top of it.
 

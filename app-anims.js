@@ -42,7 +42,7 @@ function animCatalogue() {
     });
   });
   ['l', 'r', 't'].forEach(function (w) {
-    add('Specials', 'squish into the ' + ({ l: 'left wall', r: 'right wall', t: 'ceiling' })[w], function () { pet.classList.remove('wall-l', 'wall-r', 'wall-t'); void pet.offsetWidth; pet.classList.add('wall-' + w); pet.style.setProperty('--squish', '.66'); setTimeout(function () { pet.classList.remove('wall-' + w); }, 460); return 600; });
+    add('Specials', 'hit the ' + ({ l: 'left wall', r: 'right wall', t: 'ceiling' })[w], function () { if (window.wallHit) window.wallHit(w, .6); else say('only in the small pet window', 1800); return 800; });
   });
   add('Specials', 'belly jiggle', function () { bellyJiggle(); return 1300; });
   add('Specials', 'look around', function () { lookAround(); return 2200; });

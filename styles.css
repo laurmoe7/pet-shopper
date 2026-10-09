@@ -2833,7 +2833,8 @@ html.desktop-pet, html.desktop-pet * { user-select: none; -webkit-user-select: n
 html.desktop-pet .app { max-width: none; min-height: 0; height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; }
 html.desktop-pet .scene { position: static; padding: 0; background: none !important; }
 html.desktop-pet .scene::after { display: none; }
-html.desktop-pet .stage { width: 100vw; margin-bottom: 28px; }   /* (room under him: when he spins or tilts his lower part stays inside the window instead of being cut off at its bottom edge) */
+html.desktop-pet .stage { width: 100vw; margin-bottom: 28px; transition: margin-bottom .2s ease-out; }
+html.desktop-pet .stage:has(.inbox-card, .quick-card) { margin-bottom: 0; }   /* (an alert card needs the room above him: it was cut off at the top of the window) */   /* (room under him: when he spins or tilts his lower part stays inside the window instead of being cut off at its bottom edge) */
 /* the stage keeps its own height at the bottom; the free room above is for the speech bubble */
 html.desktop-pet .stage .bubble { left: var(--vis-l, 0px) !important; right: calc(100vw - var(--vis-r, 100vw)) !important; top: auto !important; bottom: calc(100% - 24px); margin: 0 auto; max-width: calc(var(--vis-r, 100vw) - var(--vis-l, 0px) - 24px) !important; transform-origin: 50% 100% !important; }
 html.desktop-list #deskBar { display: flex; }
@@ -2960,7 +2961,7 @@ html:not([data-list="todo"]) #pet.wanding .arm-l { transform-box: view-box; tran
 /* thrown by the desktop shell (app-desktop.js onThrown): he spins round the whole flight */
 .pet.thrown .pet-svg { animation: throw-spin .5s linear infinite; animation-direction: normal; }
 /* he turns about his middle, so he is lifted off the window's bottom edge or his lower half would be cut off as he swings round */
-@keyframes throw-spin { from { translate: 0 -34px; rotate: 0deg; scale: .84; } to { translate: 0 -34px; rotate: 360deg; scale: .84; } }
+@keyframes throw-spin { from { translate: 0 -26px; rotate: 0deg; } to { translate: 0 -26px; rotate: 360deg; } }
 .pet.thrown[style*="--spin-dir: -1"] .pet-svg { animation-direction: reverse; }
 @media (prefers-reduced-motion: reduce) { .pet.thrown .pet-svg { animation: none; } }
 
@@ -3045,8 +3046,8 @@ html.desktop-pet .night-btn { display: none !important; }   /* in the small wind
 
 /* landed on his head after a fall (app-desktop.js): upside down for a moment, then he rights himself */
 .pet.head-down .pet-svg { rotate: 180deg; translate: 0 10px; scale: .92; }   /* (the window ends 10 px below him: any lower and his head is cut off) */
-.pet.righting .pet-svg { animation: right-up .45s cubic-bezier(.3, 1.2, .5, 1); }
-@keyframes right-up { from { rotate: 180deg; translate: 0 10px; scale: .92; } 55% { translate: 0 -8px; scale: 1; } to { rotate: 360deg; translate: 0 0; scale: 1; } }
+.pet.righting .pet-svg { animation: right-up .85s linear; }
+@keyframes right-up { 0% { rotate: 180deg; translate: 0 10px; scale: .92; animation-timing-function: ease-out; } 22% { rotate: 180deg; translate: 0 12px; scale: 1.06 .88; animation-timing-function: ease-in-out; } 62% { rotate: 322deg; translate: 0 -14px; scale: 1; animation-timing-function: ease-in-out; } 84% { rotate: 372deg; translate: 0 2px; scale: 1.03 .96; animation-timing-function: ease-in-out; } 100% { rotate: 360deg; translate: 0 0; scale: 1; } }
 
 /* newer body moves (build 354): tilts and turns of the drawing are fine now, so these rotate and scale it */
 @keyframes tilt { 0%, 100% { transform: rotate(0deg); } 22%, 62% { transform: rotate(-13deg) translate(-2px, 1px); } 80% { transform: rotate(6deg); } }
@@ -3251,10 +3252,19 @@ html:root[data-skin="quest"] .recipe-btn { background: linear-gradient(180deg, #
 html:root[data-skin="quest"] .mic-btn.on { background: #c0392b; }
 /* the ring menu is open: the speech bubble sits where the ring's buttons are not (app-ring.js placeBubble) */
 html.desktop-pet.ring-open .stage .bubble.ring-moved { left: var(--rl, 4px) !important; right: auto !important; top: var(--rt, 4px) !important; bottom: auto !important; margin: 0 !important; max-width: 42% !important; }
-/* he hits a wall or the ceiling when thrown (app-desktop.js pageBounce): he squishes flat against it, then pops back (--squish: how flat) */
-.pet.wall-l, .pet.wall-r { transform-origin: var(--wall-x, 0%) 62%; animation: wall-squish-x .44s cubic-bezier(.2, .8, .3, 1); }
-.pet.wall-l { --wall-x: 8%; } .pet.wall-r { --wall-x: 92%; }
-.pet.wall-t { transform-origin: 50% 8%; animation: wall-squish-y .44s cubic-bezier(.2, .8, .3, 1); }
-@keyframes wall-squish-x { 0% { scale: 1 1; } 22% { scale: var(--squish, .7) calc(2 - var(--squish, .7)); } 62% { scale: 1.07 .95; } 100% { scale: 1 1; } }
-@keyframes wall-squish-y { 0% { scale: 1 1; } 22% { scale: calc(2 - var(--squish, .7)) var(--squish, .7); } 62% { scale: .95 1.07; } 100% { scale: 1 1; } }
-@media (prefers-reduced-motion: reduce) { .pet.wall-l, .pet.wall-r, .pet.wall-t { animation: none; } }
+/* he hits a wall or the ceiling when thrown (app-desktop.js wallHit): a gentle squish into it, a small lean away on the rebound, then back (--squish: how flat) */
+.pet.wall-l, .pet.wall-r { transform-origin: var(--wall-x, 0%) 62%; animation: wall-squish-x .55s ease-out; }
+.pet.wall-l { --wall-x: 8%; --lean: -4deg; } .pet.wall-r { --wall-x: 92%; --lean: 4deg; }
+.pet.wall-t { transform-origin: 50% 8%; animation: wall-squish-y .55s ease-out; }
+@keyframes wall-squish-x { 0% { scale: 1 1; rotate: 0deg; } 14% { scale: var(--squish, .74) calc(1 + (1 - var(--squish, .74)) * .5); rotate: 0deg; animation-timing-function: ease-in-out; } 34% { scale: calc(var(--squish, .74) + .03) calc(1 + (1 - var(--squish, .74)) * .45); rotate: 0deg; animation-timing-function: ease-out; } 62% { scale: 1.05 .97; rotate: var(--lean); animation-timing-function: ease-in-out; } 82% { scale: .99 1.01; rotate: 0deg; } 100% { scale: 1 1; rotate: 0deg; } }
+@keyframes wall-squish-y { 0% { scale: 1 1; } 14% { scale: calc(1 + (1 - var(--squish, .74)) * .5) var(--squish, .74); animation-timing-function: ease-in-out; } 34% { scale: calc(1 + (1 - var(--squish, .74)) * .45) calc(var(--squish, .74) + .03); animation-timing-function: ease-out; } 62% { scale: .97 1.05; animation-timing-function: ease-in-out; } 82% { scale: 1.01 .99; } 100% { scale: 1 1; } }
+/* the little burst where he touched */
+.wall-burst { position: absolute; z-index: 7; width: 48px; height: 48px; margin: -24px 0 0 -24px; pointer-events: none; rotate: var(--rot, 0deg); animation: wall-burst .42s ease-out forwards; }
+.wall-burst svg { display: block; overflow: visible; }
+.wall-burst .wb-star { fill: #fffbe8; stroke: var(--pet-ink, #5b4239); stroke-width: 1.5; stroke-linejoin: round; }
+.wall-burst .wb-lines path { fill: none; stroke: var(--pet-ink, #5b4239); stroke-width: 2; stroke-linecap: round; }
+@keyframes wall-burst { 0% { scale: .2; opacity: 0; } 22% { scale: calc(var(--burst, 1) * 1.15); opacity: 1; } 60% { scale: var(--burst, 1); opacity: 1; } 100% { scale: calc(var(--burst, 1) * 1.1); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pet.wall-l, .pet.wall-r, .pet.wall-t, .wall-burst { animation: none; } }
+
+/* the night light's button sits in the same corner as the food suggestion: the suggestion goes above it so its ✕ can be pressed */
+.stage:has(.night-btn:not([hidden])) .suggest { bottom: 46px; }
