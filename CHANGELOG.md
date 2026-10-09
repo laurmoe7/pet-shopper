@@ -2,8 +2,20 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
-## Build 435
+## Build 439
 - A test Shop with a premium card and cosmetic packs (nothing can be bought). Switch it on in Developer tools.
+
+## Build 438
+- No sinking when the bed lands after being thrown.
+
+## Build 437
+- The bed springs back to its place in a few bounces instead of sliding.
+
+## Build 436
+- Thrown in his bed, the bed returns to where it was after it lands.
+
+## Build 435
+- No toe beans when he covers his face with his hands (you see the backs of his hands).
 
 ## Build 434
 - The dizzy face after a throw lasts about 3.5 seconds.

@@ -79,6 +79,28 @@ function start() {
       tween = { timer, done: resolve };
     });
   }
+  /** The bed springs back to `to`: it hops across in a few bounces that get smaller, and rocks a little past the spot before settling on it. */
+  function springBack(to, ms) {
+    stopTween();
+    return new Promise((resolve) => {
+      if (!win || mode !== 'pet') { resolve(false); return; }
+      const from = win.getBounds(), t0 = Date.now(), dist = Math.hypot(to.x - from.x, to.y - from.y);
+      const H = Math.max(40, Math.min(150, dist * 0.22)), HOPS = dist > 500 ? 4 : 3;
+      let lastHop = 0;
+      const c = Math.min(1.7, 450 / Math.max(1, Math.abs(to.x - from.x)));   // (how far it rocks past: about 10% of a short way, never more than about 25 px of a long one)
+      const timer = setInterval(() => {
+        if (!win) { stopTween(); return; }
+        const t = Math.min(1, (Date.now() - t0) / Math.max(1, ms));
+        const u = t - 1, sx = t >= 1 ? 1 : 1 + (c + 1) * u * u * u + c * u * u;   // travels steadily and rocks a little past the spot at the end, then back
+        const base = t, hop = Math.abs(Math.sin(Math.PI * HOPS * t)) * Math.pow(1 - t, 1.4) * H;   // each hop lower than the one before
+        win.setBounds({ x: Math.round(from.x + (to.x - from.x) * sx), y: Math.round(from.y + (to.y - from.y) * base - (t >= 1 ? 0 : hop)), width: from.width, height: from.height });
+        const k = Math.floor(HOPS * t);   // another landing: a soft bounce sound
+        if (k > lastHop && t < 0.97) { lastHop = k; win.webContents.send('desk:bounce', Math.max(.25, .7 * (1 - t)), ''); }
+        if (t >= 1) { clearInterval(timer); tween = null; win.webContents.send('desk:bounce', .2, ''); resolve(true); }
+      }, 8);
+      tween = { timer, done: resolve };
+    });
+  }
   function restHere() { const b = win.getBounds(); prefs.x = b.x; prefs.y = b.y; displaced = false; savePrefs(); }
 
   // ---------- sitting on other windows (a switch in the menu, off by default; Windows only) ----------
@@ -168,6 +190,7 @@ function start() {
     if (!win || mode !== 'pet') return;
     const all = areas(), b0 = win.getBounds();
     const box = { x: Math.min(...all.map((a) => a.x)), y: Math.min(...all.map((a) => a.y)), r: Math.max(...all.map((a) => a.x + a.width)), b: Math.max(...all.map((a) => a.y + a.height)) };
+    const bedLift = inBed ? Math.round(38 * zoom()) : 0;
     const bi = bodyIn(b0);   // the window has clear space round him: it is his body that touches the edge, not the window
     // while he spins (a turn every half second, see .thrown in styles.css) the corners of his box swing out past his sides, and past the screen
     // edge those parts are not drawn: the wall is moved in by how far they reach at this moment of the turn
@@ -197,7 +220,7 @@ function start() {
         if (x < box.x - bi.l + sr.x) { x = box.x - bi.l + sr.x; if (inBed) vx = 0; else { hit = Math.abs(vx); wall = 'l'; vx = Math.abs(vx) * WALL; } }
         if (x > box.r - bi.r - sr.x) { x = box.r - bi.r - sr.x; if (inBed) vx = 0; else { hit = Math.abs(vx); wall = 'r'; vx = -Math.abs(vx) * WALL; } }
         if (y < box.y - bi.t + sr.y) { y = box.y - bi.t + sr.y; if (inBed) vy = 0; else { hit = Math.max(hit, Math.abs(vy)); wall = wall || 't'; vy = Math.abs(vy) * WALL; } }
-        const floorY = lowestY(screen.getDisplayNearestPoint({ x: Math.round(x + b0.width / 2), y: Math.round(y + b0.height) }), b0);
+        const floorY = lowestY(screen.getDisplayNearestPoint({ x: Math.round(x + b0.width / 2), y: Math.round(y + b0.height) }), b0) + bedLift;   // (the bed is drawn 38 px higher while it flies: its bottom meets the floor)
         let rest = false;
         if (y >= floorY) { y = floorY; if (Math.abs(vy) > (inBed ? 90 : 260) && !(opts.maxBounces && floorHits >= opts.maxBounces)) { floorHits++; hit = Math.max(hit, Math.abs(vy)); vy = -vy * FLOOR; } else { vy = 0; rest = true; } vx *= 0.85; }
         if (hit > (inBed ? 80 : 220) && now - lastHit > (inBed ? 60 : 90)) { lastHit = now; win.webContents.send('desk:bounce', Math.min(1, hit / 2500), wall); }
@@ -208,9 +231,23 @@ function start() {
       }, 8);
       tween = { timer, done: resolve };
     });
+    if (win && inBed && bedLift) { const bb = win.getBounds(); win.setBounds({ x: bb.x, y: bb.y - bedLift, width: bb.width, height: bb.height }); }   // (the page puts the bed down at the same moment: no sinking)
     if (win) { if (!inBed) win.webContents.send('desk:fall', false); if (!opts.noSpin || opts.ouch) win.webContents.send('desk:thrown', false, 0, inBed, { ouch: !!opts.ouch, head: !!opts.head }); }
     if (!ok || !win) return;
-    if (inBed) { restHere(); return; }   // in his bed he stays where he landed (he has bounced about on the floor already)
+    if (inBed) {   // in his bed: after bouncing about on the floor the whole bed springs back to where it was (no running: he is asleep)
+      const cur0 = win.getBounds(), disp0 = screen.getDisplayMatching(home).bounds;
+      const back0 = { x: Math.max(Math.round(disp0.x - home.width * 0.6), Math.min(Math.round(home.x), Math.round(disp0.x + disp0.width - home.width * 0.4))), y: Math.max(disp0.y, Math.min(Math.round(home.y), lowestY(screen.getDisplayMatching(home), home))), width: home.width, height: home.height };
+      lastThrow = { home, back: back0, landed: cur0, area: here(), inBed: true };
+      await new Promise((r) => setTimeout(r, 450));   // (it lies where it landed for a moment first)
+      if (!win || mode !== 'pet') return;
+      if (Math.abs(back0.x - cur0.x) > 3 || Math.abs(back0.y - cur0.y) > 3) {
+        const done0 = await springBack(back0, Math.max(1100, Math.min(2400, Math.hypot(back0.x - cur0.x, back0.y - cur0.y) * 1.6)));
+        if (!done0) return;
+      }
+      restHere();
+      if (lastThrow) lastThrow.end = win.getBounds();
+      return;
+    }
     // back to exactly where he was picked up: that may be half off the side of the screen (peeking in), so it is not squeezed back inside the
     // screen; only a spot that is mostly off the screen, or below it, is pulled in
     const cur = win.getBounds(), disp = screen.getDisplayMatching(home).bounds;

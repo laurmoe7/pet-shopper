@@ -553,7 +553,7 @@
   };
   function pageBounce(hard, wall) {
     if (headDown) { headDown = false; pet.classList.remove('thrown'); pet.classList.add('head-down'); }   // he stops spinning on his head
-    if (stage.classList.contains('bed-thrown')) { if (typeof sound === 'function') { sound('bounce'); sound('bedbell'); } return; }   // in his bed: the bounce and the faint bell in the bed
+    if (stage.classList.contains('bed-thrown') || (typeof inBed === 'function' && inBed())) { if (typeof sound === 'function') { sound('bounce'); sound('bedbell'); } return; }   // (the springy hops of the bed back to its place too)   // in his bed: the bounce and the faint bell in the bed
     if (typeof sound === 'function') sound('bounce');
     if (wall && !carried) { window.wallHit(wall, hard); return; }
     if (typeof pulse === 'function' && !carried) pulse(hard > .5 ? 'hop' : 'hopsmall', 400);
