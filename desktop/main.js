@@ -197,7 +197,7 @@ function start() {
     let floorHits = 0, x = b0.x, y = b0.y, lastHit = 0, spinDir = vx >= 0 ? 1 : -1;
     const t0 = Date.now();
     let last = t0;
-    if (!inBed) win.webContents.send('desk:fall', true);   // arms flap while he flies (asleep in bed he does not)
+    if (!inBed) win.webContents.send('desk:fall', true, !!opts.ouch);   // arms flap while he flies (asleep in bed he does not); knocked off a window he is dizzy from the first moment
     if (!opts.noSpin) win.webContents.send('desk:thrown', true, spinDir, inBed, { head: !!opts.head });   // and he spins round (in bed, the bed turns to face where it is going)
     let lastFlight = 0;
     const ok = await new Promise((resolve) => {

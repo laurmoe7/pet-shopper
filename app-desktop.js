@@ -1244,7 +1244,12 @@
   var tripHold = false;
   function tripStart() { tripHold = true; if (typeof toyCarry === 'function' && !carried) toyCarry(true); }
   function tripEnd() { tripHold = false; if (!perched && !carried && typeof toyCarry === 'function') toyCarry(false); }
-  if (D.onFall) D.onFall(function (on) { pet.classList.toggle('falling', on); if (on) setFace({ eyes: 'sparkle', mouth: 'o', arms: 'idle', x: [] }); else if (!busy) settle(); });
+  var fallDizzy = false;   // knocked off a window: dizzy eyes from the moment he drops, and they are not wiped when he lands
+  if (D.onFall) D.onFall(function (on, dizzy) {
+    pet.classList.toggle('falling', on);
+    if (on) { fallDizzy = !!dizzy; setFace(dizzy ? { eyes: 'dizzy', mouth: 'o', arms: 'idle', x: ['sweat'] } : { eyes: 'sparkle', mouth: 'o', arms: 'idle', x: [] }); }
+    else { if (!busy && !fallDizzy) settle(); fallDizzy = false; }
+  });
   var runOwn = false;
   // the shortcut that makes him catch the mouse in a full-screen game (or lets go again)
   if (D.onGrab) D.onGrab(function (on) {

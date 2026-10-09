@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 489
+- Knocked off a window: dizzy eyes from the first moment of the fall
+
 ## Build 488
 - Fumu stands 15 px lower on the taskbar; spinning throws keep every part of him on screen
 
