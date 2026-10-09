@@ -216,28 +216,40 @@ function slideAway(card, dir, then) {
     var card = e.target.closest && e.target.closest('.inbox-card');
     if (!card || card.classList.contains('quick-card') || e.target.closest('button, input, textarea') || e.button > 0) return;
     if (!card.querySelector('.inbox-done')) return;
-    drag = { card: card, id: e.pointerId, x: e.clientX, dx: 0, t: Date.now() };
-    card.style.touchAction = 'pan-y';
+    drag = { card: card, id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, dy: 0, t: Date.now() };
+    card.style.touchAction = card.classList.contains('remind-card') ? 'none' : 'pan-y';
     card.style.animation = 'none';   // (the pop-in and the Claude card's nudge would otherwise hold its position)
     try { card.setPointerCapture(e.pointerId); } catch (err) { /* gone */ }
   });
   document.addEventListener('pointermove', function (e) {
     if (!drag || e.pointerId !== drag.id) return;
-    drag.dx = e.clientX - drag.x;
-    drag.card.style.translate = drag.dx + 'px 0';
+    drag.dx = e.clientX - drag.x; drag.dy = e.clientY - drag.y;
+    // a task reminder can also be pushed up or down (snooze), so it follows the pointer both ways
+    var up = drag.card.classList.contains('remind-card') && Math.abs(drag.dy) > Math.abs(drag.dx);
+    drag.card.style.translate = (up ? 0 : drag.dx) + 'px ' + (up ? drag.dy : 0) + 'px';
   });
   function end(e) {
     if (!drag || e.pointerId !== drag.id) return;
     var d = drag, fast = Math.abs(d.dx) / Math.max(1, Date.now() - d.t) > .5;
     drag = null;
-    if (Math.abs(d.dx) < 40 && !(fast && Math.abs(d.dx) > 18)) {   // not far enough: it springs back
+    var remind = d.card.classList.contains('remind-card'), vertical = remind && Math.abs(d.dy) > Math.abs(d.dx) && Math.abs(d.dy) >= 30;
+    if (!vertical && Math.abs(d.dx) < 40 && !(fast && Math.abs(d.dx) > 18)) {   // not far enough: it springs back
       d.card.style.transition = 'translate .18s';
       d.card.style.translate = '';
       setTimeout(function () { d.card.style.transition = ''; }, 200);
       return;
     }
-    var done = d.card.querySelector('.inbox-done');
-    slideAway(d.card, d.dx < 0 ? -1 : 1, function () { if (done) done.click(); });
+    // a task reminder: left is Done (when it can be ticked here), up or down snoozes it, right puts it away; other alerts: either way puts it away
+    var btn = d.card.querySelector('.inbox-done');
+    function named(re) { return [].slice.call(d.card.querySelectorAll('button')).filter(function (b) { return re.test(b.textContent); })[0]; }
+    if (vertical) btn = named(/^In 10 min/) || btn;
+    else if (remind && d.dx < 0) btn = named(/^Done/) || btn;
+    if (vertical) {
+      d.card.style.animation = 'none';
+      d.card.style.transition = 'translate .26s ease-in, opacity .26s';
+      d.card.style.translate = '0 ' + (d.dy < 0 ? -60 : 60) + 'px'; d.card.style.opacity = '0';
+      setTimeout(function () { if (d.card.parentNode && btn) btn.click(); }, 270);
+    } else slideAway(d.card, d.dx < 0 ? -1 : 1, function () { if (btn) btn.click(); });
   }
   document.addEventListener('pointerup', end);
   document.addEventListener('pointercancel', end);

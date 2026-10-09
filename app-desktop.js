@@ -920,8 +920,8 @@
 
   // ---------- swiping alerts with no clicking (while the mouse passes through him in a game) ----------
   // The shell lets the mouse go through him then, so an alert's buttons cannot be clicked, but the page still sees the pointer move over it:
-  // moving across the card is the swipe. A task reminder: right puts it away (the cross), left snoozes it for 10 minutes, up or down is Done
-  // (when the task can be ticked here). Any other alert: right or left puts it away.
+  // moving across the card is the swipe. A task reminder: left is Done (when the task can be ticked here, else it is put away),
+  // up or down snoozes it for 10 minutes, right puts it away (the cross). Any other alert: right or left puts it away.
   var trail = [];
   /** The pointer is at x, y: a sweep across an alert card. Fed by the page's own mouse events and by the shell, which watches the pointer itself.
    *  Forgiving on purpose: it looks at the last 0.4 s of the path, and the sweep only has to cross the card (it may start or end outside it). */
@@ -946,8 +946,8 @@
     var remind = card.classList.contains('remind-card'), buttons = [].slice.call(card.querySelectorAll('button'));
     function named(re) { return buttons.filter(function (b) { return re.test(b.textContent); })[0]; }
     var btn = card.querySelector('.inbox-done'), dir = dx < 0 ? -1 : 1;
-    if (vertical) { if (remind) btn = named(/^Done/) || btn; dir = 0; }
-    else if (remind && dx < 0) btn = named(/^In 10 min/) || btn;
+    if (vertical) { if (remind) btn = named(/^In 10 min/) || btn; dir = 0; }
+    else if (remind && dx < 0) btn = named(/^Done/) || btn;
     if (!btn) return;
     card.dataset.leaving = '1';
     if (dir) slideAway(card, dir, function () { btn.click(); });

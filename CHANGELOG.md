@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 370
+- Reminders: swipe left is Done, up or down is In 10 min, right puts it away (sweeping and dragging).
+
 ## Build 369
 - Alerts are a little smaller and sit lower, so the top is not cut off.
 
