@@ -2090,27 +2090,34 @@ function skSentShow(e) {
   skStatus.textContent = 'Shown over the picture as an image layer (Images page). Remove it there when you are done.';
 }
 /** Opens a sent drawing's own lines on the canvas to keep working on them (Undo brings back what was there). */
+/** Puts a saved drawing (from the Sent page or a project file) in the canvas it was made on, after asking if that canvas holds a drawing. */
+function skApplyDoc(d, done) {
+  skGoMode(d.mode);
+  if (SK.strokes[SK.mode].length && !window.confirm('Replace what is drawn on ' + SK.mode + ' with this drawing? Undo brings it back.')) { skStatus.textContent = 'Cancelled.'; return; }
+  skPushHistory();
+  SK.strokes[SK.mode] = d.strokes;
+  SK.layers[SK.mode] = Array.isArray(d.layers) ? d.layers.map(function (l) { return { id: String(l.id), name: String(l.name || 'Layer'), show: l.show !== false }; }) : [];
+  if (d.active) SK.active[SK.mode] = d.active;
+  SK.layerSet[SK.mode] = []; SK.pick = [];
+  if (d.mode === 'canvas' && d.view && d.view.w > 0 && d.view.h > 0) SK_VIEW.canvas = { x: 0, y: 0, w: Math.min(4000, +d.view.w), h: Math.min(4000, +d.view.h) };
+  if (Array.isArray(d.images)) { SK.images[SK.mode] = d.images.filter(function (i) { return i && i.src && i.bw > 0; }); SK.sel = null; skSaveImages(); }
+  if (d.pet) {
+    P.species = d.pet.species || P.species; P.skin = d.pet.skin || ''; P.backdrop = d.pet.backdrop || P.backdrop; P.night = !!d.pet.night; P.room = d.pet.room || {}; P.template = !!d.pet.template; P.seated = !!d.pet.seated;
+    Object.keys(P.outfit).forEach(function (s) { P.outfit[s] = (d.pet.outfit && d.pet.outfit[s]) || 'none'; });
+  }
+  if (d.kind) { $('skKind').value = d.kind; }
+  $('skNote').value = d.note || '';
+  skOpened[SK.mode] = true;
+  skBuildPanels(); skBuild(); skLinesUI(); skLayersUI(); skTab('draw'); skSave();
+  skStatus.textContent = done;
+}
 function skSentEdit(e) {
   if (!e.strokes) return;
   skStatus.textContent = 'Opening…';
   ghFile('drawings/' + e.strokes.name).then(function (text) {
     var d = JSON.parse(text);
     if (!d || !Array.isArray(d.strokes)) throw new Error('that file is not a drawing');
-    skGoMode(d.mode);
-    if (SK.strokes[SK.mode].length && !window.confirm('Replace what is drawn on ' + SK.mode + ' with this drawing? Undo brings it back.')) { skStatus.textContent = 'Cancelled.'; return; }
-    skPushHistory();
-    SK.strokes[SK.mode] = d.strokes;
-    SK.layers[SK.mode] = Array.isArray(d.layers) ? d.layers.map(function (l) { return { id: String(l.id), name: String(l.name || 'Layer'), show: l.show !== false }; }) : [];
-    if (d.active) SK.active[SK.mode] = d.active;
-    SK.layerSet[SK.mode] = []; SK.pick = [];
-    if (d.pet) {
-      P.species = d.pet.species || P.species; P.skin = d.pet.skin || ''; P.backdrop = d.pet.backdrop || P.backdrop; P.night = !!d.pet.night; P.room = d.pet.room || {}; P.template = !!d.pet.template; P.seated = !!d.pet.seated;
-      Object.keys(P.outfit).forEach(function (s) { P.outfit[s] = (d.pet.outfit && d.pet.outfit[s]) || 'none'; });
-    }
-    if (d.kind) { $('skKind').value = d.kind; }
-    $('skNote').value = d.note || '';
-    skBuildPanels(); skBuild(); skLinesUI(); skTab('draw'); skSave();
-    skStatus.textContent = 'Opened ' + e.base + '. Undo brings back what was there before.';
+    skApplyDoc(d, 'Opened ' + e.base + '. Undo brings back what was there before.');
   }).catch(function (err) { skStatus.textContent = 'Could not open it: ' + err.message; });
 }
 function skSentDelete(e, card) {
@@ -2582,7 +2589,8 @@ function skMenuOpen(btn) {
   skMenuClose();
   var list = btn.nextElementSibling;
   var on = function (cmd, ok) { var i = list.querySelector('[data-cmd="' + cmd + '"]'); if (i) i.disabled = !ok; };
-  on('resize', SK.mode === 'canvas'); on('item', !$('skItemRow').hidden);
+  on('resize', SK.mode === 'canvas'); on('item', !$('skItemRow').hidden); on('crop', SK.mode === 'canvas');
+  ['cut', 'copyl', 'dup', 'delete', 'deselect'].forEach(function (c) { on(c, SK.pick.length > 0); }); on('paste', SK.clip.length > 0);
   on('undo', !$('skUndo').disabled); on('redo', !$('skRedo').disabled);
   var lays = skLays(), act = lays.map(function (x) { return x.id; }).indexOf(SK.active[SK.mode]), seen = lays.filter(function (x) { return x.show; }).length;
   on('ldel', lays.length > 1); on('lmerge', act > 0); on('lmergeall', seen > 1); on('lsolo', lays.length > 1);
@@ -2653,6 +2661,57 @@ function skLayerSolo(hide) {
   skStatus.textContent = hide ? 'Only the active layer is shown.' : 'All layers shown.';
   skLayersChanged();
 }
+// ---------- project files, edit and canvas menus ----------
+/** Saves the lines, layers and pictures of the open canvas as a file on the computer (open it again with Open project). */
+function skSaveProject() {
+  var d = skOriginal(), t = new Date(), pad = function (n) { return (n < 10 ? '0' : '') + n; };
+  d.type = 'sketchpad-project'; d.images = SK.images[SK.mode]; d.view = SK_VIEW[SK.mode];
+  var name = d.kind + '-' + SK.mode + '-' + t.getFullYear() + pad(t.getMonth() + 1) + pad(t.getDate()) + '-' + pad(t.getHours()) + pad(t.getMinutes()) + '.sketchpad.json', a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(d)], { type: 'application/json' }));
+  a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+  skStatus.textContent = 'Saved ' + name + ' (lines, layers and pictures).';
+}
+$('skProjFile').addEventListener('change', function () {
+  var f = this.files && this.files[0];
+  this.value = '';
+  if (!f) return;
+  f.text().then(function (text) {
+    var d = JSON.parse(text);
+    if (!d || !Array.isArray(d.strokes) || !SK_VIEW[d.mode]) throw new Error('that file is not a sketchpad project');
+    skApplyDoc(d, 'Opened ' + f.name + '. Undo brings back what was there before.');
+  }).catch(function (err) { skStatus.textContent = 'Could not open it: ' + err.message; });
+});
+/** Flips every line of the open canvas (pictures stay as they are). */
+function skFlipAll(axis) {
+  if (!SK.strokes[SK.mode].length) { skStatus.textContent = 'Nothing drawn to flip.'; return; }
+  var v = SK_VIEW[SK.mode];
+  SK.pick = SK.strokes[SK.mode].slice();
+  skApplyOp({ kind: 'flip', axis: axis, c: axis === 'x' ? skAxis() : v.y + v.h / 2 });
+  SK.pick = []; skXfRender();
+  skStatus.textContent = 'Drawing flipped ' + (axis === 'x' ? 'left-right' : 'up-down') + '. Pictures stay as they are.';
+}
+/** Trims the free canvas to a box round everything drawn, with a little room. */
+function skCrop() {
+  if (SK.mode !== 'canvas') { skStatus.textContent = 'Crop works on a blank canvas. Make one with New canvas.'; return; }
+  var all = SK.strokes.canvas;
+  if (!all.length) { skStatus.textContent = 'Nothing drawn to crop to.'; return; }
+  var b = null, pad = 12;
+  all.forEach(function (s) { var q = skStrokeBox(s); b = b ? { x0: Math.min(b.x0, q.x0), y0: Math.min(b.y0, q.y0), x1: Math.max(b.x1, q.x1), y1: Math.max(b.y1, q.y1) } : q; });
+  var x0 = Math.floor(b.x0 - pad), y0 = Math.floor(b.y0 - pad), w = Math.min(4000, Math.ceil(b.x1 + pad) - x0), h = Math.min(4000, Math.ceil(b.y1 + pad) - y0);
+  all.forEach(function (st) {
+    var r = L.sketchXform({ pts: st.pts, d: st.d, width: st.width }, { kind: 'move', dx: -x0, dy: -y0 });
+    st.pts = r.pts; if (st.d) st.d = r.d;
+    if (st.cv) st.cv = skXfCv(st.cv, { kind: 'move', dx: -x0, dy: -y0 });
+    skFillPaths.delete(st); skShapePaths.delete(st);
+  });
+  SK.images.canvas.forEach(function (im) { im.cx -= x0; im.cy -= y0; });
+  SK_VIEW.canvas = { x: 0, y: 0, w: w, h: h };
+  SK.hist.canvas = []; SK.redo.canvas = []; SK.pick = []; SK.zoom = 1;
+  skSave(); skSaveImages(); skLayersUI(); skLinesUI(); skBuild();
+  skStatus.textContent = 'Canvas cropped to ' + w + ' × ' + h + '. This cannot be undone.';
+}
 function skCommand(cmd) {
   if (cmd === 'new') skCanvasPop('new');
   else if (cmd === 'resize') skCanvasPop('resize');
@@ -2679,6 +2738,19 @@ function skCommand(cmd) {
   else if (cmd === 'lmergeall') skLayerMerge(true);
   else if (cmd === 'lsolo') skLayerSolo(true);
   else if (cmd === 'lshow') skLayerSolo(false);
+  else if (cmd === 'openproj') $('skProjFile').click();
+  else if (cmd === 'saveproj') { if (!skEmpty()) skSaveProject(); }
+  else if (cmd === 'cut') { if (skCopyPick()) skDeletePick(); }
+  else if (cmd === 'copyl') skCopyPick();
+  else if (cmd === 'paste') { if (!skPasteLines()) skStatus.textContent = 'Nothing copied yet.'; }
+  else if (cmd === 'dup') skDuplicate();
+  else if (cmd === 'delete') skDeletePick();
+  else if (cmd === 'deselect') { SK.pick = []; skXfRender(); }
+  else if (cmd === 'invert') { skSetTool('select'); SK.pick = SK.strokes[SK.mode].filter(function (s) { return skSelectable(s) && SK.pick.indexOf(s) === -1; }); skXfRender(); }
+  else if (cmd === 'crop') skCrop();
+  else if (cmd === 'fliph') skFlipAll('x');
+  else if (cmd === 'flipv') skFlipAll('y');
+  else if (cmd === 'keys') $('skKeysDlg').showModal();
   else if (cmd === 'undo') skUndo();
   else if (cmd === 'redo') skRedo();
   else if (cmd === 'selectall') { skSetTool('select'); SK.pick = SK.strokes[SK.mode].filter(skSelectable); skXfRender(); }

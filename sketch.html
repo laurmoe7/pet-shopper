@@ -22,6 +22,8 @@
       <div class="skp-menulist" role="menu" hidden>
         <button type="button" role="menuitem" data-cmd="new">New canvas…</button>
         <button type="button" role="menuitem" data-cmd="resize">Resize canvas…</button>
+        <button type="button" role="menuitem" data-cmd="openproj">Open project…</button>
+        <button type="button" role="menuitem" data-cmd="saveproj">Save project</button>
         <button type="button" role="menuitem" data-cmd="addpic">Add picture…<kbd>Ctrl+V</kbd></button>
         <hr>
         <button type="button" role="menuitem" data-cmd="send">Send to Claude…</button>
@@ -42,7 +44,16 @@
         <button type="button" role="menuitem" data-cmd="undo">Undo<kbd>Ctrl+Z</kbd></button>
         <button type="button" role="menuitem" data-cmd="redo">Redo<kbd>Ctrl+Y</kbd></button>
         <hr>
+        <button type="button" role="menuitem" data-cmd="cut">Cut<kbd>Ctrl+X</kbd></button>
+        <button type="button" role="menuitem" data-cmd="copyl">Copy<kbd>Ctrl+C</kbd></button>
+        <button type="button" role="menuitem" data-cmd="paste">Paste<kbd>Ctrl+V</kbd></button>
+        <button type="button" role="menuitem" data-cmd="dup">Duplicate<kbd>Ctrl+D</kbd></button>
+        <button type="button" role="menuitem" data-cmd="delete">Delete<kbd>Del</kbd></button>
+        <hr>
         <button type="button" role="menuitem" data-cmd="selectall">Select all<kbd>Ctrl+A</kbd></button>
+        <button type="button" role="menuitem" data-cmd="deselect">Deselect<kbd>Esc</kbd></button>
+        <button type="button" role="menuitem" data-cmd="invert">Invert selection</button>
+        <hr>
         <button type="button" role="menuitem" data-cmd="clear">Clear drawing</button>
       </div>
     </div>
@@ -59,6 +70,16 @@
       </div>
     </div>
     <div class="skp-menu">
+      <button type="button" class="skp-menubtn" id="skMenuImage" role="menuitem" aria-haspopup="true" aria-expanded="false">Canvas</button>
+      <div class="skp-menulist" role="menu" hidden>
+        <button type="button" role="menuitem" data-cmd="resize">Canvas size…</button>
+        <button type="button" role="menuitem" data-cmd="crop">Crop canvas to drawing</button>
+        <hr>
+        <button type="button" role="menuitem" data-cmd="fliph">Flip drawing left-right</button>
+        <button type="button" role="menuitem" data-cmd="flipv">Flip drawing up-down</button>
+      </div>
+    </div>
+    <div class="skp-menu">
       <button type="button" class="skp-menubtn" id="skMenuLayer" role="menuitem" aria-haspopup="true" aria-expanded="false">Layer</button>
       <div class="skp-menulist" role="menu" hidden>
         <button type="button" role="menuitem" data-cmd="lnew">New layer</button>
@@ -70,6 +91,12 @@
         <hr>
         <button type="button" role="menuitem" data-cmd="lsolo">Hide other layers</button>
         <button type="button" role="menuitem" data-cmd="lshow">Show all layers</button>
+      </div>
+    </div>
+    <div class="skp-menu">
+      <button type="button" class="skp-menubtn" id="skMenuHelp" role="menuitem" aria-haspopup="true" aria-expanded="false">Help</button>
+      <div class="skp-menulist" role="menu" hidden>
+        <button type="button" role="menuitem" data-cmd="keys">Keyboard shortcuts…</button>
       </div>
     </div>
   </nav>
@@ -242,6 +269,7 @@
   </aside>
 </div>
 
+<input type="file" id="skProjFile" accept=".json,application/json" hidden>
 <p class="skp-status" id="skStatus" aria-live="polite"></p>
 <dialog class="skp-dlg" id="skPngDlg" aria-label="Export PNG">
   <div class="skp-dlg-head"><strong>Export PNG</strong><button type="button" class="skp-x" data-close aria-label="Close">✕</button></div>
@@ -249,6 +277,17 @@
   <div class="sk-row"><label>Behind <select id="skPngBg" aria-label="What is behind the drawing"><option value="none" selected>See-through</option><option value="white">White</option><option value="paper">Paper</option></select></label></div>
   <span class="skp-hint">The longest side gets this many pixels. Pictures you added to trace are left out.</span>
   <div class="sk-row"><button type="button" class="skp-btn skp-main" id="skPngSave">Save PNG</button><button type="button" class="skp-btn" id="skPngCopy">Copy PNG</button></div>
+</dialog>
+<dialog class="skp-dlg skp-dlg-wide" id="skKeysDlg" aria-label="Keyboard shortcuts">
+  <div class="skp-dlg-head"><strong>Keyboard shortcuts</strong><button type="button" class="skp-x" data-close aria-label="Close">✕</button></div>
+  <div class="skp-keys">
+    <h3>Tools</h3>
+    <dl><dt>P</dt><dd>Pen</dd><dt>Z</dt><dd>Lazy brush</dd><dt>C</dt><dd>Curve</dd><dt>G</dt><dd>Shapes</dd><dt>F</dt><dd>Filled shape</dd><dt>B</dt><dd>Bucket</dd><dt>E</dt><dd>Eraser (Shift: whole line)</dd><dt>I</dt><dd>Eyedropper</dd><dt>S</dt><dd>Select</dd><dt>L</dt><dd>Lasso</dd><dt>H</dt><dd>Move the canvas</dd><dt>M</dt><dd>Move picture</dd><dt>X</dt><dd>Mirror</dd><dt>R</dt><dd>Spin</dd><dt>K</dt><dd>Clip to the pet’s body</dd></dl>
+    <h3>Drawing</h3>
+    <dl><dt>[ and ]</dt><dd>Thinner, thicker pen</dd><dt>Space + drag</dt><dd>Move the canvas</dd><dt>Wheel</dt><dd>Zoom</dd><dt>Shift</dt><dd>Even shapes, add to a selection</dd><dt>Enter</dt><dd>Finish a curve</dd><dt>Esc</dt><dd>Cancel, or let go</dd></dl>
+    <h3>Edit</h3>
+    <dl><dt>Ctrl+Z / Ctrl+Y</dt><dd>Undo, redo</dd><dt>Ctrl+A</dt><dd>Select all</dd><dt>Ctrl+C / X / V</dt><dd>Copy, cut, paste</dd><dt>Ctrl+D</dt><dd>Duplicate</dd><dt>Delete</dt><dd>Remove picked lines</dd><dt>Alt+click</dt><dd>Take away, in Pick object</dd></dl>
+  </div>
 </dialog>
 <dialog class="skp-dlg skp-dlg-wide" id="skSendDlg" aria-label="Send to Claude">
   <div class="skp-dlg-head"><strong>Send to Claude</strong><button type="button" class="skp-x" data-close aria-label="Close">✕</button></div>
