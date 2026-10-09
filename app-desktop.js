@@ -466,7 +466,8 @@
       function go(dx, tries) {
         if (Math.abs(dx) < 4) return Promise.resolve();
         lookToward(dx);
-        return D.walk(dx, Math.min(3500, 600 + Math.abs(dx) * 2)).then(function () {}, function () {}).then(function () {
+        return D.walk(dx, Math.min(3500, 600 + Math.abs(dx) * 2), true).then(function () {}, function () {}).then(function () {
+          // (true: exactly back, even to a spot half off the side of the screen)
           // look again where he ended up, and go the rest of the way (once) if he fell short
           if (tries > 0 && home !== null && D.where) return D.where().then(function (x) { return x === null ? 0 : go(home - x, tries - 1); });
         });

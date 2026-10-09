@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 448
+- After a ball chase Fumu runs back to the exact spot he started from.
+
 ## Build 447
 - The nap now plays from the animation player.
 
