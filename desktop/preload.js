@@ -47,8 +47,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   toyFollow: (on) => ipcRenderer.send('desk:toyFollow', !!on),
   /** The wrecking ball is thrown: the shell opens its overlay over the open windows and answers with their rectangles (screen pixels), or why not. */
   wreckStart: () => ipcRenderer.invoke('desk:wreckStart'),
-  /** Window number i (from wreckStart) was hit by the ball at x, y (screen pixels). */
-  wreckHit: (i, x, y) => ipcRenderer.send('desk:wreckHit', +i, +x, +y),
+  /** A piece (number k of window i's grid, from wreckStart) was hit by the ball at x, y (screen pixels). */
+  wreckHit: (i, k, x, y) => ipcRenderer.send('desk:wreckHit', +i, +k, +x, +y),
   /** The windows are made whole again (resolves when the overlay is gone). */
   wreckFix: () => ipcRenderer.invoke('desk:wreckFix'),
   /** Stop at once and clear the overlay. */

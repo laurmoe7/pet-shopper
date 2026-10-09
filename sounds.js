@@ -2,7 +2,7 @@
  * Sounds.play(kind) where kind is one of:
  *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party,
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
- *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), bell, tink and smash (the night bell ringing, clinking and breaking), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
+ *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), bell, tink and smash (the night bell ringing, clinking and breaking), glass (a piece of window breaking off, the wrecking ball), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
  *   notice (Claude's note arriving), done, sparkle, coin, ring (ticking off a to-do), stamp (the check mark landing), scribble (writing on the clipboard), shutter (the dressing room's camera),
  *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
@@ -268,6 +268,12 @@
       // the bell cracks and tinkles into pieces
       noise(t, 0.12, 'highpass', 1800, 0.8, env(t, 0.003, 0.11, 0.5));
       chime(t + 0.05, [2637, 3136, 2349, 1976, 1568], 0.045, 0.5, 'triangle');
+    },
+    glass: function (t) {
+      // a pane cracks and a piece of glass breaks off: a sharp snap and a few high tinkles
+      noise(t, 0.06, 'highpass', 3500, 0.9, env(t, 0.001, 0.05, 0.75));
+      noise(t + 0.02, 0.2, 'bandpass', 6200, 1.2, env(t + 0.02, 0.004, 0.17, 0.35));
+      chime(t + 0.035, [4186, 3520, 5274, 3136, 4699, 3951].sort(function () { return Math.random() - 0.5; }), 0.032, 0.3, 'triangle');
     },
     lullaby: function (t) {
       // a soft little lullaby, two phrases (resting the pointer on him while he sleeps)

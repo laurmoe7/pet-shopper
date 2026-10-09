@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 477
+- The wrecking ball breaks windows piece by piece: each piece it touches breaks off with a glass noise (needs the new installer).
+
 ## Build 476
 - New toy: the wrecking ball. Pick it with the toy switch in the ring menu (it replaced Pat).
 - Throw it and it breaks your open windows for 10 seconds while Fumu chases it, then his wand fixes them (needs the new installer).

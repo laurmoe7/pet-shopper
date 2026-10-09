@@ -45,10 +45,14 @@ function wreckFling(vx, vy, y0) {
   eyesDo('wide');
   pet.classList.add('running');
   var lim = toyLimits(), x = toyX, y = y0, spin = 0, start = performance.now(), last = start;
-  var wins = [], chaseAt = 0, followAt = 0, jumpAt = start + 500, talkAt = start + 900, steerFrom = start + 350, kickAt = start;
+  var wins = [], chaseAt = 0, followAt = 0, jumpAt = start + 500, talkAt = start + 900, steerFrom = start + 350, glassAt = 0, shockAt = 0;
   var ended = false;
   D.wreckStart().then(function (r) {
-    if (r && r.ok) wins = r.rects.map(function (q) { return { x1: q.x, y1: q.y, x2: q.x + q.w, y2: q.y + q.h, hit: false }; });
+    if (r && r.ok) r.rects.forEach(function (q, wi) {   // (each window is a grid of pieces, the same grid the overlay draws: it breaks one piece at a time)
+      for (var row = 0; row < q.rows; row++) for (var col = 0; col < q.cols; col++) {
+        wins.push({ w: wi, k: row * q.cols + col, x1: q.x + q.w * col / q.cols, y1: q.y + q.h * row / q.rows, x2: q.x + q.w * (col + 1) / q.cols, y2: q.y + q.h * (row + 1) / q.rows, hit: false });
+      }
+    });
     else if (r && r.reason === 'privacy') say(pick(['I can\'t see your windows… (privacy)', 'my eyes are closed to windows…']), 2200, true);
   }, function () { /* no overlay: the ball still flies */ });
   vx *= 1.4; vy = Math.max(vy, 400) * 1.4;
@@ -81,19 +85,25 @@ function wreckFling(vx, vy, y0) {
     if (y < 0) { y = 0; vy = Math.max(Math.abs(vy) * 0.9, 650 + Math.random() * 450); vx += (Math.random() - 0.5) * 500; sound('bounce'); }   // (it never settles: it bounces back up at once)
     spin += vx * dt * 2.2;
     placeToy(x, y, spin);
-    // a window it touches breaks
+    // every piece of a window that it touches breaks off, with a crash of glass
+    var broke = 0;
     for (var i = 0; i < wins.length; i++) {
       var w = wins[i];
-      if (w.hit || f.ax < w.x1 - 8 || f.ax > w.x2 + 8 || f.ay < w.y1 - 8 || f.ay > w.y2 + 8) continue;
-      w.hit = true;
-      D.wreckHit(i, f.ax, f.ay);
-      sound('smash');
-      vx = -vx * 0.5 + (Math.random() - 0.5) * 700; vy = 500 + Math.random() * 500;
-      steerFrom = now + 450;
-      pulse('hopsmall', 450);
-      setFace({ eyes: 'open', mouth: 'o', arms: 'reach', x: ['sweat', 'shock'] });
-      say(pick(['NOT THE WINDOW!', 'oh no, it broke!', 'stop! stop!', 'my windows!!']), 1100, true);
-      talkAt = now + 1700;
+      if (w.hit || f.ax < w.x1 - 4 || f.ax > w.x2 + 4 || f.ay < w.y1 - 4 || f.ay > w.y2 + 4) continue;
+      w.hit = true; broke++;
+      D.wreckHit(w.w, w.k, f.ax, f.ay);
+    }
+    if (broke) {
+      if (now - glassAt > 70) { glassAt = now; sound('glass'); }
+      vx = vx * 0.9 + (Math.random() - 0.5) * 500; vy = vy * 0.9 + (Math.random() - 0.3) * 500;   // (a little knocked off course: it goes on to the next piece)
+      steerFrom = now + 120;
+      if (now - shockAt > 900) {
+        shockAt = now;
+        pulse('hopsmall', 450);
+        setFace({ eyes: 'open', mouth: 'o', arms: 'reach', x: ['sweat', 'shock'] });
+        say(pick(['NOT THE WINDOW!', 'oh no, it broke!', 'stop! stop!', 'my windows!!']), 1100, true);
+        talkAt = now + 1700;
+      }
     }
     // he runs after it all over the screen and jumps for it now and then
     if (now > chaseAt) { chaseAt = now + 110; walkTo(x + vx * 0.3, toyPace(5)); }

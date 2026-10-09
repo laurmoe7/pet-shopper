@@ -40,14 +40,15 @@ test('the overlay covers his screen, takes no clicks, clips and limits the windo
   const r = await w.start();
   assert.equal(r.ok, true);
   assert.equal(r.rects.length, MAX_WINDOWS);
-  assert.deepEqual(r.rects[0], { x: 0, y: 50, w: 700, h: 600 });   // clipped to the screen; the 50 px window is left out
+  assert.deepEqual(r.rects[0], { x: 0, y: 50, w: 700, h: 600, cols: 5, rows: 4 });   // clipped to the screen; the 50 px window is left out
   const ov = log.windows[0];
   assert.equal(ov.ignore, true);
   assert.equal(ov.opts.focusable, false);
   assert.equal(ov.opts.transparent, true);
-  w.hit(0, 300, 200);
-  w.hit(99, 1, 1);   // (no such window: ignored)
-  assert.ok(log.code.some((c) => c.startsWith('wreck.hit(0,300,200)')));
+  w.hit(0, 7, 300, 200);
+  w.hit(99, 0, 1, 1);   // (no such window: ignored)
+  w.hit(0, 20, 1, 1);   // (the grid has 20 pieces, 0 to 19: no such piece)
+  assert.ok(log.code.some((c) => c.startsWith('wreck.hit(0,7,300,200)')));
   assert.equal(log.code.filter((c) => c.startsWith('wreck.hit(')).length, 1);
   await w.fix();
   assert.equal(ov.destroyed, true);

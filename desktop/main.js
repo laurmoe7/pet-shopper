@@ -788,7 +788,7 @@ function start() {
     raise: () => { if (win) win.moveTop(); if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) toyWin.moveTop(); }
   });
   ipcMain.handle('desk:wreckStart', async () => { if (!win || mode !== 'pet') return { ok: false, reason: 'mode' }; try { return await wreck.start(); } catch (e) { wreck.stop(); return { ok: false, reason: 'error' }; } });
-  ipcMain.on('desk:wreckHit', (_e, i, x, y) => { try { wreck.hit(+i, +x, +y); } catch (e) { /* the overlay is gone */ } });
+  ipcMain.on('desk:wreckHit', (_e, i, k, x, y) => { try { wreck.hit(+i, +k, +x, +y); } catch (e) { /* the overlay is gone */ } });
   ipcMain.handle('desk:wreckFix', async () => { try { await wreck.fix(); } catch (e) { wreck.stop(); } });
   ipcMain.on('desk:wreckAbort', () => wreck.stop());
   app.on('before-quit', () => { wreck.stop(); if (toyWin && !toyWin.isDestroyed()) toyWin.destroy(); });
