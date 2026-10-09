@@ -1211,8 +1211,10 @@
   // ---------- sitting on other windows (a switch in the tray menu; Windows only) ----------
   // The shell finds the edges and moves the window; here he hops, looks pleased and gets down when it is bedtime.
   // on a window he sits: soles out in front (the .seated look in styles.css; walking along the edge stands him up for a moment)
+  var leftPerchAt = 0;   // when he last came off a window edge: a fall that begins right after is a knock-off, and he is dizzy from the first moment (even with an older shell that does not say so)
   if (D.onPerched) D.onPerched(function (yes) {
     perched = yes;
+    if (!yes) leftPerchAt = Date.now();
     pet.classList.toggle('seated', yes);
     if (yes && !busy) { pulse('hopsmall', 450); drift(['♪'], petTop(), 1); }
     // he held his toy for the hop up: sitting, it lies next to him
@@ -1247,7 +1249,7 @@
   var fallDizzy = false;   // knocked off a window: dizzy eyes from the moment he drops, and they are not wiped when he lands
   if (D.onFall) D.onFall(function (on, dizzy) {
     pet.classList.toggle('falling', on);
-    if (on) { fallDizzy = !!dizzy; setFace(dizzy ? { eyes: 'dizzy', mouth: 'o', arms: 'idle', x: ['sweat'] } : { eyes: 'sparkle', mouth: 'o', arms: 'idle', x: [] }); }
+    if (on) { dizzy = dizzy || Date.now() - leftPerchAt < 700; fallDizzy = !!dizzy; setFace(dizzy ? { eyes: 'dizzy', mouth: 'o', arms: 'idle', x: ['sweat'] } : { eyes: 'sparkle', mouth: 'o', arms: 'idle', x: [] }); }
     else { if (!busy && !fallDizzy) settle(); fallDizzy = false; }
   });
   var runOwn = false;

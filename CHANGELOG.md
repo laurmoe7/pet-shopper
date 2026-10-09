@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 493
+- Dizzy eyes stay through the whole fall off a window, also with an older installer
+
 ## Build 492
 - Broken marks come in several looks (web, bullet hole, long crack, mosaic, dent, chip); in the app they sit on the things that break and fall with the pieces
 - The wand makes a magic sound when it fixes the wreckage
