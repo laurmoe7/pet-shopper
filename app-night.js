@@ -159,8 +159,8 @@ stage.appendChild(bell);
 var bellField = null, bellFieldTok = 0;   // while a thrown bell flies over the whole screen (app-desktop.js deskFlyField)
 var BELL_W = 36, BELL_H = 48, BELL_GRIP = 9;   // the pointer holds the handle, about 9 px down from the top
 var bellX = 100, bellY = 20, bellTilt = 18, bellHeld = null, bellFlight = 0, bellRings = 0, bellRingTimer = 0;
-/** @returns {boolean} Whether the bell is out: in the small desktop window, at night, only while his bed is out (awake with no bed there is no bell: he has his toy). */
-function bellOut() { return document.documentElement.classList.contains('desktop-pet') && L.isNight(petNow()) && !bellBroken && stage.classList.contains('bedtime'); }
+/** @returns {boolean} Whether the bell is out: at night, only while his bed is out (awake with no bed there is no bell: he has his toy). In the small desktop window and in the app. */
+function bellOut() { return L.isNight(petNow()) && !bellBroken && stage.classList.contains('bedtime'); }
 /** Where it rests: tucked into his bed beside him (when the bed is out), otherwise on the floor. */
 function bellRest() { var side = roomOnRight(120) ? 1 : -1; return stage.classList.contains('bedtime') ? { x: 100 * side, y: 20, tilt: 18 * side } : { x: -128, y: 0, tilt: 0 }; }
 function placeBell(turn, clap) {
@@ -385,7 +385,7 @@ bell.addEventListener('pointercancel', bellLetGo);
 bell.addEventListener('lostpointercapture', bellLetGo);
 window.addEventListener('blur', bellLetGo);
 
-// the small window moved to the edge of the screen: a bell resting on the side that is off the screen comes over to the other side
+// (in the small window:) the small window moved to the edge of the screen: a bell resting on the side that is off the screen comes over to the other side
 setInterval(function () {
   if (bell.hidden || bellHeld || !bell.classList.contains('nested') || !stage.classList.contains('bedtime')) return;
   if (Math.abs(bellX - bellRest().x) > 2) bellNest();

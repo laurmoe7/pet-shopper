@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 490
+- The night bell is in the app too: shake it to wake him, throw it and it breaks
+
 ## Build 489
 - Knocked off a window: dizzy eyes from the first moment of the fall
 
