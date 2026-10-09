@@ -622,6 +622,12 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 - Sketchpad: Trace keeps more colours (up to 24).
 - Sketchpad: Trace no longer leaves white patches.
 - Sketchpad: Outline has colour, thickness and position, so it can be an inline.
+- Sketchpad: Cut out subject uses an AI model.
+- Sketchpad: Picked-lines buttons float by the selection, grouped and labelled.
+- Sketchpad: Outline and Repeat settings open as small pop-ups.
+- Sketchpad: Pictures box folds away.
+- Sketchpad: Pen and eraser show a size ring.
+- Sketchpad: Undo takes away the empty Trace layer.
 - Sketchpad: icon has both ear insides and rounded corners, Clip lines meet the edge.
 - Sketchpad: game outline, pen pressure, pattern fills, clip to body, spin copies, make a curve.
 - Sketchpad: pig icon ears sit behind the head.

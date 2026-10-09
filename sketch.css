@@ -400,3 +400,27 @@ html:root body.skp .cs-pop::after { background: linear-gradient(transparent, var
 .sk-outline label { display: inline-flex; align-items: center; gap: 4px; }
 .sk-outline input[type="range"] { width: 72px; }
 .sk-outline input[type="color"] { width: 30px; height: 24px; padding: 0; border: 1.5px solid var(--line); border-radius: 8px; background: none; }
+
+/* the bar by the picked lines */
+.skp-canvas { position: relative; }
+.skp-pickbar { position: absolute; z-index: 6; max-width: min(460px, calc(100% - 16px)); padding: 6px 8px 8px; border: 2px solid var(--sk-edge, #6b4a66); border-radius: 16px; background: var(--sk-panel, #2b1f2e); box-shadow: 0 6px 18px rgba(0, 0, 0, .45); }
+.skp-pickbar[hidden], .skp-pop[hidden], .skp-ring[hidden] { display: none; }
+.skp-pickbar .sk-seltools { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 0; }
+.skp-pickbar .pg { display: grid; gap: 2px; }
+.skp-pickbar .gl { font-size: .62rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted, #c9a3b8); }
+.skp-pickbar .gb { display: flex; gap: 3px; }
+.skp-pickbar .gb button { width: 32px; height: 30px; padding: 0; }
+.skp-pickbar #skPaint.on { background: var(--accent); color: #fff; }
+.skp-pop { position: absolute; top: calc(100% + 6px); left: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; width: max-content; max-width: 100%; padding: 8px 10px; border: 2px solid var(--sk-edge, #6b4a66); border-radius: 14px; background: var(--sk-panel, #2b1f2e); box-shadow: 0 6px 18px rgba(0, 0, 0, .45); font-size: .78rem; color: var(--muted, #c9a3b8); }
+.skp-pop label { display: inline-flex; align-items: center; gap: 4px; }
+.skp-pop input[type="range"] { width: 72px; }
+.skp-pop input[type="number"] { width: 52px; padding: 3px 5px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font: inherit; }
+.skp-pop input[type="color"] { width: 30px; height: 24px; padding: 0; border: 1.5px solid var(--line); border-radius: 8px; background: none; }
+/* the pen and eraser size ring */
+.skp-ring { position: absolute; z-index: 5; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, .55); pointer-events: none; }
+.skp-pics > summary { cursor: pointer; list-style: none; }
+.skp-pics > summary::-webkit-details-marker { display: none; }
+.skp-pics > summary h2::after { content: " ▾"; font-size: .8em; color: var(--muted); }
+.skp-pics[open] > summary h2::after { content: " ▴"; }
+.skp-pics[open] > summary { margin-bottom: 8px; }
+@media (prefers-reduced-motion: reduce) { 

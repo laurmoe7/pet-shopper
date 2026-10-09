@@ -699,6 +699,23 @@ function skCancel() {
   skDrawing = false; skPan = null;
   skStage.classList.remove('panning');
 }
+var skAutoLayers = {};   // layers made by a tool (Trace), by id: Undo takes the empty ones away again and Redo brings them back
+/** After Undo or Redo: drops tool-made layers nothing is on any more, and restores ones the lines are on again. */
+function skFixAutoLayers() {
+  var lays = SK.layers[SK.mode], used = {};
+  SK.strokes[SK.mode].forEach(function (s) { used[s.lay] = true; });
+  Object.keys(skAutoLayers).forEach(function (id) {
+    var at = lays.findIndex(function (l) { return l.id === id; });
+    if (used[id] && at === -1) lays.push(skAutoLayers[id]);
+    else if (!used[id] && at !== -1 && lays.length > 1) {
+      lays.splice(at, 1);
+      if (SK.active[SK.mode] === id) SK.active[SK.mode] = lays[lays.length - 1].id;
+      SK.layerSet[SK.mode] = SK.layerSet[SK.mode].filter(function (x) { return x !== id; });
+      if (!SK.layerSet[SK.mode].length) SK.layerSet[SK.mode] = [SK.active[SK.mode]];
+    }
+  });
+  skLinesUI(); skMarkActive();
+}
 function skUndo() {
   if (skCurve) { skCurve.pts.pop(); if (!skCurve.pts.length) skCurve = null; skCurveRender(skLastPt); skFlash('skUndo'); return; }
   SK.pick = []; skXfRender();
@@ -707,6 +724,7 @@ function skUndo() {
   skFlash('skUndo');
   SK.redo[SK.mode].push(JSON.stringify(SK.strokes[SK.mode]));
   SK.strokes[SK.mode] = JSON.parse(h.pop());
+  skFixAutoLayers();
   skRedraw();
   skHistoryUI();
   skStatus.textContent = 'Undone.';
@@ -719,6 +737,7 @@ function skRedo() {
   skFlash('skRedo');
   SK.hist[SK.mode].push(JSON.stringify(SK.strokes[SK.mode]));
   SK.strokes[SK.mode] = JSON.parse(r.pop());
+  skFixAutoLayers();
   skRedraw();
   skHistoryUI();
   skStatus.textContent = 'Redone.';
@@ -995,6 +1014,7 @@ function skStrokeAt(pt) {
 /** Draws the box, the four corner handles and the round turning handle round whatever is picked. */
 function skXfRender() {
   skSelButtons();
+  skPickBarPlace();
   if (!skXf) return;
   skXf.replaceChildren();
   var box = skPickBox();
@@ -1376,8 +1396,10 @@ function skRepeat() {
   skRedraw(); skXfRender(); skSave();
   skStatus.textContent = n + ' copies along the line. Undo brings the single shape back.';
 }
-$('skRepeat').addEventListener('click', skRepeat);
-$('skOutline').addEventListener('click', skOutline);
+$('skRepeat').addEventListener('click', function () { skPop('skRepPop'); });
+$('skRepGo').addEventListener('click', function () { skRepeat(); skPop(null); });
+$('skOutline').addEventListener('click', function () { skPop('skOlPop'); });
+$('skOlGo').addEventListener('click', function () { skOutline(); skPop(null); });
 $('skToCurve').addEventListener('click', skToCurve);
 $('skSmooth').addEventListener('click', skSmooth);
 $('skJoin').addEventListener('click', skJoin);
@@ -1428,6 +1450,43 @@ function skCombine(op) {
 $('skUnion').addEventListener('click', function () { skCombine('union'); });
 $('skSubtract').addEventListener('click', function () { skCombine('subtract'); });
 $('skIntersect').addEventListener('click', function () { skCombine('intersect'); });
+
+// ---------- the bar that floats by the picked lines, messages and the size ring ----------
+/** Opens one of the settings pop-ups under the bar (or shuts them all when given null; the same one again closes it). */
+function skPop(id) {
+  ['skOlPop', 'skRepPop'].forEach(function (x) { $(x).hidden = x !== id || !$(x).hidden; });
+}
+/** Puts the bar of buttons for the picked lines just above them (below if there is no room), or hides it when nothing is picked. */
+function skPickBarPlace() {
+  var bar = $('skPickBar'), box = skPickBox(), main = bar.parentElement;
+  if (!box || !skIsSel() || !skDraw || (skDrawing && skDrawing.xf)) { bar.hidden = true; skPop(null); return; }
+  var v = SK_VIEW[SK.mode], dr = skDraw.getBoundingClientRect(), mr = main.getBoundingClientRect(), k = dr.width / v.w;
+  bar.hidden = false;
+  var bw = bar.offsetWidth, bh = bar.offsetHeight, left = dr.left - mr.left + (box.x0 - v.x) * k, right = dr.left - mr.left + (box.x1 - v.x) * k;
+  var top = dr.top - mr.top + (box.y0 - v.y) * k, bottom = dr.top - mr.top + (box.y1 - v.y) * k;
+  var x = Math.max(8, Math.min(mr.width - bw - 8, (left + right) / 2 - bw / 2)), y = top - bh - 46;   // clear of the round turning handle
+  if (y < 8) y = bottom + 12;
+  y = Math.max(8, Math.min(mr.height - bh - 8, y));
+  bar.style.left = Math.round(x) + 'px'; bar.style.top = Math.round(y) + 'px';
+}
+new ResizeObserver(function () { skPickBarPlace(); }).observe($('skStage'));
+skView.addEventListener('scroll', skPickBarPlace);
+/** A ring the size of the pen or eraser follows the pointer over the drawing. */
+function skRingMove(e) {
+  var ring = $('skRing');
+  if (!skDraw || (SK.tool !== 'pen' && SK.tool !== 'blob' && SK.tool !== 'erase') || SK.tool === 'hand' || SK.space) { ring.hidden = true; return; }
+  var v = SK_VIEW[SK.mode], dr = skDraw.getBoundingClientRect(), mr = ring.parentElement.getBoundingClientRect(), k = dr.width / v.w, pen = v.w * SK_PEN * SK.pen;
+  var d = (SK.tool === 'erase' ? 2 * Math.max(v.w * 0.012, pen / 2) : pen) * k;
+  if (e.clientX < dr.left || e.clientX > dr.right || e.clientY < dr.top || e.clientY > dr.bottom) { ring.hidden = true; return; }
+  d = Math.max(6, d);
+  ring.hidden = false;
+  ring.style.width = ring.style.height = d + 'px';
+  ring.style.left = (e.clientX - mr.left - d / 2) + 'px'; ring.style.top = (e.clientY - mr.top - d / 2) + 'px';
+}
+skView.addEventListener('pointermove', skRingMove);
+skView.addEventListener('pointerleave', function () { $('skRing').hidden = true; });
+// the Pictures box opens by itself the first time a picture is added; its Add button should not also fold it
+$('skPics').querySelector('summary').addEventListener('click', function (e) { if (e.target.closest('button')) e.preventDefault(); });
 
 // ---------- tracing a picture ----------
 /** @returns {number} How far a point is from the segment a-b. */
@@ -1509,6 +1568,7 @@ async function skTrace() {
     });
     if (!made.length) { skStatus.textContent = mode === 'lines' ? 'No ink found. Slide the ink level towards “more”, or try Colours.' : 'Nothing to trace in that picture.'; return; }
     var lays = skLays(), x = { id: 'l' + Date.now().toString(36), name: 'Trace', show: true };
+    skAutoLayers[x.id] = x;
     lays.push(x); SK.active[SK.mode] = x.id; SK.layerSet[SK.mode] = [x.id];
     made.forEach(function (s) { s.lay = x.id; skNew(s); });
     skPushHistory();
@@ -1530,26 +1590,82 @@ skTraceUI();
 
 // ---------- cutting out a picture's background ----------
 var skCutOrig = {};   // the picture as it was before the cut, by layer id (kept until the page is closed)
+/** Puts the cut-out picture (a canvas with see-through parts) in place of the selected picture layer, keeping its size on the page. */
+function skCutApply(im, cv, note) {
+  if (!skCutOrig[im.id]) skCutOrig[im.id] = { src: im.src, bw: im.bw, bh: im.bh, scale: im.scale };
+  var shown = im.bw * im.scale;
+  im.src = cv.toDataURL('image/png'); im.bw = cv.width; im.bh = cv.height; im.scale = shown / cv.width;
+  skRenderImages(); skLayersUI(); skSaveImages();
+  $('skCutUndo').disabled = false;
+  skStatus.textContent = note;
+}
+/** @returns {Promise<{cv: HTMLCanvasElement, g: CanvasRenderingContext2D, w: number, h: number}>} The picture drawn on a canvas (at most 1600 pixels across). */
+async function skCutCanvas(im) {
+  var img = await skLoadImg(im.src), k = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight)), w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
+  var cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  var g = cv.getContext('2d', { willReadFrequently: true });
+  g.drawImage(img, 0, 0, w, h);
+  return { cv: cv, g: g, w: w, h: h };
+}
 /** Makes the plain background of the selected picture see-through (it spreads in from the edges over colours like the corners). */
 async function skCut() {
   var im = skSelected();
   if (!im) { skStatus.textContent = 'Add a picture first (Images, below).'; return; }
   try {
-    var img = await skLoadImg(im.src), k = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight)), w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
-    var cv = document.createElement('canvas');
-    cv.width = w; cv.height = h;
-    var g = cv.getContext('2d', { willReadFrequently: true });
-    g.drawImage(img, 0, 0, w, h);
-    var data = g.getImageData(0, 0, w, h), n = L.cutBackground(data.data, w, h, +$('skCutTol').value);
-    if (n < w * h * 0.002) { skStatus.textContent = 'No plain background found at the edges. Try a higher strength.'; return; }
-    g.putImageData(data, 0, 0);
-    if (!skCutOrig[im.id]) skCutOrig[im.id] = { src: im.src, bw: im.bw, bh: im.bh, scale: im.scale };
-    var shown = im.bw * im.scale;
-    im.src = cv.toDataURL('image/png'); im.bw = w; im.bh = h; im.scale = shown / w;
-    skRenderImages(); skLayersUI(); skSaveImages();
-    $('skCutUndo').disabled = false;
-    skStatus.textContent = 'Background cut out (' + Math.round(n / (w * h) * 100) + '% of the picture). Not right? Change the strength and press again, or Undo cut.';
+    var c = await skCutCanvas(im), data = c.g.getImageData(0, 0, c.w, c.h), n = L.cutBackground(data.data, c.w, c.h, +$('skCutTol').value);
+    if (n < c.w * c.h * 0.002) { skStatus.textContent = 'No plain background found at the edges. Try a higher strength, or use Cut out subject.'; return; }
+    c.g.putImageData(data, 0, 0);
+    skCutApply(im, c.cv, 'Plain background cut out (' + Math.round(n / (c.w * c.h) * 100) + '% of the picture). Not right? Change the strength and press again, or Undo cut.');
   } catch (err) { skStatus.textContent = 'Could not cut out that picture.'; }
+}
+var skAi = null;   // the cut-out model, loaded the first time it is needed and kept while the page is open
+/** Loads the AI cut-out model (RMBG-1.4 through transformers.js, from public CDNs; the browser keeps the download). */
+function skAiLoad() {
+  if (skAi) return skAi;
+  skAi = (async function () {
+    var T = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2');
+    T.env.allowLocalModels = false;
+    var shown = 0;
+    function progress(p) {
+      if (p.status === 'progress' && p.total > 5e6 && p.progress - shown >= 2) { shown = p.progress; skStatus.textContent = 'Downloading the cut-out model, first time only: ' + Math.round(p.progress) + '%'; }
+    }
+    var opts = { config: { model_type: 'custom' }, progress_callback: progress };
+    var model;
+    try { model = await T.AutoModel.from_pretrained('briaai/RMBG-1.4', Object.assign({ dtype: 'q8' }, opts)); }
+    catch (e) { model = await T.AutoModel.from_pretrained('briaai/RMBG-1.4', opts); }
+    var processor = await T.AutoProcessor.from_pretrained('briaai/RMBG-1.4', {
+      config: { do_normalize: true, do_pad: false, do_rescale: true, do_resize: true, image_mean: [0.5, 0.5, 0.5], feature_extractor_type: 'ImageFeatureExtractor', image_std: [1, 1, 1], resample: 2, rescale_factor: 0.00392156862745098, size: { width: 1024, height: 1024 } }
+    });
+    return { T: T, model: model, processor: processor };
+  })();
+  skAi.catch(function () { skAi = null; });   // a failed load can be tried again
+  return skAi;
+}
+/** Cuts the subject out of the selected picture with the AI model, the way photo apps do. */
+async function skCutAi() {
+  var im = skSelected();
+  if (!im) { skStatus.textContent = 'Add a picture first (Images, below).'; return; }
+  var btns = [$('skCutAi'), $('skCut')];
+  btns.forEach(function (b) { b.disabled = true; });
+  try {
+    skStatus.textContent = skAi ? 'Cutting out…' : 'Loading the cut-out model…';
+    var ai = await skAiLoad(), c = await skCutCanvas(im);
+    skStatus.textContent = 'Cutting out…';
+    var image = await ai.T.RawImage.fromCanvas(c.cv);
+    var out = await ai.model({ input: (await ai.processor(image)).pixel_values });
+    var mask = await ai.T.RawImage.fromTensor(out.output[0].mul(255).to('uint8')).resize(c.w, c.h);
+    var data = c.g.getImageData(0, 0, c.w, c.h), i, gone = 0;
+    for (i = 0; i < c.w * c.h; i++) {
+      var m = mask.data[i];
+      data.data[i * 4 + 3] = Math.round(data.data[i * 4 + 3] * m / 255);
+      if (m < 128) gone++;
+    }
+    c.g.putImageData(data, 0, 0);
+    skCutApply(im, c.cv, 'Subject cut out (' + Math.round(gone / (c.w * c.h) * 100) + '% removed). Not right? Undo cut.');
+  } catch (err) {
+    skStatus.textContent = 'The cut-out model could not run (' + String(err && err.message || err).slice(0, 80) + '). It needs an internet connection the first time. “Plain background” still works offline.';
+  } finally { btns.forEach(function (b) { b.disabled = false; }); }
 }
 function skCutUndo() {
   var im = skSelected(), o = im && skCutOrig[im.id];
@@ -1560,6 +1676,7 @@ function skCutUndo() {
   skStatus.textContent = 'Background back.';
 }
 $('skCut').addEventListener('click', skCut);
+$('skCutAi').addEventListener('click', skCutAi);
 $('skCutUndo').addEventListener('click', skCutUndo);
 
 // ---------- the pet's own colours ----------
@@ -1931,9 +2048,12 @@ function skRenderImages() {
     skSelBox.appendChild(r);
   }
 }
+var skPicsHad = false;
 /** Rebuilds the list of layers in the panel. */
 function skLayersUI() {
   var box = $('skLayers'), list = SK.images[SK.mode];
+  if (list.length && !skPicsHad) $('skPics').open = true;
+  skPicsHad = list.length > 0;
   box.replaceChildren.apply(box, list.length ? list.slice().reverse().map(function (im) {
     var row = document.createElement('div');
     row.className = 'skp-layer'; row.dataset.id = im.id; row.setAttribute('aria-selected', String(im.id === SK.sel));
