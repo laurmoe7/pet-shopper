@@ -55,6 +55,48 @@ function applyStolen() {
 new MutationObserver(applyStolen).observe($('todo'), { childList: true });
 
 /**
+ * The walk to the emoji: a copy of him (the real one is hidden meanwhile) walks over the page, one paw out, takes the emoji and runs back.
+ * @param {HTMLElement} li The row. @param {string} src The emoji's picture. @param {{x: number, y: number, size: number}} from Where the emoji is.
+ * @returns {Promise<?{x: number, y: number, size: number}>} Where his paw is back at home (the emoji is still in it), or null if it could not be done.
+ */
+function stealTrip(li, src, from) {
+  return new Promise(function (resolve) {
+    var sr = stage.getBoundingClientRect(), gs = document.createElement('div'), gp = pet.cloneNode(true);
+    if (sr.width < 20 || !gp.querySelector) { resolve(null); return; }
+    gs.className = stage.className + ' steal-ghost';
+    gs.style.cssText = stage.style.cssText + ';position:fixed;left:' + sr.left + 'px;top:' + sr.top + 'px;width:' + sr.width + 'px;height:' + sr.height + 'px;margin:0;overflow:visible;background:none;border:0;box-shadow:none;pointer-events:none;z-index:9500;transform:none;';
+    var side = from.x < window.innerWidth / 2 ? 'l' : 'r';   // (the paw on the side that leaves his body on the roomier side)
+    gp.classList.add('walking', 'steal-' + side); gp.dataset.arms = 'steal'; gp.dataset.eyes = 'squint'; gp.dataset.mouth = 'smile';
+    gs.appendChild(gp);
+    document.body.appendChild(gs);
+    var arm = [].slice.call(gp.querySelectorAll(side === 'r' ? '.arm-r' : '.arm-l')).filter(function (a) { return a.getBoundingClientRect().width > 0; })[0];
+    if (!arm) { gs.remove(); resolve(null); return; }
+    var ar = arm.getBoundingClientRect(), paw = { x: side === 'r' ? ar.right - ar.width * .2 : ar.left + ar.width * .2, y: ar.bottom - ar.height * .1, size: Math.max(24, from.size) };
+    var tx = from.x - paw.x, ty = from.y - paw.y, dist = Math.hypot(tx, ty), ms = Math.max(800, Math.min(1700, dist * 3.6));
+    pet.style.visibility = 'hidden';
+    gp.style.setProperty('--look-x', (tx > 0 ? 3.2 : -3.2) + 'px');
+    function at(x, y) { return 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px)'; }
+    var walk = gs.animate([{ transform: at(0, 0) }, { transform: at(tx, ty) }], { duration: ms, easing: 'ease-in-out', fill: 'forwards' });
+    walk.onfinish = function () {
+      gp.classList.remove('walking');
+      // the paw closes on it: the emoji leaves the row and sits in his paw
+      li.classList.add('stolen');
+      sound('squeak');
+      var e = document.createElement('img'), es = paw.size;
+      e.src = src; e.alt = '';
+      e.style.cssText = 'position:absolute;left:' + (paw.x - sr.left - es / 2) + 'px;top:' + (paw.y - sr.top - es / 2) + 'px;width:' + es + 'px;height:' + es + 'px;z-index:2;';
+      gs.appendChild(e);
+      e.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.25)', offset: .4 }, { transform: 'scale(.9)' }], { duration: 260 });
+      setTimeout(function () {   // and he runs back, fast
+        gp.classList.add('walking', 'running'); gp.dataset.eyes = 'happy';
+        gp.style.setProperty('--look-x', (tx > 0 ? -3.2 : 3.2) + 'px');
+        var back = gs.animate([{ transform: at(tx, ty) }, { transform: at(0, 0) }], { duration: Math.max(380, ms * .4), easing: 'ease-in-out', fill: 'forwards' });
+        back.onfinish = function () { gs.remove(); pet.style.visibility = ''; resolve(paw); };
+      }, 320);
+    };
+  });
+}
+/**
  * He steals the emoji of a row that is on show and eats it.
  * @param {boolean} [force] Go ahead even if he is marked busy (the animation player does that).
  * @returns {boolean} Whether he went for one.
@@ -69,9 +111,12 @@ function stealNow(force) {
   busy++;
   setFace({ eyes: 'squint', mouth: 'smile', arms: 'idle', x: [] });   // (a sly look)
   say(pick(['…', 'psst…', '*tiptoe*']), 1000, true);
-  wait(700).then(function () {
+  // he walks down over the page to the emoji, takes it with a paw and runs back (a copy of him does the walking: see stealTrip)
+  var trip = reduceMotion ? Promise.resolve(null) : wait(500).then(function () { return stealTrip(li, src, from); }).catch(function () { pet.style.visibility = ''; return null; });
+  trip.then(function (paw) {
     if (!stolen) { busy--; settle(); return; }
-    li.classList.add('stolen');
+    if (paw) return flyEmoji(src, paw, stealMouth(), 330, 30, true);   // (it was in his paw: now it goes to his mouth)
+    li.classList.add('stolen');   // (no trip: it simply flies to him)
     sound('swoosh');
     drift(['💨'], { x: from.x, y: from.y }, 1);
     return flyEmoji(src, from, stealMouth(), 520, 70, true);

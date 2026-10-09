@@ -3398,3 +3398,8 @@ html:root[data-skin="quest"][data-quest="slots"] .picker .species-grid button .p
 html:root[data-skin="quest"][data-quest="slots"] .picker .species-grid button { padding: 4px 2px 5px; }
 html:root[data-skin="quest"][data-quest="slots"] .picker-grid button { padding: 3px; }
 html:root[data-skin="quest"][data-quest="slots"] .picker-grid button img { width: 100%; height: 100%; }
+
+/* the sneaky snack (app-steal.js): the copy of him that walks to the emoji holds one paw out to take it */
+.pet.steal-r[data-arms="steal"] .arm-r { transform: rotate(-66deg); }
+.pet.steal-l[data-arms="steal"] .arm-l { transform: rotate(66deg); }
+.steal-ghost, .steal-ghost * { pointer-events: none !important; }

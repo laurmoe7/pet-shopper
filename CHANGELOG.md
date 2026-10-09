@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 503
+- Fumu walks down over the page to take the emoji with his paw, runs back and eats it
+
 ## Build 502
 - Quest 2: the pictures in the Pet menu squares are bigger
 
