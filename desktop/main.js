@@ -621,6 +621,7 @@ function start() {
     if (!win || mode !== 'pet' || dragFrom || peekRest) return 0;
     const from = win.getBounds(), want = Math.max(-900, Math.min(900, +dx || 0));
     let to = place.walkEnd(from, here(), want);
+    to = { x: to.x, y: from.y, width: from.width, height: from.height };   // (sideways only: sitting over the taskbar, `within` pulled him up into the work area, and the slide back left him there)
     if (free && !perch) {   // back to a spot that may be half off the side of the screen (after an alert slid him onto it): not squeezed inside
       const disp = screen.getDisplayMatching(from).bounds;
       to = { x: Math.max(Math.round(disp.x - from.width * 0.6), Math.min(Math.round(from.x + want), Math.round(disp.x + disp.width - from.width * 0.4))), y: from.y, width: from.width, height: from.height };

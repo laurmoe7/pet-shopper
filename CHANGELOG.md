@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 445
+- After an alert Fumu slides back sideways only; he no longer ends up higher than he started (needs the new installer).
+
 ## Build 444
 - The Shop is always on for the test; the Developer tools switch is gone.
 - Premium lists phone-and-computer syncing and household syncing; the cancel line is gone.
