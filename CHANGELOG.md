@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 419
+- Mini Fumu is petted by holding the mouse down again, not by just moving over him.
+- With the ring menu open, speech bubbles move out of the way of its buttons.
+
 ## Build 418
 - When thrown he bounces off the real edges of the screen, not an invisible padded edge.
 - He can stand on the taskbar and stays on top of it instead of sliding under it.

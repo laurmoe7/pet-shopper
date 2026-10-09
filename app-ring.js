@@ -114,16 +114,46 @@
       ring.appendChild(b);
     });
   }
+
+  // while the ring is open the speech bubble moves to where it overlaps none of the ring's buttons (a corner of his window or beside him), and
+  // goes back by itself when the ring closes
+  function placeBubble() {
+    var root = document.documentElement;
+    if (!shown || !isDesk() || bubble.hidden || !bubble.textContent) {
+      if (root.classList.contains('ring-open')) { root.classList.remove('ring-open'); bubble.classList.remove('ring-moved'); bubble.style.removeProperty('--rl'); bubble.style.removeProperty('--rt'); }
+      return;
+    }
+    root.classList.add('ring-open'); bubble.classList.add('ring-moved');
+    var sr = stage.getBoundingClientRect(), pr = pet.getBoundingClientRect(), w = bubble.offsetWidth, h = bubble.offsetHeight, W = sr.width, H = sr.height, m = 4;
+    var cs = getComputedStyle(root), vl = parseFloat(cs.getPropertyValue('--vis-l')) || 0;
+    var vr = /vw/.test(cs.getPropertyValue('--vis-r')) || !cs.getPropertyValue('--vis-r') ? window.innerWidth : parseFloat(cs.getPropertyValue('--vis-r'));
+    var x0 = Math.max(m, vl - sr.left + m), x1 = Math.min(W - w - m, vr - sr.left - w - m);
+    var top = m - Math.max(0, sr.top);   // (the window reaches above the stage: the top corners of the window are the first choice)
+    var spots = [[x0, top], [x1, top], [x0, m], [x1, m], [x0, H - h - m], [x1, H - h - m], [x0, Math.round(H * 0.35)], [x1, Math.round(H * 0.35)]];
+    var btns = Array.prototype.map.call(ring.children, function (b) { var r = b.getBoundingClientRect(); return [r.left - sr.left - 6, r.top - sr.top - 6, r.right - sr.left + 6, r.bottom - sr.top + 6]; });
+    var him = [pr.left - sr.left, pr.top - sr.top, pr.right - sr.left, pr.bottom - sr.top];
+    function overlap(a, b) { var ow = Math.min(a[2], b[2]) - Math.max(a[0], b[0]), oh = Math.min(a[3], b[3]) - Math.max(a[1], b[1]); return ow > 0 && oh > 0 ? ow * oh : 0; }
+    var best = null, bestScore = Infinity;
+    spots.forEach(function (p) {
+      var box = [p[0], p[1], p[0] + w, p[1] + h], score = overlap(box, him) * 0.2;
+      btns.forEach(function (b) { score += overlap(box, b) * 100; });
+      if (score < bestScore) { bestScore = score; best = p; }
+    });
+    bubble.style.setProperty('--rl', Math.round(best[0]) + 'px'); bubble.style.setProperty('--rt', Math.round(best[1]) + 'px');
+  }
+  try { new MutationObserver(function () { placeBubble(); }).observe(bubble, { attributes: true, attributeFilter: ['hidden'], childList: true, characterData: true, subtree: true }); } catch (e) { /* old browser */ }
   function show(now, force) {
     if (shown || !canShow(now, force) || !items().length) return;
     build();
     ring.hidden = false; shown = true;
+    placeBubble();
   }
   function hide(force) {
     if (previewing && force !== true) return;   // (the style preview stays up for its time whatever the pointer does)
     clearTimeout(leaveTimer);
     if (!shown) return;
     shown = false; ring.hidden = true; ring.replaceChildren();
+    placeBubble();
   }
   // opens with a double click on him (resting the pointer on him was slow and unreliable), and closes when the pointer has gone well away from him, on a click elsewhere or on Esc
   document.addEventListener('mousemove', function (e) {
