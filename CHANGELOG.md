@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 439
+- Quest appearance: bigger text so it is easier to read.
+
 ## Build 438
 - No sinking when the bed lands after being thrown.
 

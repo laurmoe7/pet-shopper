@@ -3268,3 +3268,6 @@ html.desktop-pet.ring-open .stage .bubble.ring-moved { left: var(--rl, 4px) !imp
 
 /* the night light's button sits in the same corner as the food suggestion: the suggestion goes above it so its ✕ can be pressed */
 .stage:has(.night-btn:not([hidden])) .suggest { bottom: 46px; }
+/* Quest uses a serif (Palatino) whose letters are smaller than the rounded font's at the same size: everything is scaled up a little so it reads as easily */
+:root[data-skin="quest"] { font-size: 110%; }
+html:root[data-skin="quest"] body { font-size: 18.5px; }
