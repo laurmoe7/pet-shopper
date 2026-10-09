@@ -705,7 +705,8 @@ function start() {
   ipcMain.on('desk:toyAt', (_e, x, y, deg) => {
     if (!toyWin || toyWin.isDestroyed() || !toyPx) return;
     const s = toyPx + 24;
-    toyWin.setBounds({ x: Math.round(+x - s / 2), y: Math.round(+y - s / 2), width: s, height: s });
+    const nx = Math.round(+x - s / 2), ny = Math.round(+y - s / 2), cur = toyWin.getBounds();
+    if (cur.width === s && cur.height === s) { if (cur.x !== nx || cur.y !== ny) toyWin.setPosition(nx, ny); } else toyWin.setBounds({ x: nx, y: ny, width: s, height: s });   // (moving only: resizing it every time is slower)
     if (!toyWin.isVisible()) toyWin.showInactive();
     const now = Date.now();
     if (now - toyTopAt > 150) { toyTopAt = now; toyWin.moveTop(); }   // (his window comes to the front when clicked; with the room background it would hide the toy)

@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 463
+- The ball moves smoothly while you drag it (needs the new installer).
+- His feet run while he carries the ball.
+
 ## Build 462
 - Picking up the ball no longer blinks out, and shows up at once (needs the new installer).
 

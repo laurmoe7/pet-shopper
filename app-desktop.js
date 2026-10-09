@@ -327,6 +327,13 @@
   // While he is carried or thrown the toy is drawn by a window of its own (the shell moves it where this page says), so it can bounce
   // off the edges of the screen and not only off the sides of his little window. It stops being that when he catches it or it lands.
   var fieldToken = 0, fieldZoom = 1;
+  // a mouse reports its position far more often than the screen draws: the flying toy's window is told only the latest spot, once per frame (a flood of messages made it stutter)
+  var toyAtRaf = 0, toyAtLast = null;
+  function sendToyAt(x, y, spin) {
+    toyAtLast = [x, y, spin];
+    if (toyAtRaf) return;
+    toyAtRaf = requestAnimationFrame(function () { toyAtRaf = 0; if (toyAtLast) D.toyAt(toyAtLast[0], toyAtLast[1], toyAtLast[2]); });
+  }
   /** @returns {Promise<string>} The toy as a small PNG data URL (its colours are read from the page's CSS, so a window with no styles can draw it). */
   var toyPngKey = '', toyPng = '';   // (drawn once per toy: picking it up must not wait for the picture to be made)
   function toyPicture() {
@@ -367,8 +374,8 @@
         zoom: z, ax: 0,
         lim: { minX: (f.area.x - f.wx) / z - mid + w / 2 + 2, maxX: (f.area.x + f.area.width - f.wx) / z - mid - w / 2 - 2, maxY: fl - (f.area.y - f.wy) / z - h / 2 - 8 },
         localX: function () { return (this.ax - f.wx) / z - mid; },
-        show: function (x, y, spin) { var px = f.wx + (mid + x) * z, py = f.wy + (fl - y) * z; this.ax = px; this.ay = py; D.toyAt(px, py, spin); },
-        hide: function () { D.toyHide(); },
+        show: function (x, y, spin) { var px = f.wx + (mid + x) * z, py = f.wy + (fl - y) * z; this.ax = px; this.ay = py; sendToyAt(px, py, spin); },
+        hide: function () { cancelAnimationFrame(toyAtRaf); toyAtRaf = 0; D.toyHide(); },
         /** Draws a short burst where it last was (pieces flying apart): build(t) gives the 144 x 144 drawing at t 0..1, shown as n frames ms apart. */
         burst: function (build, n, ms) {
           var self = this, at = [self.ax, self.ay], shots = [];
@@ -425,8 +432,8 @@
         lim: { minX: (f.area.x - f.wx) / z - mid + 18, maxX: (f.area.x + f.area.width - f.wx) / z - mid - 18, maxY: fl - (f.area.y - f.wy) / z - 20 },
         ax: 0,   // where the toy is on the screen (px), so that wherever his window has got to, its place in the window can be worked out again
         localX: function () { return (this.ax - f.wx) / z - mid; },
-        show: function (x, y, spin) { var p = spot(x, y); this.ax = p[0]; D.toyAt(p[0], p[1], spin); if (!this.shown) { this.shown = true; setTimeout(function () { if (toyField) toyEl.style.visibility = 'hidden'; }, 90); } },   // (the page's own toy goes only once the window's one is up: no blink)
-        hide: function () { D.toyHide(); },
+        show: function (x, y, spin) { var p = spot(x, y); this.ax = p[0]; sendToyAt(p[0], p[1], spin); if (!this.shown) { this.shown = true; setTimeout(function () { if (toyField) toyEl.style.visibility = 'hidden'; }, 90); } },   // (the page's own toy goes only once the window's one is up: no blink)
+        hide: function () { cancelAnimationFrame(toyAtRaf); toyAtRaf = 0; D.toyHide(); },
         shift: function (p) { f.wx += p * z; this.lim.minX -= p; this.lim.maxX -= p; }   // his window moved p page px to the right
       };
       D.toyShow(png, Math.round(32 * z));
