@@ -1991,15 +1991,16 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 .pet:is([data-species="puppy"], [data-species="hedgehog"], [data-species="monkey"]) .nose-dark { display: inline; }
 .nose-dark { fill: #3d2b24; stroke: #2a1d18; }
 .cat-smile { display: none; }
-.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="mouse"], [data-species="monkey"], [data-species="dragon"])[data-mouth="smile"] path[data-mouth="smile"]:not(.cat-smile) { display: none; }
+.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="mouse"], [data-species="monkey"], [data-species="dragon"])[data-mouth="smile"] path[data-mouth="smile"]:not(.cat-smile):not(.lip-dragon) { display: none; }
 .pet:is([data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="monkey"])[data-mouth="smile"] .smile-lip,
 .pet:is([data-species="bunny"], [data-species="mouse"])[data-mouth="smile"] .smile-bunny { display: inline; }
 .buck-teeth { fill: #fff; stroke: var(--pet-ink); stroke-width: 1; stroke-linejoin: round; }
 .lip-extra { display: none; }
 .pet:is([data-species="mochi"], [data-species="pig"], [data-species="cow"])[data-mouth="smile"] .lip-snout,
 .pet[data-species="frog"][data-mouth="smile"] .lip-frog,
-.pet[data-species="axolotl"][data-mouth="smile"] .lip-axo { display: inline; }
-.pet:not([data-species="mochi"]):not([data-species="pig"]):not([data-species="cow"]) .lip-snout, .pet:not([data-species="frog"]) .lip-frog, .pet:not([data-species="axolotl"]) .lip-axo { display: none; }
+.pet[data-species="axolotl"][data-mouth="smile"] .lip-axo,
+.pet[data-species="dragon"][data-mouth="smile"] .lip-dragon { display: inline; }
+.pet:not([data-species="mochi"]):not([data-species="pig"]):not([data-species="cow"]) .lip-snout, .pet:not([data-species="frog"]) .lip-frog, .pet:not([data-species="axolotl"]) .lip-axo, .pet:not([data-species="dragon"]) .lip-dragon { display: none; }
 .pet:not([data-species="bunny"]):not([data-species="mouse"]) .smile-bunny,
 .pet:not([data-species="kitty"]):not([data-species="puppy"]):not([data-species="hamster"]):not([data-species="hedgehog"]):not([data-species="monkey"]) .smile-lip { display: none; }
 /* every pet's eyes sit a little wider apart and lower than drawn (moved with translate so blinks still work) */

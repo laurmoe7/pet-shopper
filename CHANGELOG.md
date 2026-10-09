@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 458
+- Dragon has a lower lip line under his smile.
+
 ## Build 457
 - Dragon is 10% bigger (was 20%); no pet can be bigger than that.
 
