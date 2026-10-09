@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Fumufumu "Quest" speech bubble (pointer down). Layers: bubble, border, inner ring, pointer, text.
+     Edit the colours in <defs>/attributes. Pointer group is moved sideways with its translate(x, 48). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="660" height="240" viewBox="0 0 220 80">
+  <defs>
+    <linearGradient id="bubbleFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2f2f2f"/>
+      <stop offset=".55" stop-color="#1e1e1e"/>
+      <stop offset=".85" stop-color="#0b0b0b"/>
+      <stop offset="1" stop-color="#0b0b0b"/>
+    </linearGradient>
+    <clipPath id="ptrClip"><path d="M-2 -4 H15 V0 H12.6 L11.6 1.1 C10.5 4.5 7.5 7.5 4 10.5 C3.8 8.5 3.6 6 3.4 3 L2.5 1.1 L1.4 0 H-2 Z"/></clipPath>
+    <linearGradient id="ptrBorder" gradientUnits="userSpaceOnUse" x1="-2" y1="0" x2="15" y2="0">
+      <stop offset="0" stop-color="#bdbdbd" stop-opacity="0"/><stop offset=".16" stop-color="#bdbdbd"/>
+      <stop offset=".84" stop-color="#bdbdbd"/><stop offset="1" stop-color="#bdbdbd" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="ptrRing" gradientUnits="userSpaceOnUse" x1="-2" y1="0" x2="15" y2="0">
+      <stop offset="0" stop-color="#040404" stop-opacity="0"/><stop offset=".16" stop-color="#040404"/>
+      <stop offset=".84" stop-color="#040404"/><stop offset="1" stop-color="#040404" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- whole bubble + pointer is see-through together (opacity .92) -->
+  <g id="bubble" opacity=".92">
+    <rect id="body" x="10" y="10" width="200" height="40" rx="9" fill="url(#bubbleFill)"/>
+    <rect id="border" x="11" y="11" width="198" height="38" rx="8" fill="none" stroke="#bdbdbd" stroke-width="2"/>
+    <rect id="inner-ring" x="12.75" y="12.75" width="194.5" height="34.5" rx="6.5" fill="none" stroke="#040404" stroke-width="1.5"/>
+
+    <!-- pointer: fill, ring and border all in one piece; move it by changing the first number -->
+    <g id="pointer" transform="translate(36 48)">
+      <path d="M-2 -4 H15 V0 H12.6 L11.6 1.1 C10.5 4.5 7.5 7.5 4 10.5 C3.8 8.5 3.6 6 3.4 3 L2.5 1.1 L1.4 0 H-2 Z" fill="#0b0b0b"/>
+      <path d="M-2 1 L2 1 Q3.2 1 3.4 3 C3.6 6 3.8 8.5 4 10.5 C7.5 7.5 10.5 4.5 11.5 1.6 Q11.8 1 15 1" fill="none" stroke="url(#ptrRing)" stroke-width="5" clip-path="url(#ptrClip)"/>
+      <path d="M-2 1 L2 1 Q3.2 1 3.4 3 C3.6 6 3.8 8.5 4 10.5 C7.5 7.5 10.5 4.5 11.5 1.6 Q11.8 1 15 1" fill="none" stroke="url(#ptrBorder)" stroke-width="2" stroke-linejoin="round"/>
+    </g>
+  </g>
+
+  <text id="text" x="110" y="35" text-anchor="middle" font-family="'Palatino Linotype', Palatino, Georgia, serif" font-weight="700" font-size="13" fill="#f4e8a6" stroke="#000" stroke-width=".3" paint-order="stroke">Fumu fumu~</text>
+</svg>

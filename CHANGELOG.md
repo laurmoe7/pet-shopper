@@ -2,6 +2,38 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 414
+- After a throw he always ends on his exact spot, even when it was right at the bottom of the screen.
+
+## Build 413
+- Quest app background matches Mini Fumu's Quest settings: dark with a warm glow, no dots.
+- Quest pet menu tabs have gold icons in gold-framed buttons.
+
+## Build 412
+- New Quest appearance for the whole app (App settings > Appearance): dark, gold-framed, serif, with Quest bubbles and alerts.
+
+## Build 411
+- The Plain alert style (Mini Fumu settings) and the Dark appearance (App settings) are both called Classic.
+
+## Build 410
+- Nothing visible; bubble style names corrected (Quest fin = arrow bubble).
+
+## Build 409
+- Nothing visible; the pointer bubble style is now marked as its own style.
+
+## Build 408
+- Quest bubble has no leftover sharp corner next to the new pointer.
+
+## Build 407
+- Bottom bar names take their button's colour, with a cream outline.
+
+## Build 406
+- Bottom bar buttons are back to their old size and peeling stickers.
+- Their names sit over the bottom of the button, with an outline like the list stickers.
+
+## Build 405
+- Quest bubble pointer sits on whole pixels, so the seam no longer shows where it lands.
+
 ## Build 404
 - Quest bubble gradient is dark again, darker at the bottom.
 - The pointer's border fades into the bubble's, so no hard seam on any screen.
