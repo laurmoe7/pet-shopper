@@ -69,8 +69,8 @@ function wreckFling(vx, vy, y0) {
     if (x < lim.minX) { x = lim.minX; vx = Math.abs(vx) * 0.95; }
     if (x > lim.maxX) { x = lim.maxX; vx = -Math.abs(vx) * 0.95; }
     if (y > lim.maxY) { y = lim.maxY; vy = -Math.abs(vy) * 0.8; }
-    if (y < 0) {   // (it never settles: every bounce off the floor sends it up again, at a different height and slant)
-      y = 0; vy = Math.max(Math.abs(vy) * 0.85, 750 + Math.random() * 600);
+    if (y < (lim.minY || 0)) {   // (it never settles: every bounce off the floor sends it up again, at a different height and slant)
+      y = lim.minY || 0; vy = Math.max(Math.abs(vy) * 0.85, 750 + Math.random() * 600);
       vx = (Math.abs(vx) < 350 ? (Math.random() < .5 ? -1 : 1) * (350 + Math.random() * 400) : vx) + (Math.random() - 0.5) * 400; sound('bounce');
     }
     spin += vx * dt * 2.2;

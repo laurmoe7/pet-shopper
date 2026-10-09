@@ -442,7 +442,7 @@
       var spot = function (x, y) { return [f.wx + (mid + x) * z, f.wy + (fl - y) * z]; };
       toyField = {
         zoom: z,
-        lim: { minX: (f.area.x - f.wx) / z - mid + 18, maxX: (f.area.x + f.area.width - f.wx) / z - mid - 18, maxY: fl - (f.area.y - f.wy) / z - 20 },
+        lim: { minX: (f.area.x - f.wx) / z - mid + 18, maxX: (f.area.x + f.area.width - f.wx) / z - mid - 18, maxY: fl - (f.area.y - f.wy) / z - 20, minY: fl - (f.area.y + f.area.height - 16 * z - f.wy) / z },   // (minY: the toy's floor is the top of the taskbar, not the floor he stands on: px above his floor, so mostly below it)
         ax: 0,   // where the toy is on the screen (px), so that wherever his window has got to, its place in the window can be worked out again
         localX: function () { return (this.ax - f.wx) / z - mid; },
         follow: false,   // true while it is held: the shell moves the window to the mouse itself (no messages from here)

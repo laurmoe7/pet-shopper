@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 486
+- Toys bounce down to the top of the taskbar (all toys, wrecking ball too)
+
 ## Build 485
 - Fumu stays behind the clock and tray menus (no more stepping aside)
 - Fumu no longer sits over the taskbar: he stands on top of it

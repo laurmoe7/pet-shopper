@@ -261,11 +261,11 @@ function endField(y) {
   toyEl.style.translate = Math.round(toyX) + 'px 0';
   toyBall.style.transform = y > 0 ? 'translateY(' + (-y).toFixed(1) + 'px)' : '';
 }
-/** @returns {{minX: number, maxX: number, maxY: number}} Where the toy can go: px from the middle, px above the floor. */
+/** @returns {{minX: number, maxX: number, maxY: number, minY: number}} Where the toy can go: px from the middle, px above his floor (minY: the lowest, 0 in the page; over the screen it is the top of the taskbar). */
 function toyLimits() {
   if (toyField) return toyField.lim;
   var w = stage.clientWidth;
-  return { minX: -w / 2 + 18, maxX: w / 2 - 18, maxY: stage.clientHeight - 3 - 32 - 8 };
+  return { minX: -w / 2 + 18, maxX: w / 2 - 18, maxY: stage.clientHeight - 3 - 32 - 8, minY: 0 };
 }
 /** Puts the toy at x (px from the middle), y (px above the floor), turned by spin degrees. */
 function placeToy(x, y, spin) {
@@ -313,7 +313,7 @@ toyEl.addEventListener('pointermove', function (e) {
     stopOverHead(held);
     setFace({ eyes: 'sparkle', mouth: 'open', arms: 'reach', x: ['cheeks'] });
   }
-  held.y = Math.max(0, Math.min(lim.maxY, st.bottom - 19 - e.clientY));
+  held.y = Math.max(lim.minY || 0, Math.min(lim.maxY, st.bottom - 19 - e.clientY));
   placeToy(Math.max(lim.minX, Math.min(lim.maxX, e.clientX - (st.left + st.width / 2))), held.y, 0);
   held.pts.push({ x: e.clientX, y: e.clientY, t: e.timeStamp });
   if (held.pts.length > 5) held.pts.shift();
@@ -363,7 +363,7 @@ function fling(vx, vy, y) {
   setFace({ eyes: 'sparkle', mouth: 'o', arms: 'reach', x: [] });
   eyesDo('wide');
   pet.classList.add('running');
-  var lim = toyLimits(), x = toyX, spin = 0, start = performance.now(), last = start, chaseAt = 0;
+  var lim = toyLimits(), flo = lim.minY || 0, x = toyX, spin = 0, start = performance.now(), last = start, chaseAt = 0;   // (flo: the floor it bounces on)
   var catchAt = playStyle() === 'fetch' ? mouthHeight() : 14, frog = playStyle() === 'tongue';
   // over the whole screen it flies longer: lighter gravity, livelier bounces, and he waits a while before he may catch it
   var followAt = 0, wide = !!toyField, gravity = wide ? 950 : 1500, wallK = wide ? 0.92 : 0.75, floorK = wide ? 0.74 : 0.6, grace = wide ? 1500 : 250, maxMs = 7000, CHASE_MS = 5000, jumpAt = performance.now() + 700;
@@ -396,14 +396,14 @@ function fling(vx, vy, y) {
     if (x < lim.minX) { x = lim.minX; vx = -vx * wallK; sound('bounce'); }
     if (x > lim.maxX) { x = lim.maxX; vx = -vx * wallK; sound('bounce'); }
     if (y > lim.maxY) { y = lim.maxY; vy = -Math.abs(vy) * 0.6; }
-    if (y < 0) {
-      y = 0;
+    if (y < flo) {
+      y = flo;
       if (vy < -140) sound('bounce');
       vy = -vy * floorK;
       if (vy < 70) vy = 0;
       vx *= 0.88;
     }
-    if (y === 0 && vy === 0) vx *= Math.pow(0.3, dt); // rolling to a stop
+    if (y === flo && vy === 0) vx *= Math.pow(0.3, dt); // rolling to a stop
     spin += vx * dt * 2.4;
     placeToy(x, y, spin);
     // the pet runs to where the toy is heading
@@ -429,7 +429,7 @@ function fling(vx, vy, y) {
     if (frog && now - start > grace && y > 6 && Math.hypot(x - px, y - mouthHeight()) < 115) { caught(x, y); return; }
     // a cat does not catch it out of the air: it waits for it to land, then hunts it on the floor (landed > getIt > batAbout)
     if (playStyle() !== 'bat' && now - start > grace && vy <= 0 && y < catchAt + (tired ? 44 : 18) && y > catchAt - 24 && Math.abs(x - px) < (tired ? 45 : 30)) { caught(); return; }   // (tired: he jumps up for it)
-    if ((y === 0 && vy === 0 && Math.abs(vx) < 14) || now - start > maxMs) { landed(); return; }
+    if ((y === flo && vy === 0 && Math.abs(vx) < 14) || now - start > maxMs) { landed(); return; }
     flight = requestAnimationFrame(step);
   }
   flight = requestAnimationFrame(step);
