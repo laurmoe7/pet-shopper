@@ -58,7 +58,10 @@
     return ['ball', 'pat', 'snack', 'dance', 'swap', 'wave'];
   }
   function canShow(now, force) {
-    return isDesk() && !document.hidden && (now || Date.now() > quietUntil) && !(window.deskPassThrough && window.deskPassThrough()) &&
+    // a double click on him or a style preview is asked for on purpose: only the mode is checked, so a stuck state (hidden window, a leftover
+    // 'thrown' class, pass-through) can never keep it from opening. The idle cases (nothing asked for it) keep all the checks.
+    if (now) return isDesk() && (force || !document.querySelector('.inbox-card, .quick-card, dialog[open]'));
+    return isDesk() && !document.hidden && Date.now() > quietUntil && !(window.deskPassThrough && window.deskPassThrough()) &&
       !pet.classList.contains('carried') && !pet.classList.contains('thrown') && !pet.classList.contains('falling') &&
       (force || !document.querySelector('.inbox-card, .quick-card, dialog[open]'));
   }
