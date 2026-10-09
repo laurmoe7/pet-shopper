@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 481
+- Wrecking ball: smaller screen picture (less stall at the throw)
+
 ## Build 480
 - Wrecking ball: no lag at the throw, bounces like a real ball, broken spots look like a broken TV, no white outline on pieces
 

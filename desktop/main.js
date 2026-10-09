@@ -790,7 +790,7 @@ function start() {
     frames,
     // one picture of the screen just after the ball is thrown (the overlay is kept out of it); he and the toy are painted out of it by the overlay; it goes only there
     snapshot: async (d) => {
-      const sc = d.scaleFactor || 1, k = Math.min(1, 1600 / (d.bounds.width * sc));
+      const sc = d.scaleFactor || 1, k = Math.min(1, 1000 / (d.bounds.width * sc));
       const src = await desktopCapturer.getSources({ types: ['screen'], thumbnailSize: { width: Math.round(d.bounds.width * sc * k), height: Math.round(d.bounds.height * sc * k) } });
       const one = src.find((x) => String(x.display_id) === String(d.id)) || src[0];
       if (!one || one.thumbnail.isEmpty()) return null;
