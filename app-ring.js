@@ -10,7 +10,7 @@
   var ring = document.createElement('div');
   ring.className = 'ring'; ring.hidden = true; ring.setAttribute('role', 'menu'); ring.setAttribute('aria-label', 'Play');
   stage.appendChild(ring);
-  var shown = false, hoverAt = 0, leaveTimer = 0, quietUntil = 0, center = { x: 0, y: 0, r: 100 };
+  var shown = false, previewing = false, hoverAt = 0, leaveTimer = 0, quietUntil = 0, center = { x: 0, y: 0, r: 100 };
 
   function ringSnack() {
     if (busy) return;
@@ -57,10 +57,10 @@
     if (scene.indexOf('night-drowsy') === 0) return ['ball', 'pat', 'snack', 'dance', 'swap', 'lights'];
     return ['ball', 'pat', 'snack', 'dance', 'swap', 'wave'];
   }
-  function canShow(now) {
+  function canShow(now, force) {
     return isDesk() && !document.hidden && (now || Date.now() > quietUntil) && !(window.deskPassThrough && window.deskPassThrough()) &&
       !pet.classList.contains('carried') && !pet.classList.contains('thrown') && !pet.classList.contains('falling') &&
-      !document.querySelector('.inbox-card, .quick-card, dialog[open]');
+      (force || !document.querySelector('.inbox-card, .quick-card, dialog[open]'));
   }
   function build() {
     ring.replaceChildren();
@@ -111,8 +111,8 @@
       ring.appendChild(b);
     });
   }
-  function show(now) {
-    if (shown || !canShow(now) || !items().length) return;
+  function show(now, force) {
+    if (shown || !canShow(now, force) || !items().length) return;
     build();
     ring.hidden = false; shown = true;
   }
@@ -138,9 +138,16 @@
   // it comes back a moment after the stroking ends, not during it
   document.addEventListener('pointerup', function () { hoverAt = 0; quietUntil = Math.max(quietUntil, Date.now() + 700); }, true);
   // his scene changed under the open ring (it got dark, the list was swapped): build it again
-  new MutationObserver(function () { if (shown) { if (canShow()) build(); else hide(); } }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-scene', 'data-list'] });
+  new MutationObserver(function () { if (shown) { if (canShow(false, previewing)) build(); else hide(); } }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-scene', 'data-list'] });
   pet.addEventListener('dblclick', function () { show(true); });
   document.addEventListener('pointerdown', function (e) { if (shown && !e.target.closest('.ring, #pet')) hide(); }, true);
   document.addEventListener('keydown', function (e) { if (shown && e.key === 'Escape') hide(); });
+  /** Choosing an alert style in the mini settings: the ring shows for `ms`, then goes by itself. */
+  window.deskRingPreview = function (ms) {
+    previewing = true;
+    show(true, true);   // (even with the sample alert showing)
+    setTimeout(function () { previewing = false; if (shown) hide(); }, ms || 2000);
+    return shown;
+  };
   window.deskRing = function () { show(); return shown; };   // for tests and the animation player
 })();

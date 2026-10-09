@@ -137,6 +137,7 @@ function start() {
   }
 
   /** He is let go while moving fast: he flies on, bounces off the edges of the screens and the floor, then runs back to where he was picked up. */
+  let lastThrow = null;   // where the last throw started, landed and ended (shown in the diagnostics, to track down a wrong run-back)
   async function throwWindow(vx, vy, home, inBed, opts) {
     opts = opts || {};
     stopTween();
@@ -179,6 +180,7 @@ function start() {
     if (!ok || !win) return;
     if (inBed) { restHere(); return; }   // in his bed he stays where he landed (he has bounced about on the floor already)
     const back = place.within(home, here()), cur = win.getBounds();
+    lastThrow = { home, back, landed: cur, area: here() };
     if (Math.abs(back.x - cur.x) > 20 || Math.abs(back.y - cur.y) > 20) {
       win.webContents.send('desk:run', back.x > cur.x ? 1 : -1);
       const done = await glide(back, Math.max(600, Math.min(2800, Math.hypot(back.x - cur.x, back.y - cur.y) * 1.6)) * (drowsy ? 3 : 1));
@@ -186,6 +188,7 @@ function start() {
       if (!done) return;
     }
     restHere();
+    if (lastThrow) lastThrow.end = win.getBounds();
   }
 
   function applyMode(next) {
@@ -516,6 +519,9 @@ function start() {
         if (await glide(place.perchBounds(b, seg), 200)) { sitOn(seg, rect); perchOrigin = dragHome ? place.within(dragHome, here()) : null; return; }   // (when he gets off he goes back to where he was picked up)
       }
     }
+    // let go low down (over the taskbar, or off the edge of the screen): he is set back on the screen, not left half hidden behind the taskbar
+    const fixed = place.within(b, here());
+    if ((fixed.x !== b.x || fixed.y !== b.y) && !(await glide(fixed, 180))) return;
     restHere();
   });
   ipcMain.handle('desk:getPrefs', () => publicPrefs());
@@ -693,7 +699,7 @@ function start() {
     const b = win ? win.getBounds() : null;
     return {
       version: app.getVersion(), channel: CHANNEL.name, electron: process.versions.electron, packaged: app.isPackaged, page: APP_URL,
-      mode, bounds: b, zoom: zoom(), screens: screen.getAllDisplays().map((d) => d.workArea.width + 'x' + d.workArea.height + ' @' + d.scaleFactor),
+      mode, bounds: b, lastThrow, zoom: zoom(), screens: screen.getAllDisplays().map((d) => d.workArea.width + 'x' + d.workArea.height + ' @' + d.scaleFactor),
       onPerch: perch ? perch.id : null, awareness: prefs.awareness, program: programNow, lastUnknownProgram: lastUnknown, taughtGames: Object.keys(prefs.myGames).length, windowsSeen: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch') ? windows.list().length : null, perchesNow: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch') ? perchesNow().length : null,
       idleSeconds: powerMonitor.getSystemIdleTime(), idle, displaced, pointerOverFumu: solidNow,
       shortcutsHeld: Object.assign({}, registered, hoverKeyOn), settingsFolder: app.getPath('userData')

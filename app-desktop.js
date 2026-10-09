@@ -232,7 +232,7 @@
     deskPrefs = p; applyLook(); applyChatter();
     if (was && p.alertStyle && was !== p.alertStyle && root.classList.contains('desktop-pet')) previewLook();
   });
-  /** Choosing an alert style in the mini settings: a sample alert and a line show for a moment in the new look. */
+  /** Choosing an alert style in the mini settings: a sample alert, a speech bubble and the ring menu show for 2 seconds in the new look. */
   var previewTimer = 0, previewCard = null;
   function previewLook() {
     if (typeof showInboxCard !== 'function') return;
@@ -242,7 +242,8 @@
       previewCard = inboxCard; inboxCard = null;
       if (previewCard) { previewCard.querySelector('.inbox-actions').hidden = true; previewCard.classList.add('look-preview'); }
     }
-    if (!busy && petScene() !== 'night-bed') say(pick(['how do I look?', 'like this?', 'ooh, new look!']), 2600, true);
+    if (!busy && petScene() !== 'night-bed') say(pick(['how do I look?', 'like this?', 'ooh, new look!']), 2000, true);
+    if (window.deskRingPreview) window.deskRingPreview(2000);
     clearTimeout(previewTimer);
     // it goes by itself: slides off after a moment (and is removed outright if the slide somehow does not)
     previewTimer = setTimeout(function () {
@@ -250,7 +251,7 @@
       if (!card || !card.parentNode) return;
       slideAway(card, 1, function () { card.remove(); });
       setTimeout(function () { if (card.parentNode) card.remove(); }, 800);
-    }, 3000);
+    }, 2000);
   }
 
   // ---------- a long line must not run off the top of the small window: the text shrinks until it fits ----------
@@ -1108,7 +1109,7 @@
     if (!carried && !stage.classList.contains('bedtime')) {
       // two clearly different moves: solid again = a cheerful spinning hop with sparkles; the mouse passes through = he ducks down and pops up with a finger to his lips
       if (on) { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('spinhop', 900); drift(['✦', '♥', '✦'], petTop(), 4); }
-      else { setFace({ eyes: 'closed', mouth: 'smile', arms: 'cover', x: [] }); pulse('popup', 1500); drift(['🤫'], petTop(), 1); }
+      else { setFace({ eyes: 'closed', mouth: 'smile', arms: 'cover', x: [] }); pulse('tilt', 1800); drift(['🤫'], petTop(), 1); }
       setTimeout(function () { if (!busy && !carried) settle(); }, on ? 1500 : 1900);
     } else if (typeof pulse === 'function' && !carried) pulse('hopsmall', 450);
     setTimeout(function () { document.documentElement.classList.remove('grab-say'); }, 2500);

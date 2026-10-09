@@ -2869,6 +2869,7 @@ html.desktop-pet .dream-dot.d2 { left: -12px; top: 54px; }
 .inbox-actions button:active { transform: translateY(2px); box-shadow: none; }
 .inbox-actions .inbox-done { margin-left: auto; }
 .stage:has(.inbox-card) .bubble { display: none; }
+.stage:has(.look-preview) .bubble { display: block; z-index: 40; translate: 0 30px; }   /* the style preview shows card, bubble and ring together */
 html.desktop-pet .stage .inbox-card { top: auto; bottom: calc(100% + 1px); }   /* normal size: if he is at the side of the screen his window slides onto it while the card shows (app-desktop.js) */
 html.desktop-pet.card-narrow .stage .inbox-card { left: calc(var(--vis-l, 0px) + 8px); right: calc(100vw - var(--vis-r, 100vw) + 8px); }   /* (only when it cannot slide: then it is as wide as the part of the window that shows) */
 /* choices from the settings window: no toy, no cushion under him (the bed at night stays) */
@@ -3049,14 +3050,12 @@ html.desktop-pet .night-btn { display: none !important; }   /* in the small wind
 @keyframes flop { 0% { transform: rotate(0deg); } 22% { transform: rotate(-8deg); } 42% { transform: rotate(84deg) translate(6px, 4px); } 52% { transform: rotate(76deg) translate(6px, 4px); } 62% { transform: rotate(84deg) translate(6px, 4px); } 80% { transform: rotate(-9deg); } 90% { transform: rotate(4deg); } 100% { transform: rotate(0deg); } }
 @keyframes spinhop { 0% { transform: translateY(0) rotate(0deg) scale(1, 1); } 12% { transform: translateY(2px) rotate(0deg) scale(1.1, .9); } 50% { transform: translateY(-22px) rotate(180deg) scale(1, 1); } 85% { transform: translateY(0) rotate(360deg) scale(1.08, .92); } 100% { transform: translateY(0) rotate(360deg) scale(1, 1); } }
 @keyframes shiver { 0%, 100% { transform: translateX(0) scale(1); } 10% { transform: translateX(-2px) rotate(-2deg) scale(1.04); } 20% { transform: translateX(2px) rotate(2deg) scale(1.05); } 30% { transform: translateX(-2px) rotate(-2deg) scale(1.05); } 40% { transform: translateX(2px) rotate(2deg) scale(1.05); } 50% { transform: translateX(-1.5px) rotate(-1.5deg) scale(1.05); } 60% { transform: translateX(1.5px) rotate(1.5deg) scale(1.04); } 75% { transform: translateX(-1px) scale(1.02); } }
-@keyframes popup { 0% { transform: scale(1); } 22% { transform: scale(1.06, .9); } 40% { transform: scale(.05, .05); } 62% { transform: scale(.05, .05); } 80% { transform: scale(1.14, 1.16); } 92% { transform: scale(.97, .96); } 100% { transform: scale(1); } }
 .pet.tilt .pet-svg { animation: tilt 1.8s ease-in-out; transform-origin: 50% 94%; }
 .pet.flop .pet-svg { animation: flop 2.4s ease-in-out; transform-origin: 50% 94%; }
 .pet.spinhop .pet-svg { animation: spinhop .9s ease-in-out; transform-origin: 50% 62%; }
 .pet.shiver .pet-svg { animation: shiver .7s linear; transform-origin: 50% 94%; }
-.pet.popup .pet-svg { animation: popup 1.5s ease-in-out; transform-origin: 50% 94%; }
-.pet:is(.spinhop, .popup, .flop) :is(.ear-l, .ear-r) { animation: ear-jiggle-l .7s ease-out .3s; }
-@media (prefers-reduced-motion: reduce) { .pet:is(.tilt, .flop, .spinhop, .shiver, .popup) .pet-svg { animation: none; } }
+.pet:is(.spinhop, .flop) :is(.ear-l, .ear-r) { animation: ear-jiggle-l .7s ease-out .3s; }
+@media (prefers-reduced-motion: reduce) { .pet:is(.tilt, .flop, .spinhop, .shiver) .pet-svg { animation: none; } }
 
 /* alerts, made cuter (builds 364-368): a paper label with a bit of tape, a round sticker for the icon, soft pill buttons, a colour per kind.
    Three styles, picked in the settings window (alertStyle, class on <html>): al-paper (warm cream), al-night (the same in deep plum), none = the plain old card. */
