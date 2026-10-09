@@ -27,7 +27,7 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, displaced = false, perch = null, perchTimer = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { x: null, y: null, onTop: true, aboveFull: false, catchGames: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, mute: false, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
+  let prefs = { alertStyle: 'paper', x: null, y: null, onTop: true, aboveFull: false, catchGames: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, mute: false, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
   const DEFAULTS = Object.assign({}, prefs);
   try { prefs = Object.assign(prefs, JSON.parse(fs.readFileSync(prefsFile(), 'utf8'))); } catch (e) { /* first run */ }
   prefs.keys = keys.clean(prefs.keys);
@@ -35,6 +35,7 @@ function start() {
   prefs.petName = typeof prefs.petName === 'string' && prefs.petName.trim() ? prefs.petName.trim().slice(0, 16) : 'Fumu';
   if (prefs.chat === false) { prefs.chatNormal = 'off'; prefs.chatFull = 'off'; }   // the old on/off switch for his comments
   delete prefs.chat;
+  if (!['paper', 'night', 'classic'].includes(prefs.alertStyle)) prefs.alertStyle = 'paper';
   prefs.chatNormal = privacy.cleanChat(prefs.chatNormal, 'normal'); prefs.chatFull = privacy.cleanChat(prefs.chatFull, 'normal');
   prefs.talkNormal = privacy.cleanChat(prefs.talkNormal, 'normal'); prefs.talkFull = privacy.cleanChat(prefs.talkFull, 'rare');
   // the old switches (wander, nap, stand still) became two movement choices
@@ -59,7 +60,7 @@ function start() {
     if (prefs.onTop && prefs.aboveFull) win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true });
     else win.setVisibleOnAllWorkspaces(false);
   };
-  const publicPrefs = () => ({ catchGames: prefs.catchGames, moveNormal: prefs.moveNormal, moveFull: prefs.moveFull, mute: prefs.mute, remind: prefs.remind, size: prefs.size, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion, bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles, backdrop: prefs.backdrop, toyRoam: prefs.toyRoam });
+  const publicPrefs = () => ({ alertStyle: prefs.alertStyle, catchGames: prefs.catchGames, moveNormal: prefs.moveNormal, moveFull: prefs.moveFull, mute: prefs.mute, remind: prefs.remind, size: prefs.size, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion, bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles, backdrop: prefs.backdrop, toyRoam: prefs.toyRoam });
   const sendPrefs = () => { if (win) win.webContents.send('desk:prefs', publicPrefs()); panel.push(); };
   // moves the window smoothly (walking, peeking round the screen edge); anything that takes hold of it stops the move
   let tween = null;
@@ -258,6 +259,7 @@ function start() {
       prefs[key] = privacy.cleanChat(value, prefs[key]); savePrefs(); sendPrefs();
       return;
     }
+    if (key === 'alertStyle') { if (['paper', 'night', 'classic'].includes(value)) { prefs.alertStyle = value; savePrefs(); sendPrefs(); } return; }
     if (key === 'moveNormal' || key === 'moveFull') { prefs[key] = privacy.cleanMove(value, prefs[key]); savePrefs(); sendPrefs(); return; }
     if (key === 'size') { if (['small', 'normal', 'large'].includes(value)) setSize(value); return; }
     if (!BOOLS.includes(key)) return;

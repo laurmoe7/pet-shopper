@@ -197,7 +197,7 @@
   })();
 
   // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------
-  var deskPrefs = { moveNormal: 'normal', moveFull: 'still', mute: false, remind: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare' };
+  var deskPrefs = { moveNormal: 'normal', moveFull: 'still', alertStyle: 'paper', mute: false, remind: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare' };
   /** Awareness: 1 = more privacy (idle and time only), 2 = normal. Anything he says about what you are doing, or knows about your windows and programs, checks this first. */
   window.deskAware = function (level) { return (deskPrefs.awareness === 1 ? 1 : 2) >= level; };
   /** The small window's look choices from the settings window: no toy, no cushion (classes on <html>, CSS at the end of styles.css). */
@@ -208,6 +208,7 @@
     root.classList.toggle('desk-backdrop', deskPrefs.backdrop === true);
     root.classList.toggle('desk-nosparkles', deskPrefs.sparkles === false);
     root.classList.toggle('desk-noclouds', deskPrefs.clouds === false);
+    root.classList.remove('al-paper', 'al-night'); if (deskPrefs.alertStyle !== 'classic') root.classList.add(deskPrefs.alertStyle === 'night' ? 'al-night' : 'al-paper');   // the look of alert cards (settings: Alert style)
     root.classList.toggle('desk-nobubbles', deskPrefs.bubbles === false);   // speech bubbles in the small window only; cards (reminders, links) are separate
     lastSolidReset();
   }
@@ -921,17 +922,27 @@
   // The shell lets the mouse go through him then, so an alert's buttons cannot be clicked, but the page still sees the pointer move over it:
   // moving across the card is the swipe. A task reminder: right puts it away (the cross), left snoozes it for 10 minutes, up or down is Done
   // (when the task can be ticked here). Any other alert: right or left puts it away.
-  var hoverSwipe = null;
-  /** The pointer is at x, y (over el): a sweep across an alert card. Fed by the page's own mouse events and by the shell, which watches the pointer itself. */
-  function sweepAt(x, y, el) {
-    var card = isPet() && window.deskPassThrough() && el && el.closest ? el.closest('.inbox-card') : null;
-    if (!card || card.classList.contains('quick-card') || card.dataset.leaving) { hoverSwipe = null; return; }
-    var now = Date.now(), h = hoverSwipe;
-    if (!h || h.card !== card || now - h.t > 450 || (x - h.lx) * (h.lx - h.x) < 0 || (y - h.ly) * (h.ly - h.y) < 0) h = hoverSwipe = { card: card, x: x, y: y, lx: x, ly: y, t: now };
-    h.lx = x; h.ly = y; h.t = now;
-    var dx = x - h.x, dy = y - h.y, sideways = Math.abs(dx) >= Math.min(90, card.offsetWidth * 0.4), vertical = Math.abs(dy) >= Math.min(36, card.offsetHeight * 0.5) && Math.abs(dy) > Math.abs(dx);
+  var trail = [];
+  /** The pointer is at x, y: a sweep across an alert card. Fed by the page's own mouse events and by the shell, which watches the pointer itself.
+   *  Forgiving on purpose: it looks at the last 0.4 s of the path, and the sweep only has to cross the card (it may start or end outside it). */
+  function sweepAt(x, y) {
+    var now = Date.now(), last = trail[trail.length - 1];
+    if (last && last.x === x && last.y === y) return;
+    trail.push({ x: x, y: y, t: now });
+    while (trail.length > 1 && now - trail[0].t > 400) trail.shift();
+    if (!isPet() || !window.deskPassThrough() || trail.length < 2) return;
+    var prev = trail[trail.length - 2], cards = [].slice.call(document.querySelectorAll('.inbox-card:not(.quick-card)')), card = null;
+    cards.forEach(function (c) {
+      if (card || c.dataset.leaving) return;
+      var r = c.getBoundingClientRect();
+      for (var i = 0; i <= 4; i++) { var px = prev.x + (x - prev.x) * i / 4, py = prev.y + (y - prev.y) * i / 4; if (px >= r.left && px <= r.right && py >= r.top && py <= r.bottom) { card = c; break; } }
+    });
+    if (!card) return;
+    var from = trail[0], dx = x - from.x, dy = y - from.y;
+    var sideways = Math.abs(dx) >= Math.min(60, card.offsetWidth * 0.3) && Math.abs(dx) >= Math.abs(dy) * .7;
+    var vertical = Math.abs(dy) >= Math.min(30, card.offsetHeight * 0.45) && Math.abs(dy) > Math.abs(dx) * 1.2;
     if (!sideways && !vertical) return;
-    hoverSwipe = null;
+    trail = [];
     var remind = card.classList.contains('remind-card'), buttons = [].slice.call(card.querySelectorAll('button'));
     function named(re) { return buttons.filter(function (b) { return re.test(b.textContent); })[0]; }
     var btn = card.querySelector('.inbox-done'), dir = dx < 0 ? -1 : 1;
@@ -942,9 +953,9 @@
     if (dir) slideAway(card, dir, function () { btn.click(); });
     else { card.style.animation = 'none'; card.style.transition = 'translate .26s ease-in, opacity .26s'; card.style.translate = '0 ' + (dy < 0 ? -1 : 1) * 60 + 'px'; card.style.opacity = '0'; setTimeout(function () { if (card.parentNode) btn.click(); }, 270); }
   }
-  document.addEventListener('mousemove', function (e) { sweepAt(e.clientX, e.clientY, e.target); }, true);
+  document.addEventListener('mousemove', function (e) { sweepAt(e.clientX, e.clientY); }, true);
   // the shell also reports the pointer while a card is up (Windows does not always forward it to a window that lets clicks through)
-  if (D.onSweep) D.onSweep(function (x, y) { sweepAt(x, y, document.elementFromPoint(x, y)); });
+  if (D.onSweep) D.onSweep(function (x, y) { sweepAt(x, y); });
   var sweepSent = false;
   function sweepWatch() {
     var on = isPet() && window.deskPassThrough() && !!document.querySelector('.inbox-card:not(.quick-card)');
@@ -1056,7 +1067,12 @@
     document.documentElement.classList.add('grab-say');
     say(line, 2400, true);
     idleQuiet = quiet;
-    if (typeof pulse === 'function' && !carried) pulse('hopsmall', 450);
+    if (!carried && !stage.classList.contains('bedtime')) {
+      // two clearly different moves: solid again = a cheerful spinning hop with sparkles; the mouse passes through = he ducks down and pops up with a finger to his lips
+      if (on) { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('spinhop', 900); drift(['✦', '♥', '✦'], petTop(), 4); }
+      else { setFace({ eyes: 'closed', mouth: 'smile', arms: 'cover', x: [] }); pulse('popup', 1500); drift(['🤫'], petTop(), 1); }
+      setTimeout(function () { if (!busy && !carried) settle(); }, on ? 1500 : 1900);
+    } else if (typeof pulse === 'function' && !carried) pulse('hopsmall', 450);
     setTimeout(function () { document.documentElement.classList.remove('grab-say'); }, 2500);
   });
   // up at night and tired: the shell takes his walk back slowly, and his feet go slowly too

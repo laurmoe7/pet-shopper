@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 367
+- Sweeping alerts is more forgiving: faster or slower, starting outside the card.
+- Different moves for the grab key: a spinning hop when he is solid, a duck and "shh" when the mouse passes through.
+- Alert style in the settings window: Paper, Night (darker) or Plain.
+
 ## Build 366
 - He always says something when you press the grab key, even with bubbles off.
 
