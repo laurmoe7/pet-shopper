@@ -8,7 +8,8 @@
  * @param {string} kind A Sounds.play kind, e.g. "glug".
  */
 var deskMuted = function () { return false; };   // the desktop app's "mute small Fumu" replaces this (app-desktop.js)
-function sound(kind) { clickSounded = true; if (!state.quiet && state.settings.sounds && !deskMuted()) Sounds.play(kind); }
+var swipeQuietUntil = 0;   // while an alert is being swiped away only its swoosh plays (set by swipeSound in app-send.js)
+function sound(kind) { clickSounded = true; if (Date.now() < swipeQuietUntil && !/^swoosh/.test(kind)) return; if (!state.quiet && state.settings.sounds && !deskMuted()) Sounds.play(kind); }
 // every button and menu item makes a sound: handlers that play their own mark the click,
 // and any click left silent gets a soft tap (switches play on/off from their change event)
 var clickSounded = false;

@@ -280,16 +280,14 @@
       f.frequency.exponentialRampToValueAtTime(2300 * pitch, t + 0.26);
     },
     swooshdone: function (t) {
-      // swiped to Done: the same airy whoosh with a bright little two-note "ta-da" on top
-      var f = noise(t, 0.3, 'bandpass', 500, 0.7, env(t, 0.07, 0.2, 0.2));
-      f.frequency.exponentialRampToValueAtTime(2600 * pitch, t + 0.24);
-      chime(t + 0.1, [1319, 1760], 0.07, 0.55, 'sine');
+      // swiped to Done: the same airy whoosh, a little brighter and quicker (a whoosh only, no extra notes)
+      var f = noise(t, 0.26, 'bandpass', 700, 0.7, env(t, 0.06, 0.18, 0.22));
+      f.frequency.exponentialRampToValueAtTime(3200 * pitch, t + 0.2);
     },
     swooshsnooze: function (t) {
-      // swiped to snooze: a slower, lower whoosh that sinks, then a soft sleepy note
+      // swiped to snooze: a slower, lower whoosh that sinks (a whoosh only, no extra notes)
       var f = noise(t, 0.4, 'bandpass', 1500, 0.8, env(t, 0.1, 0.3, 0.2));
       f.frequency.exponentialRampToValueAtTime(320 * pitch, t + 0.36);
-      tone(t + 0.12, 0.3, 'sine', 523, 392, env(t + 0.12, 0.02, 0.28, 0.14));
     },
     notice: function (t) { chime(t, [988, 1319], 0.12, 0.85, 'sine'); chime(t + 0.34, [1568], 0.1, 0.5, 'sine'); },
     party: function (t) { chime(t, [523, 659, 784, 1047, 1319], 0.09, 1.1); },

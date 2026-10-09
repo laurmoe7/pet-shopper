@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 403
+- Swiping an alert away plays only the swoosh, nothing else.
+
+## Build 402
+- Quest bubble gets a soft lighter gradient at the bottom.
+- No seam where the pointer joins the bubble.
+
 ## Build 401
 - Speech bubble and pointer are one shape: the same grey border and dark inner line go all the way round.
 
