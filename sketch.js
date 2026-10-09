@@ -106,7 +106,7 @@ function skLoad() {
     SK.fillMode = ['none', 'flat', 'v', 'h', 'r'].concat(L.SKETCH_PATTERNS).indexOf(d.fillMode) !== -1 ? d.fillMode : (d.shapeFill ? 'flat' : 'none');
     if (/^#[0-9a-f]{6}$/i.test(d.colour2 || '')) SK.colour2 = d.colour2;
     if (d.clean === false) SK.clean = false;
-    if (['draw', 'under', 'send', 'sent'].indexOf(d.tab) !== -1) SK.tab = d.tab;
+    if (['draw', 'under'].indexOf(d.tab) !== -1) SK.tab = d.tab;
     ['pet', 'scene', 'toy', 'room', 'canvas'].forEach(function (m) {
       if (d.layers && Array.isArray(d.layers[m])) SK.layers[m] = d.layers[m].filter(function (l) { return l && l.id; }).map(function (l) { return { id: String(l.id), name: String(l.name || 'Layer').slice(0, 24), show: l.show !== false }; });
       if (d.active && d.active[m]) SK.active[m] = d.active[m];
@@ -348,16 +348,15 @@ function skApplyLook() {
   $('skRefLabel').textContent = SK.mode === 'toy' ? 'Toy' : 'Pet';
   $('skTabUnder').hidden = SK.mode === 'toy' || SK.mode === 'canvas';
   $('skRef').closest('label').hidden = SK.mode === 'canvas'; $('skGhost').closest('label').hidden = SK.mode === 'canvas';
-  $('skResize').disabled = SK.mode !== 'canvas';
+  skOpened[SK.mode] = true; skDocsUI();
   $('skTabUnder').textContent = SK.mode === 'pet' ? 'Pet' : 'Room';
   $('skItemRow').hidden = !(SK.mode === 'pet' && SK_ITEM_SLOTS[$('skKind').value]);
   skTab((SK.mode === 'toy' || SK.mode === 'canvas') && SK.tab === 'under' ? 'draw' : SK.tab);
 }
 var SK_ITEM_SLOTS = { hat: 'hat', clothes: 'body', face: 'face', mouth: 'mouth', neck: 'neck', feet: 'feet' };
-/** Shows one of the panel's pages (Draw, Pet or Room, Send, Sent). */
+/** Shows one of the panel's pages (Draw, or Pet or Room). */
 function skTab(name) {
-  if (name === 'images') name = 'draw';
-  if (name === 'sent' && !SK_OWNER) name = 'draw';
+  if (name !== 'under') name = 'draw';
   SK.tab = name;
   document.querySelectorAll('#skTabs [data-tab]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === name)); });
   document.querySelectorAll('.skp-pane').forEach(function (p) { p.hidden = p.dataset.pane !== name; });
@@ -1966,7 +1965,7 @@ function skUpload() {
     return put(f.name + '.svg', f.svg);
   }).then(function () { return put(f.name + '.strokes.json', keep); }).then(function () { return item ? put(f.name + '.item.js', item.code + '\n') : null; }).then(function () {
     skStatus.textContent = 'Uploaded drawings/' + f.name + '.svg' + (item ? ' and its item code' : '') + '. Tell me in the chat.';
-    if (SK.tab === 'sent') skSentLoad();
+    if ($('skSentDlg').open) skSentLoad();
   }).catch(function (e) {
     skStatus.textContent = 'Could not upload: ' + e.message + (e.status === 401 || e.status === 403 || e.status === 404 ? ' (check the token and that it can write to this repository).' : '') + ' You can still use Save SVG.';
   });
@@ -2041,7 +2040,7 @@ function skSentCard(e) {
 }
 /** Switches to the area a drawing was made for. */
 function skGoMode(mode) {
-  if (mode && mode !== SK.mode && SK_VIEW[mode]) $('skModes').querySelector('[data-mode="' + mode + '"]').click();
+  if (mode && mode !== SK.mode && SK_VIEW[mode]) skSetMode(mode);
 }
 /** Shows a sent drawing over the picture underneath, as an image layer (it is never part of what you send). */
 function skSentShow(e) {
@@ -2089,7 +2088,6 @@ function skSentDelete(e, card) {
 }
 $('skSentRefresh').addEventListener('click', skSentLoad);
 $('skSentMore').addEventListener('click', skSentMore);
-$('skTabs').addEventListener('click', function (ev) { if (ev.target.closest('[data-tab="sent"]') && !skSentAll.length) skSentLoad(); });
 
 // ---------- picture layers (to trace over) ----------
 /** @returns {?Object} The selected image layer of the current area. */
@@ -2419,7 +2417,6 @@ function skSetMode(m) {
   SK.mode = m;
   var kind = { room: 'furniture', toy: 'toy', scene: 'background', canvas: 'other' }[SK.mode];
   if (kind) $('skKind').value = kind;
-  skPress($('skModes'), 'mode', SK.mode);
   SK.pick = [];
   var imgs = SK.images[SK.mode];
   SK.sel = imgs.length ? imgs[imgs.length - 1].id : null;
@@ -2427,36 +2424,79 @@ function skSetMode(m) {
   skLinesUI();
   skBuild();
 }
-$('skModes').addEventListener('click', function (e) {
-  var b = e.target.closest('button');
-  if (!b || b.dataset.mode === SK.mode) return;
-  skSetMode(b.dataset.mode);
+// ---------- the canvases that are open (tabs under the header) ----------
+var SK_DOC_NAMES = { pet: 'Pet', scene: 'Scene', toy: 'Toy', room: 'Furniture', canvas: 'Canvas' };
+var skOpened = { pet: true };   // canvases opened this time (the ones with a drawing are always open)
+function skHasContent(m) { return !!(SK.strokes[m].length || SK.images[m].length); }
+/** Rebuilds the row of open canvases: Pet, Scene, Toy, Furniture and the free Canvas appear once they are opened or drawn on. */
+function skDocsUI() {
+  var box = $('skDocs'), open = Object.keys(SK_DOC_NAMES).filter(function (m) { return m === SK.mode || skOpened[m] || skHasContent(m); });
+  box.replaceChildren.apply(box, open.map(function (m) {
+    var tab = document.createElement('div'), b = document.createElement('button'), x = document.createElement('button');
+    tab.className = 'skp-doc'; tab.dataset.mode = m;
+    b.type = 'button'; b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', String(m === SK.mode)); b.dataset.act = 'go';
+    b.textContent = SK_DOC_NAMES[m] + (m === 'canvas' ? ' ' + SK_VIEW.canvas.w + '×' + SK_VIEW.canvas.h : '');
+    x.type = 'button'; x.className = 'skp-doc-x'; x.dataset.act = 'close'; x.textContent = '✕'; x.title = 'Close this canvas (clears its drawing)'; x.setAttribute('aria-label', 'Close ' + SK_DOC_NAMES[m]);
+    tab.append(b, x);
+    return tab;
+  }));
+  var add = document.createElement('button');
+  add.type = 'button'; add.className = 'skp-doc-add'; add.dataset.act = 'new'; add.textContent = '＋'; add.title = 'New canvas'; add.setAttribute('aria-label', 'New canvas');
+  box.appendChild(add);
+}
+/** Empties one canvas: its lines, pictures, layers and undo steps. */
+function skClearDoc(m) {
+  SK.strokes[m] = []; SK.hist[m] = []; SK.redo[m] = []; SK.images[m] = []; SK.layers[m] = []; SK.layerSet[m] = []; SK.active[m] = 'l1';
+  skSave(); skSaveImages();
+}
+/** Opens a canvas; with fresh it starts blank (asking first if it holds a drawing). */
+function skOpenDoc(m, fresh) {
+  if (fresh && skHasContent(m) && !confirm('Start a new ' + SK_DOC_NAMES[m] + ' canvas? The drawing on it now will be cleared.')) return false;
+  if (fresh) skClearDoc(m);
+  skOpened[m] = true;
+  if (m !== SK.mode || fresh) skSetMode(m);
+  return true;
+}
+function skCloseDoc(m) {
+  if (skHasContent(m) && !confirm('Close the ' + SK_DOC_NAMES[m] + ' canvas? Its drawing will be cleared.')) return;
+  skClearDoc(m); delete skOpened[m];
+  if (m === SK.mode) {
+    var next = Object.keys(SK_DOC_NAMES).filter(function (k) { return k !== m && (skOpened[k] || skHasContent(k)); })[0];
+    if (next) skSetMode(next); else { skOpened[m] = true; skSetMode(m); }
+  } else skDocsUI();
+}
+$('skDocs').addEventListener('click', function (e) {
+  var el = e.target.closest('[data-act]');
+  if (!el) return;
+  var m = el.closest('.skp-doc') && el.closest('.skp-doc').dataset.mode;
+  if (el.dataset.act === 'new') skCanvasPop('new');
+  else if (el.dataset.act === 'close') skCloseDoc(m);
+  else if (m !== SK.mode) skSetMode(m);
 });
-// ---------- a new canvas of any size, and resizing it ----------
+// ---------- a new canvas (a game one or a blank one of any size), and resizing ----------
 var SK_CANVAS_PRESETS = [['Square', 600, 600], ['Wide', 960, 540], ['Tall', 540, 960], ['Icon', 256, 256], ['Banner', 1200, 300]];
 var skCanvasKind = 'new';
-/** Opens the size box under its button: for a new canvas, or to resize the one you are on. */
+/** Opens the canvas box: to make a new canvas (a game one or a blank one), or to resize the free canvas you are on. */
 function skCanvasPop(kind) {
-  var pop = $('skCanvasPop'), btn = kind === 'new' ? $('skNewCanvas') : $('skResize');
-  if (!pop.hidden && skCanvasKind === kind) { pop.hidden = true; return; }
+  var pop = $('skCanvasPop');
   skCanvasKind = kind;
   var v = SK_VIEW.canvas;
   $('skCanvasW').value = v.w; $('skCanvasH').value = v.h;
   $('skCanvasTitle').textContent = kind === 'new' ? 'New canvas' : 'Resize canvas';
-  $('skCanvasGo').textContent = kind === 'new' ? 'Create' : 'Resize';
+  $('skCanvasGo').textContent = kind === 'new' ? 'Create blank canvas' : 'Resize';
+  $('skNewGame').hidden = kind !== 'new';
+  $('skBlankH').hidden = kind !== 'new';
+  $('skCanvasPresets').hidden = kind !== 'new';
   $('skCanvasStretchWrap').hidden = kind === 'new';
-  $('skCanvasNote').textContent = kind === 'new' ? 'Starts blank and replaces the free canvas you have now.' : 'Drawing outside the new size is kept but hidden. Resize cannot be undone.';
-  var r = btn.getBoundingClientRect();
-  pop.hidden = false;
-  pop.style.left = Math.max(8, Math.min(innerWidth - pop.offsetWidth - 8, r.left)) + 'px';
-  pop.style.top = (r.bottom + 8) + 'px';
+  $('skCanvasNote').textContent = kind === 'new' ? 'A blank canvas replaces the free canvas you have now.' : 'Drawing outside the new size is kept but hidden. Resize cannot be undone.';
+  if (!pop.open) pop.showModal();
 }
 function skCanvasApply() {
   var w = Math.max(16, Math.min(4000, Math.round(+$('skCanvasW').value) || 0)), h = Math.max(16, Math.min(4000, Math.round(+$('skCanvasH').value) || 0)), old = SK_VIEW.canvas;
   if (!w || !h) { skStatus.textContent = 'Give a width and a height.'; return; }
   if (skCanvasKind === 'new') {
-    if ((SK.strokes.canvas.length || SK.images.canvas.length) && !confirm('Start a new canvas? The drawing on the free canvas now will be cleared.')) return;
-    SK.strokes.canvas = []; SK.hist.canvas = []; SK.redo.canvas = []; SK.images.canvas = []; SK.layers.canvas = []; SK.layerSet.canvas = []; SK.active.canvas = 'l1';
+    if (skHasContent('canvas') && !confirm('Start a new canvas? The drawing on the free canvas now will be cleared.')) return;
+    skClearDoc('canvas');
     SK_VIEW.canvas = { x: 0, y: 0, w: w, h: h };
     skStatus.textContent = 'New canvas, ' + w + ' × ' + h + '.';
   } else {
@@ -2472,27 +2512,69 @@ function skCanvasApply() {
     SK.hist.canvas = []; SK.redo.canvas = [];
     skStatus.textContent = 'Canvas is now ' + w + ' × ' + h + '.';
   }
-  $('skCanvasPop').hidden = true;
+  $('skCanvasPop').close();
   SK.zoom = 1; skSave(); skSaveImages();
+  skOpened.canvas = true;
   if (SK.mode !== 'canvas') skSetMode('canvas'); else { SK.pick = []; skLayersUI(); skLinesUI(); skBuild(); }
 }
-$('skNewCanvas').addEventListener('click', function () { skCanvasPop('new'); });
-$('skResize').addEventListener('click', function () { if (SK.mode === 'canvas') skCanvasPop('resize'); });
 $('skCanvasGo').addEventListener('click', skCanvasApply);
-$('skCanvasPop').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); skCanvasApply(); } else if (e.key === 'Escape') $('skCanvasPop').hidden = true; });
+$('skCanvasPop').addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.matches('input')) { e.preventDefault(); skCanvasApply(); } });
 $('skCanvasPresets').addEventListener('click', function (e) {
   var b = e.target.closest('button');
   if (b) { $('skCanvasW').value = b.dataset.w; $('skCanvasH').value = b.dataset.h; }
 });
-document.addEventListener('pointerdown', function (e) {
-  var pop = $('skCanvasPop');
-  if (!pop.hidden && !pop.contains(e.target) && !e.target.closest('#skNewCanvas, #skResize')) pop.hidden = true;
+$('skGameCards').addEventListener('click', function (e) {
+  var b = e.target.closest('[data-mode]');
+  if (b && skOpenDoc(b.dataset.mode, true)) { $('skCanvasPop').close(); skStatus.textContent = 'New ' + SK_DOC_NAMES[b.dataset.mode] + ' canvas.'; }
 });
 $('skCanvasPresets').replaceChildren.apply($('skCanvasPresets'), SK_CANVAS_PRESETS.map(function (p) {
   var b = document.createElement('button');
   b.type = 'button'; b.className = 'skp-btn skp-small'; b.dataset.w = p[1]; b.dataset.h = p[2]; b.textContent = p[0]; b.title = p[1] + ' × ' + p[2];
   return b;
 }));
+// ---------- dialogs and the menu bar ----------
+document.querySelectorAll('dialog.skp-dlg').forEach(function (d) {
+  d.addEventListener('click', function (e) { if (e.target === d || e.target.closest('[data-close]')) d.close(); });   // the dim backdrop or the ✕
+});
+function skMenuClose() {
+  document.querySelectorAll('.skp-menulist').forEach(function (l) { l.hidden = true; });
+  document.querySelectorAll('.skp-menubtn').forEach(function (b) { b.setAttribute('aria-expanded', 'false'); });
+}
+function skMenuOpen(btn) {
+  skMenuClose();
+  var list = btn.nextElementSibling;
+  var on = function (cmd, ok) { var i = list.querySelector('[data-cmd="' + cmd + '"]'); if (i) i.disabled = !ok; };
+  on('resize', SK.mode === 'canvas'); on('item', !$('skItemRow').hidden);
+  on('undo', !$('skUndo').disabled); on('redo', !$('skRedo').disabled);
+  list.hidden = false; btn.setAttribute('aria-expanded', 'true');
+}
+$('skMenus').addEventListener('click', function (e) {
+  var btn = e.target.closest('.skp-menubtn'), item = e.target.closest('[data-cmd]');
+  if (btn) { if (btn.getAttribute('aria-expanded') === 'true') skMenuClose(); else skMenuOpen(btn); return; }
+  if (item && !item.disabled) { skMenuClose(); skCommand(item.dataset.cmd); }
+});
+$('skMenus').addEventListener('pointerover', function (e) {   // with a menu open, moving to the other one switches to it
+  var btn = e.target.closest('.skp-menubtn');
+  if (btn && btn.getAttribute('aria-expanded') !== 'true' && document.querySelector('.skp-menubtn[aria-expanded="true"]')) skMenuOpen(btn);
+});
+document.addEventListener('pointerdown', function (e) { if (!e.target.closest('#skMenus')) skMenuClose(); });
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') skMenuClose(); });
+function skCommand(cmd) {
+  if (cmd === 'new') skCanvasPop('new');
+  else if (cmd === 'resize') skCanvasPop('resize');
+  else if (cmd === 'addpic') $('skAddImage').click();
+  else if (cmd === 'send') $('skSendDlg').showModal();
+  else if (cmd === 'github') { $('skSettings').open = true; $('skSendDlg').showModal(); }
+  else if (cmd === 'sent') { $('skSentDlg').showModal(); if (!skSentAll.length) skSentLoad(); }
+  else if (cmd === 'upload') $('skUpload').click();
+  else if (cmd === 'svg') $('skSaveFile').click();
+  else if (cmd === 'copy') $('skCopy').click();
+  else if (cmd === 'item') $('skItemCode').click();
+  else if (cmd === 'undo') skUndo();
+  else if (cmd === 'redo') skRedo();
+  else if (cmd === 'selectall') { skSetTool('select'); SK.pick = SK.strokes[SK.mode].filter(skSelectable); skXfRender(); }
+  else if (cmd === 'clear') $('skClear').click();
+}
 $('skZoom').addEventListener('click', function (e) {
   var b = e.target.closest('button');
   if (!b) return;

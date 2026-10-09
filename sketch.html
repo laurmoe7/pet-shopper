@@ -15,15 +15,36 @@
 <body class="skp">
 <header class="skp-top">
   <div class="sk-flies" id="skFlies" aria-hidden="true"></div>
-  <h1><svg class="sk-mascot" viewBox="0 0 40 34" aria-hidden="true"><path class="mt" d="M9 12L7 3.500l8 3z" fill="#ffb3c4" stroke="#5b4239" stroke-width="1.600" stroke-linejoin="round"/><path class="mt" d="M31 12l2-8.500-8 3z" fill="#ffb3c4" stroke="#5b4239" stroke-width="1.600" stroke-linejoin="round"/><ellipse cx="20" cy="19" rx="16" ry="13.500" fill="#ffc9d6" stroke="#5b4239" stroke-width="1.800"/><g class="me"><ellipse cx="12.500" cy="16" rx="1.800" ry="2.300" fill="#5b4239"/><ellipse cx="27.500" cy="16" rx="1.800" ry="2.300" fill="#5b4239"/></g><ellipse cx="8" cy="21" rx="2.800" ry="1.700" fill="#ff8fab" opacity=".7"/><ellipse cx="32" cy="21" rx="2.800" ry="1.700" fill="#ff8fab" opacity=".7"/><ellipse cx="20" cy="22" rx="6.500" ry="4.800" fill="#ffaabd" stroke="#5b4239" stroke-width="1.500"/><ellipse cx="17.500" cy="22" rx="1.200" ry="1.700" fill="#5b4239"/><ellipse cx="22.500" cy="22" rx="1.200" ry="1.700" fill="#5b4239"/></svg>Sketchpad</h1>
-  <div class="skp-canvasbar"><button type="button" class="skp-btn skp-small" id="skNewCanvas" title="Start a free canvas of any size, with nothing underneath">＋ New canvas</button><button type="button" class="skp-btn skp-small" id="skResize" title="Change the size of the free canvas (only while it is the one open)" disabled>⤢ Resize</button></div>
-  <div class="sk-seg" id="skModes" role="group" aria-label="What to draw on">
-    <button type="button" data-mode="pet" aria-pressed="true">Pet</button>
-    <button type="button" data-mode="scene" aria-pressed="false">Scene</button>
-    <button type="button" data-mode="toy" aria-pressed="false">Toy</button>
-    <button type="button" data-mode="room" aria-pressed="false">Furniture</button>
-    <button type="button" data-mode="canvas" aria-pressed="false" title="A free canvas: make one with New canvas">Canvas</button>
-  </div>
+  <h1>Sketchpad</h1>
+  <nav class="skp-menus" id="skMenus" role="menubar" aria-label="Menu">
+    <div class="skp-menu">
+      <button type="button" class="skp-menubtn" id="skMenuFile" role="menuitem" aria-haspopup="true" aria-expanded="false">File</button>
+      <div class="skp-menulist" role="menu" hidden>
+        <button type="button" role="menuitem" data-cmd="new">New canvas…</button>
+        <button type="button" role="menuitem" data-cmd="resize">Resize canvas…</button>
+        <button type="button" role="menuitem" data-cmd="addpic">Add picture…<kbd>Ctrl+V</kbd></button>
+        <hr>
+        <button type="button" role="menuitem" data-cmd="send">Send to Claude…</button>
+        <button type="button" role="menuitem" data-cmd="upload" class="owner-only">Upload to Claude</button>
+        <button type="button" role="menuitem" data-cmd="svg">Save SVG</button>
+        <button type="button" role="menuitem" data-cmd="copy">Copy SVG</button>
+        <button type="button" role="menuitem" data-cmd="item">Copy item code</button>
+        <hr class="owner-only">
+        <button type="button" role="menuitem" data-cmd="sent" class="owner-only">Sent to Claude…</button>
+        <button type="button" role="menuitem" data-cmd="github" class="owner-only">GitHub connection…</button>
+      </div>
+    </div>
+    <div class="skp-menu">
+      <button type="button" class="skp-menubtn" id="skMenuEdit" role="menuitem" aria-haspopup="true" aria-expanded="false">Edit</button>
+      <div class="skp-menulist" role="menu" hidden>
+        <button type="button" role="menuitem" data-cmd="undo">Undo<kbd>Ctrl+Z</kbd></button>
+        <button type="button" role="menuitem" data-cmd="redo">Redo<kbd>Ctrl+Y</kbd></button>
+        <hr>
+        <button type="button" role="menuitem" data-cmd="selectall">Select all<kbd>Ctrl+A</kbd></button>
+        <button type="button" role="menuitem" data-cmd="clear">Clear drawing</button>
+      </div>
+    </div>
+  </nav>
   <div class="sk-seg" id="skZoom" role="group" aria-label="Zoom">
     <button type="button" data-zoom="1" aria-pressed="true">1×</button>
     <button type="button" data-zoom="2" aria-pressed="false">2×</button>
@@ -35,15 +56,25 @@
   <label class="sk-check"><input type="checkbox" id="skRef" checked> <span id="skRefLabel">Pet</span></label>
   <label class="sk-check" title="How strong the picture underneath is">Ghost <input type="range" id="skGhost" min="15" max="100" value="100" aria-label="Ghost"></label>
 </header>
-<div class="skp-canvaspop" id="skCanvasPop" hidden role="dialog" aria-label="Canvas size">
-  <strong id="skCanvasTitle">New canvas</strong>
+<div class="skp-docs" id="skDocs" role="tablist" aria-label="Open canvases"></div>
+<dialog class="skp-dlg" id="skCanvasPop" aria-labelledby="skCanvasTitle">
+  <div class="skp-dlg-head"><strong id="skCanvasTitle">New canvas</strong><button type="button" class="skp-x" data-close aria-label="Close">✕</button></div>
+  <div id="skNewGame">
+    <h3>For the game</h3>
+    <div class="skp-cards" id="skGameCards">
+      <button type="button" class="skp-card" data-mode="pet"><b>Pet</b><span>Skins, hats and clothes over Fumu</span></button>
+      <button type="button" class="skp-card" data-mode="scene"><b>Scene</b><span>A background, 400 × 160</span></button>
+      <button type="button" class="skp-card" data-mode="toy"><b>Toy</b><span>A small toy, 26 × 26</span></button>
+      <button type="button" class="skp-card" data-mode="room"><b>Furniture</b><span>A new piece for the room</span></button>
+    </div>
+  </div>
+  <h3 id="skBlankH">Blank canvas</h3>
   <div class="sk-row" id="skCanvasPresets"></div>
   <div class="sk-row"><label>Width <input type="number" id="skCanvasW" min="16" max="4000" value="800"></label><span>×</span><label>Height <input type="number" id="skCanvasH" min="16" max="4000" value="600"></label><span class="skp-hint">px</span></div>
   <label class="sk-check" id="skCanvasStretchWrap" hidden><input type="checkbox" id="skCanvasStretch"> Stretch the drawing with it</label>
   <span class="skp-hint" id="skCanvasNote"></span>
-  <button type="button" class="skp-btn skp-small" id="skCanvasGo">Create</button>
-</div>
-<p class="skp-status" id="skStatus" aria-live="polite"></p>
+  <button type="button" class="skp-btn skp-main" id="skCanvasGo">Create</button>
+</dialog>
 
 <div class="skp-wrap">
   <nav class="skp-toolbar" aria-label="Tools">
@@ -105,8 +136,6 @@
     <nav class="skp-tabs" id="skTabs" role="tablist" aria-label="Panels">
       <button type="button" role="tab" data-tab="draw" aria-selected="true">Draw</button>
       <button type="button" role="tab" data-tab="under" id="skTabUnder" aria-selected="false">Pet</button>
-      <button type="button" role="tab" data-tab="send" aria-selected="false">Send</button>
-      <button type="button" role="tab" data-tab="sent" class="owner-only" aria-selected="false">Sent</button>
     </nav>
     <div class="skp-pane" data-pane="draw">
     <section class="skp-box">
@@ -182,8 +211,13 @@
       <div class="sk-row" id="skRoomWrap"><span class="skp-furn" id="skRoom"></span></div>
     </section>
     </div>
-    <div class="skp-pane" data-pane="send" hidden>
-    <section class="skp-box">
+  </aside>
+</div>
+
+<p class="skp-status" id="skStatus" aria-live="polite"></p>
+<dialog class="skp-dlg skp-dlg-wide" id="skSendDlg" aria-label="Send to Claude">
+  <div class="skp-dlg-head"><strong>Send to Claude</strong><button type="button" class="skp-x" data-close aria-label="Close">✕</button></div>
+  <section class="skp-box">
       <div class="sk-row sk-kindrow">
         <select id="skKind" aria-label="What is it?">
           <option value="hat">Hat</option><option value="clothes">Clothes</option><option value="face">Glasses / face</option><option value="mouth">Mouth thing</option>
@@ -213,17 +247,16 @@
         <div class="sk-row"><button type="button" class="skp-btn" id="skCheck">Check</button><button type="button" class="skp-btn" id="skForget">Forget token</button></div>
       </details>
     </section>
-    </div>
-    <div class="skp-pane" data-pane="sent" hidden>
-    <section class="skp-box">
-      <div class="skp-head"><h2>Sent to Claude</h2><button type="button" class="skp-btn skp-small" id="skSentRefresh">Refresh</button></div>
+</dialog>
+<dialog class="skp-dlg skp-dlg-wide" id="skSentDlg" aria-label="Sent to Claude">
+  <div class="skp-dlg-head"><strong>Sent to Claude</strong><button type="button" class="skp-x" data-close aria-label="Close">✕</button></div>
+  <section class="skp-box">
+      <div class="skp-head"><span></span><button type="button" class="skp-btn skp-small" id="skSentRefresh">Refresh</button></div>
       <p class="skp-hint" id="skSentNote">Your uploads, newest first.</p>
       <div class="skp-sent-list" id="skSentList"></div>
       <button type="button" class="skp-btn skp-small" id="skSentMore" hidden>Show older</button>
     </section>
-  </div>
-  </aside>
-</div>
+</dialog>
 
 <!-- the pet and the toy are borrowed from the game's own page (index.html) when this page opens, so they are always the current ones -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs id="skDefs"></defs></svg>
