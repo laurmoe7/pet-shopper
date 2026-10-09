@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 447
+- The nap now plays from the animation player.
+
 ## Build 446
 - The bell no longer flickers when you hold it over the taskbar (needs the new installer).
 
