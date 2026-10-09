@@ -520,16 +520,29 @@
     if (Math.hypot(vx, vy) < 120) { stage.style.setProperty('--bed-turn', '0deg'); return; }   // on the ground: flat
     stage.style.setProperty('--bed-turn', (Math.atan2(-vx, vy) * 180 / Math.PI).toFixed(0) + 'deg');
   });
+  /** He hits a wall or the ceiling: a gentle squish into it, a small lean away as he rebounds, and a little burst where he touched. */
+  window.wallHit = function (wall, hard) {
+    hard = Math.min(1, hard || .5);
+    pet.classList.remove('wall-l', 'wall-r', 'wall-t'); void pet.offsetWidth;
+    pet.classList.add('wall-' + wall);
+    pet.style.setProperty('--squish', (.7 + .12 * (1 - hard)).toFixed(2));
+    setTimeout(function () { pet.classList.remove('wall-l', 'wall-r', 'wall-t'); }, 640);
+    var sr = stage.getBoundingClientRect(), pr = pet.getBoundingClientRect(), x, y, rot;
+    if (wall === 'l') { x = pr.left - sr.left + 2; y = pr.top - sr.top + pr.height * .5; rot = 0; }
+    else if (wall === 'r') { x = pr.right - sr.left - 2; y = pr.top - sr.top + pr.height * .5; rot = 180; }
+    else { x = pr.left - sr.left + pr.width / 2; y = pr.top - sr.top + 6; rot = 90; }
+    var b = document.createElement('div');
+    b.className = 'wall-burst'; b.setAttribute('aria-hidden', 'true');
+    b.style.left = x + 'px'; b.style.top = y + 'px'; b.style.setProperty('--rot', rot + 'deg'); b.style.setProperty('--burst', (.8 + .5 * hard).toFixed(2));
+    b.innerHTML = '<svg viewBox="-24 -24 48 48" width="48" height="48"><path class="wb-star" d="M0 -12 L3.2 -3.4 L12 0 L3.2 3.4 L0 12 L-3.2 3.4 L-12 0 L-3.2 -3.4 Z"/><g class="wb-lines"><path d="M-14 -13 L-20 -17"/><path d="M-16 0 L-23 0"/><path d="M-14 13 L-20 17"/></g></svg>';
+    stage.appendChild(b);
+    setTimeout(function () { if (b.parentNode) b.remove(); }, 480);
+  };
   function pageBounce(hard, wall) {
     if (headDown) { headDown = false; pet.classList.remove('thrown'); pet.classList.add('head-down'); }   // he stops spinning on his head
     if (stage.classList.contains('bed-thrown')) { if (typeof sound === 'function') { sound('bounce'); sound('bedbell'); } return; }   // in his bed: the bounce and the faint bell in the bed
     if (typeof sound === 'function') sound('bounce');
-    if (wall && !carried) {   // against a wall or the ceiling he squishes flat into it (the squish is a CSS animation on his whole box, see .wall-l)
-      pet.classList.remove('wall-l', 'wall-r', 'wall-t'); void pet.offsetWidth;
-      pet.classList.add('wall-' + wall); pet.style.setProperty('--squish', (.4 + .15 * (1 - Math.min(1, hard))).toFixed(2));
-      setTimeout(function () { pet.classList.remove('wall-l', 'wall-r', 'wall-t'); }, 640);
-      return;
-    }
+    if (wall && !carried) { window.wallHit(wall, hard); return; }
     if (typeof pulse === 'function' && !carried) pulse(hard > .5 ? 'hop' : 'hopsmall', 400);
   }
   if (D.onBounce) D.onBounce(pageBounce);

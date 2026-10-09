@@ -179,7 +179,12 @@ function walkPath(spots, pause) {
 // ---------- a daytime nap ----------
 // Eyes closed, a few z's and a slow breath for a while (the desktop companion does this now and then). A touch, or
 // something to eat, ends it; on its own it ends with a stretch and a yawn.
-var napping = false, napTimer = 0;
+var napping = false, napTimer = 0, napSeated = false;
+/** He sits down for a nap (soles out in front, like sitting on a window) and gets up again after it, unless something else had him sitting. */
+function napSit(on) {
+  if (on && !pet.classList.contains('seated')) { pet.classList.add('seated'); napSeated = true; }
+  else if (!on && napSeated) { pet.classList.remove('seated'); napSeated = false; }
+}
 /** @returns {boolean} Whether he is asleep or napping (the snore marks are showing): timers that blink his eyes must leave them shut. */
 function asleepFace() { return napping || pet.classList.contains('x-zzz'); }
 /**
@@ -190,12 +195,13 @@ function napNow(ms) {
   if (napping || busy || dreaming || document.hidden || baseState() === 'sleepy') return 0;
   ms = ms || 22000;
   napping = true;
+  napSit(true);
   setFace({ eyes: 'closed', mouth: 'o', arms: 'rest', x: ['zzz'] });
   pulse('sit', 2600);
   var t0 = Date.now();
   (function tick() {
     if (!napping) return;
-    if (busy) { napping = false; return; }   // something to eat: the eating takes over the face
+    if (busy) { napping = false; napSit(false); return; }   // something to eat: the eating takes over the face
     if (Date.now() - t0 > ms) { wakeFromNap(false); return; }
     snore();
     napTimer = setTimeout(tick, 2600);
@@ -205,7 +211,7 @@ function napNow(ms) {
 /** Ends a nap: with a start when it was disturbed, or a stretch and a yawn when it was done. */
 function wakeFromNap(startled) {
   if (!napping) return;
-  napping = false;
+  napping = false; napSit(false);
   clearTimeout(napTimer);
   if (startled) {
     setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: ['shock'] });

@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 430
+- He sits down while he naps.
+- Gentler squish against a wall, with a little lean and a burst where he hits.
+
 ## Build 429
 - Fumu says a short line while an update is downloading.
 - Claude alerts show at once, with no speech or celebration from Fumu.

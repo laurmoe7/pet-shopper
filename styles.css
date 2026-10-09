@@ -3252,13 +3252,19 @@ html:root[data-skin="quest"] .recipe-btn { background: linear-gradient(180deg, #
 html:root[data-skin="quest"] .mic-btn.on { background: #c0392b; }
 /* the ring menu is open: the speech bubble sits where the ring's buttons are not (app-ring.js placeBubble) */
 html.desktop-pet.ring-open .stage .bubble.ring-moved { left: var(--rl, 4px) !important; right: auto !important; top: var(--rt, 4px) !important; bottom: auto !important; margin: 0 !important; max-width: 42% !important; }
-/* he hits a wall or the ceiling when thrown (app-desktop.js pageBounce): he squishes flat against it, then pops back (--squish: how flat) */
-.pet.wall-l, .pet.wall-r { transform-origin: var(--wall-x, 0%) 62%; animation: wall-squish-x .6s ease-out; }
-.pet.wall-l { --wall-x: 8%; } .pet.wall-r { --wall-x: 92%; }
-.pet.wall-t { transform-origin: 50% 8%; animation: wall-squish-y .6s ease-out; }
-@keyframes wall-squish-x { 0% { scale: 1 1; } 16% { scale: var(--squish, .4) calc(1 + (1 - var(--squish, .4)) * 1.1); } 42% { scale: calc(var(--squish, .4) + .04) calc(1 + (1 - var(--squish, .4)) * 1.0); } 70% { scale: 1.16 .86; } 86% { scale: .96 1.05; } 100% { scale: 1 1; } }
-@keyframes wall-squish-y { 0% { scale: 1 1; } 16% { scale: calc(1 + (1 - var(--squish, .4)) * 1.1) var(--squish, .4); } 42% { scale: calc(1 + (1 - var(--squish, .4)) * 1.0) calc(var(--squish, .4) + .04); } 70% { scale: .86 1.16; } 86% { scale: 1.05 .96; } 100% { scale: 1 1; } }
-@media (prefers-reduced-motion: reduce) { .pet.wall-l, .pet.wall-r, .pet.wall-t { animation: none; } }
+/* he hits a wall or the ceiling when thrown (app-desktop.js wallHit): a gentle squish into it, a small lean away on the rebound, then back (--squish: how flat) */
+.pet.wall-l, .pet.wall-r { transform-origin: var(--wall-x, 0%) 62%; animation: wall-squish-x .55s ease-out; }
+.pet.wall-l { --wall-x: 8%; --lean: -4deg; } .pet.wall-r { --wall-x: 92%; --lean: 4deg; }
+.pet.wall-t { transform-origin: 50% 8%; animation: wall-squish-y .55s ease-out; }
+@keyframes wall-squish-x { 0% { scale: 1 1; rotate: 0deg; } 14% { scale: var(--squish, .74) calc(1 + (1 - var(--squish, .74)) * .5); rotate: 0deg; animation-timing-function: ease-in-out; } 34% { scale: calc(var(--squish, .74) + .03) calc(1 + (1 - var(--squish, .74)) * .45); rotate: 0deg; animation-timing-function: ease-out; } 62% { scale: 1.05 .97; rotate: var(--lean); animation-timing-function: ease-in-out; } 82% { scale: .99 1.01; rotate: 0deg; } 100% { scale: 1 1; rotate: 0deg; } }
+@keyframes wall-squish-y { 0% { scale: 1 1; } 14% { scale: calc(1 + (1 - var(--squish, .74)) * .5) var(--squish, .74); animation-timing-function: ease-in-out; } 34% { scale: calc(1 + (1 - var(--squish, .74)) * .45) calc(var(--squish, .74) + .03); animation-timing-function: ease-out; } 62% { scale: .97 1.05; animation-timing-function: ease-in-out; } 82% { scale: 1.01 .99; } 100% { scale: 1 1; } }
+/* the little burst where he touched */
+.wall-burst { position: absolute; z-index: 7; width: 48px; height: 48px; margin: -24px 0 0 -24px; pointer-events: none; rotate: var(--rot, 0deg); animation: wall-burst .42s ease-out forwards; }
+.wall-burst svg { display: block; overflow: visible; }
+.wall-burst .wb-star { fill: #fffbe8; stroke: var(--pet-ink, #5b4239); stroke-width: 1.5; stroke-linejoin: round; }
+.wall-burst .wb-lines path { fill: none; stroke: var(--pet-ink, #5b4239); stroke-width: 2; stroke-linecap: round; }
+@keyframes wall-burst { 0% { scale: .2; opacity: 0; } 22% { scale: calc(var(--burst, 1) * 1.15); opacity: 1; } 60% { scale: var(--burst, 1); opacity: 1; } 100% { scale: calc(var(--burst, 1) * 1.1); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pet.wall-l, .pet.wall-r, .pet.wall-t, .wall-burst { animation: none; } }
 
 /* the night light's button sits in the same corner as the food suggestion: the suggestion goes above it so its ✕ can be pressed */
 .stage:has(.night-btn:not([hidden])) .suggest { bottom: 46px; }
