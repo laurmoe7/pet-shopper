@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 397
+- Smaller speech bubble pointer with the same outline thickness all the way round.
+
 ## Build 396
 - Quest bubble is back to its first look; pointer stays a curved fin with no line at its base.
 
