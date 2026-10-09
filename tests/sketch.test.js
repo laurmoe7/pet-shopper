@@ -245,3 +245,22 @@ test('a pressure line becomes a closed outline as wide as the pressure', () => {
   assert.ok(Math.max(...ys) - Math.min(...ys) < 9);
   assert.equal(L.sketchRibbon([[5, 5]], [4]).length, 14, 'a single press is a dot');
 });
+
+test('tracing: dark ink on paper becomes a mask, specks are dropped, colours are sorted into flat patches', () => {
+  const w = 20, h = 20, px = new Uint8ClampedArray(w * h * 4);
+  for (let i = 0; i < w * h; i++) { px[i * 4] = px[i * 4 + 1] = px[i * 4 + 2] = 240; px[i * 4 + 3] = 255; }
+  const dark = (x, y) => { const i = (y * w + x) * 4; px[i] = px[i + 1] = px[i + 2] = 30; };
+  for (let y = 5; y < 15; y++) for (let x = 5; x < 15; x++) dark(x, y);   // a square
+  dark(1, 1);   // a speck
+  const mask = L.despeckle(L.traceInk(px, w, h, 0), w, h, 4);
+  assert.equal(mask[10 * w + 10], 1);
+  assert.equal(mask[1 * w + 1], 0);
+  assert.equal(mask.reduce((a, b) => a + b, 0), 100);
+  assert.equal(L.traceLoops(mask, w, h).length, 1);
+  const col = new Uint8ClampedArray(w * h * 4);
+  for (let i = 0; i < w * h; i++) { const left = (i % w) < 10; col[i * 4] = left ? 255 : 0; col[i * 4 + 1] = 40; col[i * 4 + 2] = left ? 0 : 255; col[i * 4 + 3] = 255; }
+  const r = L.traceColours(col, w, h, 2);
+  assert.equal(r.palette.length, 2);
+  assert.notEqual(r.labels[0], r.labels[w - 1]);
+  assert.equal(r.labels[0], r.labels[5]);
+});

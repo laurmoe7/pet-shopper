@@ -313,8 +313,8 @@ html:root body.skp.skp-guest #skSaveFile { color: #fff; text-shadow: 0 1px 2px r
 .skp-tabs button[aria-selected="true"] { background: linear-gradient(180deg, #ffa3bb, #ff8fab); color: #3b1f2b; box-shadow: 0 2px 0 #c9577f; }
 .skp-pane { display: flex; flex-direction: column; gap: 8px; }
 .skp-pane[hidden] { display: none; }
-.sk-seltools[data-n="10"], .sk-seltools[data-n="12"] { grid-template-columns: repeat(6, 1fr); }
-.sk-seltools[data-n="10"] button, .sk-seltools[data-n="12"] button { height: 30px; }
+.sk-seltools[data-n="10"], .sk-seltools[data-n="12"], .sk-seltools[data-n="15"], .sk-seltools[data-n="16"] { grid-template-columns: repeat(6, 1fr); }
+.sk-seltools[data-n="10"] button, .sk-seltools[data-n="12"] button, .sk-seltools[data-n="15"] button, .sk-seltools[data-n="16"] button { height: 30px; }
 #skItemRow { flex-wrap: nowrap; }
 #skItemRow input { flex: 1; min-width: 0; }
 #skItemRow[hidden] { display: none; }
@@ -385,5 +385,13 @@ body.skp:has(.sk-stage[data-tool="shape"]) #skShape { border-color: #ff8fab; box
 .sk-tools button[hidden] { display: none; }
 html:root body.skp .cs-pop::after { background: linear-gradient(transparent, var(--sk-panel) 85%); border-radius: 0 0 16px 16px; }
 
+#skPaint.on { background: var(--accent); color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.25); }
+.sk-repeat { align-items: center; gap: 6px; font-size: .78rem; color: var(--muted); }
+.sk-repeat input[type="number"] { width: 52px; padding: 3px 5px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font: inherit; }
+.sk-repeat .sk-check { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; }
+.skp-trace { display: grid; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1.5px dashed var(--line); }
+.skp-trace .sk-row { align-items: center; gap: 8px; font-size: .78rem; color: var(--muted); }
+.skp-trace input[type="range"] { flex: 1; }
+.skp-trace [hidden] { display: none; }
 /* the sitting pose is a still picture: the soles do not plop in */
 .preview .sole-part { animation: none !important; }
