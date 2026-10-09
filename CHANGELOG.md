@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 400
+- Speech bubble pointer joins the bubble's edge smoothly, same colour all the way.
+
 ## Build 399
 - He can be parked half off the side of the screen again; only the bottom is kept clear.
 
