@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 432
+- He stays just above the taskbar again: sitting over it cut him off.
+
 ## Build 431
 - Claude alerts: the wand celebration plays right after the card appears.
 
