@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 410
+- Nothing visible; bubble style names corrected (Quest fin = arrow bubble).
+
 ## Build 409
 - Nothing visible; the pointer bubble style is now marked as its own style.
 
