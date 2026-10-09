@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 379
+- The ring of buttons matches the alert style.
+
 ## Build 378
 - The ring of buttons opens with a double click on him.
 
