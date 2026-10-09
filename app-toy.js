@@ -196,8 +196,10 @@ function batAbout(side) {
 }
 /** With the toy in his mouth or arms (h px up) he carries it back to where he stood when it was thrown (the desktop app; the window runs). */
 function carryBack(h) {
-  toyHold(h, walkX, 150);
-  if (typeof deskToyReturn !== 'function') return Promise.resolve();
+  if (typeof deskToyReturn !== 'function') { toyHold(h, walkX, 150); return Promise.resolve(); }
+  // his window runs back to where it stood, so he has to come back to the middle of it too, or he ends up that far from his old spot (the toy goes with him)
+  var wms = walkTo(0, toyPace(5));
+  toyHold(h, 0, wms || 150);
   pet.classList.add('running');
   return deskToyReturn().then(function () { pet.classList.remove('running'); });
 }

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 461
+- After a ball catch he returns to his exact old spot (he also comes back to the middle of his window, not only the window).
+
 ## Build 460
 - During a ball chase his legs keep walking while the window runs after the ball (no more sliding).
 
