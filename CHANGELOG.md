@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 380
+- Choosing an alert style shows a quick preview.
+
 ## Build 379
 - The ring of buttons matches the alert style.
 

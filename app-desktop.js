@@ -226,7 +226,23 @@
   // the whole app's light or dark changed: its alerts and bubbles follow
   try { new MutationObserver(function () { applyLook(); }).observe(root, { attributes: true, attributeFilter: ['data-theme'] }); if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyLook); } catch (e) { /* old browser */ }
   if (D.getPrefs) D.getPrefs().then(function (p) { if (p) { deskPrefs = p; applyLook(); applyChatter(); } });
-  if (D.onPrefs) D.onPrefs(function (p) { if (p) { deskPrefs = p; applyLook(); applyChatter(); } });
+  if (D.onPrefs) D.onPrefs(function (p) {
+    if (!p) return;
+    var was = deskPrefs.alertStyle;
+    deskPrefs = p; applyLook(); applyChatter();
+    if (was && p.alertStyle && was !== p.alertStyle && root.classList.contains('desktop-pet')) previewLook();
+  });
+  /** Choosing an alert style in the mini settings: a sample alert and a line show for a moment in the new look. */
+  var previewTimer = 0;
+  function previewLook() {
+    if (typeof showInboxCard !== 'function' || inboxCard || document.querySelector('.inbox-card')) return;
+    showInboxCard({ kind: 'note', text: 'Like this?', test: true });
+    var card = inboxCard; inboxCard = null;
+    if (card) { card.querySelector('.inbox-actions').hidden = true; card.classList.add('look-preview'); }
+    if (!busy && petScene() !== 'night-bed') say(pick(['how do I look?', 'like this?', 'ooh, new look!']), 2600, true);
+    clearTimeout(previewTimer);
+    previewTimer = setTimeout(function () { if (card && card.parentNode) slideAway(card, 1, function () { card.remove(); }); }, 3200);
+  }
 
   // ---------- a long line must not run off the top of the small window: the text shrinks until it fits ----------
   var fitting = false;
