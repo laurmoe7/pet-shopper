@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 522
+- Cool (Mini Fumu) redone as a light frosted-ice look
+- New Scribbling theme: colourful crayon (app and Mini Fumu)
+
 ## Build 521
 - Loading card shows from the moment Mini Fumu starts, before the page arrives
 
