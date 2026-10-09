@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 369
+- Alerts are a little smaller and sit lower, so the top is not cut off.
+
 ## Build 368
 - The whole app shows in the taskbar and Alt+Tab, so a game cannot hide it for good.
 
