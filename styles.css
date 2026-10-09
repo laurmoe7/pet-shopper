@@ -3092,20 +3092,22 @@ html[class*="al-"] .inbox-actions .inbox-done { width: 26px; height: 26px; paddi
 
 /* two more alert styles (build 371): Sweet (pastel pink and red, hearts) and Cool (navy, sharp corners, a stripe) */
 @keyframes alert-heart { 0%, 100% { scale: .85; } 40% { scale: 1.25; } 60% { scale: 1; } }
-/* Sweet (restyled build 381): strawberry milk: polka dots, a candy-stripe ribbon, a thick red-pink edge and bobbing hearts */
-html.al-sweet { --al-bg: #fff3f7; --al-ink: #a3173f; --al-sub: #d06a87; --al-edge: #ff4f79; --al-chip: #fff; --al-shadow: rgba(255, 79, 121, .4); --al-mix: #fff; }
-html.al-sweet .inbox-card { --ac: #ff4f79; --ac2: #ffd0de; border-radius: 26px; border-width: 3px; outline: none; padding-left: 14px;
-  background: radial-gradient(circle, #ffc9d9 2px, transparent 2.6px) 0 0 / 14px 14px, linear-gradient(#fff, #ffe9f0);
-  box-shadow: 0 0 0 3px #fff, 0 0 0 5px #ffb3c8, 0 8px 14px var(--al-shadow); }
-html.al-sweet :is(.remind-card, .claude-card, .note-card, .link-card) { --ac: #ff4f79; }
-html.al-sweet .inbox-card::before { content: ""; top: -9px; left: 24px; width: 66px; height: 13px; border-radius: 7px; border: 1.5px solid #ff4f79; background: repeating-linear-gradient(45deg, #ff4f79 0 6px, #fff 6px 12px); rotate: -3deg; opacity: 1; box-shadow: none; }
-html.al-sweet .inbox-card::after { content: "♥"; color: #ff4f79; font-size: 1rem; top: -10px; right: 16px; text-shadow: 0 1px 0 #fff; animation: alert-heart 1.6s ease-in-out infinite; }
-@keyframes alert-heart { 0%, 100% { scale: .85; } 40% { scale: 1.25; } 60% { scale: 1; } }
-html.al-sweet :is(.inbox-icon, .remind-card .inbox-icon, .claude-card .inbox-icon) { background: #fff; border-radius: 50%; box-shadow: 0 0 0 2px #ff4f79, 0 0 0 5px #ffd0de; }
-html.al-sweet .inbox-text b { color: #a3173f; }
-html.al-sweet .inbox-actions button { background: #fff; color: #d6194f; border: 2px solid #ff4f79; border-radius: 999px; box-shadow: 0 2px 0 #ff4f79; }
-html.al-sweet .inbox-actions .ia-done { background: linear-gradient(180deg, #ff7a9c, #ff3d6b); color: #fff; text-shadow: 0 1px 0 rgba(150, 20, 50, .45); }
-html.al-sweet .inbox-actions .inbox-done { color: #d6194f; }
+/* Sweet (build 382): a soft pastel cake: vanilla sponge fading to pink, a scalloped icing top and a cherry */
+html.al-sweet { --al-bg: #fff3f4; --al-ink: #7a4a5a; --al-sub: #b98a98; --al-edge: #f0b4c6; --al-chip: #fffaf6; --al-shadow: rgba(235, 150, 175, .32); --al-mix: #fff; }
+html.al-sweet .inbox-card { --ac: #f7a8c0; --ac2: #ffe3ec; border-radius: 22px; border-width: 2px; outline: none; padding-top: 14px;
+  background: linear-gradient(180deg, #fffaf0 0%, #fff1f4 55%, #ffe4ed 100%);
+  box-shadow: 0 3px 0 #f3b9ca, 0 8px 16px var(--al-shadow), inset 0 -8px 12px rgba(255, 190, 210, .3); }
+html.al-sweet :is(.remind-card, .claude-card, .note-card, .link-card) { --ac: #f7a8c0; }
+html.al-sweet .inbox-card::before { content: ""; top: -2px; left: -2px; right: -2px; width: auto; height: 17px; border-radius: 22px 22px 0 0; rotate: 0deg; opacity: 1; box-shadow: none;
+  background: radial-gradient(circle at 11px 6px, #ffd0de 9px, transparent 9.6px) 0 0 / 22px 17px repeat-x, linear-gradient(180deg, #ffc4d6, #ffd0de) 0 0 / 100% 8px no-repeat; }
+html.al-sweet .inbox-card::after { content: ""; top: -8px; right: 22px; width: 15px; height: 15px; border-radius: 50%; font-size: 0; text-shadow: none;
+  background: radial-gradient(circle at 34% 30%, #fff 0 1.8px, #ff8aa5 2.6px, #e8456b); box-shadow: 0 2px 3px rgba(180, 40, 80, .3); animation: alert-bob 2.4s ease-in-out infinite; }
+@keyframes alert-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2px; } }
+html.al-sweet :is(.inbox-icon, .remind-card .inbox-icon, .claude-card .inbox-icon) { background: linear-gradient(180deg, #fff, #ffeef2); border-radius: 50%; box-shadow: 0 0 0 2px #f7c6d4, 0 3px 6px rgba(235, 150, 175, .35); }
+html.al-sweet .inbox-text b { color: #7a4a5a; }
+html.al-sweet .inbox-actions button { background: linear-gradient(180deg, #fff, #fff1f5); color: #b35a78; border: 1.5px solid #f3b9ca; border-radius: 999px; box-shadow: 0 2px 0 #f3b9ca; }
+html.al-sweet .inbox-actions .ia-done { background: linear-gradient(180deg, #ffd3e0, #ffb3cb); color: #7a2a4a; text-shadow: none; }
+html.al-sweet .inbox-actions .inbox-done { color: #b35a78; }
 @media (prefers-reduced-motion: reduce) { html.al-sweet .inbox-card::after { animation: none; } }
 html.al-cool { --al-bg: #1c1d21; --al-ink: #f1f2f4; --al-sub: #9b9ea6; --al-edge: #050506; --al-chip: #33353b; --al-shadow: rgba(0, 0, 0, .6); --al-mix: #1c1d21; }
 html.al-cool .inbox-card { --ac: #e63946; --ac2: #2b2d33; border-radius: 9px; outline: none; border-width: 2.5px; border-color: #4a4d55; background: linear-gradient(105deg, #e63946 0 6px, transparent 6px), linear-gradient(180deg, #2a2c31, #17181b); padding-left: 18px; box-shadow: 0 3px 0 var(--al-edge), 0 8px 14px var(--al-shadow), inset 0 1px 0 rgba(255, 255, 255, .08); }
@@ -3140,8 +3142,8 @@ html.al-quest .inbox-actions .inbox-done { border-radius: 4px; width: 26px; }
 html[class*="al-"] .stage .bubble { background: var(--al-bg); color: var(--al-ink); border: 2px solid var(--al-edge); box-shadow: 0 2px 0 var(--al-edge), 0 6px 10px var(--al-shadow); border-radius: 16px 16px 16px 5px; }
 html.al-paper .stage .bubble { outline: 1.5px dashed #f3b6c8; outline-offset: -4px; }
 html.al-night .stage .bubble { outline: 1.5px dashed #c9b3f0; outline-offset: -4px; }
-html.al-sweet .stage .bubble { border: 2.5px solid #ff4f79; border-radius: 22px 22px 22px 6px; outline: none; padding-right: 22px; background: radial-gradient(circle, #ffc9d9 2px, transparent 2.6px) 0 0 / 14px 14px, linear-gradient(#fff, #ffe9f0); box-shadow: 0 0 0 2.5px #fff, 0 0 0 4.5px #ffb3c8, 0 6px 10px var(--al-shadow); }
-html.al-sweet .stage .bubble::after { content: "♥"; position: absolute; top: -9px; right: 8px; font-size: .85rem; color: #ff4f79; text-shadow: 0 1px 0 #fff; }
+html.al-sweet .stage .bubble { border: 2px solid #f3b9ca; border-radius: 20px 20px 20px 6px; outline: none; padding-right: 20px; background: linear-gradient(180deg, #fffaf0, #ffe9f0); box-shadow: 0 3px 0 #f3b9ca, 0 6px 12px var(--al-shadow); }
+html.al-sweet .stage .bubble::after { content: ""; position: absolute; top: -6px; right: 12px; width: 11px; height: 11px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #fff 0 1.4px, #ff8aa5 2px, #e8456b); box-shadow: 0 1px 2px rgba(180, 40, 80, .3); }
 html.al-cool .stage .bubble { border-radius: 8px; border-color: #4a4d55; background: linear-gradient(105deg, #e63946 0 5px, transparent 5px), linear-gradient(180deg, #2a2c31, #17181b); padding-left: 16px; box-shadow: 0 2px 0 #050506, 0 6px 10px rgba(0, 0, 0, .55); }
 html.al-quest .stage .bubble { border: 3px solid #c9a227; border-radius: 6px; font-family: "Palatino Linotype", Palatino, Georgia, serif; font-weight: 700; color: #ffd100; text-shadow: 0 1px 0 #000; padding: 5px 12px; background: radial-gradient(ellipse at 50% 0, rgba(255, 215, 120, .1), transparent 70%), linear-gradient(180deg, #2a1d10, #140e08); box-shadow: 0 0 0 1.5px #5a420f, inset 0 0 0 2px #0a0704, inset 0 0 0 3.5px #7a5a14, 0 6px 10px rgba(0, 0, 0, .6); }
 
@@ -3150,8 +3152,8 @@ html[class*="al-"] .ring-btn { background: var(--al-bg); border: 2px solid var(-
 html[class*="al-"] .ring-btn:hover { background: color-mix(in srgb, var(--al-bg) 80%, #fff); }
 html[class*="al-"] .ring-btn[aria-pressed="true"] { background: color-mix(in srgb, var(--al-bg) 55%, #ffd877); box-shadow: 0 0 10px 3px rgba(255, 205, 120, .6), 0 2px 0 var(--al-edge); }
 html.al-night .ring-btn:hover { background: #4d3a5a; }
-html.al-sweet .ring-btn { background: #fff; border: 2px solid #ff4f79; box-shadow: 0 2px 0 #ff4f79, 0 0 0 3px #ffd0de; }
-html.al-sweet .ring-btn:hover { background: #ffe3ea; }
+html.al-sweet .ring-btn { background: linear-gradient(180deg, #fffaf0, #ffe9f0); border: 2px solid #f3b9ca; box-shadow: 0 2px 0 #f3b9ca, 0 4px 8px var(--al-shadow); }
+html.al-sweet .ring-btn:hover { background: linear-gradient(180deg, #fff, #ffdbe6); }
 html.al-cool .ring-btn { border-radius: 9px; background: linear-gradient(180deg, #43464d, #26282d); border-color: #0b0b0d; box-shadow: 0 2px 0 #050506, inset 0 0 0 1.5px #e63946; }
 html.al-cool .ring-btn:hover { background: linear-gradient(180deg, #55585f, #33353b); }
 html.al-quest .ring-btn { border-radius: 4px; background: radial-gradient(ellipse at 50% 0, rgba(255, 215, 120, .15), transparent 70%), linear-gradient(180deg, #2a1d10, #140e08); border: 2px solid #c9a227; box-shadow: 0 0 0 1px #000, inset 0 0 0 1.5px #0a0704, 0 3px 6px rgba(0, 0, 0, .6); }

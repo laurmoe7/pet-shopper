@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 382
+- Sweet is now a soft pastel cake: gradients, icing top, a cherry.
+- Sample alerts always slide away by themselves.
+
 ## Build 381
 - Mini Fumu settings window wears the chosen alert style.
 - Sweet looks new: polka dots, candy stripes, red-pink edge.

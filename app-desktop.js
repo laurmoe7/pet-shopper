@@ -233,15 +233,24 @@
     if (was && p.alertStyle && was !== p.alertStyle && root.classList.contains('desktop-pet')) previewLook();
   });
   /** Choosing an alert style in the mini settings: a sample alert and a line show for a moment in the new look. */
-  var previewTimer = 0;
+  var previewTimer = 0, previewCard = null;
   function previewLook() {
-    if (typeof showInboxCard !== 'function' || inboxCard || document.querySelector('.inbox-card')) return;
-    showInboxCard({ kind: 'note', text: 'Like this?', test: true });
-    var card = inboxCard; inboxCard = null;
-    if (card) { card.querySelector('.inbox-actions').hidden = true; card.classList.add('look-preview'); }
+    if (typeof showInboxCard !== 'function') return;
+    if (!previewCard || !previewCard.parentNode) {
+      if (inboxCard || document.querySelector('.inbox-card')) return;   // a real alert is up: leave it
+      showInboxCard({ kind: 'note', text: 'Like this?', test: true });
+      previewCard = inboxCard; inboxCard = null;
+      if (previewCard) { previewCard.querySelector('.inbox-actions').hidden = true; previewCard.classList.add('look-preview'); }
+    }
     if (!busy && petScene() !== 'night-bed') say(pick(['how do I look?', 'like this?', 'ooh, new look!']), 2600, true);
     clearTimeout(previewTimer);
-    previewTimer = setTimeout(function () { if (card && card.parentNode) slideAway(card, 1, function () { card.remove(); }); }, 3200);
+    // it goes by itself: slides off after a moment (and is removed outright if the slide somehow does not)
+    previewTimer = setTimeout(function () {
+      var card = previewCard; previewCard = null;
+      if (!card || !card.parentNode) return;
+      slideAway(card, 1, function () { card.remove(); });
+      setTimeout(function () { if (card.parentNode) card.remove(); }, 800);
+    }, 3000);
   }
 
   // ---------- a long line must not run off the top of the small window: the text shrinks until it fits ----------
