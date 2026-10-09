@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 422
+- Mini Fumu has more room under him, so his lower half is not cut off by the window while he spins or tilts.
+
 ## Build 421
 - Back to keeping him above the taskbar: Windows draws it over him when he overlaps it.
 
