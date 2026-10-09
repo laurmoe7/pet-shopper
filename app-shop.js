@@ -22,7 +22,8 @@ function shopOn() {
 /** Greys the dock's Shop button out, or lights it up when the test Shop is on. */
 function applyShop() {
   var on = shopOn();
-  $('shopBtn').disabled = !on;
+  $('shopBtn').classList.toggle('shop-off', !on);   // (not `disabled`: a tap on the greyed button explains how to switch it on)
+  $('shopBtn').setAttribute('aria-disabled', String(!on));
   $('shopBtn').setAttribute('aria-label', on ? 'Shop' : 'Shop: coming soon');
   if (!on && shopSheet.open) shopSheet.close();
 }
@@ -60,7 +61,10 @@ function renderShop() {
   $('shopList').replaceChildren.apply($('shopList'), [head('Premium'), shopCard(SHOP_PREMIUM, true), head('Cosmetic packs')].concat(SHOP_PACKS.map(function (p) { return shopCard(p, false); })));
   shopNote.textContent = '';
 }
-$('shopBtn').addEventListener('click', function () { renderShop(); sheetUnderMouth(shopSheet); openDialog(shopSheet); });
+$('shopBtn').addEventListener('click', function () {
+  if (!shopOn()) { sound('tap'); if (typeof say === 'function' && !busy) say('the Shop is off: Options > Developer tools > Test Shop', 3500, true); return; }
+  renderShop(); sheetUnderMouth(shopSheet); openDialog(shopSheet);
+});
 $('shopList').addEventListener('click', function (e) {
   var b = e.target.closest('.shop-buy');
   if (!b) return;

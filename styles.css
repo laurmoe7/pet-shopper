@@ -2247,7 +2247,7 @@ html:root .item.late:not(.done) { animation: late-shake 3.6s ease-in-out infinit
 .dock .todo-only { display: none; }
 html[data-list="todo"] .dock .todo-only { display: flex; }
 /* the Shop is only a placeholder for now: greyed out */
-.dock #shopBtn:disabled { opacity: .45; filter: grayscale(1); cursor: default; }
+.dock #shopBtn.shop-off { opacity: .45; filter: grayscale(1); cursor: default; }
 html:root .dock #calBtn { --tilt: 3deg; --sticker: #ffd9c2; --sticker-ink: #d9743f; }
 /* calendar */
 .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }

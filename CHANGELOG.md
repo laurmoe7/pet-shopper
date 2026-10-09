@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 443
+- Tapping the greyed Shop button says how to switch it on; the Developer tools switch shows whether it is on or off.
+
 ## Build 442
 - Alert cards no longer make Fumu move up and down: the card sits a little lower instead.
 
