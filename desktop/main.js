@@ -79,6 +79,28 @@ function start() {
       tween = { timer, done: resolve };
     });
   }
+  /** The bed springs back to `to`: it hops across in a few bounces that get smaller, and rocks a little past the spot before settling on it. */
+  function springBack(to, ms) {
+    stopTween();
+    return new Promise((resolve) => {
+      if (!win || mode !== 'pet') { resolve(false); return; }
+      const from = win.getBounds(), t0 = Date.now(), dist = Math.hypot(to.x - from.x, to.y - from.y);
+      const H = Math.max(40, Math.min(150, dist * 0.22)), HOPS = dist > 500 ? 4 : 3;
+      let lastHop = 0;
+      const c = Math.min(1.7, 450 / Math.max(1, Math.abs(to.x - from.x)));   // (how far it rocks past: about 10% of a short way, never more than about 25 px of a long one)
+      const timer = setInterval(() => {
+        if (!win) { stopTween(); return; }
+        const t = Math.min(1, (Date.now() - t0) / Math.max(1, ms));
+        const u = t - 1, sx = t >= 1 ? 1 : 1 + (c + 1) * u * u * u + c * u * u;   // travels steadily and rocks a little past the spot at the end, then back
+        const base = t, hop = Math.abs(Math.sin(Math.PI * HOPS * t)) * Math.pow(1 - t, 1.4) * H;   // each hop lower than the one before
+        win.setBounds({ x: Math.round(from.x + (to.x - from.x) * sx), y: Math.round(from.y + (to.y - from.y) * base - (t >= 1 ? 0 : hop)), width: from.width, height: from.height });
+        const k = Math.floor(HOPS * t);   // another landing: a soft bounce sound
+        if (k > lastHop && t < 0.97) { lastHop = k; win.webContents.send('desk:bounce', Math.max(.25, .7 * (1 - t)), ''); }
+        if (t >= 1) { clearInterval(timer); tween = null; win.webContents.send('desk:bounce', .2, ''); resolve(true); }
+      }, 8);
+      tween = { timer, done: resolve };
+    });
+  }
   function restHere() { const b = win.getBounds(); prefs.x = b.x; prefs.y = b.y; displaced = false; savePrefs(); }
 
   // ---------- sitting on other windows (a switch in the menu, off by default; Windows only) ----------
@@ -210,14 +232,14 @@ function start() {
     });
     if (win) { if (!inBed) win.webContents.send('desk:fall', false); if (!opts.noSpin || opts.ouch) win.webContents.send('desk:thrown', false, 0, inBed, { ouch: !!opts.ouch, head: !!opts.head }); }
     if (!ok || !win) return;
-    if (inBed) {   // in his bed: after bouncing about on the floor the whole bed is slid back to where it was (no running: he is asleep)
+    if (inBed) {   // in his bed: after bouncing about on the floor the whole bed springs back to where it was (no running: he is asleep)
       const cur0 = win.getBounds(), disp0 = screen.getDisplayMatching(home).bounds;
       const back0 = { x: Math.max(Math.round(disp0.x - home.width * 0.6), Math.min(Math.round(home.x), Math.round(disp0.x + disp0.width - home.width * 0.4))), y: Math.max(disp0.y, Math.min(Math.round(home.y), lowestY(screen.getDisplayMatching(home), home))), width: home.width, height: home.height };
       lastThrow = { home, back: back0, landed: cur0, area: here(), inBed: true };
       await new Promise((r) => setTimeout(r, 450));   // (it lies where it landed for a moment first)
       if (!win || mode !== 'pet') return;
       if (Math.abs(back0.x - cur0.x) > 3 || Math.abs(back0.y - cur0.y) > 3) {
-        const done0 = await glide(back0, Math.max(900, Math.min(3200, Math.hypot(back0.x - cur0.x, back0.y - cur0.y) * 2.2)));
+        const done0 = await springBack(back0, Math.max(1100, Math.min(2400, Math.hypot(back0.x - cur0.x, back0.y - cur0.y) * 1.6)));
         if (!done0) return;
       }
       restHere();

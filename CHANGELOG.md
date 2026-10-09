@@ -2,8 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 437
+- The bed springs back to its place in a few bounces instead of sliding.
+
 ## Build 436
-- Thrown in his bed, the bed slides back to where it was after it lands and bounces.
+- Thrown in his bed, the bed returns to where it was after it lands.
 
 ## Build 435
 - No toe beans when he covers his face with his hands (you see the backs of his hands).
