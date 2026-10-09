@@ -216,7 +216,7 @@ function start() {
   }
   // Windows is meant to forward the pointer to the page while clicks pass through, but that can stop working after the window
   // changes size. So the shell also watches the pointer itself and tells the page where it is; the page decides if it is on Fumu.
-  let cursorTimer = null, wasInside = false, rects = null, holdSolid = false, solidState = null;
+  let cursorTimer = null, wasInside = false, rects = null, holdSolid = false, solidState = null, sweepOn = false, sweepAt = '';
   const HIT_PAD = 6;   // a few pixels of slack round the solid parts, so the window is already catching clicks when the pointer arrives
   function watchCursor() {
     if (!THROUGH || cursorTimer) return;
@@ -232,6 +232,8 @@ function start() {
         const gaming = !prefs.catchGames && !gameGrab && programNow && (programNow.fullscreen || programNow.kind === 'game');
         const want = !gaming && (holdSolid || (inside && place.hitTest(rects, x, y, HIT_PAD)));
         if (want !== solidState) { solidState = want; solidNow = want; win.setIgnoreMouseEvents(!want, { forward: true }); }
+        // an alert is up while the mouse passes through: tell the page where the pointer is, so sweeping over it works whatever Windows forwards
+        if (gaming && sweepOn && inside) { const at = Math.round(x) + ',' + Math.round(y); if (at !== sweepAt) { sweepAt = at; win.webContents.send('desk:sweep', x, y); } }
         return;
       }
       if (dragFrom) { wasInside = false; return; }
@@ -469,6 +471,7 @@ function start() {
     if (!Array.isArray(list)) return;
     rects = list.slice(0, 40).filter((r) => Array.isArray(r) && r.length === 4 && r.every((n) => typeof n === 'number' && isFinite(n)));
   });
+  ipcMain.on('desk:sweep', (_e, on) => { sweepOn = !!on; sweepAt = ''; });
   ipcMain.on('desk:hold', (_e, yes) => { holdSolid = !!yes; });
   ipcMain.on('desk:solid', (_e, yes) => { solidNow = !!yes; log('solid', yes); if (win && mode === 'pet' && THROUGH) win.setIgnoreMouseEvents(!yes, { forward: true }); });
   // carrying follows the real pointer (the page's own numbers change with the zoom)

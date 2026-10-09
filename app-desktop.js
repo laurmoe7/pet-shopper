@@ -922,13 +922,14 @@
   // moving across the card is the swipe. A task reminder: right puts it away (the cross), left snoozes it for 10 minutes, up or down is Done
   // (when the task can be ticked here). Any other alert: right or left puts it away.
   var hoverSwipe = null;
-  document.addEventListener('mousemove', function (e) {
-    var card = isPet() && window.deskPassThrough() && e.target.closest ? e.target.closest('.inbox-card') : null;
+  /** The pointer is at x, y (over el): a sweep across an alert card. Fed by the page's own mouse events and by the shell, which watches the pointer itself. */
+  function sweepAt(x, y, el) {
+    var card = isPet() && window.deskPassThrough() && el && el.closest ? el.closest('.inbox-card') : null;
     if (!card || card.classList.contains('quick-card') || card.dataset.leaving) { hoverSwipe = null; return; }
     var now = Date.now(), h = hoverSwipe;
-    if (!h || h.card !== card || now - h.t > 450 || (e.clientX - h.lx) * (h.lx - h.x) < 0 || (e.clientY - h.ly) * (h.ly - h.y) < 0) h = hoverSwipe = { card: card, x: e.clientX, y: e.clientY, lx: e.clientX, ly: e.clientY, t: now };
-    h.lx = e.clientX; h.ly = e.clientY; h.t = now;
-    var dx = e.clientX - h.x, dy = e.clientY - h.y, sideways = Math.abs(dx) >= Math.min(90, card.offsetWidth * 0.4), vertical = Math.abs(dy) >= Math.min(36, card.offsetHeight * 0.5) && Math.abs(dy) > Math.abs(dx);
+    if (!h || h.card !== card || now - h.t > 450 || (x - h.lx) * (h.lx - h.x) < 0 || (y - h.ly) * (h.ly - h.y) < 0) h = hoverSwipe = { card: card, x: x, y: y, lx: x, ly: y, t: now };
+    h.lx = x; h.ly = y; h.t = now;
+    var dx = x - h.x, dy = y - h.y, sideways = Math.abs(dx) >= Math.min(90, card.offsetWidth * 0.4), vertical = Math.abs(dy) >= Math.min(36, card.offsetHeight * 0.5) && Math.abs(dy) > Math.abs(dx);
     if (!sideways && !vertical) return;
     hoverSwipe = null;
     var remind = card.classList.contains('remind-card'), buttons = [].slice.call(card.querySelectorAll('button'));
@@ -940,7 +941,16 @@
     card.dataset.leaving = '1';
     if (dir) slideAway(card, dir, function () { btn.click(); });
     else { card.style.animation = 'none'; card.style.transition = 'translate .26s ease-in, opacity .26s'; card.style.translate = '0 ' + (dy < 0 ? -1 : 1) * 60 + 'px'; card.style.opacity = '0'; setTimeout(function () { if (card.parentNode) btn.click(); }, 270); }
-  }, true);
+  }
+  document.addEventListener('mousemove', function (e) { sweepAt(e.clientX, e.clientY, e.target); }, true);
+  // the shell also reports the pointer while a card is up (Windows does not always forward it to a window that lets clicks through)
+  if (D.onSweep) D.onSweep(function (x, y) { sweepAt(x, y, document.elementFromPoint(x, y)); });
+  var sweepSent = false;
+  function sweepWatch() {
+    var on = isPet() && window.deskPassThrough() && !!document.querySelector('.inbox-card:not(.quick-card)');
+    if (on !== sweepSent && D.sweep) { sweepSent = on; D.sweep(on); }
+  }
+  setInterval(sweepWatch, 400);
 
   // ---------- where the solid parts are (for the shell's own, instant hit test) ----------
   // The shell used to ask the page "is the pointer over him?" and wait for the answer, which could take long enough for a quick press on the
@@ -1038,7 +1048,17 @@
   if (D.onFall) D.onFall(function (on) { pet.classList.toggle('falling', on); if (on) setFace({ eyes: 'sparkle', mouth: 'o', arms: 'idle', x: [] }); else if (!busy) settle(); });
   var runOwn = false;
   // the shortcut that makes him catch the mouse in a full-screen game (or lets go again)
-  if (D.onGrab) D.onGrab(function (on) { grabbed = !!on; say(on ? pick(['you can click me now!', 'here I am~', 'grab me!']) : pick(['back to the game!', 'I\'ll stay out of the way', 'shh, play on~']), 2200, true); });
+  if (D.onGrab) D.onGrab(function (on) {
+    grabbed = !!on;
+    // he always answers the key: even with speech bubbles off, in the middle of something quiet, or while another line holds the bubble
+    var line = on ? pick(['you can click me now!', 'here I am~', 'grab me!']) : pick(['back to the game!', 'I\'ll stay out of the way', 'shh, play on~']);
+    var quiet = idleQuiet; idleQuiet = false; speechLockUntil = 0;
+    document.documentElement.classList.add('grab-say');
+    say(line, 2400, true);
+    idleQuiet = quiet;
+    if (typeof pulse === 'function' && !carried) pulse('hopsmall', 450);
+    setTimeout(function () { document.documentElement.classList.remove('grab-say'); }, 2500);
+  });
   // up at night and tired: the shell takes his walk back slowly, and his feet go slowly too
   if (D.setDrowsy) new MutationObserver(function () {
     var sc = document.documentElement.dataset.scene || '';

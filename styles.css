@@ -2874,7 +2874,7 @@ html.desktop-pet.card-narrow .stage .inbox-card { left: calc(var(--vis-l, 0px) +
 /* choices from the settings window: no toy, no cushion under him (the bed at night stays) */
 html.desktop-pet.desk-notoy .toy { display: none !important; }
 html.desktop-pet.desk-nocushion .stage:not(.bedtime) .cushion { display: none; }
-html.desktop-pet.desk-nobubbles .bubble { display: none !important; }
+html.desktop-pet.desk-nobubbles:not(.grab-say) .bubble { display: none !important; }   /* (the grab key's answer still shows) */
 html.desktop-pet.desk-nosparkles .stage::before, html.desktop-pet.desk-nosparkles .stage::after { display: none; }
 html.desktop-pet.desk-noclouds :is(.dream, .wish) { display: none !important; }
 /* the quick-add box by Fumu (the shell's Ctrl+Alt+A): a field and an Add button */
@@ -3060,25 +3060,27 @@ html.desktop-pet .night-btn { display: none !important; }   /* in the small wind
 
 /* alerts, made cuter (build 364): a paper label with a bit of tape, a round sticker for the icon, soft pill buttons, a colour per kind */
 .inbox-card, .remind-card { --ac: #f3b6c8; --ac2: #ffe3ea; grid-template-columns: 40px 1fr; gap: 2px 10px; padding: 9px 12px 8px; border-width: 2px; border-radius: 18px; overflow: visible;
-  background: radial-gradient(circle at 12px 10px, rgba(255, 255, 255, .22) 0 1.5px, transparent 2px) 0 0 / 14px 14px, linear-gradient(180deg, color-mix(in srgb, var(--ac) 22%, var(--surface)), var(--surface) 70%);
-  box-shadow: 0 3px 0 var(--outline), 0 8px 14px rgba(60, 35, 30, .22); }
+  /* always a warm paper card with dark ink, light or dark mode: it sits over games and dark windows, where a brown card looked muddy */
+  background: #fff8ea; color: #4a3128; border-color: #5b4239; box-shadow: 0 3px 0 #5b4239, 0 8px 14px rgba(40, 25, 20, .3); }
+.inbox-card .stitch, .remind-card .stitch { display: none; }
 .remind-card { --ac: #f5d36b; --ac2: #fff1c2; }
 .claude-card { --ac: #c9b3f0; --ac2: #eee6ff; }
 .note-card { --ac: #a9dcc3; --ac2: #e1f6ec; }
 .link-card { --ac: #9fd0ee; --ac2: #def0fb; }
+.inbox-card, .remind-card { outline: 1.5px dashed color-mix(in srgb, var(--ac) 85%, #5b4239); outline-offset: -5px; }
 .inbox-card::before { content: ""; position: absolute; top: -7px; left: 16px; width: 38px; height: 13px; border-radius: 3px; background: color-mix(in srgb, var(--ac) 80%, #fff); opacity: .9; rotate: -4deg; box-shadow: 0 1px 0 rgba(0, 0, 0, .12); pointer-events: none; }
-.inbox-card::after { content: "✦"; position: absolute; top: 5px; right: 11px; font-size: .7rem; color: var(--ac); text-shadow: 0 1px 0 var(--outline); animation: alert-twinkle 2.4s ease-in-out infinite; pointer-events: none; }
+.inbox-card::after { content: "✦"; position: absolute; top: 5px; right: 11px; font-size: .7rem; color: var(--ac); text-shadow: 0 1px 0 #5b4239; animation: alert-twinkle 2.4s ease-in-out infinite; pointer-events: none; }
 @keyframes alert-twinkle { 0%, 100% { opacity: .35; scale: .8; } 50% { opacity: 1; scale: 1.15; } }
-.inbox-icon { width: 36px; height: 36px; padding: 5px; box-sizing: border-box; border-radius: 50%; background: var(--ac2); border: 1.8px solid var(--outline); box-shadow: 0 2px 0 var(--outline); rotate: -6deg; }
+.inbox-icon { width: 36px; height: 36px; padding: 5px; box-sizing: border-box; border-radius: 50%; background: var(--ac2); border: 1.8px solid #5b4239; box-shadow: 0 2px 0 #5b4239; rotate: -6deg; }
 .remind-card .inbox-icon { animation: alarm-ring 2.8s ease-in-out .6s infinite; transform-origin: 50% 60%; }
 .claude-card .inbox-icon { animation: bell-sway 2.6s ease-in-out .5s infinite; transform-origin: 50% 15%; }
 @keyframes alarm-ring { 0%, 70%, 100% { rotate: -6deg; } 74% { rotate: 10deg; } 78% { rotate: -14deg; } 82% { rotate: 10deg; } 86% { rotate: -10deg; } 90% { rotate: 4deg; } }
 @keyframes bell-sway { 0%, 100% { rotate: -6deg; } 50% { rotate: 8deg; } }
 .inbox-text b { font-size: 1.02rem; }
-.inbox-text span { opacity: .75; }
+.inbox-text span { opacity: .7; color: #6b4d41; }
 .inbox-actions { gap: 6px; margin-top: 5px; align-items: center; flex-wrap: nowrap; }
-.inbox-actions button { padding: 2px 10px; white-space: nowrap; background: var(--ac2); color: #4a3128; border-width: 1.8px; transition: translate .12s, filter .12s; }
+.inbox-actions button { padding: 2px 10px; white-space: nowrap; background: var(--ac2); color: #4a3128; border: 1.8px solid #5b4239; box-shadow: 0 2px 0 #5b4239; transition: translate .12s, filter .12s; }
 .inbox-actions button:hover { translate: 0 -1px; filter: brightness(1.04); }
 .inbox-actions .ia-done { background: linear-gradient(180deg, #ffd0dd, #f8a9c0); }
-.inbox-actions .inbox-done { width: 26px; height: 26px; padding: 0; display: grid; place-items: center; border-radius: 50%; background: var(--surface); color: var(--ink); line-height: 1; }
+.inbox-actions .inbox-done { width: 26px; height: 26px; padding: 0; display: grid; place-items: center; border-radius: 50%; background: #fff; color: #4a3128; line-height: 1; }
 @media (prefers-reduced-motion: reduce) { .inbox-card::after, .remind-card .inbox-icon, .claude-card .inbox-icon { animation: none; } }

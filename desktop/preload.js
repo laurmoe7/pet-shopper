@@ -43,6 +43,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   /** Where the solid parts are, as [left, top, right, bottom] in page pixels: the shell checks the pointer against them itself. */
   setRects: (rects) => ipcRenderer.send('desk:rects', Array.isArray(rects) ? rects.slice(0, 40) : []),
   /** A mouse button is held that went down on Fumu or the toy: stay solid until it is let go. */
+  sweep: (on) => ipcRenderer.send('desk:sweep', !!on),
+  onSweep: (fn) => ipcRenderer.on('desk:sweep', (_e, x, y) => fn(x, y)),
   hold: (yes) => ipcRenderer.send('desk:hold', !!yes),
   /** The program in front changed: {kind, name, fullscreen} (kind 'game', 'browser', 'code', 'chat', 'ai', 'call', 'music', 'video', 'office', 'mail', 'art', 'video-edit', 'launcher', 'files', 'other', 'fullscreen' or 'none'), or null when awareness is on More privacy. Only listed programs have a name. */
   onProgram: (fn) => ipcRenderer.on('desk:program', (_e, p) => fn(p)),

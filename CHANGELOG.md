@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 366
+- He always says something when you press the grab key, even with bubbles off.
+
+## Build 365
+- Alerts are a warm paper card in dark mode too.
+- Sweeping alerts in games: the shell now reports the pointer itself (needs the new installer).
+
 ## Build 364
 - Cuter alerts: taped label, round sticker icon, softer buttons, a colour for each kind.
 - The test reminder has a Done button.
