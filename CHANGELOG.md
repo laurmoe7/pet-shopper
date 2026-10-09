@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 401
+- Speech bubble and pointer are one shape: the same grey border and dark inner line go all the way round.
+
 ## Build 400
 - Speech bubble pointer joins the bubble's edge smoothly, same colour all the way.
 
