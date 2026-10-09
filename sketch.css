@@ -437,3 +437,6 @@ html:root body.skp .cs-pop::after { background: linear-gradient(transparent, var
 .skp-canvaspop label { display: inline-flex; align-items: center; gap: 4px; }
 .skp-canvaspop input[type="number"] { width: 72px; padding: 4px 6px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font: inherit; }
 .skp-canvaspop .skp-btn { justify-self: start; }
+.skp-line input[data-act="name"][readonly], .skp-line input[data-act="name"][readonly]:focus, .skp-line input[data-act="name"][readonly]:focus-visible { outline: none; box-shadow: none; border-color: transparent; background: transparent; }
+.skp-line input[data-act="name"]:not([readonly]):focus { outline: 2px solid #fff; outline-offset: 1px; }
+.sk-lazy-l { font-size: .75rem; font-weight: 800; color: var(--muted); }

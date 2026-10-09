@@ -20,7 +20,7 @@ var SLOTS = [['hat', 'Hat'], ['body', 'Clothes'], ['face', 'Glasses'], ['mouth',
 /** What the pet underneath looks like (kept on this computer). */
 var P = { seated: false, species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, backdrop: 'meadow', night: false, room: {} };
 var SK = {
-  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, tab: 'draw', clean: true, style: 'solid', shape: 'heart', bodyClip: false, radial: 0, pressure: true, fillMode: 'none', colour2: '#ffc9d6', clip: [], pasteN: 0, tidy: 6, space: false, sel: null, mirror: false, pick: [],
+  mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, tab: 'draw', clean: true, style: 'solid', shape: 'heart', bodyClip: false, radial: 0, pressure: true, lazy: false, lazyN: 30, fillMode: 'none', colour2: '#ffc9d6', clip: [], pasteN: 0, tidy: 6, space: false, sel: null, mirror: false, pick: [],
   strokes: { pet: [], scene: [], toy: [], room: [], canvas: [] }, hist: { pet: [], scene: [], toy: [], room: [], canvas: [] }, redo: { pet: [], scene: [], toy: [], room: [], canvas: [] },
   /** Pictures to trace, one layer each, in the same coordinates as the drawing: {id, name, src, cx, cy, bw, bh, scale, opacity, visible, behind} */
   images: { pet: [], scene: [], toy: [], room: [], canvas: [] },
@@ -82,7 +82,7 @@ function dressUp(el, outfit) {
 // ---------- keeping the work on this computer ----------
 function skSave() {
   try {
-    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, style: SK.style, tab: SK.tab, clean: SK.clean, shape: SK.shape, fillMode: SK.fillMode, colour2: SK.colour2, layers: SK.layers, active: SK.active, snap: $('skSnap').checked, mirror: SK.mirror, bodyClip: SK.bodyClip, radial: SK.radial, pressure: SK.pressure, canvas: SK_VIEW.canvas }));
+    localStorage.setItem('nibble-sketchpad', JSON.stringify({ P: P, strokes: SK.strokes, kind: $('skKind').value, note: $('skNote').value, tidy: SK.tidy, pen: SK.pen, style: SK.style, tab: SK.tab, clean: SK.clean, shape: SK.shape, fillMode: SK.fillMode, colour2: SK.colour2, layers: SK.layers, active: SK.active, snap: $('skSnap').checked, mirror: SK.mirror, bodyClip: SK.bodyClip, radial: SK.radial, pressure: SK.pressure, lazy: SK.lazy, lazyN: SK.lazyN, canvas: SK_VIEW.canvas }));
   } catch (e) { /* storage not available */ }
 }
 function skLoad() {
@@ -114,6 +114,7 @@ function skLoad() {
     $('skSnap').checked = d.snap !== false;
     SK.mirror = !!d.mirror;
     SK.bodyClip = !!d.bodyClip; SK.radial = [0, 3, 4, 5, 6, 8].indexOf(d.radial) !== -1 ? d.radial : 0; SK.pressure = d.pressure !== false;
+    SK.lazy = !!d.lazy; if (d.lazyN >= 1 && d.lazyN <= 100) SK.lazyN = Math.round(d.lazyN);
   } catch (e) { /* nothing saved, or it could not be read */ }
 }
 
@@ -597,15 +598,21 @@ function skDown(e) {
   if (SK.tool === 'curve') { skCurveDown(e, pt); return; }
   if (SK.tool === 'shape') { skShapeDown(pt); return; }
   if (SK.tool === 'imgmove') {
-    var img = skSelected();
-    if (!img) {   // no image to move: the lines on the ticked layers move together
-      var all = SK.strokes[SK.mode].filter(skSelectable);
-      if (!all.length) { skStatus.textContent = 'Nothing to move on the ticked layers.'; return; }
-      SK.pick = all;
-      skDrawing = { xf: { kind: 'move', start: pt, snap: skPickSnap(), pushed: false, all: true } };
+    var hitIm = skImageAt(pt), img = skSelected();
+    if (hitIm) {   // clicking a picture picks it (and drags it)
+      if (SK.sel !== hitIm.id) { SK.sel = hitIm.id; skLayersUI(); skRenderImages(); }
+      skDrawing = { image: hitIm, last: pt, moved: false };
       return;
     }
-    skDrawing = { image: img, last: pt, moved: false };
+    if (img) {   // clicking empty space lets go of the picture
+      SK.sel = null; skLayersUI(); skRenderImages();
+      skStatus.textContent = 'Picture let go. Click a picture to pick it again; now a drag moves your lines.';
+      return;
+    }
+    var all = SK.strokes[SK.mode].filter(skSelectable);   // no picture picked: the lines on the ticked layers move together
+    if (!all.length) { skStatus.textContent = 'Nothing to move on the ticked layers.'; return; }
+    SK.pick = all;
+    skDrawing = { xf: { kind: 'move', start: pt, snap: skPickSnap(), pushed: false, all: true } };
     return;
   }
   if (SK.tool === 'erase') { skDrawing = { erased: false, whole: e.shiftKey, last: pt }; skEraseAt(pt); return; }
@@ -614,7 +621,7 @@ function skDown(e) {
   var s = skNew({ pts: [pt], color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: SK.tool === 'blob', lay: SK.active[SK.mode], style: SK.style });
   if (s.fill && skGrad()) s.grad = skGrad();
   if (SK.tool === 'pen' && SK.pressure && e.pointerType === 'pen' && SK.style === 'solid') s.pr = [skPressure(e)];   // a pen that feels pressure draws a line that swells and thins
-  skDrawing = { stroke: s, el: skEl(s), extra: [] };
+  skDrawing = { stroke: s, el: skEl(s), extra: [], brush: SK.lazy && (SK.tool === 'pen' || SK.tool === 'blob') ? pt.slice() : null };
   skDraw.appendChild(skDrawing.el);
   skLiveUpdate();
 }
@@ -661,7 +668,14 @@ function skMove(e) {
     return;
   }
   if (SK.tool === 'erase') { skEraseAt(pt, skDrawing.last); skDrawing.last = pt; return; }
-  var s = skDrawing.stroke, last = s.pts[s.pts.length - 1];
+  var s = skDrawing.stroke;
+  if (skDrawing.brush) {   // lazy brush: the line is pulled along on a string, so it only moves once the pen is further away than the string is long
+    var b = skDrawing.brush, reach = v.w * 0.0008 * SK.lazyN, away = Math.hypot(pt[0] - b[0], pt[1] - b[1]);
+    if (away <= reach) return;
+    b[0] += (pt[0] - b[0]) * (away - reach) / away; b[1] += (pt[1] - b[1]) * (away - reach) / away;
+    pt = [+b[0].toFixed(2), +b[1].toFixed(2)];
+  }
+  var last = s.pts[s.pts.length - 1];
   if (Math.hypot(pt[0] - last[0], pt[1] - last[1]) < v.w * 0.002) return;   // ignore tiny wobbles
   s.pts.push(pt);
   if (s.pr) s.pr.push(skPressure(e));
@@ -1516,7 +1530,7 @@ function skLoadImg(src) {
  */
 async function skTrace() {
   var im = skSelected();
-  if (!im) { skStatus.textContent = 'Add a picture first (Images, below), then trace it.'; return; }
+  if (!im) { skStatus.textContent = 'Add a picture first (Images, below), then press To shapes.'; return; }
   var v = SK_VIEW[SK.mode], scale = 900 / Math.max(v.w, v.h), W = Math.round(v.w * scale), H = Math.round(v.h * scale), mode = $('skTraceMode').value;
   var btn = $('skTrace');
   btn.disabled = true; skStatus.textContent = 'Tracing…';
@@ -1578,8 +1592,8 @@ async function skTrace() {
         made.push({ d: loops.map(function (lp) { return 'M' + lp.map(function (p) { return p[0] + ' ' + p[1]; }).join('L') + 'Z'; }).join(''), pts: outer, color: job.color, width: job.overlap ? +(1.2 / scale).toFixed(2) : 0.2, fill: true, closed: true, style: 'solid' });
       }
     });
-    if (!made.length) { skStatus.textContent = mode === 'lines' ? 'No ink found. Slide the ink level towards “more”, or try Colours.' : 'Nothing to trace in that picture.'; return; }
-    var lays = skLays(), x = { id: 'l' + Date.now().toString(36), name: 'Trace', show: true };
+    if (!made.length) { skStatus.textContent = mode === 'lines' ? 'No ink found. Slide the ink level towards “more”, or try Colours.' : 'Nothing to turn into shapes in that picture.'; return; }
+    var lays = skLays(), x = { id: 'l' + Date.now().toString(36), name: 'Shapes', show: true };
     skAutoLayers[x.id] = x;
     skTraceLast = { layer: x.id, im: im.id };
     lays.push(x); SK.active[SK.mode] = x.id; SK.layerSet[SK.mode] = [x.id];
@@ -1589,20 +1603,20 @@ async function skTrace() {
     im.visible = false; skRenderImages(); skLayersUI(); skSaveImages();
     skLinesUI(); skMarkActive(); skRedraw(); skSave();
     $('skTraceUndo').disabled = false;
-    skStatus.textContent = 'Traced ' + made.length + (made.length === 1 ? ' shape' : ' shapes') + (capped ? ' (the biggest; small bits left out)' : '') + ' onto a new layer, “Trace”. The picture is hidden: tick Show to see it again.';
+    skStatus.textContent = 'Made ' + made.length + (made.length === 1 ? ' shape' : ' shapes') + (capped ? ' (the biggest; small bits left out)' : '') + ' on a new layer, “Shapes”. The picture is hidden: tick Show to see it again.';
   } catch (err) {
-    skStatus.textContent = 'Could not trace that picture.';
+    skStatus.textContent = 'Could not turn that picture into shapes.';
   } finally { btn.disabled = false; }
 }
 /** Takes the latest trace away (its shapes and layer) and shows the picture again. */
 function skTraceUndo() {
-  if (!skTraceLast) { skStatus.textContent = 'No trace to undo.'; return; }
+  if (!skTraceLast) { skStatus.textContent = 'No shapes to undo.'; return; }
   var id = skTraceLast.layer;
-  if (!SK.strokes[SK.mode].some(function (s) { return s.lay === id; })) { skStatus.textContent = 'That trace is already gone.'; $('skTraceUndo').disabled = true; return; }
+  if (!SK.strokes[SK.mode].some(function (s) { return s.lay === id; })) { skStatus.textContent = 'Those shapes are already gone.'; $('skTraceUndo').disabled = true; return; }
   skPushHistory();
   SK.strokes[SK.mode] = SK.strokes[SK.mode].filter(function (s) { return s.lay !== id; });
   SK.pick = []; skFixAutoLayers(); skRedraw(); skXfRender(); skSave();
-  skStatus.textContent = 'Trace undone. The picture is back.';
+  skStatus.textContent = 'Shapes undone. The picture is back.';
 }
 function skTraceUI() {
   var lines = $('skTraceMode').value === 'lines';
@@ -2043,6 +2057,16 @@ $('skTabs').addEventListener('click', function (ev) { if (ev.target.closest('[da
 
 // ---------- picture layers (to trace over) ----------
 /** @returns {?Object} The selected image layer of the current area. */
+/** @returns {?Object} The topmost shown picture under a point (pictures over the pet first, then the ones behind it). */
+function skImageAt(pt) {
+  var list = SK.images[SK.mode].filter(function (i) { return i.visible; }), order = list.filter(function (i) { return !i.behind; }).reverse().concat(list.filter(function (i) { return i.behind; }).reverse()), k;
+  for (k = 0; k < order.length; k++) {
+    var im = order[k], a = -(im.rot || 0) * Math.PI / 180, dx = pt[0] - im.cx, dy = pt[1] - im.cy;
+    var x = dx * Math.cos(a) - dy * Math.sin(a), y = dx * Math.sin(a) + dy * Math.cos(a);
+    if (Math.abs(x) <= im.bw * im.scale / 2 && Math.abs(y) <= im.bh * im.scale / 2) return im;
+  }
+  return null;
+}
 function skSelected() { return SK.images[SK.mode].filter(function (i) { return i.id === SK.sel; })[0] || null; }
 function skImgAttrs(el, im) {
   el.setAttribute('x', (im.cx - im.bw * im.scale / 2).toFixed(2));
@@ -2124,7 +2148,8 @@ function skAddImage(file) {
       SK.images[SK.mode].push(im);
       SK.sel = im.id;
       skRenderImages(); skLayersUI(); skSaveImages();
-      skStatus.textContent = 'Image added. Move it with the Move image tool (M).';
+      skSetTool('imgmove');
+      skStatus.textContent = 'Picture added and picked. Drag it to move it; click empty space to let go of it.';
     };
     img.onerror = function () { skStatus.textContent = 'That file could not be read as an image.'; };
     img.src = reader.result;
@@ -2346,6 +2371,7 @@ function skBuildPanels() {
   $('skClip').setAttribute('aria-pressed', String(SK.bodyClip)); $('skClip').hidden = SK.mode !== 'pet';
   $('skSpin').setAttribute('aria-pressed', String(!!SK.radial)); $('skSpin').dataset.key = SK.radial ? String(SK.radial) : 'R';
   $('skPressure').checked = SK.pressure;
+  $('skLazy').setAttribute('aria-pressed', String(SK.lazy)); $('skLazyRow').hidden = !SK.lazy; $('skLazyN').value = SK.lazyN; $('skLazyNum').textContent = SK.lazyN;
 }
 
 skStage.addEventListener('pointerdown', function (e) { if (skDraw && e.target === skDraw) skDown(e); });
@@ -2559,6 +2585,7 @@ document.addEventListener('keydown', function (e) {
   if (k === 'x') { skSetMirror(!SK.mirror); return; }
   if (k === 'r') { skNextSpin(); return; }
   if (k === 'k') { skSetClip(!SK.bodyClip); return; }
+  if (k === 'z') { skSetLazy(!SK.lazy); return; }
   if ((k === 'delete' || k === 'backspace') && skIsSel() && SK.pick.length) { e.preventDefault(); skDeletePick(); return; }
   if (e.key === 'Escape' && SK.paint) { SK.paint = null; skPaintLook(); skStatus.textContent = 'Same style off.'; return; }
   if (e.key === 'Escape' && skIsSel() && SK.pick.length) { SK.pick = []; skXfRender(); return; }
@@ -2580,6 +2607,15 @@ function skSetMirror(on) {
   skBuild();
 }
 $('skMirror').addEventListener('click', function () { skSetMirror(!SK.mirror); });
+/** Lazy brush: the pen and the filled-shape pen trail behind your hand on a string; the strength is how long the string is. */
+function skSetLazy(on) {
+  SK.lazy = on;
+  $('skLazy').setAttribute('aria-pressed', String(on)); $('skLazyRow').hidden = !on;
+  skStatus.textContent = on ? 'Lazy brush on: the line trails behind your pen. Set the strength under the thickness slider.' : 'Lazy brush off.';
+  skSave();
+}
+$('skLazy').addEventListener('click', function () { skSetLazy(!SK.lazy); });
+$('skLazyN').addEventListener('input', function () { SK.lazyN = +this.value; $('skLazyNum').textContent = this.value; skSave(); });
 /** Clip: new lines stay inside the pet's body (for skin patterns). */
 function skSetClip(on) {
   SK.bodyClip = on;
