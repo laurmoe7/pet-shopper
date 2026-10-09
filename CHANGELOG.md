@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 454
+- Hamster and dragon sizes now really apply (hamster 20% smaller like the munchkin, dragon 20% bigger).
+
 ## Build 453
 - After catching the ball he carries it back with his arms round it, and the run back is faster.
 
