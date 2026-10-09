@@ -3299,3 +3299,85 @@ html.desktop-pet.ring-open .stage .bubble.ring-moved { left: var(--rl, 4px) !imp
 
 /* the sneaky snack (app-steal.js): the emoji he took is gone from its row until he spits it back */
 .item.stolen .emoji-btn img { visibility: hidden; }
+
+/* ---------- Quest 2 (App settings > Appearance > Quest 2): the Quest look, restyled as a game inventory ----------
+   Rides on top of Quest (data-skin="quest") with data-quest="slots", so plain Quest is untouched and can still be picked.
+   Dark worn stone panels, bevelled bronze frames (light top-left, dark bottom-right = raised; the other way round = a recessed slot),
+   gold lettering, round bronze-ringed icon buttons. Every rule starts with Q2 so it only applies here. */
+html:root[data-skin="quest"][data-quest="slots"] {
+  --q2-stone-a: #2b251e; --q2-stone-b: #191510; --q2-slot: #100d0a;
+  --q2-raise: #8c7d62 #2b241b #1c1710 #7a6c55;   /* a raised edge: light on the top and left */
+  --q2-sink: #2a231b #6f6250 #7d705a #2a231b;    /* a recessed edge: dark on the top and left */
+  --q2-gold: #ffd100; --q2-bronze: #8a6a2a;
+  --bg: #12100d; --surface: #241f18; --surface-2: #17130f; --cb-dock-a: #2b251e; --cb-dock-b: #14100c; --outline: #6f6250; --line: #3a3126;
+}
+html:root[data-skin="quest"][data-quest="slots"] body {
+  background-color: #12100d;
+  background-image: radial-gradient(rgba(255, 255, 255, .035) 1px, transparent 1.2px), radial-gradient(rgba(0, 0, 0, .35) 1px, transparent 1.2px), radial-gradient(ellipse at 50% 0, rgba(255, 215, 120, .08), transparent 60%);
+  background-size: 6px 6px, 9px 9px, auto; background-position: 0 0, 3px 4px, 0 0;
+}
+/* the sheets: stone panels with a thick bevelled frame and four bronze rivets */
+html:root[data-skin="quest"][data-quest="slots"] .picker {
+  background-color: #1d1913;
+  background-image: radial-gradient(circle at 9px 9px, #c9a227 0 2.6px, #4a3810 3px, transparent 3.6px), radial-gradient(circle at calc(100% - 9px) 9px, #c9a227 0 2.6px, #4a3810 3px, transparent 3.6px),
+    radial-gradient(rgba(255, 255, 255, .03) 1px, transparent 1.2px), linear-gradient(var(--q2-stone-a), var(--q2-stone-b));
+  background-size: auto, auto, 6px 6px, auto;
+  border: 3px solid; border-color: var(--q2-raise); border-bottom: 0; border-radius: 10px 10px 0 0;
+  box-shadow: 0 0 0 1.5px #000, 0 -8px 24px rgba(0, 0, 0, .55), inset 0 0 0 1.5px #0a0805, inset 0 0 22px rgba(0, 0, 0, .45);
+}
+/* title plates: like a window's title bar */
+html:root[data-skin="quest"][data-quest="slots"] .picker h2 {
+  border-radius: 5px; border: 2px solid; border-color: var(--q2-raise); color: var(--q2-gold); letter-spacing: .04em;
+  background: linear-gradient(180deg, #3a3228, #17130e); box-shadow: 0 0 0 1.5px #000, inset 0 0 8px rgba(0, 0, 0, .7);
+  text-shadow: 0 1px 0 #000, 0 0 6px rgba(0, 0, 0, .9);
+}
+html:root[data-skin="quest"][data-quest="slots"] .item::before, html:root[data-skin="quest"][data-quest="slots"] .picker h2::before,
+html:root[data-skin="quest"][data-quest="slots"] .cal-sheet #calGrid::before, html:root[data-skin="quest"][data-quest="slots"] .cal-sheet #calGrid::after,
+html:root[data-skin="quest"][data-quest="slots"] .profile-sheet .field::before, html:root[data-skin="quest"][data-quest="slots"] .profile-link::before { display: none !important; }
+/* list rows, goals and the other cards: recessed slots */
+html:root[data-skin="quest"][data-quest="slots"] :is(.add, .item, .goal, .fav, .options, .picker .closet-wear) {
+  border: 2px solid; border-color: var(--q2-sink); border-radius: 4px;
+  background: linear-gradient(180deg, #181410, #0f0c09);
+  box-shadow: 0 0 0 1.5px #000, 0 3px 6px rgba(0, 0, 0, .5), inset 0 3px 8px rgba(0, 0, 0, .85), inset 0 0 0 1px #070504;
+}
+html:root[data-skin="quest"][data-quest="slots"] .item-text { color: #eadcb6; text-shadow: 0 1px 0 #000; }
+/* the picture of a row sits in its own square slot, like an item in a bag */
+html:root[data-skin="quest"][data-quest="slots"] .item .emoji-btn {
+  border: 2px solid; border-color: var(--q2-sink); border-radius: 3px; background: radial-gradient(circle at 50% 35%, #231d16, #0b0907);
+  box-shadow: 0 0 0 1px #000, inset 0 2px 5px rgba(0, 0, 0, .9); width: 44px; height: 44px; padding: 3px;
+}
+html:root[data-skin="quest"][data-quest="slots"] .check { border-color: #8a6a2a; background-color: #0e0b08; box-shadow: 0 0 0 1px #000, inset 0 2px 4px rgba(0, 0, 0, .9); }
+/* the search-box look for the add bar's field */
+html:root[data-skin="quest"][data-quest="slots"] .add input { background: transparent; color: #eadcb6; box-shadow: none; }
+html:root[data-skin="quest"][data-quest="slots"] .add input::placeholder { color: #8f7f62; }
+/* buttons: raised stone buttons with gold lettering; picked ones glow gold; Add is the red one */
+html:root[data-skin="quest"][data-quest="slots"] :is(.pill-btn, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .dress-tabs button, .cal-add-btn, .recipe-btn, .mic-btn) {
+  border: 2px solid; border-color: var(--q2-raise); border-radius: 4px; color: #ffd100; text-shadow: 0 1px 0 #000;
+  background: linear-gradient(180deg, #4b4235, #251f18); box-shadow: 0 0 0 1.5px #000, 0 3px 4px rgba(0, 0, 0, .5), inset 0 0 6px rgba(0, 0, 0, .35);
+}
+html:root[data-skin="quest"][data-quest="slots"] :is(.pill-btn, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .dress-tabs button, .recipe-btn, .mic-btn):hover { background: linear-gradient(180deg, #5d5242, #30291f); }
+html:root[data-skin="quest"][data-quest="slots"] :is(.pill-btn, .picker-grid button, .dress-tabs button, .recipe-btn, .mic-btn):active { border-color: var(--q2-sink); box-shadow: 0 0 0 1.5px #000, inset 0 2px 6px rgba(0, 0, 0, .8); }
+html:root[data-skin="quest"][data-quest="slots"] :is(.pill-btn[aria-pressed="true"], .dress-tabs button[aria-selected="true"], .picker [aria-pressed="true"]:is(button)) {
+  background: linear-gradient(180deg, #7a2218, #3d0c08); color: #ffd100; border-color: #e8c24a #6a4b0c #4a3308 #cfa62e;
+  box-shadow: 0 0 0 1.5px #000, 0 0 10px rgba(255, 209, 0, .45), inset 0 0 8px rgba(0, 0, 0, .4);
+}
+html:root[data-skin="quest"][data-quest="slots"] .add-btn {
+  border: 2px solid; border-color: #d9b441 #5e4208 #3d2a05 #b8921f; border-radius: 5px; color: #ffd100; text-shadow: 0 1px 0 #000;
+  background: linear-gradient(180deg, #b3301f, #5a0f08); box-shadow: 0 0 0 1.5px #000, 0 3px 5px rgba(0, 0, 0, .6), inset 0 0 8px rgba(0, 0, 0, .35);
+}
+html:root[data-skin="quest"][data-quest="slots"] .dress-tabs button img { border-radius: 3px; border: 2px solid; border-color: var(--q2-sink); background: radial-gradient(circle at 50% 30%, #231d16, #0b0907); }
+/* the dock's round buttons: a thick bronze ring round a dark centre, like the bag icon of a game's menu */
+html:root[data-skin="quest"][data-quest="slots"] .dock-icon {
+  border: 3px solid #8a6a2a; background: radial-gradient(circle at 50% 28%, #3b3023, #0f0c09 75%); color: #ffd100;
+  box-shadow: 0 0 0 1.5px #000, inset 0 0 0 1.5px #1c1408, inset 0 -3px 5px rgba(0, 0, 0, .5), 0 3px 4px rgba(0, 0, 0, .6), 0 0 0 3px rgba(255, 209, 0, .0);
+}
+html:root[data-skin="quest"][data-quest="slots"] .dock { background: linear-gradient(180deg, #2f281f, #13100c); border-top: 3px solid #8c7d62; box-shadow: 0 -2px 0 #000, inset 0 2px 0 #4a4034; }
+html:root[data-skin="quest"][data-quest="slots"] .dock-label { color: #ffd100; }
+/* the calendar: recessed day slots on a stone board */
+html:root[data-skin="quest"][data-quest="slots"] .cal-sheet #calGrid { background: #0f0c09; border: 2px solid; border-color: var(--q2-sink); border-radius: 4px; box-shadow: 0 0 0 1.5px #000, inset 0 3px 8px rgba(0, 0, 0, .8); }
+html:root[data-skin="quest"][data-quest="slots"] .cal-sheet .cal-cell { background: linear-gradient(180deg, #1b1611, #100d0a); border: 2px solid; border-color: var(--q2-sink); border-radius: 3px; box-shadow: inset 0 2px 5px rgba(0, 0, 0, .8); }
+html:root[data-skin="quest"][data-quest="slots"] .cal-sheet .cal-cell:nth-child(7n), html:root[data-skin="quest"][data-quest="slots"] .cal-sheet .cal-cell:nth-child(7n-1) { background: linear-gradient(180deg, #241410, #130a08); }
+html:root[data-skin="quest"][data-quest="slots"] .cal-sheet .cal-cell.today, html:root[data-skin="quest"][data-quest="slots"] .cal-sheet .cal-cell.sel { background: linear-gradient(180deg, #7a2218, #3d0c08); border-color: #e8c24a #6a4b0c #4a3308 #cfa62e; box-shadow: 0 0 10px rgba(255, 209, 0, .4), inset 0 0 8px rgba(0, 0, 0, .4); }
+html:root[data-skin="quest"][data-quest="slots"] .cal-sheet .cal-list li { background: linear-gradient(180deg, #181410, #0f0c09); border: 2px solid; border-color: var(--q2-sink); border-radius: 3px; box-shadow: inset 0 2px 6px rgba(0, 0, 0, .8); }
+html:root[data-skin="quest"][data-quest="slots"] :is(.cal-month select, .cal-add input) { background: #0b0907; border: 2px solid; border-color: var(--q2-sink); border-radius: 3px; box-shadow: 0 0 0 1px #000, inset 0 2px 5px rgba(0, 0, 0, .85); }
+html:root[data-skin="quest"][data-quest="slots"] :is(.profile-avatar, .profile-link-icon) { border: 3px solid #8a6a2a !important; background: radial-gradient(circle at 50% 28%, #3b3023, #0f0c09 75%) !important; }

@@ -5,13 +5,14 @@
 // ---------- options ----------
 $('buildLabel').textContent = 'Build ' + BUILD;
 /* Appearance (light or dark): Auto follows the phone. Kept on this device only (not in the pet's saved data). */
-var THEMES = [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Classic'], ['quest', 'Quest']];
+var THEMES = [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Classic'], ['quest', 'Quest'], ['quest2', 'Quest 2']];
 function applyTheme(t) {
   var de = document.documentElement;
   // Quest is a dark look with its own skin on top (data-skin), so everything that reads "dark" keeps working
-  if (t === 'quest') { de.dataset.theme = 'dark'; de.dataset.skin = 'quest'; }
-  else { delete de.dataset.skin; if (t === 'light' || t === 'dark') de.dataset.theme = t; else delete de.dataset.theme; }
-  de.classList.toggle('al-quest', t === 'quest' && !de.classList.contains('desktop-pet'));   // its bubbles and alerts use the Quest look too
+  // Quest 2 is Quest with a second layer of rules on top (data-quest="slots": dark stone panels, bevelled bronze frames, inventory-slot rows); Quest itself is untouched
+  if (t === 'quest' || t === 'quest2') { de.dataset.theme = 'dark'; de.dataset.skin = 'quest'; if (t === 'quest2') de.dataset.quest = 'slots'; else delete de.dataset.quest; }
+  else { delete de.dataset.skin; delete de.dataset.quest; if (t === 'light' || t === 'dark') de.dataset.theme = t; else delete de.dataset.theme; }
+  de.classList.toggle('al-quest', (t === 'quest' || t === 'quest2') && !de.classList.contains('desktop-pet'));   // its bubbles and alerts use the Quest look too
   setTimeout(function () { if (typeof refreshStickers === 'function') refreshStickers(); }, 50);   // the list's stickers are drawn in the new colours
 }
 var savedTheme = 'auto';

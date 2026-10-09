@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 499
+- New appearance: Quest 2 (stone panels, bronze frames, inventory-slot rows); Quest stays as it was
+
 ## Build 498
 - Emoji snack: quick until you catch him each day, then rare until tomorrow
 
