@@ -5,9 +5,9 @@ A grocery list with a tamagotchi-like pet that "eats" items as you check them of
 ## How to work with Lauren
 
 - **Her words** (use them back, and map them to the code):
-  - *Passthrough toggle* / *passthrough setting* = the Ctrl+Alt+G key (`grab` in `keys.js`, `grabMouse` in `desktop/main.js`) and the state it swaps: in a game or full-screen program the mouse passes through him (click-through) or he is solid. The pref "Mouse reaches him in games" is `catchGames`.
+  - *Click-through key* / *passthrough key* (also *click-through toggle*, *passthrough toggle/setting*; all mean the same) = the Ctrl+Alt+G key (`grab` in `keys.js`, `grabMouse` in `desktop/main.js`) and the state it swaps: in a game or full-screen program the mouse passes through him (click-through) or he is solid. The pref "Mouse reaches him in games" is `catchGames`.
   - *Mini Fumu settings* = the settings that open from the right-click menu on the small pet (the right-click menu's More settings; `desktop/panel-*.js`, `panel-ui.js`; prefs set by `setPref` in `main.js`). Mini Fumu = the small desktop window (`html.desktop-pet`). Alert style is chosen there.
-  - *Full app settings* / *big settings* / *full app Fumu* = the whole app's own Options (`app-options.js`, the gear in `html.desktop-list`, or the phone app), including its Appearance (Light, Dark, Auto). Things chosen there apply to everything in the full app.
+  - *App settings* (also *full app settings*, *full app Fumu*; she no longer says "big settings") = the whole app's own Options (`app-options.js`, the gear in `html.desktop-list`, or the phone app), including its Appearance (Light, Dark, Auto). Things chosen there apply to everything in the full app.
   - If a request could mean either settings, say which one you changed.
 
 - When you point her to a file or folder on her computer, give the whole path (for example `C:\Users\<name>\.claude\settings.json`, never `~/...`) so she can click it; where the program knows it (it can ask Windows), show the full path in the settings window with a button that opens it.
