@@ -511,16 +511,68 @@ function skInFill(s, pt) {
   return skCtx.isPointInPath(path, pt[0], pt[1], 'evenodd');
 }
 var skCtx = document.createElement('canvas').getContext('2d');
-function skEraseAt(pt) {
-  var v = SK_VIEW[SK.mode], r = v.w * 0.012, list = SK.strokes[SK.mode];
+/** @returns {number[][]} A line's points with more between them (at most `step` apart), so a piece can be cut out of the middle of a straight stretch. */
+function skDensify(pts, step, ring) {
+  var out = [], n = pts.length, segs = ring ? n : n - 1, i, k;
+  for (i = 0; i < segs; i++) {
+    var a = pts[i], b = pts[(i + 1) % n], m = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / step));
+    for (k = 0; k < m; k++) out.push([a[0] + (b[0] - a[0]) * k / m, a[1] + (b[1] - a[1]) * k / m]);
+  }
+  if (!ring) out.push(pts[n - 1].slice());
+  return out;
+}
+/**
+ * Cuts the parts of a pen line that are under the eraser out of it.
+ * @returns {?Object[]} The pieces left (as new lines, maybe none), or null if the eraser did not reach any of its points.
+ */
+function skEraseCut(s, spots, rad) {
+  var v = SK_VIEW[SK.mode], ring = !!s.closed && s.pts.length > 2, pts = skDensify(s.pts, Math.max(rad * 0.25, 0.3), ring);
+  var gone = pts.map(function (p) { return spots.some(function (q) { return Math.hypot(p[0] - q[0], p[1] - q[1]) < rad; }); });
+  if (gone.indexOf(true) === -1) return null;
+  if (ring) {   // a loop is opened where it was cut: start the walk at a cut point
+    var k = gone.indexOf(true);
+    pts = pts.slice(k).concat(pts.slice(0, k)); gone = gone.slice(k).concat(gone.slice(0, k));
+  }
+  var runs = [], cur = [];
+  pts.forEach(function (p, i) {
+    if (gone[i]) { if (cur.length) runs.push(cur); cur = []; } else cur.push(p);
+  });
+  if (cur.length) runs.push(cur);
+  return runs.filter(function (r) { return r.length > 1; }).map(function (r) {
+    var m = JSON.parse(JSON.stringify(s));
+    delete m.cv; delete m.pair; delete m.d;
+    m.closed = false; m.fill = false;
+    m.pts = L.simplifyLine(r.map(function (p) { return [+p[0].toFixed(2), +p[1].toFixed(2)]; }), v.w * 0.0006);
+    return m;
+  });
+}
+/** The eraser: takes out the part of a line it touches (Shift: the whole line); fills and colour fills go whole. */
+function skEraseAt(pt, from) {
+  var v = SK_VIEW[SK.mode], r = Math.max(v.w * 0.012, v.w * SK_PEN * SK.pen / 2), list = SK.strokes[SK.mode];
   var spots = skSpots(pt);
+  if (from) {   // a quick stroke skips over points: fill in the way between
+    var dist = Math.hypot(pt[0] - from[0], pt[1] - from[1]), steps = Math.floor(dist / (r * 0.6)), i;
+    for (i = 1; i <= steps; i++) spots = spots.concat(skSpots([from[0] + (pt[0] - from[0]) * i / (steps + 1), from[1] + (pt[1] - from[1]) * i / (steps + 1)]));
+  }
   var hitsLine = function (s) { return !s.bucket && skSelectable(s) && spots.some(function (q) { return L.sketchHit(s.pts, q, r + s.width / 2); }); };
-  var lines = list.some(hitsLine);
-  // lines come first: only when no line is under the eraser does it take the colour fill there
-  var keep = list.filter(function (s) { return lines ? !hitsLine(s) : !(s.bucket && skSelectable(s) && spots.some(function (q) { return skInFill(s, q); })); });
-  if (keep.length === list.length) return;
+  var lines = list.some(hitsLine), keep = [], changed = false;
+  if (lines) {
+    list.forEach(function (s) {
+      if (!hitsLine(s)) { keep.push(s); return; }
+      if (skDrawing.whole || s.fill || s.d || s.pr) { changed = true; return; }   // a fill cannot be cut: it goes whole
+      var pieces = skEraseCut(s, spots, r + s.width / 2);
+      if (!pieces) { keep.push(s); return; }
+      changed = true;
+      pieces.forEach(function (m) { keep.push(m); });
+    });
+  } else {   // only when no line is under the eraser does it take the colour fill there
+    keep = list.filter(function (s) { return !(s.bucket && skSelectable(s) && spots.some(function (q) { return skInFill(s, q); })); });
+    changed = keep.length !== list.length;
+  }
+  if (!changed) return;
   if (!skDrawing.erased) { skPushHistory(); skDrawing.erased = true; }
   SK.strokes[SK.mode] = keep;
+  SK.pick = SK.pick.filter(function (s) { return keep.indexOf(s) !== -1; });
   skRedraw();
 }
 function skDown(e) {
@@ -551,7 +603,7 @@ function skDown(e) {
     skDrawing = { image: img, last: pt, moved: false };
     return;
   }
-  if (SK.tool === 'erase') { skDrawing = { erased: false }; skEraseAt(pt); return; }
+  if (SK.tool === 'erase') { skDrawing = { erased: false, whole: e.shiftKey, last: pt }; skEraseAt(pt); return; }
   var act = skLays().filter(function (x) { return x.id === SK.active[SK.mode]; })[0];
   if (act && !act.show) { act.show = true; skLinesUI(); skRedraw(); }   // drawing on a hidden layer shows it, so the line is not invisible
   var s = skNew({ pts: [pt], color: SK.color, width: +(v.w * SK_PEN * SK.pen).toFixed(2), fill: SK.tool === 'blob', lay: SK.active[SK.mode], style: SK.style });
@@ -603,7 +655,7 @@ function skMove(e) {
     skRenderImages();
     return;
   }
-  if (SK.tool === 'erase') { skEraseAt(pt); return; }
+  if (SK.tool === 'erase') { skEraseAt(pt, skDrawing.last); skDrawing.last = pt; return; }
   var s = skDrawing.stroke, last = s.pts[s.pts.length - 1];
   if (Math.hypot(pt[0] - last[0], pt[1] - last[1]) < v.w * 0.002) return;   // ignore tiny wobbles
   s.pts.push(pt);
@@ -1065,6 +1117,7 @@ function skSelButtons() {
   var none = !SK.pick.length, shapes = SK.pick.filter(function (s) { return s.closed || s.fill || s.bucket || s.d; }).length;
   $('skSelTools').querySelectorAll('button').forEach(function (b) { b.disabled = none; });
   ['skUnion', 'skSubtract', 'skIntersect'].forEach(function (id) { $(id).disabled = shapes < 2; });   // combining needs two closed shapes
+  $('skRepeat').disabled = SK.pick.length < 2;   // a path and a shape
   if (SK.paint) $('skPaint').disabled = false;   // so it can be switched off again
 }
 /** Runs a transform on everything picked, as one undo step. */
@@ -1254,6 +1307,47 @@ function skPaintOn(s) {
   skFillPaths.delete(s);
   skRedraw(); skSave();
 }
+/** Repeat along a line: the longest picked line is the path, and the other picked lines are copied along it (and used up). */
+function skRepeat() {
+  var v = SK_VIEW[SK.mode];
+  function plen(s) {
+    var t = 0, i;
+    for (i = 1; i < s.pts.length; i++) t += Math.hypot(s.pts[i][0] - s.pts[i - 1][0], s.pts[i][1] - s.pts[i - 1][1]);
+    if (s.closed || s.fill) t += Math.hypot(s.pts[0][0] - s.pts[s.pts.length - 1][0], s.pts[0][1] - s.pts[s.pts.length - 1][1]);
+    return t;
+  }
+  var cand = SK.pick.filter(function (s) { return !s.bucket && s.pts.length > 1; }), path = null;
+  cand.forEach(function (s) { if (!path || plen(s) > plen(path)) path = s; });
+  var stamps = SK.pick.filter(function (s) { return s !== path; });
+  if (!path || !stamps.length) { skStatus.textContent = 'Pick a line to follow and the shape to repeat along it.'; return; }
+  var loop = !!(path.closed || path.fill), pp = path.pts.slice(), total = plen(path);
+  if (loop) pp.push(pp[0]);
+  if (total < 1e-6) return;
+  var n = Math.max(2, Math.min(80, parseInt($('skRepN').value, 10) || 8)), turn = $('skRepTurn').checked;
+  var box = null;
+  stamps.forEach(function (s) { var q = skStrokeBox(s); box = box ? { x0: Math.min(box.x0, q.x0), y0: Math.min(box.y0, q.y0), x1: Math.max(box.x1, q.x1), y1: Math.max(box.y1, q.y1) } : q; });
+  var c = [(box.x0 + box.x1) / 2, (box.y0 + box.y1) / 2], copies = [], i;
+  for (i = 0; i < n; i++) {
+    var d = (loop ? i / n : i / (n - 1)) * total, acc = 0, j = 1, P, ang;
+    while (j < pp.length - 1 && acc + Math.hypot(pp[j][0] - pp[j - 1][0], pp[j][1] - pp[j - 1][1]) < d) { acc += Math.hypot(pp[j][0] - pp[j - 1][0], pp[j][1] - pp[j - 1][1]); j++; }
+    var a = pp[j - 1], b = pp[j], sl = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, t = Math.max(0, Math.min(1, (d - acc) / sl));
+    P = [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]; ang = Math.atan2(b[1] - a[1], b[0] - a[0]);
+    stamps.forEach(function (s) {
+      var m = JSON.parse(JSON.stringify(s)), r = { pts: s.pts, d: s.d, width: s.width };
+      delete m.cv; delete m.pair;
+      if (turn) r = L.sketchXform(r, { kind: 'rotate', cx: c[0], cy: c[1], a: ang });
+      r = L.sketchXform(r, { kind: 'move', dx: P[0] - c[0], dy: P[1] - c[1] });
+      m.pts = r.pts; m.width = r.width; if (s.d) m.d = r.d;
+      copies.push(m);
+    });
+  }
+  skPushHistory();
+  SK.strokes[SK.mode] = SK.strokes[SK.mode].filter(function (s) { return stamps.indexOf(s) === -1; }).concat(copies);
+  SK.pick = copies.concat([path]);
+  skRedraw(); skXfRender(); skSave();
+  skStatus.textContent = n + ' copies along the line. Undo brings the single shape back.';
+}
+$('skRepeat').addEventListener('click', skRepeat);
 $('skOutline').addEventListener('click', skOutline);
 $('skToCurve').addEventListener('click', skToCurve);
 $('skSmooth').addEventListener('click', skSmooth);
