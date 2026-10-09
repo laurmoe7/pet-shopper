@@ -395,3 +395,8 @@ html:root body.skp .cs-pop::after { background: linear-gradient(transparent, var
 .skp-trace [hidden] { display: none; }
 /* the sitting pose is a still picture: the soles do not plop in */
 .preview .sole-part { animation: none !important; }
+.skp-cut { margin-top: 8px; }
+.sk-outline { flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: .78rem; color: var(--muted); }
+.sk-outline label { display: inline-flex; align-items: center; gap: 4px; }
+.sk-outline input[type="range"] { width: 72px; }
+.sk-outline input[type="color"] { width: 30px; height: 24px; padding: 0; border: 1.5px solid var(--line); border-radius: 8px; background: none; }

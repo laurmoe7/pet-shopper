@@ -1199,20 +1199,47 @@ $('skBack').addEventListener('click', function () { skStack(false); });
 $('skToLayer').addEventListener('click', skToLayer);
 /** The game's own dark brown, used for outlines. */
 var SK_INK = '#5b4239';
-/** Gives each picked filled shape the game's brown outline: a line along its edge, just above it, at the pen thickness. */
+/**
+ * Outline: gives each picked shape a line round its edge, in the chosen colour and thickness. The Position slider moves the line
+ * outwards (positive) or inwards (negative, an "inline"); the edge is moved evenly all round by growing or shrinking the shape.
+ */
 function skOutline() {
-  var v = SK_VIEW[SK.mode], list = SK.strokes[SK.mode], shapes = skOrdered().filter(function (s) { return SK.pick.indexOf(s) !== -1 && (s.fill || s.bucket) && s.pts.length > 2; });
-  if (!shapes.length) { skStatus.textContent = 'Pick a filled shape first.'; return; }
+  var v = SK_VIEW[SK.mode], list = SK.strokes[SK.mode], shapes = skOrdered().filter(function (s) { return SK.pick.indexOf(s) !== -1 && (s.fill || s.closed || s.bucket || s.d) && s.pts.length > 2; });
+  if (!shapes.length) { skStatus.textContent = 'Pick a closed or filled shape first.'; return; }
+  var w = +(v.w * SK_PEN * +$('skOlW').value).toFixed(2), color = $('skOlColor').value, move = +$('skOlPos').value * v.w * 0.003, made = 0;
+  var scale = 900 / Math.max(v.w, v.h), pad = Math.ceil(Math.abs(move) * scale) + 4, W = Math.round(v.w * scale) + 2 * pad, H = Math.round(v.h * scale) + 2 * pad;
   skPushHistory();
-  var w = +(v.w * SK_PEN * SK.pen).toFixed(2);
   shapes.forEach(function (s) {
-    var o = { pts: s.pts.map(function (p) { return p.slice(); }), color: SK_INK, width: w, fill: false, closed: true, lay: s.lay, style: 'solid' };
+    var o = { pts: s.pts.map(function (p) { return p.slice(); }), color: color, width: w, fill: false, closed: true, lay: s.lay, style: 'solid' };
     if (s.d) o.d = s.d;
     if (s.clip) o.clip = true;
+    if (Math.abs(move) > 0.01) {   // the edge is moved: draw the shape, grow or shrink it, and trace its new edge
+      var cv = document.createElement('canvas');
+      cv.width = W; cv.height = H;
+      var g = cv.getContext('2d', { willReadFrequently: true });
+      g.setTransform(scale, 0, 0, scale, (pad / scale - v.x) * scale, (pad / scale - v.y) * scale);
+      g.fillStyle = '#000';
+      g.fill(s.d ? new Path2D(s.d) : new Path2D(L.sketchPath(s.pts, true, 2)), s.d ? 'evenodd' : 'nonzero');
+      var px = g.getImageData(0, 0, W, H).data, mask = new Uint8Array(W * H), i;
+      for (i = 0; i < mask.length; i++) mask[i] = px[i * 4 + 3] > 127 ? 1 : 0;
+      var moved = L.offsetMask(mask, W, H, move * scale), loops = L.traceLoops(moved, W, H).map(function (lp) {
+        var real = L.simplifyLine(lp.concat([lp[0]]).map(function (p) { return [v.x + (p[0] - pad) / scale, v.y + (p[1] - pad) / scale]; }), 1 / scale), out = [];
+        L.fitCurve(real, v.w * 0.002).forEach(function (b) {
+          for (var k = 0; k < 10; k++) { var t = k / 10, u = 1 - t; out.push([+(u * u * u * b[0][0] + 3 * u * u * t * b[1][0] + 3 * u * t * t * b[2][0] + t * t * t * b[3][0]).toFixed(2), +(u * u * u * b[0][1] + 3 * u * u * t * b[1][1] + 3 * u * t * t * b[2][1] + t * t * t * b[3][1]).toFixed(2)]); }
+        });
+        return out;
+      }).filter(function (lp) { return lp.length > 2; });
+      if (!loops.length) return;   // shrunk away to nothing
+      o.pts = loops.slice().sort(function (a, b) { return b.length - a.length; })[0];
+      o.d = loops.map(function (lp) { return 'M' + lp.map(function (p) { return p[0] + ' ' + p[1]; }).join('L') + 'Z'; }).join('');
+    }
+    skNew(o);
     list.splice(list.indexOf(s) + 1, 0, o);
+    made++;
   });
+  if (!made) { SK.hist[SK.mode].pop(); skHistoryUI(); skStatus.textContent = 'The shape is too small to move the outline in that far.'; return; }
   skRedraw(); skSave();
-  skStatus.textContent = 'Outlined in the game brown.';
+  skStatus.textContent = (+$('skOlPos').value < 0 ? 'Inline added.' : 'Outline added.') + ' Change colour, thickness or position and press Outline again for another.';
 }
 /** Turns each picked pen line into a curve with points and handles, so the Curve tool can tweak it. */
 function skToCurve() {
@@ -1427,31 +1454,35 @@ async function skTrace() {
     var cv = document.createElement('canvas');
     cv.width = W; cv.height = H;
     var g = cv.getContext('2d', { willReadFrequently: true });
-    g.fillStyle = '#fff'; g.fillRect(0, 0, W, H);
-    g.setTransform(scale, 0, 0, scale, -v.x * scale, -v.y * scale);
+    g.setTransform(scale, 0, 0, scale, -v.x * scale, -v.y * scale);   // the canvas stays see-through round the picture: that is not traced
     g.translate(im.cx, im.cy); g.rotate((im.rot || 0) * Math.PI / 180);
     g.drawImage(img, -im.bw * im.scale / 2, -im.bh * im.scale / 2, im.bw * im.scale, im.bh * im.scale);
     var px = g.getImageData(0, 0, W, H).data, jobs = [], hex = function (c) { return '#' + c.map(function (n) { return ('0' + n.toString(16)).slice(-2); }).join(''); };
     if (mode === 'lines') {
-      jobs.push({ mask: L.despeckle(L.traceInk(px, W, H, +$('skTraceLevel').value), W, H, 6), color: SK.color });
+      jobs.push({ mask: L.despeckle(L.traceInk(px, W, H, +$('skTraceLevel').value), W, H, 6), color: SK.color, at: 0 });
     } else {
-      var r = L.traceColours(px, W, H, +$('skTraceK').value), counts = r.palette.map(function () { return 0; }), edge = r.palette.map(function () { return 0; }), i, e;
+      var r = L.traceColours(px, W, H, +$('skTraceK').value), counts = r.palette.map(function () { return 0; }), i;
       r.labels = L.traceSmoothLabels(r.labels, W, H, r.palette.length);
-      for (i = 0; i < r.labels.length; i++) counts[r.labels[i]]++;
-      for (e = 0; e < W; e++) { edge[r.labels[e]]++; edge[r.labels[(H - 1) * W + e]]++; }
-      for (e = 0; e < H; e++) { edge[r.labels[e * W]]++; edge[r.labels[e * W + W - 1]]++; }
-      var paper = edge.indexOf(Math.max.apply(null, edge));   // the colour round the edge of the picture, if it is light, is the paper
-      r.palette.map(function (c, q) { return { c: c, q: q, n: counts[q] }; }).sort(function (a, b) { return b.n - a.n; }).forEach(function (t) {
-        if (t.q === paper && (t.c[0] + t.c[1] + t.c[2]) / 3 > 190) return;   // paper
+      for (i = 0; i < r.labels.length; i++) if (r.labels[i] !== 255) counts[r.labels[i]]++;
+      // the biggest colour goes at the bottom, and each colour's shape also covers every smaller colour above it,
+      // so a dropped speck shows the colour beneath instead of a hole
+      var order = r.palette.map(function (c, q) { return q; }).sort(function (a, b) { return counts[b] - counts[a]; }), rank = [];
+      order.forEach(function (q, at) { rank[q] = at; });
+      order.forEach(function (q, at) {
         var m = new Uint8Array(W * H);
-        for (i = 0; i < m.length; i++) m[i] = r.labels[i] === t.q ? 1 : 0;
-        jobs.push({ mask: L.despeckle(m, W, H, 8), color: hex(t.c), overlap: true });
+        for (i = 0; i < m.length; i++) m[i] = r.labels[i] !== 255 && rank[r.labels[i]] >= at ? 1 : 0;
+        jobs.push({ mask: L.despeckle(m, W, H, 8), color: hex(r.palette[q]), overlap: true, at: at });
       });
     }
-    var made = [], LIMIT = 250, lay = null;
-    jobs.forEach(function (job) {
-      L.traceParts(job.mask, W, H, LIMIT).forEach(function (part) {
-        if (made.length >= LIMIT) return;
+    var made = [], LIMIT = 600, cands = [];
+    jobs.forEach(function (job) { L.traceParts(job.mask, W, H, LIMIT).forEach(function (part) { cands.push({ job: job, part: part }); }); });
+    cands.sort(function (a, b) { return b.part.size - a.part.size; });   // the biggest patches win when there are more than the limit
+    var capped = cands.length > LIMIT;
+    cands = cands.slice(0, LIMIT);
+    cands.sort(function (a, b) { return a.job.at - b.job.at || b.part.size - a.part.size; });   // bottom colour first, so the others sit on top
+    cands.forEach(function (cd) {
+      var job = cd.job, part = cd.part;
+      {
         var raw = L.traceLoops(part.mask, part.w, part.h);
         if (job.overlap) {   // a colour patch only a pixel or two thick is the blurred rim between two colours, not a shape
           var perim = 0;
@@ -1474,7 +1505,7 @@ async function skTrace() {
         if (!loops.length) return;
         var outer = loops.slice().sort(function (a, b) { return b.length - a.length; })[0];
         made.push({ d: loops.map(function (lp) { return 'M' + lp.map(function (p) { return p[0] + ' ' + p[1]; }).join('L') + 'Z'; }).join(''), pts: outer, color: job.color, width: job.overlap ? +(1.2 / scale).toFixed(2) : 0.2, fill: true, closed: true, style: 'solid' });
-      });
+      }
     });
     if (!made.length) { skStatus.textContent = mode === 'lines' ? 'No ink found. Slide the ink level towards “more”, or try Colours.' : 'Nothing to trace in that picture.'; return; }
     var lays = skLays(), x = { id: 'l' + Date.now().toString(36), name: 'Trace', show: true };
@@ -1484,7 +1515,7 @@ async function skTrace() {
     SK.strokes[SK.mode] = SK.strokes[SK.mode].concat(made);
     im.visible = false; skRenderImages(); skLayersUI(); skSaveImages();
     skLinesUI(); skMarkActive(); skRedraw(); skSave();
-    skStatus.textContent = 'Traced ' + made.length + (made.length === 1 ? ' shape' : ' shapes') + (made.length >= LIMIT ? ' (the biggest; small bits left out)' : '') + ' onto a new layer, “Trace”. The picture is hidden: tick Show to see it again.';
+    skStatus.textContent = 'Traced ' + made.length + (made.length === 1 ? ' shape' : ' shapes') + (capped ? ' (the biggest; small bits left out)' : '') + ' onto a new layer, “Trace”. The picture is hidden: tick Show to see it again.';
   } catch (err) {
     skStatus.textContent = 'Could not trace that picture.';
   } finally { btn.disabled = false; }
@@ -1496,6 +1527,40 @@ function skTraceUI() {
 $('skTrace').addEventListener('click', skTrace);
 $('skTraceMode').addEventListener('change', skTraceUI);
 skTraceUI();
+
+// ---------- cutting out a picture's background ----------
+var skCutOrig = {};   // the picture as it was before the cut, by layer id (kept until the page is closed)
+/** Makes the plain background of the selected picture see-through (it spreads in from the edges over colours like the corners). */
+async function skCut() {
+  var im = skSelected();
+  if (!im) { skStatus.textContent = 'Add a picture first (Images, below).'; return; }
+  try {
+    var img = await skLoadImg(im.src), k = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight)), w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
+    var cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    var g = cv.getContext('2d', { willReadFrequently: true });
+    g.drawImage(img, 0, 0, w, h);
+    var data = g.getImageData(0, 0, w, h), n = L.cutBackground(data.data, w, h, +$('skCutTol').value);
+    if (n < w * h * 0.002) { skStatus.textContent = 'No plain background found at the edges. Try a higher strength.'; return; }
+    g.putImageData(data, 0, 0);
+    if (!skCutOrig[im.id]) skCutOrig[im.id] = { src: im.src, bw: im.bw, bh: im.bh, scale: im.scale };
+    var shown = im.bw * im.scale;
+    im.src = cv.toDataURL('image/png'); im.bw = w; im.bh = h; im.scale = shown / w;
+    skRenderImages(); skLayersUI(); skSaveImages();
+    $('skCutUndo').disabled = false;
+    skStatus.textContent = 'Background cut out (' + Math.round(n / (w * h) * 100) + '% of the picture). Not right? Change the strength and press again, or Undo cut.';
+  } catch (err) { skStatus.textContent = 'Could not cut out that picture.'; }
+}
+function skCutUndo() {
+  var im = skSelected(), o = im && skCutOrig[im.id];
+  if (!o) { skStatus.textContent = 'Nothing to undo for this picture.'; return; }
+  im.src = o.src; im.bw = o.bw; im.bh = o.bh; im.scale = o.scale; delete skCutOrig[im.id];
+  skRenderImages(); skLayersUI(); skSaveImages();
+  $('skCutUndo').disabled = true;
+  skStatus.textContent = 'Background back.';
+}
+$('skCut').addEventListener('click', skCut);
+$('skCutUndo').addEventListener('click', skCutUndo);
 
 // ---------- the pet's own colours ----------
 /** Shows the main colours of whatever is underneath (the pet and its skin, the background, the toy) as swatches, read from how it is drawn. */

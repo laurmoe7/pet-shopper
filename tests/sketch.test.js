@@ -264,3 +264,29 @@ test('tracing: dark ink on paper becomes a mask, specks are dropped, colours are
   assert.notEqual(r.labels[0], r.labels[w - 1]);
   assert.equal(r.labels[0], r.labels[5]);
 });
+
+test('cutting out a background only removes what is joined to the edge', () => {
+  const w = 20, h = 20, px = new Uint8ClampedArray(w * h * 4);
+  for (let i = 0; i < w * h; i++) { px[i * 4] = px[i * 4 + 1] = px[i * 4 + 2] = 250; px[i * 4 + 3] = 255; }
+  const paint = (x, y, v) => { const i = (y * w + x) * 4; px[i] = px[i + 1] = px[i + 2] = v; };
+  for (let y = 4; y < 16; y++) for (let x = 4; x < 16; x++) paint(x, y, 40);        // a dark square
+  for (let y = 8; y < 12; y++) for (let x = 8; x < 12; x++) paint(x, y, 250);        // a paper-coloured hole inside it
+  const n = L.cutBackground(px, w, h, 30);
+  assert.equal(px[0 * 4 + 3], 0);                                                    // the corner is gone
+  assert.equal(px[(10 * w + 10) * 4 + 3], 255);                                      // the hole is not joined to the edge: kept
+  assert.equal(px[(5 * w + 5) * 4 + 3], 255);
+  assert.ok(n > 200 && n < 400);
+});
+
+test('offsetting a mask grows or shrinks it evenly', () => {
+  const w = 30, h = 30, m = new Uint8Array(w * h);
+  for (let y = 10; y < 20; y++) for (let x = 10; x < 20; x++) m[y * w + x] = 1;
+  const count = a => a.reduce((s, v) => s + v, 0);
+  assert.equal(count(L.offsetMask(m, w, h, -2)), 36);                 // 10x10 shrunk by 2 each side
+  assert.equal(L.offsetMask(m, w, h, -2)[12 * w + 12], 1);
+  assert.equal(L.offsetMask(m, w, h, -2)[10 * w + 10], 0);
+  assert.equal(L.offsetMask(m, w, h, 2)[8 * w + 15], 1);              // grown to the side
+  assert.equal(L.offsetMask(m, w, h, 2)[7 * w + 15], 0);
+  assert.equal(L.offsetMask(m, w, h, 2)[8 * w + 8], 0);               // the corner is rounded, not square
+  assert.equal(count(L.offsetMask(m, w, h, 0)), 100);
+});
