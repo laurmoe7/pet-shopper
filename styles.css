@@ -3403,3 +3403,26 @@ html:root[data-skin="quest"][data-quest="slots"] .picker-grid button img { width
 .pet.steal-r[data-arms="steal"] .arm-r { transform: rotate(-66deg); }
 .pet.steal-l[data-arms="steal"] .arm-l { transform: rotate(66deg); }
 .steal-ghost, .steal-ghost * { pointer-events: none !important; }
+
+/* ---------- Quest2 for Mini Fumu (alert style "Quest2"): stone and metal alert cards and ring buttons. It wears al-quest too, so the speech bubble stays Quest's ---------- */
+html.al-quest2 { --q2-fine: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .78  0 0 0 0 .7  0 0 0 0 .56  .9 0 0 0 -.3'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); --q2-blot: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='n' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.025 .035' numOctaves='3' seed='9' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .02  0 0 0 0 .015  0 0 0 0 .01  1.6 0 0 0 -.45'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); --al-bg: #1d1a17; --al-ink: #efe2bd; --al-sub: #b7a981; --al-edge: #0a0805; --al-chip: #3a352e; --al-shadow: rgba(0, 0, 0, .7); --al-mix: #1d1a17; }
+html.al-quest2 .inbox-card {
+  border: 3px solid; border-color: #b9a77c #4a3f2b #1c1712 #8f7e58; border-radius: 6px;
+  background-color: #26221e; background-image: var(--q2-fine), var(--q2-blot), linear-gradient(180deg, #302b26, #1b1815); background-size: 180px 180px, 360px 360px, auto;
+  box-shadow: 0 0 0 1.5px #000, inset 0 0 0 2px #14110e, inset 0 0 0 3px #7d6630, inset 0 0 14px rgba(0, 0, 0, .6), 0 8px 14px var(--al-shadow);
+}
+html.al-quest2 .inbox-card::before { display: none; }
+html.al-quest2 .inbox-text b { color: #f6e7b0; text-shadow: 0 1px 0 #000; }
+html.al-quest2 .inbox-text span { color: #bfb08a; }
+html.al-quest2 :is(.inbox-icon, .remind-card .inbox-icon) { border-radius: 3px; border: 1px solid #6a5f4d; background: radial-gradient(circle at 50% 38%, #26211b, #0a0908); box-shadow: 0 0 0 1px #000, inset 0 3px 7px rgba(0, 0, 0, .9); }
+html.al-quest2 .inbox-actions button {
+  border: 1px solid #8f7e58; border-radius: 3px; color: #ffd100; text-shadow: 0 1px 0 #000;
+  background: linear-gradient(180deg, #403a32, #1f1c18); box-shadow: 0 0 0 1.5px #000, inset 0 1px 0 rgba(255, 235, 180, .3), inset 0 -2px 4px rgba(0, 0, 0, .35);
+}
+html.al-quest2 .inbox-actions .ia-done { background: linear-gradient(180deg, #b3281a, #55100a); color: #ffe27a; border-color: #d9b441; }
+html.al-quest2 .ring-btn {
+  border: 3px solid; border-color: #d2b970 #7a6128 #4d3b15 #b39447; border-radius: 50%; background: radial-gradient(circle at 50% 28%, #403527, #0e0c0a 75%);
+  box-shadow: 0 0 0 1.5px #000, inset 0 0 0 1.5px #1a1409, inset 0 -3px 6px rgba(0, 0, 0, .55), 0 3px 4px rgba(0, 0, 0, .6);
+}
+html.al-quest2 .ring-btn:hover { background: radial-gradient(circle at 50% 28%, #54442f, #14100b 75%); }
+html.al-quest2 .ring-btn[aria-pressed="true"] { background: radial-gradient(circle at 50% 28%, #6b3a1a, #1d0f08 75%); box-shadow: 0 0 0 1.5px #000, 0 0 10px rgba(255, 200, 60, .55), inset 0 0 8px rgba(255, 190, 60, .25); }

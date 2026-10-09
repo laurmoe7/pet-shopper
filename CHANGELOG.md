@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 504
+- Quest2 is its own appearance (Quest stays as it was); Mini Fumu gets a Quest2 alert style, speech bubble kept as Quest's
+
 ## Build 503
 - Fumu walks down over the page to take the emoji with his paw, runs back and eats it
 

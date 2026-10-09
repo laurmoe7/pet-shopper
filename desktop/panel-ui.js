@@ -78,7 +78,7 @@
     sizeRow.appendChild(seg); look.appendChild(sizeRow);
     var alertRow = el('div', 'row'); alertRow.appendChild(el('span', 'text', 'Alert style'));
     var alertSeg = el('span', 'seg');
-    [['paper', 'Paper'], ['night', 'Night'], ['sweet', 'Sweet'], ['cool', 'Cool'], ['quest', 'Quest'], ['classic', 'Classic']].forEach(function (o) { var b = button(alertSeg, o[1], function () { P.set('alertStyle', o[0]).then(take); }); if ((S.prefs.alertStyle || 'paper') === o[0]) b.className = 'on'; });
+    [['paper', 'Paper'], ['night', 'Night'], ['sweet', 'Sweet'], ['cool', 'Cool'], ['quest', 'Quest'], ['quest2', 'Quest2'], ['classic', 'Classic']].forEach(function (o) { var b = button(alertSeg, o[1], function () { P.set('alertStyle', o[0]).then(take); }); if ((S.prefs.alertStyle || 'paper') === o[0]) b.className = 'on'; });
     alertRow.appendChild(alertSeg); look.appendChild(alertRow);
     toggle(look, 'Speech bubbles', 'bubbles', 'In the small window. Alerts still show.');
     toggle(look, 'Thought bubbles', 'clouds', 'Daydreams and wishes.');

@@ -220,12 +220,14 @@
     root.classList.toggle('desk-noclouds', deskPrefs.clouds === false);
     // the look of alert cards and speech bubbles: the small pet uses the style chosen in the settings window; the whole app always has the
     // Classic look, which follows its own Light or Dark appearance
-    var style = root.classList.contains('desktop-pet') ? (deskPrefs.alertStyle || 'paper') : (root.dataset.skin === 'quest' ? 'quest' : 'classic');   // (the whole app: Classic, or Quest when that is its appearance)
-    var want = style === 'classic' ? '' : ({ night: 'al-night', sweet: 'al-sweet', cool: 'al-cool', quest: 'al-quest' }[style] || 'al-paper');
-    var have = ['al-paper', 'al-night', 'al-sweet', 'al-cool', 'al-quest'].filter(function (c) { return root.classList.contains(c); });
-    if (have.length !== (want ? 1 : 0) || (want && have[0] !== want)) {   // (only touched when it is wrong, so this is cheap to call often)
-      root.classList.remove('al-paper', 'al-night', 'al-sweet', 'al-cool', 'al-quest');
-      if (want) root.classList.add(want);
+    var style = root.classList.contains('desktop-pet') ? (deskPrefs.alertStyle || 'paper') : (root.dataset.skin === 'quest' ? (root.dataset.quest === 'slots' ? 'quest2' : 'quest') : 'classic');   // (the whole app: Classic, or Quest / Quest2 when that is its appearance)
+    // Quest2 wears Quest's classes too, so its speech bubble stays exactly Quest's; al-quest2 only restyles the cards and the ring on top
+    var want = style === 'classic' ? [] : ({ night: ['al-night'], sweet: ['al-sweet'], cool: ['al-cool'], quest: ['al-quest'], quest2: ['al-quest', 'al-quest2'] }[style] || ['al-paper']);
+    var ALL = ['al-paper', 'al-night', 'al-sweet', 'al-cool', 'al-quest', 'al-quest2'];
+    var have = ALL.filter(function (c) { return root.classList.contains(c); });
+    if (have.length !== want.length || want.some(function (c) { return have.indexOf(c) === -1; })) {   // (only touched when it is wrong, so this is cheap to call often)
+      ALL.forEach(function (c) { root.classList.remove(c); });
+      want.forEach(function (c) { root.classList.add(c); });
     }
     root.classList.toggle('desk-nobubbles', deskPrefs.bubbles === false);   // speech bubbles in the small window only; cards (reminders, links) are separate
     lastSolidReset();
