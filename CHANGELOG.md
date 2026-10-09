@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 388
+- Done and snooze swipes each make their own sound.
+
 ## Build 387
 - Only the bell swings in Claude alerts, in every theme.
 - A soft swoosh when you swipe an alert away.

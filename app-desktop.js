@@ -266,7 +266,7 @@
     previewTimer = setTimeout(function () {
       var card = previewCard; previewCard = null;
       if (!card || !card.parentNode) return;
-      slideAway(card, 1, function () { card.remove(); }, true);
+      slideAway(card, 1, function () { card.remove(); }, 'none');
       setTimeout(function () { if (card.parentNode) card.remove(); }, 800);
     }, 2000);
   }
@@ -1006,8 +1006,8 @@
     else if (remind && dx < 0) btn = named(/^Done/) || btn;
     if (!btn) return;
     card.dataset.leaving = '1';
-    if (dir) slideAway(card, dir, function () { btn.click(); });
-    else { sound('swoosh'); card.style.animation = 'none'; card.style.transition = 'translate .26s ease-in, opacity .26s'; card.style.translate = '0 ' + (dy < 0 ? -1 : 1) * 60 + 'px'; card.style.opacity = '0'; setTimeout(function () { if (card.parentNode) btn.click(); }, 270); }
+    if (dir) slideAway(card, dir, function () { btn.click(); }, swipeSound(btn));
+    else { sound(swipeSound(btn)); card.style.animation = 'none'; card.style.transition = 'translate .26s ease-in, opacity .26s'; card.style.translate = '0 ' + (dy < 0 ? -1 : 1) * 60 + 'px'; card.style.opacity = '0'; setTimeout(function () { if (card.parentNode) btn.click(); }, 270); }
   }
   document.addEventListener('mousemove', function (e) { sweepAt(e.clientX, e.clientY); }, true);
   // the shell also reports the pointer while a card is up (Windows does not always forward it to a window that lets clicks through)
