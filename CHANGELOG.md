@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 364
+- Cuter alerts: taped label, round sticker icon, softer buttons, a colour for each kind.
+- The test reminder has a Done button.
+
 ## Build 363
 - Alert swipes: right puts away, left snoozes, up or down is Done.
 

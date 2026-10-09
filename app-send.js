@@ -170,7 +170,7 @@ var inboxCard = null;
 function showInboxCard(msg, more) {
   var pv = Send.preview(msg), stageEl = document.querySelector('.stage');
   var card = document.createElement('div');
-  card.className = 'inbox-card' + (msg.from === 'claude' ? ' claude-card' : '');   // (Claude's "replied" note: no Copy, and it nudges now and then)
+  card.className = 'inbox-card ' + (msg.from === 'claude' ? 'claude-card' : msg.kind === 'link' ? 'link-card' : 'note-card');   // (Claude's "replied" note: no Copy, and it nudges now and then)
   card.setAttribute('role', 'status');
   var img = emojiImg(msg.from === 'claude' ? '🔔' : pv.icon, '');   // Claude's note is a bell
   img.className = 'inbox-icon';

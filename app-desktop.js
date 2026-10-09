@@ -538,7 +538,8 @@
       acts.appendChild(b);
       return b;
     }
-    if (state.items.indexOf(item) !== -1 && isTodo()) button('Done ✓', function () { close(); toggle(item.id); });
+    if (state.items.indexOf(item) !== -1 && isTodo()) button('Done ✓', function () { close(); toggle(item.id); }, 'ia-done');
+    else if (item.id === 'test') button('Done ✓', function () { close(); say(pick(['good job!', 'yay, done!', 'well done ♡']), 1500); }, 'ia-done');   // (the made-up one from Developer tools)
     button('In 10 min', function () {
       close();
       setTimeout(function () { if (!item.done && (state.items.indexOf(item) !== -1 || state.stash.indexOf(item) !== -1)) { remindQueue.push(item); showRemind(); } }, SNOOZE_MS);
