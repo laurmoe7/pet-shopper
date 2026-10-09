@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 377
+- The Quest alert's "!" sits in line with the title.
+
 ## Build 376
 - The alert style choice is only for the small pet; the whole app's alerts and bubbles follow its light or dark appearance.
 

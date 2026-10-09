@@ -3123,7 +3123,7 @@ html.al-quest .inbox-card { --ac: #d4a72c; --ac2: #2a1f10; border-radius: 6px; o
   box-shadow: 0 0 0 1.5px #5a420f, inset 0 0 0 2px #0a0704, inset 0 0 0 3.5px #7a5a14, inset 0 0 14px rgba(0, 0, 0, .7), 0 8px 14px var(--al-shadow); }
 html.al-quest .remind-card, html.al-quest .claude-card, html.al-quest .note-card, html.al-quest .link-card { --ac: #d4a72c; }
 html.al-quest .inbox-card::before { content: ""; top: -6px; left: 50%; right: auto; translate: -50% 0; width: 54px; height: 9px; rotate: 0deg; border-radius: 3px; border: 1.5px solid #5a420f; background: linear-gradient(180deg, #f0cf66, #b8891c); box-shadow: 0 1px 0 #000; opacity: 1; }
-html.al-quest .inbox-card::after { content: "!"; top: 3px; right: 12px; font: 900 1.25rem/1 "Palatino Linotype", Georgia, serif; color: #ffd100; text-shadow: 0 0 6px rgba(255, 209, 0, .75), 0 1px 0 #000; animation: azeroth-bob 1.6s ease-in-out infinite; scale: 1; }
+html.al-quest .inbox-card::after { content: "!"; top: 8px; right: 12px; font: 900 1.25rem/1 "Palatino Linotype", Georgia, serif; color: #ffd100; text-shadow: 0 0 6px rgba(255, 209, 0, .75), 0 1px 0 #000; animation: azeroth-bob 1.6s ease-in-out infinite; scale: 1; }
 @keyframes azeroth-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2px; } }
 html.al-quest :is(.inbox-icon, .remind-card .inbox-icon, .claude-card .inbox-icon) { animation: none; border-radius: 4px; rotate: 0deg; background: #120c06; padding: 3px; border: 2px solid #c9a227; box-shadow: 0 0 0 1.5px #000, inset 0 0 6px rgba(0, 0, 0, .9); }
 html.al-quest .inbox-text b { font-family: inherit; font-weight: 700; color: #ffd100; text-shadow: 0 1px 0 #000, 0 0 5px rgba(0, 0, 0, .8); letter-spacing: .02em; }
