@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 414
+- After a throw he always ends on his exact spot, even when it was right at the bottom of the screen.
+
 ## Build 413
 - Quest app background matches Mini Fumu's Quest settings: dark with a warm glow, no dots.
 - Quest pet menu tabs have gold icons in gold-framed buttons.

@@ -186,6 +186,9 @@ function start() {
       const done = await glide(back, Math.max(600, Math.min(2800, Math.hypot(back.x - cur.x, back.y - cur.y) * 1.6)) * (drowsy ? 3 : 1));
       if (win) win.webContents.send('desk:run', 0);
       if (!done) return;
+    } else if (back.x !== cur.x || back.y !== cur.y) {
+      // a short way off (his spot was right at the bottom, where the floor stops him a little above it): settle on it exactly, no run
+      if (!(await glide(back, 160))) return;
     }
     restHere();
     if (lastThrow) lastThrow.end = win.getBounds();
