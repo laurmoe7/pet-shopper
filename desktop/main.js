@@ -303,7 +303,14 @@ function start() {
   }
   // Windows is meant to forward the pointer to the page while clicks pass through, but that can stop working after the window
   // changes size. So the shell also watches the pointer itself and tells the page where it is; the page decides if it is on Fumu.
-  let cursorTimer = null, wasInside = false, rects = null, holdSolid = false, solidState = null, sweepOn = false, sweepAt = '';
+  let cursorTimer = null, wasInside = false, rects = null, holdSolid = false, solidState = null, sweepOn = false, sweepAt = '', lastAssert = 0, programDisplay = null;
+  /** @returns {boolean} Whether clicks pass through him because a game or full-screen program is in front ON HIS SCREEN (one on another screen does not cover him). */
+  function gamingNow() {
+    if (prefs.catchGames || gameGrab || !programNow || !win) return false;
+    if (!(programNow.fullscreen || programNow.kind === 'game')) return false;
+    if (programDisplay !== null) { try { if (screen.getDisplayMatching(win.getBounds()).id !== programDisplay) return false; } catch (e) { /* keep the answer */ } }
+    return true;
+  }
   const HIT_PAD = 6;   // a few pixels of slack round the solid parts, so the window is already catching clicks when the pointer arrives
   function watchCursor() {
     if (!THROUGH || cursorTimer) return;
@@ -316,9 +323,10 @@ function start() {
       if (rects) {
         const z = zoom(), x = (p.x - b.x) / z, y = (p.y - b.y) / z;
         // in a full-screen program or a game the window lets every click and move through, so the game keeps the mouse (its camera, say)
-        const gaming = !prefs.catchGames && !gameGrab && programNow && (programNow.fullscreen || programNow.kind === 'game');
+        const gaming = gamingNow();
         const want = !gaming && (holdSolid || (inside && place.hitTest(rects, x, y, HIT_PAD)));
-        if (want !== solidState) { solidState = want; solidNow = want; win.setIgnoreMouseEvents(!want, { forward: true }); }
+        // (said again about once a second even when nothing changed: Windows can quietly drop the setting, and then he would stay see-through)
+        if (want !== solidState || Date.now() - lastAssert > 1000) { lastAssert = Date.now(); solidState = want; solidNow = want; win.setIgnoreMouseEvents(!want, { forward: true }); }
         // an alert is up while the mouse passes through: tell the page where the pointer is, so sweeping over it works whatever Windows forwards
         if (gaming && sweepOn && inside) { const at = Math.round(x) + ',' + Math.round(y); if (at !== sweepAt) { sweepAt = at; win.webContents.send('desk:sweep', x, y); } }
         return;
@@ -802,10 +810,12 @@ function start() {
       const r = screen.screenToDipRect(null, f.rect), d = screen.getDisplayMatching(r).bounds;
       const full = Math.abs(r.x - d.x) <= 2 && Math.abs(r.y - d.y) <= 2 && r.width >= d.width - 2 && r.height >= d.height - 2;
       const now = programs.describe(f.exe, full, prefs.myGames);
+      const progDisp = screen.getDisplayMatching(r).id;
+      now.here = screen.getDisplayMatching(win.getBounds()).id === progDisp;   // (is it on the same screen as he is: only then does it cover him)
       if (now.kind === 'other' || now.kind === 'fullscreen') lastUnknown = f.exe;
       const key = JSON.stringify(now);
       if (key === programMaybe) programCount++; else { programMaybe = key; programCount = 1; }
-      if (programCount >= 2 && key !== programSent) { gameGrab = false; programSent = key; programNow = now; win.webContents.send('desk:program', now); log('program', now.kind, now.name); }
+      if (programCount >= 2 && key !== programSent) { gameGrab = false; programSent = key; programNow = now; programDisplay = progDisp; win.webContents.send('desk:program', now); log('program', now.kind, now.name); }
     }, 2500);
   }
   // the player teaches him a game he does not know: the last program he could not name gets that name
@@ -832,7 +842,7 @@ function start() {
       version: app.getVersion(), channel: CHANNEL.name, electron: process.versions.electron, packaged: app.isPackaged, page: APP_URL,
       mode, bounds: b, lastThrow, zoom: zoom(), screens: screen.getAllDisplays().map((d) => d.workArea.width + 'x' + d.workArea.height + ' @' + d.scaleFactor),
       onPerch: perch ? perch.id : null, awareness: prefs.awareness, program: programNow, lastUnknownProgram: lastUnknown, taughtGames: Object.keys(prefs.myGames).length, windowsSeen: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch') ? windows.list().length : null, perchesNow: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch') ? perchesNow().length : null,
-      idleSeconds: powerMonitor.getSystemIdleTime(), idle, displaced, pointerOverFumu: solidNow,
+      idleSeconds: powerMonitor.getSystemIdleTime(), idle, displaced, pointerOverFumu: solidNow, clickThrough: gamingNow(),
       shortcutsHeld: Object.assign({}, registered, hoverKeyOn), settingsFolder: app.getPath('userData')
     };
   }

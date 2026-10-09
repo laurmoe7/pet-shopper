@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 509
+- Fumu no longer turns see-through to the mouse by mistake (the desktop, Start, Alt-Tab, a game on another screen)
+
 ## Build 508
 - Mini Fumu settings: the alert style choices no longer run over their name; Cool alert style redone as icy neon glass
 

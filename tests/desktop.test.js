@@ -326,6 +326,10 @@ test('programs: listed games and apps are named, everything else is just "someth
   assert.deepEqual(G.describe(null, false), { kind: 'none', name: '', fullscreen: false });
   // a game she taught him, on top of the list (names cut to 40 characters)
   assert.deepEqual(G.describe('mygame.exe', false, { 'mygame.exe': 'My Game' }), { kind: 'game', name: 'My Game', fullscreen: false });
+  // Windows' own screens (the desktop wallpaper, Start, Alt-Tab, the screenshot overlay) fill a monitor but are not full-screen programs: they must not make him see-through for the mouse
+  assert.equal(G.describe('explorer.exe', true).fullscreen, false);
+  assert.equal(G.describe('StartMenuExperienceHost.exe', true).fullscreen, false);
+  assert.equal(G.describe('mystery.exe', true).fullscreen, true);
   Object.keys(G.GAMES).concat(Object.keys(G.APPS)).forEach((k) => assert.equal(k, k.toLowerCase()));
 });
 

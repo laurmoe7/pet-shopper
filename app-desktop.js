@@ -946,7 +946,7 @@
   var QUIET_KINDS = { game: 1, call: 1, fullscreen: 1 };
   var grabbed = false;   // the grab-the-mouse key (Ctrl+Alt+G) was pressed for this program: he is solid again
   /** Whether the shell lets the mouse pass through him now (a game or full-screen program, unless he catches the mouse there or the key swapped it). */
-  window.deskPassThrough = function () { return deskAware(2) && !deskPrefs.catchGames && !grabbed && (!!program.fullscreen || program.kind === 'game'); };
+  window.deskPassThrough = function () { return deskAware(2) && !deskPrefs.catchGames && !grabbed && program.here !== false && (!!program.fullscreen || program.kind === 'game'); };   // (here: false = that program is on another screen, so it does not cover him)
   /** Whether a game, a call or something full-screen is in front: no napping then (he is quiet). */
   function quietNow() { return deskAware(2) && !!QUIET_KINDS[program.kind]; }
   /** Whether a game or something full-screen is in front: the "full-screen" choices in the settings apply instead of the usual ones. */
