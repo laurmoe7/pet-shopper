@@ -435,7 +435,7 @@ function skLinesUI() {
       '<button type="button" class="sk-mini" data-act="show" aria-pressed="' + x.show + '" title="Show or hide (it is still saved)">' + (x.show ? SK_EYE : SK_EYE_OFF) + '</button>' +
       '<input type="text" maxlength="24" data-act="name" aria-label="Layer name" title="Double-tap to rename" readonly>' +
       '<button type="button" class="sk-mini" data-act="up" title="Move up">▲</button><button type="button" class="sk-mini" data-act="down" title="Move down">▼</button>' +
-      '<button type="button" class="sk-mini" data-act="del" title="Delete this layer (its lines drop to the next one)"' + (l.length < 2 ? ' disabled' : '') + '>✕</button>';
+      '<button type="button" class="sk-mini" data-act="del" title="Delete this layer and the lines on it"' + (l.length < 2 ? ' disabled' : '') + '>✕</button>';
     row.querySelector('input[data-act=name]').value = x.name;
     return row;
   }));
@@ -463,12 +463,16 @@ function skLinesEvent(e) {
   else if (act === 'up' && i < l.length - 1) { l.splice(i + 1, 0, l.splice(i, 1)[0]); skRedraw(); }
   else if (act === 'down' && i > 0) { l.splice(i - 1, 0, l.splice(i, 1)[0]); skRedraw(); }
   else if (act === 'del' && l.length > 1) {
-    var to = l[i ? i - 1 : 1];
-    SK.strokes[SK.mode].forEach(function (s) { if (skLayerOf(s) === x) s.lay = to.id; });
+    var to = l[i ? i - 1 : 1], mine = SK.strokes[SK.mode].filter(function (s) { return skLayerOf(s) === x; });
+    if (mine.length) {   // the layer's lines go with it; Undo brings both back
+      skPushHistory(); skAutoLayers[x.id] = x;
+      SK.strokes[SK.mode] = SK.strokes[SK.mode].filter(function (s) { return mine.indexOf(s) === -1; });
+      SK.pick = SK.pick.filter(function (s) { return mine.indexOf(s) === -1; });
+    }
     l.splice(i, 1);
     if (SK.active[SK.mode] === x.id) SK.active[SK.mode] = to.id;
     SK.layerSet[SK.mode] = skSetOf().filter(function (id) { return id !== x.id; });
-    skStatus.textContent = 'Layer removed. Its lines moved to ' + to.name + '.';
+    skStatus.textContent = mine.length ? 'Layer “' + x.name + '” deleted with its ' + mine.length + (mine.length === 1 ? ' line' : ' lines') + '. Undo brings it back.' : 'Empty layer removed.';
     skRedraw();
   } else {   // a click on a row: it becomes the one layer to work on; Shift or Ctrl (or its tick box) adds or removes it. The row is not rebuilt (that would drop the typing cursor)
     var set = skSetOf().slice(), at = set.indexOf(x.id);
