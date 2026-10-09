@@ -208,7 +208,7 @@
     root.classList.toggle('desk-backdrop', deskPrefs.backdrop === true);
     root.classList.toggle('desk-nosparkles', deskPrefs.sparkles === false);
     root.classList.toggle('desk-noclouds', deskPrefs.clouds === false);
-    root.classList.remove('al-paper', 'al-night', 'al-sweet', 'al-cool'); if (deskPrefs.alertStyle !== 'classic') root.classList.add({ night: 'al-night', sweet: 'al-sweet', cool: 'al-cool' }[deskPrefs.alertStyle] || 'al-paper');   // the look of alert cards (settings: Alert style)
+    root.classList.remove('al-paper', 'al-night', 'al-sweet', 'al-cool', 'al-azeroth'); if (deskPrefs.alertStyle !== 'classic') root.classList.add({ night: 'al-night', sweet: 'al-sweet', cool: 'al-cool', azeroth: 'al-azeroth' }[deskPrefs.alertStyle] || 'al-paper');   // the look of alert cards (settings: Alert style)
     root.classList.toggle('desk-nobubbles', deskPrefs.bubbles === false);   // speech bubbles in the small window only; cards (reminders, links) are separate
     lastSolidReset();
   }

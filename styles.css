@@ -3115,3 +3115,21 @@ html.al-cool .inbox-actions button { border-radius: 6px; background: linear-grad
 html.al-cool .inbox-actions .ia-done { background: linear-gradient(180deg, #f0505c, #c42232); color: #fff; text-shadow: 0 1px 0 rgba(0, 0, 0, .35); }
 html.al-cool .inbox-actions .inbox-done { border-radius: 6px; width: 26px; }
 @media (prefers-reduced-motion: reduce) { html.al-sweet .inbox-card::after { animation: none; } }
+
+/* Azeroth (build 374): an alert dressed like a fantasy-RPG dialog frame: dark panel, double gold border, gold serif title, red stone buttons, a quest "!" */
+html.al-azeroth { --al-bg: #1b140c; --al-ink: #f2e6c4; --al-sub: #b9a77c; --al-edge: #0a0704; --al-chip: #3a2a14; --al-shadow: rgba(0, 0, 0, .65); --al-mix: #1b140c; }
+html.al-azeroth .inbox-card { --ac: #d4a72c; --ac2: #2a1f10; border-radius: 6px; outline: none; border: 3px solid #c9a227; font-family: "Palatino Linotype", Palatino, Georgia, serif;
+  background: radial-gradient(ellipse at 50% 0, rgba(255, 215, 120, .1), transparent 70%), linear-gradient(180deg, #2a1d10, #140e08);
+  box-shadow: 0 0 0 1.5px #5a420f, inset 0 0 0 2px #0a0704, inset 0 0 0 3.5px #7a5a14, inset 0 0 14px rgba(0, 0, 0, .7), 0 8px 14px var(--al-shadow); }
+html.al-azeroth .remind-card, html.al-azeroth .claude-card, html.al-azeroth .note-card, html.al-azeroth .link-card { --ac: #d4a72c; }
+html.al-azeroth .inbox-card::before { content: ""; top: -6px; left: 50%; right: auto; translate: -50% 0; width: 54px; height: 9px; rotate: 0deg; border-radius: 3px; border: 1.5px solid #5a420f; background: linear-gradient(180deg, #f0cf66, #b8891c); box-shadow: 0 1px 0 #000; opacity: 1; }
+html.al-azeroth .inbox-card::after { content: "!"; top: 3px; right: 12px; font: 900 1.25rem/1 "Palatino Linotype", Georgia, serif; color: #ffd100; text-shadow: 0 0 6px rgba(255, 209, 0, .75), 0 1px 0 #000; animation: azeroth-bob 1.6s ease-in-out infinite; scale: 1; }
+@keyframes azeroth-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2px; } }
+html.al-azeroth :is(.inbox-icon, .remind-card .inbox-icon, .claude-card .inbox-icon) { animation: none; border-radius: 4px; rotate: 0deg; background: #120c06; padding: 3px; border: 2px solid #c9a227; box-shadow: 0 0 0 1.5px #000, inset 0 0 6px rgba(0, 0, 0, .9); }
+html.al-azeroth .inbox-text b { font-family: inherit; font-weight: 700; color: #ffd100; text-shadow: 0 1px 0 #000, 0 0 5px rgba(0, 0, 0, .8); letter-spacing: .02em; }
+html.al-azeroth .inbox-text span { color: #c9b98c; font-style: italic; }
+html.al-azeroth .inbox-actions button { font-family: inherit; font-weight: 700; border-radius: 4px; background: linear-gradient(180deg, #8a1f17, #4a0d09); color: #ffd100; border: 1.5px solid #c9a227; box-shadow: 0 0 0 1px #000, inset 0 1px 0 rgba(255, 170, 120, .35); text-shadow: 0 1px 0 #000; }
+html.al-azeroth .inbox-actions button:hover { filter: brightness(1.25); }
+html.al-azeroth .inbox-actions .ia-done { background: linear-gradient(180deg, #a52a1f, #5c120d); color: #fff2b0; }
+html.al-azeroth .inbox-actions .inbox-done { border-radius: 4px; width: 26px; }
+@media (prefers-reduced-motion: reduce) { html.al-azeroth .inbox-card::after { animation: none; } }
