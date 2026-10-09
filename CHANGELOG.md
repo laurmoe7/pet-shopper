@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 497
+- Fumu steals emojis quicker and more often (first one about 20 seconds after opening)
+
 ## Build 496
 - Animation player: steal an emoji works again
 

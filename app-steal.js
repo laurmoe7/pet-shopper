@@ -4,7 +4,8 @@
 // Plain script, shares one scope, loaded after app-wreck.js.
 'use strict';
 
-var STEAL_MIN_MS = 4 * 60000, STEAL_MAX_MS = 9 * 60000;
+var STEAL_MIN_MS = 45000, STEAL_MAX_MS = 110000;   // (the first one comes sooner after the app opens: STEAL_FIRST_MS)
+var STEAL_FIRST_MS = 20000;
 var stolen = null;   // the emoji he has: { id, src, phase: 'sneak' | 'eaten' | 'spit' }
 var stealTimer = 0, guiltTimer = 0;
 
@@ -63,24 +64,24 @@ function stealNow(force) {
   busy++;
   setFace({ eyes: 'squint', mouth: 'smile', arms: 'idle', x: [] });   // (a sly look)
   say(pick(['…', 'psst…', '*tiptoe*']), 1000, true);
-  wait(1100).then(function () {
+  wait(700).then(function () {
     if (!stolen) { busy--; settle(); return; }
     li.classList.add('stolen');
     sound('swoosh');
     drift(['💨'], { x: from.x, y: from.y }, 1);
-    return flyEmoji(src, from, stealMouth(), 650, 70, true);
+    return flyEmoji(src, from, stealMouth(), 520, 70, true);
   }).then(function () {
     if (!stolen) return;
     sound('chomp');
     setFace(CHEW);
     if (!reduceMotion) pulse('bob', 900);
-    return wait(1300);
+    return wait(900);
   }).then(function () {
     if (!stolen) { busy--; settle(); return; }
     setFace({ eyes: 'happy', mouth: 'smile', arms: 'idle', x: ['cheeks'] });
     say(pick(['…what?', '*gulp* nothing happened', 'hehe… yum', 'I didn\'t see anything~']), 2000, true);
     stolen.phase = 'eaten';
-    return wait(1600);
+    return wait(1200);
   }).then(function () { busy--; if (!busy) settle(); });
   return true;
 }
@@ -110,13 +111,13 @@ pet.addEventListener('click', function (e) {
 }, true);
 
 /** Now and then, while it is quiet. */
-function scheduleSteal() {
+function scheduleSteal(first) {
   clearTimeout(stealTimer);
   stealTimer = setTimeout(function () {
-    if (stealOk()) { stealNow(); scheduleSteal(); } else { stealTimer = setTimeout(scheduleSteal, 60000); }
-  }, STEAL_MIN_MS + Math.random() * (STEAL_MAX_MS - STEAL_MIN_MS));
+    if (stealOk()) { stealNow(); scheduleSteal(); } else { stealTimer = setTimeout(scheduleSteal, 12000); }
+  }, first ? STEAL_FIRST_MS + Math.random() * 15000 : STEAL_MIN_MS + Math.random() * (STEAL_MAX_MS - STEAL_MIN_MS));
 }
-scheduleSteal();
+scheduleSteal(true);
 // while he has it he looks a little guilty now and then
 guiltTimer = setInterval(function () {
   if (stolen && stolen.phase === 'eaten' && !busy && !document.hidden && Math.random() < 0.5) say(pick(['*whistles*', '…', 'hm? nothing here~']), 1500);
