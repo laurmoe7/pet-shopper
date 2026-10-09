@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 500
+- Quest 2, second attempt: real stone texture, thin metal frames, dark slots, charcoal metal buttons
+
 ## Build 499
 - New appearance: Quest 2 (stone panels, bronze frames, inventory-slot rows); Quest stays as it was
 
