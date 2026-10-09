@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 453
+- After catching the ball he carries it back with his arms round it, and the run back is faster.
+
 ## Build 452
 - Picking up the ball is quicker: its picture and window are made ahead of time (needs the new installer for the window part).
 
