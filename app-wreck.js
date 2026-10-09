@@ -46,7 +46,7 @@ function wreckFling(vx, vy, y0) {
   eyesDo('wide');
   pet.classList.add('running');
   var lim = toyLimits(), x = toyX, y = y0, spin = 0, start = performance.now(), last = start;
-  var wins = [], rects = [], wcool = [], chaseAt = 0, followAt = 0, jumpAt = start + 500, talkAt = start + 900, glassAt = 0, shockAt = 0;
+  var wins = [], rects = [], wcool = [], within = -1, enterAt = 0, cellAt = 0, chaseAt = 0, followAt = 0, jumpAt = start + 500, talkAt = start + 900, glassAt = 0, shockAt = 0;
   var ended = false;
   D.wreckStart().then(function (r) {
     if (r && r.ok) rects = r.rects.slice();
@@ -79,6 +79,30 @@ function wreckFling(vx, vy, y0) {
     // windows are solid: every time the ball meets one it is sent off in a random direction away from it (it never just flies across), and each hit breaks the piece it struck
     var broke = 0, zm = f.zoom || 1, BR = 16 * zm;
     for (var wi = 0; wi < rects.length; wi++) {
+      if (within >= 0 && wi !== within) continue;   // (inside one window it ignores the others)
+      if (wi === within) {
+        // inside a window: it bounces about in there breaking the pieces it passes; at the edge it either bounces back in or leaves again
+        var iq = rects[wi], mg = BR, ex = Math.max(iq.x + mg, Math.min(f.ax, iq.x + iq.w - mg)), ey = Math.max(iq.y + mg, Math.min(f.ay, iq.y + iq.h - mg));
+        if (ex !== f.ax || ey !== f.ay) {
+          var nx = ex > f.ax ? 1 : ex < f.ax ? -1 : 0, ny = ey > f.ay ? 1 : ey < f.ay ? -1 : 0;   // (the way back in, on the screen)
+          var leave = now - enterAt > 2200 || Math.random() < 0.35, ia = Math.atan2(-ny, nx) + (leave ? Math.PI : 0) + (Math.random() - 0.5) * 1.1, isp = Math.max(900, Math.hypot(vx, vy));
+          vx = Math.cos(ia) * isp; vy = Math.sin(ia) * isp;
+          x += (ex - f.ax) / zm; y -= (ey - f.ay) / zm;
+          if (leave) { within = -1; wcool[wi] = now + 450; sound('bounce'); } else sound('bounce');
+          placeToy(x, y, spin);
+        } else if (now - cellAt > 140) {
+          for (var ci = 0; ci < wins.length; ci++) {
+            var cw = wins[ci];
+            if (cw.w === wi && !cw.hit && f.ax >= cw.x1 && f.ax <= cw.x2 && f.ay >= cw.y1 && f.ay <= cw.y2) {
+              cw.hit = true; broke++; cellAt = now; D.wreckHit(wi, cw.k, f.ax, f.ay);
+              var ra = Math.random() * Math.PI * 2, rsp = Math.max(800, Math.hypot(vx, vy) * 0.95);
+              vx = Math.cos(ra) * rsp; vy = Math.sin(ra) * rsp;
+              break;
+            }
+          }
+        }
+        continue;
+      }
       var q = rects[wi], cx = Math.max(q.x, Math.min(f.ax, q.x + q.w)), cy = Math.max(q.y, Math.min(f.ay, q.y + q.h)), dx = f.ax - cx, dy = f.ay - cy, d = Math.hypot(dx, dy);
       if (d >= BR) continue;
       var hidden = false;   // (a window in front covers this one there: the ball is over it, not against it)
@@ -91,6 +115,15 @@ function wreckFling(vx, vy, y0) {
         ux = mn === pl ? -1 : mn === pr ? 1 : 0; uy = mn === pt ? -1 : mn === pb ? 1 : 0;
         if (!ux && !uy) uy = -1;
         d = -mn;
+      }
+      if (now > (wcool[wi] || 0) && q.w >= 240 && q.h >= 160 && Math.random() < 0.5) {   // (half the time it gets in through the edge instead of bouncing off)
+        within = wi; enterAt = now; wcool[wi] = now + 220;
+        var inA = Math.atan2(uy, -ux) + (Math.random() - 0.5) * 0.9, inS = Math.max(900, Math.hypot(vx, vy) * 0.95);
+        vx = Math.cos(inA) * inS; vy = Math.sin(inA) * inS;
+        var near = -1, nd = Infinity;
+        for (var k2 = 0; k2 < wins.length; k2++) { var w2 = wins[k2]; if (w2.w !== wi || w2.hit) continue; var g2 = Math.hypot(cx - Math.max(w2.x1, Math.min(cx, w2.x2)), cy - Math.max(w2.y1, Math.min(cy, w2.y2))); if (g2 < nd) { nd = g2; near = k2; } }
+        if (near >= 0) { wins[near].hit = true; broke++; D.wreckHit(wins[near].w, wins[near].k, cx, cy); }
+        continue;
       }
       var push = (BR - d + 1) / zm;
       x += ux * push; y -= uy * push;   // (the toy's y goes up, the screen's down)

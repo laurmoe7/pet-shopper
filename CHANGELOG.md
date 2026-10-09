@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 513
+- Wrecking ball can bounce into a window and break things inside
+
 ## Build 512
 - Crumbs fly while he eats a stolen emoji
 - Tick circles match the board colours
