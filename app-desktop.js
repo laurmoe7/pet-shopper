@@ -1161,7 +1161,7 @@
     }
     return out;
   }
-  // where his body is in the window (left, top, right, the bottom of his cushion): the shell lets HIM touch the screen edges and the taskbar
+  // where his body is in the window (left, top, right, the bottom of his cushion): the shell lets HIM touch the screen edges and the top of the taskbar
   var lastBody = '';
   if (D.setBody) setInterval(function () {
     if (!isPet() || document.hidden || pet.classList.contains('thrown') || pet.classList.contains('falling')) return;

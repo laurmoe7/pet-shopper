@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 485
+- Fumu stays behind the clock and tray menus (no more stepping aside)
+- Fumu no longer sits over the taskbar: he stands on top of it
+
 ## Build 484
 - Wrecking ball in the app: it knocks the list, add bar and buttons off the page, then the wand fixes them
 - Options: Wrecking ball switch

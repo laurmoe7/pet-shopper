@@ -159,7 +159,7 @@ function start() {
   }
 
   // where his visible body is inside the window (the page measures it, in page pixels: left, top, right, and the bottom of his cushion), so he
-  // meets the edges of the screen and the taskbar with HIM, not with the empty space round him
+  // meets the edges of the screen and the top of the taskbar with HIM, not with the empty space round him
   let bodyBox = null;
   ipcMain.on('desk:body', (_e, box) => {
     if (Array.isArray(box) && box.length === 4 && box.every((n) => typeof n === 'number' && isFinite(n) && n >= 0 && n < 4000) && box[2] > box[0] && box[3] > box[1]) bodyBox = box;
@@ -170,56 +170,8 @@ function start() {
     if (!bodyBox) return { l: -Math.round(b.width * 0.14), t: -Math.round(b.height * 0.3), r: -Math.round(b.width * 0.14), b: b.height + place.MARGIN / 2 };   // (not told yet: the old guess)
     return { l: bodyBox[0] * z, t: bodyBox[1] * z, r: bodyBox[2] * z, b: bodyBox[3] * z + 3 };
   }
-  /** @returns {number} The lowest top edge the window may have on a screen: his cushion rests on the very bottom of the screen. He may stand on the
-   *  taskbar: his window is kept above it (raiseOverTaskbar), but never below the screen. `display` is a Display. */
-  function lowestY(display, b) { const a = display.bounds; return Math.round(a.y + a.height - bodyIn(b).b); }
-  // the taskbar is an always-on-top window too, and it jumps above other top windows whenever it is touched: while he is down there, put him back on top
-  let raiseAt = 0;
-  function raiseOverTaskbar() {
-    if (!win || mode !== 'pet' || !prefs.onTop || !win.isVisible()) return;
-    const b = win.getBounds(), d = screen.getDisplayMatching(b), wa = d.workArea;
-    if (b.y + b.height - 6 > wa.y + wa.height && Date.now() - raiseAt > 250) { raiseAt = Date.now(); win.moveTop(); if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) toyWin.moveTop(); }   // (the flying bell or toy stays in front of him, or it blinks out each time he is raised)
-  }
-  setInterval(raiseOverTaskbar, 300);
-
-  // The clock and the tray icons show a small hover note above the taskbar's right end, and he stands in front of it (his window is above the taskbar).
-  // While the mouse is over that part of the taskbar he steps aside to the left; a moment after the mouse leaves he goes back to exactly where he was.
-  const TRAY_W = 440, TRAY_H = 150;
-  let sideStep = null, sideAway = 0, trayAt = 0;
-  function trayHover() {
-    const p = screen.getCursorScreenPoint(), d = screen.getDisplayNearestPoint(p), b = d.bounds, wa = d.workArea;
-    const bar = (b.y + b.height) - (wa.y + wa.height);
-    return bar > 0 && p.y >= wa.y + wa.height - 2 && p.y < b.y + b.height && p.x > b.x + b.width - TRAY_W;
-  }
-  // the menus that open above the clock and the tray icons (calendar, volume, wifi) are taller than the hover note: once he has stepped aside he stays
-  // aside while the mouse is anywhere over that column of the screen
-  function flyoutHover() {
-    const p = screen.getCursorScreenPoint(), b = screen.getDisplayNearestPoint(p).bounds;
-    return p.x > b.x + b.width - TRAY_W && p.y > b.y + b.height - 780 && p.y < b.y + b.height;
-  }
-  setInterval(async () => {
-    if (dragFrom || perch || peekRest) sideStep = null;   // (picked up or moved on his own: his new place stays, nothing to go back to)
-    if (!win || mode !== 'pet' || !win.isVisible() || dragFrom || perch || peekRest || tween || (typeof toyFollowT !== 'undefined' && toyFollowT)) return;
-    const hover = trayHover(), wb = win.getBounds();
-    if (hover) trayAt = Date.now();
-    // (the hold over the tall column lasts only a few seconds after the mouse was on the clock or tray: a menu is open for a moment, but the mouse
-    // may stay in that part of the screen long after it has closed, and he must not wait for it to leave)
-    if (hover || (sideStep && flyoutHover() && Date.now() - trayAt < 7000)) {
-      sideAway = 0;
-      if (sideStep || !hover) return;
-      const d = screen.getDisplayMatching(wb).bounds, bi = bodyIn(wb), zx = d.x + d.width - TRAY_W, zy = d.y + d.height - TRAY_H;
-      if (!bodyBox || bi.r <= bi.l) return;   // (not told where his body is yet)
-      const bodyL = wb.x + bi.l, bodyR = wb.x + bi.r, bodyB = wb.y + bi.b;   // (his body's sides and the bottom of his cushion, on the screen)
-      if (bodyR > zx && bodyL < d.x + d.width && bodyB > zy) {
-        sideStep = { x: wb.x, y: wb.y };
-        await glide({ x: Math.round(zx - 8 - bi.r), y: wb.y, width: wb.width, height: wb.height }, 280);
-      }
-    } else if (sideStep && ++sideAway >= 3) {   // (about a second and a half after the mouse has left)
-      const to = sideStep; sideStep = null; sideAway = 0;
-      const cur = win.getBounds();
-      await glide({ x: to.x, y: cur.y, width: cur.width, height: cur.height }, 380);
-    }
-  }, 500);
+  /** @returns {number} The lowest top edge the window may have on a screen: his cushion rests on the bottom of the work area, on top of the taskbar. `display` is a Display. */
+  function lowestY(display, b) { const a = display.workArea; return Math.round(a.y + a.height - bodyIn(b).b); }
 
   /** He is let go while moving fast: he flies on, bounces off the edges of the screens and the floor, then runs back to where he was picked up. */
   let lastThrow = null;   // where the last throw started, landed and ended (shown in the diagnostics, to track down a wrong run-back)
@@ -645,7 +597,7 @@ function start() {
         if (await glide(place.perchBounds(b, seg), 200)) { sitOn(seg, rect); perchOrigin = dragHome ? place.within(dragHome, here()) : null; return; }   // (when he gets off he goes back to where he was picked up)
       }
     }
-    // let go below the bottom of the screen: he is set back on the screen (he may stand on the taskbar: the window stays above it)
+    // let go below the floor (the top of the taskbar): he is set back on it
     // (only down: he may still be parked half off the side of the screen, peeking in)
     const area = here(), lowest = lowestY(screen.getDisplayMatching(b), b), fixed = { x: b.x, y: Math.min(b.y, lowest), width: b.width, height: b.height };
     if (fixed.y !== b.y && !(await glide(fixed, 180))) return;
@@ -661,7 +613,7 @@ function start() {
     if (!win || mode !== 'pet' || dragFrom || peekRest) return 0;
     const from = win.getBounds(), want = Math.max(-900, Math.min(900, +dx || 0));
     let to = place.walkEnd(from, here(), want);
-    to = { x: to.x, y: from.y, width: from.width, height: from.height };   // (sideways only: sitting over the taskbar, `within` pulled him up into the work area, and the slide back left him there)
+    to = { x: to.x, y: from.y, width: from.width, height: from.height };   // (sideways only)
     if (free && !perch) {   // back to a spot that may be half off the side of the screen (after an alert slid him onto it): not squeezed inside
       const disp = screen.getDisplayMatching(from).bounds;
       to = { x: place.keepPartlyOn(from.x + want, from.width, disp), y: from.y, width: from.width, height: from.height };
