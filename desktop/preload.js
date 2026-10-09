@@ -60,7 +60,7 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   /** He was thrown (on, spin direction) and is flying; and each time he hits an edge (0..1: how hard). */
   onThrown: (fn) => ipcRenderer.on('desk:thrown', (_e, on, dir, bed, extra) => fn(!!on, +dir || 1, !!bed, extra || {})),
   onFlight: (fn) => ipcRenderer.on('desk:flight', (_e, vx, vy) => fn(+vx || 0, +vy || 0)),
-  onBounce: (fn) => ipcRenderer.on('desk:bounce', (_e, hard) => fn(+hard || 0)),
+  onBounce: (fn) => ipcRenderer.on('desk:bounce', (_e, hard, wall) => fn(+hard || 0, wall === 'l' || wall === 'r' || wall === 't' ? wall : '')),
   onFall: (fn) => ipcRenderer.on('desk:fall', (_e, on) => fn(!!on)),
   onRun: (fn) => ipcRenderer.on('desk:run', (_e, dir) => fn(+dir || 0)),
   /** The toy roaming the screen: where his window is and the screen's work area, or null when the switch is off. */

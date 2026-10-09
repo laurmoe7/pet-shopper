@@ -3251,3 +3251,10 @@ html:root[data-skin="quest"] .recipe-btn { background: linear-gradient(180deg, #
 html:root[data-skin="quest"] .mic-btn.on { background: #c0392b; }
 /* the ring menu is open: the speech bubble sits where the ring's buttons are not (app-ring.js placeBubble) */
 html.desktop-pet.ring-open .stage .bubble.ring-moved { left: var(--rl, 4px) !important; right: auto !important; top: var(--rt, 4px) !important; bottom: auto !important; margin: 0 !important; max-width: 42% !important; }
+/* he hits a wall or the ceiling when thrown (app-desktop.js pageBounce): he squishes flat against it, then pops back (--squish: how flat) */
+.pet.wall-l, .pet.wall-r { transform-origin: var(--wall-x, 0%) 62%; animation: wall-squish-x .44s cubic-bezier(.2, .8, .3, 1); }
+.pet.wall-l { --wall-x: 8%; } .pet.wall-r { --wall-x: 92%; }
+.pet.wall-t { transform-origin: 50% 8%; animation: wall-squish-y .44s cubic-bezier(.2, .8, .3, 1); }
+@keyframes wall-squish-x { 0% { scale: 1 1; } 22% { scale: var(--squish, .7) calc(2 - var(--squish, .7)); } 62% { scale: 1.07 .95; } 100% { scale: 1 1; } }
+@keyframes wall-squish-y { 0% { scale: 1 1; } 22% { scale: calc(2 - var(--squish, .7)) var(--squish, .7); } 62% { scale: .95 1.07; } 100% { scale: 1 1; } }
+@media (prefers-reduced-motion: reduce) { .pet.wall-l, .pet.wall-r, .pet.wall-t { animation: none; } }

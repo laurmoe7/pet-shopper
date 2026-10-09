@@ -502,10 +502,16 @@
     if (Math.hypot(vx, vy) < 120) { stage.style.setProperty('--bed-turn', '0deg'); return; }   // on the ground: flat
     stage.style.setProperty('--bed-turn', (Math.atan2(-vx, vy) * 180 / Math.PI).toFixed(0) + 'deg');
   });
-  function pageBounce(hard) {
+  function pageBounce(hard, wall) {
     if (headDown) { headDown = false; pet.classList.remove('thrown'); pet.classList.add('head-down'); }   // he stops spinning on his head
     if (stage.classList.contains('bed-thrown')) { if (typeof sound === 'function') { sound('bounce'); sound('bedbell'); } return; }   // in his bed: the bounce and the faint bell in the bed
     if (typeof sound === 'function') sound('bounce');
+    if (wall && !carried) {   // against a wall or the ceiling he squishes flat into it (the squish is a CSS animation on his whole box, see .wall-l)
+      pet.classList.remove('wall-l', 'wall-r', 'wall-t'); void pet.offsetWidth;
+      pet.classList.add('wall-' + wall); pet.style.setProperty('--squish', (.62 + .3 * (1 - Math.min(1, hard))).toFixed(2));
+      setTimeout(function () { pet.classList.remove('wall-l', 'wall-r', 'wall-t'); }, 460);
+      return;
+    }
     if (typeof pulse === 'function' && !carried) pulse(hard > .5 ? 'hop' : 'hopsmall', 400);
   }
   if (D.onBounce) D.onBounce(pageBounce);

@@ -41,6 +41,9 @@ function animCatalogue() {
       return m[1]();
     });
   });
+  ['l', 'r', 't'].forEach(function (w) {
+    add('Specials', 'squish into the ' + ({ l: 'left wall', r: 'right wall', t: 'ceiling' })[w], function () { pet.classList.remove('wall-l', 'wall-r', 'wall-t'); void pet.offsetWidth; pet.classList.add('wall-' + w); pet.style.setProperty('--squish', '.66'); setTimeout(function () { pet.classList.remove('wall-' + w); }, 460); return 600; });
+  });
   add('Specials', 'belly jiggle', function () { bellyJiggle(); return 1300; });
   add('Specials', 'look around', function () { lookAround(); return 2200; });
   add('Specials', 'hum', function () { hum(); setFace(FACES.dreamy); pulse('bob', 1400); return 1800; });

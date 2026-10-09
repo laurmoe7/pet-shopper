@@ -175,15 +175,15 @@ function start() {
         const now = Date.now(), dt = Math.min(0.034, (now - last) / 1000);
         last = now;
         vy += G * dt; x += vx * dt; y += vy * dt;
-        let hit = 0;   // how hard he hit an edge this step (px/s)
+        let hit = 0, wall = '';   // how hard he hit an edge this step (px/s), and which wall it was (l, r, t) for the squish
         // (in his bed he is far too heavy to bounce off a wall or the ceiling: he just stops against it)
-        if (x < box.x - bi.l) { x = box.x - bi.l; if (inBed) vx = 0; else { hit = Math.abs(vx); vx = Math.abs(vx) * WALL; } }
-        if (x > box.r - bi.r) { x = box.r - bi.r; if (inBed) vx = 0; else { hit = Math.abs(vx); vx = -Math.abs(vx) * WALL; } }
-        if (y < box.y - bi.t) { y = box.y - bi.t; if (inBed) vy = 0; else { hit = Math.max(hit, Math.abs(vy)); vy = Math.abs(vy) * WALL; } }
+        if (x < box.x - bi.l) { x = box.x - bi.l; if (inBed) vx = 0; else { hit = Math.abs(vx); wall = 'l'; vx = Math.abs(vx) * WALL; } }
+        if (x > box.r - bi.r) { x = box.r - bi.r; if (inBed) vx = 0; else { hit = Math.abs(vx); wall = 'r'; vx = -Math.abs(vx) * WALL; } }
+        if (y < box.y - bi.t) { y = box.y - bi.t; if (inBed) vy = 0; else { hit = Math.max(hit, Math.abs(vy)); wall = wall || 't'; vy = Math.abs(vy) * WALL; } }
         const floorY = lowestY(screen.getDisplayNearestPoint({ x: Math.round(x + b0.width / 2), y: Math.round(y + b0.height) }), b0);
         let rest = false;
         if (y >= floorY) { y = floorY; if (Math.abs(vy) > (inBed ? 90 : 260) && !(opts.maxBounces && floorHits >= opts.maxBounces)) { floorHits++; hit = Math.max(hit, Math.abs(vy)); vy = -vy * FLOOR; } else { vy = 0; rest = true; } vx *= 0.85; }
-        if (hit > (inBed ? 80 : 220) && now - lastHit > (inBed ? 60 : 90)) { lastHit = now; win.webContents.send('desk:bounce', Math.min(1, hit / 2500)); }
+        if (hit > (inBed ? 80 : 220) && now - lastHit > (inBed ? 60 : 90)) { lastHit = now; win.webContents.send('desk:bounce', Math.min(1, hit / 2500), wall); }
         if (Math.abs(vx) > 60) spinDir = vx > 0 ? 1 : -1;
         if (inBed && now - lastFlight > 40) { lastFlight = now; win.webContents.send('desk:flight', floorHits ? 0 : vx, floorHits ? 0 : vy); }   // (once it has touched down it lies flat)
         win.setBounds({ x: Math.round(x), y: Math.round(y), width: b0.width, height: b0.height });
