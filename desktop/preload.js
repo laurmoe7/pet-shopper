@@ -34,7 +34,7 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   where: () => ipcRenderer.invoke('desk:where'),
   onGrab: (fn) => ipcRenderer.on('desk:grab', (_e, on) => fn(!!on)),
   setDrowsy: (on) => ipcRenderer.send('desk:drowsy', !!on),
-  walk: (dx, ms) => ipcRenderer.invoke('desk:walk', +dx || 0, +ms || 3000),
+  walk: (dx, ms, free) => ipcRenderer.invoke('desk:walk', +dx || 0, +ms || 3000, !!free),
   /** Slides half out of the screen at the nearest free side; resolves 'left', 'right' or null. unpeek slides back. */
   peek: (ms) => ipcRenderer.invoke('desk:peek', +ms || 900),
   unpeek: (ms) => ipcRenderer.invoke('desk:unpeek', +ms || 700),

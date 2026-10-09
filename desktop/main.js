@@ -569,10 +569,14 @@ function start() {
   ipcMain.on('desk:drowsy', (_e, on) => { drowsy = !!on; });
   ipcMain.handle('desk:where', () => (win && !win.isDestroyed() ? win.getBounds().x : null));
   // Fumu walks along where he sits: the page plays the walking, the window glides
-  ipcMain.handle('desk:walk', async (_e, dx, ms) => {
+  ipcMain.handle('desk:walk', async (_e, dx, ms, free) => {
     if (!win || mode !== 'pet' || dragFrom || peekRest) return 0;
     const from = win.getBounds(), want = Math.max(-900, Math.min(900, +dx || 0));
     let to = place.walkEnd(from, here(), want);
+    if (free && !perch) {   // back to a spot that may be half off the side of the screen (after an alert slid him onto it): not squeezed inside
+      const disp = screen.getDisplayMatching(from).bounds;
+      to = { x: Math.max(Math.round(disp.x - from.width * 0.6), Math.min(Math.round(from.x + want), Math.round(disp.x + disp.width - from.width * 0.4))), y: from.y, width: from.width, height: from.height };
+    }
     if (perch) {   // along the edge he sits on, not past its ends
       const seg = perchesNow().find((s) => s.id === perch.id && from.x + from.width / 2 >= s.x1 - 30 && from.x + from.width / 2 <= s.x2 + 30);
       if (!seg) { knockOff(); return 0; }

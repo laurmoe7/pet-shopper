@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 434
+- The dizzy face after a throw lasts about 3.5 seconds.
+- After an alert slid him onto the screen he goes back exactly to where he was, even half off the screen.
+
 ## Build 433
 - He can sit over the taskbar again (the window stays above it).
 - While spinning he no longer gets cut off at the screen edge: the walls move in as his spin swings out.

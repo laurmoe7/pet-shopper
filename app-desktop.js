@@ -476,6 +476,19 @@
   };
 
   // thrown (the shell flies his window about): he spins round and is dizzy, and every hit on an edge or the floor goes "boing"
+  /** After a throw he is dizzy for `ms`: the face is put back every so often because the run back and the idle moves would otherwise change it. */
+  var dizzyTimer = 0;
+  function dizzyHold(ms) {
+    clearInterval(dizzyTimer);
+    var until = Date.now() + ms;
+    function face() { if (!carried && !busy) setFace({ eyes: 'dizzy', mouth: 'o', arms: 'idle', x: ['sweat'] }); }
+    face();
+    dizzyTimer = setInterval(function () {
+      if (pet.classList.contains('thrown') || carried) { clearInterval(dizzyTimer); dizzyTimer = 0; return; }   // thrown again, or picked up: that has its own face
+      if (Date.now() >= until) { clearInterval(dizzyTimer); dizzyTimer = 0; if (!busy) settle(); return; }
+      face();
+    }, 350);
+  }
   /** The spin ends in mid-turn: he eases round to upright from wherever the turn stopped instead of snapping. */
   function glideUpright() {
     var svg = pet.querySelector('.pet-svg');
@@ -504,8 +517,8 @@
         say(pick(['Ow! I\'m okay', 'Ow! …I\'m okay!', 'Ouch! I\'m okay~']), 2200, true);
         setFace({ eyes: 'dizzy', mouth: 'o', arms: 'idle', x: ['sweat'] });
         if (extra.head) setTimeout(function () { pet.classList.remove('head-down'); pet.classList.add('righting'); setTimeout(function () { pet.classList.remove('righting'); }, 450); }, 1100);
-        setTimeout(function () { if (!pet.classList.contains('thrown') && !carried && !busy) settle(); }, extra.head ? 1700 : 1500);
-      } else if (!bed) setTimeout(function () { if (!pet.classList.contains('thrown') && !carried && !busy) settle(); }, 1500);   // (the dizzy face stays for a moment after he lands)
+        if (extra.head) setTimeout(function () { if (!pet.classList.contains('thrown') && !carried && !busy) settle(); }, 1700); else dizzyHold(3000);
+      } else if (!bed) dizzyHold(3500);   // (the dizzy face stays for a while after he lands, whatever else touches his face)
     }
     if (!on) stage.style.removeProperty('--bed-turn');
     if (!on && stage.classList.contains('bed-thrown')) {   // the bed settles back into place softly instead of snapping
@@ -597,7 +610,7 @@
         if (document.querySelector('.stage .inbox-card') || !cardShift) return;
         var back = -cardShift; cardShift = 0;
         root.classList.remove('card-narrow');
-        D.walk(back, 400).then(function () {}, function () {});
+        D.walk(back, 400, true).then(function () {}, function () {});   // (true: exactly back, even to a spot half off the screen)
       }, 700);
       return;
     }
