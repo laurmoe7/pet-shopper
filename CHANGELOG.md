@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 515
+- Wrecking ball in the app flies all over and sometimes breaks several pieces
+
 ## Build 514
 - Swipe away Fumu's suggested food
 

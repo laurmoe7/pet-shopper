@@ -265,7 +265,8 @@ function pageWreckWanted() {
  */
 function pageWreck(vx, vy, px, py) {
   var src = toyEl.querySelector('[data-toy="wrecker"]');
-  var W = window.innerWidth, H = window.innerHeight, R = 22, G = 1500;
+  var W = window.innerWidth, H = window.innerHeight, R = 22, G = 650, kickAt = start0();
+  function start0() { return performance.now() + 500; }
   var x = px, y = py, vyd = -vy, spin = 0, start = performance.now(), last = start, ended = false;
   var chaseAt = 0, jumpAt = start + 500, talkAt = start + 900, glassAt = 0, shockAt = 0;
   vx *= 1.3; vyd = Math.min(vyd * 1.3, -350);
@@ -387,7 +388,7 @@ function pageWreck(vx, vy, px, py) {
     if (t.cracks.length < 4 && !t.cracks.some(function (c) { return Math.hypot(c[0] - lx, c[1] - ly) < Math.max(46, Math.min(r2.width, r2.height) * 0.9); })) { t.cracks.push([lx, ly]); t.mark.insertAdjacentHTML('beforeend', crackSvg(r2.width, r2.height, lx, ly)); }
     // the pieces that come away now: the lowest stage (picture, words, bar) that still has any, nearest to the hit first
     t.left.sort(function (m, n) { return m.cat - n.cat || Math.hypot(m.cx - lx, m.cy - ly) - Math.hypot(n.cx - lx, n.cy - ly); });
-    var k = Math.max(2, Math.ceil(t.tris.length / 8)), take = t.left.splice(0, k);
+    var k = Math.max(2, Math.ceil(t.tris.length / 8)) * (Math.random() < 0.3 ? 2 + ((Math.random() * 2) | 0) : 1), take = t.left.splice(0, k);   // (now and then a bigger bite: a couple of pieces at once)
     take.forEach(function (g, i) {
       t.timers.push(setTimeout(function () {
         if (ended && t.mended) return;
@@ -404,15 +405,22 @@ function pageWreck(vx, vy, px, py) {
     var dt = Math.min(0.033, (now - last) / 1000);
     last = now;
     vyd += G * dt;
+    // now and then it gets a random kick, so it flies all over the page instead of bouncing down in a line
+    if (now > kickAt) {
+      kickAt = now + 450 + Math.random() * 700;
+      var ka = Math.random() * Math.PI * 2, ks = 700 + Math.random() * 700;
+      vx = Math.cos(ka) * ks; vyd = Math.sin(ka) * ks - 450;
+    }
     var sp = Math.hypot(vx, vyd);
     if (sp > 1700) { vx *= 1700 / sp; vyd *= 1700 / sp; }
+    else if (sp < 500) { vx *= 500 / Math.max(sp, 1); vyd *= 500 / Math.max(sp, 1); }
     x += vx * dt; y += vyd * dt;
-    if (x < R) { x = R; vx = Math.abs(vx) * 0.92; }
-    if (x > W - R) { x = W - R; vx = -Math.abs(vx) * 0.92; }
-    if (y < R) { y = R; vyd = Math.abs(vyd) * 0.7; }
+    if (x < R) { x = R; vx = Math.abs(vx) * 0.95 + Math.random() * 300; vyd += (Math.random() - .5) * 700; }
+    if (x > W - R) { x = W - R; vx = -Math.abs(vx) * 0.95 - Math.random() * 300; vyd += (Math.random() - .5) * 700; }
+    if (y < R) { y = R; vyd = Math.abs(vyd) * 0.8 + 100; vx += (Math.random() - .5) * 700; }
     if (y > H - R - 6) {   // (the bottom of the screen: it never settles, it bounces up again to a different height and slant)
-      y = H - R - 6; vyd = -Math.sqrt(2 * G * H * (0.45 + Math.random() * 0.5));
-      vx = (Math.abs(vx) < 300 ? (Math.random() < .5 ? -1 : 1) * (300 + Math.random() * 400) : vx) + (Math.random() - 0.5) * 300;
+      y = H - R - 6; vyd = -Math.sqrt(2 * G * H * (0.35 + Math.random() * 0.55));
+      vx = (Math.random() < .5 ? -1 : 1) * (250 + Math.random() * 700);
       sound('bounce');
     }
     spin += vx * dt * 1.6;
@@ -434,10 +442,18 @@ function pageWreck(vx, vy, px, py) {
       var solid = !t.left || t.left.length > t.tris.length * 0.5;   // (once half of it is gone the ball passes through what is left: it cannot get stuck against one bar)
       if (solid) {
         x = nx + ux * (R + 1) + (d > 0.01 ? 0 : ux * mn); y = ny + uy * (R + 1) + (d > 0.01 ? 0 : uy * mn);
-        var vn = vx * ux + vyd * uy;
-        if (vn < 0) { vx -= 1.9 * vn * ux; vyd -= 1.9 * vn * uy; }
+        // it flies off in a random direction away from the thing (not a plain bounce), so it ends up all over the page
+        var ha = Math.atan2(uy, ux) + (Math.random() - .5) * 2.4, hs = Math.max(800, Math.hypot(vx, vyd) * 0.95);
+        vx = Math.cos(ha) * hs; vyd = Math.sin(ha) * hs;
       }
-      if (now > (t.cool || 0)) { t.cool = now + 160; chip(t, x - ux * R, y - uy * R); broke++; }
+      if (now > (t.cool || 0)) {
+        t.cool = now + 160; chip(t, x - ux * R, y - uy * R); broke++;
+        if (Math.random() < 0.3) {   // the crash shakes the thing next to it as well: it breaks too
+          var nb = null, nbd = 150;
+          targets.forEach(function (o) { if (o !== t && !o.done && now > (o.cool || 0)) { var od = Math.hypot(o.r.left + o.r.width / 2 - x, o.r.top + o.r.height / 2 - y); if (od < nbd) { nbd = od; nb = o; } } });
+          if (nb) { nb.cool = now + 160; chip(nb, nb.r.left + nb.r.width / 2, nb.r.top + nb.r.height / 2); broke++; }
+        }
+      }
     }
     if (broke) {
       if (now - shockAt > 900) {
