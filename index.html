@@ -1043,6 +1043,16 @@
   </form>
 </dialog>
 
+<!-- the Shop: a made-up test page, nothing can be bought (app-shop.js) -->
+<dialog class="picker pet-sheet shop-sheet" id="shopSheet" aria-labelledby="shopTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="shopTitle">Shop</h2>
+    <p class="stamp-sub">✦ a preview, nothing is for sale yet ✦</p>
+    <p class="mood-info shop-note" id="shopNote" aria-live="polite"></p>
+    <div class="shop-list" id="shopList"></div>
+  </form>
+</dialog>
+
 <dialog class="picker pet-sheet" id="goalsSheet" aria-labelledby="goalsTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="goalsTitle">Goals</h2>
@@ -1256,6 +1266,7 @@
 <script src="app-treats.js"></script>
 <script src="app-gift.js"></script>
 <script src="app-profile.js"></script>
+<script src="app-shop.js"></script>
 <script src="app-options.js"></script>
 <script src="app-sync.js"></script>
 <script src="app-account.js"></script>

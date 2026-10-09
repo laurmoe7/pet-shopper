@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 435
+- A test Shop with a premium card and cosmetic packs (nothing can be bought). Switch it on in Developer tools.
+
 ## Build 434
 - The dizzy face after a throw lasts about 3.5 seconds.
 - After an alert slid him onto the screen he goes back exactly to where he was, even half off the screen.

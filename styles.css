@@ -3268,3 +3268,16 @@ html.desktop-pet.ring-open .stage .bubble.ring-moved { left: var(--rl, 4px) !imp
 
 /* the night light's button sits in the same corner as the food suggestion: the suggestion goes above it so its ✕ can be pressed */
 .stage:has(.night-btn:not([hidden])) .suggest { bottom: 46px; }
+
+/* the Shop (app-shop.js): a test page, nothing can be bought */
+.shop-list { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; min-height: 0; scrollbar-width: none; }
+.shop-head { margin: 6px 0 0; font-family: var(--font-display); font-size: 1rem; color: var(--ink); }
+.shop-card { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 18px; background: var(--paper); border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--shadow); }
+.shop-card > img { width: 44px; height: 44px; }
+.shop-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.shop-body b { color: var(--ink); }
+.shop-body span, .shop-perks { font-size: .8rem; font-weight: 700; color: var(--muted); }
+.shop-perks { margin: 0; padding-left: 16px; }
+.shop-premium { background: var(--stage-top); border-color: var(--outline); }
+.shop-buy { background: var(--surface); white-space: nowrap; }
+.shop-note { min-height: 1.2em; margin: 0; text-align: center; }
