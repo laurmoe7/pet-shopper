@@ -5,7 +5,7 @@
 // ---------- options ----------
 $('buildLabel').textContent = 'Build ' + BUILD;
 /* Appearance (light or dark): Auto follows the phone. Kept on this device only (not in the pet's saved data). */
-var THEMES = [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']];
+var THEMES = [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Classic']];
 function applyTheme(t) {
   if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
   else delete document.documentElement.dataset.theme;

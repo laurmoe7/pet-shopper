@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 411
+- The Plain alert style (Mini Fumu settings) and the Dark appearance (App settings) are both called Classic.
+
 ## Build 410
 - Nothing visible; bubble style names corrected (Quest fin = arrow bubble).
 
