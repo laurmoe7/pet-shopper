@@ -202,8 +202,10 @@ function start() {
     if (win) { if (!inBed) win.webContents.send('desk:fall', false); if (!opts.noSpin || opts.ouch) win.webContents.send('desk:thrown', false, 0, inBed, { ouch: !!opts.ouch, head: !!opts.head }); }
     if (!ok || !win) return;
     if (inBed) { restHere(); return; }   // in his bed he stays where he landed (he has bounced about on the floor already)
-    const cur = win.getBounds(), back = place.within(home, screen.getDisplayMatching(home).bounds);   // (the whole screen, taskbar too: his spot may be on it)
-    back.y = Math.min(back.y, lowestY(screen.getDisplayMatching(cur), cur));
+    // back to exactly where he was picked up: that may be half off the side of the screen (peeking in), so it is not squeezed back inside the
+    // screen; only a spot that is mostly off the screen, or below it, is pulled in
+    const cur = win.getBounds(), disp = screen.getDisplayMatching(home).bounds;
+    const back = { x: Math.max(Math.round(disp.x - home.width * 0.6), Math.min(Math.round(home.x), Math.round(disp.x + disp.width - home.width * 0.4))), y: Math.max(disp.y, Math.min(Math.round(home.y), lowestY(screen.getDisplayMatching(home), home))), width: home.width, height: home.height };
     lastThrow = { home, back, landed: cur, area: here() };
     if (Math.abs(back.x - cur.x) > 20 || Math.abs(back.y - cur.y) > 20) {
       win.webContents.send('desk:run', back.x > cur.x ? 1 : -1);
