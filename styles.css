@@ -16,6 +16,8 @@
   --sheet-h-s: max(220px, min(62vh, calc(100dvh - 320px)));
   --accent: #ff8fab;
   --accent-ink: #4a2a2a;
+  /* highlight pink for 'picked' states and badges: a theme changes these (see the Quest skin) */
+  --hl: #ec6a8f; --hl-soft: #ffd7e3; --hl-glow: rgba(236, 106, 143, .35); --badge: #ff7c9c;
   --mint: #bfe6cf;
   --butter: #ffe9a3;
   --stage-top: #ecd1a2;
@@ -2098,7 +2100,7 @@ html[data-list="todo"] .cart, html[data-list="todo"] .receipt, html[data-list="t
 .due-tag.due-today { background: #ffe19a; color: #6e4a0c; border-color: #e0b24c; }
 .due-tag.due-overdue { background: #ffd0da; color: #a23550; border-color: #f0a0b3; }
 html[data-list="todo"] .item:not(.done) .item-text { cursor: pointer; }
-.brand-due { flex: none; margin-left: 6px; min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 9px; background: #ff7c9c; color: #fff; font-size: .7rem; font-weight: 800; line-height: 18px; text-align: center; font-family: var(--font-body); }
+.brand-due { flex: none; margin-left: 6px; min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 9px; background: var(--badge); color: #fff; font-size: .7rem; font-weight: 800; line-height: 18px; text-align: center; font-family: var(--font-body); }
 .task-name { margin: 0; font-weight: 800; font-size: 1.05rem; overflow-wrap: anywhere; }
 .task-field { border: 0; margin: 0; padding: 0; min-width: 0; }
 .task-field .field-label { margin-bottom: 6px; }
@@ -2266,7 +2268,7 @@ html:root .dock #calBtn { --tilt: 3deg; --sticker: #ffd9c2; --sticker-ink: #d974
 .cal-cell.sel { background: var(--accent); color: #fff; }
 .cal-dots { display: flex; gap: 2px; height: 4px; }
 .cal-dots i { width: 4px; height: 4px; border-radius: 50%; background: #e0a43a; }
-.cal-dots i.yearly { background: #ec6a8f; }
+.cal-dots i.yearly { background: var(--hl); }
 .cal-dots i.done { opacity: .35; }
 .cal-cell.sel .cal-dots i { background: #fff; }
 .cal-day h3 { margin: 2px 0 5px; font-size: .9rem; }
@@ -2477,10 +2479,10 @@ html:root .picker .field-label.profile-top { display: none; }
 .cal-sheet .cal-cell { height: 34px; border-radius: 12px; background: var(--paper-cell); border: 1.5px solid var(--paper-edge); font-weight: 800; }
 .cal-sheet .cal-cell:nth-child(7n), .cal-sheet .cal-cell:nth-child(7n-1) { background: var(--paper-pink); }
 .cal-sheet .cal-cell.today { border: 2px solid #ff8fb1; background: var(--paper-today); }
-.cal-sheet .cal-cell.today::after { content: "♡"; position: absolute; top: -5px; right: -2px; font-size: .62rem; color: #ec6a8f; animation: cal-heart 1.8s ease-in-out infinite; }
+.cal-sheet .cal-cell.today::after { content: "♡"; position: absolute; top: -5px; right: -2px; font-size: .62rem; color: var(--hl); animation: cal-heart 1.8s ease-in-out infinite; }
 .cal-sheet .cal-cell { position: relative; }
-.cal-sheet .cal-cell.sel { background: var(--paper-sel); color: var(--ink); border: 2px solid #ec6a8f; box-shadow: 0 2px 0 rgba(236, 106, 143, .35); }
-.cal-sheet .cal-cell.sel .cal-dots i { background: #ec6a8f; }
+.cal-sheet .cal-cell.sel { background: var(--paper-sel); color: var(--ink); border: 2px solid var(--hl); box-shadow: 0 2px 0 var(--hl-glow); }
+.cal-sheet .cal-cell.sel .cal-dots i { background: var(--hl); }
 .cal-sheet .cal-dots i { width: 5px; height: 5px; }
 .cal-sheet .cal-list { height: auto; min-height: 96px; flex: 1 1 auto; }
 .cal-sheet .cal-list li { background: var(--paper); border: 1.5px solid var(--paper-edge); border-radius: 14px; }
@@ -2489,7 +2491,7 @@ html:root .picker .field-label.profile-top { display: none; }
 
 /* profile: a friendly header, name and birthday as taped notes, round colour bubbles on the buttons */
 .profile-card { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 18px; background: var(--paper); border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--shadow); }
-.profile-avatar { display: grid; place-items: center; width: 46px; height: 46px; flex: none; border-radius: 50%; background: #ffc2d4 !important; border: 2.5px solid #fff; box-shadow: 0 0 0 1.5px #ec6a8f, 0 2px 0 var(--shadow); color: #b8325e; font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; rotate: -5deg; }
+.profile-avatar { display: grid; place-items: center; width: 46px; height: 46px; flex: none; border-radius: 50%; background: #ffc2d4 !important; border: 2.5px solid #fff; box-shadow: 0 0 0 1.5px var(--hl), 0 2px 0 var(--shadow); color: #b8325e; font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; rotate: -5deg; }
 .profile-card b { font-family: var(--font-display); font-size: 1.15rem; color: var(--ink); }
 .profile-sheet .field { position: relative; padding: 12px 12px 10px; border-radius: 16px; background: var(--paper); border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--shadow); gap: 6px; }
 .profile-sheet .field::before { content: ""; position: absolute; left: 50%; top: -6px; translate: -50% 0; width: 34px; height: 11px; border-radius: 3px; background: rgba(170, 215, 195, .75); rotate: -3deg; }
@@ -2591,7 +2593,7 @@ html:root .picker .field-label.profile-top { display: none; }
 @keyframes tab-pop { from { scale: .88; } to { scale: 1; } }
 .dress-search { background: var(--paper); box-shadow: 0 2px 0 var(--shadow); }
 .dress-panel .species-grid button, .dress-panel .hat-strip button { background: var(--paper); border-radius: 18px; box-shadow: 0 2px 0 var(--shadow); }
-.dress-panel .species-grid button[aria-pressed="true"], .dress-panel .hat-strip button[aria-pressed="true"] { background: var(--paper-today); border-color: #ec6a8f; box-shadow: 0 2px 0 rgba(236, 106, 143, .4); }
+.dress-panel .species-grid button[aria-pressed="true"], .dress-panel .hat-strip button[aria-pressed="true"] { background: var(--paper-today); border-color: var(--hl); box-shadow: 0 2px 0 rgba(236, 106, 143, .4); }
 .dress-panel .mood-info { background: var(--paper); border: 1.5px dashed var(--line); border-radius: 14px; padding: 6px 12px; }
 .dress-panel[data-tab="pet"] .name-show { background: var(--paper); box-shadow: 0 2px 0 var(--shadow); }
 
@@ -2600,7 +2602,7 @@ html:root .picker .field-label.profile-top { display: none; }
 .cal-add input#calInput { flex: none; width: 100%; box-sizing: border-box; padding: 8px 12px; border-radius: 999px; background: var(--paper); }
 .cal-kinds { display: flex; gap: 6px; }
 .cal-kinds .pill-btn { padding: 5px 12px; font-size: .82rem; }
-.cal-kinds .pill-btn[aria-pressed="true"] { background: var(--paper-sel); color: var(--ink); border-color: #ec6a8f; }
+.cal-kinds .pill-btn[aria-pressed="true"] { background: var(--paper-sel); color: var(--ink); border-color: var(--hl); }
 .cal-extra { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .cal-extra label { display: flex; align-items: center; gap: 4px; font-size: .78rem; font-weight: 800; color: var(--muted); min-width: 0; }
 .cal-extra input[type="time"], .cal-extra select { font: inherit; font-size: .85rem; color: var(--ink); background: var(--paper); border: 1.5px solid var(--line); border-radius: 10px; padding: 5px 6px; min-width: 0; }
@@ -2650,8 +2652,8 @@ html:root select:disabled { opacity: .55; }
 .dress-panel .species-grid button:active, .dress-panel .hat-strip button:active { translate: 0 2px; box-shadow: 0 1px 0 var(--shadow); }
 .dress-panel .species-grid .pet.mini { background: radial-gradient(circle at 50% 55%, var(--paper-cell) 0 62%, transparent 64%); border-radius: 50%; }
 .dress-panel .hat-strip button > svg { box-sizing: border-box; width: 58px; max-width: none; height: 46px; padding: 3px 6px; border-radius: 16px; background: var(--paper-cell); }
-.dress-panel .species-grid button[aria-pressed="true"], .dress-panel .hat-strip button[aria-pressed="true"] { background: var(--paper-today); border-color: #ec6a8f; box-shadow: 0 3px 0 rgba(236, 106, 143, .45); }
-.dress-panel .species-grid button[aria-pressed="true"]::after, .dress-panel .hat-strip button[aria-pressed="true"]::after { content: "✓"; position: absolute; right: 6px; top: 5px; left: auto; translate: none; rotate: none; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; background: #ec6a8f; color: #fff; font-size: .72rem; font-weight: 800; }
+.dress-panel .species-grid button[aria-pressed="true"], .dress-panel .hat-strip button[aria-pressed="true"] { background: var(--paper-today); border-color: var(--hl); box-shadow: 0 3px 0 rgba(236, 106, 143, .45); }
+.dress-panel .species-grid button[aria-pressed="true"]::after, .dress-panel .hat-strip button[aria-pressed="true"]::after { content: "✓"; position: absolute; right: 6px; top: 5px; left: auto; translate: none; rotate: none; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; background: var(--hl); color: #fff; font-size: .72rem; font-weight: 800; }
 .dress-panel .species-grid button.locked, .dress-panel .hat-strip button.locked { border-style: dashed; }
 .cal-full .cal-list { flex: 0 0 auto; min-height: 90px; }
 html:root .cal-month select { flex: none; }
@@ -2693,7 +2695,7 @@ html:root .cal-month select { flex: none; }
 .shoot-row { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 4px; scrollbar-width: none; }
 .shoot-row::-webkit-scrollbar { display: none; }
 .shoot-chip { flex: none; padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--paper-cell); color: var(--ink); font: inherit; font-weight: 800; font-size: .82rem; cursor: pointer; box-shadow: 0 2px 0 var(--shadow); }
-.shoot-chip[aria-pressed="true"] { background: var(--paper-sel); border-color: #ec6a8f; }
+.shoot-chip[aria-pressed="true"] { background: var(--paper-sel); border-color: var(--hl); }
 .shoot-pick { align-items: center; justify-content: center; gap: 8px 12px; flex-wrap: wrap; }
 .shoot-bgname { min-width: 120px; text-align: center; font-family: var(--font-display); font-size: 1.05rem; }
 .shoot-arrow { width: 36px; height: 32px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-size: 1.3rem; line-height: 1; cursor: pointer; box-shadow: 0 2px 0 var(--shadow); }
@@ -2719,7 +2721,7 @@ html:root .cal-month select { flex: none; }
 .cs-opt { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 14px; border: 0; border-radius: 14px; background: transparent; color: var(--ink); font: inherit; font-weight: 800; font-size: .95rem; text-align: left; cursor: pointer; white-space: nowrap; }
 .cs-opt:hover, .cs-opt:focus-visible { background: var(--paper-edge); outline: 0; }
 .cs-opt[aria-selected="true"] { background: var(--paper-sel); }
-.cs-opt[aria-selected="true"]::after { content: "✓"; margin-left: auto; color: #ec6a8f; font-size: .85rem; }
+.cs-opt[aria-selected="true"]::after { content: "✓"; margin-left: auto; color: var(--hl); font-size: .85rem; }
 .cs-pop::after { content: ""; position: sticky; bottom: -6px; flex: none; height: 30px; margin: -26px -6px -6px; border-radius: 0 0 18px 18px; background: linear-gradient(transparent, var(--paper) 85%); pointer-events: none; opacity: 0; transition: opacity .15s; }
 .cs-pop.more::after { opacity: 1; }
 .cs-opt:disabled { opacity: .4; cursor: default; }
@@ -2737,16 +2739,16 @@ html[data-list="todo"] .recipe-btn { display: none; }
 .recipe-inputbox > * + * { margin-top: 12px; }
 .recipe-inputbox h2 { margin: 0; }
 .recipe-input { min-height: 104px; border: 2px dashed var(--paper-edge); border-radius: 18px; padding: 12px 14px; font-size: 1rem; line-height: 1.4; }
-.recipe-input:focus { outline: none; border-style: solid; border-color: #ec6a8f; }
+.recipe-input:focus { outline: none; border-style: solid; border-color: var(--hl); }
 .recipe-go, .recipe-add { width: 100%; min-height: 48px; font-size: 1.02rem; justify-content: center; }
-.recipe-add { flex: none; background: #ffd7e3; border-color: #ec6a8f; }
+.recipe-add { flex: none; background: var(--hl-soft); border-color: var(--hl); }
 .recipe-add:disabled { opacity: .5; }
 .recipe-result { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
 .recipe-head { display: flex; align-items: center; gap: 8px; }
 .recipe-head .recipe-name { flex: 1; min-width: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .recipe-back { flex: none; font-size: .78rem; padding: 6px 10px; }
 .recipe-listwrap { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
-.recipe-more { display: none; position: absolute; right: 10px; bottom: 8px; width: 26px; height: 26px; border-radius: 50%; background: #ec6a8f; color: #fff; font-size: .9rem; line-height: 26px; text-align: center; pointer-events: none; opacity: .9; box-shadow: 0 1px 3px var(--shadow); animation: recipeNudge 1.4s ease-in-out infinite; }
+.recipe-more { display: none; position: absolute; right: 10px; bottom: 8px; width: 26px; height: 26px; border-radius: 50%; background: var(--hl); color: #fff; font-size: .9rem; line-height: 26px; text-align: center; pointer-events: none; opacity: .9; box-shadow: 0 1px 3px var(--shadow); animation: recipeNudge 1.4s ease-in-out infinite; }
 .recipe-listwrap:has(.recipe-list.fade-b) .recipe-more { display: block; }
 @keyframes recipeNudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
 @media (prefers-reduced-motion: reduce) { .recipe-more { animation: none; } }
@@ -2763,7 +2765,7 @@ html[data-list="todo"] .recipe-btn { display: none; }
 .recipe-list::-webkit-scrollbar { display: none; }
 .recipe-list label { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 6px 8px; border-radius: 12px; font-weight: 800; cursor: pointer; }
 .recipe-list label:has(input:not(:checked)) { opacity: .5; }
-.recipe-list input { width: 24px; height: 24px; accent-color: #ec6a8f; flex: none; }
+.recipe-list input { width: 24px; height: 24px; accent-color: var(--hl); flex: none; }
 .recipe-list img { width: 26px; height: 26px; flex: none; }
 .recipe-helper { font-size: .85rem; color: var(--muted); font-weight: 700; }
 .recipe-helper summary { cursor: pointer; margin-bottom: 6px; }
@@ -2772,9 +2774,9 @@ html[data-list="todo"] .recipe-btn { display: none; }
 .item-sheet h2 + .field-label { margin-top: 10px; }
 .recipe-units { display: flex; gap: 6px; margin: 0; }
 .recipe-units .pill-btn { flex: 1; justify-content: center; }
-.recipe-units .pill-btn[aria-pressed="true"] { background: var(--paper-sel); border-color: #ec6a8f; }
+.recipe-units .pill-btn[aria-pressed="true"] { background: var(--paper-sel); border-color: var(--hl); }
 
-.cook-heart { color: #ec6a8f; font-size: .9em; }
+.cook-heart { color: var(--hl); font-size: .9em; }
 
 /* the finished photo (app-photo.js) */
 .photo-result { position: absolute; inset: 0; z-index: 6; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); background: rgba(60, 40, 34, .78); }
@@ -3221,3 +3223,28 @@ html:root[data-skin="quest"] .dress-tabs button[aria-selected="true"] { backgrou
 html:root[data-skin="quest"] .dress-tabs button[aria-selected="true"] img { background: radial-gradient(circle at 50% 30%, #4a3217, #1b0f06); border-color: #ffd100; filter: grayscale(1) sepia(1) saturate(6) brightness(1.35); }
 html:root[data-skin="quest"] .dress-panels { background-image: none; }
 :root[data-skin="quest"] { --bubA: #5a420f; --bubB: #5a420f; --bubC: #5a420f; --inkA: #ffd100; --inkB: #ffd100; --inkC: #ffd100; --tintA: #2a1d10; --tintB: #2a1d10; --tintC: #2a1d10; --paper: #1b140c; --paper-edge: rgba(201, 162, 39, .35); }
+/* Quest calendar: gold-framed day plates, red for today and the picked day */
+html:root[data-skin="quest"] .cal-sheet #calGrid { border-radius: 6px; background: #120c06; border: 1.5px solid #c9a227; box-shadow: 0 0 0 1px #000, inset 0 0 0 2px #0a0704; }
+html:root[data-skin="quest"] .cal-sheet #calGrid::before, html:root[data-skin="quest"] .cal-sheet #calGrid::after { top: -5px; height: 7px; width: 40px; border-radius: 3px; rotate: 0deg; border: 1px solid #5a420f; background: linear-gradient(180deg, #f0cf66, #b8891c); }
+html:root[data-skin="quest"] .cal-sheet .cal-dow { color: #c9a227; }
+html:root[data-skin="quest"] .cal-sheet .cal-dow span:nth-child(n+6) { color: #e0584a; }
+html:root[data-skin="quest"] .cal-sheet .cal-cell { border-radius: 5px; background: linear-gradient(180deg, #2f2314, #1b140c); border: 1.5px solid #7a5a14; color: #f2e6c4; }
+html:root[data-skin="quest"] .cal-sheet .cal-cell:nth-child(7n), html:root[data-skin="quest"] .cal-sheet .cal-cell:nth-child(7n-1) { background: linear-gradient(180deg, #3a1a14, #1f0d09); }
+html:root[data-skin="quest"] .cal-sheet .cal-cell.today { border: 2px solid #ffd100; background: linear-gradient(180deg, #a52a1f, #5c120d); color: #ffd100; }
+html:root[data-skin="quest"] .cal-sheet .cal-cell.today::after { color: #ffd100; }
+html:root[data-skin="quest"] .cal-sheet .cal-cell.sel { background: linear-gradient(180deg, #a52a1f, #5c120d); color: #ffd100; border: 2px solid #ffd100; box-shadow: 0 0 8px rgba(255, 209, 0, .45); }
+html:root[data-skin="quest"] .cal-sheet .cal-cell.sel .cal-dots i, html:root[data-skin="quest"] .cal-dots i { background: #ffd100; }
+html:root[data-skin="quest"] .cal-dots i.yearly { background: #e0584a; }
+html:root[data-skin="quest"] .cal-sheet .cal-list li { border-radius: 5px; background: linear-gradient(180deg, #2f2314, #1b140c); border: 1.5px solid #7a5a14; }
+html:root[data-skin="quest"] .cal-month select, html:root[data-skin="quest"] .cal-add input { border-radius: 5px; border: 1.5px solid #c9a227; background: #1b140c; color: #f2e6c4; box-shadow: 0 0 0 1px #000; }
+html:root[data-skin="quest"] .cal-add-btn, html:root[data-skin="quest"] .cal-add .pill-btn[aria-pressed="true"] { background: linear-gradient(180deg, #a52a1f, #5c120d); color: #ffd100; border-radius: 5px; }
+/* Quest: the pink highlight and badge colours become gold and red. NEW THEME CHECKLIST: set --hl, --hl-soft, --hl-glow and --badge, then check the badge by the title, dock badges, calendar, pet menu picks, recipe sheet, profile. */
+:root[data-skin="quest"] { --hl: #ffd100; --hl-soft: #3a1a14; --hl-glow: rgba(255, 209, 0, .4); --badge: #8a1f17; }
+html:root[data-skin="quest"] :is(.brand-due, .dock-badge, .gift-count, .profile-gift-count) { border-color: #c9a227; color: #ffd100; }
+/* Quest: every taped paper label gets a small gold plate, round buttons get gold rims */
+html:root[data-skin="quest"] .profile-sheet .field::before, html:root[data-skin="quest"] .profile-link::before { background: linear-gradient(180deg, #f0cf66, #b8891c) !important; border: 1px solid #5a420f; border-radius: 3px; rotate: 0deg !important; height: 7px; top: -4px; }
+html:root[data-skin="quest"] .profile-avatar { background: #2a1d10 !important; border-color: #c9a227 !important; color: #ffd100; }
+html:root[data-skin="quest"] .profile-link-icon { color: #ffd100; background: #2a1d10; border: 1.5px solid #c9a227; }
+html:root[data-skin="quest"] :is(.mic-btn, .recipe-btn) { border-color: #c9a227; }
+html:root[data-skin="quest"] .recipe-btn { background: linear-gradient(180deg, #2f2314, #1b140c); color: #ffd100; }
+html:root[data-skin="quest"] .mic-btn.on { background: #c0392b; }

@@ -2,6 +2,15 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 417
+- The ring menu always opens on a double click or a style preview, whatever state he is in.
+
+## Build 416
+- Quest look: pink badge, highlights, taped labels and round buttons are gold and red now.
+
+## Build 415
+- Calendar has the Quest look: gold-framed days, red for today and the picked day.
+
 ## Build 414
 - After a throw he always ends on his exact spot, even when it was right at the bottom of the screen.
 
