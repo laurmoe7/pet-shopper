@@ -173,7 +173,7 @@ button { font: inherit; color: inherit; }
 .stage { --pet-size: 1; }
 .stage:has(#pet[data-skin="munchkin"]) { --pet-size: .8; }   /* the munchkin cat is a short-legged little one */
 .stage:has(#pet[data-species="hamster"]) { --pet-size: .8; }   /* the hamster is a small one, like the munchkin */
-.stage:has(#pet[data-species="dragon"]) { --pet-size: 1.2; }   /* the dragon is a fifth bigger */
+.stage:has(#pet[data-species="dragon"]) { --pet-size: 1.1; }   /* the dragon is a tenth bigger (1.1 is the most any pet may be: a test checks) */
 #pet { width: calc(150px * var(--pet-size)); height: calc(140px * var(--pet-size)); }
 
 /* speech bubble */

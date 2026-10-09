@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 457
+- Dragon is 10% bigger (was 20%); no pet can be bigger than that.
+
 ## Build 456
 - New carry pose: he holds the ball low in front of him on the run back, no longer with paws over his eyes.
 
