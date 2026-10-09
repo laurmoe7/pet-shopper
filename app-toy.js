@@ -358,11 +358,11 @@ function fling(vx, vy, y) {
   var lim = toyLimits(), x = toyX, spin = 0, start = performance.now(), last = start, chaseAt = 0;
   var catchAt = playStyle() === 'fetch' ? mouthHeight() : 14, frog = playStyle() === 'tongue';
   // over the whole screen it flies longer: lighter gravity, livelier bounces, and he waits a while before he may catch it
-  var followAt = 0, wide = !!toyField, gravity = wide ? 950 : 1500, wallK = wide ? 0.92 : 0.75, floorK = wide ? 0.74 : 0.6, grace = wide ? 3000 : 250, maxMs = wide ? 12000 : 7000;
+  var followAt = 0, wide = !!toyField, gravity = wide ? 950 : 1500, wallK = wide ? 0.92 : 0.75, floorK = wide ? 0.74 : 0.6, grace = wide ? 1500 : 250, maxMs = 7000, CHASE_MS = 5000, jumpAt = performance.now() + 700;
   cancelAnimationFrame(flight);
   if (reduceMotion) { placeToy(x, 0, 0); landed(); return; }
   // if the chase drags on he jumps at the toy and gets it
-  var leapAfter = toyTired() ? Infinity : wide ? 6500 : 3200;   // (drowsy, he does not manage the jump)
+  var leapAfter = toyTired() ? Infinity : wide ? 3000 : 2500;   // (the toy starts to drift in to him; the chase never lasts more than CHASE_MS)   // (drowsy, he does not manage the jump)
   function leap() {
     var px0 = parseFloat(getComputedStyle(pet).translate) || 0, fx = x, fy = y, t0 = performance.now(), svg = pet.querySelector('.pet-svg');
     // he springs up off the floor, the toy swings in to his hands in an arc, and he grabs it at the top of the jump (the ball then rides down with him)
@@ -408,7 +408,14 @@ function fling(vx, vy, y) {
     pet.style.setProperty('--look-x', (x > walkX ? 3.2 : -3.2) + 'px');
     var px = parseFloat(getComputedStyle(pet).translate) || 0;
     // (only when it is close: a toy far across the screen would otherwise swing over to him in one jump)
-    if (now - start > leapAfter + 2500 && Math.abs(x - px) < 240 && y < 160) { leap(); return; }   // (a last resort: a short swing, never from the top of the screen)
+    if (now - start > leapAfter + 1500 && Math.abs(x - px) < 240 && y < 160) { leap(); return; }
+    if (now - start > CHASE_MS && !toyTired()) { leap(); return; }   // five seconds is enough: he jumps and gets it wherever it is
+    // now and then he jumps up for it, so he is not just sliding along the floor
+    if (now > jumpAt) {
+      jumpAt = now + 900 + Math.random() * 800;
+      var jsvg = pet.querySelector('.pet-svg');
+      if (jsvg && jsvg.animate && !reduceMotion) jsvg.animate([{ translate: '0 0' }, { translate: '0 -22px', offset: .5 }, { translate: '0 0' }], { duration: 440, easing: 'ease-out' });
+    }   // (a last resort: a short swing, never from the top of the screen)
     // caught: coming down at the right height, right in front of the pet
     // a frog snatches it out of the air with its tongue once it is within reach
     if (frog && now - start > grace && y > 6 && Math.hypot(x - px, y - mouthHeight()) < 115) { caught(x, y); return; }
