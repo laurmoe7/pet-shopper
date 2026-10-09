@@ -699,16 +699,25 @@ function skCancel() {
   skDrawing = false; skPan = null;
   skStage.classList.remove('panning');
 }
+var skTraceLast = null;   // the latest trace: its layer and picture, so it can be undone with the picture shown again
 var skAutoLayers = {};   // layers made by a tool (Trace), by id: Undo takes the empty ones away again and Redo brings them back
 /** After Undo or Redo: drops tool-made layers nothing is on any more, and restores ones the lines are on again. */
+/** Shows or hides the picture a trace was made from, when its layer comes or goes (Undo and Redo). */
+function skTracePicture(layerId, show) {
+  if (!skTraceLast || skTraceLast.layer !== layerId) return;
+  var im = SK.images[SK.mode].filter(function (i) { return i.id === skTraceLast.im; })[0];
+  if (im) { im.visible = show; skRenderImages(); skLayersUI(); skSaveImages(); }
+  $('skTraceUndo').disabled = show;
+}
 function skFixAutoLayers() {
   var lays = SK.layers[SK.mode], used = {};
   SK.strokes[SK.mode].forEach(function (s) { used[s.lay] = true; });
   Object.keys(skAutoLayers).forEach(function (id) {
     var at = lays.findIndex(function (l) { return l.id === id; });
-    if (used[id] && at === -1) lays.push(skAutoLayers[id]);
+    if (used[id] && at === -1) { lays.push(skAutoLayers[id]); skTracePicture(id, false); }
     else if (!used[id] && at !== -1 && lays.length > 1) {
       lays.splice(at, 1);
+      skTracePicture(id, true);
       if (SK.active[SK.mode] === id) SK.active[SK.mode] = lays[lays.length - 1].id;
       SK.layerSet[SK.mode] = SK.layerSet[SK.mode].filter(function (x) { return x !== id; });
       if (!SK.layerSet[SK.mode].length) SK.layerSet[SK.mode] = [SK.active[SK.mode]];
@@ -1569,22 +1578,35 @@ async function skTrace() {
     if (!made.length) { skStatus.textContent = mode === 'lines' ? 'No ink found. Slide the ink level towards “more”, or try Colours.' : 'Nothing to trace in that picture.'; return; }
     var lays = skLays(), x = { id: 'l' + Date.now().toString(36), name: 'Trace', show: true };
     skAutoLayers[x.id] = x;
+    skTraceLast = { layer: x.id, im: im.id };
     lays.push(x); SK.active[SK.mode] = x.id; SK.layerSet[SK.mode] = [x.id];
     made.forEach(function (s) { s.lay = x.id; skNew(s); });
     skPushHistory();
     SK.strokes[SK.mode] = SK.strokes[SK.mode].concat(made);
     im.visible = false; skRenderImages(); skLayersUI(); skSaveImages();
     skLinesUI(); skMarkActive(); skRedraw(); skSave();
+    $('skTraceUndo').disabled = false;
     skStatus.textContent = 'Traced ' + made.length + (made.length === 1 ? ' shape' : ' shapes') + (capped ? ' (the biggest; small bits left out)' : '') + ' onto a new layer, “Trace”. The picture is hidden: tick Show to see it again.';
   } catch (err) {
     skStatus.textContent = 'Could not trace that picture.';
   } finally { btn.disabled = false; }
+}
+/** Takes the latest trace away (its shapes and layer) and shows the picture again. */
+function skTraceUndo() {
+  if (!skTraceLast) { skStatus.textContent = 'No trace to undo.'; return; }
+  var id = skTraceLast.layer;
+  if (!SK.strokes[SK.mode].some(function (s) { return s.lay === id; })) { skStatus.textContent = 'That trace is already gone.'; $('skTraceUndo').disabled = true; return; }
+  skPushHistory();
+  SK.strokes[SK.mode] = SK.strokes[SK.mode].filter(function (s) { return s.lay !== id; });
+  SK.pick = []; skFixAutoLayers(); skRedraw(); skXfRender(); skSave();
+  skStatus.textContent = 'Trace undone. The picture is back.';
 }
 function skTraceUI() {
   var lines = $('skTraceMode').value === 'lines';
   $('skTraceLevelRow').hidden = !lines; $('skTraceKRow').hidden = lines;
 }
 $('skTrace').addEventListener('click', skTrace);
+$('skTraceUndo').addEventListener('click', skTraceUndo);
 $('skTraceMode').addEventListener('change', skTraceUI);
 skTraceUI();
 
