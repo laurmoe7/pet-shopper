@@ -1792,6 +1792,33 @@
     return count;
   }
   /**
+   * Grows (r > 0) or shrinks (r < 0) a mask by about `r` pixels, evenly all round (exact distances, so corners round off when growing).
+   * @returns {Uint8Array} A new mask.
+   */
+  function offsetMask(mask, w, h, r) {
+    var target = r > 0 ? 1 : 0, BIG = 1e9, f = new Float64Array(w * h), x, y, q, k, size = Math.max(w, h);
+    for (q = 0; q < f.length; q++) f[q] = mask[q] === target ? 0 : BIG;
+    var col = new Float64Array(size), out1 = new Float64Array(size), v = new Int32Array(size), z = new Float64Array(size + 1);
+    function line(n) {   // squared distance along one row or column (lower envelope of parabolas)
+      k = 0; v[0] = 0; z[0] = -Infinity; z[1] = Infinity;
+      for (var i = 1; i < n; i++) {
+        var sx;
+        for (;;) {
+          sx = ((col[i] + i * i) - (col[v[k]] + v[k] * v[k])) / (2 * i - 2 * v[k]);
+          if (sx <= z[k]) k--; else break;
+        }
+        k++; v[k] = i; z[k] = sx; z[k + 1] = Infinity;
+      }
+      k = 0;
+      for (var j = 0; j < n; j++) { while (z[k + 1] < j) k++; out1[j] = (j - v[k]) * (j - v[k]) + col[v[k]]; }
+    }
+    for (x = 0; x < w; x++) { for (y = 0; y < h; y++) col[y] = f[y * w + x]; line(h); for (y = 0; y < h; y++) f[y * w + x] = out1[y]; }
+    for (y = 0; y < h; y++) { for (x = 0; x < w; x++) col[x] = f[y * w + x]; line(w); for (x = 0; x < w; x++) f[y * w + x] = out1[x]; }
+    var out = new Uint8Array(w * h), lim = r * r;
+    for (q = 0; q < out.length; q++) out[q] = r > 0 ? (mask[q] || f[q] <= lim ? 1 : 0) : (mask[q] && f[q] > lim ? 1 : 0);
+    return out;
+  }
+  /**
    * Splits a mask into its separate patches (touching corners count as joined), biggest first, each as its own small mask.
    * @returns {{x: number, y: number, w: number, h: number, mask: Uint8Array, size: number}[]} At most `keep` patches (x, y is where the small mask sits in the big one).
    */
@@ -2288,6 +2315,6 @@
     toggleDone: toggleDone,
     pickEmoji: pickEmoji,
     soundFor: soundFor,
-    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, sketchDash: sketchDash, fitCurve: fitCurve, sketchPathClean: sketchPathClean, sketchItemCode: sketchItemCode, sketchGradId: sketchGradId, sketchGradDef: sketchGradDef, sketchSoftBlur: sketchSoftBlur, sketchBlurId: sketchBlurId, sketchBlurDef: sketchBlurDef, sketchShape: sketchShape, sketchRibbon: sketchRibbon, traceInk: traceInk, traceColours: traceColours, despeckle: despeckle, traceParts: traceParts, cutBackground: cutBackground, traceSmoothLabels: traceSmoothLabels, sketchClipDef: sketchClipDef, SKETCH_PATTERNS: SKETCH_PATTERNS, SKETCH_SHAPES: SKETCH_SHAPES, sketchWave: sketchWave, SKETCH_STYLES: SKETCH_STYLES, traceLoops: traceLoops, simplifyLine: skSimplify
+    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, sketchDash: sketchDash, fitCurve: fitCurve, sketchPathClean: sketchPathClean, sketchItemCode: sketchItemCode, sketchGradId: sketchGradId, sketchGradDef: sketchGradDef, sketchSoftBlur: sketchSoftBlur, sketchBlurId: sketchBlurId, sketchBlurDef: sketchBlurDef, sketchShape: sketchShape, sketchRibbon: sketchRibbon, traceInk: traceInk, traceColours: traceColours, despeckle: despeckle, traceParts: traceParts, offsetMask: offsetMask, cutBackground: cutBackground, traceSmoothLabels: traceSmoothLabels, sketchClipDef: sketchClipDef, SKETCH_PATTERNS: SKETCH_PATTERNS, SKETCH_SHAPES: SKETCH_SHAPES, sketchWave: sketchWave, SKETCH_STYLES: SKETCH_STYLES, traceLoops: traceLoops, simplifyLine: skSimplify
   };
 })(typeof self !== 'undefined' ? self : globalThis);

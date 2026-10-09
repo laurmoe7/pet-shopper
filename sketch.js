@@ -1199,20 +1199,47 @@ $('skBack').addEventListener('click', function () { skStack(false); });
 $('skToLayer').addEventListener('click', skToLayer);
 /** The game's own dark brown, used for outlines. */
 var SK_INK = '#5b4239';
-/** Gives each picked filled shape the game's brown outline: a line along its edge, just above it, at the pen thickness. */
+/**
+ * Outline: gives each picked shape a line round its edge, in the chosen colour and thickness. The Position slider moves the line
+ * outwards (positive) or inwards (negative, an "inline"); the edge is moved evenly all round by growing or shrinking the shape.
+ */
 function skOutline() {
-  var v = SK_VIEW[SK.mode], list = SK.strokes[SK.mode], shapes = skOrdered().filter(function (s) { return SK.pick.indexOf(s) !== -1 && (s.fill || s.bucket) && s.pts.length > 2; });
-  if (!shapes.length) { skStatus.textContent = 'Pick a filled shape first.'; return; }
+  var v = SK_VIEW[SK.mode], list = SK.strokes[SK.mode], shapes = skOrdered().filter(function (s) { return SK.pick.indexOf(s) !== -1 && (s.fill || s.closed || s.bucket || s.d) && s.pts.length > 2; });
+  if (!shapes.length) { skStatus.textContent = 'Pick a closed or filled shape first.'; return; }
+  var w = +(v.w * SK_PEN * +$('skOlW').value).toFixed(2), color = $('skOlColor').value, move = +$('skOlPos').value * v.w * 0.003, made = 0;
+  var scale = 900 / Math.max(v.w, v.h), pad = Math.ceil(Math.abs(move) * scale) + 4, W = Math.round(v.w * scale) + 2 * pad, H = Math.round(v.h * scale) + 2 * pad;
   skPushHistory();
-  var w = +(v.w * SK_PEN * SK.pen).toFixed(2);
   shapes.forEach(function (s) {
-    var o = { pts: s.pts.map(function (p) { return p.slice(); }), color: SK_INK, width: w, fill: false, closed: true, lay: s.lay, style: 'solid' };
+    var o = { pts: s.pts.map(function (p) { return p.slice(); }), color: color, width: w, fill: false, closed: true, lay: s.lay, style: 'solid' };
     if (s.d) o.d = s.d;
     if (s.clip) o.clip = true;
+    if (Math.abs(move) > 0.01) {   // the edge is moved: draw the shape, grow or shrink it, and trace its new edge
+      var cv = document.createElement('canvas');
+      cv.width = W; cv.height = H;
+      var g = cv.getContext('2d', { willReadFrequently: true });
+      g.setTransform(scale, 0, 0, scale, (pad / scale - v.x) * scale, (pad / scale - v.y) * scale);
+      g.fillStyle = '#000';
+      g.fill(s.d ? new Path2D(s.d) : new Path2D(L.sketchPath(s.pts, true, 2)), s.d ? 'evenodd' : 'nonzero');
+      var px = g.getImageData(0, 0, W, H).data, mask = new Uint8Array(W * H), i;
+      for (i = 0; i < mask.length; i++) mask[i] = px[i * 4 + 3] > 127 ? 1 : 0;
+      var moved = L.offsetMask(mask, W, H, move * scale), loops = L.traceLoops(moved, W, H).map(function (lp) {
+        var real = L.simplifyLine(lp.concat([lp[0]]).map(function (p) { return [v.x + (p[0] - pad) / scale, v.y + (p[1] - pad) / scale]; }), 1 / scale), out = [];
+        L.fitCurve(real, v.w * 0.002).forEach(function (b) {
+          for (var k = 0; k < 10; k++) { var t = k / 10, u = 1 - t; out.push([+(u * u * u * b[0][0] + 3 * u * u * t * b[1][0] + 3 * u * t * t * b[2][0] + t * t * t * b[3][0]).toFixed(2), +(u * u * u * b[0][1] + 3 * u * u * t * b[1][1] + 3 * u * t * t * b[2][1] + t * t * t * b[3][1]).toFixed(2)]); }
+        });
+        return out;
+      }).filter(function (lp) { return lp.length > 2; });
+      if (!loops.length) return;   // shrunk away to nothing
+      o.pts = loops.slice().sort(function (a, b) { return b.length - a.length; })[0];
+      o.d = loops.map(function (lp) { return 'M' + lp.map(function (p) { return p[0] + ' ' + p[1]; }).join('L') + 'Z'; }).join('');
+    }
+    skNew(o);
     list.splice(list.indexOf(s) + 1, 0, o);
+    made++;
   });
+  if (!made) { SK.hist[SK.mode].pop(); skHistoryUI(); skStatus.textContent = 'The shape is too small to move the outline in that far.'; return; }
   skRedraw(); skSave();
-  skStatus.textContent = 'Outlined in the game brown.';
+  skStatus.textContent = (+$('skOlPos').value < 0 ? 'Inline added.' : 'Outline added.') + ' Change colour, thickness or position and press Outline again for another.';
 }
 /** Turns each picked pen line into a curve with points and handles, so the Curve tool can tweak it. */
 function skToCurve() {

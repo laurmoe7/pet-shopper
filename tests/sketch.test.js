@@ -277,3 +277,16 @@ test('cutting out a background only removes what is joined to the edge', () => {
   assert.equal(px[(5 * w + 5) * 4 + 3], 255);
   assert.ok(n > 200 && n < 400);
 });
+
+test('offsetting a mask grows or shrinks it evenly', () => {
+  const w = 30, h = 30, m = new Uint8Array(w * h);
+  for (let y = 10; y < 20; y++) for (let x = 10; x < 20; x++) m[y * w + x] = 1;
+  const count = a => a.reduce((s, v) => s + v, 0);
+  assert.equal(count(L.offsetMask(m, w, h, -2)), 36);                 // 10x10 shrunk by 2 each side
+  assert.equal(L.offsetMask(m, w, h, -2)[12 * w + 12], 1);
+  assert.equal(L.offsetMask(m, w, h, -2)[10 * w + 10], 0);
+  assert.equal(L.offsetMask(m, w, h, 2)[8 * w + 15], 1);              // grown to the side
+  assert.equal(L.offsetMask(m, w, h, 2)[7 * w + 15], 0);
+  assert.equal(L.offsetMask(m, w, h, 2)[8 * w + 8], 0);               // the corner is rounded, not square
+  assert.equal(count(L.offsetMask(m, w, h, 0)), 100);
+});
