@@ -2,8 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
-## Build 439
+## Build 440
 - Quest appearance: bigger text so it is easier to read.
+
+## Build 439
+- A test Shop with a premium card and cosmetic packs (nothing can be bought). Switch it on in Developer tools.
 
 ## Build 438
 - No sinking when the bed lands after being thrown.
