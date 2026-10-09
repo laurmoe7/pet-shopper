@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 487
+- Wrecking ball in the app: shatters piece by piece (picture, words, bar), also breaks the lamp and the gear
+
 ## Build 486
 - Toys bounce down to the top of the taskbar (all toys, wrecking ball too)
 

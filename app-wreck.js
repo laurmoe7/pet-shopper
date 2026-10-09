@@ -136,9 +136,10 @@ function wreckFling(vx, vy, y0) {
 
 // ---------- in the page (the phone app and the full app on the computer) ----------
 // Here the ball flies over the whole page, bounces like a heavy ball and really knocks the page's own things loose: list rows, aisle labels,
-// the add bar, the dock's buttons. Each one cracks and falls off the page with whatever is on it (they are the page's own elements, so nothing is
-// captured or drawn over a program); then he waves the wand and they pop back. A see-through shield keeps taps from reaching the page meanwhile.
-var WRECK_TARGETS = '.items .item, .items .aisle, .add-wrap, .dock > button, .scene .brand';
+// the add bar, the dock's buttons, the gear and the lamp. Each one cracks, then shatters piece by piece (a row: the picture first, then the words,
+// then the bar) and the pieces fall with whatever was on them (copies of the page's own elements, so nothing is captured or drawn over a program);
+// then he waves the wand and they pop back. A see-through shield keeps taps from reaching the page meanwhile.
+var WRECK_TARGETS = '.items .item, .items .aisle, .add-wrap, .dock > button, .scene .brand, #optionsBtn, #lamp';
 
 /** @returns {boolean} Whether a throw now is the page's wrecking-ball game: it is the toy, and this is not the small desktop window (that one has its own, over the screen). */
 function pageWreckWanted() {
@@ -168,7 +169,7 @@ function pageWreck(vx, vy, px, py) {
   document.body.append(shield, ball);
   var targets = [].slice.call(document.querySelectorAll(WRECK_TARGETS)).map(function (el) {
     var r = el.getBoundingClientRect();
-    return { el: el, r: r, hit: false, anim: null };
+    return { el: el, r: r, hit: false, timers: [], mended: false };
   }).filter(function (t) { return t.r.width > 8 && t.r.height > 8 && t.r.bottom > 0 && t.r.top < H; });
 
   /** A crack where the ball hit, for a moment. */
@@ -184,15 +185,84 @@ function pageWreck(vx, vy, px, py) {
     document.body.appendChild(c);
     c.animate([{ opacity: 1 }, { opacity: 1, offset: .6 }, { opacity: 0 }], { duration: 700 }).onfinish = function () { c.remove(); };
   }
-  /** A thing the ball touched: it cracks, then falls off the page with whatever is on it. */
+  /** A copy of an element with every style written into it, so it looks the same wherever it is put (the page's own rules would not reach it). */
+  function frozen(src, r) {
+    var dst = src.cloneNode(true), a = [src].concat([].slice.call(src.querySelectorAll('*'))), b = [dst].concat([].slice.call(dst.querySelectorAll('*')));
+    for (var i = 0; i < a.length; i++) {
+      var cs = getComputedStyle(a[i]), st = b[i].style;
+      for (var j = 0; j < cs.length; j++) st.setProperty(cs[j], cs.getPropertyValue(cs[j]));
+      st.animation = 'none'; st.transition = 'none'; b[i].removeAttribute('id');
+    }
+    var d = dst.style;
+    d.position = 'absolute'; d.left = '0'; d.top = '0'; d.right = 'auto'; d.bottom = 'auto'; d.margin = '0'; d.transform = 'none'; d.translate = 'none'; d.rotate = 'none';
+    d.opacity = '1'; d.visibility = 'visible'; d.clipPath = 'none'; d.display = 'block'; d.boxSizing = 'border-box'; d.width = r.width + 'px'; d.height = r.height + 'px';
+    return dst;
+  }
+  var shardBox = document.createElement('div');
+  shardBox.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;z-index:9989;pointer-events:none;';
+  document.body.appendChild(shardBox);
+  function rectIn(el, r) { if (!el) return null; var q = el.getBoundingClientRect(); return { x1: q.left - r.left - 4, y1: q.top - r.top - 4, x2: q.right - r.left + 4, y2: q.bottom - r.top + 4 }; }
+  function inside(q, x, y) { return !!q && x >= q.x1 && x <= q.x2 && y >= q.y1 && y <= q.y2; }
+
+  /** Cuts a thing into jagged triangles (each one is a shard), in the order they break: a row's picture, then its words, then the bar. */
+  function prepare(t, hx, hy) {
+    var r = t.el.getBoundingClientRect(), cols = Math.max(3, Math.min(7, Math.round(r.width / 60))), rows = Math.max(2, Math.min(3, Math.round(r.height / 30)));
+    var v = [], gx, gy, tris = [];
+    for (gy = 0; gy <= rows; gy++) {
+      v.push([]);
+      for (gx = 0; gx <= cols; gx++) v[gy].push([r.width * gx / cols + (gx === 0 || gx === cols ? 0 : (Math.random() - .5) * .5 * r.width / cols), r.height * gy / rows + (gy === 0 || gy === rows ? 0 : (Math.random() - .5) * .5 * r.height / rows)]);
+    }
+    var emoji = rectIn(t.el.querySelector('.emoji-btn'), r), words = [rectIn(t.el.querySelector('.item-text'), r), rectIn(t.el.querySelector('.qty-tag'), r), rectIn(t.el.querySelector('.due-tag'), r)];
+    var lx = hx - r.left, ly = hy - r.top;
+    for (gy = 0; gy < rows; gy++) for (gx = 0; gx < cols; gx++) {
+      var a = v[gy][gx], b = v[gy][gx + 1], c = v[gy + 1][gx + 1], e = v[gy + 1][gx];
+      [[a, b, c], [a, c, e]].forEach(function (p) {
+        var cx = (p[0][0] + p[1][0] + p[2][0]) / 3, cy = (p[0][1] + p[1][1] + p[2][1]) / 3;
+        var cat = inside(emoji, cx, cy) ? 0 : words.some(function (q) { return inside(q, cx, cy); }) ? 1 : 2;
+        tris.push({ p: p, cx: cx, cy: cy, cat: emoji || words[0] ? cat : 0, d: Math.hypot(cx - lx, cy - ly) });
+      });
+    }
+    tris.sort(function (m, n) { return m.cat - n.cat || m.d - n.d; });
+    t.r2 = r; t.tris = tris; t.tpl = frozen(t.el, r); t.gone = []; t.lx = lx; t.ly = ly;
+  }
+  /** The thing itself loses the pieces that have fallen (it stays whole under the rest). */
+  function cutOut(t) {
+    var r = t.r2, d = 'M-300 -300 H' + (r.width + 300) + ' V' + (r.height + 300) + ' H-300 Z';
+    t.gone.forEach(function (g) { d += ' M' + g.p[0][0].toFixed(1) + ' ' + g.p[0][1].toFixed(1) + ' L' + g.p[1][0].toFixed(1) + ' ' + g.p[1][1].toFixed(1) + ' L' + g.p[2][0].toFixed(1) + ' ' + g.p[2][1].toFixed(1) + ' Z'; });
+    t.el.style.clipPath = 'path(evenodd, "' + d + '")';
+  }
+  /** One shard comes away: a copy of the thing, cut to the triangle, flies out from the hit and falls. */
+  function shard(t, g) {
+    var r = t.r2, w = document.createElement('div');
+    w.style.cssText = 'position:absolute;left:' + r.left + 'px;top:' + r.top + 'px;width:' + r.width + 'px;height:' + r.height + 'px;transform-origin:' + g.cx.toFixed(1) + 'px ' + g.cy.toFixed(1) + 'px;clip-path:polygon(' + g.p.map(function (q) { return q[0].toFixed(1) + 'px ' + q[1].toFixed(1) + 'px'; }).join(',') + ');';
+    w.appendChild(t.tpl.cloneNode(true));
+    shardBox.appendChild(w);
+    var dx = (g.cx - t.lx) * 0.5 + (Math.random() - .5) * 90, rise = 14 + Math.random() * 60, rot = (Math.random() - .5) * 360, fall = H - r.top + 160;
+    w.animate([
+      { transform: 'none', opacity: 1 },
+      { transform: 'translate(' + (dx * .35).toFixed(0) + 'px,' + (-rise).toFixed(0) + 'px) rotate(' + (rot / 4).toFixed(0) + 'deg)', opacity: 1, offset: .22, easing: 'cubic-bezier(.5,0,1,.7)' },
+      { transform: 'translate(' + dx.toFixed(0) + 'px,' + fall.toFixed(0) + 'px) rotate(' + rot.toFixed(0) + 'deg)', opacity: .9 }
+    ], { duration: 800 + Math.random() * 300, fill: 'forwards' }).onfinish = function () { w.remove(); };
+    t.gone.push(g);
+    cutOut(t);
+  }
+  /** A thing the ball touched: it cracks, then shatters piece by piece. */
+  var shatterSound = 0;
   function knock(t, hx, hy) {
     t.hit = true;
     crackAt(hx, hy);
-    var dir = Math.random() < .5 ? -1 : 1;
     setTimeout(function () {
-      if (!t.el.animate) return;
-      t.anim = t.el.animate([{ transform: 'translate(0, 0) rotate(0deg)' }, { transform: 'translate(' + Math.round(dir * (20 + Math.random() * 60)) + 'px, ' + Math.round(H - t.r.top + 140) + 'px) rotate(' + Math.round(dir * (20 + Math.random() * 60)) + 'deg)' }], { duration: 800, easing: 'cubic-bezier(.5,0,1,.6)', fill: 'forwards' });
-    }, 260);
+      if (ended || !t.el.animate) return;
+      prepare(t, hx, hy);
+      t.tris.forEach(function (g, i) {
+        t.timers.push(setTimeout(function () {
+          if (ended && t.mended) return;
+          shard(t, g);
+          if (i === t.tris.length - 1) t.el.style.visibility = 'hidden';
+          if (i % 3 === 0 && performance.now() - shatterSound > 90) { shatterSound = performance.now(); sound('glass'); }
+        }, i * 48 + Math.random() * 30));
+      });
+    }, 220);
   }
 
   function step(now) {
@@ -264,14 +334,15 @@ function pageWreck(vx, vy, px, py) {
       setTimeout(function () {   // everything pops back, one after the other
         targets.forEach(function (t, n) {
           setTimeout(function () {
-            if (t.anim) { t.anim.cancel(); t.anim = null; }
+            t.mended = true; t.timers.forEach(clearTimeout);
+            t.el.style.clipPath = ''; t.el.style.visibility = '';
             if (t.hit && t.el.animate) t.el.animate([{ transform: 'scale(.6)', opacity: 0 }, { transform: 'scale(1.08)', opacity: 1, offset: .6 }, { transform: 'scale(1)', opacity: 1 }], { duration: 380, easing: 'ease-out' });
             if (t.hit && n % 2 === 0) drift(['✨', '✦', '⭐'], { x: t.r.left + t.r.width / 2, y: t.r.top + t.r.height / 2 }, 2);
           }, n * 35);
         });
       }, 900);
     }, back);
-    wait(back + 4200).then(function () { shield.remove(); endPlay(); });
+    wait(back + 4200).then(function () { shield.remove(); shardBox.remove(); endPlay(); });
   }
   setTimeout(finish, WRECK_MS + 1500);   // (if the page was in the background and no frames came: it is still mended)
   flight = requestAnimationFrame(step);
