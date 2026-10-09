@@ -472,9 +472,23 @@
   };
 
   // thrown (the shell flies his window about): he spins round and is dizzy, and every hit on an edge or the floor goes "boing"
+  /** The spin ends in mid-turn: he eases round to upright from wherever the turn stopped instead of snapping. */
+  function glideUpright() {
+    var svg = pet.querySelector('.pet-svg');
+    if (!svg) return;
+    var cs = getComputedStyle(svg), ang = parseFloat(cs.rotate) || 0;
+    ang = ((ang + 180) % 360 + 360) % 360 - 180;
+    if (Math.abs(ang) < 3) return;
+    svg.style.transition = 'none'; svg.style.rotate = ang.toFixed(1) + 'deg'; svg.style.translate = cs.translate === 'none' ? '' : cs.translate;
+    void svg.offsetWidth;
+    svg.style.transition = 'rotate .55s cubic-bezier(.3, 1.25, .5, 1), translate .55s ease-out';
+    svg.style.rotate = '0deg'; svg.style.translate = '0 0';
+    setTimeout(function () { svg.style.transition = ''; svg.style.rotate = ''; svg.style.translate = ''; }, 620);
+  }
   var headDown = false;
   function pageThrown(on, dir, bed, extra) {
     extra = extra || {};
+    if (!on && !bed && pet.classList.contains('thrown')) glideUpright();   // (before the spin stops: he turns the last way smoothly, not with a jump)
     pet.classList.toggle('thrown', !!on && !bed);
     stage.classList.toggle('flying', !!on);
     pet.style.setProperty('--spin-dir', dir < 0 ? -1 : 1);
@@ -508,8 +522,8 @@
     if (typeof sound === 'function') sound('bounce');
     if (wall && !carried) {   // against a wall or the ceiling he squishes flat into it (the squish is a CSS animation on his whole box, see .wall-l)
       pet.classList.remove('wall-l', 'wall-r', 'wall-t'); void pet.offsetWidth;
-      pet.classList.add('wall-' + wall); pet.style.setProperty('--squish', (.62 + .3 * (1 - Math.min(1, hard))).toFixed(2));
-      setTimeout(function () { pet.classList.remove('wall-l', 'wall-r', 'wall-t'); }, 460);
+      pet.classList.add('wall-' + wall); pet.style.setProperty('--squish', (.4 + .15 * (1 - Math.min(1, hard))).toFixed(2));
+      setTimeout(function () { pet.classList.remove('wall-l', 'wall-r', 'wall-t'); }, 640);
       return;
     }
     if (typeof pulse === 'function' && !carried) pulse(hard > .5 ? 'hop' : 'hopsmall', 400);

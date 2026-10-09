@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 426
+- Getting back on his feet after a throw is smoother.
+- He no longer shrinks while spinning.
+- The squish against a wall is much stronger.
+
 ## Build 425
 - Alert cards are not cut off at the top of the window any more.
 
