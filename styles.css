@@ -508,7 +508,6 @@ button { font: inherit; color: inherit; }
 @keyframes name-nudge { 30% { transform: translateX(-3px); } 60% { transform: translateX(3px); } }
 .mood-info { margin: 2px 0 0; font-size: .9rem; color: var(--ink); min-height: 2.6em; }
 .mood-info b { font-weight: 800; }
-.name-hint { font-size: .78rem; color: var(--muted); font-weight: 700; }
 .field input:focus-visible { box-shadow: 0 0 0 4px var(--stage-top); }
 .species { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .species-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
@@ -1274,7 +1273,6 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .picker.fav-full .fav-list { flex: 1 1 auto; min-height: 0; gap: 5px; overflow-y: auto; }
 .picker.fav-full .fav { flex: 1 1 0; min-height: 26px; max-height: 52px; }
 .picker.fav-full .picker-foot { position: static; margin: auto 0 0; padding: 0; flex: none; }
-.fav-intro { margin: 0; color: var(--muted); font-size: .8rem; }
 
 /* the main pet buttons, always at the bottom of the screen */
 .dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; max-width: 560px; margin: 0 auto; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px)); }
@@ -1392,7 +1390,6 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 /* Scottish fold: ears folded forward and big round eyes */
 .pet[data-skin="scottishfold"] .kitty-ears { display: none; }
 .pet[data-skin="scottishfold"] .fold-ears .ear-g { transform-origin: 50% 100%; }
-.ear-flap { fill: #bdbac9; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
 .ear-crease { fill: none; stroke: #9d99ab; stroke-width: 1.8; stroke-linecap: round; }
 .pet[data-skin="scottishfold"] .eyes-open .ink { rx: 5.6px; ry: 6.2px; }
 /* hamster: big round eyes with two glints (the second one is shown here for every hamster skin), */
@@ -1595,7 +1592,7 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .yarn-tail { stroke: var(--pet-ink); stroke-width: 1.6; }
 .tennis-fill { fill: #dff27a; }
 .tennis-seam { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; }
-.stage.bedtime .toy, .stage.toy-off .toy { display: none; }
+.stage.bedtime .toy { display: none; }
 body:has(#roomSheet[open]) .toy { pointer-events: none; }
 /* the goodnight kiss (kissGoodnight in app-bedtime.js): a pink kiss mark pops onto its forehead */
 .kiss-mark { position: fixed; z-index: 40; width: 26px; height: 20px; pointer-events: none; }
@@ -2260,8 +2257,6 @@ html:root .item.late:not(.done) { animation: late-shake 3.6s ease-in-out infinit
 @media (prefers-reduced-motion: reduce) { html:root .item.late:not(.done) { animation: none; } }
 
 /* ---------- to-do mode: the calendar and stamp book replace Top 10 and Goals in the bottom bar ---------- */
-.dock .todo-only { display: none; }
-html[data-list="todo"] .dock .todo-only { display: flex; }
 /* the Shop is only a placeholder for now: greyed out */
 html:root .dock #calBtn { --tilt: 3deg; --sticker: #ffd9c2; --sticker-ink: #d9743f; }
 /* calendar */
@@ -2433,7 +2428,6 @@ html.typing .page-fade { display: none; }
 /* profile (app-profile.js): the same fields as the pet's name; its dock sticker */
 html:root .dock #profileBtn { --tilt: 5deg; --sticker: #d9ccf5; --sticker-ink: #7d5fcf; }
 .profile-sheet .field input[type="date"] { font: inherit; }
-html:root .picker .field-label.profile-top { display: none; }
 .profile-links { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
 .profile-link { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-weight: 800; text-align: left; cursor: pointer; }
 .profile-link-icon { width: 24px; display: grid; place-items: center; font-size: 1.2rem; color: #7d5fcf; }
@@ -2558,7 +2552,6 @@ html:root .picker .field-label.profile-top { display: none; }
 #goalsSheet .goal-bar { background: var(--paper-edge); height: 12px; }
 #goalsSheet .goal-bar span { background: linear-gradient(90deg, #ff9dba, #ff7fa6); }
 #goalsSheet .goal.done .goal-bar span { background: var(--mint); }
-.task-for { margin: 8px 0 4px; }
 
 /* calendar: sizes include the padding, so a day can never grow taller than its row (it overlapped on some screens) */
 .cal-sheet .cal-cell { box-sizing: border-box; height: 38px; min-height: 38px; max-height: 38px; padding: 0 0 4px; overflow: visible; }

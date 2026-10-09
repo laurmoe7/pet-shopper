@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 474
+- Removed a few unused styles and one unused function.
+
 ## Build 473
 - Tools for me: bump, screenshots, video sheets and big push scripts; one script list less.
 

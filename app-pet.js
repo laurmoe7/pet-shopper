@@ -263,11 +263,6 @@ function sheetUnderMouth(dlg) {
   var dock = document.querySelector('.dock'), room = innerHeight - (dock ? dock.offsetHeight : 64) - (mouthPoint().y + 16);
   dlg.style.setProperty('--sheet-h', Math.max(240, Math.round(room)) + 'px');
 }
-/** @returns {{x: number, y: number}} A spot at the pet's side, where non-food gets tucked away. */
-function sidePoint() {
-  var r = petSvg.getBoundingClientRect();
-  return { x: r.left + r.width * 0.92, y: r.top + r.height * 0.7 };
-}
 /**
  * @param {DOMRect} rect
  * @returns {{x: number, y: number}} The middle of the rectangle.
