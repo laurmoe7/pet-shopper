@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 384
+- Choosing an alert style also previews the speech bubble and ring menu, all gone after 2 seconds.
+- Diagnostics note where the last throw started and ended.
+
 ## Build 383
 - Removed the peekaboo move where he shrinks tiny; Ctrl+Alt+G off now tilts his head.
 
