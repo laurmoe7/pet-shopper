@@ -3,7 +3,7 @@
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
 ## Build 374
-- A new alert style, Azeroth: dark panel, gold frame, red buttons.
+- A new alert style, Quest: parchment, a bronze frame, red buttons.
 
 ## Build 373
 - The Cool alert style is black and grey with red accents.
