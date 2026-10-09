@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 378
+- The ring of buttons opens with a double click on him.
+
 ## Build 377
 - The Quest alert's "!" sits in line with the title.
 

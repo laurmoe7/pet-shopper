@@ -57,8 +57,8 @@
     if (scene.indexOf('night-drowsy') === 0) return ['ball', 'pat', 'snack', 'dance', 'swap', 'lights'];
     return ['ball', 'pat', 'snack', 'dance', 'swap', 'wave'];
   }
-  function canShow() {
-    return isDesk() && !document.hidden && Date.now() > quietUntil && !(window.deskPassThrough && window.deskPassThrough()) &&
+  function canShow(now) {
+    return isDesk() && !document.hidden && (now || Date.now() > quietUntil) && !(window.deskPassThrough && window.deskPassThrough()) &&
       !pet.classList.contains('carried') && !pet.classList.contains('thrown') && !pet.classList.contains('falling') &&
       !document.querySelector('.inbox-card, .quick-card, dialog[open]');
   }
@@ -111,8 +111,8 @@
       ring.appendChild(b);
     });
   }
-  function show() {
-    if (shown || !canShow() || !items().length) return;
+  function show(now) {
+    if (shown || !canShow(now) || !items().length) return;
     build();
     ring.hidden = false; shown = true;
   }
@@ -121,18 +121,13 @@
     if (!shown) return;
     shown = false; ring.hidden = true; ring.replaceChildren();
   }
-  // opens after the pointer has rested on him for a moment, and closes when it has gone well away from him
+  // opens with a double click on him (resting the pointer on him was slow and unreliable), and closes when the pointer has gone well away from him, on a click elsewhere or on Esc
   document.addEventListener('mousemove', function (e) {
     if (!isDesk()) return;
     if (e.buttons) { hoverAt = 0; return; }   // stroking or carrying him: no ring until the button is let go
     var pr = pet.getBoundingClientRect(), sr = stage.getBoundingClientRect();
     var onHim = e.clientX >= pr.left && e.clientX <= pr.right && e.clientY >= pr.top && e.clientY <= pr.bottom;
-    if (!shown) {
-      if (!onHim) { hoverAt = 0; return; }
-      if (!hoverAt) hoverAt = Date.now();
-      else if (Date.now() - hoverAt > 450) show();
-      return;
-    }
+    if (!shown) return;   // (it opens with a double click on him, see below)
     var cx = pr.left + pr.width / 2, cy = pr.top + pr.height * 0.55, d = Math.hypot(e.clientX - cx, e.clientY - cy);
     if (d < center.r + 54) { clearTimeout(leaveTimer); leaveTimer = 0; }
     else if (!leaveTimer) leaveTimer = setTimeout(function () { leaveTimer = 0; hide(); }, 450);
@@ -144,5 +139,8 @@
   document.addEventListener('pointerup', function () { hoverAt = 0; quietUntil = Math.max(quietUntil, Date.now() + 700); }, true);
   // his scene changed under the open ring (it got dark, the list was swapped): build it again
   new MutationObserver(function () { if (shown) { if (canShow()) build(); else hide(); } }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-scene', 'data-list'] });
+  pet.addEventListener('dblclick', function () { show(true); });
+  document.addEventListener('pointerdown', function (e) { if (shown && !e.target.closest('.ring, #pet')) hide(); }, true);
+  document.addEventListener('keydown', function (e) { if (shown && e.key === 'Escape') hide(); });
   window.deskRing = function () { show(); return shown; };   // for tests and the animation player
 })();
