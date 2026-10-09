@@ -58,6 +58,7 @@ test('the desktop package lists the files it needs and the page script is wired 
   const html = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
   assert.ok(html.includes('src="app-desktop.js"'));
   assert.ok(html.indexOf('app-desktop.js') < html.indexOf('app-start.js'));
+  assert.ok(pkg.build.files.includes('loading.html'));   // (the loading card the window shows before the page arrives)
 });
 
 test('size names turn into zoom factors and unknown names are normal size', () => {

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 521
+- Loading card shows from the moment Mini Fumu starts, before the page arrives
+
 ## Build 520
 - Quest and Quest2: empty tick circles are a plain pale ring
 

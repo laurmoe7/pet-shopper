@@ -546,7 +546,8 @@ function start() {
     });
     win.webContents.on('dom-ready', applyZoom);
     win.on('closed', () => { win = null; });
-    win.loadURL(APP_URL);
+    // the loading card shows at once (it is a local file), then the page loads over it: the page wears the same card until the app is built
+    win.loadFile(path.join(__dirname, 'loading.html')).catch(() => {}).then(() => { if (win) { if (!shown) { shown = true; win.showInactive(); } win.loadURL(APP_URL); } });
     win.webContents.on('did-finish-load', () => {
       if (updateReady) win.webContents.send('desk:updateReady');
       visibleSent = '';   // a fresh page knows nothing yet: tell it which part of the window shows
