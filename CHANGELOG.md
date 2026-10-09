@@ -2,6 +2,32 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 404
+- Quest bubble gradient is dark again, darker at the bottom.
+- The pointer's border fades into the bubble's, so no hard seam on any screen.
+
+## Build 403
+- Swiping an alert away plays only the swoosh, nothing else.
+
+## Build 402
+- Quest bubble gets a soft lighter gradient at the bottom.
+- No seam where the pointer joins the bubble.
+
+## Build 401
+- Speech bubble and pointer are one shape: the same grey border and dark inner line go all the way round.
+
+## Build 400
+- Speech bubble pointer joins the bubble's edge smoothly, same colour all the way.
+
+## Build 399
+- He can be parked half off the side of the screen again; only the bottom is kept clear.
+
+## Build 398
+- Speech bubble pointer flows smoothly out of the bubble's edge, no box at its base.
+
+## Build 397
+- Smaller speech bubble pointer with the same outline thickness all the way round.
+
 ## Build 396
 - Quest bubble is back to its first look; pointer stays a curved fin with no line at its base.
 

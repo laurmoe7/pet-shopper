@@ -254,7 +254,7 @@
     if (r.bottom <= p.top + p.height * 0.5) side = 'down';          // above him: the pointer is on the bottom edge
     else if (top >= p.bottom - p.height * 0.3) side = 'up';          // below him
     else side = left + w / 2 >= cx ? 'left' : 'right';               // beside him
-    var pos = side === 'down' || side === 'up' ? clamp(cx - left - 9, 12, Math.max(12, w - 30)) : clamp(cy - top - 9, 8, Math.max(8, h - 26));
+    var pos = side === 'down' || side === 'up' ? clamp(cx - left - 4, 10, Math.max(10, w - 24)) : clamp(cy - top - 4, 8, Math.max(8, h - 22));
     bubble.dataset.tail = side;
     bubble.style.setProperty('--tail', pos.toFixed(1) + 'px');
   }

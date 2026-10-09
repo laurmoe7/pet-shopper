@@ -217,6 +217,7 @@ function cardCopy(card) {
 /** An alert card slides on out of the window the way it was pushed, then `then` runs. @param {Element} card @param {number} dir -1 left, 1 right. */
 /** The swipe sound for what the swipe does: Done and snooze each have their own, anything else is a plain swoosh. @param {?Element} btn */
 function swipeSound(btn) {
+  swipeQuietUntil = Date.now() + 900;   // (the button the swipe presses must not add its own tap or chime)
   var t = btn ? btn.textContent : '';
   return /^Done/.test(t) ? 'swooshdone' : /^In 10 min/.test(t) ? 'swooshsnooze' : 'swoosh';
 }
