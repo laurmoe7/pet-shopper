@@ -2,7 +2,7 @@
 // real app in "pet only" mode, a tray icon, and the whole app in a bigger window when you open your list.
 // The app itself is loaded from the web (so a big push updates it), see NIBBLE_URL below.
 'use strict';
-const { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, shell, session, clipboard, globalShortcut, powerMonitor } = require('electron');
+const { app, BrowserWindow, desktopCapturer, Tray, Menu, ipcMain, screen, nativeImage, shell, session, clipboard, globalShortcut, powerMonitor } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const place = require('./place.js');
@@ -788,6 +788,18 @@ function start() {
     allowed: () => windows.available() && privacy.allows(prefs.awareness, 'wreck') && prefs.toyRoam,
     display: () => screen.getDisplayMatching(win.getBounds()),
     frames,
+    // one picture of the screen when the ball is thrown (he and the toy are hidden for a moment so they are not in it); it goes only to the overlay
+    snapshot: async (d) => {
+      const wins = [win, toyWin].filter((x) => x && !x.isDestroyed() && x.isVisible());
+      try {
+        wins.forEach((x) => x.setOpacity(0));
+        await new Promise((r) => setTimeout(r, 80));
+        const sc = d.scaleFactor || 1, k = Math.min(1, 2560 / (d.bounds.width * sc));
+        const src = await desktopCapturer.getSources({ types: ['screen'], thumbnailSize: { width: Math.round(d.bounds.width * sc * k), height: Math.round(d.bounds.height * sc * k) } });
+        const one = src.find((x) => String(x.display_id) === String(d.id)) || src[0];
+        return one && !one.thumbnail.isEmpty() ? 'data:image/jpeg;base64,' + one.thumbnail.toJPEG(80).toString('base64') : null;
+      } finally { wins.forEach((x) => { try { x.setOpacity(1); } catch (e) { /* gone */ } }); }
+    },
     raise: () => { if (win) win.moveTop(); if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) toyWin.moveTop(); }
   });
   ipcMain.handle('desk:wreckStart', async () => { if (!win || mode !== 'pet') return { ok: false, reason: 'mode' }; try { return await wreck.start(); } catch (e) { wreck.stop(); return { ok: false, reason: 'error' }; } });

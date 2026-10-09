@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 479
+- Wrecking ball: broken pieces vanish and fall with what was on them
+- Wand no longer cut off after the wrecking ball
+
 ## Build 478
 - Fumu runs back to his spot after the clock or tray menu, even if the mouse stays in that corner.
 

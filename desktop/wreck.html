@@ -6,16 +6,16 @@
 // The wrecking ball's overlay: a see-through window over the whole screen that never takes a click. It draws cracks and falling pieces over the
 // rectangles of the open windows (the shell tells it where they are; it never sees what is in them), one piece at a time as the ball hits them,
 // and later makes them whole again.
-// It only draws pictures: nothing here touches the real windows.
+// It only draws pictures: nothing here touches the real windows. The one picture of the screen it gets (see shot) is never saved or sent anywhere.
 'use strict';
 var cv = document.getElementById('c'), g = cv.getContext('2d'), W = 0, H = 0, wins = [], fixing = 0, raf = 0, last = 0, now = 0;
-var sparks = [];
+var sparks = [], img = null, back = '#2a3045';
 function rnd(a, b) { return a + Math.random() * (b - a); }
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
 /** Sets the size and the windows: each is {x, y, w, h, cols, rows} (px of this overlay) and gets a jittered grid of pieces, two triangles each. */
 function init(w, h, list) {
-  W = w; H = h; fixing = 0; sparks = []; now = 0;
+  W = w; H = h; fixing = 0; sparks = []; now = 0; img = null; back = '#2a3045';
   var d = window.devicePixelRatio || 1;
   cv.width = Math.round(W * d); cv.height = Math.round(H * d);
   cv.style.width = W + 'px'; cv.style.height = H + 'px';
@@ -71,7 +71,10 @@ function frame(ts) {
   raf = requestAnimationFrame(frame);
   var dt = Math.min(.05, (ts - last) / 1000); last = ts; now += dt;
   g.clearRect(0, 0, W, H);
-  wins.forEach(function (w) {
+  wins.forEach(function (w, wi) {
+    // cracks and holes are kept off the windows in front of this one
+    g.save();
+    if (wi) { g.beginPath(); g.rect(0, 0, W, H); for (var q = 0; q < wi; q++) g.rect(wins[q].r.x, wins[q].r.y, wins[q].r.w, wins[q].r.h); g.clip('evenodd'); }
     w.cells.forEach(function (c, n) {
       if (!c.broke) return;
       c.bt += dt;
@@ -88,23 +91,34 @@ function frame(ts) {
         g.restore();
       }
       if (!fixing && !c.dark && c.bt >= .14) c.dark = true;
-      if (c.dark) {   // the hole where the piece was
+      if (c.dark) {   // the piece is gone: the desktop shows where it was
         var alpha = fixing ? clamp(1 - (c.fixT - c.fixDelay) / .25, 0, 1) : 1;
         if (fixing && c.fixT >= c.fixDelay && !c.sparked) { c.sparked = true; sparks.push({ x: (c.x1 + c.x2) / 2, y: (c.y1 + c.y2) / 2, t: 0 }); }
         if (alpha > 0) c.tris.forEach(function (t) {
-          g.globalAlpha = alpha * .96; g.fillStyle = '#0d0d13'; tri(t.p, 0, 0); g.fill();
-          g.globalAlpha = alpha * .5; g.strokeStyle = '#6d7488'; g.lineWidth = 1; g.stroke();
+          g.globalAlpha = alpha; g.fillStyle = back; tri(t.p, 0, 0); g.fill();
+          g.strokeStyle = back; g.lineWidth = 1.5; g.stroke();   // (covers the seam between two pieces)
           g.globalAlpha = 1;
         });
       }
-      if (c.dark && !fixing) c.tris.forEach(function (t) {   // the pieces themselves fall
+    });
+    g.restore();
+    if (fixing) return;
+    w.cells.forEach(function (c) {   // the pieces themselves fall, showing what was on them
+      if (!c.dark) return;
+      c.tris.forEach(function (t) {
         if (t.gone) return;
         t.t += dt; t.vy += 900 * dt; t.ox += t.vx * dt; t.oy += t.vy * dt;
-        var life = clamp(1 - t.t / 1.5, 0, 1);
+        var life = clamp(1 - t.t / 1.6, 0, 1);
         if (t.cy + t.oy > H + 80 || life <= 0) { t.gone = true; return; }
         g.save(); g.translate(t.cx + t.ox, t.cy + t.oy); g.rotate(t.rot * t.t);
-        g.globalAlpha = life * .9; g.fillStyle = 'rgba(214,230,246,.85)'; g.strokeStyle = 'rgba(255,255,255,.95)'; g.lineWidth = 1.4;
-        tri([[t.p[0][0] - t.cx, t.p[0][1] - t.cy], [t.p[1][0] - t.cx, t.p[1][1] - t.cy], [t.p[2][0] - t.cx, t.p[2][1] - t.cy]], 0, 0); g.fill(); g.stroke();
+        g.globalAlpha = Math.min(1, life * 1.6);
+        var rel = [[t.p[0][0] - t.cx, t.p[0][1] - t.cy], [t.p[1][0] - t.cx, t.p[1][1] - t.cy], [t.p[2][0] - t.cx, t.p[2][1] - t.cy]];
+        if (img) {
+          tri(rel, 0, 0); g.save(); g.clip(); g.drawImage(img, -t.cx, -t.cy, W, H); g.restore();
+          tri(rel, 0, 0); g.strokeStyle = 'rgba(255,255,255,.9)'; g.lineWidth = 1.2; g.stroke();
+        } else {
+          g.fillStyle = 'rgba(214,230,246,.85)'; g.strokeStyle = 'rgba(255,255,255,.95)'; g.lineWidth = 1.4; tri(rel, 0, 0); g.fill(); g.stroke();
+        }
         g.restore();
       });
     });
@@ -112,5 +126,27 @@ function frame(ts) {
   sparks = sparks.filter(function (s) { s.t += dt; return s.t < .6; });
   sparks.forEach(function (s) { star(s.x, s.y - s.t * 40, 5 + 8 * (1 - Math.abs(s.t / .3 - 1)), clamp(1 - s.t / .6, 0, 1)); });
 }
-window.wreck = { init: init, hit: hit, fix: fix };
+
+/** A picture of the screen as it was when the ball was thrown (the shell takes it before this window shows): the falling pieces carry what was on them,
+ *  and the holes are filled with the average colour of the desktop around the windows. It stays in this window and is gone with it. */
+function shot(url) {
+  var im = new Image();
+  im.onload = function () {
+    img = im;
+    try {
+      var sw = 64, sh = 36, cc = document.createElement('canvas'); cc.width = sw; cc.height = sh;
+      var cg = cc.getContext('2d'); cg.drawImage(im, 0, 0, sw, sh);
+      var px = cg.getImageData(0, 0, sw, sh).data, r = 0, gg = 0, b = 0, n = 0;
+      for (var y = 0; y < sh; y++) for (var x = 0; x < sw; x++) {
+        var X = (x + .5) / sw * W, Y = (y + .5) / sh * H, inside = false;
+        for (var i = 0; i < wins.length; i++) { var q = wins[i].r; if (X >= q.x && X <= q.x + q.w && Y >= q.y && Y <= q.y + q.h) { inside = true; break; } }
+        if (inside) continue;
+        var o = (y * sw + x) * 4; r += px[o]; gg += px[o + 1]; b += px[o + 2]; n++;
+      }
+      if (n > 30) back = 'rgb(' + Math.round(r / n) + ',' + Math.round(gg / n) + ',' + Math.round(b / n) + ')';
+    } catch (e) { /* keeps the plain colour */ }
+  };
+  im.src = url;
+}
+window.wreck = { init: init, shot: shot, hit: hit, fix: fix };
 </script>

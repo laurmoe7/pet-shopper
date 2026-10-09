@@ -135,9 +135,12 @@ function wreckFling(vx, vy, y0) {
     pet.style.removeProperty('--look-x');
     setFace({ eyes: 'happy', mouth: 'open', arms: 'idle', x: ['cheeks'] });
     say(pick(['phew… ok, fixing it~', 'abracadabra!', 'time for magic~']), 1700, true);
-    if (typeof castWand === 'function') castWand();   // (about 4 seconds; the windows mend as the sparkles come out)
-    setTimeout(function () { D.wreckFix().then(function () {}, function () {}); }, 900);
-    wait(4000).then(endPlay);
+    var back = walkTo(0, 7);   // (the wand needs room: from the middle it is not cut off by the window's edge)
+    setTimeout(function () {
+      if (typeof castWand === 'function') castWand();   // (about 4 seconds; the windows mend as the sparkles come out)
+      setTimeout(function () { D.wreckFix().then(function () {}, function () {}); }, 900);
+    }, back);
+    wait(back + 4000).then(endPlay);
   }
   flight = requestAnimationFrame(step);
 }
