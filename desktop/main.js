@@ -27,7 +27,7 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, displaced = false, perch = null, perchTimer = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { alertStyle: 'paper', x: null, y: null, onTop: true, aboveFull: false, catchGames: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, mute: false, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
+  let prefs = { alertStyle: 'paper', x: null, y: null, onTop: true, aboveFull: false, clickThrough: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, mute: false, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
   const DEFAULTS = Object.assign({}, prefs);
   try { prefs = Object.assign(prefs, JSON.parse(fs.readFileSync(prefsFile(), 'utf8'))); } catch (e) { /* first run */ }
   prefs.keys = keys.clean(prefs.keys);
@@ -60,7 +60,7 @@ function start() {
     if (prefs.onTop && prefs.aboveFull) win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true });
     else win.setVisibleOnAllWorkspaces(false);
   };
-  const publicPrefs = () => ({ alertStyle: prefs.alertStyle, catchGames: prefs.catchGames, moveNormal: prefs.moveNormal, moveFull: prefs.moveFull, mute: prefs.mute, remind: prefs.remind, size: prefs.size, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion, bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles, backdrop: prefs.backdrop, toyRoam: prefs.toyRoam });
+  const publicPrefs = () => ({ alertStyle: prefs.alertStyle, clickThrough: prefs.clickThrough, moveNormal: prefs.moveNormal, moveFull: prefs.moveFull, mute: prefs.mute, remind: prefs.remind, size: prefs.size, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion, bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles, backdrop: prefs.backdrop, toyRoam: prefs.toyRoam });
   const sendPrefs = () => { if (win) win.webContents.send('desk:prefs', publicPrefs()); panel.push(); };
   // moves the window smoothly (walking, peeking round the screen edge); anything that takes hold of it stops the move
   let tween = null;
@@ -304,13 +304,8 @@ function start() {
   // Windows is meant to forward the pointer to the page while clicks pass through, but that can stop working after the window
   // changes size. So the shell also watches the pointer itself and tells the page where it is; the page decides if it is on Fumu.
   let cursorTimer = null, wasInside = false, rects = null, holdSolid = false, solidState = null, sweepOn = false, sweepAt = '', lastAssert = 0, programDisplay = null;
-  /** @returns {boolean} Whether clicks pass through him because a game or full-screen program is in front ON HIS SCREEN (one on another screen does not cover him). */
-  function gamingNow() {
-    if (prefs.catchGames || gameGrab || !programNow || !win) return false;
-    if (!(programNow.fullscreen || programNow.kind === 'game')) return false;
-    if (programDisplay !== null) { try { if (screen.getDisplayMatching(win.getBounds()).id !== programDisplay) return false; } catch (e) { /* keep the answer */ } }
-    return true;
-  }
+  /** @returns {boolean} Whether clicks pass through him: only when the player turned click-through on (the switch or Ctrl+Alt+G); nothing else ever turns it on. */
+  function gamingNow() { return !!(prefs.clickThrough && win); }
   const HIT_PAD = 6;   // a few pixels of slack round the solid parts, so the window is already catching clicks when the pointer arrives
   function watchCursor() {
     if (!THROUGH || cursorTimer) return;
@@ -340,7 +335,7 @@ function start() {
   function hideFumu() { if (win) win.hide(); refreshMenus(); }
 
   // one place that changes a setting, for the right-click menu and the settings window alike
-  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'remind', 'perch', 'hideToy', 'hideCushion', 'startWithWindows', 'bubbles', 'clouds', 'sparkles', 'backdrop', 'mute', 'toyRoam', 'catchGames'];
+  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'remind', 'perch', 'hideToy', 'hideCushion', 'startWithWindows', 'bubbles', 'clouds', 'sparkles', 'backdrop', 'mute', 'toyRoam', 'clickThrough'];
   function setPref(key, value) {
     if (key === 'awareness') {   // 1 = more privacy, 2 = normal; at 1 he stops sitting on windows (he can no longer see them)
       prefs.awareness = privacy.clean(+value); savePrefs();
@@ -363,6 +358,7 @@ function start() {
       prefs[key] = value; savePrefs();
       if (key === 'onTop' || key === 'aboveFull') applyTop();
       if (key === 'hotkeys') setupKeys();
+      if (key === 'clickThrough') solidState = null;
       if (key === 'perch' && !value) fall();
       if (key === 'perch' && value && win && mode === 'pet' && privacy.allows(prefs.awareness, 'perch')) setTimeout(() => { if (win && prefs.perch) win.webContents.send('desk:do', 'perch'); }, 700);   // try right away, so you can see it working
     }
@@ -442,8 +438,7 @@ function start() {
   }
   ipcMain.on('desk:typing', (_e, yes) => { if (win && yes) win.focus(); });
   // in a full-screen game he lets the mouse through; this key makes him catch it for a while (to move him or clear an alert), and again lets go
-  let gameGrab = false;
-  function grabMouse() { if (!win) return; gameGrab = !gameGrab; solidState = null; win.webContents.send('desk:grab', gameGrab); }
+  function grabMouse() { if (!win) return; setPref('clickThrough', !prefs.clickThrough); solidState = null; win.webContents.send('desk:grab', !prefs.clickThrough); }
   const HANDLERS = { swapSize: toggleFull, swapList, quickAdd, grab: grabMouse };
   const HOVER_HANDLERS = { options: () => panel.toggle(), sendCopied };   // held only while the pointer is over him
   function setupKeys() {
@@ -815,7 +810,7 @@ function start() {
       if (now.kind === 'other' || now.kind === 'fullscreen') lastUnknown = f.exe;
       const key = JSON.stringify(now);
       if (key === programMaybe) programCount++; else { programMaybe = key; programCount = 1; }
-      if (programCount >= 2 && key !== programSent) { gameGrab = false; programSent = key; programNow = now; programDisplay = progDisp; win.webContents.send('desk:program', now); log('program', now.kind, now.name); }
+      if (programCount >= 2 && key !== programSent) { programSent = key; programNow = now; programDisplay = progDisp; win.webContents.send('desk:program', now); log('program', now.kind, now.name); }
     }, 2500);
   }
   // the player teaches him a game he does not know: the last program he could not name gets that name

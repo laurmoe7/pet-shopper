@@ -944,9 +944,8 @@
   // the shell sends nothing and none of this happens.
   var program = { kind: 'none', name: '', fullscreen: false }, gameSince = 0, lastRemark = 0, kindRemark = {}, programTimer = 0;
   var QUIET_KINDS = { game: 1, call: 1, fullscreen: 1 };
-  var grabbed = false;   // the grab-the-mouse key (Ctrl+Alt+G) was pressed for this program: he is solid again
   /** Whether the shell lets the mouse pass through him now (a game or full-screen program, unless he catches the mouse there or the key swapped it). */
-  window.deskPassThrough = function () { return deskAware(2) && !deskPrefs.catchGames && !grabbed && program.here !== false && (!!program.fullscreen || program.kind === 'game'); };   // (here: false = that program is on another screen, so it does not cover him)
+  window.deskPassThrough = function () { return !!deskPrefs.clickThrough; };   // (only when the player turned click-through on)
   /** Whether a game, a call or something full-screen is in front: no napping then (he is quiet). */
   function quietNow() { return deskAware(2) && !!QUIET_KINDS[program.kind]; }
   /** Whether a game or something full-screen is in front: the "full-screen" choices in the settings apply instead of the usual ones. */
@@ -1062,7 +1061,6 @@
   }
   if (D.onProgram) D.onProgram(function (p) {
     var was = program;
-    grabbed = false;   // (the shell does the same when the program changes)
     program = p || { kind: 'none', name: '', fullscreen: false };
     applyChatter();   // a game or full-screen program switches him to the other chatter choice
     clearTimeout(programTimer);
@@ -1255,9 +1253,8 @@
     else { if (!busy && !fallDizzy) settle(); fallDizzy = false; }
   });
   var runOwn = false;
-  // the shortcut that makes him catch the mouse in a full-screen game (or lets go again)
+  // the click-through key (Ctrl+Alt+G): on = he is solid again, off = clicks pass through him
   if (D.onGrab) D.onGrab(function (on) {
-    grabbed = !!on;
     // he always answers the key: even with speech bubbles off, in the middle of something quiet, or while another line holds the bubble
     var line = on ? pick(['you can click me now!', 'here I am~', 'grab me!']) : pick(['back to the game!', 'I\'ll stay out of the way', 'shh, play on~']);
     var quiet = idleQuiet; idleQuiet = false; speechLockUntil = 0;

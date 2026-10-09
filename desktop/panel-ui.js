@@ -128,7 +128,7 @@
     var win = section('His window');
     toggle(win, 'Always on top', 'onTop');
     toggle(win, 'Stay above full-screen apps', 'aboveFull', 'Not exclusive full-screen games.', { disabled: !S.prefs.onTop });
-    toggle(win, 'Mouse reaches him in games', 'catchGames', 'Off: games keep the mouse.');
+    toggle(win, 'Click-through', 'clickThrough', 'Ctrl+Alt+G.');
     toggle(win, 'Start with Windows', 'startWithWindows');
     var pos = el('div', 'row'), ptext = el('span', 'text', 'His place');
     ptext.appendChild(el('small', '', 'If he gets stuck off the screen.'));
