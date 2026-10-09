@@ -201,6 +201,14 @@ function showInboxCard(msg, more) {
   stageEl.appendChild(card);
   inboxCard = card;
 }
+/** An alert card slides on out of the window the way it was pushed, then `then` runs. @param {Element} card @param {number} dir -1 left, 1 right. */
+function slideAway(card, dir, then) {
+  var away = dir * (window.innerWidth + card.offsetWidth);
+  card.style.animation = 'none';
+  card.style.transition = 'translate .26s cubic-bezier(.4, 0, 1, 1)';
+  card.style.translate = away + 'px 0';
+  setTimeout(function () { if (card.parentNode && then) then(); }, 270);
+}
 /** Swipe an alert card sideways to dismiss it (the same as its cross). Any .inbox-card with a cross button; not the quick-add box. */
 (function () {
   var drag = null;
@@ -229,12 +237,7 @@ function showInboxCard(msg, more) {
       return;
     }
     var done = d.card.querySelector('.inbox-done');
-    // it slides on out of the window the way it was pushed
-    var away = (d.dx < 0 ? -1 : 1) * (window.innerWidth + d.card.offsetWidth);
-    d.card.style.animation = 'none';
-    d.card.style.transition = 'translate .26s cubic-bezier(.4, 0, 1, 1)';
-    d.card.style.translate = away + 'px 0';
-    setTimeout(function () { if (d.card.parentNode && done) done.click(); }, 270);
+    slideAway(d.card, d.dx < 0 ? -1 : 1, function () { if (done) done.click(); });
   }
   document.addEventListener('pointerup', end);
   document.addEventListener('pointercancel', end);

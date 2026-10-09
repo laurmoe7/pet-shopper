@@ -916,6 +916,26 @@
     if (PROGRAM_LINES[program.kind] && program.kind !== 'game') scheduleWhile(); else clearTimeout(whileTimer);
   });
 
+  // ---------- swiping alerts with no clicking (while the mouse passes through him in a game) ----------
+  // The shell lets the mouse go through him then, so an alert's buttons cannot be clicked, but the page still sees the pointer move over it:
+  // moving across the card is the swipe. A task reminder: left puts it away, right snoozes it for 10 minutes. Any other alert: either way puts it away.
+  var hoverSwipe = null;
+  document.addEventListener('mousemove', function (e) {
+    var card = isPet() && window.deskPassThrough() && e.target.closest ? e.target.closest('.inbox-card') : null;
+    if (!card || card.classList.contains('quick-card') || card.dataset.leaving) { hoverSwipe = null; return; }
+    var now = Date.now();
+    if (!hoverSwipe || hoverSwipe.card !== card || now - hoverSwipe.t > 450 || (e.clientX - hoverSwipe.last) * (hoverSwipe.last - hoverSwipe.x) < 0) hoverSwipe = { card: card, x: e.clientX, last: e.clientX, t: now };
+    hoverSwipe.last = e.clientX; hoverSwipe.t = now;
+    var dx = e.clientX - hoverSwipe.x;
+    if (Math.abs(dx) < Math.min(90, card.offsetWidth * 0.4)) return;
+    hoverSwipe = null;
+    var dir = dx < 0 ? -1 : 1, remind = card.classList.contains('remind-card');
+    var btn = remind && dir > 0 ? [].slice.call(card.querySelectorAll('button')).filter(function (b) { return /^In 10 min/.test(b.textContent); })[0] : card.querySelector('.inbox-done');
+    if (!btn) return;
+    card.dataset.leaving = '1';
+    slideAway(card, dir, function () { btn.click(); });
+  }, true);
+
   // ---------- where the solid parts are (for the shell's own, instant hit test) ----------
   // The shell used to ask the page "is the pointer over him?" and wait for the answer, which could take long enough for a quick press on the
   // toy to fall through to the window behind. Now the page tells it where the solid things are (about 30 times a second, only when they move)
