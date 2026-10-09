@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 508
+- Mini Fumu settings: the alert style choices no longer run over their name; Cool alert style redone as icy neon glass
+
 ## Build 507
 - Wrecking ball over your desktop: after hitting a window it flies off in a random direction
 

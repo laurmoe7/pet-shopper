@@ -30,6 +30,12 @@
   .seg { display: inline-flex; border: 1.8px solid var(--outline); border-radius: 999px; overflow: hidden; }
   .seg button { border: 0; border-radius: 0; box-shadow: none; background: transparent; padding: 4px 12px; }
   .seg button.on { background: var(--accent); color: var(--accent-ink); }
+  /* a choice with many options: the name on top, the buttons below in rows that wrap (they used to run over the name) */
+  .row.stack { flex-wrap: wrap; }
+  .row.stack .text { flex: 1 0 100%; }
+  .seg.wrap { display: flex; flex-wrap: wrap; gap: 6px; border: 0; border-radius: 0; overflow: visible; }
+  .seg.wrap button { border: 1.8px solid var(--outline); border-radius: 999px; padding: 4px 12px; }
+  .seg.wrap button.on { background: var(--accent); color: var(--accent-ink); }
   /* switches */
   .sw { position: relative; width: 44px; height: 26px; flex: none; }
   .sw input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
@@ -69,12 +75,14 @@
   html[data-look="sweet"] body { background-image: linear-gradient(180deg, #ffe6ee, #fff3e6); background-attachment: fixed; background-size: auto; }
   html[data-look="sweet"] section { border-width: 2px; border-radius: 22px; background: linear-gradient(180deg, #fffaf0, #fff1f4); box-shadow: 0 3px 0 #f3b9ca, 0 8px 16px rgba(235, 150, 175, .2); }
   html[data-look="sweet"] section > h2 { border-radius: 999px; background: linear-gradient(180deg, #ffd0de, #f7a8c0); color: #6e2f45; transform: none; }
-  html[data-look="cool"] { --bg: #0e0f12; --surface: #1c1d21; --surface-2: #26282d; --ink: #f1f2f4; --muted: #9b9ea6; --outline: #4a4d55; --accent: #e63946; --accent-ink: #fff; --mint: #4a4d55; --shadow: rgba(0, 0, 0, .5); --danger: #ff6b76; }
-  html[data-look="cool"] body { background-image: none; }
-  html[data-look="cool"] section { border-radius: 8px; border-left: 5px solid #e63946; }
-  html[data-look="cool"] section > h2 { border-radius: 4px; transform: none; border-color: #050506; }
-  html[data-look="cool"] button, html[data-look="cool"] .seg, html[data-look="cool"] kbd, html[data-look="cool"] .filter { border-radius: 6px; }
+  html[data-look="cool"] { --bg: #070d18; --surface: #101a2e; --surface-2: #0b1424; --ink: #e6f7ff; --muted: #8fb3c9; --outline: #3a6a8c; --accent: #5ef0ff; --accent-ink: #04101e; --mint: #3a6a8c; --shadow: rgba(0, 8, 24, .55); --danger: #ff7a9a; }
+  html[data-look="cool"] body, html[data-look="cool"] button, html[data-look="cool"] .filter { font-family: "Segoe UI", system-ui, -apple-system, sans-serif; }
+  html[data-look="cool"] body { background-image: radial-gradient(ellipse at 50% 0, rgba(94, 240, 255, .1), transparent 60%); background-repeat: no-repeat; }
+  html[data-look="cool"] section { border-radius: 14px; border: 1.5px solid transparent; background: linear-gradient(180deg, #131f36, #0c1426) padding-box, linear-gradient(120deg, #5ef0ff, #7a8bff 55%, #ff6bd6) border-box; box-shadow: 0 0 14px rgba(94, 240, 255, .18); }
+  html[data-look="cool"] section > h2 { border-radius: 999px; transform: none; border: 1px solid #5ef0ff; color: #bff6ff; background: rgba(94, 240, 255, .1); }
+  html[data-look="cool"] button, html[data-look="cool"] kbd, html[data-look="cool"] .filter { border-radius: 999px; }
   html[data-look="cool"] .seg button { border-radius: 0; }
+  html[data-look="cool"] h1 { color: #5ef0ff; text-shadow: 0 0 10px rgba(94, 240, 255, .5); }
   html[data-look="quest"] { --bg: #0f0a05; --surface: #1b140c; --surface-2: #2a1d10; --ink: #f2e6c4; --muted: #b9a77c; --outline: #c9a227; --accent: #8a1f17; --accent-ink: #ffd100; --mint: #5a420f; --shadow: rgba(0, 0, 0, .6); --danger: #ff8a7a; }
   html[data-look="quest"] body, html[data-look="quest"] button, html[data-look="quest"] .filter { font-family: "Palatino Linotype", Palatino, Georgia, serif; }
   html[data-look="quest"] body { background-image: radial-gradient(ellipse at 50% 0, rgba(255, 215, 120, .12), transparent 60%); background-size: auto; background-repeat: no-repeat; }
@@ -91,6 +99,7 @@
   html[data-look="quest2"] button, html[data-look="quest2"] .seg, html[data-look="quest2"] kbd, html[data-look="quest2"] .filter { border-radius: 3px; border: 1px solid #8f7e58; color: #ffd100; background: linear-gradient(180deg, #403a32, #1f1c18); }
   html[data-look="quest2"] .seg button { border-radius: 0; }
   html[data-look="quest2"] h1 { color: #ffd100; }
+  html[data-look] .seg.wrap { border: 0 !important; background: none !important; border-radius: 0; }
 </style>
 </head>
 <body>
