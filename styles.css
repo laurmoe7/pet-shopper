@@ -3186,14 +3186,14 @@ html:root.al-quest .stage .bubble:not(.in-sheet) { border-radius: 9px; }
 /* ---------- Quest appearance for the whole app (App settings > Appearance > Quest) ----------
    Dark, gold-framed and serif like the Quest alerts and bubbles. It rides on top of the Classic (dark) look: data-theme stays "dark". */
 :root[data-skin="quest"] {
-  --bg: #120d08; --grid: rgba(201, 162, 39, .05); --surface: #2a1f10; --surface-2: #1b140c; --ink: #f2e6c4; --muted: #b9a77c;
+  --bg: #0f0a05; --grid: transparent; --surface: #2a1f10; --surface-2: #1b140c; --ink: #f2e6c4; --muted: #b9a77c;
   --line: #5a420f; --outline: #c9a227; --accent: #8a1f17; --accent-ink: #ffd100; --mint: #8a1f17; --butter: #4a3a14;
-  --stage-top: #1b140c; --cushion: #6b1a14; --cushion-stitch: #c9a227; --danger: #e0584a; --shadow: rgba(0, 0, 0, .6);
+  --stage-top: #0f0a05; --cushion: #6b1a14; --cushion-stitch: #c9a227; --danger: #e0584a; --shadow: rgba(0, 0, 0, .6);
   --cb-edge: rgba(201, 162, 39, .45); --cb-edge-strong: #c9a227; --cb-fade: rgba(27, 20, 12, 0); --cb-done: rgba(20, 14, 8, .6);
   --cb-dock-a: #2a1d10; --cb-dock-b: #140e08; --cb-shine: rgba(255, 215, 120, .12); --cb-back: #3a2a14;
   --font-display: "Palatino Linotype", Palatino, Georgia, serif; --font-body: "Palatino Linotype", Palatino, Georgia, serif;
 }
-html:root[data-skin="quest"] body { background-image: radial-gradient(ellipse at 50% 0, rgba(201, 162, 39, .08), transparent 60%), repeating-linear-gradient(90deg, var(--grid) 0 2px, transparent 2px 8px); background-size: auto; background-position: 0 0; }
+html:root[data-skin="quest"] body { background-image: radial-gradient(ellipse at 50% 0, rgba(255, 215, 120, .12), transparent 60%); background-size: auto; background-position: 0 0; background-repeat: no-repeat; background-attachment: fixed; }
 html:root[data-skin="quest"] :is(.add, .item, .goal, .fav, .options, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .picker .closet-wear) {
   border-radius: 6px; outline: none; background: linear-gradient(180deg, #2f2314, #1b140c);
   box-shadow: 0 0 0 1.5px #c9a227, 0 0 0 3px #000, 0 4px 8px rgba(0, 0, 0, .55), inset 0 0 0 1.5px #0a0704;
@@ -3214,3 +3214,10 @@ html:root[data-skin="quest"] .dock-label { color: #ffd100; --lbl-edge: #0a0704; 
 html:root[data-skin="quest"] .dock-icon::before { display: none; }
 html:root[data-skin="quest"] .item.done { opacity: .7; }
 html:root[data-skin="quest"] .item.done .check::before { background-color: #8a1f17; }
+html:root[data-skin="quest"] .picker { background-image: linear-gradient(var(--cb-dock-a), var(--cb-dock-b)); }
+html:root[data-skin="quest"] .dress-tabs button { background: linear-gradient(180deg, #2a1d10, #140e08); border: 1.5px solid #c9a227; border-radius: 6px; color: #f2e6c4; box-shadow: 0 0 0 1px #000; }
+html:root[data-skin="quest"] .dress-tabs button img { background: radial-gradient(circle at 50% 30%, #3a2a14, #120c06); border: 1.5px solid #7a5a14; border-radius: 4px; filter: grayscale(1) sepia(1) saturate(4) brightness(1.1); }
+html:root[data-skin="quest"] .dress-tabs button[aria-selected="true"] { background: linear-gradient(180deg, #a52a1f, #5c120d); color: #ffd100; border-color: #ffd100; }
+html:root[data-skin="quest"] .dress-tabs button[aria-selected="true"] img { background: radial-gradient(circle at 50% 30%, #4a3217, #1b0f06); border-color: #ffd100; filter: grayscale(1) sepia(1) saturate(6) brightness(1.35); }
+html:root[data-skin="quest"] .dress-panels { background-image: none; }
+:root[data-skin="quest"] { --bubA: #5a420f; --bubB: #5a420f; --bubC: #5a420f; --inkA: #ffd100; --inkB: #ffd100; --inkC: #ffd100; --tintA: #2a1d10; --tintB: #2a1d10; --tintC: #2a1d10; --paper: #1b140c; --paper-edge: rgba(201, 162, 39, .35); }

@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 413
+- Quest app background matches Mini Fumu's Quest settings: dark with a warm glow, no dots.
+- Quest pet menu tabs have gold icons in gold-framed buttons.
+
 ## Build 412
 - New Quest appearance for the whole app (App settings > Appearance): dark, gold-framed, serif, with Quest bubbles and alerts.
 
