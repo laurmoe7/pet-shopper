@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 468
+- Fixed an error window that could pop up while the ball was moved (needs the new installer).
+
 ## Build 467
 - The ball stays visible while it is picked up: the page draws it until the screen-wide window really has its picture (needs the new installer).
 - Fewer messages to the ball's window while dragging.

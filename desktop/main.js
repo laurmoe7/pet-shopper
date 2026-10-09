@@ -685,7 +685,7 @@ function start() {
     return toyWin;
   }
   // (it is parked far off the screen rather than hidden: a hidden transparent window needs a moment to appear again, and the toy blinked out when it was picked up)
-  function hideToy() { if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) toyWin.setBounds({ x: -10000, y: -10000, width: toyWin.getBounds().width, height: toyWin.getBounds().height }); }
+  function hideToy() { try { if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) { const b = toyWin.getBounds(); toyWin.setBounds({ x: -10000, y: -10000, width: b.width, height: b.height }); } } catch (e) { /* gone */ } }
   setTimeout(() => { if (prefs.toyRoam && win && mode === 'pet') toyWindow(56); }, 3000);   // (made ahead of time: picking the toy up must not wait for a new window)
   // where his window is and how big the screen is (what the page needs to let the toy fly over all of it)
   ipcMain.handle('desk:toyField', () => {
@@ -707,8 +707,12 @@ function start() {
   ipcMain.on('desk:toyAt', (_e, x, y, deg) => {
     if (!toyWin || toyWin.isDestroyed() || !toyPx) return;
     const s = toyPx + 24;
-    const nx = Math.round(+x - s / 2), ny = Math.round(+y - s / 2), cur = toyWin.getBounds();
-    if (cur.width === s && cur.height === s) { if (cur.x !== nx || cur.y !== ny) toyWin.setPosition(nx, ny); } else toyWin.setBounds({ x: nx, y: ny, width: s, height: s });   // (moving only: resizing it every time is slower)
+    const nx = Math.round(+x - s / 2), ny = Math.round(+y - s / 2);
+    if (!isFinite(nx) || !isFinite(ny) || Math.abs(nx) > 100000 || Math.abs(ny) > 100000) return;   // (a bad number from the page must never be an error in the main process)
+    try {
+      const cur = toyWin.getBounds();
+      if (cur.width === s && cur.height === s) { if (cur.x !== nx || cur.y !== ny) toyWin.setPosition(nx, ny); } else toyWin.setBounds({ x: nx, y: ny, width: s, height: s });
+    } catch (e) { return; }   // (moving only: resizing it every time is slower)
     if (!toyWin.isVisible()) toyWin.showInactive();
     const now = Date.now();
     if (now - toyTopAt > 300) { toyTopAt = now; toyWin.moveTop(); }   // (his window comes to the front when clicked; with the room background it would hide the toy)

@@ -330,6 +330,7 @@
   // a mouse reports its position far more often than the screen draws: the flying toy's window is told only the latest spot, once per frame (a flood of messages made it stutter)
   var toyAtRaf = 0, toyAtLast = null;
   function sendToyAt(x, y, spin) {
+    if (!isFinite(x) || !isFinite(y)) return;
     toyAtLast = [x, y, spin];
     if (toyAtRaf) return;
     toyAtRaf = requestAnimationFrame(function () { toyAtRaf = 0; if (toyAtLast) D.toyAt(toyAtLast[0], toyAtLast[1], toyAtLast[2]); });
