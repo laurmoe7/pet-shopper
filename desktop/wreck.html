@@ -6,17 +6,18 @@
 // The wrecking ball's overlay: a see-through window over the whole screen that never takes a click. It draws cracks and falling pieces over the
 // rectangles of the open windows (the shell tells it where they are; it never sees what is in them), one piece at a time as the ball hits them,
 // and later makes them whole again.
-// It only draws pictures: nothing here touches the real windows. The one picture of the screen it gets (see shot) is never saved or sent anywhere.
+// It only draws pictures: nothing here touches the real windows.
 'use strict';
 var cv = document.getElementById('c'), g = cv.getContext('2d'), W = 0, H = 0, wins = [], fixing = 0, raf = 0, last = 0, now = 0;
-var sparks = [], img = null, TV = ['#ff2bd6', '#2bffe1', '#38ff4a', '#ffffff', '#2f4bff', '#ffea2b', '#111111', '#111111', '#000000', '#ff3030'];
+var sparks = [], TV = ['#ff2bd6', '#2bffe1', '#38ff4a', '#ffffff', '#2f4bff', '#ffea2b', '#111111', '#111111', '#000000', '#ff3030'];
 function rnd(a, b) { return a + Math.random() * (b - a); }
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
 /** Sets the size and the windows: each is {x, y, w, h, cols, rows} (px of this overlay) and gets a jittered grid of pieces, two triangles each. */
 function init(w, h, list) {
-  W = w; H = h; fixing = 0; sparks = []; now = 0; img = null;
-  cv.width = W; cv.height = H;   // (one canvas pixel per screen pixel: a sharper one costs the whole screen a lot of drawing for a see-through picture)
+  W = w; H = h; fixing = 0; sparks = []; now = 0;
+  var sc = Math.min(1, 1280 / W); cv.width = Math.round(W * sc); cv.height = Math.round(H * sc);   // (a see-through picture over the whole screen: drawn smaller and scaled up, it costs the PC far less)
+  cv.style.width = W + 'px'; cv.style.height = H + 'px'; g.setTransform(sc, 0, 0, sc, 0, 0);
   wins = (list || []).map(function (r) {
     var v = [], gx, gy, cells = [];
     for (gy = 0; gy <= r.rows; gy++) {
@@ -30,7 +31,7 @@ function init(w, h, list) {
       var a = v[gy][gx], b = v[gy][gx + 1], c = v[gy + 1][gx + 1], e = v[gy + 1][gx];
       var bars = [], bx = Math.min(a[0], e[0]), bw = Math.max(b[0], c[0]) - bx, off = 0;
       while (off < bw) { var wd = rnd(3, 16); bars.push({ x: bx + off, w: wd, c: TV[(Math.random() * TV.length) | 0], s: (Math.random() * 1000) | 0 }); off += wd; }
-      cells.push({ quad: [a, b, c, e], bars: bars, tris: [[a, b, c], [a, c, e]].map(function (p) { return { p: p, cx: (p[0][0] + p[1][0] + p[2][0]) / 3, cy: (p[0][1] + p[1][1] + p[2][1]) / 3, ox: 0, oy: 0, vx: 0, vy: 0, rot: 0, t: 0, gone: false }; }),
+      cells.push({ quad: [a, b, c, e], bars: bars, tris: [[a, b, c], [a, c, e]].map(function (p) { return { p: p, cx: (p[0][0] + p[1][0] + p[2][0]) / 3, cy: (p[0][1] + p[1][1] + p[2][1]) / 3, ox: 0, oy: 0, tint: 'rgba(' + (190 + (Math.random() * 40 | 0)) + ',' + (205 + (Math.random() * 35 | 0)) + ',' + (225 + (Math.random() * 30 | 0)) + ',.88)', vx: 0, vy: 0, rot: 0, t: 0, gone: false }; }),
         x1: Math.min(a[0], e[0]), y1: Math.min(a[1], b[1]), x2: Math.max(b[0], c[0]), y2: Math.max(e[1], c[1]), broke: false, bt: 0, ix: 0, iy: 0, dark: false, fixDelay: 0, sparked: false });
     }
     return { r: r, cells: cells };
@@ -118,7 +119,7 @@ function frame(ts) {
     });
     g.restore();
     if (fixing) return;
-    w.cells.forEach(function (c) {   // the pieces themselves fall, showing what was on them
+    w.cells.forEach(function (c) {   // the pieces themselves fall
       if (!c.dark) return;
       c.tris.forEach(function (t) {
         if (t.gone) return;
@@ -128,12 +129,7 @@ function frame(ts) {
         g.save(); g.translate(t.cx + t.ox, t.cy + t.oy); g.rotate(t.rot * t.t);
         g.globalAlpha = Math.min(1, life * 1.6);
         var rel = [[t.p[0][0] - t.cx, t.p[0][1] - t.cy], [t.p[1][0] - t.cx, t.p[1][1] - t.cy], [t.p[2][0] - t.cx, t.p[2][1] - t.cy]];
-        tri(rel, 0, 0);
-        if (img) {   // (only the piece's own part of the picture is drawn)
-          g.clip();
-          var sx = Math.min(t.p[0][0], t.p[1][0], t.p[2][0]), sy = Math.min(t.p[0][1], t.p[1][1], t.p[2][1]), ex = Math.max(t.p[0][0], t.p[1][0], t.p[2][0]), ey = Math.max(t.p[0][1], t.p[1][1], t.p[2][1]), k = img.width / W;
-          g.drawImage(img, sx * k, sy * k, (ex - sx) * k, (ey - sy) * k, sx - t.cx, sy - t.cy, ex - sx, ey - sy);
-        } else { g.fillStyle = 'rgba(205,220,238,.9)'; g.fill(); }
+        tri(rel, 0, 0); g.fillStyle = t.tint; g.fill();   // (frosted glass: no picture of the real window is ever taken)
         g.restore();
       });
     });
@@ -142,20 +138,5 @@ function frame(ts) {
   sparks.forEach(function (s) { star(s.x, s.y - s.t * 40, 5 + 8 * (1 - Math.abs(s.t / .3 - 1)), clamp(1 - s.t / .6, 0, 1)); });
 }
 
-/** A picture of the screen as it was when the ball was thrown, for the falling pieces to carry what was on them. `blanks` are places (him, the toy) painted out of it.
- *  It stays in this window and is gone with it; it is never saved or sent. */
-function shot(url, blanks) {
-  var im = new Image();
-  im.onload = function () {
-    try {
-      var cc = document.createElement('canvas'); cc.width = im.width; cc.height = im.height;
-      var cg = cc.getContext('2d'), k = im.width / W; cg.drawImage(im, 0, 0);
-      cg.fillStyle = '#20232e';
-      (blanks || []).forEach(function (b) { cg.fillRect(b.x * k, b.y * k, b.w * k, b.h * k); });
-      img = cc;
-    } catch (e) { img = im; }
-  };
-  im.src = url;
-}
-window.wreck = { init: init, shot: shot, hit: hit, fix: fix };
+window.wreck = { init: init, hit: hit, fix: fix };
 </script>

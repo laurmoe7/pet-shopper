@@ -2,7 +2,7 @@
 // real app in "pet only" mode, a tray icon, and the whole app in a bigger window when you open your list.
 // The app itself is loaded from the web (so a big push updates it), see NIBBLE_URL below.
 'use strict';
-const { app, BrowserWindow, desktopCapturer, Tray, Menu, ipcMain, screen, nativeImage, shell, session, clipboard, globalShortcut, powerMonitor } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, shell, session, clipboard, globalShortcut, powerMonitor } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const place = require('./place.js');
@@ -788,15 +788,6 @@ function start() {
     allowed: () => windows.available() && privacy.allows(prefs.awareness, 'wreck') && prefs.toyRoam,
     display: () => screen.getDisplayMatching(win.getBounds()),
     frames,
-    // one picture of the screen just after the ball is thrown (the overlay is kept out of it); he and the toy are painted out of it by the overlay; it goes only there
-    snapshot: async (d) => {
-      const sc = d.scaleFactor || 1, k = Math.min(1, 1000 / (d.bounds.width * sc));
-      const src = await desktopCapturer.getSources({ types: ['screen'], thumbnailSize: { width: Math.round(d.bounds.width * sc * k), height: Math.round(d.bounds.height * sc * k) } });
-      const one = src.find((x) => String(x.display_id) === String(d.id)) || src[0];
-      if (!one || one.thumbnail.isEmpty()) return null;
-      const blanks = [win, toyWin].filter((x) => x && !x.isDestroyed() && x.isVisible()).map((x) => x.getBounds());
-      return { url: 'data:image/jpeg;base64,' + one.thumbnail.toJPEG(75).toString('base64'), blanks };
-    },
     raise: () => { if (win) win.moveTop(); if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) toyWin.moveTop(); }
   });
   ipcMain.handle('desk:wreckStart', async () => { if (!win || mode !== 'pet') return { ok: false, reason: 'mode' }; try { return await wreck.start(); } catch (e) { wreck.stop(); return { ok: false, reason: 'error' }; } });
