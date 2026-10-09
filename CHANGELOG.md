@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 373
+- The Cool alert style is black and grey with red accents.
+
 ## Build 372
 - Notes and links: swipe left copies, right puts away.
 
