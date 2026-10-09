@@ -519,9 +519,10 @@ function start() {
         if (await glide(place.perchBounds(b, seg), 200)) { sitOn(seg, rect); perchOrigin = dragHome ? place.within(dragHome, here()) : null; return; }   // (when he gets off he goes back to where he was picked up)
       }
     }
-    // let go low down (over the taskbar, or off the edge of the screen): he is set back on the screen, not left half hidden behind the taskbar
-    const fixed = place.within(b, here());
-    if ((fixed.x !== b.x || fixed.y !== b.y) && !(await glide(fixed, 180))) return;
+    // let go low down (over the taskbar, or below the bottom of the screen): he is set back on the screen, not left half hidden behind the taskbar
+    // (only down: he may still be parked half off the side of the screen, peeking in)
+    const area = here(), lowest = area.y + area.height - b.height, fixed = { x: b.x, y: Math.min(b.y, lowest), width: b.width, height: b.height };
+    if (fixed.y !== b.y && !(await glide(fixed, 180))) return;
     restHere();
   });
   ipcMain.handle('desk:getPrefs', () => publicPrefs());
