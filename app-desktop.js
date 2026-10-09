@@ -328,11 +328,14 @@
   // off the edges of the screen and not only off the sides of his little window. It stops being that when he catches it or it lands.
   var fieldToken = 0, fieldZoom = 1;
   /** @returns {Promise<string>} The toy as a small PNG data URL (its colours are read from the page's CSS, so a window with no styles can draw it). */
+  var toyPngKey = '', toyPng = '';   // (drawn once per toy: picking it up must not wait for the picture to be made)
   function toyPicture() {
     return new Promise(function (resolve) {
       var g = null, list = toyBall.querySelectorAll('[data-toy]');
       for (var i = 0; i < list.length; i++) if (getComputedStyle(list[i]).display !== 'none') { g = list[i]; break; }
       if (!g) { resolve(''); return; }
+      var key = (g.getAttribute('data-toy') || '') + '|' + pet.dataset.species + '|' + pet.dataset.skin;
+      if (toyPng && key === toyPngKey) { resolve(toyPng); return; }
       var copy = g.cloneNode(true), src = g.querySelectorAll('*'), dst = copy.querySelectorAll('*');
       for (var j = 0; j < src.length; j++) {
         var cs = getComputedStyle(src[j]);
@@ -342,7 +345,7 @@
       var xml = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26" width="104" height="104">' + new XMLSerializer().serializeToString(copy) + '</svg>';
       var img = new Image();
       img.onload = function () {
-        try { var c = document.createElement('canvas'); c.width = c.height = 104; c.getContext('2d').drawImage(img, 0, 0, 104, 104); resolve(c.toDataURL('image/png')); } catch (e) { resolve(''); }
+        try { var c = document.createElement('canvas'); c.width = c.height = 104; c.getContext('2d').drawImage(img, 0, 0, 104, 104); toyPng = c.toDataURL('image/png'); toyPngKey = key; resolve(toyPng); } catch (e) { resolve(''); }
       };
       img.onerror = function () { resolve(''); };
       img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
@@ -403,6 +406,7 @@
     });
   }
   /** Called when the toy is picked up: if the switch is on, from now on it can go anywhere on the screen. */
+  setTimeout(function () { if (isPet() && deskPrefs.toyRoam === true) toyPicture(); }, 4000);   // (made ahead of time)
   window.deskToyField = function () {
     if (deskPrefs.toyRoam !== true || deskPrefs.hideToy || !isPet() || !D.toyField || !D.toyShow || toyField) return;
     var token = ++fieldToken;

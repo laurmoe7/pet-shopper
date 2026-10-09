@@ -685,6 +685,7 @@ function start() {
     return toyWin;
   }
   function hideToy() { if (toyWin && !toyWin.isDestroyed()) toyWin.hide(); }
+  setTimeout(() => { if (prefs.toyRoam && win && mode === 'pet') toyWindow(56); }, 3000);   // (made ahead of time: picking the toy up must not wait for a new window)
   // where his window is and how big the screen is (what the page needs to let the toy fly over all of it)
   ipcMain.handle('desk:toyField', () => {
     if (!win || mode !== 'pet' || !prefs.toyRoam) return null;

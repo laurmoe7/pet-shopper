@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 452
+- Picking up the ball is quicker: its picture and window are made ahead of time (needs the new installer for the window part).
+
 ## Build 451
 - Hamster: eyes 50% bigger with a second highlight, and 20% smaller overall.
 - Dragon: 20% bigger.
