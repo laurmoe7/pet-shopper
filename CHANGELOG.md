@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 472
+- The Quest theme uses the normal font size again.
+
 ## Build 471
 - The arrow on a speech bubble attaches properly in the app too.
 
