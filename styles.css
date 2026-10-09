@@ -3171,3 +3171,17 @@ html.al-quest .ring-btn[aria-pressed="true"] { background: linear-gradient(180de
 .inbox-bell { display: block; width: 100%; height: 100%; transform-origin: 50% 14%; animation: bell-swing 2.4s ease-in-out .4s infinite; }
 @keyframes bell-swing { 0%, 46%, 100% { rotate: 0deg; } 6% { rotate: 20deg; } 12% { rotate: -17deg; } 18% { rotate: 13deg; } 24% { rotate: -9deg; } 30% { rotate: 5deg; } 36% { rotate: -2deg; } }
 @media (prefers-reduced-motion: reduce) { .inbox-bell { animation: none; } }
+
+/* more room to scroll in the pet menu (build 389): a smaller stage pet, slimmer tabs, a slimmer bottom bar */
+.picker.dress-full .pet.preview { width: clamp(112px, 21vh, 160px); height: clamp(105px, 19.6vh, 150px); }
+.picker.dress-full .dress-stage { padding: 12px 0 3px; }
+html:root .dress-tabs { gap: 5px; }
+html:root .dress-tabs button { padding: 3px 0 3px; gap: 1px; border-radius: 16px; font-size: .66rem; }
+html:root .dress-tabs button img { width: 16px; height: 16px; padding: 4px; }
+.dress-panels { padding-bottom: 10px; }
+.dress-search { margin-top: 3px; padding-top: 4px; padding-bottom: 4px; }
+html:root .dock { padding: 3px 8px calc(3px + env(safe-area-inset-bottom, 0px)); }
+html:root .dock button { padding: 2px 0; gap: 0; }
+html:root .dock-icon { width: 33px; height: 33px; border-width: 2.5px; }
+.dock-svg { width: 18px; height: 18px; }
+.dock-label { font-size: .64rem; }

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 389
+- More room in the pet menu: smaller pet on the stage, slimmer Hats and Clothes tabs, slimmer bottom bar.
+
 ## Build 388
 - Done and snooze swipes each make their own sound.
 
