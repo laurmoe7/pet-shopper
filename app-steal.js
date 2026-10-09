@@ -125,6 +125,8 @@ function stealNow(force) {
     sound('chomp');
     setFace(CHEW);
     if (!reduceMotion) pulse('bob', 900);
+    // crumbs fly out of his mouth while he chews
+    [0, 280, 560].forEach(function (t) { setTimeout(function () { if (stolen) { crumbs(stealMouth(), '#e9c58c', 6); } }, t); });
     return wait(900);
   }).then(function () {
     if (!stolen) { busy--; settle(); return; }

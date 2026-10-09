@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 512
+- Crumbs fly while he eats a stolen emoji
+- Tick circles match the board colours
+
 ## Build 511
 - Loading card while the app starts
 

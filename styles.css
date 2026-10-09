@@ -1828,6 +1828,8 @@ html:root .check::before {
   border: 2.5px solid #fff; background: var(--tab, var(--stage-top));
   box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 2px 2px var(--shadow);
 }
+/* the empty tick circle is cream with a cocoa ring on every label (it used to take the tape's pastel colour, which clashed with the board) */
+html:root:not([data-skin="quest"]) .item:not(.done) .check::before { background: var(--cb-back); border-color: var(--cb-edge-strong); box-shadow: 0 1px 2px var(--shadow); }
 html:root .item.done .check::before { background-color: var(--accent); }
 /* food emoji as die-cut stickers: a cream-white edge like the bottom bar's stickers, a thin cocoa line just outside it, and a soft shadow */
 html:root .emoji-btn img:not(.sticker) { filter: drop-shadow(0 0 1.2px var(--cb-edge-strong)); }   /* until its sticker is drawn (or if it cannot be) */
