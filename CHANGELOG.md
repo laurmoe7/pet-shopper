@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 525
+- Old School: square switches
+
+## Build 524
+- Scribbling: no button grain, crayon-stroke fills, doodles, marker underlines
+- Cool settings window: soft blue
+
 ## Build 523
 - App wrecking ball: no flashing or starbursts, 3 seconds shorter
 - Cheeky remark every time he eats a stolen emoji
