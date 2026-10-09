@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 363
+- Alert swipes: right puts away, left snoozes, up or down is Done.
+
 ## Build 362
 - Developer tools to try his remarks about programs and games.
 

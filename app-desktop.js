@@ -918,22 +918,27 @@
 
   // ---------- swiping alerts with no clicking (while the mouse passes through him in a game) ----------
   // The shell lets the mouse go through him then, so an alert's buttons cannot be clicked, but the page still sees the pointer move over it:
-  // moving across the card is the swipe. A task reminder: left puts it away, right snoozes it for 10 minutes. Any other alert: either way puts it away.
+  // moving across the card is the swipe. A task reminder: right puts it away (the cross), left snoozes it for 10 minutes, up or down is Done
+  // (when the task can be ticked here). Any other alert: right or left puts it away.
   var hoverSwipe = null;
   document.addEventListener('mousemove', function (e) {
     var card = isPet() && window.deskPassThrough() && e.target.closest ? e.target.closest('.inbox-card') : null;
     if (!card || card.classList.contains('quick-card') || card.dataset.leaving) { hoverSwipe = null; return; }
-    var now = Date.now();
-    if (!hoverSwipe || hoverSwipe.card !== card || now - hoverSwipe.t > 450 || (e.clientX - hoverSwipe.last) * (hoverSwipe.last - hoverSwipe.x) < 0) hoverSwipe = { card: card, x: e.clientX, last: e.clientX, t: now };
-    hoverSwipe.last = e.clientX; hoverSwipe.t = now;
-    var dx = e.clientX - hoverSwipe.x;
-    if (Math.abs(dx) < Math.min(90, card.offsetWidth * 0.4)) return;
+    var now = Date.now(), h = hoverSwipe;
+    if (!h || h.card !== card || now - h.t > 450 || (e.clientX - h.lx) * (h.lx - h.x) < 0 || (e.clientY - h.ly) * (h.ly - h.y) < 0) h = hoverSwipe = { card: card, x: e.clientX, y: e.clientY, lx: e.clientX, ly: e.clientY, t: now };
+    h.lx = e.clientX; h.ly = e.clientY; h.t = now;
+    var dx = e.clientX - h.x, dy = e.clientY - h.y, sideways = Math.abs(dx) >= Math.min(90, card.offsetWidth * 0.4), vertical = Math.abs(dy) >= Math.min(36, card.offsetHeight * 0.5) && Math.abs(dy) > Math.abs(dx);
+    if (!sideways && !vertical) return;
     hoverSwipe = null;
-    var dir = dx < 0 ? -1 : 1, remind = card.classList.contains('remind-card');
-    var btn = remind && dir > 0 ? [].slice.call(card.querySelectorAll('button')).filter(function (b) { return /^In 10 min/.test(b.textContent); })[0] : card.querySelector('.inbox-done');
+    var remind = card.classList.contains('remind-card'), buttons = [].slice.call(card.querySelectorAll('button'));
+    function named(re) { return buttons.filter(function (b) { return re.test(b.textContent); })[0]; }
+    var btn = card.querySelector('.inbox-done'), dir = dx < 0 ? -1 : 1;
+    if (vertical) { if (remind) btn = named(/^Done/) || btn; dir = 0; }
+    else if (remind && dx < 0) btn = named(/^In 10 min/) || btn;
     if (!btn) return;
     card.dataset.leaving = '1';
-    slideAway(card, dir, function () { btn.click(); });
+    if (dir) slideAway(card, dir, function () { btn.click(); });
+    else { card.style.animation = 'none'; card.style.transition = 'translate .26s ease-in, opacity .26s'; card.style.translate = '0 ' + (dy < 0 ? -1 : 1) * 60 + 'px'; card.style.opacity = '0'; setTimeout(function () { if (card.parentNode) btn.click(); }, 270); }
   }, true);
 
   // ---------- where the solid parts are (for the shell's own, instant hit test) ----------
