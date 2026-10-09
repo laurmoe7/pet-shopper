@@ -3567,3 +3567,7 @@ html:root[data-skin="quest"][data-quest="osrs"] .option { border-bottom: 1px sol
 html:root[data-skin="quest"][data-quest="osrs"] .option-title { color: var(--os-yellow); text-shadow: var(--os-text); }
 html:root[data-skin="quest"][data-quest="osrs"] input[type="checkbox"][role="switch"] { accent-color: #1f6b14; }
 html:root[data-skin="quest"][data-quest="osrs"] ::selection { background: var(--os-red); color: var(--os-yellow); }
+
+/* Quest and Quest2: an empty tick circle is a plain pale ring on a dark centre, so it does not look already ticked (ticked ones are filled red with the heart) */
+html:root[data-skin="quest"]:not([data-quest="osrs"]) .item:not(.done) .check::before { background: #120d07; border: 2.5px solid #efe2bd; box-shadow: 0 0 0 1.5px #000; }
+html:root[data-skin="quest"]:not([data-quest="osrs"]) .item:not(.done) .check:hover::before { border-color: #ffd100; }

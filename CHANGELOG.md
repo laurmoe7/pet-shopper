@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 520
+- Quest and Quest2: empty tick circles are a plain pale ring
+
 ## Build 519
 - Crumbs of a stolen emoji come out of his real mouth or beak, on every pet
 
