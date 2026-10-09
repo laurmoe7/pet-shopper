@@ -72,6 +72,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   /** A new version of the program finished downloading. */
   /** Restarts the program to install a downloaded update. */
   installUpdate: () => ipcRenderer.send('desk:installUpdate'),
+  /** A new version was found and is downloading. */
+  onUpdateDownloading: (fn) => ipcRenderer.on('desk:updateDownloading', () => fn()),
   onUpdateReady: (fn) => ipcRenderer.on('desk:updateReady', () => fn()),
   typing: (yes) => ipcRenderer.send('desk:typing', !!yes),
   /** The computer went quiet (true) or someone is back (false): no input for a few minutes, or the screen was locked. */

@@ -320,6 +320,9 @@ function receiveMessage(msg, more) {
   if (msg.id) shownIds[msg.id] = 1;
   if (msg.from === 'claude' && !msg.test) accountApi('/v1/inbox/ack', 'POST', account.code, { ids: [msg.id] });   // a tap on the shoulder: gone from the server at once, so it cannot come back
   rememberReceived(msg);
+  if (msg.from === 'claude') {   // Claude's note is the alert and nothing else: no flying in, no wand, no speech, so it shows at once
+    inboxCard = null; sound('claude'); showInboxCard(msg, more); return;
+  }
   inboxCard = document.createElement('div');   // holds the place from the start, so a second message does not begin
   // a short wait first (long enough to have watched it leave the other device), then he eats it as soon as he is free
   setTimeout(function () {

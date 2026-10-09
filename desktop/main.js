@@ -679,7 +679,7 @@ function start() {
     autoUpdater.autoDownload = true;
     autoUpdater.autoInstallOnAppQuit = true;
     autoUpdater.on('update-not-available', () => setUpdate('none', { checkedAt: Date.now() }));
-    autoUpdater.on('update-available', () => setUpdate('downloading'));
+    autoUpdater.on('update-available', () => { setUpdate('downloading'); if (win) win.webContents.send('desk:updateDownloading'); });
     autoUpdater.on('download-progress', (p) => setUpdate('downloading', { percent: Math.round((p && p.percent) || 0) }));
     autoUpdater.on('update-downloaded', () => { updateReady = true; if (win) win.webContents.send('desk:updateReady'); setUpdate('ready', { checkedAt: Date.now() }); panel.push(); if (tray) tray.setToolTip('Fumufumu (update ready: right-click the tray icon)'); refreshMenus(); log('update ready'); });
     autoUpdater.on('error', (e) => { log('updater', e && e.message); if (updateState.state === 'checking' || updateState.state === 'downloading') setUpdate('error'); });

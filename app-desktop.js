@@ -554,6 +554,11 @@
     stage.appendChild(card);
     setTimeout(function () { if (card.parentNode) card.remove(); }, 60000);
   }
+  // ---------- an update is downloading: a short line, only if he is free to say it (it is not waited for) ----------
+  if (D.onUpdateDownloading) D.onUpdateDownloading(function () {
+    if (!isPet() || busy || !bubble.hidden || document.querySelector('.inbox-card') || (typeof petScene === 'function' && petScene() === 'night-bed')) return;
+    say(pick(['downloading something new…', 'a new me is on the way~', 'getting an update…']), 3500, true);
+  });
   // ---------- an update finished downloading: he says so (once he is free to speak) ----------
   if (D.onUpdateReady) D.onUpdateReady(function () {
     var tries = 0;

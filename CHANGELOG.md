@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 429
+- Fumu says a short line while an update is downloading.
+- Claude alerts show at once, with no speech or celebration from Fumu.
+
 ## Build 428
 - A middle click on Fumu in the whole app switches back to small Fumu.
 - The night light button no longer covers the ✕ on the food suggestion.
