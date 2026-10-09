@@ -3221,3 +3221,18 @@ html:root[data-skin="quest"] .dress-tabs button[aria-selected="true"] { backgrou
 html:root[data-skin="quest"] .dress-tabs button[aria-selected="true"] img { background: radial-gradient(circle at 50% 30%, #4a3217, #1b0f06); border-color: #ffd100; filter: grayscale(1) sepia(1) saturate(6) brightness(1.35); }
 html:root[data-skin="quest"] .dress-panels { background-image: none; }
 :root[data-skin="quest"] { --bubA: #5a420f; --bubB: #5a420f; --bubC: #5a420f; --inkA: #ffd100; --inkB: #ffd100; --inkC: #ffd100; --tintA: #2a1d10; --tintB: #2a1d10; --tintC: #2a1d10; --paper: #1b140c; --paper-edge: rgba(201, 162, 39, .35); }
+/* Quest calendar: gold-framed day plates, red for today and the picked day */
+html:root[data-skin="quest"] .cal-sheet #calGrid { border-radius: 6px; background: #120c06; border: 1.5px solid #c9a227; box-shadow: 0 0 0 1px #000, inset 0 0 0 2px #0a0704; }
+html:root[data-skin="quest"] .cal-sheet #calGrid::before, html:root[data-skin="quest"] .cal-sheet #calGrid::after { top: -5px; height: 7px; width: 40px; border-radius: 3px; rotate: 0deg; border: 1px solid #5a420f; background: linear-gradient(180deg, #f0cf66, #b8891c); }
+html:root[data-skin="quest"] .cal-sheet .cal-dow { color: #c9a227; }
+html:root[data-skin="quest"] .cal-sheet .cal-dow span:nth-child(n+6) { color: #e0584a; }
+html:root[data-skin="quest"] .cal-sheet .cal-cell { border-radius: 5px; background: linear-gradient(180deg, #2f2314, #1b140c); border: 1.5px solid #7a5a14; color: #f2e6c4; }
+html:root[data-skin="quest"] .cal-sheet .cal-cell:nth-child(7n), html:root[data-skin="quest"] .cal-sheet .cal-cell:nth-child(7n-1) { background: linear-gradient(180deg, #3a1a14, #1f0d09); }
+html:root[data-skin="quest"] .cal-sheet .cal-cell.today { border: 2px solid #ffd100; background: linear-gradient(180deg, #a52a1f, #5c120d); color: #ffd100; }
+html:root[data-skin="quest"] .cal-sheet .cal-cell.today::after { color: #ffd100; }
+html:root[data-skin="quest"] .cal-sheet .cal-cell.sel { background: linear-gradient(180deg, #a52a1f, #5c120d); color: #ffd100; border: 2px solid #ffd100; box-shadow: 0 0 8px rgba(255, 209, 0, .45); }
+html:root[data-skin="quest"] .cal-sheet .cal-cell.sel .cal-dots i, html:root[data-skin="quest"] .cal-dots i { background: #ffd100; }
+html:root[data-skin="quest"] .cal-dots i.yearly { background: #e0584a; }
+html:root[data-skin="quest"] .cal-sheet .cal-list li { border-radius: 5px; background: linear-gradient(180deg, #2f2314, #1b140c); border: 1.5px solid #7a5a14; }
+html:root[data-skin="quest"] .cal-month select, html:root[data-skin="quest"] .cal-add input { border-radius: 5px; border: 1.5px solid #c9a227; background: #1b140c; color: #f2e6c4; box-shadow: 0 0 0 1px #000; }
+html:root[data-skin="quest"] .cal-add-btn, html:root[data-skin="quest"] .cal-add .pill-btn[aria-pressed="true"] { background: linear-gradient(180deg, #a52a1f, #5c120d); color: #ffd100; border-radius: 5px; }

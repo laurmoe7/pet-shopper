@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 415
+- Calendar has the Quest look: gold-framed days, red for today and the picked day.
+
 ## Build 414
 - After a throw he always ends on his exact spot, even when it was right at the bottom of the screen.
 
