@@ -2,8 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
-## Build 440
+## Build 441
 - No flicker or freeze when the bed lands after a throw.
+
+## Build 440
+- Quest appearance: bigger text so it is easier to read.
 
 ## Build 439
 - A test Shop with a premium card and cosmetic packs (nothing can be bought). Switch it on in Developer tools.
