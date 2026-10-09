@@ -46,9 +46,10 @@ function wreckFling(vx, vy, y0) {
   eyesDo('wide');
   pet.classList.add('running');
   var lim = toyLimits(), x = toyX, y = y0, spin = 0, start = performance.now(), last = start;
-  var wins = [], chaseAt = 0, followAt = 0, jumpAt = start + 500, talkAt = start + 900, glassAt = 0, shockAt = 0;
+  var wins = [], rects = [], wcool = [], chaseAt = 0, followAt = 0, jumpAt = start + 500, talkAt = start + 900, glassAt = 0, shockAt = 0;
   var ended = false;
   D.wreckStart().then(function (r) {
+    if (r && r.ok) rects = r.rects.slice();
     if (r && r.ok) r.rects.forEach(function (q, wi) {   // (each window is a grid of pieces, the same grid the overlay draws: it breaks one piece at a time)
       for (var row = 0; row < q.rows; row++) for (var col = 0; col < q.cols; col++) {
         wins.push({ w: wi, k: row * q.cols + col, x1: q.x + q.w * col / q.cols, y1: q.y + q.h * row / q.rows, x2: q.x + q.w * (col + 1) / q.cols, y2: q.y + q.h * (row + 1) / q.rows, hit: false });
@@ -75,14 +76,39 @@ function wreckFling(vx, vy, y0) {
     }
     spin += vx * dt * 2.2;
     placeToy(x, y, spin);
-    // every piece of a window that it touches breaks off, with a crash of glass
-    var broke = 0;
-    for (var i = 0; i < wins.length; i++) {
-      var w = wins[i];
-      if (w.hit || f.ax < w.x1 - 4 || f.ax > w.x2 + 4 || f.ay < w.y1 - 4 || f.ay > w.y2 + 4) continue;
-      w.hit = true; broke++;
-      D.wreckHit(w.w, w.k, f.ax, f.ay);
+    // windows are solid: the ball bounces off one every time it meets it (it never just flies across), and each hit breaks the piece it struck
+    var broke = 0, zm = f.zoom || 1, BR = 16 * zm;
+    for (var wi = 0; wi < rects.length; wi++) {
+      var q = rects[wi], cx = Math.max(q.x, Math.min(f.ax, q.x + q.w)), cy = Math.max(q.y, Math.min(f.ay, q.y + q.h)), dx = f.ax - cx, dy = f.ay - cy, d = Math.hypot(dx, dy);
+      if (d >= BR) continue;
+      var hidden = false;   // (a window in front covers this one there: the ball is over it, not against it)
+      for (var j = 0; j < wi; j++) { var o = rects[j]; if (cx >= o.x && cx <= o.x + o.w && cy >= o.y && cy <= o.y + o.h) { hidden = true; break; } }
+      if (hidden) continue;
+      var ux, uy;   // the way out of the window, on the screen (y down)
+      if (d > 0.01) { ux = dx / d; uy = dy / d; }
+      else {
+        var pl = f.ax - q.x, pr = q.x + q.w - f.ax, pt = f.ay - q.y, pb = q.y + q.h - f.ay, mn = Math.min(pl, pr, pt, pb);
+        ux = mn === pl ? -1 : mn === pr ? 1 : 0; uy = mn === pt ? -1 : mn === pb ? 1 : 0;
+        if (!ux && !uy) uy = -1;
+        d = -mn;
+      }
+      var push = (BR - d + 1) / zm;
+      x += ux * push; y -= uy * push;   // (the toy's y goes up, the screen's down)
+      var vn = vx * ux - vy * uy;
+      if (vn < 0) { vx -= 1.9 * vn * ux; vy += 1.9 * vn * uy; }
+      if (now > (wcool[wi] || 0)) {
+        wcool[wi] = now + 140;
+        var best = -1, bd = Infinity;
+        for (var i = 0; i < wins.length; i++) {
+          var w = wins[i];
+          if (w.w !== wi || w.hit) continue;
+          var gx = Math.max(w.x1, Math.min(cx, w.x2)), gy = Math.max(w.y1, Math.min(cy, w.y2)), gd = Math.hypot(cx - gx, cy - gy);
+          if (gd < bd) { bd = gd; best = i; }
+        }
+        if (best >= 0) { wins[best].hit = true; broke++; D.wreckHit(wins[best].w, wins[best].k, cx, cy); }
+      }
     }
+    if (broke || wcool.length) placeToy(x, y, spin);
     if (broke) {
       if (now - glassAt > 70) { glassAt = now; sound('glass'); }
       vx *= 0.95; vy *= 0.95;   // (a piece takes a little of its speed)
@@ -245,31 +271,48 @@ function pageWreck(vx, vy, px, py) {
   function rectIn(el, r) { if (!el) return null; var q = el.getBoundingClientRect(); return { x1: q.left - r.left - 4, y1: q.top - r.top - 4, x2: q.right - r.left + 4, y2: q.bottom - r.top + 4 }; }
   function inside(q, x, y) { return !!q && x >= q.x1 && x <= q.x2 && y >= q.y1 && y <= q.y2; }
 
-  /** Cuts a thing into jagged triangles (each one is a shard), in the order they break: a row's picture, then its words, then the bar. */
+  /** Cuts a thing into pieces (each one is a shard), in the order they break: first the border, then a row's picture, then its words, then the bar. */
   function prepare(t, hx, hy) {
-    var r = t.el.getBoundingClientRect(), cols = Math.max(3, Math.min(7, Math.round(r.width / 60))), rows = Math.max(2, Math.min(3, Math.round(r.height / 30)));
+    var r = t.el.getBoundingClientRect(), W2 = r.width, H2 = r.height, th = Math.max(4, Math.min(9, Math.min(W2, H2) * 0.14));
+    var iw = W2 - 2 * th, ih = H2 - 2 * th, cols = Math.max(3, Math.min(7, Math.round(iw / 60))), rows = Math.max(2, Math.min(3, Math.round(ih / 28)));
     var v = [], gx, gy, tris = [];
-    for (gy = 0; gy <= rows; gy++) {
+    for (gy = 0; gy <= rows; gy++) {   // (the inside: a jagged grid of triangles)
       v.push([]);
-      for (gx = 0; gx <= cols; gx++) v[gy].push([r.width * gx / cols + (gx === 0 || gx === cols ? 0 : (Math.random() - .5) * .5 * r.width / cols), r.height * gy / rows + (gy === 0 || gy === rows ? 0 : (Math.random() - .5) * .5 * r.height / rows)]);
+      for (gx = 0; gx <= cols; gx++) v[gy].push([th + iw * gx / cols + (gx === 0 || gx === cols ? 0 : (Math.random() - .5) * .5 * iw / cols), th + ih * gy / rows + (gy === 0 || gy === rows ? 0 : (Math.random() - .5) * .5 * ih / rows)]);
     }
     var emoji = rectIn(t.el.querySelector('.emoji-btn'), r), words = [rectIn(t.el.querySelector('.item-text'), r), rectIn(t.el.querySelector('.qty-tag'), r), rectIn(t.el.querySelector('.due-tag'), r)];
-    var lx = hx - r.left, ly = hy - r.top;
+    var lx = hx - r.left, ly = hy - r.top, hasParts = !!(emoji || words[0]);
+    function add(p, cat) {
+      var cx = 0, cy = 0; p.forEach(function (q) { cx += q[0]; cy += q[1]; });
+      tris.push({ p: p, cx: cx / p.length, cy: cy / p.length, cat: cat, d: Math.hypot(cx / p.length - lx, cy / p.length - ly) });
+    }
     for (gy = 0; gy < rows; gy++) for (gx = 0; gx < cols; gx++) {
       var a = v[gy][gx], b = v[gy][gx + 1], c = v[gy + 1][gx + 1], e = v[gy + 1][gx];
       [[a, b, c], [a, c, e]].forEach(function (p) {
         var cx = (p[0][0] + p[1][0] + p[2][0]) / 3, cy = (p[0][1] + p[1][1] + p[2][1]) / 3;
-        var cat = inside(emoji, cx, cy) ? 0 : words.some(function (q) { return inside(q, cx, cy); }) ? 1 : 2;
-        tris.push({ p: p, cx: cx, cy: cy, cat: emoji || words[0] ? cat : 0, d: Math.hypot(cx - lx, cy - ly) });
+        add(p, 1 + (!hasParts ? 0 : inside(emoji, cx, cy) ? 0 : words.some(function (q) { return inside(q, cx, cy); }) ? 1 : 2));
       });
     }
+    // the border: a thin frame round the edge in short strips (broken first)
+    function clampX(x) { return Math.max(th, Math.min(W2 - th, x)); }
+    var nx = Math.max(2, Math.round(W2 / 70)), ny = Math.max(1, Math.round(ih / 60)), k;
+    for (k = 0; k < nx; k++) {
+      var x0 = W2 * k / nx, x1 = W2 * (k + 1) / nx;
+      add([[x0, 0], [x1, 0], [clampX(x1), th], [clampX(x0), th]], 0);
+      add([[x0, H2], [x1, H2], [clampX(x1), H2 - th], [clampX(x0), H2 - th]], 0);
+    }
+    for (k = 0; k < ny; k++) {
+      var y0 = th + ih * k / ny, y1 = th + ih * (k + 1) / ny;
+      add([[0, y0], [th, y0], [th, y1], [0, y1]], 0);
+      add([[W2, y0], [W2 - th, y0], [W2 - th, y1], [W2, y1]], 0);
+    }
     tris.sort(function (m, n) { return m.cat - n.cat || m.d - n.d; });
-    t.r2 = r; t.tris = tris; t.tpl = frozen(t.el, r); t.gone = []; t.lx = lx; t.ly = ly;
+    t.r2 = r; t.tris = tris; t.tpl = frozen(t.el, r); t.gone = []; t.lx = lx; t.ly = ly; t.cracks = [];
   }
   /** The thing itself loses the pieces that have fallen (it stays whole under the rest). */
   function cutOut(t) {
     var r = t.r2, d = 'M-300 -300 H' + (r.width + 300) + ' V' + (r.height + 300) + ' H-300 Z';
-    t.gone.forEach(function (g) { d += ' M' + g.p[0][0].toFixed(1) + ' ' + g.p[0][1].toFixed(1) + ' L' + g.p[1][0].toFixed(1) + ' ' + g.p[1][1].toFixed(1) + ' L' + g.p[2][0].toFixed(1) + ' ' + g.p[2][1].toFixed(1) + ' Z'; });
+    t.gone.forEach(function (g) { d += ' ' + g.p.map(function (q, i) { return (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1); }).join(' ') + ' Z'; });
     t.el.style.clipPath = 'path(evenodd, "' + d + '")';
     if (t.mark) t.mark.style.clipPath = 'path(evenodd, "' + d + '")';
   }
@@ -306,7 +349,8 @@ function pageWreck(vx, vy, px, py) {
       t.next = 0; t.left = t.tris.slice();
     }
     var r2 = t.r2, lx = Math.max(0, Math.min(r2.width, hx - r2.left)), ly = Math.max(0, Math.min(r2.height, hy - r2.top));
-    t.mark.insertAdjacentHTML('beforeend', crackSvg(r2.width, r2.height, lx, ly));
+    // a new crack only where there is none yet (the ball hitting the same spot again must not pile marks on top of each other)
+    if (t.cracks.length < 4 && !t.cracks.some(function (c) { return Math.hypot(c[0] - lx, c[1] - ly) < Math.max(46, Math.min(r2.width, r2.height) * 0.9); })) { t.cracks.push([lx, ly]); t.mark.insertAdjacentHTML('beforeend', crackSvg(r2.width, r2.height, lx, ly)); }
     // the pieces that come away now: the lowest stage (picture, words, bar) that still has any, nearest to the hit first
     t.left.sort(function (m, n) { return m.cat - n.cat || Math.hypot(m.cx - lx, m.cy - ly) - Math.hypot(n.cx - lx, n.cy - ly); });
     var k = Math.max(2, Math.ceil(t.tris.length / 8)), take = t.left.splice(0, k);
@@ -353,9 +397,12 @@ function pageWreck(vx, vy, px, py) {
         ux = mn === pl ? -1 : mn === pr ? 1 : 0; uy = mn === pt ? -1 : mn === pb ? 1 : 0;
         if (!ux && !uy) uy = -1;
       }
-      x = nx + ux * (R + 1) + (d > 0.01 ? 0 : ux * mn); y = ny + uy * (R + 1) + (d > 0.01 ? 0 : uy * mn);
-      var vn = vx * ux + vyd * uy;
-      if (vn < 0) { vx -= 1.9 * vn * ux; vyd -= 1.9 * vn * uy; }
+      var solid = !t.left || t.left.length > t.tris.length * 0.5;   // (once half of it is gone the ball passes through what is left: it cannot get stuck against one bar)
+      if (solid) {
+        x = nx + ux * (R + 1) + (d > 0.01 ? 0 : ux * mn); y = ny + uy * (R + 1) + (d > 0.01 ? 0 : uy * mn);
+        var vn = vx * ux + vyd * uy;
+        if (vn < 0) { vx -= 1.9 * vn * ux; vyd -= 1.9 * vn * uy; }
+      }
       if (now > (t.cool || 0)) { t.cool = now + 160; chip(t, x - ux * R, y - uy * R); broke++; }
     }
     if (broke) {

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 505
+- Wrecking ball: the border of a thing breaks first, cracks no longer stack, the ball cannot get stuck; over your desktop it bounces off every window it meets
+
 ## Build 504
 - Quest2 is its own appearance (Quest stays as it was); Mini Fumu gets a Quest2 alert style, speech bubble kept as Quest's
 
