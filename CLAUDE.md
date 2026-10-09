@@ -4,6 +4,12 @@ A grocery list with a tamagotchi-like pet that "eats" items as you check them of
 
 ## How to work with Lauren
 
+- **Her words** (use them back, and map them to the code):
+  - *Passthrough toggle* / *passthrough setting* = the Ctrl+Alt+G key (`grab` in `keys.js`, `grabMouse` in `desktop/main.js`) and the state it swaps: in a game or full-screen program the mouse passes through him (click-through) or he is solid. The pref "Mouse reaches him in games" is `catchGames`.
+  - *Mini Fumu settings* = the settings that open from the right-click menu on the small pet (the right-click menu's More settings; `desktop/panel-*.js`, `panel-ui.js`; prefs set by `setPref` in `main.js`). Mini Fumu = the small desktop window (`html.desktop-pet`). Alert style is chosen there.
+  - *Full app settings* / *big settings* / *full app Fumu* = the whole app's own Options (`app-options.js`, the gear in `html.desktop-list`, or the phone app), including its Appearance (Light, Dark, Auto). Things chosen there apply to everything in the full app.
+  - If a request could mean either settings, say which one you changed.
+
 - When you point her to a file or folder on her computer, give the whole path (for example `C:\Users\<name>\.claude\settings.json`, never `~/...`) so she can click it; where the program knows it (it can ask Windows), show the full path in the settings window with a button that opens it.
 - **Claude tells Fumu**: the repo's `.claude/settings.json` has Stop and Notification hooks that run `.claude/hooks/fumu-notify.sh`, which posts "Claude replied" / "Claude needs you" (from `claude`) to the sync server's inbox with her Backup & sync code, which lives as a network secret in her cloud environment (`FUMU_SYNC_CODE`, allowed website `pet-shopper-sync.laurmoe.workers.dev`, header `Authorization: Bearer <code>`; the environment's proxy adds the header, so the script never holds the code; nothing happens without it). Fumu receives it like any note (`receiveMessage`, not kept in Received lately). Only the two short phrases are sent, never the conversation.
 - After a "big push", sum up everything that went live since the previous push (not just the last build), in simple words, so she can check it all in one go.
