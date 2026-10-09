@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 396
+- Quest bubble is back to its first look; pointer stays a curved fin with no line at its base.
+
 ## Build 395
 - Full app bubbles and alerts always use the Plain look, in light or dark.
 - Quest bubble has a soft gradient inside, no inner outline.
