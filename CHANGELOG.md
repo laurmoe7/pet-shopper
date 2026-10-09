@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 519
+- Crumbs of a stolen emoji come out of his real mouth or beak, on every pet
+
 ## Build 518
 - Old School: more detail (rivets, framed stage, striped rows)
 - Profile badge and icon wiggle to get noticed

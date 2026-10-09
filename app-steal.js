@@ -28,7 +28,35 @@ function stealOk() {
   return !document.hidden && !busy && !playing && !stolen && Date.now() >= stealNotBefore && !isTodo() && !document.documentElement.classList.contains('desktop-pet') &&
     !stage.classList.contains('bedtime') && baseState() !== 'sleepy' && !document.querySelector('dialog[open]') && stealable().length > 0;
 }
-function stealMouth() { var r = pet.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height * 0.55 }; }
+function stealMouth() {
+  // where his mouth (or beak) really is, whatever the species: the middle of whichever mouth or beak parts are showing now
+  var x1 = 1e9, y1 = 1e9, x2 = -1e9, y2 = -1e9;
+  [].forEach.call(pet.querySelectorAll('.pet-svg .beak, .pet-svg [data-mouth]'), function (el) {
+    var q = el.getBoundingClientRect();
+    if (q.width < 1 || q.height < 1) return;   // (parts that are not showing have no size)
+    x1 = Math.min(x1, q.left); y1 = Math.min(y1, q.top); x2 = Math.max(x2, q.right); y2 = Math.max(y2, q.bottom);
+  });
+  if (x2 > x1 && y2 > y1) return { x: (x1 + x2) / 2, y: (y1 + y2) / 2 };
+  return mouthPoint();
+}
+/** Crumbs spill out of his mouth: they drop and scatter sideways from it (not up above him). */
+function stealCrumbs(n) {
+  if (reduceMotion) return;
+  var at = stealMouth();
+  for (var i = 0; i < n; i++) {
+    var c = document.createElement('span');
+    c.className = 'crumb';
+    c.style.background = pick(['#e9c58c', '#d9a85c', '#f3dcae']);
+    c.style.zIndex = 9000;
+    document.body.appendChild(c);
+    var dx = (Math.random() - .5) * 34, drop = 22 + Math.random() * 30;
+    c.animate([
+      { transform: 'translate(' + at.x + 'px,' + at.y + 'px) scale(1)', opacity: 1 },
+      { transform: 'translate(' + (at.x + dx * .6) + 'px,' + (at.y + 4 + Math.random() * 4) + 'px) scale(1)', opacity: 1, offset: .25 },
+      { transform: 'translate(' + (at.x + dx) + 'px,' + (at.y + drop) + 'px) scale(.4)', opacity: 0 }
+    ], { duration: 520 + Math.random() * 220, easing: 'ease-in' }).finished.then(c.remove.bind(c));
+  }
+}
 
 /** An emoji flies in an arc: a copy of its picture goes from one place to another. @returns {Promise<void>} Resolves when it has arrived (the copy is gone). */
 function flyEmoji(src, from, to, ms, rise, shrink) {
@@ -126,7 +154,7 @@ function stealNow(force) {
     setFace(CHEW);
     if (!reduceMotion) pulse('bob', 900);
     // crumbs fly out of his mouth while he chews
-    [0, 280, 560].forEach(function (t) { setTimeout(function () { if (stolen) { crumbs(stealMouth(), '#e9c58c', 6); } }, t); });
+    [0, 280, 560].forEach(function (t) { setTimeout(function () { if (stolen) { stealCrumbs(6); } }, t); });
     return wait(900);
   }).then(function () {
     if (!stolen) { busy--; settle(); return; }
