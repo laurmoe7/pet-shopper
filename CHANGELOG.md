@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 416
+- Quest look: pink badge, highlights, taped labels and round buttons are gold and red now.
+
 ## Build 415
 - Calendar has the Quest look: gold-framed days, red for today and the picked day.
 
