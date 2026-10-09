@@ -1390,6 +1390,16 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .ear-flap { fill: #bdbac9; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
 .ear-crease { fill: none; stroke: #9d99ab; stroke-width: 1.8; stroke-linecap: round; }
 .pet[data-skin="scottishfold"] .eyes-open .ink { rx: 5.6px; ry: 6.2px; }
+/* hamster: big round eyes with two glints (the second one is shown here for every hamster skin), and a smaller body than the others */
+.pet[data-species="hamster"] .eyes-open .ink { rx: 6.9px; ry: 7.8px; }
+.pet[data-species="hamster"] .pupils .glint:not(.glint2).eye-l { cx: 55.6px; cy: 88.8px; r: 2.3px; }
+.pet[data-species="hamster"] .pupils .glint:not(.glint2).eye-r { cx: 99.6px; cy: 88.8px; r: 2.3px; }
+.pet[data-species="hamster"] .pupils .glint2 { display: inline; r: 1.3px; }
+.pet[data-species="hamster"] .pupils .glint2.eye-l { cx: 61.2px; cy: 95.4px; }
+.pet[data-species="hamster"] .pupils .glint2.eye-r { cx: 105.2px; cy: 95.4px; }
+.pet[data-species="hamster"]:not(.mini, .preview) { width: 120px; height: 112px; }
+/* dragon: a fifth bigger than the others */
+.pet[data-species="dragon"]:not(.mini, .preview) { width: 180px; height: 168px; }
 /* chicken: white with a red comb and wattle */
 .pet[data-skin="chicken"] .tuft { display: none; }
 .chicken-comb path, .chicken-wattle { fill: #ef5d63; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }

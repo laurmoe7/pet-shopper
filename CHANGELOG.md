@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 451
+- Hamster: eyes 50% bigger with a second highlight, and 20% smaller overall.
+- Dragon: 20% bigger.
+
 ## Build 450
 - When a ball chase drags on, the ball drifts in and drops to him, and he jumps up and grabs it (no more flying across the screen).
 
