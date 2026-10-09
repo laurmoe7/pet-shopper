@@ -105,6 +105,32 @@ function offerSuggestion(force) {
   talk('suggest', ['ooh, how about {x}?', 'can we get {x}?', '{x}, please?'], 1800, { x: text.toLowerCase() });
   return true;
 }
+// swipe the suggestion away (sideways or up/down), like pressing the ✕
+(function () {
+  var sx = 0, sy = 0, drag = false, moved = false;
+  suggestEl.addEventListener('pointerdown', function (e) { sx = e.clientX; sy = e.clientY; drag = true; moved = false; suggestEl.style.transition = 'none'; });
+  suggestEl.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    var dx = e.clientX - sx, dy = e.clientY - sy;
+    if (!moved && Math.hypot(dx, dy) < 8) return;
+    moved = true;
+    try { suggestEl.setPointerCapture(e.pointerId); } catch (err) { /* not capturable */ }
+    suggestEl.style.translate = dx + 'px ' + dy + 'px';
+    suggestEl.style.opacity = String(Math.max(.2, .92 - Math.hypot(dx, dy) / 160));
+  });
+  function end(e) {
+    if (!drag) return;
+    drag = false;
+    var dx = e.clientX - sx, dy = e.clientY - sy;
+    suggestEl.style.transition = '';
+    if (moved && Math.hypot(dx, dy) > 45) { suggestEl.hidden = true; clearTimeout(suggestTimer); }
+    suggestEl.style.translate = ''; suggestEl.style.opacity = '';
+  }
+  suggestEl.addEventListener('pointerup', end);
+  suggestEl.addEventListener('pointercancel', end);
+  suggestEl.addEventListener('click', function (e) { if (moved) { e.stopImmediatePropagation(); e.preventDefault(); moved = false; } }, true);
+  suggestEl.style.touchAction = 'none';
+})();
 suggestBtn.addEventListener('click', function () {
   suggestEl.hidden = true;
   addItem(suggestBtn.dataset.text);
