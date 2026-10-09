@@ -274,6 +274,11 @@
       chime(t, [659, 784, 988, 784], 0.34, 0.5, 'sine');
       chime(t + 1.5, [880, 784, 659], 0.36, 0.42, 'sine');
     },
+    swoosh: function (t) {
+      // a soft whoosh as an alert is swiped away: airy noise that glides upwards and fades
+      var f = noise(t, 0.3, 'bandpass', 420, 0.7, env(t, 0.08, 0.2, 0.22));
+      f.frequency.exponentialRampToValueAtTime(2300 * pitch, t + 0.26);
+    },
     notice: function (t) { chime(t, [988, 1319], 0.12, 0.85, 'sine'); chime(t + 0.34, [1568], 0.1, 0.5, 'sine'); },
     party: function (t) { chime(t, [523, 659, 784, 1047, 1319], 0.09, 1.1); },
     jiggle: function (t) {

@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 387
+- Only the bell swings in Claude alerts, in every theme.
+- A soft swoosh when you swipe an alert away.
+
 ## Build 386
 - Speech bubble pointers always aim at his head.
 
