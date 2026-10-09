@@ -418,10 +418,12 @@
     });
   }
   /** Called when the toy is picked up: if the switch is on, from now on it can go anywhere on the screen. */
-  setTimeout(function () {   // (made ahead of time: the picture, and the toy window with it loaded, so picking the toy up shows it at once)
+  /** Makes the toy's picture and loads it into the toy window ahead of time, so picking the toy up shows it at once. */
+  window.deskToyWarm = function () {
     if (!isPet() || deskPrefs.toyRoam !== true || !D.toyField || !D.toyShow) return;
     Promise.all([D.toyField(), toyPicture()]).then(function (r) { if (r[0] && r[1]) D.toyShow(r[1], Math.round(32 * (r[0].zoom || 1))); });
-  }, 4000);
+  };
+  setTimeout(window.deskToyWarm, 4000);
   window.deskToyField = function () {
     if (deskPrefs.toyRoam !== true || deskPrefs.hideToy || !isPet() || !D.toyField || !D.toyShow || toyField) return;
     var token = ++fieldToken;
@@ -444,7 +446,10 @@
         ax: 0,   // where the toy is on the screen (px), so that wherever his window has got to, its place in the window can be worked out again
         localX: function () { return (this.ax - f.wx) / z - mid; },
         follow: false,   // true while it is held: the shell moves the window to the mouse itself (no messages from here)
-        show: function (x, y, spin) { var p = spot(x, y); this.ax = p[0]; if (!this.follow) sendToyAt(p[0], p[1], spin); if (!this.shown) { this.shown = true; setTimeout(function () { if (toyField) toyEl.style.visibility = 'hidden'; }, 90); } },
+        /** A screen point as the toy's own terms (px from the middle of the stage, px above the floor). */
+        toPage: function (sx, sy) { return { x: (sx - f.wx) / z - mid, y: fl - (sy - f.wy) / z }; },
+        ay: 0,
+        show: function (x, y, spin) { var p = spot(x, y); this.ax = p[0]; this.ay = p[1]; if (!this.follow) sendToyAt(p[0], p[1], spin); if (!this.shown) { this.shown = true; setTimeout(function () { if (toyField) toyEl.style.visibility = 'hidden'; }, 90); } },
         /** Let go: from here the page moves the window again (the throw). */
         release: function () { if (this.follow) { this.follow = false; if (D.toyFollow) D.toyFollow(false); } },   // (the page's own toy goes only once the window's one is up: no blink)
         hide: function () { cancelAnimationFrame(toyAtRaf); toyAtRaf = 0; if (D.toyFollow) D.toyFollow(false); D.toyHide(); },

@@ -111,6 +111,11 @@ function mouthHeight() { return Math.round(pet.offsetHeight * 0.285 - 9); }
  */
 function playToy() {
   if (playing) return;
+  if (typeof toyKind === 'function' && toyKind() === 'wrecker' && document.documentElement.classList.contains('desktop-pet')) {   // (the wrecking ball is only thrown: grab it)
+    if (!busy) say(pick(['grab it and throw it!', 'throw me… I mean it!']), 1500);
+    if (!reduceMotion) toyBall.animate([{ transform: 'rotate(0)' }, { transform: 'rotate(-20deg)' }, { transform: 'rotate(14deg)' }, { transform: 'rotate(0)' }], { duration: 450 });
+    return;
+  }
   if (busy || baseState() === 'sleepy') {
     // something else is going on: the toy just wobbles
     if (!reduceMotion) toyBall.animate([{ transform: 'rotate(0)' }, { transform: 'rotate(-20deg)' }, { transform: 'rotate(14deg)' }, { transform: 'rotate(0)' }], { duration: 450 });
@@ -332,6 +337,7 @@ function letGoToy() {
   var boost = toyField ? 2.2 : 1, cap = 1500 * boost;
   vx *= boost; vy *= boost; speed *= boost;
   if (speed > cap) { vx *= cap / speed; vy *= cap / speed; }
+  if (typeof wreckWanted === 'function' && wreckWanted()) { wreckFling(vx, vy, h.y); return; }   // (the wrecking ball: app-wreck.js)
   fling(vx, vy, h.y);
 }
 toyEl.addEventListener('pointerup', letGoToy);

@@ -1582,6 +1582,13 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 /* which toy shows goes by the species: yarn for the cat, a tennis ball for the dog, a ball for the rest */
 .toy [data-toy="ball"], .stage:has(#pet[data-species="kitty"]) .toy [data-toy="yarn"], .stage:has(#pet[data-species="puppy"]) .toy [data-toy="tennis"] { display: inline; }
 .stage:has(#pet[data-species="kitty"]) .toy [data-toy="ball"], .stage:has(#pet[data-species="puppy"]) .toy [data-toy="ball"] { display: none; }
+/* the wrecking ball (app-wreck.js): a spiky black ball; when the ring menu's toy switch has picked it, it is the only toy that shows */
+.toy [data-toy="wrecker"] { display: none; }
+.stage.toy-wreck .toy [data-toy]:not([data-toy="wrecker"]) { display: none !important; }
+.stage.toy-wreck .toy [data-toy="wrecker"] { display: inline !important; }
+.wreck-spike { fill: #1b1b22; stroke: #07070a; stroke-width: 1; stroke-linejoin: round; }
+.wreck-fill { fill: #34343f; stroke: #07070a; stroke-width: 1; }
+.wreck-hi { fill: none; stroke: #b9bccb; stroke-width: 1.4; stroke-linecap: round; opacity: .8; }
 .toy-line { fill: none; stroke: var(--pet-ink); stroke-width: 1.8; }   /* the same dark brown as the pets' outlines */
 .toy-hi { fill: #fff; opacity: .75; }
 .ball-fill { fill: #ffb3c8; }

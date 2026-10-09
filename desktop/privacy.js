@@ -17,7 +17,7 @@ var LEVELS = {
 var ALWAYS = 'He never reads window titles, tabs, page text or your screen.';
 
 /** What each thing needs: the lowest level that allows it. */
-var NEEDS = { idle: 1, perch: 2, program: 2 };
+var NEEDS = { idle: 1, perch: 2, program: 2, wreck: 2 };
 
 /** How often he remarks on what you are doing (nothing else he says is affected). */
 var CHAT_LEVELS = [
@@ -42,7 +42,7 @@ function cleanMove(v, fallback) { return MOVE_LEVELS.some(function (l) { return 
 
 /** @returns {1|2} A saved value as a level (normal when it is missing or not one). */
 function clean(v) { return v === 1 || v === '1' ? 1 : 2; }
-/** @returns {boolean} Whether a level allows a thing ('idle', 'perch', 'program'). */
+/** @returns {boolean} Whether a level allows a thing ('idle', 'perch', 'program', 'wreck'). */
 function allows(level, thing) { return clean(level) >= (NEEDS[thing] || 2); }
 
 module.exports = { MOVE_LEVELS: MOVE_LEVELS, cleanMove: cleanMove, CHAT_LEVELS: CHAT_LEVELS, cleanChat: cleanChat, LEVELS: LEVELS, ALWAYS: ALWAYS, NEEDS: NEEDS, clean: clean, allows: allows };

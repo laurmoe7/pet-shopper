@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 476
+- New toy: the wrecking ball. Pick it with the toy switch in the ring menu (it replaced Pat).
+- Throw it and it breaks your open windows for 10 seconds while Fumu chases it, then his wand fixes them (needs the new installer).
+- He also stays aside while a menu is open above the clock or tray.
+
 ## Build 475
 - Fumu steps aside while you hover the clock or tray, so its note is not hidden behind him.
 

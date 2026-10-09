@@ -1,4 +1,4 @@
-// The ring menu: in the small desktop window, rest the pointer on him and a ring of little buttons opens above him (play ball, pat, a snack,
+// The ring menu: in the small desktop window, rest the pointer on him and a ring of little buttons opens above him (play ball, the toy switch, a snack,
 // a dance, swap the list, and at night the lights or the night light). It lives in his own window, so it never has to fit round the edge of the
 // screen. What it offers follows his scene (petScene): in bed only the night light; drowsy at night he can be sent to bed (then you tuck him in).
 // Plain script, shares one scope, loaded after app-night.js.
@@ -42,7 +42,7 @@
   /** Everything the ring can offer. `on` is for switches. */
   var ITEMS = {
     ball: { icon: '⚽', label: 'Play ball', run: function () { if (!busy && typeof playToy === 'function') playToy(); } },
-    pat: { icon: '❤', label: 'Pat', run: function () { if (window.petHim) window.petHim(); } },
+    toy: { icon: '💥', label: 'Wrecking ball', on: function () { return toyKind() === 'wrecker'; }, run: function () { toggleToyKind(); } },
     snack: { icon: '🍪', label: 'Snack', run: ringSnack },
     dance: { icon: '🎉', label: 'Dance', run: ringDance },
     wave: { icon: '👋', label: 'Wave', run: ringWave },
@@ -54,8 +54,8 @@
   function items() {
     var scene = petScene();
     if (scene === 'night-bed') return ['night'];   // in bed: only the night light
-    if (scene.indexOf('night-drowsy') === 0) return ['ball', 'pat', 'snack', 'dance', 'swap', 'lights'];
-    return ['ball', 'pat', 'snack', 'dance', 'swap', 'wave'];
+    if (scene.indexOf('night-drowsy') === 0) return ['ball', 'toy', 'snack', 'dance', 'swap', 'lights'];
+    return ['ball', 'toy', 'snack', 'dance', 'swap', 'wave'];
   }
   function canShow(now, force) {
     // a double click on him or a style preview is asked for on purpose: only the mode is checked, so a stuck state (hidden window, a leftover

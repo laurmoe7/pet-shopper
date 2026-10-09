@@ -22,6 +22,8 @@
       "preload.js",
       "place.js",
       "windows.js",
+      "wreck.js",
+      "wreck.html",
       "channel.js",
       "privacy.js",
       "programs.js",

@@ -191,13 +191,19 @@ function start() {
     const bar = (b.y + b.height) - (wa.y + wa.height);
     return bar > 0 && p.y >= wa.y + wa.height - 2 && p.y < b.y + b.height && p.x > b.x + b.width - TRAY_W;
   }
+  // the menus that open above the clock and the tray icons (calendar, volume, wifi) are taller than the hover note: once he has stepped aside he stays
+  // aside while the mouse is anywhere over that column of the screen
+  function flyoutHover() {
+    const p = screen.getCursorScreenPoint(), b = screen.getDisplayNearestPoint(p).bounds;
+    return p.x > b.x + b.width - TRAY_W && p.y > b.y + b.height - 780 && p.y < b.y + b.height;
+  }
   setInterval(async () => {
     if (dragFrom || perch || peekRest) sideStep = null;   // (picked up or moved on his own: his new place stays, nothing to go back to)
     if (!win || mode !== 'pet' || !win.isVisible() || dragFrom || perch || peekRest || tween || (typeof toyFollowT !== 'undefined' && toyFollowT)) return;
     const hover = trayHover(), wb = win.getBounds();
-    if (hover) {
+    if (hover || (sideStep && flyoutHover())) {
       sideAway = 0;
-      if (sideStep) return;
+      if (sideStep || !hover) return;
       const d = screen.getDisplayMatching(wb).bounds, bi = bodyIn(wb), zx = d.x + d.width - TRAY_W, zy = d.y + d.height - TRAY_H;
       if (!bodyBox || bi.r <= bi.l) return;   // (not told where his body is yet)
       const bodyL = wb.x + bi.l, bodyR = wb.x + bi.r, bodyB = wb.y + bi.b;   // (his body's sides and the bottom of his cushion, on the screen)
@@ -311,7 +317,7 @@ function start() {
   function applyMode(next) {
     if (!win || next === mode) { if (win) { win.webContents.send('desk:mode', mode); if (mode === 'list') { win.show(); win.moveTop(); win.focus(); } } return; }
     if (next === 'list') {
-      hideToy();
+      hideToy(); try { wreck.stop(); } catch (e) { /* not made yet */ }
       petBounds = win.getBounds();
       if (perch) { petBounds = place.floorBounds(petBounds, here()); leavePerch(); }
       mode = 'list';
@@ -773,7 +779,19 @@ function start() {
     if (dg !== toyDeg && now - toySpinAt > 30) { toySpinAt = now; toyDeg = dg; toyWin.webContents.executeJavaScript('document.getElementById("t")&&(document.getElementById("t").style.transform="rotate(' + Math.round(+deg || 0) + 'deg)")').catch(() => {}); }
   });
   ipcMain.on('desk:toyHide', () => hideToy());
-  app.on('before-quit', () => { if (toyWin && !toyWin.isDestroyed()) toyWin.destroy(); });
+  // the wrecking ball: an overlay that draws the open windows breaking (wreck.js); the page throws the toy and says what it hit
+  const wreck = require('./wreck').makeWreck({
+    BrowserWindow,
+    allowed: () => windows.available() && privacy.allows(prefs.awareness, 'wreck') && prefs.toyRoam,
+    display: () => screen.getDisplayMatching(win.getBounds()),
+    frames,
+    raise: () => { if (win) win.moveTop(); if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) toyWin.moveTop(); }
+  });
+  ipcMain.handle('desk:wreckStart', async () => { if (!win || mode !== 'pet') return { ok: false, reason: 'mode' }; try { return await wreck.start(); } catch (e) { wreck.stop(); return { ok: false, reason: 'error' }; } });
+  ipcMain.on('desk:wreckHit', (_e, i, x, y) => { try { wreck.hit(+i, +x, +y); } catch (e) { /* the overlay is gone */ } });
+  ipcMain.handle('desk:wreckFix', async () => { try { await wreck.fix(); } catch (e) { wreck.stop(); } });
+  ipcMain.on('desk:wreckAbort', () => wreck.stop());
+  app.on('before-quit', () => { wreck.stop(); if (toyWin && !toyWin.isDestroyed()) toyWin.destroy(); });
   ipcMain.on('desk:installUpdate', () => { if (updateReady && autoUpdater) autoUpdater.quitAndInstall(); });
   setInterval(() => { if (updateReady && win && win.isVisible()) win.webContents.send('desk:updateReady'); }, 3 * 3600 * 1000);   // still waiting: a gentle reminder now and then
   // a reminder: bring Fumu back if he was hidden (without taking the keyboard from what you are doing)

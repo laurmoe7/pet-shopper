@@ -45,6 +45,14 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   toyReady: () => ipcRenderer.invoke('desk:toyReady'),
   /** While the toy is held the shell moves its window to the mouse itself (true), until it is let go (false). */
   toyFollow: (on) => ipcRenderer.send('desk:toyFollow', !!on),
+  /** The wrecking ball is thrown: the shell opens its overlay over the open windows and answers with their rectangles (screen pixels), or why not. */
+  wreckStart: () => ipcRenderer.invoke('desk:wreckStart'),
+  /** Window number i (from wreckStart) was hit by the ball at x, y (screen pixels). */
+  wreckHit: (i, x, y) => ipcRenderer.send('desk:wreckHit', +i, +x, +y),
+  /** The windows are made whole again (resolves when the overlay is gone). */
+  wreckFix: () => ipcRenderer.invoke('desk:wreckFix'),
+  /** Stop at once and clear the overlay. */
+  wreckAbort: () => ipcRenderer.send('desk:wreckAbort'),
   setBody: (box) => ipcRenderer.send('desk:body', Array.isArray(box) ? box.slice(0, 4) : []),
   setRects: (rects) => ipcRenderer.send('desk:rects', Array.isArray(rects) ? rects.slice(0, 40) : []),
   /** A mouse button is held that went down on Fumu or the toy: stay solid until it is let go. */

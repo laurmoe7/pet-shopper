@@ -695,11 +695,12 @@
       </svg></div>
       <!-- the frog's tongue, stretched from its mouth to the toy when it catches it (tongueGrab in app-toy.js) -->
       <span class="frog-tongue" id="frogTongue" aria-hidden="true" hidden></span>
-      <!-- a toy on the floor (app-toy.js): tap it and the pet chases it. Which one shows depends on the species. -->
+      <!-- a toy on the floor (app-toy.js): tap it and the pet chases it. Which one shows depends on the species, or the wrecking ball when the ring menu's toy switch picked it. -->
       <button class="toy" id="toy" type="button" aria-label="Throw the toy"><span class="toy-ball"><svg viewBox="0 0 26 26" aria-hidden="true">
         <g class="toy-kind" data-toy="ball"><circle class="ball-fill" cx="13" cy="13" r="11"/><path class="ball-band" d="M3.4 8.6 Q13 12.6 22.6 8.6 L23.8 13.8 Q13 18.4 2.2 13.8 Z"/><path class="ball-star" d="M13 10.8 l.9 1.9 2 .3 -1.5 1.4 .4 2 -1.8 -1 -1.8 1 .4 -2 -1.5 -1.4 2 -.3 z"/><circle class="toy-line" cx="13" cy="13" r="11"/><ellipse class="toy-hi" cx="8.6" cy="6.8" rx="2.6" ry="1.6" transform="rotate(-30 8.6 6.8)"/></g>
         <g class="toy-kind" data-toy="yarn"><path class="yarn-tail" d="M21 19 Q25 23 22 25.4"/><circle class="yarn-fill" cx="13" cy="13" r="11"/><path class="yarn-lines" d="M5 7 Q13 11 15.6 23.6 M9.4 3.4 Q17 9 21 20.6 M2.6 13.6 Q11 13.4 13.4 24 M15 2.2 Q20 6 23.6 14"/><circle class="toy-line" cx="13" cy="13" r="11"/><ellipse class="toy-hi" cx="8.6" cy="6.8" rx="2.4" ry="1.4" transform="rotate(-30 8.6 6.8)"/></g>
         <g class="toy-kind" data-toy="tennis"><circle class="tennis-fill" cx="13" cy="13" r="11"/><path class="tennis-seam" d="M4.6 5.8 Q10.8 13 4.4 20.4 M21.4 5.6 Q15.2 13 21.6 20.2"/><circle class="toy-line" cx="13" cy="13" r="11"/><ellipse class="toy-hi" cx="8.6" cy="6.8" rx="2.4" ry="1.4" transform="rotate(-30 8.6 6.8)"/></g>
+        <g class="toy-kind" data-toy="wrecker"><path class="wreck-spike" d="M13.0 0.4 L15.1 5.1 L19.3 2.1 L18.8 7.2 L23.9 6.7 L20.9 10.9 L25.6 13.0 L20.9 15.1 L23.9 19.3 L18.8 18.8 L19.3 23.9 L15.1 20.9 L13.0 25.6 L10.9 20.9 L6.7 23.9 L7.2 18.8 L2.1 19.3 L5.1 15.1 L0.4 13.0 L5.1 10.9 L2.1 6.7 L7.2 7.2 L6.7 2.1 L10.9 5.1 Z"/><circle class="wreck-fill" cx="13" cy="13" r="8.2"/><path class="wreck-hi" d="M8.4 10.2 Q9.6 7.8 12.4 7.2"/></g>
       </svg></span></button>
       <!-- the pet's little shopping cart: it holds what is still to buy and empties as the pet eats -->
       <div class="cart" id="cart" aria-hidden="true" hidden><div class="cart-roll">
@@ -1280,6 +1281,7 @@
 <script src="app-backdrop.js"></script>
 <script src="app-idle.js"></script>
 <script src="app-toy.js"></script>
+<script src="app-wreck.js"></script>
 <script src="app-bedtime.js"></script>
 <script src="app-night.js"></script>
 <script src="app-ring.js"></script>
