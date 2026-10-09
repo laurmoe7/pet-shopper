@@ -484,3 +484,10 @@ html:root body.skp .cs-pop::after { background: linear-gradient(transparent, var
 .sk-mascot .me ellipse { transform-box: fill-box; transform-origin: center; animation: sk-blink 4.5s infinite; }
 .sk-mascot .mt { transform-origin: 18px 8px; animation: sk-sway 2.8s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .sk-mascot, .sk-mascot * { animation: none !important; } }
+
+.skp-menulist button[role="menuitemcheckbox"]::before { content: ""; width: 1em; flex: none; margin-right: -10px; color: #ff9bb8; }
+.skp-menulist button[aria-checked="true"]::before { content: "✓"; }
+.skp-menulist button[hidden] { display: none; }
+.skp-menulist button { justify-content: flex-start; }
+.skp-menulist kbd { margin-left: auto; padding-left: 18px; }
+body.skp-nopanel .skp-panel { display: none; }

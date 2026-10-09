@@ -28,6 +28,8 @@
         <button type="button" role="menuitem" data-cmd="upload" class="owner-only">Upload to Claude</button>
         <button type="button" role="menuitem" data-cmd="svg">Save SVG</button>
         <button type="button" role="menuitem" data-cmd="copy">Copy SVG</button>
+        <button type="button" role="menuitem" data-cmd="png">Export PNG…</button>
+        <button type="button" role="menuitem" data-cmd="copypng">Copy as PNG</button>
         <button type="button" role="menuitem" data-cmd="item">Copy item code</button>
         <hr class="owner-only">
         <button type="button" role="menuitem" data-cmd="sent" class="owner-only">Sent to Claude…</button>
@@ -42,6 +44,32 @@
         <hr>
         <button type="button" role="menuitem" data-cmd="selectall">Select all<kbd>Ctrl+A</kbd></button>
         <button type="button" role="menuitem" data-cmd="clear">Clear drawing</button>
+      </div>
+    </div>
+    <div class="skp-menu">
+      <button type="button" class="skp-menubtn" id="skMenuView" role="menuitem" aria-haspopup="true" aria-expanded="false">View</button>
+      <div class="skp-menulist" role="menu" hidden>
+        <button type="button" role="menuitem" data-cmd="zoomin">Zoom in<kbd>Ctrl+wheel</kbd></button>
+        <button type="button" role="menuitem" data-cmd="zoomout">Zoom out</button>
+        <button type="button" role="menuitem" data-cmd="fit">Fit to window</button>
+        <hr>
+        <button type="button" role="menuitemcheckbox" aria-checked="true" data-cmd="grid">Grid</button>
+        <button type="button" role="menuitemcheckbox" aria-checked="true" data-cmd="ref" id="skMenuRef">Picture underneath</button>
+        <button type="button" role="menuitemcheckbox" aria-checked="false" data-cmd="panels">Hide side panel</button>
+      </div>
+    </div>
+    <div class="skp-menu">
+      <button type="button" class="skp-menubtn" id="skMenuLayer" role="menuitem" aria-haspopup="true" aria-expanded="false">Layer</button>
+      <div class="skp-menulist" role="menu" hidden>
+        <button type="button" role="menuitem" data-cmd="lnew">New layer</button>
+        <button type="button" role="menuitem" data-cmd="ldup">Duplicate layer</button>
+        <button type="button" role="menuitem" data-cmd="ldel">Delete layer</button>
+        <hr>
+        <button type="button" role="menuitem" data-cmd="lmerge">Merge down</button>
+        <button type="button" role="menuitem" data-cmd="lmergeall">Merge visible layers</button>
+        <hr>
+        <button type="button" role="menuitem" data-cmd="lsolo">Hide other layers</button>
+        <button type="button" role="menuitem" data-cmd="lshow">Show all layers</button>
       </div>
     </div>
   </nav>
@@ -215,6 +243,13 @@
 </div>
 
 <p class="skp-status" id="skStatus" aria-live="polite"></p>
+<dialog class="skp-dlg" id="skPngDlg" aria-label="Export PNG">
+  <div class="skp-dlg-head"><strong>Export PNG</strong><button type="button" class="skp-x" data-close aria-label="Close">✕</button></div>
+  <div class="sk-row"><label>Size <select id="skPngSize" aria-label="Longest side in pixels"><option value="512">Small, 512 px</option><option value="1024" selected>Medium, 1024 px</option><option value="2048">Large, 2048 px</option><option value="4096">Huge, 4096 px</option></select></label></div>
+  <div class="sk-row"><label>Behind <select id="skPngBg" aria-label="What is behind the drawing"><option value="none" selected>See-through</option><option value="white">White</option><option value="paper">Paper</option></select></label></div>
+  <span class="skp-hint">The longest side gets this many pixels. Pictures you added to trace are left out.</span>
+  <div class="sk-row"><button type="button" class="skp-btn skp-main" id="skPngSave">Save PNG</button><button type="button" class="skp-btn" id="skPngCopy">Copy PNG</button></div>
+</dialog>
 <dialog class="skp-dlg skp-dlg-wide" id="skSendDlg" aria-label="Send to Claude">
   <div class="skp-dlg-head"><strong>Send to Claude</strong><button type="button" class="skp-x" data-close aria-label="Close">✕</button></div>
   <section class="skp-box">

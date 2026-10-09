@@ -1904,6 +1904,44 @@ function skCopy() {
     function () { skStatus.textContent = 'Could not copy. Try Save SVG.'; });
 }
 
+// ---------- PNG export ----------
+/** Draws the finished drawing (the same SVG as Save SVG) on a canvas and gives back a PNG. @returns {Promise<Blob>} */
+function skPngBlob(longest, bg) {
+  var f = skFiles(), v = SK_VIEW[SK.mode], k = longest / Math.max(v.w, v.h), w = Math.max(1, Math.round(v.w * k)), h = Math.max(1, Math.round(v.h * k));
+  var url = URL.createObjectURL(new Blob([f.svg], { type: 'image/svg+xml' }));
+  return new Promise(function (resolve, reject) {
+    var img = new Image();
+    img.onload = function () {
+      var cv = document.createElement('canvas'), g;
+      cv.width = w; cv.height = h; g = cv.getContext('2d');
+      if (bg !== 'none') { g.fillStyle = bg === 'white' ? '#ffffff' : '#ebddca'; g.fillRect(0, 0, w, h); }
+      g.drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      cv.toBlob(function (b) { b ? resolve(Object.assign(b, { skName: f.name })) : reject(new Error('empty')); }, 'image/png');
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('could not draw it')); };
+    img.src = url;
+  });
+}
+/** Saves the PNG, or copies it to the clipboard. */
+function skPng(longest, bg, save) {
+  if (skEmpty()) return;
+  skStatus.textContent = 'Making the PNG…';
+  skPngBlob(longest, bg).then(function (b) {
+    if (save) {
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(b); a.download = b.skName + '.png';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+      skStatus.textContent = 'Saved ' + b.skName + '.png.';
+    } else {
+      return navigator.clipboard.write([new ClipboardItem({ 'image/png': b })]).then(function () { skStatus.textContent = 'PNG copied. Paste it where you want it.'; });
+    }
+  }).catch(function (err) { skStatus.textContent = 'Could not make the PNG (' + String(err && err.message || err).slice(0, 60) + '). Try Save PNG, or Save SVG.'; });
+}
+$('skPngSave').addEventListener('click', function () { skPng(+$('skPngSize').value, $('skPngBg').value, true); $('skPngDlg').close(); });
+$('skPngCopy').addEventListener('click', function () { skPng(+$('skPngSize').value, $('skPngBg').value, false); $('skPngDlg').close(); });
+
 $('skItemCode').addEventListener('click', function () {
   var it = skItemCode();
   if (!it) return;
@@ -2546,6 +2584,11 @@ function skMenuOpen(btn) {
   var on = function (cmd, ok) { var i = list.querySelector('[data-cmd="' + cmd + '"]'); if (i) i.disabled = !ok; };
   on('resize', SK.mode === 'canvas'); on('item', !$('skItemRow').hidden);
   on('undo', !$('skUndo').disabled); on('redo', !$('skRedo').disabled);
+  var lays = skLays(), act = lays.map(function (x) { return x.id; }).indexOf(SK.active[SK.mode]), seen = lays.filter(function (x) { return x.show; }).length;
+  on('ldel', lays.length > 1); on('lmerge', act > 0); on('lmergeall', seen > 1); on('lsolo', lays.length > 1);
+  var check = function (cmd, v) { var i = list.querySelector('[data-cmd="' + cmd + '"]'); if (i) i.setAttribute('aria-checked', String(v)); };
+  check('grid', $('skGrid').checked); check('ref', $('skRef').checked); check('panels', document.body.classList.contains('skp-nopanel'));
+  var ri = list.querySelector('[data-cmd="ref"]'); if (ri) { ri.hidden = SK.mode === 'canvas'; ri.textContent = SK.mode === 'toy' ? 'Toy underneath' : (SK.mode === 'pet' ? 'Pet underneath' : 'Picture underneath'); }
   list.hidden = false; btn.setAttribute('aria-expanded', 'true');
 }
 $('skMenus').addEventListener('click', function (e) {
@@ -2559,6 +2602,57 @@ $('skMenus').addEventListener('pointerover', function (e) {   // with a menu ope
 });
 document.addEventListener('pointerdown', function (e) { if (!e.target.closest('#skMenus')) skMenuClose(); });
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape') skMenuClose(); });
+// ---------- layer menu ----------
+var skLayerN = 0;
+function skNewLayerId() { return 'l' + Date.now().toString(36) + (skLayerN++).toString(36); }
+/** Redraws after a layer was added, merged or removed. */
+function skLayersChanged() { SK.pick = SK.pick.filter(skSelectable); skRedraw(); skLinesUI(); skMarkActive(); skXfRender(); skSave(); }
+/** Copies the active layer and its lines into a new layer just above it. */
+function skLayerDup() {
+  var l = skLays(), i = l.map(function (x) { return x.id; }).indexOf(SK.active[SK.mode]), x = l[i];
+  if (!x) return;
+  var mine = skOrdered().filter(function (s) { return skLayerOf(s) === x; }), n = { id: skNewLayerId(), name: (x.name + ' copy').slice(0, 24), show: true }, pairs = {};
+  skPushHistory(); skAutoLayers[n.id] = n;
+  mine.forEach(function (s) {
+    var c = JSON.parse(JSON.stringify(s));
+    c.lay = n.id;
+    if (c.pair) c.pair = pairs[c.pair] || (pairs[c.pair] = 'p' + Date.now().toString(36) + (skLayerN++).toString(36));   // mirrored halves stay paired with their own copy
+    SK.strokes[SK.mode].push(c);
+  });
+  l.splice(i + 1, 0, n);
+  SK.active[SK.mode] = n.id; SK.layerSet[SK.mode] = [n.id];
+  skStatus.textContent = 'Layer duplicated: “' + n.name + '” (' + mine.length + (mine.length === 1 ? ' line' : ' lines') + ').';
+  skLayersChanged();
+}
+/** Joins layers into one: the active layer into the one below it, or every shown layer into the lowest shown one. */
+function skLayerMerge(all) {
+  var l = skLays(), ids = l.map(function (x) { return x.id; }), from, to;
+  if (all) {
+    from = l.filter(function (x) { return x.show; });
+    if (from.length < 2) { skStatus.textContent = 'Only one layer is shown, nothing to merge.'; return; }
+    to = from.shift();
+  } else {
+    var i = ids.indexOf(SK.active[SK.mode]);
+    if (i < 1) { skStatus.textContent = 'The bottom layer has nothing below it to merge into.'; return; }
+    from = [l[i]]; to = l[i - 1];
+  }
+  var moving = skOrdered().filter(function (s) { return from.indexOf(skLayerOf(s)) !== -1; });
+  skPushHistory();
+  from.forEach(function (x) { skAutoLayers[x.id] = x; });
+  SK.strokes[SK.mode] = SK.strokes[SK.mode].filter(function (s) { return moving.indexOf(s) === -1; }).concat(moving);   // they keep their look: they land on top of the lines already on the lower layer
+  moving.forEach(function (s) { s.lay = to.id; });
+  from.forEach(function (x) { l.splice(l.indexOf(x), 1); });
+  SK.active[SK.mode] = to.id; SK.layerSet[SK.mode] = [to.id];
+  skStatus.textContent = 'Merged ' + (from.length + 1) + ' layers into “' + to.name + '”.';
+  skLayersChanged();
+}
+/** Hides every layer except the active one, or shows them all again. */
+function skLayerSolo(hide) {
+  var act = SK.active[SK.mode];
+  skLays().forEach(function (x) { x.show = hide ? x.id === act : true; });
+  skStatus.textContent = hide ? 'Only the active layer is shown.' : 'All layers shown.';
+  skLayersChanged();
+}
 function skCommand(cmd) {
   if (cmd === 'new') skCanvasPop('new');
   else if (cmd === 'resize') skCanvasPop('resize');
@@ -2570,6 +2664,21 @@ function skCommand(cmd) {
   else if (cmd === 'svg') $('skSaveFile').click();
   else if (cmd === 'copy') $('skCopy').click();
   else if (cmd === 'item') $('skItemCode').click();
+  else if (cmd === 'png') { if (!skEmpty()) $('skPngDlg').showModal(); }
+  else if (cmd === 'copypng') skPng(1024, 'none', false);
+  else if (cmd === 'zoomin') skZoomAt(SK.zoom * 1.25);
+  else if (cmd === 'zoomout') skZoomAt(SK.zoom / 1.25);
+  else if (cmd === 'fit') { skZoomAt(1); skView.scrollLeft = 0; skView.scrollTop = 0; }
+  else if (cmd === 'grid') $('skGrid').click();
+  else if (cmd === 'ref') $('skRef').click();
+  else if (cmd === 'panels') document.body.classList.toggle('skp-nopanel');
+  else if (cmd === 'lnew') $('skAddLine').click();
+  else if (cmd === 'ldup') skLayerDup();
+  else if (cmd === 'ldel') { var row = document.querySelector('#skLineLayers .skp-line.active [data-act="del"]'); if (row) row.click(); }
+  else if (cmd === 'lmerge') skLayerMerge(false);
+  else if (cmd === 'lmergeall') skLayerMerge(true);
+  else if (cmd === 'lsolo') skLayerSolo(true);
+  else if (cmd === 'lshow') skLayerSolo(false);
   else if (cmd === 'undo') skUndo();
   else if (cmd === 'redo') skRedo();
   else if (cmd === 'selectall') { skSetTool('select'); SK.pick = SK.strokes[SK.mode].filter(skSelectable); skXfRender(); }
