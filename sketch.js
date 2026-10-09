@@ -1530,26 +1530,82 @@ skTraceUI();
 
 // ---------- cutting out a picture's background ----------
 var skCutOrig = {};   // the picture as it was before the cut, by layer id (kept until the page is closed)
+/** Puts the cut-out picture (a canvas with see-through parts) in place of the selected picture layer, keeping its size on the page. */
+function skCutApply(im, cv, note) {
+  if (!skCutOrig[im.id]) skCutOrig[im.id] = { src: im.src, bw: im.bw, bh: im.bh, scale: im.scale };
+  var shown = im.bw * im.scale;
+  im.src = cv.toDataURL('image/png'); im.bw = cv.width; im.bh = cv.height; im.scale = shown / cv.width;
+  skRenderImages(); skLayersUI(); skSaveImages();
+  $('skCutUndo').disabled = false;
+  skStatus.textContent = note;
+}
+/** @returns {Promise<{cv: HTMLCanvasElement, g: CanvasRenderingContext2D, w: number, h: number}>} The picture drawn on a canvas (at most 1600 pixels across). */
+async function skCutCanvas(im) {
+  var img = await skLoadImg(im.src), k = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight)), w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
+  var cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  var g = cv.getContext('2d', { willReadFrequently: true });
+  g.drawImage(img, 0, 0, w, h);
+  return { cv: cv, g: g, w: w, h: h };
+}
 /** Makes the plain background of the selected picture see-through (it spreads in from the edges over colours like the corners). */
 async function skCut() {
   var im = skSelected();
   if (!im) { skStatus.textContent = 'Add a picture first (Images, below).'; return; }
   try {
-    var img = await skLoadImg(im.src), k = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight)), w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
-    var cv = document.createElement('canvas');
-    cv.width = w; cv.height = h;
-    var g = cv.getContext('2d', { willReadFrequently: true });
-    g.drawImage(img, 0, 0, w, h);
-    var data = g.getImageData(0, 0, w, h), n = L.cutBackground(data.data, w, h, +$('skCutTol').value);
-    if (n < w * h * 0.002) { skStatus.textContent = 'No plain background found at the edges. Try a higher strength.'; return; }
-    g.putImageData(data, 0, 0);
-    if (!skCutOrig[im.id]) skCutOrig[im.id] = { src: im.src, bw: im.bw, bh: im.bh, scale: im.scale };
-    var shown = im.bw * im.scale;
-    im.src = cv.toDataURL('image/png'); im.bw = w; im.bh = h; im.scale = shown / w;
-    skRenderImages(); skLayersUI(); skSaveImages();
-    $('skCutUndo').disabled = false;
-    skStatus.textContent = 'Background cut out (' + Math.round(n / (w * h) * 100) + '% of the picture). Not right? Change the strength and press again, or Undo cut.';
+    var c = await skCutCanvas(im), data = c.g.getImageData(0, 0, c.w, c.h), n = L.cutBackground(data.data, c.w, c.h, +$('skCutTol').value);
+    if (n < c.w * c.h * 0.002) { skStatus.textContent = 'No plain background found at the edges. Try a higher strength, or use Cut out subject.'; return; }
+    c.g.putImageData(data, 0, 0);
+    skCutApply(im, c.cv, 'Plain background cut out (' + Math.round(n / (c.w * c.h) * 100) + '% of the picture). Not right? Change the strength and press again, or Undo cut.');
   } catch (err) { skStatus.textContent = 'Could not cut out that picture.'; }
+}
+var skAi = null;   // the cut-out model, loaded the first time it is needed and kept while the page is open
+/** Loads the AI cut-out model (RMBG-1.4 through transformers.js, from public CDNs; the browser keeps the download). */
+function skAiLoad() {
+  if (skAi) return skAi;
+  skAi = (async function () {
+    var T = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2');
+    T.env.allowLocalModels = false;
+    var shown = 0;
+    function progress(p) {
+      if (p.status === 'progress' && p.total > 5e6 && p.progress - shown >= 2) { shown = p.progress; skStatus.textContent = 'Downloading the cut-out model, first time only: ' + Math.round(p.progress) + '%'; }
+    }
+    var opts = { config: { model_type: 'custom' }, progress_callback: progress };
+    var model;
+    try { model = await T.AutoModel.from_pretrained('briaai/RMBG-1.4', Object.assign({ dtype: 'q8' }, opts)); }
+    catch (e) { model = await T.AutoModel.from_pretrained('briaai/RMBG-1.4', opts); }
+    var processor = await T.AutoProcessor.from_pretrained('briaai/RMBG-1.4', {
+      config: { do_normalize: true, do_pad: false, do_rescale: true, do_resize: true, image_mean: [0.5, 0.5, 0.5], feature_extractor_type: 'ImageFeatureExtractor', image_std: [1, 1, 1], resample: 2, rescale_factor: 0.00392156862745098, size: { width: 1024, height: 1024 } }
+    });
+    return { T: T, model: model, processor: processor };
+  })();
+  skAi.catch(function () { skAi = null; });   // a failed load can be tried again
+  return skAi;
+}
+/** Cuts the subject out of the selected picture with the AI model, the way photo apps do. */
+async function skCutAi() {
+  var im = skSelected();
+  if (!im) { skStatus.textContent = 'Add a picture first (Images, below).'; return; }
+  var btns = [$('skCutAi'), $('skCut')];
+  btns.forEach(function (b) { b.disabled = true; });
+  try {
+    skStatus.textContent = skAi ? 'Cutting out…' : 'Loading the cut-out model…';
+    var ai = await skAiLoad(), c = await skCutCanvas(im);
+    skStatus.textContent = 'Cutting out…';
+    var image = await ai.T.RawImage.fromCanvas(c.cv);
+    var out = await ai.model({ input: (await ai.processor(image)).pixel_values });
+    var mask = await ai.T.RawImage.fromTensor(out.output[0].mul(255).to('uint8')).resize(c.w, c.h);
+    var data = c.g.getImageData(0, 0, c.w, c.h), i, gone = 0;
+    for (i = 0; i < c.w * c.h; i++) {
+      var m = mask.data[i];
+      data.data[i * 4 + 3] = Math.round(data.data[i * 4 + 3] * m / 255);
+      if (m < 128) gone++;
+    }
+    c.g.putImageData(data, 0, 0);
+    skCutApply(im, c.cv, 'Subject cut out (' + Math.round(gone / (c.w * c.h) * 100) + '% removed). Not right? Undo cut.');
+  } catch (err) {
+    skStatus.textContent = 'The cut-out model could not run (' + String(err && err.message || err).slice(0, 80) + '). It needs an internet connection the first time. “Plain background” still works offline.';
+  } finally { btns.forEach(function (b) { b.disabled = false; }); }
 }
 function skCutUndo() {
   var im = skSelected(), o = im && skCutOrig[im.id];
@@ -1560,6 +1616,7 @@ function skCutUndo() {
   skStatus.textContent = 'Background back.';
 }
 $('skCut').addEventListener('click', skCut);
+$('skCutAi').addEventListener('click', skCutAi);
 $('skCutUndo').addEventListener('click', skCutUndo);
 
 // ---------- the pet's own colours ----------
