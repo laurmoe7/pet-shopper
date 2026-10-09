@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 407
+- Bottom bar names take their button's colour, with a cream outline.
+
 ## Build 406
 - Bottom bar buttons are back to their old size and peeling stickers.
 - Their names sit over the bottom of the button, with an outline like the list stickers.
