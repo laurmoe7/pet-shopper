@@ -1825,10 +1825,11 @@
     for (pass = 0; pass < 2; pass++) {
       var out = new Uint8Array(w * h), cnt = new Array(k);
       for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+        if (src[y * w + x] === 255) { out[y * w + x] = 255; continue; }   // see-through stays see-through
         cnt.fill(0);
         for (dy = -1; dy <= 1; dy++) for (dx = -1; dx <= 1; dx++) {
           var nx = x + dx, ny = y + dy;
-          if (nx >= 0 && ny >= 0 && nx < w && ny < h) cnt[src[ny * w + nx]]++;
+          if (nx >= 0 && ny >= 0 && nx < w && ny < h && src[ny * w + nx] !== 255) cnt[src[ny * w + nx]]++;
         }
         var best = src[y * w + x];
         for (dx = 0; dx < k; dx++) if (cnt[dx] > cnt[best]) best = dx;
@@ -1844,12 +1845,10 @@
    */
   function traceColours(px, w, h, k) {
     var n = w * h, rgb = new Float32Array(n * 3), i, j;
-    for (i = 0; i < n; i++) {
-      var a = px[i * 4 + 3] / 255;
-      for (j = 0; j < 3; j++) rgb[i * 3 + j] = px[i * 4 + j] * a + 255 * (1 - a);
-    }
+    for (i = 0; i < n; i++) for (j = 0; j < 3; j++) rgb[i * 3 + j] = px[i * 4 + j];
     var step = Math.max(1, Math.floor(n / 20000)), samples = [];
-    for (i = 0; i < n; i += step) samples.push([rgb[i * 3], rgb[i * 3 + 1], rgb[i * 3 + 2]]);
+    for (i = 0; i < n; i += step) if (px[i * 4 + 3] >= 20) samples.push([rgb[i * 3], rgb[i * 3 + 1], rgb[i * 3 + 2]]);
+    if (!samples.length) return { palette: [], labels: new Uint8Array(n).fill(255) };
     function dist(c, p) { return (c[0] - p[0]) * (c[0] - p[0]) + (c[1] - p[1]) * (c[1] - p[1]) + (c[2] - p[2]) * (c[2] - p[2]); }
     k = Math.max(2, Math.min(32, k | 0));
     // start from the common colours, each next one chosen for being both common and far from those already picked, so a small
@@ -1883,6 +1882,7 @@
     }
     var labels = new Uint8Array(n);
     for (i = 0; i < n; i++) {
+      if (px[i * 4 + 3] < 20) { labels[i] = 255; continue; }
       var p = [rgb[i * 3], rgb[i * 3 + 1], rgb[i * 3 + 2]], b = 0, bdist = Infinity;
       for (m = 0; m < cent.length; m++) { var dd = dist(cent[m], p); if (dd < bdist) { bdist = dd; b = m; } }
       labels[i] = b;

@@ -1427,32 +1427,33 @@ async function skTrace() {
     var cv = document.createElement('canvas');
     cv.width = W; cv.height = H;
     var g = cv.getContext('2d', { willReadFrequently: true });
-    g.fillStyle = '#fff'; g.fillRect(0, 0, W, H);
-    g.setTransform(scale, 0, 0, scale, -v.x * scale, -v.y * scale);
+    g.setTransform(scale, 0, 0, scale, -v.x * scale, -v.y * scale);   // the canvas stays see-through round the picture: that is not traced
     g.translate(im.cx, im.cy); g.rotate((im.rot || 0) * Math.PI / 180);
     g.drawImage(img, -im.bw * im.scale / 2, -im.bh * im.scale / 2, im.bw * im.scale, im.bh * im.scale);
     var px = g.getImageData(0, 0, W, H).data, jobs = [], hex = function (c) { return '#' + c.map(function (n) { return ('0' + n.toString(16)).slice(-2); }).join(''); };
     if (mode === 'lines') {
-      jobs.push({ mask: L.despeckle(L.traceInk(px, W, H, +$('skTraceLevel').value), W, H, 6), color: SK.color });
+      jobs.push({ mask: L.despeckle(L.traceInk(px, W, H, +$('skTraceLevel').value), W, H, 6), color: SK.color, at: 0 });
     } else {
-      var r = L.traceColours(px, W, H, +$('skTraceK').value), counts = r.palette.map(function () { return 0; }), edge = r.palette.map(function () { return 0; }), i, e;
+      var r = L.traceColours(px, W, H, +$('skTraceK').value), counts = r.palette.map(function () { return 0; }), i;
       r.labels = L.traceSmoothLabels(r.labels, W, H, r.palette.length);
-      for (i = 0; i < r.labels.length; i++) counts[r.labels[i]]++;
-      for (e = 0; e < W; e++) { edge[r.labels[e]]++; edge[r.labels[(H - 1) * W + e]]++; }
-      for (e = 0; e < H; e++) { edge[r.labels[e * W]]++; edge[r.labels[e * W + W - 1]]++; }
-      var paper = edge.indexOf(Math.max.apply(null, edge));   // the colour round the edge of the picture, if it is light, is the paper
-      r.palette.map(function (c, q) { return { c: c, q: q, n: counts[q] }; }).sort(function (a, b) { return b.n - a.n; }).forEach(function (t) {
-        if (t.q === paper && (t.c[0] + t.c[1] + t.c[2]) / 3 > 190) return;   // paper
+      for (i = 0; i < r.labels.length; i++) if (r.labels[i] !== 255) counts[r.labels[i]]++;
+      // the biggest colour goes at the bottom, and each colour's shape also covers every smaller colour above it,
+      // so a dropped speck shows the colour beneath instead of a hole
+      var order = r.palette.map(function (c, q) { return q; }).sort(function (a, b) { return counts[b] - counts[a]; }), rank = [];
+      order.forEach(function (q, at) { rank[q] = at; });
+      order.forEach(function (q, at) {
         var m = new Uint8Array(W * H);
-        for (i = 0; i < m.length; i++) m[i] = r.labels[i] === t.q ? 1 : 0;
-        jobs.push({ mask: L.despeckle(m, W, H, 8), color: hex(t.c), overlap: true });
+        for (i = 0; i < m.length; i++) m[i] = r.labels[i] !== 255 && rank[r.labels[i]] >= at ? 1 : 0;
+        jobs.push({ mask: L.despeckle(m, W, H, 8), color: hex(r.palette[q]), overlap: true, at: at });
       });
     }
     var made = [], LIMIT = 600, cands = [];
     jobs.forEach(function (job) { L.traceParts(job.mask, W, H, LIMIT).forEach(function (part) { cands.push({ job: job, part: part }); }); });
     cands.sort(function (a, b) { return b.part.size - a.part.size; });   // the biggest patches win when there are more than the limit
     var capped = cands.length > LIMIT;
-    cands.slice(0, LIMIT).forEach(function (cd) {
+    cands = cands.slice(0, LIMIT);
+    cands.sort(function (a, b) { return a.job.at - b.job.at || b.part.size - a.part.size; });   // bottom colour first, so the others sit on top
+    cands.forEach(function (cd) {
       var job = cd.job, part = cd.part;
       {
         var raw = L.traceLoops(part.mask, part.w, part.h);
