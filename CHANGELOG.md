@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 506
+- Quest2 alert cards: smooth metal, no stone noise
+
 ## Build 505
 - Wrecking ball: the border of a thing breaks first, cracks no longer stack, the ball cannot get stuck; over your desktop it bounces off every window it meets
 
