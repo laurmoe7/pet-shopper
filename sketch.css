@@ -313,8 +313,8 @@ html:root body.skp.skp-guest #skSaveFile { color: #fff; text-shadow: 0 1px 2px r
 .skp-tabs button[aria-selected="true"] { background: linear-gradient(180deg, #ffa3bb, #ff8fab); color: #3b1f2b; box-shadow: 0 2px 0 #c9577f; }
 .skp-pane { display: flex; flex-direction: column; gap: 8px; }
 .skp-pane[hidden] { display: none; }
-.sk-seltools[data-n="10"], .sk-seltools[data-n="12"] { grid-template-columns: repeat(6, 1fr); }
-.sk-seltools[data-n="10"] button, .sk-seltools[data-n="12"] button { height: 30px; }
+.sk-seltools[data-n="10"], .sk-seltools[data-n="12"], .sk-seltools[data-n="15"] { grid-template-columns: repeat(6, 1fr); }
+.sk-seltools[data-n="10"] button, .sk-seltools[data-n="12"] button, .sk-seltools[data-n="15"] button { height: 30px; }
 #skItemRow { flex-wrap: nowrap; }
 #skItemRow input { flex: 1; min-width: 0; }
 #skItemRow[hidden] { display: none; }
@@ -384,3 +384,5 @@ html:root body.skp .skp-main::after { content: ""; position: absolute; inset: 0;
 body.skp:has(.sk-stage[data-tool="shape"]) #skShape { border-color: #ff8fab; box-shadow: 0 0 0 2px rgba(255, 143, 171, .35), 0 0 12px rgba(255, 143, 171, .55); }
 .sk-tools button[hidden] { display: none; }
 html:root body.skp .cs-pop::after { background: linear-gradient(transparent, var(--sk-panel) 85%); border-radius: 0 0 16px 16px; }
+
+#skPaint.on { background: var(--accent); color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.25); }

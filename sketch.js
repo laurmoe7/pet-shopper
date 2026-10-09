@@ -977,6 +977,7 @@ function skXfDown(e) {
 /** Pressing on the drawing with the transform tool: pick a line, start a box round some, or move what is picked. */
 function skSelDown(e, pt) {
   var hit = skStrokeAt(pt), box = skPickBox();
+  if (SK.paint && hit) { skPaintOn(hit); return; }
   var inBox = box && pt[0] >= box.x0 && pt[0] <= box.x1 && pt[1] >= box.y0 && pt[1] <= box.y1;
   if (hit && e.shiftKey) {   // Shift adds a line to the pick, or takes it out
     var at = SK.pick.indexOf(hit);
@@ -1064,6 +1065,7 @@ function skSelButtons() {
   var none = !SK.pick.length, shapes = SK.pick.filter(function (s) { return s.closed || s.fill || s.bucket || s.d; }).length;
   $('skSelTools').querySelectorAll('button').forEach(function (b) { b.disabled = none; });
   ['skUnion', 'skSubtract', 'skIntersect'].forEach(function (id) { $(id).disabled = shapes < 2; });   // combining needs two closed shapes
+  if (SK.paint) $('skPaint').disabled = false;   // so it can be switched off again
 }
 /** Runs a transform on everything picked, as one undo step. */
 function skApplyOp(op) {
@@ -1182,8 +1184,81 @@ function skToCurve() {
   skRedraw(); skSave();
   skStatus.textContent = 'Now a curve: click it with the Curve tool to move its points.';
 }
+/** Smooths each picked pen line: fits a few curves to it and keeps the result as plain points (each press smooths a bit more). */
+function skSmooth() {
+  var v = SK_VIEW[SK.mode], todo = SK.pick.filter(function (s) { return !s.cv && !s.bucket && !s.d && !s.pr && s.pts.length > 3 && s.style !== 'wavy'; });
+  if (!todo.length) { skStatus.textContent = 'Pick pen lines (not curves or fills) to smooth.'; return; }
+  skPushHistory();
+  todo.forEach(function (s) {
+    var loop = s.closed || s.fill, pts = loop ? s.pts.concat([s.pts[0]]) : s.pts, segs = L.fitCurve(pts, v.w * 0.008);
+    if (!segs.length) return;
+    var a = [{ p: segs[0][0].slice(), o: [segs[0][1][0] - segs[0][0][0], segs[0][1][1] - segs[0][0][1]] }];
+    segs.forEach(function (b, k) {
+      var next = { p: b[3].slice(), o: [0, 0], i: [b[2][0] - b[3][0], b[2][1] - b[3][1]] };
+      if (k < segs.length - 1) next.o = [segs[k + 1][1][0] - b[3][0], segs[k + 1][1][1] - b[3][1]];
+      a.push(next);
+    });
+    if (loop) { var last = a.pop(); a[0].i = last.i; }
+    s.pts = L.simplifyLine(skCurvePts(a, !!loop, v.w * 0.008), v.w * 0.0015);
+    skFillPaths.delete(s); skShapePaths.delete(s);
+  });
+  skRedraw(); skSave();
+  skStatus.textContent = 'Smoothed. Press again for smoother.';
+}
+/** Joins the picked open lines: ends that almost touch meet in the middle, and a line whose ends almost meet is closed. */
+function skJoin() {
+  var v = SK_VIEW[SK.mode], lines = SK.pick.filter(function (s) { return !s.closed && !s.fill && !s.bucket && !s.d && !s.cv && s.pts.length > 1; });
+  if (!lines.length) { skStatus.textContent = 'Pick open lines to join.'; return; }
+  var ends = [];
+  lines.forEach(function (s) { ends.push({ s: s, at: 0 }, { s: s, at: s.pts.length - 1 }); });
+  var reach = Math.max(v.w * 0.05, 1), used = [], moved = 0, closed = 0;
+  skPushHistory();
+  ends.forEach(function (a, i) {
+    if (used.indexOf(a) !== -1) return;
+    var pa = a.s.pts[a.at], best = null, bd = reach;
+    ends.forEach(function (b, j) {
+      if (j === i || used.indexOf(b) !== -1 || (b.s === a.s && a.s.pts.length < 4)) return;
+      var d = Math.hypot(a.s.pts[a.at][0] - b.s.pts[b.at][0], a.s.pts[a.at][1] - b.s.pts[b.at][1]);
+      if (d < bd) { bd = d; best = b; }
+    });
+    if (!best) return;
+    var pb = best.s.pts[best.at], m = [+((pa[0] + pb[0]) / 2).toFixed(2), +((pa[1] + pb[1]) / 2).toFixed(2)];
+    a.s.pts[a.at] = m.slice(); best.s.pts[best.at] = m.slice();
+    used.push(a, best); moved++;
+    if (best.s === a.s) {   // both ends of one line: close it
+      a.s.pts.pop(); a.s.closed = true; closed++;
+    }
+  });
+  if (!moved) { SK.hist[SK.mode].pop(); skHistoryUI(); skStatus.textContent = 'No ends close enough to join.'; return; }
+  skRedraw(); skSave();
+  skStatus.textContent = 'Joined ' + moved + (moved === 1 ? ' gap' : ' gaps') + (closed ? ' (' + closed + ' closed)' : '') + '.';
+}
+/** Same style: copies the first picked line's colour, thickness and line style onto every line you click next. */
+function skPaintToggle() {
+  if (SK.paint) { SK.paint = null; skPaintLook(); skStatus.textContent = 'Same style off.'; return; }
+  var s = SK.pick[0];
+  if (!s) return;
+  SK.paint = { color: s.color, width: s.width, style: s.style, fill: s.fill, grad: s.grad ? JSON.parse(JSON.stringify(s.grad)) : null };
+  skPaintLook();
+  skStatus.textContent = 'Same style: click lines to paint them like this one. Press the button again to stop.';
+}
+function skPaintLook() { $('skPaint').classList.toggle('on', !!SK.paint); skSelButtons(); }
+/** Paints the copied style onto a line. */
+function skPaintOn(s) {
+  var p = SK.paint;
+  if (!p || s.bucket) return;
+  skPushHistory();
+  s.color = p.color; s.width = p.width;
+  if (p.style !== 'wavy' && s.style !== 'wavy') s.style = p.style;
+  if ((s.closed || s.fill) && p.fill) { s.fill = true; if (p.grad) s.grad = JSON.parse(JSON.stringify(p.grad)); else delete s.grad; }
+  skFillPaths.delete(s);
+  skRedraw(); skSave();
+}
 $('skOutline').addEventListener('click', skOutline);
 $('skToCurve').addEventListener('click', skToCurve);
+$('skSmooth').addEventListener('click', skSmooth);
+$('skJoin').addEventListener('click', skJoin);
+$('skPaint').addEventListener('click', skPaintToggle);
 $('skDel').addEventListener('click', skDeletePick);
 
 // ---------- combining shapes ----------
@@ -2018,6 +2093,7 @@ document.addEventListener('keydown', function (e) {
   if (k === 'r') { skNextSpin(); return; }
   if (k === 'k') { skSetClip(!SK.bodyClip); return; }
   if ((k === 'delete' || k === 'backspace') && skIsSel() && SK.pick.length) { e.preventDefault(); skDeletePick(); return; }
+  if (e.key === 'Escape' && SK.paint) { SK.paint = null; skPaintLook(); skStatus.textContent = 'Same style off.'; return; }
   if (e.key === 'Escape' && skIsSel() && SK.pick.length) { SK.pick = []; skXfRender(); return; }
   var tool = { p: 'pen', f: 'blob', e: 'erase', h: 'hand', i: 'drop', m: 'imgmove', b: 'bucket', s: 'select', l: 'lasso', c: 'curve', g: 'shape' }[k];
   if (tool) skSetTool(tool);

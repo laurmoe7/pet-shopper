@@ -41,6 +41,9 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 
 ## Build 235 (10 Oct)
 - Sketchpad: Clip lines stop flush with the outline.
+- Sketchpad: Smooth button evens out wobbly lines.
+- Sketchpad: Join gaps closes nearly-touching line ends.
+- Sketchpad: Same style copies colour and thickness onto clicked lines.
 - Sketchpad: icon has both ear insides and rounded corners, Clip lines meet the edge.
 - Sketchpad: game outline, pen pressure, pattern fills, clip to body, spin copies, make a curve.
 - Sketchpad: pig icon ears sit behind the head.
