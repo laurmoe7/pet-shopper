@@ -127,6 +127,12 @@
     <section class="skp-box">
       <div class="skp-head"><h2>Images</h2><kbd title="Paste a copied picture">Ctrl+V</kbd><button type="button" class="skp-btn skp-small" id="skAddImage">Add…</button><input type="file" id="skFile" accept="image/*" hidden></div>
       <div class="skp-layers" id="skLayers"></div>
+      <div class="skp-trace">
+        <div class="sk-row"><button type="button" class="skp-btn skp-small" id="skTrace" title="Trace the picked picture into shapes you can edit (on a new layer)">✦ Trace</button><select id="skTraceMode" aria-label="What to trace"><option value="lines">Lines (dark ink)</option><option value="colours">Colours (flat patches)</option></select></div>
+        <label class="sk-row" id="skTraceLevelRow">Ink <input type="range" id="skTraceLevel" min="-60" max="60" value="0" aria-label="How dark counts as ink"><span class="skp-hint">less &larr; &rarr; more</span></label>
+        <label class="sk-row" id="skTraceKRow" hidden>Colours <input type="range" id="skTraceK" min="2" max="10" value="5" aria-label="How many colours"></label>
+      </div>
+
     </section>
     </div>
     <div class="skp-pane" data-pane="under" hidden>

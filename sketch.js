@@ -1400,6 +1400,101 @@ $('skUnion').addEventListener('click', function () { skCombine('union'); });
 $('skSubtract').addEventListener('click', function () { skCombine('subtract'); });
 $('skIntersect').addEventListener('click', function () { skCombine('intersect'); });
 
+// ---------- tracing a picture ----------
+/** @returns {number} How far a point is from the segment a-b. */
+function skSegDist(p, a, b) {
+  var dx = b[0] - a[0], dy = b[1] - a[1], l = dx * dx + dy * dy, t = l ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l)) : 0;
+  return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy);
+}
+/** Loads a picture layer's image. @returns {Promise<HTMLImageElement>} */
+function skLoadImg(src) {
+  return new Promise(function (ok, no) { var i = new Image(); i.onload = function () { ok(i); }; i.onerror = no; i.src = src; });
+}
+/**
+ * Turns the selected picture into vector shapes on a new layer: Lines (dark ink on paper) or Colours (a few flat colours).
+ * The picture is drawn at working size, sorted into ink or colour patches, and each patch's outline is smoothed into a curve.
+ */
+async function skTrace() {
+  var im = skSelected();
+  if (!im) { skStatus.textContent = 'Add a picture first (Images, below), then trace it.'; return; }
+  var v = SK_VIEW[SK.mode], scale = 900 / Math.max(v.w, v.h), W = Math.round(v.w * scale), H = Math.round(v.h * scale), mode = $('skTraceMode').value;
+  var btn = $('skTrace');
+  btn.disabled = true; skStatus.textContent = 'Tracing…';
+  try {
+    var img = await skLoadImg(im.src);
+    var cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    var g = cv.getContext('2d', { willReadFrequently: true });
+    g.fillStyle = '#fff'; g.fillRect(0, 0, W, H);
+    g.setTransform(scale, 0, 0, scale, -v.x * scale, -v.y * scale);
+    g.translate(im.cx, im.cy); g.rotate((im.rot || 0) * Math.PI / 180);
+    g.drawImage(img, -im.bw * im.scale / 2, -im.bh * im.scale / 2, im.bw * im.scale, im.bh * im.scale);
+    var px = g.getImageData(0, 0, W, H).data, jobs = [], hex = function (c) { return '#' + c.map(function (n) { return ('0' + n.toString(16)).slice(-2); }).join(''); };
+    if (mode === 'lines') {
+      jobs.push({ mask: L.despeckle(L.traceInk(px, W, H, +$('skTraceLevel').value), W, H, 6), color: SK.color });
+    } else {
+      var r = L.traceColours(px, W, H, +$('skTraceK').value), counts = r.palette.map(function () { return 0; }), edge = r.palette.map(function () { return 0; }), i, e;
+      r.labels = L.traceSmoothLabels(r.labels, W, H, r.palette.length);
+      for (i = 0; i < r.labels.length; i++) counts[r.labels[i]]++;
+      for (e = 0; e < W; e++) { edge[r.labels[e]]++; edge[r.labels[(H - 1) * W + e]]++; }
+      for (e = 0; e < H; e++) { edge[r.labels[e * W]]++; edge[r.labels[e * W + W - 1]]++; }
+      var paper = edge.indexOf(Math.max.apply(null, edge));   // the colour round the edge of the picture, if it is light, is the paper
+      r.palette.map(function (c, q) { return { c: c, q: q, n: counts[q] }; }).sort(function (a, b) { return b.n - a.n; }).forEach(function (t) {
+        if (t.q === paper && (t.c[0] + t.c[1] + t.c[2]) / 3 > 190) return;   // paper
+        var m = new Uint8Array(W * H);
+        for (i = 0; i < m.length; i++) m[i] = r.labels[i] === t.q ? 1 : 0;
+        jobs.push({ mask: L.despeckle(m, W, H, 8), color: hex(t.c), overlap: true });
+      });
+    }
+    var made = [], LIMIT = 250, lay = null;
+    jobs.forEach(function (job) {
+      L.traceParts(job.mask, W, H, LIMIT).forEach(function (part) {
+        if (made.length >= LIMIT) return;
+        var raw = L.traceLoops(part.mask, part.w, part.h);
+        if (job.overlap) {   // a colour patch only a pixel or two thick is the blurred rim between two colours, not a shape
+          var perim = 0;
+          raw.forEach(function (lp) { lp.forEach(function (p, q) { var o = lp[(q + 1) % lp.length]; perim += Math.abs(o[0] - p[0]) + Math.abs(o[1] - p[1]); }); });
+          if (perim && part.size * 2 / perim < 2.2) return;
+        }
+        var loops = raw.map(function (lp) {
+          var real = L.simplifyLine(lp.concat([lp[0]]).map(function (p) { return [v.x + (p[0] + part.x) / scale, v.y + (p[1] + part.y) / scale]; }), 1.4 / scale), out = [];
+          L.fitCurve(real, v.w * 0.0028).forEach(function (b) {
+            for (var k = 0; k < 10; k++) { var t = k / 10, u = 1 - t; out.push([+(u * u * u * b[0][0] + 3 * u * u * t * b[1][0] + 3 * u * t * t * b[2][0] + t * t * t * b[3][0]).toFixed(2), +(u * u * u * b[0][1] + 3 * u * u * t * b[1][1] + 3 * u * t * t * b[2][1] + t * t * t * b[3][1]).toFixed(2)]); }
+          });
+          // a fitted curve that strays from the outline it was fitted to (it can overshoot) is dropped for the plain outline
+          var stray = out.some(function (p) {
+            var best = Infinity, j;
+            for (j = 1; j < real.length && best > 3 / scale; j++) best = Math.min(best, skSegDist(p, real[j - 1], real[j]));
+            return best > 3 / scale;
+          });
+          return stray ? real.slice(0, -1) : out;
+        }).filter(function (lp) { return lp.length > 2; });
+        if (!loops.length) return;
+        var outer = loops.slice().sort(function (a, b) { return b.length - a.length; })[0];
+        made.push({ d: loops.map(function (lp) { return 'M' + lp.map(function (p) { return p[0] + ' ' + p[1]; }).join('L') + 'Z'; }).join(''), pts: outer, color: job.color, width: job.overlap ? +(1.2 / scale).toFixed(2) : 0.2, fill: true, closed: true, style: 'solid' });
+      });
+    });
+    if (!made.length) { skStatus.textContent = mode === 'lines' ? 'No ink found. Slide the ink level towards “more”, or try Colours.' : 'Nothing to trace in that picture.'; return; }
+    var lays = skLays(), x = { id: 'l' + Date.now().toString(36), name: 'Trace', show: true };
+    lays.push(x); SK.active[SK.mode] = x.id; SK.layerSet[SK.mode] = [x.id];
+    made.forEach(function (s) { s.lay = x.id; skNew(s); });
+    skPushHistory();
+    SK.strokes[SK.mode] = SK.strokes[SK.mode].concat(made);
+    im.visible = false; skRenderImages(); skLayersUI(); skSaveImages();
+    skLinesUI(); skMarkActive(); skRedraw(); skSave();
+    skStatus.textContent = 'Traced ' + made.length + (made.length === 1 ? ' shape' : ' shapes') + (made.length >= LIMIT ? ' (the biggest; small bits left out)' : '') + ' onto a new layer, “Trace”. The picture is hidden: tick Show to see it again.';
+  } catch (err) {
+    skStatus.textContent = 'Could not trace that picture.';
+  } finally { btn.disabled = false; }
+}
+function skTraceUI() {
+  var lines = $('skTraceMode').value === 'lines';
+  $('skTraceLevelRow').hidden = !lines; $('skTraceKRow').hidden = lines;
+}
+$('skTrace').addEventListener('click', skTrace);
+$('skTraceMode').addEventListener('change', skTraceUI);
+skTraceUI();
+
 // ---------- the pet's own colours ----------
 /** Shows the main colours of whatever is underneath (the pet and its skin, the background, the toy) as swatches, read from how it is drawn. */
 function skPalette() {

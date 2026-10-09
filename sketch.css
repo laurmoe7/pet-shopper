@@ -389,3 +389,7 @@ html:root body.skp .cs-pop::after { background: linear-gradient(transparent, var
 .sk-repeat { align-items: center; gap: 6px; font-size: .78rem; color: var(--muted); }
 .sk-repeat input[type="number"] { width: 52px; padding: 3px 5px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font: inherit; }
 .sk-repeat .sk-check { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; }
+.skp-trace { display: grid; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1.5px dashed var(--line); }
+.skp-trace .sk-row { align-items: center; gap: 8px; font-size: .78rem; color: var(--muted); }
+.skp-trace input[type="range"] { flex: 1; }
+.skp-trace [hidden] { display: none; }

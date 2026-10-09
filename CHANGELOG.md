@@ -46,6 +46,7 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 - Sketchpad: Same style copies colour and thickness onto clicked lines.
 - Sketchpad: Eraser rubs out part of a line.
 - Sketchpad: Repeat along a line.
+- Sketchpad: Trace turns a picture into smooth shapes.
 - Sketchpad: icon has both ear insides and rounded corners, Clip lines meet the edge.
 - Sketchpad: game outline, pen pressure, pattern fills, clip to body, spin copies, make a curve.
 - Sketchpad: pig icon ears sit behind the head.

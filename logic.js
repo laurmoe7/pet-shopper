@@ -1688,6 +1688,148 @@
     return loops;
   }
 
+  /** @returns {Float32Array} How light each pixel is (0 dark .. 255 white); see-through pixels count as white paper. */
+  function traceLight(px, w, h) {
+    var out = new Float32Array(w * h), i;
+    for (i = 0; i < out.length; i++) {
+      var a = px[i * 4 + 3] / 255, l = 0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2];
+      out[i] = l * a + 255 * (1 - a);
+    }
+    return out;
+  }
+  /** @returns {number} The best dark/light split of the pixel lights (Otsu's method). */
+  function traceLevel(light) {
+    var hist = new Array(256).fill(0), total = light.length, i, sum = 0;
+    for (i = 0; i < total; i++) { hist[Math.max(0, Math.min(255, Math.round(light[i])))]++; }
+    for (i = 0; i < 256; i++) sum += i * hist[i];
+    var wb = 0, sb = 0, best = 0, level = 128;
+    for (i = 0; i < 256; i++) {
+      wb += hist[i];
+      if (!wb) continue;
+      var wf = total - wb;
+      if (!wf) break;
+      sb += i * hist[i];
+      var mb = sb / wb, mf = (sum - sb) / wf, between = wb * wf * (mb - mf) * (mb - mf);
+      if (between > best) { best = between; level = i; }
+    }
+    return level;
+  }
+  /** @returns {Uint8Array} 1 where there is ink: pixels darker than the automatic split, moved by `offset` (positive: more counts as ink). */
+  function traceInk(px, w, h, offset) {
+    var light = traceLight(px, w, h), level = Math.max(10, Math.min(245, traceLevel(light) + (offset || 0))), mask = new Uint8Array(w * h), i;
+    for (i = 0; i < mask.length; i++) mask[i] = light[i] <= level ? 1 : 0;
+    return mask;
+  }
+  /** Removes specks: ink patches and paper holes smaller than `min` pixels are flipped to match what surrounds them. */
+  function despeckle(mask, w, h, min) {
+    var seen = new Uint8Array(w * h), stack = [], i;
+    for (i = 0; i < mask.length; i++) {
+      if (seen[i]) continue;
+      var v = mask[i], cells = [];
+      seen[i] = 1; stack.push(i);
+      while (stack.length) {
+        var c = stack.pop(), x = c % w, y = (c - x) / w;
+        cells.push(c);
+        if (x > 0 && !seen[c - 1] && mask[c - 1] === v) { seen[c - 1] = 1; stack.push(c - 1); }
+        if (x < w - 1 && !seen[c + 1] && mask[c + 1] === v) { seen[c + 1] = 1; stack.push(c + 1); }
+        if (y > 0 && !seen[c - w] && mask[c - w] === v) { seen[c - w] = 1; stack.push(c - w); }
+        if (y < h - 1 && !seen[c + w] && mask[c + w] === v) { seen[c + w] = 1; stack.push(c + w); }
+      }
+      if (cells.length < min) cells.forEach(function (c) { mask[c] = 1 - v; });
+    }
+    return mask;
+  }
+  /**
+   * Splits a mask into its separate patches (touching corners count as joined), biggest first, each as its own small mask.
+   * @returns {{x: number, y: number, w: number, h: number, mask: Uint8Array, size: number}[]} At most `keep` patches (x, y is where the small mask sits in the big one).
+   */
+  function traceParts(mask, w, h, keep) {
+    var seen = new Uint8Array(w * h), parts = [], i, dx, dy;
+    for (i = 0; i < mask.length; i++) {
+      if (!mask[i] || seen[i]) continue;
+      var stack = [i], cells = [], x0 = w, y0 = h, x1 = 0, y1 = 0;
+      seen[i] = 1;
+      while (stack.length) {
+        var c = stack.pop(), x = c % w, y = (c - x) / w;
+        cells.push(c);
+        if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+        for (dy = -1; dy <= 1; dy++) for (dx = -1; dx <= 1; dx++) {
+          var nx = x + dx, ny = y + dy;
+          if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+          var q = ny * w + nx;
+          if (mask[q] && !seen[q]) { seen[q] = 1; stack.push(q); }
+        }
+      }
+      var pw = x1 - x0 + 3, ph = y1 - y0 + 3, sub = new Uint8Array(pw * ph);
+      cells.forEach(function (c) { var cx = c % w, cy = (c - cx) / w; sub[(cy - y0 + 1) * pw + (cx - x0 + 1)] = 1; });
+      parts.push({ x: x0 - 1, y: y0 - 1, w: pw, h: ph, mask: sub, size: cells.length });
+    }
+    parts.sort(function (a, b) { return b.size - a.size; });
+    return keep ? parts.slice(0, keep) : parts;
+  }
+  /** Cleans a map of colour numbers: each pixel takes the most common number among itself and its neighbours (twice), which removes the thin blended rims between patches. */
+  function traceSmoothLabels(labels, w, h, k) {
+    var src = labels, pass, x, y, dx, dy;
+    for (pass = 0; pass < 2; pass++) {
+      var out = new Uint8Array(w * h), cnt = new Array(k);
+      for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+        cnt.fill(0);
+        for (dy = -1; dy <= 1; dy++) for (dx = -1; dx <= 1; dx++) {
+          var nx = x + dx, ny = y + dy;
+          if (nx >= 0 && ny >= 0 && nx < w && ny < h) cnt[src[ny * w + nx]]++;
+        }
+        var best = src[y * w + x];
+        for (dx = 0; dx < k; dx++) if (cnt[dx] > cnt[best]) best = dx;
+        out[y * w + x] = best;
+      }
+      src = out;
+    }
+    return src;
+  }
+  /**
+   * Sorts the pixels into `k` flat colours (k-means, starting from colours far apart).
+   * @returns {{palette: number[][], labels: Uint8Array}} The colours as [r, g, b] and the colour number of every pixel (see-through pixels are paper: white).
+   */
+  function traceColours(px, w, h, k) {
+    var n = w * h, rgb = new Float32Array(n * 3), i, j;
+    for (i = 0; i < n; i++) {
+      var a = px[i * 4 + 3] / 255;
+      for (j = 0; j < 3; j++) rgb[i * 3 + j] = px[i * 4 + j] * a + 255 * (1 - a);
+    }
+    var step = Math.max(1, Math.floor(n / 20000)), samples = [];
+    for (i = 0; i < n; i += step) samples.push([rgb[i * 3], rgb[i * 3 + 1], rgb[i * 3 + 2]]);
+    function dist(c, p) { return (c[0] - p[0]) * (c[0] - p[0]) + (c[1] - p[1]) * (c[1] - p[1]) + (c[2] - p[2]) * (c[2] - p[2]); }
+    k = Math.max(2, Math.min(12, k | 0));
+    // start from the most common colours that are clearly different from each other (edge blends are rare, so they do not get a colour)
+    var bins = {}, cent = [];
+    samples.forEach(function (p) {
+      var key = (p[0] >> 4) * 256 + (p[1] >> 4) * 16 + (p[2] >> 4), b = bins[key] || (bins[key] = { n: 0, c: [0, 0, 0] });
+      b.n++; b.c[0] += p[0]; b.c[1] += p[1]; b.c[2] += p[2];
+    });
+    Object.keys(bins).map(function (key) { var b = bins[key]; return { n: b.n, c: [b.c[0] / b.n, b.c[1] / b.n, b.c[2] / b.n] }; })
+      .sort(function (a, b) { return b.n - a.n; })
+      .forEach(function (b) {
+        if (cent.length < k && cent.every(function (c) { return dist(c, b.c) > 48 * 48; })) cent.push(b.c);
+      });
+    var it, m, sums;
+    for (it = 0; it < 8; it++) {
+      sums = cent.map(function () { return [0, 0, 0, 0]; });
+      samples.forEach(function (p) {
+        var best = 0, bd = Infinity;
+        cent.forEach(function (c, q) { var d = dist(c, p); if (d < bd) { bd = d; best = q; } });
+        sums[best][0] += p[0]; sums[best][1] += p[1]; sums[best][2] += p[2]; sums[best][3]++;
+      });
+      sums.forEach(function (t, q) { if (t[3]) cent[q] = [t[0] / t[3], t[1] / t[3], t[2] / t[3]]; });
+    }
+    var labels = new Uint8Array(n);
+    for (i = 0; i < n; i++) {
+      var p = [rgb[i * 3], rgb[i * 3 + 1], rgb[i * 3 + 2]], b = 0, bdist = Infinity;
+      for (m = 0; m < cent.length; m++) { var dd = dist(cent[m], p); if (dd < bdist) { bdist = dd; b = m; } }
+      labels[i] = b;
+    }
+    return { palette: cent.map(function (c) { return c.map(Math.round); }), labels: labels };
+  }
+
   /** @returns {string} A name for a gradient (the same gradient always gets the same name). */
   function sketchGradId(g) { return 'g' + (g.type + g.c1 + g.c2 + (g.s ? 's' + g.s : '')).replace(/[^a-zA-Z0-9]/g, ''); }
   /** The patterns a shape can be filled with (besides flat colour and fades): a tile of `s` units, drawn in the two colours. */
@@ -2085,6 +2227,6 @@
     toggleDone: toggleDone,
     pickEmoji: pickEmoji,
     soundFor: soundFor,
-    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, sketchDash: sketchDash, fitCurve: fitCurve, sketchPathClean: sketchPathClean, sketchItemCode: sketchItemCode, sketchGradId: sketchGradId, sketchGradDef: sketchGradDef, sketchSoftBlur: sketchSoftBlur, sketchBlurId: sketchBlurId, sketchBlurDef: sketchBlurDef, sketchShape: sketchShape, sketchRibbon: sketchRibbon, sketchClipDef: sketchClipDef, SKETCH_PATTERNS: SKETCH_PATTERNS, SKETCH_SHAPES: SKETCH_SHAPES, sketchWave: sketchWave, SKETCH_STYLES: SKETCH_STYLES, traceLoops: traceLoops, simplifyLine: skSimplify
+    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, sketchDash: sketchDash, fitCurve: fitCurve, sketchPathClean: sketchPathClean, sketchItemCode: sketchItemCode, sketchGradId: sketchGradId, sketchGradDef: sketchGradDef, sketchSoftBlur: sketchSoftBlur, sketchBlurId: sketchBlurId, sketchBlurDef: sketchBlurDef, sketchShape: sketchShape, sketchRibbon: sketchRibbon, traceInk: traceInk, traceColours: traceColours, despeckle: despeckle, traceParts: traceParts, traceSmoothLabels: traceSmoothLabels, sketchClipDef: sketchClipDef, SKETCH_PATTERNS: SKETCH_PATTERNS, SKETCH_SHAPES: SKETCH_SHAPES, sketchWave: sketchWave, SKETCH_STYLES: SKETCH_STYLES, traceLoops: traceLoops, simplifyLine: skSimplify
   };
 })(typeof self !== 'undefined' ? self : globalThis);
