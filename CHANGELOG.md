@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 424
+- He can sit over the taskbar again; his window is kept on top of it.
+
 ## Build 423
 - When thrown against a wall or the ceiling he squishes flat into it and pops back.
 
