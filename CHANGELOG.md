@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 431
+- Claude alerts: the wand celebration plays right after the card appears.
+
 ## Build 430
 - He sits down while he naps.
 - Gentler squish against a wall, with a little lean and a burst where he hits.

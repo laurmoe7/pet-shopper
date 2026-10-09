@@ -320,8 +320,13 @@ function receiveMessage(msg, more) {
   if (msg.id) shownIds[msg.id] = 1;
   if (msg.from === 'claude' && !msg.test) accountApi('/v1/inbox/ack', 'POST', account.code, { ids: [msg.id] });   // a tap on the shoulder: gone from the server at once, so it cannot come back
   rememberReceived(msg);
-  if (msg.from === 'claude') {   // Claude's note is the alert and nothing else: no flying in, no wand, no speech, so it shows at once
-    inboxCard = null; sound('claude'); showInboxCard(msg, more); return;
+  if (msg.from === 'claude') {   // Claude's note shows at once (no flying in, no speech); the wand celebration plays right after the card appears
+    inboxCard = null; sound('claude'); showInboxCard(msg, more);
+    if (!busy && !reduceMotion && !(typeof petScene === 'function' && petScene() === 'night-bed')) {   // (asleep in bed: just the card)
+      busy++; setFace(FACES.tada); castWand();
+      setTimeout(function () { busy--; if (!busy) settle(); }, 3200);
+    }
+    return;
   }
   inboxCard = document.createElement('div');   // holds the place from the start, so a second message does not begin
   // a short wait first (long enough to have watched it leave the other device), then he eats it as soon as he is free
