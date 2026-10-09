@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 425
+- Alert cards are not cut off at the top of the window any more.
+
 ## Build 424
 - He can sit over the taskbar again; his window is kept on top of it.
 

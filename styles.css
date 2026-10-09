@@ -2833,7 +2833,8 @@ html.desktop-pet, html.desktop-pet * { user-select: none; -webkit-user-select: n
 html.desktop-pet .app { max-width: none; min-height: 0; height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; }
 html.desktop-pet .scene { position: static; padding: 0; background: none !important; }
 html.desktop-pet .scene::after { display: none; }
-html.desktop-pet .stage { width: 100vw; margin-bottom: 28px; }   /* (room under him: when he spins or tilts his lower part stays inside the window instead of being cut off at its bottom edge) */
+html.desktop-pet .stage { width: 100vw; margin-bottom: 28px; transition: margin-bottom .2s ease-out; }
+html.desktop-pet .stage:has(.inbox-card, .quick-card) { margin-bottom: 0; }   /* (an alert card needs the room above him: it was cut off at the top of the window) */   /* (room under him: when he spins or tilts his lower part stays inside the window instead of being cut off at its bottom edge) */
 /* the stage keeps its own height at the bottom; the free room above is for the speech bubble */
 html.desktop-pet .stage .bubble { left: var(--vis-l, 0px) !important; right: calc(100vw - var(--vis-r, 100vw)) !important; top: auto !important; bottom: calc(100% - 24px); margin: 0 auto; max-width: calc(var(--vis-r, 100vw) - var(--vis-l, 0px) - 24px) !important; transform-origin: 50% 100% !important; }
 html.desktop-list #deskBar { display: flex; }
