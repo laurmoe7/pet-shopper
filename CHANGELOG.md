@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 475
+- Fumu steps aside while you hover the clock or tray, so its note is not hidden behind him.
+
 ## Build 474
 - Removed a few unused styles and one unused function.
 

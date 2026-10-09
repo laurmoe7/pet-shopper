@@ -182,6 +182,36 @@ function start() {
   }
   setInterval(raiseOverTaskbar, 300);
 
+  // The clock and the tray icons show a small hover note above the taskbar's right end, and he stands in front of it (his window is above the taskbar).
+  // While the mouse is over that part of the taskbar he steps aside to the left; a moment after the mouse leaves he goes back to exactly where he was.
+  const TRAY_W = 440, TRAY_H = 150;
+  let sideStep = null, sideAway = 0;
+  function trayHover() {
+    const p = screen.getCursorScreenPoint(), d = screen.getDisplayNearestPoint(p), b = d.bounds, wa = d.workArea;
+    const bar = (b.y + b.height) - (wa.y + wa.height);
+    return bar > 0 && p.y >= wa.y + wa.height - 2 && p.y < b.y + b.height && p.x > b.x + b.width - TRAY_W;
+  }
+  setInterval(async () => {
+    if (dragFrom || perch || peekRest) sideStep = null;   // (picked up or moved on his own: his new place stays, nothing to go back to)
+    if (!win || mode !== 'pet' || !win.isVisible() || dragFrom || perch || peekRest || tween || (typeof toyFollowT !== 'undefined' && toyFollowT)) return;
+    const hover = trayHover(), wb = win.getBounds();
+    if (hover) {
+      sideAway = 0;
+      if (sideStep) return;
+      const d = screen.getDisplayMatching(wb).bounds, bi = bodyIn(wb), zx = d.x + d.width - TRAY_W, zy = d.y + d.height - TRAY_H;
+      if (!bodyBox || bi.r <= bi.l) return;   // (not told where his body is yet)
+      const bodyL = wb.x + bi.l, bodyR = wb.x + bi.r, bodyB = wb.y + bi.b;   // (his body's sides and the bottom of his cushion, on the screen)
+      if (bodyR > zx && bodyL < d.x + d.width && bodyB > zy) {
+        sideStep = { x: wb.x, y: wb.y };
+        await glide({ x: Math.round(zx - 8 - bi.r), y: wb.y, width: wb.width, height: wb.height }, 280);
+      }
+    } else if (sideStep && ++sideAway >= 3) {   // (about a second and a half after the mouse has left)
+      const to = sideStep; sideStep = null; sideAway = 0;
+      const cur = win.getBounds();
+      await glide({ x: to.x, y: cur.y, width: cur.width, height: cur.height }, 380);
+    }
+  }, 500);
+
   /** He is let go while moving fast: he flies on, bounces off the edges of the screens and the floor, then runs back to where he was picked up. */
   let lastThrow = null;   // where the last throw started, landed and ended (shown in the diagnostics, to track down a wrong run-back)
   async function throwWindow(vx, vy, home, inBed, opts) {
