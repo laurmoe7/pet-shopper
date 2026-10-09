@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 459
+- The dragon no longer walks so far that the window edge cuts his wings.
+
 ## Build 458
 - Dragon has a lower lip line under his smile.
 

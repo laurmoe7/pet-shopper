@@ -104,7 +104,9 @@ function lookAround() {
 // property), never scaled or turned. --walk-x lives on the stage so the speech bubble and daydream follow.
 var stage = pet.parentNode, walkX = 0, walkTimer, walking = false, walkWide = false;
 /** @returns {number} How far the pet may walk from the middle, in px; further while playing with the toy (walkWide). */
-function walkRange() { return Math.max(0, walkWide ? Math.min(130, stage.clientWidth / 2 - 76) : Math.min(70, stage.clientWidth / 2 - 100)); }
+/** @returns {number} How far his drawing reaches from the middle of his box (the dragon's wings stick out past it): he must not walk so far that the window's edge cuts it. */
+function petReach() { return pet.offsetWidth / 2 + (pet.dataset.species === 'dragon' ? 8.5 * pet.offsetWidth / 160 : 0); }
+function walkRange() { var r = petReach(); return Math.max(0, walkWide ? Math.min(130, stage.clientWidth / 2 - (r + 1)) : Math.min(70, stage.clientWidth / 2 - (r + 25))); }
 /**
  * @returns {{min: number, max: number}} Where the pet may stand: it can tuck a little behind the receipt and
  * the bag but not hide behind them.
