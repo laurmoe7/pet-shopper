@@ -50,11 +50,12 @@ new MutationObserver(applyStolen).observe($('todo'), { childList: true });
 
 /**
  * He steals the emoji of a row that is on show and eats it.
+ * @param {boolean} [force] Go ahead even if he is marked busy (the animation player does that).
  * @returns {boolean} Whether he went for one.
  */
-function stealNow() {
+function stealNow(force) {
   var rows = stealable();
-  if (!rows.length || stolen || busy) return false;
+  if (!rows.length || stolen || (busy && !force)) return false;   // (force: the animation player has already marked him busy)
   var li = rows[Math.floor(Math.random() * rows.length)], img = li.querySelector('.emoji-btn img');
   var r = img.getBoundingClientRect(), from = { x: r.left + r.width / 2, y: r.top + r.height / 2, size: Math.max(20, r.width) };
   var src = img.src;

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 496
+- Animation player: steal an emoji works again
+
 ## Build 495
 - Wrecking ball in the app: bounces off things and chips a few pieces each hit, like Breakout
 
