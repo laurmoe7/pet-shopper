@@ -1,7 +1,7 @@
 // Offline support: cache the app shell and every emoji on install. The app's own files go network-first
 // (so a new build shows up on the next visit and the cache is only the offline fallback); emoji are cache-first.
 importScripts('foods.js', 'tasks.js');
-var CACHE = 'nibble-v439';
+var CACHE = 'nibble-v440';
 
 // Emoji and web fonts live in their own cache that is kept between builds, so an update only downloads
 // the app's own files, not all 160 emoji again. Only emoji that aren't cached yet are fetched.

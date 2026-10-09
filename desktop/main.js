@@ -231,8 +231,19 @@ function start() {
       }, 8);
       tween = { timer, done: resolve };
     });
-    if (win && inBed && bedLift) { const bb = win.getBounds(); win.setBounds({ x: bb.x, y: bb.y - bedLift, width: bb.width, height: bb.height }); }   // (the page puts the bed down at the same moment: no sinking)
     if (win) { if (!inBed) win.webContents.send('desk:fall', false); if (!opts.noSpin || opts.ouch) win.webContents.send('desk:thrown', false, 0, inBed, { ouch: !!opts.ouch, head: !!opts.head }); }
+    // the bed was drawn bedLift px higher while it flew: the page eases that lift away over 250 ms (.bed-settle in styles.css) while the window moves up by the same amount at the same pace, so the bed stays exactly where it is on screen (a single jump of the two showed as a flicker)
+    if (ok && win && inBed && bedLift) {
+      const bb = win.getBounds(), tl = Date.now();
+      await new Promise((res) => {
+        const tm = setInterval(() => {
+          if (!win) { clearInterval(tm); res(); return; }
+          const k = Math.min(1, (Date.now() - tl) / 250);
+          win.setBounds({ x: bb.x, y: Math.round(bb.y - bedLift * k), width: bb.width, height: bb.height });
+          if (k >= 1) { clearInterval(tm); res(); }
+        }, 8);
+      });
+    }
     if (!ok || !win) return;
     if (inBed) {   // in his bed: after bouncing about on the floor the whole bed springs back to where it was (no running: he is asleep)
       const cur0 = win.getBounds(), disp0 = screen.getDisplayMatching(home).bounds;

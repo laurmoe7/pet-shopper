@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 440
+- No flicker or freeze when the bed lands after a throw.
+
 ## Build 439
 - A test Shop with a premium card and cosmetic packs (nothing can be bought). Switch it on in Developer tools.
 
