@@ -9,17 +9,14 @@
 // It only draws pictures: nothing here touches the real windows. The one picture of the screen it gets (see shot) is never saved or sent anywhere.
 'use strict';
 var cv = document.getElementById('c'), g = cv.getContext('2d'), W = 0, H = 0, wins = [], fixing = 0, raf = 0, last = 0, now = 0;
-var sparks = [], img = null, back = '#2a3045';
+var sparks = [], img = null, TV = ['#ff2bd6', '#2bffe1', '#38ff4a', '#ffffff', '#2f4bff', '#ffea2b', '#111111', '#111111', '#000000', '#ff3030'];
 function rnd(a, b) { return a + Math.random() * (b - a); }
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
 /** Sets the size and the windows: each is {x, y, w, h, cols, rows} (px of this overlay) and gets a jittered grid of pieces, two triangles each. */
 function init(w, h, list) {
-  W = w; H = h; fixing = 0; sparks = []; now = 0; img = null; back = '#2a3045';
-  var d = window.devicePixelRatio || 1;
-  cv.width = Math.round(W * d); cv.height = Math.round(H * d);
-  cv.style.width = W + 'px'; cv.style.height = H + 'px';
-  g.setTransform(d, 0, 0, d, 0, 0);
+  W = w; H = h; fixing = 0; sparks = []; now = 0; img = null;
+  cv.width = W; cv.height = H;   // (one canvas pixel per screen pixel: a sharper one costs the whole screen a lot of drawing for a see-through picture)
   wins = (list || []).map(function (r) {
     var v = [], gx, gy, cells = [];
     for (gy = 0; gy <= r.rows; gy++) {
@@ -31,7 +28,9 @@ function init(w, h, list) {
     }
     for (gy = 0; gy < r.rows; gy++) for (gx = 0; gx < r.cols; gx++) {
       var a = v[gy][gx], b = v[gy][gx + 1], c = v[gy + 1][gx + 1], e = v[gy + 1][gx];
-      cells.push({ tris: [[a, b, c], [a, c, e]].map(function (p) { return { p: p, cx: (p[0][0] + p[1][0] + p[2][0]) / 3, cy: (p[0][1] + p[1][1] + p[2][1]) / 3, ox: 0, oy: 0, vx: 0, vy: 0, rot: 0, t: 0, gone: false }; }),
+      var bars = [], bx = Math.min(a[0], e[0]), bw = Math.max(b[0], c[0]) - bx, off = 0;
+      while (off < bw) { var wd = rnd(3, 16); bars.push({ x: bx + off, w: wd, c: TV[(Math.random() * TV.length) | 0], s: (Math.random() * 1000) | 0 }); off += wd; }
+      cells.push({ quad: [a, b, c, e], bars: bars, tris: [[a, b, c], [a, c, e]].map(function (p) { return { p: p, cx: (p[0][0] + p[1][0] + p[2][0]) / 3, cy: (p[0][1] + p[1][1] + p[2][1]) / 3, ox: 0, oy: 0, vx: 0, vy: 0, rot: 0, t: 0, gone: false }; }),
         x1: Math.min(a[0], e[0]), y1: Math.min(a[1], b[1]), x2: Math.max(b[0], c[0]), y2: Math.max(e[1], c[1]), broke: false, bt: 0, ix: 0, iy: 0, dark: false, fixDelay: 0, sparked: false });
     }
     return { r: r, cells: cells };
@@ -67,6 +66,27 @@ function star(x, y, s, alpha) {
 }
 function tri(p, dx, dy) { g.beginPath(); g.moveTo(p[0][0] + dx, p[0][1] + dy); g.lineTo(p[1][0] + dx, p[1][1] + dy); g.lineTo(p[2][0] + dx, p[2][1] + dy); g.closePath(); }
 
+function quad(q) { g.beginPath(); g.moveTo(q[0][0], q[0][1]); g.lineTo(q[1][0], q[1][1]); g.lineTo(q[2][0], q[2][1]); g.lineTo(q[3][0], q[3][1]); g.closePath(); }
+
+/** A broken TV screen: black with coloured bars and static that jump about. */
+function tvHole(c, alpha) {
+  g.save(); quad(c.quad); g.clip();
+  g.globalAlpha = alpha; g.fillStyle = '#050507'; g.fillRect(c.x1, c.y1, c.x2 - c.x1, c.y2 - c.y1);
+  var tick = Math.floor(now * 9), h = c.y2 - c.y1;
+  for (var i = 0; i < c.bars.length; i++) {
+    var br = c.bars[i], r = (br.s * 9301 + tick * 49297 + i * 233) % 100;
+    if (r < 28) continue;   // (a bar that is off for a moment)
+    g.globalAlpha = alpha * (r < 60 ? .55 : .9); g.fillStyle = br.c;
+    var top = r > 80 ? ((r * 7 + tick * 13) % 40) / 100 * h : 0;   // (some are only a part of the height)
+    g.fillRect(br.x, c.y1 + top, br.w, h - top);
+  }
+  for (var j = 0; j < 3; j++) {   // thin lines of static that jump
+    var ly = c.y1 + ((tick * 37 + j * 61 + c.bars.length * 17) % 100) / 100 * h;
+    g.globalAlpha = alpha * .55; g.fillStyle = '#fff'; g.fillRect(c.x1, ly, c.x2 - c.x1, 1.5);
+  }
+  g.restore();
+}
+
 function frame(ts) {
   raf = requestAnimationFrame(frame);
   var dt = Math.min(.05, (ts - last) / 1000); last = ts; now += dt;
@@ -85,20 +105,15 @@ function frame(ts) {
         var k = clamp(c.bt / .1, 0, 1);
         for (var m = 0; m < 7; m++) {
           var an = m / 7 * Math.PI * 2 + (n * 3 + m * 5 % 4) * .3, len = (30 + (m * 29 % 50)) * k;
-          g.strokeStyle = 'rgba(0,0,0,.55)'; g.lineWidth = 2.6; g.beginPath(); g.moveTo(c.ix, c.iy); g.lineTo(c.ix + Math.cos(an) * len, c.iy + Math.sin(an) * len); g.stroke();
-          g.strokeStyle = 'rgba(255,255,255,.9)'; g.lineWidth = 1; g.stroke();
+          g.strokeStyle = 'rgba(0,0,0,.6)'; g.lineWidth = 2.6; g.beginPath(); g.moveTo(c.ix, c.iy); g.lineTo(c.ix + Math.cos(an) * len, c.iy + Math.sin(an) * len); g.stroke();
         }
         g.restore();
       }
       if (!fixing && !c.dark && c.bt >= .14) c.dark = true;
-      if (c.dark) {   // the piece is gone: the desktop shows where it was
+      if (c.dark) {   // the piece is gone: a broken screen shows where it was
         var alpha = fixing ? clamp(1 - (c.fixT - c.fixDelay) / .25, 0, 1) : 1;
         if (fixing && c.fixT >= c.fixDelay && !c.sparked) { c.sparked = true; sparks.push({ x: (c.x1 + c.x2) / 2, y: (c.y1 + c.y2) / 2, t: 0 }); }
-        if (alpha > 0) c.tris.forEach(function (t) {
-          g.globalAlpha = alpha; g.fillStyle = back; tri(t.p, 0, 0); g.fill();
-          g.strokeStyle = back; g.lineWidth = 1.5; g.stroke();   // (covers the seam between two pieces)
-          g.globalAlpha = 1;
-        });
+        if (alpha > 0) tvHole(c, alpha);
       }
     });
     g.restore();
@@ -113,12 +128,12 @@ function frame(ts) {
         g.save(); g.translate(t.cx + t.ox, t.cy + t.oy); g.rotate(t.rot * t.t);
         g.globalAlpha = Math.min(1, life * 1.6);
         var rel = [[t.p[0][0] - t.cx, t.p[0][1] - t.cy], [t.p[1][0] - t.cx, t.p[1][1] - t.cy], [t.p[2][0] - t.cx, t.p[2][1] - t.cy]];
-        if (img) {
-          tri(rel, 0, 0); g.save(); g.clip(); g.drawImage(img, -t.cx, -t.cy, W, H); g.restore();
-          tri(rel, 0, 0); g.strokeStyle = 'rgba(255,255,255,.9)'; g.lineWidth = 1.2; g.stroke();
-        } else {
-          g.fillStyle = 'rgba(214,230,246,.85)'; g.strokeStyle = 'rgba(255,255,255,.95)'; g.lineWidth = 1.4; tri(rel, 0, 0); g.fill(); g.stroke();
-        }
+        tri(rel, 0, 0);
+        if (img) {   // (only the piece's own part of the picture is drawn)
+          g.clip();
+          var sx = Math.min(t.p[0][0], t.p[1][0], t.p[2][0]), sy = Math.min(t.p[0][1], t.p[1][1], t.p[2][1]), ex = Math.max(t.p[0][0], t.p[1][0], t.p[2][0]), ey = Math.max(t.p[0][1], t.p[1][1], t.p[2][1]), k = img.width / W;
+          g.drawImage(img, sx * k, sy * k, (ex - sx) * k, (ey - sy) * k, sx - t.cx, sy - t.cy, ex - sx, ey - sy);
+        } else { g.fillStyle = 'rgba(205,220,238,.9)'; g.fill(); }
         g.restore();
       });
     });
@@ -127,24 +142,18 @@ function frame(ts) {
   sparks.forEach(function (s) { star(s.x, s.y - s.t * 40, 5 + 8 * (1 - Math.abs(s.t / .3 - 1)), clamp(1 - s.t / .6, 0, 1)); });
 }
 
-/** A picture of the screen as it was when the ball was thrown (the shell takes it before this window shows): the falling pieces carry what was on them,
- *  and the holes are filled with the average colour of the desktop around the windows. It stays in this window and is gone with it. */
-function shot(url) {
+/** A picture of the screen as it was when the ball was thrown, for the falling pieces to carry what was on them. `blanks` are places (him, the toy) painted out of it.
+ *  It stays in this window and is gone with it; it is never saved or sent. */
+function shot(url, blanks) {
   var im = new Image();
   im.onload = function () {
-    img = im;
     try {
-      var sw = 64, sh = 36, cc = document.createElement('canvas'); cc.width = sw; cc.height = sh;
-      var cg = cc.getContext('2d'); cg.drawImage(im, 0, 0, sw, sh);
-      var px = cg.getImageData(0, 0, sw, sh).data, r = 0, gg = 0, b = 0, n = 0;
-      for (var y = 0; y < sh; y++) for (var x = 0; x < sw; x++) {
-        var X = (x + .5) / sw * W, Y = (y + .5) / sh * H, inside = false;
-        for (var i = 0; i < wins.length; i++) { var q = wins[i].r; if (X >= q.x && X <= q.x + q.w && Y >= q.y && Y <= q.y + q.h) { inside = true; break; } }
-        if (inside) continue;
-        var o = (y * sw + x) * 4; r += px[o]; gg += px[o + 1]; b += px[o + 2]; n++;
-      }
-      if (n > 30) back = 'rgb(' + Math.round(r / n) + ',' + Math.round(gg / n) + ',' + Math.round(b / n) + ')';
-    } catch (e) { /* keeps the plain colour */ }
+      var cc = document.createElement('canvas'); cc.width = im.width; cc.height = im.height;
+      var cg = cc.getContext('2d'), k = im.width / W; cg.drawImage(im, 0, 0);
+      cg.fillStyle = '#20232e';
+      (blanks || []).forEach(function (b) { cg.fillRect(b.x * k, b.y * k, b.w * k, b.h * k); });
+      img = cc;
+    } catch (e) { img = im; }
   };
   im.src = url;
 }

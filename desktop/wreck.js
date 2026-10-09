@@ -1,6 +1,6 @@
 // The wrecking ball's overlay window (see wreck.html). The page throws the toy; this window only draws cracks and falling pieces over the
 // rectangles of the open windows, one piece at a time, and makes them whole again. It takes no clicks and never touches a real window. It knows where the windows are (the same frames
-// "Fumu sits on windows" uses, so awareness level 2) and gets one picture of the screen, taken when the ball is thrown, so the falling pieces show what was on them;
+// "Fumu sits on windows" uses, so awareness level 2) and gets one picture of the screen, taken in the background just after the ball is thrown, so the falling pieces show what was on them;
 // that picture stays in memory in this window and is gone with it.
 'use strict';
 
@@ -14,7 +14,7 @@ function gridFor(w, h) {
 }
 
 /**
- * @param {Object} deps { BrowserWindow, allowed(): boolean, display(): Display, frames(): {x,y,width,height}[] (front first, in screen DIPs), raise(): void, snapshot?(Display): Promise<string|null> (a picture of the screen, as a data URL) }
+ * @param {Object} deps { BrowserWindow, allowed(): boolean, display(): Display, frames(): {x,y,width,height}[] (front first, in screen DIPs), raise(): void, snapshot?(Display): Promise<{url: string, blanks: Bounds[]}|null> (a picture of the screen as a data URL, and where he and the toy are in it) }
  * @returns {{start: function(): Promise<Object>, hit: function(number, number, number): void, fix: function(): Promise<void>, stop: function(): void}}
  */
 function makeWreck(deps) {
@@ -38,16 +38,20 @@ function makeWreck(deps) {
       return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 };
     }).filter((r) => r.w >= 200 && r.h >= 80).slice(0, MAX_WINDOWS).map((r) => Object.assign(r, gridFor(r.w, r.h)));
     origin = { x: b.x, y: b.y }; rects = list;
-    let shot = null;   // (taken before the overlay shows, so it holds the real windows; kept only in the overlay, never saved or sent)
-    if (deps.snapshot && list.length) { try { shot = await deps.snapshot(deps.display()); } catch (e) { shot = null; } }
     ov = new deps.BrowserWindow({ x: b.x, y: b.y, width: b.width, height: b.height, frame: false, transparent: true, resizable: false, movable: false, skipTaskbar: true, focusable: false, hasShadow: false, show: false, alwaysOnTop: true, webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false } });
     ov.setIgnoreMouseEvents(true);
     ov.setAlwaysOnTop(true, 'screen-saver');
     await new Promise((res) => { ov.webContents.once('did-finish-load', res); ov.loadFile(path.join(__dirname, 'wreck.html')).catch(res); });
     if (!ov || ov.isDestroyed()) return { ok: false, reason: 'gone' };
     run('wreck.init(' + b.width + ',' + b.height + ',' + JSON.stringify(list.map((r) => ({ x: r.x - b.x, y: r.y - b.y, w: r.w, h: r.h, cols: r.cols, rows: r.rows }))) + ')');
-    if (shot) run('wreck.shot(' + JSON.stringify(shot) + ')');
+    try { ov.setContentProtection(true); } catch (e) { /* (keeps this window out of the screen picture below) */ }
     ov.showInactive();
+    if (deps.snapshot && list.length) {   // (in the background: the game does not wait for it; the pieces that fall before it comes are plain glass)
+      const mine = ov;
+      deps.snapshot(deps.display()).then((s) => {
+        if (s && s.url && ov === mine) run('wreck.shot(' + JSON.stringify(s.url) + ',' + JSON.stringify((s.blanks || []).map((r) => ({ x: num(r.x - b.x), y: num(r.y - b.y), w: num(r.width), h: num(r.height) }))) + ')');
+      }, () => {});
+    }
     deps.raise();   // (he and the toy stay in front of it)
     timer = setTimeout(stop, MAX_MS);   // (whatever happens, it never stays)
     return { ok: true, rects: list };

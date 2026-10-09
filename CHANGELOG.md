@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 480
+- Wrecking ball: no lag at the throw, bounces like a real ball, broken spots look like a broken TV, no white outline on pieces
+
 ## Build 479
 - Wrecking ball: broken pieces vanish and fall with what was on them
 - Wand no longer cut off after the wrecking ball

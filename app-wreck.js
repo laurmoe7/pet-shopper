@@ -34,7 +34,7 @@ function wreckWanted() {
 }
 
 /**
- * The wrecking ball flies for WRECK_MS: it bounces about the whole screen, drifting to the windows one after the other, breaks each one it touches,
+ * The wrecking ball flies for WRECK_MS: it bounces about the whole screen like a heavy ball (nothing steers it) and breaks the pieces it flies through,
  * while he runs after it. Then it vanishes, he casts the spell and the windows mend.
  * @param {number} vx @param {number} vy Px per second. @param {number} y0 Height it was let go at.
  */
@@ -45,7 +45,7 @@ function wreckFling(vx, vy, y0) {
   eyesDo('wide');
   pet.classList.add('running');
   var lim = toyLimits(), x = toyX, y = y0, spin = 0, start = performance.now(), last = start;
-  var wins = [], chaseAt = 0, followAt = 0, jumpAt = start + 500, talkAt = start + 900, steerFrom = start + 350, glassAt = 0, shockAt = 0;
+  var wins = [], chaseAt = 0, followAt = 0, jumpAt = start + 500, talkAt = start + 900, glassAt = 0, shockAt = 0;
   var ended = false;
   D.wreckStart().then(function (r) {
     if (r && r.ok) r.rects.forEach(function (q, wi) {   // (each window is a grid of pieces, the same grid the overlay draws: it breaks one piece at a time)
@@ -56,33 +56,22 @@ function wreckFling(vx, vy, y0) {
     else if (r && r.reason === 'privacy') say(pick(['I can\'t see your windows… (privacy)', 'my eyes are closed to windows…']), 2200, true);
   }, function () { /* no overlay: the ball still flies */ });
   vx *= 1.4; vy = Math.max(vy, 400) * 1.4;
-  function nearest() {
-    var best = -1, bd = Infinity;
-    for (var i = 0; i < wins.length; i++) {
-      if (wins[i].hit) continue;
-      var d = Math.hypot((wins[i].x1 + wins[i].x2) / 2 - f.ax, (wins[i].y1 + wins[i].y2) / 2 - f.ay);
-      if (d < bd) { bd = d; best = i; }
-    }
-    return best;
-  }
   function step(now) {
     if (ended) return;
     var dt = Math.min(0.033, (now - last) / 1000);
     last = now;
-    // it drifts towards the nearest window that is still whole (the shell's rectangles are in screen pixels: f.toPage turns them into the toy's terms)
-    var t = nearest();
-    if (t >= 0 && now > steerFrom) {
-      var c = f.toPage((wins[t].x1 + wins[t].x2) / 2, (wins[t].y1 + wins[t].y2) / 2), dx = c.x - x, dy = c.y - y, d = Math.hypot(dx, dy) || 1;
-      vx += dx / d * 1500 * dt; vy += dy / d * 1500 * dt;
-    }
+    // it only falls and bounces (gravity, walls, floor and ceiling); it is not steered, it breaks whatever it happens to fly through
     vy -= 520 * dt;
     var sp = Math.hypot(vx, vy);
-    if (sp > 1900) { vx *= 1900 / sp; vy *= 1900 / sp; }
+    if (sp > 1700) { vx *= 1700 / sp; vy *= 1700 / sp; }
     x += vx * dt; y += vy * dt;
     if (x < lim.minX) { x = lim.minX; vx = Math.abs(vx) * 0.95; }
     if (x > lim.maxX) { x = lim.maxX; vx = -Math.abs(vx) * 0.95; }
     if (y > lim.maxY) { y = lim.maxY; vy = -Math.abs(vy) * 0.8; }
-    if (y < 0) { y = 0; vy = Math.max(Math.abs(vy) * 0.9, 650 + Math.random() * 450); vx += (Math.random() - 0.5) * 500; sound('bounce'); }   // (it never settles: it bounces back up at once)
+    if (y < 0) {   // (it never settles: every bounce off the floor sends it up again, at a different height and slant)
+      y = 0; vy = Math.max(Math.abs(vy) * 0.85, 750 + Math.random() * 600);
+      vx = (Math.abs(vx) < 350 ? (Math.random() < .5 ? -1 : 1) * (350 + Math.random() * 400) : vx) + (Math.random() - 0.5) * 400; sound('bounce');
+    }
     spin += vx * dt * 2.2;
     placeToy(x, y, spin);
     // every piece of a window that it touches breaks off, with a crash of glass
@@ -95,8 +84,7 @@ function wreckFling(vx, vy, y0) {
     }
     if (broke) {
       if (now - glassAt > 70) { glassAt = now; sound('glass'); }
-      vx = vx * 0.9 + (Math.random() - 0.5) * 500; vy = vy * 0.9 + (Math.random() - 0.3) * 500;   // (a little knocked off course: it goes on to the next piece)
-      steerFrom = now + 120;
+      vx *= 0.95; vy *= 0.95;   // (a piece takes a little of its speed)
       if (now - shockAt > 900) {
         shockAt = now;
         pulse('hopsmall', 450);

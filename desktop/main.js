@@ -788,17 +788,14 @@ function start() {
     allowed: () => windows.available() && privacy.allows(prefs.awareness, 'wreck') && prefs.toyRoam,
     display: () => screen.getDisplayMatching(win.getBounds()),
     frames,
-    // one picture of the screen when the ball is thrown (he and the toy are hidden for a moment so they are not in it); it goes only to the overlay
+    // one picture of the screen just after the ball is thrown (the overlay is kept out of it); he and the toy are painted out of it by the overlay; it goes only there
     snapshot: async (d) => {
-      const wins = [win, toyWin].filter((x) => x && !x.isDestroyed() && x.isVisible());
-      try {
-        wins.forEach((x) => x.setOpacity(0));
-        await new Promise((r) => setTimeout(r, 80));
-        const sc = d.scaleFactor || 1, k = Math.min(1, 2560 / (d.bounds.width * sc));
-        const src = await desktopCapturer.getSources({ types: ['screen'], thumbnailSize: { width: Math.round(d.bounds.width * sc * k), height: Math.round(d.bounds.height * sc * k) } });
-        const one = src.find((x) => String(x.display_id) === String(d.id)) || src[0];
-        return one && !one.thumbnail.isEmpty() ? 'data:image/jpeg;base64,' + one.thumbnail.toJPEG(80).toString('base64') : null;
-      } finally { wins.forEach((x) => { try { x.setOpacity(1); } catch (e) { /* gone */ } }); }
+      const sc = d.scaleFactor || 1, k = Math.min(1, 1600 / (d.bounds.width * sc));
+      const src = await desktopCapturer.getSources({ types: ['screen'], thumbnailSize: { width: Math.round(d.bounds.width * sc * k), height: Math.round(d.bounds.height * sc * k) } });
+      const one = src.find((x) => String(x.display_id) === String(d.id)) || src[0];
+      if (!one || one.thumbnail.isEmpty()) return null;
+      const blanks = [win, toyWin].filter((x) => x && !x.isDestroyed() && x.isVisible()).map((x) => x.getBounds());
+      return { url: 'data:image/jpeg;base64,' + one.thumbnail.toJPEG(75).toString('base64'), blanks };
     },
     raise: () => { if (win) win.moveTop(); if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) toyWin.moveTop(); }
   });
