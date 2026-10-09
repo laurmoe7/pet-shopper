@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 405
+- Quest bubble pointer sits on whole pixels, so the seam no longer shows where it lands.
+
 ## Build 404
 - Quest bubble gradient is dark again, darker at the bottom.
 - The pointer's border fades into the bubble's, so no hard seam on any screen.

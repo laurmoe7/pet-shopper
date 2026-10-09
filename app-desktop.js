@@ -256,7 +256,7 @@
     else side = left + w / 2 >= cx ? 'left' : 'right';               // beside him
     var pos = side === 'down' || side === 'up' ? clamp(cx - left - 4, 10, Math.max(10, w - 24)) : clamp(cy - top - 4, 8, Math.max(8, h - 22));
     bubble.dataset.tail = side;
-    bubble.style.setProperty('--tail', pos.toFixed(1) + 'px');
+    bubble.style.setProperty('--tail', Math.round(pos) + 'px');   // (whole pixels, so the pointer never sits half a pixel off the border)
   }
   try {
     new MutationObserver(function () { if (!aimQueued && !bubble.hidden) aimQueued = requestAnimationFrame(aimBubble); }).observe(bubble, { attributes: true, attributeFilter: ['hidden', 'class'], childList: true, characterData: true, subtree: true });
