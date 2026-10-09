@@ -27,7 +27,6 @@
         <button type="button" role="menuitem" data-cmd="addpic">Add picture…<kbd>Ctrl+V</kbd></button>
         <hr>
         <button type="button" role="menuitem" data-cmd="send">Send to Claude…</button>
-        <button type="button" role="menuitem" data-cmd="upload" class="owner-only">Upload to Claude</button>
         <button type="button" role="menuitem" data-cmd="svg">Save SVG</button>
         <button type="button" role="menuitem" data-cmd="copy">Copy SVG</button>
         <button type="button" role="menuitem" data-cmd="png">Export PNG…</button>
@@ -238,11 +237,16 @@
         <div class="sk-row"><button type="button" class="skp-btn skp-small" id="skCut" title="Make the plain background of the picked picture see-through (it works from the edges, on colours like the corners; no internet needed)">Plain background</button><label class="sk-row">Strength <input type="range" id="skCutTol" min="10" max="120" value="45" aria-label="How different from the corners a colour may be and still count as background"></label></div>
       </div>
       <div class="skp-trace">
-        <div class="sk-row"><button type="button" class="skp-btn skp-small" id="skTrace" title="Turn the picked picture into flat shapes you can edit (on a new layer)">✦ To shapes</button><button type="button" class="skp-btn skp-small" id="skTraceUndo" title="Take the latest shapes away and show the picture again" disabled>Undo shapes</button><select id="skTraceMode" aria-label="What to turn into shapes: Lines (dark ink) or Colours (flat patches)" title="Lines: dark ink. Colours: flat patches"><option value="lines">Lines</option><option value="colours">Colours</option></select></div>
+        <div class="sk-row"><button type="button" class="skp-btn skp-small" id="skTrace" title="Turn the picked picture into flat shapes you can edit (on a new layer)">✦ To shapes</button><select id="skTraceMode" aria-label="What to turn into shapes: Lines (dark ink) or Colours (flat patches)" title="Lines: dark ink. Colours: flat patches"><option value="lines">Lines</option><option value="colours">Colours</option></select></div>
         <label class="sk-row" id="skTraceLevelRow">Ink <input type="range" id="skTraceLevel" min="-60" max="60" value="0" aria-label="How dark counts as ink"><span class="skp-hint">less &larr; &rarr; more</span></label>
         <label class="sk-row" id="skTraceKRow" hidden>Colours <input type="range" id="skTraceK" min="2" max="24" value="10" aria-label="How many colours"></label>
       </div>
 
+    </details>
+    <details class="skp-box skp-pics" id="skHist">
+      <summary class="skp-head"><h2>History</h2><span class="skp-hint" id="skHistCount"></span></summary>
+      <ol class="skp-hist" id="skHistList" aria-label="Steps, newest first"></ol>
+      <span class="skp-hint">Click a step to go back to it. Steps after it stay until you draw something new.</span>
     </details>
     </div>
     <div class="skp-pane" data-pane="under" hidden>

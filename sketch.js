@@ -372,6 +372,7 @@ function skPoint(e) {
   return [v.x + (e.clientX - r.left) / r.width * v.w, v.y + (e.clientY - r.top) / r.height * v.h];
 }
 function skPushHistory() {
+  skCutAct = null; skCutRedoSt = null;
   SK.redo[SK.mode] = [];
   var h = SK.hist[SK.mode];
   h.push(JSON.stringify(SK.strokes[SK.mode]));
@@ -382,6 +383,60 @@ function skPushHistory() {
 function skHistoryUI() {
   $('skUndo').disabled = !SK.hist[SK.mode].length;
   $('skRedo').disabled = !SK.redo[SK.mode].length;
+  skHistSoon();
+}
+var skHistTimer = 0;
+/** Refreshes the history list a moment later (changes are made just after their step is saved, and some come in quick bursts). */
+function skHistSoon() { if (!$('skHist').open) return; clearTimeout(skHistTimer); skHistTimer = setTimeout(skHistLog, 120); }
+// ---------- the history list: every step, to go back to any of them ----------
+var skHistNames = {};   // a step's description, by the two states it sits between
+/** @returns {string} What changed between two states of the drawing (JSON of the lines), in a few words. */
+function skStepName(a, b) {
+  var key = a.length + ':' + b.length + ':' + a.slice(-40) + b.slice(-40);
+  if (skHistNames[key]) return skHistNames[key];
+  var A = JSON.parse(a), B = JSON.parse(b), seen = {}, added = [], removed = 0, name;
+  A.forEach(function (s) { var k = JSON.stringify(s); seen[k] = (seen[k] || 0) + 1; });
+  B.forEach(function (s) { var k = JSON.stringify(s); if (seen[k]) seen[k]--; else added.push(s); });
+  Object.keys(seen).forEach(function (k) { removed += seen[k]; });
+  var n = added.length, lines = function (c) { return c + (c === 1 ? ' line' : ' lines'); };
+  if (!n && !removed) name = 'Layers changed';
+  else if (!removed) name = added.some(function (s) { return s.bucket; }) ? 'Filled an area' : added.every(function (s) { return s.d && s.fill; }) ? (n === 1 ? 'Added a shape' : 'Added ' + n + ' shapes') : (n === 1 ? 'Drew a line' : 'Added ' + lines(n));
+  else if (!n) name = 'Removed ' + lines(removed);
+  else if (n === removed) name = 'Changed ' + lines(n);
+  else name = n > removed ? 'Edited, ' + (n - removed) + ' more' : 'Edited, ' + (removed - n) + ' fewer';
+  return (skHistNames[key] = name);
+}
+/** Redraws the list of steps (only while the History box is open). */
+function skHistLog() {
+  var box = $('skHist');
+  if (!box || !box.open) return;
+  var hist = SK.hist[SK.mode], redo = SK.redo[SK.mode], cur = JSON.stringify(SK.strokes[SK.mode]);
+  var T = hist.concat([cur], redo.slice().reverse()), at = hist.length, rows = [];
+  $('skHistCount').textContent = T.length > 1 ? (T.length - 1) + ' steps' : '';
+  T.forEach(function (st, j) {
+    var li = document.createElement('li'), b = document.createElement('button');
+    b.type = 'button'; b.dataset.step = j;
+    b.textContent = j === 0 ? 'Start' : skStepName(T[j - 1], st);
+    li.className = j === at ? 'now' : (j > at ? 'later' : '');
+    if (j === at) b.setAttribute('aria-current', 'step');
+    li.appendChild(b);
+    rows.push(li);
+  });
+  var ol = $('skHistList');
+  ol.replaceChildren.apply(ol, rows.reverse());
+}
+/** Goes straight to a step of the history (the same as pressing Undo or Redo that many times). */
+function skHistGo(j) {
+  var hist = SK.hist[SK.mode], redo = SK.redo[SK.mode], cur = JSON.stringify(SK.strokes[SK.mode]);
+  var T = hist.concat([cur], redo.slice().reverse());
+  if (j < 0 || j >= T.length || j === hist.length) return;
+  skCutAct = null; skCutRedoSt = null;
+  SK.hist[SK.mode] = T.slice(0, j);
+  SK.redo[SK.mode] = T.slice(j + 1).reverse();
+  SK.strokes[SK.mode] = JSON.parse(T[j]);
+  SK.pick = []; skXfRender();
+  skFixAutoLayers(); skRedraw(); skHistoryUI(); skSave();
+  skStatus.textContent = j === 0 ? 'Back to the start.' : 'Went back to “' + skStepName(T[j - 1], T[j]) + '”.';
 }
 /** A quick pulse on a button, so you can see the press (also for the keyboard shortcuts). */
 function skFlash(id) {
@@ -390,6 +445,7 @@ function skFlash(id) {
   setTimeout(function () { b.classList.remove('flash'); }, 320);
 }
 function skRedraw() {
+  skHistSoon();
   skDraw.replaceChildren.apply(skDraw, skOrdered().filter(skLive).map(skEl));
   if (skCurveEdit && skCv) skCurveRender(null);
 }
@@ -728,7 +784,6 @@ function skTracePicture(layerId, show) {
   if (!skTraceLast || skTraceLast.layer !== layerId) return;
   var im = SK.images[SK.mode].filter(function (i) { return i.id === skTraceLast.im; })[0];
   if (im) { im.visible = show; skRenderImages(); skLayersUI(); skSaveImages(); }
-  $('skTraceUndo').disabled = show;
 }
 function skFixAutoLayers() {
   var lays = SK.layers[SK.mode], used = {};
@@ -749,6 +804,7 @@ function skFixAutoLayers() {
 function skUndo() {
   if (skCurve) { skCurve.pts.pop(); if (!skCurve.pts.length) skCurve = null; skCurveRender(skLastPt); skFlash('skUndo'); return; }
   SK.pick = []; skXfRender();
+  if (skCutAct && skCutOrig[skCutAct] && SK.images[SK.mode].some(function (i) { return i.id === skCutAct; }) && skCutUndo()) { skFlash('skUndo'); return; }
   var h = SK.hist[SK.mode];
   if (!h.length) { skStatus.textContent = 'Nothing to undo.'; return; }
   skFlash('skUndo');
@@ -762,6 +818,7 @@ function skUndo() {
 }
 function skRedo() {
   SK.pick = []; skXfRender();
+  if (skCutRedoSt && skCutRedo()) { skFlash('skRedo'); return; }
   var r = SK.redo[SK.mode];
   if (!r.length) { skStatus.textContent = 'Nothing to redo.'; return; }
   skFlash('skRedo');
@@ -1606,38 +1663,29 @@ async function skTrace() {
     SK.strokes[SK.mode] = SK.strokes[SK.mode].concat(made);
     im.visible = false; skRenderImages(); skLayersUI(); skSaveImages();
     skLinesUI(); skMarkActive(); skRedraw(); skSave();
-    $('skTraceUndo').disabled = false;
     skStatus.textContent = 'Made ' + made.length + (made.length === 1 ? ' shape' : ' shapes') + (capped ? ' (the biggest; small bits left out)' : '') + ' on a new layer, “Shapes”. The picture is hidden: tick Show to see it again.';
   } catch (err) {
     skStatus.textContent = 'Could not turn that picture into shapes.';
   } finally { btn.disabled = false; }
-}
-/** Takes the latest trace away (its shapes and layer) and shows the picture again. */
-function skTraceUndo() {
-  if (!skTraceLast) { skStatus.textContent = 'No shapes to undo.'; return; }
-  var id = skTraceLast.layer;
-  if (!SK.strokes[SK.mode].some(function (s) { return s.lay === id; })) { skStatus.textContent = 'Those shapes are already gone.'; $('skTraceUndo').disabled = true; return; }
-  skPushHistory();
-  SK.strokes[SK.mode] = SK.strokes[SK.mode].filter(function (s) { return s.lay !== id; });
-  SK.pick = []; skFixAutoLayers(); skRedraw(); skXfRender(); skSave();
-  skStatus.textContent = 'Shapes undone. The picture is back.';
 }
 function skTraceUI() {
   var lines = $('skTraceMode').value === 'lines';
   $('skTraceLevelRow').hidden = !lines; $('skTraceKRow').hidden = lines;
 }
 $('skTrace').addEventListener('click', skTrace);
-$('skTraceUndo').addEventListener('click', skTraceUndo);
 $('skTraceMode').addEventListener('change', skTraceUI);
 skTraceUI();
 
 // ---------- cutting out a picture's background ----------
+var skCutAct = null;     // the picture that was cut most recently, while that is still the latest thing done (Ctrl+Z takes the cut back)
+var skCutRedoSt = null;  // a cut that was just taken back (Ctrl+Y puts it back)
 var skCutOrig = {};   // the picture as it was before the cut, by layer id (kept until the page is closed)
 /** Puts the cut-out picture (a canvas with see-through parts) in place of the selected picture layer, keeping its size on the page. */
 function skCutApply(im, cv, note) {
   if (!skCutOrig[im.id]) skCutOrig[im.id] = { src: im.src, bw: im.bw, bh: im.bh, scale: im.scale };
   var shown = im.bw * im.scale;
   im.src = cv.toDataURL('image/png'); im.bw = cv.width; im.bh = cv.height; im.scale = shown / cv.width;
+  skCutAct = im.id; skCutRedoSt = null;
   skRenderImages(); skLayersUI(); skSaveImages();
   $('skCutUndo').disabled = false;
   skStatus.textContent = note;
@@ -1740,14 +1788,32 @@ async function skCutPoint(pt, minus) {
     skStatus.textContent = 'Could not pick that (' + String(err && err.message || err).slice(0, 80) + ').';
   } finally { if (skCutSess === s) s.busy = false; }
 }
+/** Gives the picture back its original (before it was cut). @returns {boolean} Whether there was a cut to take back. */
 function skCutUndo() {
-  var im = skSelected(), o = im && skCutOrig[im.id];
-  if (!o) { skStatus.textContent = 'Nothing to undo for this picture.'; return; }
-  im.src = o.src; im.bw = o.bw; im.bh = o.bh; im.scale = o.scale; delete skCutOrig[im.id];
+  var im = skSelected() || SK.images[SK.mode].filter(function (i) { return skCutOrig[i.id]; })[0], o = im && skCutOrig[im.id];
+  if (!o) { skStatus.textContent = 'Nothing to undo for this picture.'; return false; }
+  skCutRedoSt = { id: im.id, orig: o, cut: { src: im.src, bw: im.bw, bh: im.bh, scale: im.scale } };
+  var shown = im.bw * im.scale;
+  im.src = o.src; im.bw = o.bw; im.bh = o.bh; im.scale = shown / o.bw; delete skCutOrig[im.id];
   if (skCutSess) skCutPickOff();
+  skCutAct = null;
   skRenderImages(); skLayersUI(); skSaveImages();
   $('skCutUndo').disabled = true;
   skStatus.textContent = 'Background back.';
+  return true;
+}
+/** Ctrl+Y after a cut was taken back: cuts again. */
+function skCutRedo() {
+  var r = skCutRedoSt, im = r && SK.images[SK.mode].filter(function (i) { return i.id === r.id; })[0];
+  if (!im) return false;
+  var shown = im.bw * im.scale;
+  skCutOrig[im.id] = r.orig;
+  im.src = r.cut.src; im.bw = r.cut.bw; im.bh = r.cut.bh; im.scale = shown / r.cut.bw;
+  skCutAct = im.id; skCutRedoSt = null;
+  skRenderImages(); skLayersUI(); skSaveImages();
+  $('skCutUndo').disabled = false;
+  skStatus.textContent = 'Cut again.';
+  return true;
 }
 $('skCut').addEventListener('click', skCut);
 $('skCutAi').addEventListener('click', skCutAi);
@@ -2463,6 +2529,7 @@ function skSetMode(m) {
   var kind = { room: 'furniture', toy: 'toy', scene: 'background', canvas: 'other' }[SK.mode];
   if (kind) $('skKind').value = kind;
   SK.pick = [];
+  skHistSoon();
   var imgs = SK.images[SK.mode];
   SK.sel = imgs.length ? imgs[imgs.length - 1].id : null;
   skLayersUI();
@@ -2712,6 +2779,29 @@ function skCrop() {
   skSave(); skSaveImages(); skLayersUI(); skLinesUI(); skBuild();
   skStatus.textContent = 'Canvas cropped to ' + w + ' × ' + h + '. This cannot be undone.';
 }
+// ---------- a number above a slider while it moves ----------
+var skTipEl = document.createElement('div'), skTipTimer = 0, skTipDown = false, SK_TIP_UNIT = { opacity: '%', scale: '%', rot: '°', skGhost: '%' };
+skTipEl.className = 'skp-sliptip'; skTipEl.hidden = true; skTipEl.setAttribute('aria-hidden', 'true');
+document.body.appendChild(skTipEl);
+function skTipShow(inp) {
+  if (!inp || inp.type !== 'range' || (inp.parentElement && inp.parentElement.querySelector('output'))) return;   // sliders with a number beside them need no second one
+  var r = inp.getBoundingClientRect(), min = +inp.min || 0, max = +inp.max || 100, f = max > min ? (+inp.value - min) / (max - min) : 0;
+  skTipEl.textContent = inp.value + (SK_TIP_UNIT[inp.dataset.act] || SK_TIP_UNIT[inp.id] || '');
+  skTipEl.hidden = false;
+  skTipEl.style.left = Math.round(r.left + 9 + f * Math.max(0, r.width - 18)) + 'px';
+  var below = r.top < 40;   // near the top of the window the number goes underneath
+  skTipEl.style.top = Math.round(below ? r.bottom + 4 : r.top - 4) + 'px';
+  skTipEl.style.transform = below ? 'translate(-50%, 0)' : '';
+  clearTimeout(skTipTimer);
+}
+function skTipHide(wait) { clearTimeout(skTipTimer); skTipTimer = setTimeout(function () { skTipEl.hidden = true; }, wait); }
+document.addEventListener('pointerdown', function (e) { if (e.target.matches && e.target.matches('input[type="range"]')) { skTipDown = true; skTipShow(e.target); } });
+document.addEventListener('input', function (e) { if (e.target.matches && e.target.matches('input[type="range"]')) { skTipShow(e.target); if (!skTipDown) skTipHide(900); } });
+document.addEventListener('pointerup', function () { skTipDown = false; if (!skTipEl.hidden) skTipHide(500); });
+document.addEventListener('pointercancel', function () { skTipDown = false; skTipHide(0); });
+document.addEventListener('keyup', function (e) { if (e.target.matches && e.target.matches('input[type="range"]')) skTipHide(700); });
+$('skHist').addEventListener('toggle', skHistLog);
+$('skHistList').addEventListener('click', function (e) { var b = e.target.closest('[data-step]'); if (b) skHistGo(+b.dataset.step); });
 function skCommand(cmd) {
   if (cmd === 'new') skCanvasPop('new');
   else if (cmd === 'resize') skCanvasPop('resize');
@@ -2719,7 +2809,6 @@ function skCommand(cmd) {
   else if (cmd === 'send') $('skSendDlg').showModal();
   else if (cmd === 'github') { $('skSettings').open = true; $('skSendDlg').showModal(); }
   else if (cmd === 'sent') { $('skSentDlg').showModal(); if (!skSentAll.length) skSentLoad(); }
-  else if (cmd === 'upload') $('skUpload').click();
   else if (cmd === 'svg') $('skSaveFile').click();
   else if (cmd === 'copy') $('skCopy').click();
   else if (cmd === 'item') $('skItemCode').click();
