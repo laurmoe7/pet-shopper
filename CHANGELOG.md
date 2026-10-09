@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 460
+- During a ball chase his legs keep walking while the window runs after the ball (no more sliding).
+
 ## Build 459
 - The dragon no longer walks so far that the window edge cuts his wings.
 

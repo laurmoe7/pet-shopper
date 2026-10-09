@@ -435,12 +435,15 @@
   var runBusy = null;   // the window run that is going on now (a new run would cut it short and lose the distance it had covered)
   var fieldMoved = 0;   // how far (screen px) his window ran after the toy, so he can run back
   /** Runs his window along the floor by dx page px over ms; keeps the toy's screen-wide field in step. @returns {Promise<number>} Page px really moved. */
+  var runSeq = 0;
   var knownWx = null;   // where the page thinks his window is (screen px): the toy's screen-wide field is measured from it
   function runWindow(dx, ms) {
-    var z = fieldZoom || 1;
+    var z = fieldZoom || 1, myRun = ++runSeq;
     pet.classList.add('walking'); lookToward(dx);
+    // the legs keep going while runs follow each other (the toy chase starts a new one every half second): `walking` is only taken off when no newer run has begun
+    function stopWalking() { setTimeout(function () { if (myRun === runSeq) { pet.classList.remove('walking'); stopLook(); } }, 220); }
     return (runBusy = D.walk(dx * z, ms)).then(function (went) {
-      pet.classList.remove('walking'); stopLook();
+      stopWalking();
       went = went || 0;
       // a run that was cut short by the next one answers nothing, but the window did move: ask where it really is
       return (knownWx !== null && D.where ? D.where() : Promise.resolve(null)).then(function (x) {
@@ -449,7 +452,7 @@
         if (toyField && toyField.shift) toyField.shift(went / z);
         return went / z;
       });
-    }, function () { pet.classList.remove('walking'); stopLook(); return 0; });
+    }, function () { stopWalking(); return 0; });
   }
   window.deskToyChase = function (dx) { var slow = typeof toyTired === 'function' && toyTired() ? 5 : 1; return runWindow(dx, Math.min(3500 * slow, (500 + Math.abs(dx) * 5) * slow)); };
   window.deskToyFollow = function (dx) { return runWindow(dx, typeof toyTired === 'function' && toyTired() ? 2200 : 450); };
@@ -465,7 +468,7 @@
       // the exact spot he started from (the shell's own count of his moves misses a run that was cut short)
       return home !== null && D.where ? D.where().then(function (x) { return x === null ? -moved : home - x; }) : -moved;
     }).then(function (back) {
-      roaming = true;
+      roaming = true; runSeq++;   // (a run from the chase that is about to take `walking` off must not do it during the run back)
       pet.classList.add('walking');
       function go(dx, tries) {
         if (Math.abs(dx) < 4) return Promise.resolve();
