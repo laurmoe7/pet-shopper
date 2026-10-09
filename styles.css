@@ -628,8 +628,8 @@ button { font: inherit; color: inherit; }
 .arm .paw-bean { fill: #ff9fb5; stroke: none; }
 /* the hands show toe lines; the pink beans only when the palms turn out (arms up, cheering, holding, covering, fanning) */
 .paw-beans { display: none; }
-.pet:is([data-arms="reach"], [data-arms="cheer"], [data-arms="hold"], [data-arms="cover"], [data-arms="fan"], [data-arms="pat"]) .paw-beans { display: inline; }
-.pet:is([data-arms="reach"], [data-arms="cheer"], [data-arms="hold"], [data-arms="cover"], [data-arms="fan"], [data-arms="pat"]) .paw-toe-lines { display: none; }
+.pet:is([data-arms="reach"], [data-arms="cheer"], [data-arms="hold"], [data-arms="fan"], [data-arms="pat"]) .paw-beans { display: inline; }
+.pet:is([data-arms="reach"], [data-arms="cheer"], [data-arms="hold"], [data-arms="fan"], [data-arms="pat"]) .paw-toe-lines { display: none; }
 .hoof { fill: #6e5a52; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
 .pet[data-species="pig"] .hoof { fill: #c98896; }
 .hoof-split { fill: none; stroke: var(--pet-ink); stroke-width: 1.2; stroke-linecap: round; }
