@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 495
+- Wrecking ball in the app: bounces off things and chips a few pieces each hit, like Breakout
+
 ## Build 494
 - Taking his teddy and giving it back no longer leaves him stuck reaching
 

@@ -265,7 +265,6 @@ function pageWreck(vx, vy, px, py) {
     }
     tris.sort(function (m, n) { return m.cat - n.cat || m.d - n.d; });
     t.r2 = r; t.tris = tris; t.tpl = frozen(t.el, r); t.gone = []; t.lx = lx; t.ly = ly;
-    if (t.mark) { var m = t.mark.cloneNode(true); m.style.left = '0'; m.style.top = '0'; t.tpl.appendChild(m); }   // (every shard carries its part of the cracks)
   }
   /** The thing itself loses the pieces that have fallen (it stays whole under the rest). */
   function cutOut(t) {
@@ -278,7 +277,9 @@ function pageWreck(vx, vy, px, py) {
   function shard(t, g) {
     var r = t.r2, w = document.createElement('div');
     w.style.cssText = 'position:absolute;left:' + r.left + 'px;top:' + r.top + 'px;width:' + r.width + 'px;height:' + r.height + 'px;transform-origin:' + g.cx.toFixed(1) + 'px ' + g.cy.toFixed(1) + 'px;clip-path:polygon(' + g.p.map(function (q) { return q[0].toFixed(1) + 'px ' + q[1].toFixed(1) + 'px'; }).join(',') + ');';
-    w.appendChild(t.tpl.cloneNode(true));
+    var body = t.tpl.cloneNode(true);
+    if (t.mark) { var m = t.mark.cloneNode(true); m.style.left = '0'; m.style.top = '0'; m.style.clipPath = ''; body.appendChild(m); }   // (every shard carries its part of the cracks)
+    w.appendChild(body);
     shardBox.appendChild(w);
     var dx = (g.cx - t.lx) * 0.5 + (Math.random() - .5) * 90, rise = 14 + Math.random() * 60, rot = (Math.random() - .5) * 360, fall = H - r.top + 160;
     w.animate([
@@ -289,28 +290,35 @@ function pageWreck(vx, vy, px, py) {
     t.gone.push(g);
     cutOut(t);
   }
-  /** A thing the ball touched: the cracks appear on it, then it shatters piece by piece (the cracks go with the pieces). */
+  /** The ball hit a thing: a new crack on it and a few more pieces come away (like a brick in Breakout), starting with the picture, then the words, then the bar.
+   *  The ball bounces off (see step), so it takes several hits to break one thing. */
   var shatterSound = 0;
-  function knock(t, hx, hy) {
+  function chip(t, hx, hy) {
+    var first = !t.hit;
     t.hit = true;
-    var r = t.el.getBoundingClientRect(), cs = getComputedStyle(t.el);
-    var mark = document.createElement('div');
-    mark.style.cssText = 'position:absolute;left:' + r.left + 'px;top:' + r.top + 'px;width:' + r.width + 'px;height:' + r.height + 'px;overflow:hidden;pointer-events:none;border-radius:' + cs.borderRadius + ';';
-    mark.innerHTML = crackSvg(r.width, r.height, Math.max(0, Math.min(r.width, hx - r.left)), Math.max(0, Math.min(r.height, hy - r.top)));
-    shardBox.appendChild(mark);
-    t.mark = mark;
-    setTimeout(function () {
-      if (ended || !t.el.animate) return;
+    if (first) {
+      var r = t.el.getBoundingClientRect(), cs = getComputedStyle(t.el);
+      var mark = document.createElement('div');
+      mark.style.cssText = 'position:absolute;left:' + r.left + 'px;top:' + r.top + 'px;width:' + r.width + 'px;height:' + r.height + 'px;overflow:hidden;pointer-events:none;border-radius:' + cs.borderRadius + ';';
+      shardBox.appendChild(mark);
+      t.mark = mark;
       prepare(t, hx, hy);
-      t.tris.forEach(function (g, i) {
-        t.timers.push(setTimeout(function () {
-          if (ended && t.mended) return;
-          shard(t, g);
-          if (i === t.tris.length - 1) t.el.style.visibility = 'hidden';
-          if (i % 3 === 0 && performance.now() - shatterSound > 90) { shatterSound = performance.now(); sound('glass'); }
-        }, i * 48 + Math.random() * 30));
-      });
-    }, 260);
+      t.next = 0; t.left = t.tris.slice();
+    }
+    var r2 = t.r2, lx = Math.max(0, Math.min(r2.width, hx - r2.left)), ly = Math.max(0, Math.min(r2.height, hy - r2.top));
+    t.mark.insertAdjacentHTML('beforeend', crackSvg(r2.width, r2.height, lx, ly));
+    // the pieces that come away now: the lowest stage (picture, words, bar) that still has any, nearest to the hit first
+    t.left.sort(function (m, n) { return m.cat - n.cat || Math.hypot(m.cx - lx, m.cy - ly) - Math.hypot(n.cx - lx, n.cy - ly); });
+    var k = Math.max(2, Math.ceil(t.tris.length / 8)), take = t.left.splice(0, k);
+    take.forEach(function (g, i) {
+      t.timers.push(setTimeout(function () {
+        if (ended && t.mended) return;
+        t.lx = lx; t.ly = ly;
+        shard(t, g);
+        if (t.gone.length === t.tris.length) { t.el.style.visibility = 'hidden'; t.done = true; }
+      }, 120 + i * 70));
+    });
+    if (performance.now() - shatterSound > 90) { shatterSound = performance.now(); sound('glass'); }
   }
 
   function step(now) {
@@ -333,13 +341,24 @@ function pageWreck(vx, vy, px, py) {
     ball.style.transform = 'translate(' + (x - R).toFixed(1) + 'px,' + (y - R).toFixed(1) + 'px) rotate(' + Math.round(spin) + 'deg)';
     var broke = 0;
     for (var i = 0; i < targets.length; i++) {
-      var t = targets[i], m = R * 0.6;
-      if (t.hit || x < t.r.left - m || x > t.r.right + m || y < t.r.top - m || y > t.r.bottom + m) continue;
-      knock(t, x, y); broke++;
+      var t = targets[i];
+      if (t.done) continue;
+      // a round ball against the box: it bounces off like a ball off a brick, and chips a few pieces off
+      var nx = Math.max(t.r.left, Math.min(x, t.r.right)), ny = Math.max(t.r.top, Math.min(y, t.r.bottom)), dx = x - nx, dy = y - ny, d = Math.hypot(dx, dy);
+      if (d >= R) continue;
+      var ux, uy;
+      if (d > 0.01) { ux = dx / d; uy = dy / d; }
+      else {   // (its centre is inside the box: out through the nearest side)
+        var pl = x - t.r.left, pr = t.r.right - x, pt = y - t.r.top, pb = t.r.bottom - y, mn = Math.min(pl, pr, pt, pb);
+        ux = mn === pl ? -1 : mn === pr ? 1 : 0; uy = mn === pt ? -1 : mn === pb ? 1 : 0;
+        if (!ux && !uy) uy = -1;
+      }
+      x = nx + ux * (R + 1) + (d > 0.01 ? 0 : ux * mn); y = ny + uy * (R + 1) + (d > 0.01 ? 0 : uy * mn);
+      var vn = vx * ux + vyd * uy;
+      if (vn < 0) { vx -= 1.9 * vn * ux; vyd -= 1.9 * vn * uy; }
+      if (now > (t.cool || 0)) { t.cool = now + 160; chip(t, x - ux * R, y - uy * R); broke++; }
     }
     if (broke) {
-      if (now - glassAt > 70) { glassAt = now; sound('glass'); }
-      vx *= 0.95; vyd *= 0.95;
       if (now - shockAt > 900) {
         shockAt = now;
         pulse('hopsmall', 450);
