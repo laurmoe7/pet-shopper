@@ -499,3 +499,16 @@ body.skp-nopanel .skp-panel { display: none; }
 
 .skp-sliptip { position: fixed; z-index: 60; transform: translate(-50%, -100%); padding: 2px 8px; border-radius: 8px; background: #ff8fab; color: #3b1f2b; font-size: .8rem; font-weight: 800; pointer-events: none; box-shadow: 0 2px 0 #c9577f; }
 .skp-sliptip[hidden] { display: none; }
+
+#skHist > summary { cursor: pointer; list-style: none; }
+#skHist > summary::-webkit-details-marker { display: none; }
+#skHist > summary h2::after { content: " ▾"; font-size: .8em; color: var(--muted); }
+#skHist[open] > summary h2::after { content: " ▴"; }
+#skHist[open] > summary { margin-bottom: 8px; }
+#skHist .skp-head .skp-hint { margin-left: auto; }
+.skp-hist { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; gap: 3px; }
+.skp-hist::-webkit-scrollbar { display: none; }
+.skp-hist button { width: 100%; text-align: left; padding: 5px 10px; border: 1.5px solid transparent; border-radius: 8px; background: transparent; color: var(--ink); font: inherit; font-size: .84rem; font-weight: 700; cursor: pointer; }
+.skp-hist button:hover { background: rgba(255, 143, 171, .16); }
+.skp-hist .now button { background: linear-gradient(180deg, #ffa3bb, #ff8fab); color: #3b1f2b; }
+.skp-hist .later button { opacity: .5; font-style: italic; }

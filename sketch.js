@@ -383,6 +383,60 @@ function skPushHistory() {
 function skHistoryUI() {
   $('skUndo').disabled = !SK.hist[SK.mode].length;
   $('skRedo').disabled = !SK.redo[SK.mode].length;
+  skHistSoon();
+}
+var skHistTimer = 0;
+/** Refreshes the history list a moment later (changes are made just after their step is saved, and some come in quick bursts). */
+function skHistSoon() { if (!$('skHist').open) return; clearTimeout(skHistTimer); skHistTimer = setTimeout(skHistLog, 120); }
+// ---------- the history list: every step, to go back to any of them ----------
+var skHistNames = {};   // a step's description, by the two states it sits between
+/** @returns {string} What changed between two states of the drawing (JSON of the lines), in a few words. */
+function skStepName(a, b) {
+  var key = a.length + ':' + b.length + ':' + a.slice(-40) + b.slice(-40);
+  if (skHistNames[key]) return skHistNames[key];
+  var A = JSON.parse(a), B = JSON.parse(b), seen = {}, added = [], removed = 0, name;
+  A.forEach(function (s) { var k = JSON.stringify(s); seen[k] = (seen[k] || 0) + 1; });
+  B.forEach(function (s) { var k = JSON.stringify(s); if (seen[k]) seen[k]--; else added.push(s); });
+  Object.keys(seen).forEach(function (k) { removed += seen[k]; });
+  var n = added.length, lines = function (c) { return c + (c === 1 ? ' line' : ' lines'); };
+  if (!n && !removed) name = 'Layers changed';
+  else if (!removed) name = added.some(function (s) { return s.bucket; }) ? 'Filled an area' : added.every(function (s) { return s.d && s.fill; }) ? (n === 1 ? 'Added a shape' : 'Added ' + n + ' shapes') : (n === 1 ? 'Drew a line' : 'Added ' + lines(n));
+  else if (!n) name = 'Removed ' + lines(removed);
+  else if (n === removed) name = 'Changed ' + lines(n);
+  else name = n > removed ? 'Edited, ' + (n - removed) + ' more' : 'Edited, ' + (removed - n) + ' fewer';
+  return (skHistNames[key] = name);
+}
+/** Redraws the list of steps (only while the History box is open). */
+function skHistLog() {
+  var box = $('skHist');
+  if (!box || !box.open) return;
+  var hist = SK.hist[SK.mode], redo = SK.redo[SK.mode], cur = JSON.stringify(SK.strokes[SK.mode]);
+  var T = hist.concat([cur], redo.slice().reverse()), at = hist.length, rows = [];
+  $('skHistCount').textContent = T.length > 1 ? (T.length - 1) + ' steps' : '';
+  T.forEach(function (st, j) {
+    var li = document.createElement('li'), b = document.createElement('button');
+    b.type = 'button'; b.dataset.step = j;
+    b.textContent = j === 0 ? 'Start' : skStepName(T[j - 1], st);
+    li.className = j === at ? 'now' : (j > at ? 'later' : '');
+    if (j === at) b.setAttribute('aria-current', 'step');
+    li.appendChild(b);
+    rows.push(li);
+  });
+  var ol = $('skHistList');
+  ol.replaceChildren.apply(ol, rows.reverse());
+}
+/** Goes straight to a step of the history (the same as pressing Undo or Redo that many times). */
+function skHistGo(j) {
+  var hist = SK.hist[SK.mode], redo = SK.redo[SK.mode], cur = JSON.stringify(SK.strokes[SK.mode]);
+  var T = hist.concat([cur], redo.slice().reverse());
+  if (j < 0 || j >= T.length || j === hist.length) return;
+  skCutAct = null; skCutRedoSt = null;
+  SK.hist[SK.mode] = T.slice(0, j);
+  SK.redo[SK.mode] = T.slice(j + 1).reverse();
+  SK.strokes[SK.mode] = JSON.parse(T[j]);
+  SK.pick = []; skXfRender();
+  skFixAutoLayers(); skRedraw(); skHistoryUI(); skSave();
+  skStatus.textContent = j === 0 ? 'Back to the start.' : 'Went back to “' + skStepName(T[j - 1], T[j]) + '”.';
 }
 /** A quick pulse on a button, so you can see the press (also for the keyboard shortcuts). */
 function skFlash(id) {
@@ -391,6 +445,7 @@ function skFlash(id) {
   setTimeout(function () { b.classList.remove('flash'); }, 320);
 }
 function skRedraw() {
+  skHistSoon();
   skDraw.replaceChildren.apply(skDraw, skOrdered().filter(skLive).map(skEl));
   if (skCurveEdit && skCv) skCurveRender(null);
 }
@@ -2474,6 +2529,7 @@ function skSetMode(m) {
   var kind = { room: 'furniture', toy: 'toy', scene: 'background', canvas: 'other' }[SK.mode];
   if (kind) $('skKind').value = kind;
   SK.pick = [];
+  skHistSoon();
   var imgs = SK.images[SK.mode];
   SK.sel = imgs.length ? imgs[imgs.length - 1].id : null;
   skLayersUI();
@@ -2744,6 +2800,8 @@ document.addEventListener('input', function (e) { if (e.target.matches && e.targ
 document.addEventListener('pointerup', function () { skTipDown = false; if (!skTipEl.hidden) skTipHide(500); });
 document.addEventListener('pointercancel', function () { skTipDown = false; skTipHide(0); });
 document.addEventListener('keyup', function (e) { if (e.target.matches && e.target.matches('input[type="range"]')) skTipHide(700); });
+$('skHist').addEventListener('toggle', skHistLog);
+$('skHistList').addEventListener('click', function (e) { var b = e.target.closest('[data-step]'); if (b) skHistGo(+b.dataset.step); });
 function skCommand(cmd) {
   if (cmd === 'new') skCanvasPop('new');
   else if (cmd === 'resize') skCanvasPop('resize');
