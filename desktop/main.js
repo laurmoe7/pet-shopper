@@ -148,9 +148,17 @@ function start() {
     if (!bodyBox) return { l: -Math.round(b.width * 0.14), t: -Math.round(b.height * 0.3), r: -Math.round(b.width * 0.14), b: b.height + place.MARGIN / 2 };   // (not told yet: the old guess)
     return { l: bodyBox[0] * z, t: bodyBox[1] * z, r: bodyBox[2] * z, b: bodyBox[3] * z + 3 };
   }
-  /** @returns {number} The lowest top edge the window may have on a screen: his cushion rests just above the taskbar's edge. (Windows draws the taskbar
-   *  over a window that overlaps it however often it is raised, so he is not let down onto it.) `display` is a Display. */
-  function lowestY(display, b) { const a = display.workArea; return Math.round(a.y + a.height - bodyIn(b).b); }
+  /** @returns {number} The lowest top edge the window may have on a screen: his cushion rests on the very bottom of the screen. He may stand on the
+   *  taskbar: his window is kept above it (raiseOverTaskbar), but never below the screen. `display` is a Display. */
+  function lowestY(display, b) { const a = display.bounds; return Math.round(a.y + a.height - bodyIn(b).b); }
+  // the taskbar is an always-on-top window too, and it jumps above other top windows whenever it is touched: while he is down there, put him back on top
+  let raiseAt = 0;
+  function raiseOverTaskbar() {
+    if (!win || mode !== 'pet' || !prefs.onTop || !win.isVisible()) return;
+    const b = win.getBounds(), d = screen.getDisplayMatching(b), wa = d.workArea;
+    if (b.y + b.height - 6 > wa.y + wa.height && Date.now() - raiseAt > 250) { raiseAt = Date.now(); win.moveTop(); }
+  }
+  setInterval(raiseOverTaskbar, 300);
 
   /** He is let go while moving fast: he flies on, bounces off the edges of the screens and the floor, then runs back to where he was picked up. */
   let lastThrow = null;   // where the last throw started, landed and ended (shown in the diagnostics, to track down a wrong run-back)
@@ -175,15 +183,15 @@ function start() {
         const now = Date.now(), dt = Math.min(0.034, (now - last) / 1000);
         last = now;
         vy += G * dt; x += vx * dt; y += vy * dt;
-        let hit = 0;   // how hard he hit an edge this step (px/s)
+        let hit = 0, wall = '';   // how hard he hit an edge this step (px/s), and which wall it was (l, r, t) for the squish
         // (in his bed he is far too heavy to bounce off a wall or the ceiling: he just stops against it)
-        if (x < box.x - bi.l) { x = box.x - bi.l; if (inBed) vx = 0; else { hit = Math.abs(vx); vx = Math.abs(vx) * WALL; } }
-        if (x > box.r - bi.r) { x = box.r - bi.r; if (inBed) vx = 0; else { hit = Math.abs(vx); vx = -Math.abs(vx) * WALL; } }
-        if (y < box.y - bi.t) { y = box.y - bi.t; if (inBed) vy = 0; else { hit = Math.max(hit, Math.abs(vy)); vy = Math.abs(vy) * WALL; } }
+        if (x < box.x - bi.l) { x = box.x - bi.l; if (inBed) vx = 0; else { hit = Math.abs(vx); wall = 'l'; vx = Math.abs(vx) * WALL; } }
+        if (x > box.r - bi.r) { x = box.r - bi.r; if (inBed) vx = 0; else { hit = Math.abs(vx); wall = 'r'; vx = -Math.abs(vx) * WALL; } }
+        if (y < box.y - bi.t) { y = box.y - bi.t; if (inBed) vy = 0; else { hit = Math.max(hit, Math.abs(vy)); wall = wall || 't'; vy = Math.abs(vy) * WALL; } }
         const floorY = lowestY(screen.getDisplayNearestPoint({ x: Math.round(x + b0.width / 2), y: Math.round(y + b0.height) }), b0);
         let rest = false;
         if (y >= floorY) { y = floorY; if (Math.abs(vy) > (inBed ? 90 : 260) && !(opts.maxBounces && floorHits >= opts.maxBounces)) { floorHits++; hit = Math.max(hit, Math.abs(vy)); vy = -vy * FLOOR; } else { vy = 0; rest = true; } vx *= 0.85; }
-        if (hit > (inBed ? 80 : 220) && now - lastHit > (inBed ? 60 : 90)) { lastHit = now; win.webContents.send('desk:bounce', Math.min(1, hit / 2500)); }
+        if (hit > (inBed ? 80 : 220) && now - lastHit > (inBed ? 60 : 90)) { lastHit = now; win.webContents.send('desk:bounce', Math.min(1, hit / 2500), wall); }
         if (Math.abs(vx) > 60) spinDir = vx > 0 ? 1 : -1;
         if (inBed && now - lastFlight > 40) { lastFlight = now; win.webContents.send('desk:flight', floorHits ? 0 : vx, floorHits ? 0 : vy); }   // (once it has touched down it lies flat)
         win.setBounds({ x: Math.round(x), y: Math.round(y), width: b0.width, height: b0.height });
@@ -540,7 +548,7 @@ function start() {
         if (await glide(place.perchBounds(b, seg), 200)) { sitOn(seg, rect); perchOrigin = dragHome ? place.within(dragHome, here()) : null; return; }   // (when he gets off he goes back to where he was picked up)
       }
     }
-    // let go low down (over the taskbar, or below the bottom of the screen): he is set back above the taskbar, not left half hidden behind it
+    // let go below the bottom of the screen: he is set back on the screen (he may stand on the taskbar: the window stays above it)
     // (only down: he may still be parked half off the side of the screen, peeking in)
     const area = here(), lowest = lowestY(screen.getDisplayMatching(b), b), fixed = { x: b.x, y: Math.min(b.y, lowest), width: b.width, height: b.height };
     if (fixed.y !== b.y && !(await glide(fixed, 180))) return;
