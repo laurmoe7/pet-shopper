@@ -241,30 +241,25 @@
     if (was && p.alertStyle && was !== p.alertStyle && root.classList.contains('desktop-pet')) previewLook();
   });
   /** The pointer of a speech bubble (Quest style) aims at his head: on the side of the bubble facing him, and as far along as he is.
-   *  It follows him smoothly while the bubble is open (a frame at a time, easing towards the spot, so it never jumps). */
-  var aimLoop = 0, aimPos = null;
+   *  It is worked out once, when the bubble appears (or its words change), and then stays exactly there. */
+  var aimQueued = 0;
   function aimBubble() {
-    aimLoop = 0;
-    if (bubble.hidden || !root.classList.contains('desktop-pet')) { aimPos = null; return; }
+    aimQueued = 0;
+    if (bubble.hidden || !root.classList.contains('desktop-pet')) return;
     var r = bubble.getBoundingClientRect(), p = pet.getBoundingClientRect(), w = bubble.offsetWidth, h = bubble.offsetHeight;
-    if (w && p.width) {
-      // (the bubble pops in with a scale: its centre and bottom stay put, so its real edges come from its own size)
-      var left = r.left + r.width / 2 - w / 2, top = r.bottom - h, bottom = r.bottom, cx = p.left + p.width / 2, cy = p.top + p.height * 0.4, side = bubble.dataset.tail;
-      function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
-      if (!side || (side === 'down' && bottom > p.top + p.height * 0.62) || (side !== 'down' && bottom <= p.top + p.height * 0.4)) {   // (it only changes side when clearly needed)
-        if (bottom <= p.top + p.height * 0.5) side = 'down';
-        else if (top >= p.bottom - p.height * 0.3) side = 'up';
-        else side = left + w / 2 >= cx ? 'left' : 'right';
-      }
-      var target = side === 'down' || side === 'up' ? clamp(cx - left - 6, 12, Math.max(12, w - 24)) : clamp(cy - top - 6, 8, Math.max(8, h - 20));
-      if (bubble.dataset.tail !== side) { bubble.dataset.tail = side; aimPos = null; }
-      aimPos = aimPos === null ? target : aimPos + (target - aimPos) * 0.2;
-      bubble.style.setProperty('--tail', aimPos.toFixed(2) + 'px');
-    }
-    aimLoop = requestAnimationFrame(aimBubble);   // (runs only while the bubble is up)
+    if (!w || !p.width) return;
+    // (the bubble pops in with a scale: its centre and bottom stay put, so its real edges come from its own size)
+    var left = r.left + r.width / 2 - w / 2, top = r.bottom - h, cx = p.left + p.width / 2, cy = p.top + p.height * 0.4, side;
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+    if (r.bottom <= p.top + p.height * 0.5) side = 'down';          // above him: the pointer is on the bottom edge
+    else if (top >= p.bottom - p.height * 0.3) side = 'up';          // below him
+    else side = left + w / 2 >= cx ? 'left' : 'right';               // beside him
+    var pos = side === 'down' || side === 'up' ? clamp(cx - left - 9, 12, Math.max(12, w - 30)) : clamp(cy - top - 9, 8, Math.max(8, h - 26));
+    bubble.dataset.tail = side;
+    bubble.style.setProperty('--tail', pos.toFixed(1) + 'px');
   }
   try {
-    new MutationObserver(function () { if (!aimLoop && !bubble.hidden) aimLoop = requestAnimationFrame(aimBubble); }).observe(bubble, { attributes: true, attributeFilter: ['hidden', 'class'], childList: true, characterData: true, subtree: true });
+    new MutationObserver(function () { if (!aimQueued && !bubble.hidden) aimQueued = requestAnimationFrame(aimBubble); }).observe(bubble, { attributes: true, attributeFilter: ['hidden', 'class'], childList: true, characterData: true, subtree: true });
   } catch (e) { /* old browser */ }
   /** Choosing an alert style in the mini settings: a sample alert, a speech bubble and the ring menu show for 2 seconds in the new look. */
   var previewTimer = 0, previewCard = null;

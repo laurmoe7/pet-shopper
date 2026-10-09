@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 394
+- Mini Fumu can be petted by just moving the pointer over him.
+
+## Build 393
+- Speech bubble pointer is a curved fin and stays where it first appears.
+
 ## Build 392
 - Removed the line across the base of the speech bubble pointer.
 - The pointer glides smoothly after him while the bubble is open.
