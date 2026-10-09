@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 449
+- Fumu's catch is a proper jump: the ball swings into his hands at the top and comes down with him.
+
 ## Build 448
 - After a ball chase Fumu runs back to the exact spot he started from.
 

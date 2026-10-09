@@ -362,12 +362,14 @@ function fling(vx, vy, y) {
   var leapAfter = toyTired() ? Infinity : wide ? 6500 : 3200;   // (drowsy, he does not manage the jump)
   function leap() {
     var px0 = parseFloat(getComputedStyle(pet).translate) || 0, fx = x, fy = y, t0 = performance.now(), svg = pet.querySelector('.pet-svg');
-    // he springs up off the floor as the toy swings in to him in an arc, and catches it at the top
-    if (svg && svg.animate) svg.animate([{ translate: '0 0' }, { translate: '0 -6px', offset: .15 }, { translate: '0 -38px', offset: .7 }, { translate: '0 0' }], { duration: 760, easing: 'ease-out' });
+    // he springs up off the floor, the toy swings in to his hands in an arc, and he grabs it at the top of the jump (the ball then rides down with him)
+    var JUMP = 850, UP = 38;
+    if (svg && svg.animate) svg.animate([{ translate: '0 0' }, { translate: '0 -6px', offset: .15 }, { translate: '0 -' + UP + 'px', offset: .7 }, { translate: '0 0' }], { duration: JUMP, easing: 'ease-out' });
     pulse('hop', 500);
     (function fly(n) {
-      var u = Math.min(1, (n - t0) / 600), e = u * u * (3 - 2 * u);
-      placeToy(fx + (px0 - fx) * e, fy + (catchAt + 14 - fy) * e + 34 * 4 * u * (1 - u), spin + u * 200);
+      var u = Math.min(1, (n - t0) / JUMP), k = Math.min(1, u / .7), e = k * k * (3 - 2 * k);
+      var hands = catchAt + 14 + (u < .7 ? UP * Math.min(1, u / .7) : UP * (1 - (u - .7) / .3));   // (where his hands are: up with the jump, then back down)
+      placeToy(fx + (px0 - fx) * e, fy + (hands - fy) * e + (u < .7 ? 34 * 4 * k * (1 - k) : 0), spin + u * 240);
       if (u < 1) flight = requestAnimationFrame(fly); else if (frog) caught(px0, catchAt); else caught();
     })(t0);
   }
