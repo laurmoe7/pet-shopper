@@ -1,4 +1,4 @@
-// Petting: stroke Fumu with a finger or the mouse for a purr and hearts.
+// Petting: stroke Fumu with a finger or the mouse for a purr and hearts (in the small desktop window the pointer only has to pass over him).
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
@@ -43,8 +43,21 @@
     travel = 0;
     stroked = false;
   });
+  // the small desktop window: no click needed, just run the pointer over him (a hover stroke); the whole app keeps the held-button stroke
+  var hover = null, hoverTravel = 0;
+  function hoverStroke(e) {
+    if (!document.documentElement.classList.contains('desktop-pet') || e.buttons !== 0 || pet.classList.contains('carried') || (typeof petScene === 'function' && petScene() === 'night-bed')) { hover = null; return; }
+    if (hover) hoverTravel += Math.hypot(e.clientX - hover.x, e.clientY - hover.y);
+    hover = { x: e.clientX, y: e.clientY };
+    if (hoverTravel >= STROKE_PX && Date.now() >= nextAt) {
+      hoverTravel = 0;
+      nextAt = Date.now() + COOLDOWN_MS;
+      petted();
+    }
+  }
+  pet.addEventListener('pointerleave', function () { hover = null; hoverTravel = 0; });
   pet.addEventListener('pointermove', function (e) {
-    if (!down) return;
+    if (!down) { hoverStroke(e); return; }
     travel += Math.hypot(e.clientX - down.x, e.clientY - down.y);
     down = { x: e.clientX, y: e.clientY };
     if (travel >= STROKE_PX && Date.now() >= nextAt) {

@@ -214,15 +214,23 @@
     root.classList.toggle('desk-backdrop', deskPrefs.backdrop === true);
     root.classList.toggle('desk-nosparkles', deskPrefs.sparkles === false);
     root.classList.toggle('desk-noclouds', deskPrefs.clouds === false);
-    // the look of alert cards and speech bubbles: the small pet uses the style chosen in the settings window; the whole app follows its own
-    // appearance (Light = Paper, Dark = Night), so the pet's notes and bubbles there match the rest of the app
-    root.classList.remove('al-paper', 'al-night', 'al-sweet', 'al-cool', 'al-quest');
-    var style = root.classList.contains('desktop-pet') ? (deskPrefs.alertStyle || 'paper') : (appIsDark() ? 'night' : 'paper');
-    if (style !== 'classic') root.classList.add({ night: 'al-night', sweet: 'al-sweet', cool: 'al-cool', quest: 'al-quest' }[style] || 'al-paper');
+    // the look of alert cards and speech bubbles: the small pet uses the style chosen in the settings window; the whole app always has the
+    // Plain look, which follows its own Light or Dark appearance
+    var style = root.classList.contains('desktop-pet') ? (deskPrefs.alertStyle || 'paper') : 'classic';   // (the whole app keeps the plain look: its own light or dark)
+    var want = style === 'classic' ? '' : ({ night: 'al-night', sweet: 'al-sweet', cool: 'al-cool', quest: 'al-quest' }[style] || 'al-paper');
+    var have = ['al-paper', 'al-night', 'al-sweet', 'al-cool', 'al-quest'].filter(function (c) { return root.classList.contains(c); });
+    if (have.length !== (want ? 1 : 0) || (want && have[0] !== want)) {   // (only touched when it is wrong, so this is cheap to call often)
+      root.classList.remove('al-paper', 'al-night', 'al-sweet', 'al-cool', 'al-quest');
+      if (want) root.classList.add(want);
+    }
     root.classList.toggle('desk-nobubbles', deskPrefs.bubbles === false);   // speech bubbles in the small window only; cards (reminders, links) are separate
     lastSolidReset();
   }
   function lastSolidReset() { lastSolid = null; }
+  // the look is checked again whenever something shows (an alert, a bubble) or the window comes back, so it can never be left in the wrong style
+  try { new MutationObserver(function () { applyLook(); }).observe(stage, { childList: true }); } catch (e) { /* old browser */ }
+  window.addEventListener('focus', function () { applyLook(); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) applyLook(); });
   // the whole app's light or dark changed: its alerts and bubbles follow
   try { new MutationObserver(function () { applyLook(); }).observe(root, { attributes: true, attributeFilter: ['data-theme'] }); if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyLook); } catch (e) { /* old browser */ }
   if (D.getPrefs) D.getPrefs().then(function (p) { if (p) { deskPrefs = p; applyLook(); applyChatter(); } });
@@ -232,22 +240,26 @@
     deskPrefs = p; applyLook(); applyChatter();
     if (was && p.alertStyle && was !== p.alertStyle && root.classList.contains('desktop-pet')) previewLook();
   });
-  /** The pointer of a speech bubble (Quest style) aims at his head: on the side of the bubble facing him, and as far along as he is. */
+  /** The pointer of a speech bubble (Quest style) aims at his head: on the side of the bubble facing him, and as far along as he is.
+   *  It is worked out once, when the bubble appears (or its words change), and then stays exactly there. */
+  var aimQueued = 0;
   function aimBubble() {
+    aimQueued = 0;
     if (bubble.hidden || !root.classList.contains('desktop-pet')) return;
-    var b = bubble.getBoundingClientRect(), p = pet.getBoundingClientRect();
-    if (!b.width || !p.width) return;
-    var cx = p.left + p.width / 2, cy = p.top + p.height * 0.4, side, pos;
+    var r = bubble.getBoundingClientRect(), p = pet.getBoundingClientRect(), w = bubble.offsetWidth, h = bubble.offsetHeight;
+    if (!w || !p.width) return;
+    // (the bubble pops in with a scale: its centre and bottom stay put, so its real edges come from its own size)
+    var left = r.left + r.width / 2 - w / 2, top = r.bottom - h, cx = p.left + p.width / 2, cy = p.top + p.height * 0.4, side;
     function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
-    if (b.bottom <= p.top + p.height * 0.5) side = 'down';          // above him: the pointer is on the bottom edge
-    else if (b.top >= p.bottom - p.height * 0.3) side = 'up';        // below him
-    else side = b.left + b.width / 2 >= cx ? 'left' : 'right';       // beside him
-    pos = side === 'down' || side === 'up' ? clamp(cx - b.left - 7, 12, Math.max(12, b.width - 26)) : clamp(cy - b.top - 7, 8, Math.max(8, b.height - 22));
-    if (bubble.dataset.tail !== side) bubble.dataset.tail = side;
-    bubble.style.setProperty('--tail', Math.round(pos) + 'px');
+    if (r.bottom <= p.top + p.height * 0.5) side = 'down';          // above him: the pointer is on the bottom edge
+    else if (top >= p.bottom - p.height * 0.3) side = 'up';          // below him
+    else side = left + w / 2 >= cx ? 'left' : 'right';               // beside him
+    var pos = side === 'down' || side === 'up' ? clamp(cx - left - 9, 12, Math.max(12, w - 30)) : clamp(cy - top - 9, 8, Math.max(8, h - 26));
+    bubble.dataset.tail = side;
+    bubble.style.setProperty('--tail', pos.toFixed(1) + 'px');
   }
   try {
-    new MutationObserver(function () { aimBubble(); setTimeout(aimBubble, 380); }).observe(bubble, { attributes: true, attributeFilter: ['hidden', 'class'], childList: true, characterData: true, subtree: true });
+    new MutationObserver(function () { if (!aimQueued && !bubble.hidden) aimQueued = requestAnimationFrame(aimBubble); }).observe(bubble, { attributes: true, attributeFilter: ['hidden', 'class'], childList: true, characterData: true, subtree: true });
   } catch (e) { /* old browser */ }
   /** Choosing an alert style in the mini settings: a sample alert, a speech bubble and the ring menu show for 2 seconds in the new look. */
   var previewTimer = 0, previewCard = null;

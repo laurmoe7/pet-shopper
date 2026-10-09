@@ -2,6 +2,33 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 396
+- Quest bubble is back to its first look; pointer stays a curved fin with no line at its base.
+
+## Build 395
+- Full app bubbles and alerts always use the Plain look, in light or dark.
+- Quest bubble has a soft gradient inside, no inner outline.
+
+## Build 394
+- Mini Fumu can be petted by just moving the pointer over him.
+
+## Build 393
+- Speech bubble pointer is a curved fin and stays where it first appears.
+
+## Build 392
+- Removed the line across the base of the speech bubble pointer.
+- The pointer glides smoothly after him while the bubble is open.
+
+## Build 391
+- Alert and bubble style is re-checked whenever an alert shows.
+
+## Build 390
+- Pet stage is back to its old size; Photo and Closet buttons are smaller.
+- Bottom bar buttons sit below the dotted line.
+
+## Build 389
+- More room in the pet menu: smaller pet on the stage, slimmer Hats and Clothes tabs, slimmer bottom bar.
+
 ## Build 388
 - Done and snooze swipes each make their own sound.
 
