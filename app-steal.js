@@ -22,7 +22,7 @@ function stealOk() {
   return !document.hidden && !busy && !playing && !stolen && !isTodo() && !document.documentElement.classList.contains('desktop-pet') &&
     !stage.classList.contains('bedtime') && baseState() !== 'sleepy' && !document.querySelector('dialog[open]') && stealable().length > 0;
 }
-function mouthPoint() { var r = pet.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height * 0.55 }; }
+function stealMouth() { var r = pet.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height * 0.55 }; }
 
 /** An emoji flies in an arc: a copy of its picture goes from one place to another. @returns {Promise<void>} Resolves when it has arrived (the copy is gone). */
 function flyEmoji(src, from, to, ms, rise, shrink) {
@@ -67,7 +67,7 @@ function stealNow() {
     li.classList.add('stolen');
     sound('swoosh');
     drift(['💨'], { x: from.x, y: from.y }, 1);
-    return flyEmoji(src, from, mouthPoint(), 650, 70, true);
+    return flyEmoji(src, from, stealMouth(), 650, 70, true);
   }).then(function () {
     if (!stolen) return;
     sound('chomp');
@@ -94,7 +94,7 @@ function spitBack() {
   sound('spit');
   var li = document.querySelector('#todo .item[data-id="' + s.id + '"]'), img = li && li.querySelector('.emoji-btn img'), to = null;
   if (img) { var r = img.getBoundingClientRect(); if (r.width > 4 && r.bottom > 0 && r.top < window.innerHeight) to = { x: r.left + r.width / 2, y: r.top + r.height / 2, size: Math.max(20, r.width) }; }
-  var m = mouthPoint(); m.size = to ? to.size : 28;
+  var m = stealMouth(); m.size = to ? to.size : 28;
   (to ? flyEmoji(s.src, m, to, 750, 90, false) : Promise.resolve()).then(function () {
     stolen = null;
     applyStolen();
