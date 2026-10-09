@@ -726,6 +726,8 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 - Sketchpad: “Cut out subject” replaced by “Pick object”: click what to keep (Alt+click to take away).
 - Sketchpad: Deleting a layer now deletes its lines too (Undo brings them back).
 - Sketchpad: File and Edit menus; New canvas box with Pet, Scene, Toy, Furniture or a blank size; open canvases as tabs; Send and Sent moved into File; message line moved to the bottom.
+- Sketchpad: Export PNG and Copy as PNG; View menu (zoom, fit, grid, hide side panel); Layer menu (new, duplicate, delete, merge down, merge visible, hide others).
+- Sketchpad: Open and Save project; Cut, Copy, Paste, Duplicate, Deselect and Invert in Edit; Canvas menu (size, crop, flip); Help with keyboard shortcuts.
 - Sketchpad: Click a picture to pick it, click empty space to let go.
 - Sketchpad: Trace renamed To shapes.
 - Sketchpad: Layer name outline only shows while it can be edited.
