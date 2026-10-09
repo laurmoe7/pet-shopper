@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 386
+- Speech bubble pointers always aim at his head.
+
 ## Build 385
 - Quest speech bubble looks like a game chat bubble: dark, see-through, with a pointer.
 - Style preview: the bubble stands to the side, and the ring stays for the whole time.

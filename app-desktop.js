@@ -232,6 +232,23 @@
     deskPrefs = p; applyLook(); applyChatter();
     if (was && p.alertStyle && was !== p.alertStyle && root.classList.contains('desktop-pet')) previewLook();
   });
+  /** The pointer of a speech bubble (Quest style) aims at his head: on the side of the bubble facing him, and as far along as he is. */
+  function aimBubble() {
+    if (bubble.hidden || !root.classList.contains('desktop-pet')) return;
+    var b = bubble.getBoundingClientRect(), p = pet.getBoundingClientRect();
+    if (!b.width || !p.width) return;
+    var cx = p.left + p.width / 2, cy = p.top + p.height * 0.4, side, pos;
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+    if (b.bottom <= p.top + p.height * 0.5) side = 'down';          // above him: the pointer is on the bottom edge
+    else if (b.top >= p.bottom - p.height * 0.3) side = 'up';        // below him
+    else side = b.left + b.width / 2 >= cx ? 'left' : 'right';       // beside him
+    pos = side === 'down' || side === 'up' ? clamp(cx - b.left - 7, 12, Math.max(12, b.width - 26)) : clamp(cy - b.top - 7, 8, Math.max(8, b.height - 22));
+    if (bubble.dataset.tail !== side) bubble.dataset.tail = side;
+    bubble.style.setProperty('--tail', Math.round(pos) + 'px');
+  }
+  try {
+    new MutationObserver(function () { aimBubble(); setTimeout(aimBubble, 380); }).observe(bubble, { attributes: true, attributeFilter: ['hidden', 'class'], childList: true, characterData: true, subtree: true });
+  } catch (e) { /* old browser */ }
   /** Choosing an alert style in the mini settings: a sample alert, a speech bubble and the ring menu show for 2 seconds in the new look. */
   var previewTimer = 0, previewCard = null;
   function previewLook() {
