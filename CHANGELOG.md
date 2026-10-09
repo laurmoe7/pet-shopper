@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 398
+- Speech bubble pointer flows smoothly out of the bubble's edge, no box at its base.
+
 ## Build 397
 - Smaller speech bubble pointer with the same outline thickness all the way round.
 
