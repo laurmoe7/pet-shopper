@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 446
+- The bell no longer flickers when you hold it over the taskbar (needs the new installer).
+
 ## Build 445
 - After an alert Fumu slides back sideways only; he no longer ends up higher than he started (needs the new installer).
 

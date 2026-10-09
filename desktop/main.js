@@ -178,7 +178,7 @@ function start() {
   function raiseOverTaskbar() {
     if (!win || mode !== 'pet' || !prefs.onTop || !win.isVisible()) return;
     const b = win.getBounds(), d = screen.getDisplayMatching(b), wa = d.workArea;
-    if (b.y + b.height - 6 > wa.y + wa.height && Date.now() - raiseAt > 250) { raiseAt = Date.now(); win.moveTop(); }
+    if (b.y + b.height - 6 > wa.y + wa.height && Date.now() - raiseAt > 250) { raiseAt = Date.now(); win.moveTop(); if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) toyWin.moveTop(); }   // (the flying bell or toy stays in front of him, or it blinks out each time he is raised)
   }
   setInterval(raiseOverTaskbar, 300);
 
