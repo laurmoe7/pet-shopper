@@ -833,21 +833,9 @@
   function gameKey(name) { return String(name || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
   var GAME_LINES_BY_KEY = {};
   Object.keys(GAME_LINES).forEach(function (n) { GAME_LINES_BY_KEY[gameKey(n)] = GAME_LINES[n]; });
-  // other spellings of the same game: a game he is taught under one of these counts as the known one (keys as gameKey makes them)
-  var GAME_ALIASES = { wow: 'worldofwarcraft', wowclassic: 'worldofwarcraft', worldofwarcraftclassic: 'worldofwarcraft', wowforeverbeta: 'worldofwarcraft', ds1: 'darksouls', darksoulsremastered: 'darksouls', dsr: 'darksouls', ds2: 'darksoulsii', darksouls2: 'darksoulsii' };
-  /** @param {string} name  A game. @returns {string} The key of the game he knows it as: the same for every spelling (taught names, editions, short names); its own key when he does not know it. */
-  function gameId(name) {
-    var k = gameKey(name);
-    if (GAME_ALIASES[k]) k = GAME_ALIASES[k];
-    else if (!GAME_LINES_BY_KEY[k]) {
-      var bare = k.replace(/^the/, '').replace(/(classic|remastered|remaster|beta|online|edition|definitiveedition|hd)$/, '');
-      if (bare && (GAME_LINES_BY_KEY[bare] || GAME_ALIASES[bare])) k = GAME_ALIASES[bare] || bare;
-    }
-    return k;
-  }
   /** @param {string} name  A game. @param {string} part  'start', 'during' or 'end'. @returns {string[]} The lines for that game, or the usual ones. */
   function linesFor(name, part) {
-    var own = GAME_LINES_BY_KEY[gameId(name)];
+    var own = GAME_LINES_BY_KEY[gameKey(name)];
     return own && own[part] && own[part].length ? own[part] : part === 'start' ? GAME_START : part === 'end' ? GAME_END : GAME_DURING;
   }
   /** @returns {boolean} Whether he may say something about the program now (not at More privacy, not when switched off, not mid-something). */
@@ -906,9 +894,9 @@
     if (program.kind === 'game' && was.kind !== 'game') {
       if (!gameSince) gameSince = now;
       scheduleDuring();
-      var seen = kindRemark['game:' + gameId(program.name)];
+      var seen = kindRemark['game:' + program.name];
       if (full > 0 && !(seen && now - seen < 30 * 60000 / full) && chance(full)) {   // (whenFree waits for a quiet moment)
-        kindRemark['game:' + gameId(program.name)] = now;
+        kindRemark['game:' + program.name] = now;
         var game = program.name;
         programTimer = setTimeout(function () { whenFree(function () { return program.kind === 'game'; }, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); remark(pick(linesFor(game, 'start')), game); setTimeout(function () { if (!busy) settle(); }, 2200); }); }, 1500);
       }

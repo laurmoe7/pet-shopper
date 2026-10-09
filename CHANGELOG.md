@@ -2,9 +2,6 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
-## Build 367
-- A game with another spelling of a known game's name gets the same remarks.
-
 ## Build 366
 - He always says something when you press the grab key, even with bubbles off.
 
