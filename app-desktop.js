@@ -249,7 +249,7 @@
   var aimQueued = 0;
   function aimBubble() {
     aimQueued = 0;
-    if (bubble.hidden || !root.classList.contains('desktop-pet')) return;
+    if (bubble.hidden || !root.classList.contains('al-quest')) return;   // (the same window shows the small pet and the whole app in turn, so this runs in both: a pointer worked out for the small window must not stay on the app's bubble)
     var r = bubble.getBoundingClientRect(), p = pet.getBoundingClientRect(), w = bubble.offsetWidth, h = bubble.offsetHeight;
     if (!w || !p.width) return;
     // (the bubble pops in with a scale: its centre and bottom stay put, so its real edges come from its own size)

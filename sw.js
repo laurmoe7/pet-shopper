@@ -1,7 +1,7 @@
 // Offline support: cache the app shell and every emoji on install. The app's own files go network-first
 // (so a new build shows up on the next visit and the cache is only the offline fallback); emoji are cache-first.
 importScripts('foods.js', 'tasks.js');
-var CACHE = 'nibble-v470';
+var CACHE = 'nibble-v471';
 var SHELL = ['./', 'index.html', 'styles.css', 'app.js', 'app-pet.js', 'app-actions.js', 'app-petsheet.js', 'app-dress.js', 'app-closet.js', 'app-shoot.js', 'app-photo.js', 'app-room.js', 'app-goals.js', 'app-events.js', 'app-todo.js', 'app-calendar.js', 'app-stamps.js', 'app-personality.js', 'app-favourites.js', 'app-petting.js', 'app-treats.js', 'app-gift.js', 'app-profile.js', 'app-options.js', 'app-shop.js', 'app-sync.js', 'app-account.js', 'app-send.js', 'send.js', 'app-desktop.js', 'app-anims.js', 'app-voice.js', 'app-recipe.js', 'backdrops.js', 'app-backdrop.js', 'app-idle.js', 'app-toy.js', 'app-bedtime.js', 'app-night.js', 'app-ring.js', 'app-fade.js', 'app-select.js', 'app-start.js', 'foods.js', 'tasks.js', 'logic.js', 'sync.js', 'achievements.js', 'sounds.js', 'wardrobe.js', 'decor.js', 'bonuses.js', 'recipe.js', 'personalities.js', 'skins.js', 'manifest.webmanifest', 'icon-32.png', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'];
 
 // Emoji and web fonts live in their own cache that is kept between builds, so an update only downloads
