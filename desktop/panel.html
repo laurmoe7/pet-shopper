@@ -63,6 +63,26 @@
   details > summary { cursor: pointer; padding: 6px 0; font-weight: 700; list-style: none; }
   details > summary::before { content: "▸ "; }
   details[open] > summary::before { content: "▾ "; }
+  /* the settings window takes the look chosen in "Alert style" (data-look is set by panel-ui.js) */
+  html[data-look="night"] { --bg: #231a2b; --surface: #3b2c47; --surface-2: #2f2339; --ink: #fdf0e0; --muted: #cdb9d6; --outline: #c9b3f0; --accent: #a98bd6; --accent-ink: #1f1527; --mint: #6aa58a; --shadow: rgba(0, 0, 0, .4); --danger: #f08a98; }
+  html[data-look="sweet"] { --bg: #ffc9d9; --surface: #fff3f7; --surface-2: #ffe0ea; --ink: #a3173f; --muted: #d06a87; --outline: #ff4f79; --accent: #ff4f79; --accent-ink: #fff; --mint: #ffd0de; --shadow: rgba(255, 79, 121, .3); --danger: #c4003c; }
+  html[data-look="sweet"] body { background-image: radial-gradient(#ffb3c8 3px, transparent 3.4px); background-size: 24px 24px; }
+  html[data-look="sweet"] section { border-width: 3px; border-radius: 24px; box-shadow: 0 0 0 3px #fff, 0 0 0 5px #ffb3c8; }
+  html[data-look="sweet"] section > h2 { border-radius: 999px; background: #ff4f79; }
+  html[data-look="cool"] { --bg: #0e0f12; --surface: #1c1d21; --surface-2: #26282d; --ink: #f1f2f4; --muted: #9b9ea6; --outline: #4a4d55; --accent: #e63946; --accent-ink: #fff; --mint: #4a4d55; --shadow: rgba(0, 0, 0, .5); --danger: #ff6b76; }
+  html[data-look="cool"] body { background-image: none; }
+  html[data-look="cool"] section { border-radius: 8px; border-left: 5px solid #e63946; }
+  html[data-look="cool"] section > h2 { border-radius: 4px; transform: none; border-color: #050506; }
+  html[data-look="cool"] button, html[data-look="cool"] .seg, html[data-look="cool"] kbd, html[data-look="cool"] .filter { border-radius: 6px; }
+  html[data-look="cool"] .seg button { border-radius: 0; }
+  html[data-look="quest"] { --bg: #0f0a05; --surface: #1b140c; --surface-2: #2a1d10; --ink: #f2e6c4; --muted: #b9a77c; --outline: #c9a227; --accent: #8a1f17; --accent-ink: #ffd100; --mint: #5a420f; --shadow: rgba(0, 0, 0, .6); --danger: #ff8a7a; }
+  html[data-look="quest"] body, html[data-look="quest"] button, html[data-look="quest"] .filter { font-family: "Palatino Linotype", Palatino, Georgia, serif; }
+  html[data-look="quest"] body { background-image: radial-gradient(ellipse at 50% 0, rgba(255, 215, 120, .12), transparent 60%); background-size: auto; background-repeat: no-repeat; }
+  html[data-look="quest"] section { border-width: 3px; border-radius: 6px; box-shadow: 0 0 0 1.5px #5a420f, inset 0 0 0 2px #0a0704, inset 0 0 0 3.5px #7a5a14; }
+  html[data-look="quest"] section > h2 { border-radius: 3px; transform: none; color: #ffd100; background: linear-gradient(180deg, #a52a1f, #5c120d); }
+  html[data-look="quest"] button, html[data-look="quest"] .seg, html[data-look="quest"] kbd, html[data-look="quest"] .filter { border-radius: 4px; }
+  html[data-look="quest"] .seg button { border-radius: 0; }
+  html[data-look="quest"] h1 { color: #ffd100; }
 </style>
 </head>
 <body>

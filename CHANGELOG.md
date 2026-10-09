@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 381
+- Mini Fumu settings window wears the chosen alert style.
+- Sweet looks new: polka dots, candy stripes, red-pink edge.
+
 ## Build 380
 - Choosing an alert style shows a quick preview.
 

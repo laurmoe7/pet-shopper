@@ -21,6 +21,7 @@
   function act(name, arg) { return function () { P.action(name, arg); }; }
 
   function render() {
+    document.documentElement.dataset.look = S.prefs.alertStyle || 'paper';   // the window wears the chosen look (panel.html)
     root.textContent = '';
     document.getElementById('ver').textContent = (S.packaged ? '' : 'running from source · ') + (S.channel === 'stable' ? 'stable channel' : 'dev channel');
     // friends use the stable channel: updating is a normal part of settings for them (for the dev channel it stays in the developer tools)
