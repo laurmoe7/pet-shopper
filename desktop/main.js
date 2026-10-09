@@ -210,7 +210,20 @@ function start() {
     });
     if (win) { if (!inBed) win.webContents.send('desk:fall', false); if (!opts.noSpin || opts.ouch) win.webContents.send('desk:thrown', false, 0, inBed, { ouch: !!opts.ouch, head: !!opts.head }); }
     if (!ok || !win) return;
-    if (inBed) { restHere(); return; }   // in his bed he stays where he landed (he has bounced about on the floor already)
+    if (inBed) {   // in his bed: after bouncing about on the floor the whole bed is slid back to where it was (no running: he is asleep)
+      const cur0 = win.getBounds(), disp0 = screen.getDisplayMatching(home).bounds;
+      const back0 = { x: Math.max(Math.round(disp0.x - home.width * 0.6), Math.min(Math.round(home.x), Math.round(disp0.x + disp0.width - home.width * 0.4))), y: Math.max(disp0.y, Math.min(Math.round(home.y), lowestY(screen.getDisplayMatching(home), home))), width: home.width, height: home.height };
+      lastThrow = { home, back: back0, landed: cur0, area: here(), inBed: true };
+      await new Promise((r) => setTimeout(r, 450));   // (it lies where it landed for a moment first)
+      if (!win || mode !== 'pet') return;
+      if (Math.abs(back0.x - cur0.x) > 3 || Math.abs(back0.y - cur0.y) > 3) {
+        const done0 = await glide(back0, Math.max(900, Math.min(3200, Math.hypot(back0.x - cur0.x, back0.y - cur0.y) * 2.2)));
+        if (!done0) return;
+      }
+      restHere();
+      if (lastThrow) lastThrow.end = win.getBounds();
+      return;
+    }
     // back to exactly where he was picked up: that may be half off the side of the screen (peeking in), so it is not squeezed back inside the
     // screen; only a spot that is mostly off the screen, or below it, is pulled in
     const cur = win.getBounds(), disp = screen.getDisplayMatching(home).bounds;
