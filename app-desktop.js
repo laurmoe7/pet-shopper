@@ -32,6 +32,7 @@
   function showMode(mode) {
     root.classList.toggle('desktop-pet', mode !== 'list');
     root.classList.toggle('desktop-list', mode === 'list');
+    if (typeof applyLook === 'function') applyLook();   // (the alert style depends on which window this is)
     var sel = window.getSelection && window.getSelection(); if (sel) sel.removeAllRanges();   // nothing stays highlighted across a switch
     if (mode !== 'list') for (var i = 0, open = document.querySelectorAll('dialog[open]'); i < open.length; i++) open[i].close();
     if (typeof fadeSoon === 'function') fadeSoon();
@@ -202,17 +203,28 @@
   window.deskAware = function (level) { return (deskPrefs.awareness === 1 ? 1 : 2) >= level; };
   /** The small window's look choices from the settings window: no toy, no cushion (classes on <html>, CSS at the end of styles.css). */
   deskMuted = function () { return !!deskPrefs.mute && isPet(); };   // sounds off in the small window only
+  /** @returns {boolean} Whether the app is dark now (its Appearance setting, or the system's when it is on Auto). */
+  function appIsDark() {
+    var t = root.dataset.theme;
+    return t === 'dark' || (t !== 'light' && !!window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+  }
   function applyLook() {
     root.classList.toggle('desk-notoy', !!deskPrefs.hideToy);
     root.classList.toggle('desk-nocushion', !!deskPrefs.hideCushion);
     root.classList.toggle('desk-backdrop', deskPrefs.backdrop === true);
     root.classList.toggle('desk-nosparkles', deskPrefs.sparkles === false);
     root.classList.toggle('desk-noclouds', deskPrefs.clouds === false);
-    root.classList.remove('al-paper', 'al-night', 'al-sweet', 'al-cool', 'al-quest'); if (deskPrefs.alertStyle !== 'classic') root.classList.add({ night: 'al-night', sweet: 'al-sweet', cool: 'al-cool', quest: 'al-quest' }[deskPrefs.alertStyle] || 'al-paper');   // the look of alert cards (settings: Alert style)
+    // the look of alert cards and speech bubbles: the small pet uses the style chosen in the settings window; the whole app follows its own
+    // appearance (Light = Paper, Dark = Night), so the pet's notes and bubbles there match the rest of the app
+    root.classList.remove('al-paper', 'al-night', 'al-sweet', 'al-cool', 'al-quest');
+    var style = root.classList.contains('desktop-pet') ? (deskPrefs.alertStyle || 'paper') : (appIsDark() ? 'night' : 'paper');
+    if (style !== 'classic') root.classList.add({ night: 'al-night', sweet: 'al-sweet', cool: 'al-cool', quest: 'al-quest' }[style] || 'al-paper');
     root.classList.toggle('desk-nobubbles', deskPrefs.bubbles === false);   // speech bubbles in the small window only; cards (reminders, links) are separate
     lastSolidReset();
   }
   function lastSolidReset() { lastSolid = null; }
+  // the whole app's light or dark changed: its alerts and bubbles follow
+  try { new MutationObserver(function () { applyLook(); }).observe(root, { attributes: true, attributeFilter: ['data-theme'] }); if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyLook); } catch (e) { /* old browser */ }
   if (D.getPrefs) D.getPrefs().then(function (p) { if (p) { deskPrefs = p; applyLook(); applyChatter(); } });
   if (D.onPrefs) D.onPrefs(function (p) { if (p) { deskPrefs = p; applyLook(); applyChatter(); } });
 
