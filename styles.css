@@ -2869,7 +2869,7 @@ html.desktop-pet .dream-dot.d2 { left: -12px; top: 54px; }
 .inbox-actions button:active { transform: translateY(2px); box-shadow: none; }
 .inbox-actions .inbox-done { margin-left: auto; }
 .stage:has(.inbox-card) .bubble { display: none; }
-.stage:has(.look-preview) .bubble { display: block; z-index: 40; translate: 0 30px; }   /* the style preview shows card, bubble and ring together */
+html.desktop-pet .stage:has(.look-preview) .bubble { display: block; z-index: 40; left: auto !important; right: 2px !important; bottom: 58px; top: auto !important; margin: 0; max-width: 30% !important; }   /* the style preview shows card, bubble and ring together: the bubble stands to the side so nothing covers it */
 html.desktop-pet .stage .inbox-card { top: auto; bottom: calc(100% + 1px); }   /* normal size: if he is at the side of the screen his window slides onto it while the card shows (app-desktop.js) */
 html.desktop-pet.card-narrow .stage .inbox-card { left: calc(var(--vis-l, 0px) + 8px); right: calc(100vw - var(--vis-r, 100vw) + 8px); }   /* (only when it cannot slide: then it is as wide as the part of the window that shows) */
 /* choices from the settings window: no toy, no cushion under him (the bed at night stays) */
@@ -3144,7 +3144,10 @@ html.al-night .stage .bubble { outline: 1.5px dashed #c9b3f0; outline-offset: -4
 html.al-sweet .stage .bubble { border: 2px solid #f3b9ca; border-radius: 20px 20px 20px 6px; outline: none; padding-right: 20px; background: linear-gradient(180deg, #fffaf0, #ffe9f0); box-shadow: 0 3px 0 #f3b9ca, 0 6px 12px var(--al-shadow); }
 html.al-sweet .stage .bubble::after { content: ""; position: absolute; top: -6px; right: 12px; width: 11px; height: 11px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #fff 0 1.4px, #ff8aa5 2px, #e8456b); box-shadow: 0 1px 2px rgba(180, 40, 80, .3); }
 html.al-cool .stage .bubble { border-radius: 8px; border-color: #4a4d55; background: linear-gradient(105deg, #e63946 0 5px, transparent 5px), linear-gradient(180deg, #2a2c31, #17181b); padding-left: 16px; box-shadow: 0 2px 0 #050506, 0 6px 10px rgba(0, 0, 0, .55); }
-html.al-quest .stage .bubble { border: 3px solid #c9a227; border-radius: 6px; font-family: "Palatino Linotype", Palatino, Georgia, serif; font-weight: 700; color: #ffd100; text-shadow: 0 1px 0 #000; padding: 5px 12px; background: radial-gradient(ellipse at 50% 0, rgba(255, 215, 120, .1), transparent 70%), linear-gradient(180deg, #2a1d10, #140e08); box-shadow: 0 0 0 1.5px #5a420f, inset 0 0 0 2px #0a0704, inset 0 0 0 3.5px #7a5a14, 0 6px 10px rgba(0, 0, 0, .6); }
+html.al-quest .stage .bubble { border: 2px solid rgba(200, 200, 200, .92); border-radius: 9px; font-family: "Palatino Linotype", Palatino, Georgia, serif; font-weight: 700; color: #f4e8a6; text-shadow: 0 1px 1px #000, 0 0 4px rgba(0, 0, 0, .8); padding: 6px 13px; background: rgba(12, 12, 12, .78); box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, .85), 0 4px 10px rgba(0, 0, 0, .5); }
+/* the little pointer of a game chat bubble, bottom left */
+html.al-quest .stage .bubble::after { content: ""; position: absolute; left: 14px; bottom: -11px; width: 0; height: 0; border: 7px solid transparent; border-top: 9px solid rgba(200, 200, 200, .92); border-bottom: 0; }
+html.al-quest .stage .bubble::before { content: ""; position: absolute; left: 16px; bottom: -7px; width: 0; height: 0; border: 5px solid transparent; border-top: 7px solid rgba(12, 12, 12, .9); border-bottom: 0; z-index: 1; }
 
 /* the ring of buttons follows the alert style too (build 379) */
 html[class*="al-"] .ring-btn { background: var(--al-bg); border: 2px solid var(--al-edge); box-shadow: 0 2px 0 var(--al-edge), 0 4px 8px var(--al-shadow); }
