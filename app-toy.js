@@ -111,7 +111,7 @@ function mouthHeight() { return Math.round(pet.offsetHeight * 0.285 - 9); }
  */
 function playToy() {
   if (playing) return;
-  if (typeof toyKind === 'function' && toyKind() === 'wrecker' && document.documentElement.classList.contains('desktop-pet')) {   // (the wrecking ball is only thrown: grab it)
+  if (typeof toyKind === 'function' && toyKind() === 'wrecker') {   // (the wrecking ball is only thrown: grab it)
     if (!busy) say(pick(['grab it and throw it!', 'throw me… I mean it!']), 1500);
     if (!reduceMotion) toyBall.animate([{ transform: 'rotate(0)' }, { transform: 'rotate(-20deg)' }, { transform: 'rotate(14deg)' }, { transform: 'rotate(0)' }], { duration: 450 });
     return;
@@ -338,6 +338,7 @@ function letGoToy() {
   vx *= boost; vy *= boost; speed *= boost;
   if (speed > cap) { vx *= cap / speed; vy *= cap / speed; }
   if (typeof wreckWanted === 'function' && wreckWanted()) { wreckFling(vx, vy, h.y); return; }   // (the wrecking ball: app-wreck.js)
+  if (typeof pageWreckWanted === 'function' && pageWreckWanted()) { pageWreck(vx, vy, z.x, z.y); return; }   // (the same ball in the page itself)
   fling(vx, vy, h.y);
 }
 toyEl.addEventListener('pointerup', letGoToy);

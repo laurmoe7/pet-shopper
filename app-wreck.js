@@ -2,6 +2,7 @@
 // window and it flies about the whole screen for 10 seconds, "breaking" the windows it hits (the shell draws cracks and falling pieces over them,
 // see desktop/wreck.js: it only draws pictures, nothing real is touched) while Fumu runs after it and tries to stop it. Then it stops, he waves
 // his magic wand (castWand in app-send.js) and every window is whole again.
+// In the page itself (phone, full app) a throw knocks the page's own things loose instead (see the end of this file).
 // Needs the desktop app with "Toy over the whole screen" on and awareness level 2 (it uses where the windows are); anywhere else it is just a
 // black ball. Plain script, shares one scope, loaded after app-toy.js.
 'use strict';
@@ -132,3 +133,162 @@ function wreckFling(vx, vy, y0) {
   }
   flight = requestAnimationFrame(step);
 }
+
+// ---------- in the page (the phone app and the full app on the computer) ----------
+// Here the ball flies over the whole page, bounces like a heavy ball and really knocks the page's own things loose: list rows, aisle labels,
+// the add bar, the dock's buttons. Each one cracks and falls off the page with whatever is on it (they are the page's own elements, so nothing is
+// captured or drawn over a program); then he waves the wand and they pop back. A see-through shield keeps taps from reaching the page meanwhile.
+var WRECK_TARGETS = '.items .item, .items .aisle, .add-wrap, .dock > button, .scene .brand';
+
+/** @returns {boolean} Whether a throw now is the page's wrecking-ball game: it is the toy, and this is not the small desktop window (that one has its own, over the screen). */
+function pageWreckWanted() {
+  return toyKind() === 'wrecker' && !toyField && !reduceMotion && !document.documentElement.classList.contains('desktop-pet');
+}
+
+/**
+ * @param {number} vx px per second to the right. @param {number} vy px per second upwards. @param {number} px @param {number} py Where it was let go (viewport px).
+ */
+function pageWreck(vx, vy, px, py) {
+  var src = toyEl.querySelector('[data-toy="wrecker"]');
+  var W = window.innerWidth, H = window.innerHeight, R = 22, G = 1500;
+  var x = px, y = py, vyd = -vy, spin = 0, start = performance.now(), last = start, ended = false;
+  var chaseAt = 0, jumpAt = start + 500, talkAt = start + 900, glassAt = 0, shockAt = 0;
+  vx *= 1.3; vyd = Math.min(vyd * 1.3, -350);
+  sound('toss');
+  setFace({ eyes: 'open', mouth: 'o', arms: 'reach', x: ['sweat'] });
+  eyesDo('wide');
+  pet.classList.add('running');
+  toyEl.style.visibility = 'hidden';
+  var shield = document.createElement('div');
+  shield.style.cssText = 'position:fixed;left:0;top:0;right:0;bottom:0;z-index:9990;touch-action:none;';
+  var ball = document.createElement('div');
+  ball.style.cssText = 'position:fixed;left:0;top:0;width:' + R * 2 + 'px;height:' + R * 2 + 'px;z-index:9991;pointer-events:none;will-change:transform;';
+  ball.innerHTML = '<svg viewBox="0 0 26 26" width="' + R * 2 + '" height="' + R * 2 + '" aria-hidden="true"></svg>';
+  if (src) { var g = src.cloneNode(true); g.style.display = 'inline'; ball.firstChild.appendChild(g); }
+  document.body.append(shield, ball);
+  var targets = [].slice.call(document.querySelectorAll(WRECK_TARGETS)).map(function (el) {
+    var r = el.getBoundingClientRect();
+    return { el: el, r: r, hit: false, anim: null };
+  }).filter(function (t) { return t.r.width > 8 && t.r.height > 8 && t.r.bottom > 0 && t.r.top < H; });
+
+  /** A crack where the ball hit, for a moment. */
+  function crackAt(cx, cy) {
+    var d = '', i, a, len, mx, my;
+    for (i = 0; i < 9; i++) {
+      a = i / 9 * Math.PI * 2 + Math.random() * .5; len = 22 + Math.random() * 20; mx = Math.cos(a) * len * .5 + (Math.random() - .5) * 8; my = Math.sin(a) * len * .5 + (Math.random() - .5) * 8;
+      d += 'M0 0 L' + mx.toFixed(1) + ' ' + my.toFixed(1) + ' L' + (Math.cos(a) * len).toFixed(1) + ' ' + (Math.sin(a) * len).toFixed(1);
+    }
+    var c = document.createElement('div');
+    c.style.cssText = 'position:fixed;left:' + (cx - 45) + 'px;top:' + (cy - 45) + 'px;width:90px;height:90px;z-index:9992;pointer-events:none;';
+    c.innerHTML = '<svg viewBox="-45 -45 90 90" width="90" height="90" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '" stroke="rgba(10,10,16,.75)" stroke-width="2.4"/><path d="' + d + '" stroke="rgba(255,255,255,.7)" stroke-width=".9" transform="translate(.8 .8)"/></svg>';
+    document.body.appendChild(c);
+    c.animate([{ opacity: 1 }, { opacity: 1, offset: .6 }, { opacity: 0 }], { duration: 700 }).onfinish = function () { c.remove(); };
+  }
+  /** A thing the ball touched: it cracks, then falls off the page with whatever is on it. */
+  function knock(t, hx, hy) {
+    t.hit = true;
+    crackAt(hx, hy);
+    var dir = Math.random() < .5 ? -1 : 1;
+    setTimeout(function () {
+      if (!t.el.animate) return;
+      t.anim = t.el.animate([{ transform: 'translate(0, 0) rotate(0deg)' }, { transform: 'translate(' + Math.round(dir * (20 + Math.random() * 60)) + 'px, ' + Math.round(H - t.r.top + 140) + 'px) rotate(' + Math.round(dir * (20 + Math.random() * 60)) + 'deg)' }], { duration: 800, easing: 'cubic-bezier(.5,0,1,.6)', fill: 'forwards' });
+    }, 260);
+  }
+
+  function step(now) {
+    if (ended) return;
+    var dt = Math.min(0.033, (now - last) / 1000);
+    last = now;
+    vyd += G * dt;
+    var sp = Math.hypot(vx, vyd);
+    if (sp > 1700) { vx *= 1700 / sp; vyd *= 1700 / sp; }
+    x += vx * dt; y += vyd * dt;
+    if (x < R) { x = R; vx = Math.abs(vx) * 0.92; }
+    if (x > W - R) { x = W - R; vx = -Math.abs(vx) * 0.92; }
+    if (y < R) { y = R; vyd = Math.abs(vyd) * 0.7; }
+    if (y > H - R - 6) {   // (the bottom of the screen: it never settles, it bounces up again to a different height and slant)
+      y = H - R - 6; vyd = -Math.sqrt(2 * G * H * (0.45 + Math.random() * 0.5));
+      vx = (Math.abs(vx) < 300 ? (Math.random() < .5 ? -1 : 1) * (300 + Math.random() * 400) : vx) + (Math.random() - 0.5) * 300;
+      sound('bounce');
+    }
+    spin += vx * dt * 1.6;
+    ball.style.transform = 'translate(' + (x - R).toFixed(1) + 'px,' + (y - R).toFixed(1) + 'px) rotate(' + Math.round(spin) + 'deg)';
+    var broke = 0;
+    for (var i = 0; i < targets.length; i++) {
+      var t = targets[i], m = R * 0.6;
+      if (t.hit || x < t.r.left - m || x > t.r.right + m || y < t.r.top - m || y > t.r.bottom + m) continue;
+      knock(t, x, y); broke++;
+    }
+    if (broke) {
+      if (now - glassAt > 70) { glassAt = now; sound('glass'); }
+      vx *= 0.95; vyd *= 0.95;
+      if (now - shockAt > 900) {
+        shockAt = now;
+        pulse('hopsmall', 450);
+        setFace({ eyes: 'open', mouth: 'o', arms: 'reach', x: ['sweat', 'shock'] });
+        say(pick(['NOT MY LIST!', 'oh no, it broke!', 'stop! stop!', 'my things!!']), 1100, true);
+        talkAt = now + 1700;
+      }
+    }
+    // he runs along under it and jumps for it now and then
+    if (now > chaseAt) { chaseAt = now + 110; var sr = stage.getBoundingClientRect(); walkTo(x - (sr.left + sr.width / 2) + vx * 0.2, toyPace(5)); }
+    pet.style.setProperty('--look-x', (x > pet.getBoundingClientRect().left ? 3.2 : -3.2) + 'px');
+    if (now > jumpAt) {
+      jumpAt = now + 800 + Math.random() * 700;
+      var jsvg = pet.querySelector('.pet-svg');
+      if (jsvg && jsvg.animate) jsvg.animate([{ translate: '0 0' }, { translate: '0 -26px', offset: .5 }, { translate: '0 0' }], { duration: 440, easing: 'ease-out' });
+    }
+    if (now > talkAt) { talkAt = now + 1800 + Math.random() * 800; say(pick(['stop it!', 'no no no!', 'come back!', 'bad ball!', 'wait wait wait!']), 1000, true); }
+    if (now - start > WRECK_MS) { finish(); return; }
+    flight = requestAnimationFrame(step);
+  }
+  function finish() {
+    if (ended) return;
+    ended = true;
+    cancelAnimationFrame(flight);
+    sound('tink');
+    drift(['💨', '✦', '✨'], { x: x, y: y }, 4);
+    ball.remove();
+    toyX = toyHome();
+    toyEl.style.translate = toyX + 'px 0';
+    toyBall.style.transform = '';
+    toyEl.style.visibility = '';
+    stopWalk();
+    pet.classList.remove('running');
+    pet.style.removeProperty('--look-x');
+    setFace({ eyes: 'happy', mouth: 'open', arms: 'idle', x: ['cheeks'] });
+    say(pick(['phew… ok, fixing it~', 'abracadabra!', 'time for magic~']), 1700, true);
+    var back = walkTo(0, 7);   // (the wand needs room)
+    setTimeout(function () {
+      if (typeof castWand === 'function') castWand();
+      setTimeout(function () {   // everything pops back, one after the other
+        targets.forEach(function (t, n) {
+          setTimeout(function () {
+            if (t.anim) { t.anim.cancel(); t.anim = null; }
+            if (t.hit && t.el.animate) t.el.animate([{ transform: 'scale(.6)', opacity: 0 }, { transform: 'scale(1.08)', opacity: 1, offset: .6 }, { transform: 'scale(1)', opacity: 1 }], { duration: 380, easing: 'ease-out' });
+            if (t.hit && n % 2 === 0) drift(['✨', '✦', '⭐'], { x: t.r.left + t.r.width / 2, y: t.r.top + t.r.height / 2 }, 2);
+          }, n * 35);
+        });
+      }, 900);
+    }, back);
+    wait(back + 4200).then(function () { shield.remove(); endPlay(); });
+  }
+  setTimeout(finish, WRECK_MS + 1500);   // (if the page was in the background and no frames came: it is still mended)
+  flight = requestAnimationFrame(step);
+}
+
+// the switch for it in App settings (Options): the ring menu only exists in the small desktop window
+(function () {
+  if (typeof optionsList === 'undefined' || !optionsList) return;
+  var label = document.createElement('label'), title = document.createElement('span'), box = document.createElement('input');
+  label.className = 'option'; title.className = 'option-title'; title.textContent = 'Wrecking ball';
+  box.type = 'checkbox'; box.setAttribute('role', 'switch');
+  label.append(title, box);
+  optionsList.appendChild(label);
+  box.addEventListener('change', function () {
+    if (box.checked !== (toyKind() === 'wrecker')) toggleToyKind();
+    box.checked = toyKind() === 'wrecker';
+  });
+  var btn = $('optionsBtn');
+  if (btn) btn.addEventListener('click', function () { box.checked = toyKind() === 'wrecker'; });
+})();

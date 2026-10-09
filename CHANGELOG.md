@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 484
+- Wrecking ball in the app: it knocks the list, add bar and buttons off the page, then the wand fixes them
+- Options: Wrecking ball switch
+
 ## Build 483
 - Wrecking ball: windows crack like glass instead of breaking into pieces
 
