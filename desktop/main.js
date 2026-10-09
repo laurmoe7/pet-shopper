@@ -136,6 +136,21 @@ function start() {
     restHere();
   }
 
+  // where his visible body is inside the window (the page measures it, in page pixels: left, top, right, and the bottom of his cushion), so he
+  // meets the edges of the screen and the taskbar with HIM, not with the empty space round him
+  let bodyBox = null;
+  ipcMain.on('desk:body', (_e, box) => {
+    if (Array.isArray(box) && box.length === 4 && box.every((n) => typeof n === 'number' && isFinite(n) && n >= 0 && n < 4000) && box[2] > box[0] && box[3] > box[1]) bodyBox = box;
+  });
+  /** @returns {{l:number,t:number,r:number,b:number}} How far his body is in from each side of a window of size `b` (b = how far its lowest part is from the top). */
+  function bodyIn(b) {
+    const z = zoom();
+    if (!bodyBox) return { l: -Math.round(b.width * 0.14), t: -Math.round(b.height * 0.3), r: -Math.round(b.width * 0.14), b: b.height + place.MARGIN / 2 };   // (not told yet: the old guess)
+    return { l: bodyBox[0] * z, t: bodyBox[1] * z, r: bodyBox[2] * z, b: bodyBox[3] * z + 3 };
+  }
+  /** @returns {number} The lowest top edge the window may have on a screen: his cushion rests on the taskbar's edge, never under it. */
+  function lowestY(area, b) { return Math.round(area.y + area.height - bodyIn(b).b); }
+
   /** He is let go while moving fast: he flies on, bounces off the edges of the screens and the floor, then runs back to where he was picked up. */
   let lastThrow = null;   // where the last throw started, landed and ended (shown in the diagnostics, to track down a wrong run-back)
   async function throwWindow(vx, vy, home, inBed, opts) {
@@ -144,7 +159,7 @@ function start() {
     if (!win || mode !== 'pet') return;
     const all = areas(), b0 = win.getBounds();
     const box = { x: Math.min(...all.map((a) => a.x)), y: Math.min(...all.map((a) => a.y)), r: Math.max(...all.map((a) => a.x + a.width)), b: Math.max(...all.map((a) => a.y + a.height)) };
-    const insetX = Math.round(b0.width * 0.14), insetTop = Math.round(b0.height * 0.3);   // the window has clear space round him: he touches the edge, not the window
+    const bi = bodyIn(b0);   // the window has clear space round him: it is his body that touches the edge, not the window
     if (inBed) { vx *= 0.42; vy *= 0.42; }   // asleep in his bed he is heavy: he does not go nearly as far
     const G = inBed ? 4600 : 2400, WALL = inBed ? 0.45 : 0.8, FLOOR = inBed ? 0.3 : 0.62;
     let floorHits = 0, x = b0.x, y = b0.y, lastHit = 0, spinDir = vx >= 0 ? 1 : -1;
@@ -161,11 +176,11 @@ function start() {
         vy += G * dt; x += vx * dt; y += vy * dt;
         let hit = 0;   // how hard he hit an edge this step (px/s)
         // (in his bed he is far too heavy to bounce off a wall or the ceiling: he just stops against it)
-        if (x < box.x - insetX) { x = box.x - insetX; if (inBed) vx = 0; else { hit = Math.abs(vx); vx = Math.abs(vx) * WALL; } }
-        if (x > box.r - b0.width + insetX) { x = box.r - b0.width + insetX; if (inBed) vx = 0; else { hit = Math.abs(vx); vx = -Math.abs(vx) * WALL; } }
-        if (y < box.y - insetTop) { y = box.y - insetTop; if (inBed) vy = 0; else { hit = Math.max(hit, Math.abs(vy)); vy = Math.abs(vy) * WALL; } }
+        if (x < box.x - bi.l) { x = box.x - bi.l; if (inBed) vx = 0; else { hit = Math.abs(vx); vx = Math.abs(vx) * WALL; } }
+        if (x > box.r - bi.r) { x = box.r - bi.r; if (inBed) vx = 0; else { hit = Math.abs(vx); vx = -Math.abs(vx) * WALL; } }
+        if (y < box.y - bi.t) { y = box.y - bi.t; if (inBed) vy = 0; else { hit = Math.max(hit, Math.abs(vy)); vy = Math.abs(vy) * WALL; } }
         const wa = screen.getDisplayNearestPoint({ x: Math.round(x + b0.width / 2), y: Math.round(y + b0.height) }).workArea;
-        const floorY = wa.y + wa.height - b0.height - place.MARGIN / 2;
+        const floorY = lowestY(wa, b0);
         let rest = false;
         if (y >= floorY) { y = floorY; if (Math.abs(vy) > (inBed ? 90 : 260) && !(opts.maxBounces && floorHits >= opts.maxBounces)) { floorHits++; hit = Math.max(hit, Math.abs(vy)); vy = -vy * FLOOR; } else { vy = 0; rest = true; } vx *= 0.85; }
         if (hit > (inBed ? 80 : 220) && now - lastHit > (inBed ? 60 : 90)) { lastHit = now; win.webContents.send('desk:bounce', Math.min(1, hit / 2500)); }
@@ -180,6 +195,7 @@ function start() {
     if (!ok || !win) return;
     if (inBed) { restHere(); return; }   // in his bed he stays where he landed (he has bounced about on the floor already)
     const back = place.within(home, here()), cur = win.getBounds();
+    back.y = Math.min(back.y, lowestY(here(), cur));   // (his spot may be an old one low on the taskbar: he comes back to its edge)
     lastThrow = { home, back, landed: cur, area: here() };
     if (Math.abs(back.x - cur.x) > 20 || Math.abs(back.y - cur.y) > 20) {
       win.webContents.send('desk:run', back.x > cur.x ? 1 : -1);
@@ -524,7 +540,7 @@ function start() {
     }
     // let go low down (over the taskbar, or below the bottom of the screen): he is set back on the screen, not left half hidden behind the taskbar
     // (only down: he may still be parked half off the side of the screen, peeking in)
-    const area = here(), lowest = area.y + area.height - b.height, fixed = { x: b.x, y: Math.min(b.y, lowest), width: b.width, height: b.height };
+    const area = here(), lowest = lowestY(area, b), fixed = { x: b.x, y: Math.min(b.y, lowest), width: b.width, height: b.height };
     if (fixed.y !== b.y && !(await glide(fixed, 180))) return;
     restHere();
   });
