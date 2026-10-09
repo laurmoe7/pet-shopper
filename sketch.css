@@ -335,7 +335,7 @@ body:not(.skp-guest) .guest-only { display: none; }
 .skp-toolbar .sk-tools:not(.sk-seltools) button { height: 52px; }
 .skp-toolbar .sk-tools button svg { width: 26px; height: 26px; }
 .skp-toolbar .sk-tools button[data-key]::after { font-size: .62rem; right: 5px; bottom: 3px; }
-@media (max-width: 900px) { .skp-toolbar { align-self: stretch; } .skp-toolbar .sk-tools { grid-template-columns: repeat(8, 1fr); } .skp-toolbar .sk-tools:not(.sk-seltools) button { height: 44px; } }
+@media (max-width: 760px) { .skp-toolbar { align-self: stretch; } .skp-toolbar .sk-tools { grid-template-columns: repeat(8, 1fr); } .skp-toolbar .sk-tools:not(.sk-seltools) button { height: 44px; } }
 
 /* round drop-down menus in the night theme (the list comes from app-select.js) */
 html:root body.skp select { appearance: none; -webkit-appearance: none; padding-right: 26px; font-weight: 800; cursor: pointer; border-radius: 999px; box-shadow: 0 2px 0 var(--sk-edge);
@@ -533,3 +533,22 @@ body.skp-calm .sk-flies, body.skp-calm .sk-flies * { animation: none !important;
 body.skp-calm .sk-mascot, body.skp-calm .sk-mascot *:not(.oink) { animation: none !important; }
 body.skp-calm .sk-mascot.oink { animation: sk-oink .75s cubic-bezier(.3, .7, .4, 1) !important; }
 .skp-dlg .sk-size { display: inline-flex; align-items: center; gap: 8px; }
+
+/* tidy-up: the view controls sit together on the right, the header stays on one row */
+.skp-top { flex-wrap: nowrap; gap: 6px 14px; }
+.skp-viewbar { margin-left: auto; display: flex; align-items: center; gap: 8px 14px; min-width: 0; }
+.skp-viewbar .sk-check { white-space: nowrap; }
+.skp-viewbar input[type="range"] { width: 84px; }
+@media (max-width: 1100px) { .sk-zoomtext { display: none; } .skp-viewbar input[type="range"] { width: 64px; } }
+@media (max-width: 900px) { .skp-viewbar .sk-check[title^="How strong"] { display: none; } }
+/* the open-canvas tabs take less room */
+.skp-docs { padding: 4px 14px 0; min-height: 0; }
+.skp-doc [data-act="go"] { padding-top: 3px; padding-bottom: 3px; }
+.skp-doc-x { padding-top: 3px; padding-bottom: 3px; }
+/* closed folding boxes are just their title */
+details.skp-box:not([open]) { padding-bottom: 8px; gap: 0; }
+details.skp-box:not([open]) > summary { margin-bottom: 0 !important; }
+.skp-box { padding-top: 10px; }
+/* the message bar reads as a status bar */
+body.skp > .skp-status { font-size: .86rem; font-weight: 600; padding: 4px 16px; min-height: 1.9em; }
+@media (max-width: 900px) { #skZoom { display: none; } }

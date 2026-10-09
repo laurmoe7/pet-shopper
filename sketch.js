@@ -345,7 +345,7 @@ function skApplyLook() {
   $('skSeatedWrap').hidden = SK.mode !== 'pet';
   $('skTemplate').checked = !!P.template;
   $('skSeated').checked = !!P.seated;
-  $('skRefLabel').textContent = SK.mode === 'toy' ? 'Toy' : 'Pet';
+  $('skRefLabel').textContent = SK.mode === 'toy' ? 'Show toy' : (SK.mode === 'pet' ? 'Show pet' : 'Show room');
   $('skTabUnder').hidden = SK.mode === 'toy' || SK.mode === 'canvas';
   $('skRef').closest('label').hidden = SK.mode === 'canvas'; $('skGhost').closest('label').hidden = SK.mode === 'canvas';
   skOpened[SK.mode] = true; skDocsUI();
@@ -3191,7 +3191,7 @@ $('skClean').checked = SK.clean;
 skSetPen(SK.pen);
 skStatus.textContent = 'Loading…';
 skLoadSource().then(function () {
-  skStatus.textContent = SK_OWNER ? 'Draw, then Upload to Claude.' : 'Draw, then Save SVG.';
+  skStatus.textContent = SK_OWNER ? 'Draw something. File > Send to Claude when it is ready.' : 'Draw something. File > Save SVG when it is ready.';
   skBuild();
 }).catch(function (e) {
   skStatus.textContent = 'Could not load the pet (' + e.message + '). Open this page from the website, not as a file.';

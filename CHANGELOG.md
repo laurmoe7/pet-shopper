@@ -751,6 +751,7 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 - Sketchpad: History box lists every step; click one to go back to it.
 - Sketchpad: click the pig mascot for a hop and an oink.
 - Sketchpad: Preferences (Edit menu): volume, sounds on/off, brush ring, slider numbers, undo steps, calm mode; the oink is much quieter.
+- Sketchpad: tidier top bar (view controls grouped on the right, one row), smaller canvas tabs, closed boxes shrink to their title, better layout on narrow windows, new start message.
 - Sketchpad: Click a picture to pick it, click empty space to let go.
 - Sketchpad: Trace renamed To shapes.
 - Sketchpad: Layer name outline only shows while it can be edited.
