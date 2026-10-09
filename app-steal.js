@@ -152,6 +152,7 @@ function stealNow(force) {
     if (!stolen) return;
     sound('chomp');
     setFace(CHEW);
+    say(pick(['nom nom nom~', 'mmm, stolen tastes best', 'don\'t tell anyone~', '*munch munch* hehe', 'mine now~', 'yoink was worth it']), 1500, true);   // (a cheeky remark every time, so you notice)
     if (!reduceMotion) pulse('bob', 900);
     // crumbs fly out of his mouth while he chews
     [0, 280, 560].forEach(function (t) { setTimeout(function () { if (stolen) { stealCrumbs(6); } }, t); });

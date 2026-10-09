@@ -8,7 +8,7 @@
 'use strict';
 
 var TOY_KIND_KEY = 'nibble-toy-kind';
-var WRECK_MS = 10000, PAGE_WRECK_MS = 16000;   // (how long the ball flies: the small window, the page)
+var WRECK_MS = 10000, PAGE_WRECK_MS = 13000;   // (how long the ball flies: the small window, the page)
 
 /** @returns {string} Which toy is out: 'ball' (the one for his species) or 'wrecker'. */
 function toyKind() {
@@ -398,13 +398,6 @@ function pageWreck(vx, vy, px, py) {
       }, 120 + i * 70));
     });
     if (performance.now() - shatterSound > 90) { shatterSound = performance.now(); sound('glass'); }
-    if (take.length >= 4 || t.left.length === 0) {   // a big bite: a flash and a puff
-      var fl = document.createElement('div');
-      fl.style.cssText = 'position:fixed;inset:0;z-index:9988;pointer-events:none;background:#fff;opacity:.22;';
-      document.body.appendChild(fl);
-      fl.animate([{ opacity: .22 }, { opacity: 0 }], { duration: 160 }).onfinish = function () { fl.remove(); };
-      drift(['💥', '✦'], { x: hx, y: hy }, 2);
-    }
   }
 
   function step(now) {

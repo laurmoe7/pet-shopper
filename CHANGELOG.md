@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 523
+- App wrecking ball: no flashing or starbursts, 3 seconds shorter
+- Cheeky remark every time he eats a stolen emoji
+
 ## Build 522
 - Cool (Mini Fumu) redone as a light frosted-ice look
 - New Scribbling theme: colourful crayon (app and Mini Fumu)
