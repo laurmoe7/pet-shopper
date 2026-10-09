@@ -477,3 +477,10 @@ html:root body.skp .cs-pop::after { background: linear-gradient(transparent, var
 .skp-card:hover { border-color: #ff9bb8; }
 .skp-top { overflow: visible; z-index: 20; }
 .sk-flies { overflow: hidden; border-radius: inherit; }
+
+/* the pig mascot in the header */
+.sk-mascot { width: 40px; height: 34px; flex: none; animation: sk-bob 3.2s ease-in-out infinite; filter: drop-shadow(0 0 6px rgba(255, 155, 184, .45)); }
+.sk-mascot .me { transform-box: fill-box; transform-origin: center; animation: sk-blink 4.5s infinite; }
+.sk-mascot .me ellipse { transform-box: fill-box; transform-origin: center; animation: sk-blink 4.5s infinite; }
+.sk-mascot .mt { transform-origin: 18px 8px; animation: sk-sway 2.8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .sk-mascot, .sk-mascot * { animation: none !important; } }
