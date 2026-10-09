@@ -1108,7 +1108,7 @@
     if (!carried && !stage.classList.contains('bedtime')) {
       // two clearly different moves: solid again = a cheerful spinning hop with sparkles; the mouse passes through = he ducks down and pops up with a finger to his lips
       if (on) { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('spinhop', 900); drift(['✦', '♥', '✦'], petTop(), 4); }
-      else { setFace({ eyes: 'closed', mouth: 'smile', arms: 'cover', x: [] }); pulse('popup', 1500); drift(['🤫'], petTop(), 1); }
+      else { setFace({ eyes: 'closed', mouth: 'smile', arms: 'cover', x: [] }); pulse('tilt', 1800); drift(['🤫'], petTop(), 1); }
       setTimeout(function () { if (!busy && !carried) settle(); }, on ? 1500 : 1900);
     } else if (typeof pulse === 'function' && !carried) pulse('hopsmall', 450);
     setTimeout(function () { document.documentElement.classList.remove('grab-say'); }, 2500);

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 383
+- Removed the peekaboo move where he shrinks tiny; Ctrl+Alt+G off now tilts his head.
+
 ## Build 382
 - Sweet is now a soft pastel cake: gradients, icing top, a cherry.
 - Sample alerts always slide away by themselves.
