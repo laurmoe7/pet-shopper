@@ -214,9 +214,9 @@
     root.classList.toggle('desk-backdrop', deskPrefs.backdrop === true);
     root.classList.toggle('desk-nosparkles', deskPrefs.sparkles === false);
     root.classList.toggle('desk-noclouds', deskPrefs.clouds === false);
-    // the look of alert cards and speech bubbles: the small pet uses the style chosen in the settings window; the whole app follows its own
-    // appearance (Light = Paper, Dark = Night), so the pet's notes and bubbles there match the rest of the app
-    var style = root.classList.contains('desktop-pet') ? (deskPrefs.alertStyle || 'paper') : (appIsDark() ? 'night' : 'paper');
+    // the look of alert cards and speech bubbles: the small pet uses the style chosen in the settings window; the whole app always has the
+    // Plain look, which follows its own Light or Dark appearance
+    var style = root.classList.contains('desktop-pet') ? (deskPrefs.alertStyle || 'paper') : 'classic';   // (the whole app keeps the plain look: its own light or dark)
     var want = style === 'classic' ? '' : ({ night: 'al-night', sweet: 'al-sweet', cool: 'al-cool', quest: 'al-quest' }[style] || 'al-paper');
     var have = ['al-paper', 'al-night', 'al-sweet', 'al-cool', 'al-quest'].filter(function (c) { return root.classList.contains(c); });
     if (have.length !== (want ? 1 : 0) || (want && have[0] !== want)) {   // (only touched when it is wrong, so this is cheap to call often)
