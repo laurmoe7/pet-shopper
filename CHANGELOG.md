@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 466
+- Reminder and alert cards are no longer cut off at the start: the room for them is worked out at once.
+
 ## Build 465
 - Alert cards no longer push Fumu down: the card sits a little lower, and he only drops if a tall card really needs the room.
 

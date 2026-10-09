@@ -624,7 +624,8 @@
   function cardRoom(card) {
     var need = 0;
     if (card) {
-      var top = card.getBoundingClientRect().top;
+      // measured from the layout, not from the card's own rectangle: the card pops in from a small size, which would make it look shorter than it is
+      var sr = stage.getBoundingClientRect(), top = sr.bottom - (parseFloat(getComputedStyle(card).bottom) || 0) - card.offsetHeight;
       need = Math.max(0, Math.min(28, Math.ceil(2 - top + cardDrop)));   // (top already includes the drop he has now)
     }
     if (need === cardDrop) return;
