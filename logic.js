@@ -1758,6 +1758,40 @@
     return mask;
   }
   /**
+   * Makes the background of a picture see-through: it spreads in from the edges over pixels close to a corner colour.
+   * @param {Uint8ClampedArray} px RGBA pixels, changed in place.
+   * @param {number} tol How different a colour may be (0..255, as distance in red-green-blue).
+   * @returns {number} How many pixels were made see-through.
+   */
+  function cutBackground(px, w, h, tol) {
+    var n = w * h, gone = new Uint8Array(n), stack = [], i, x, y;
+    function rgbAt(q) { return [px[q * 4], px[q * 4 + 1], px[q * 4 + 2]]; }
+    var bgs = [0, w - 1, (h - 1) * w, h * w - 1].map(rgbAt);
+    function isBg(q) {
+      if (px[q * 4 + 3] < 20) return true;
+      var r = px[q * 4], g = px[q * 4 + 1], b = px[q * 4 + 2];
+      return bgs.some(function (c) { return Math.hypot(r - c[0], g - c[1], b - c[2]) <= tol; });
+    }
+    function seed(q) { if (!gone[q] && isBg(q)) { gone[q] = 1; stack.push(q); } }
+    for (x = 0; x < w; x++) { seed(x); seed((h - 1) * w + x); }
+    for (y = 0; y < h; y++) { seed(y * w); seed(y * w + w - 1); }
+    while (stack.length) {
+      var c = stack.pop(); x = c % w; y = (c - x) / w;
+      if (x > 0) seed(c - 1);
+      if (x < w - 1) seed(c + 1);
+      if (y > 0) seed(c - w);
+      if (y < h - 1) seed(c + w);
+    }
+    var count = 0;
+    for (i = 0; i < n; i++) {
+      if (gone[i]) { px[i * 4 + 3] = 0; count++; continue; }
+      // a kept pixel right next to the cut-away part is half see-through, so the edge is not jagged or haloed
+      x = i % w; y = (i - x) / w;
+      if ((x > 0 && gone[i - 1]) || (x < w - 1 && gone[i + 1]) || (y > 0 && gone[i - w]) || (y < h - 1 && gone[i + w])) px[i * 4 + 3] = Math.round(px[i * 4 + 3] * 0.5);
+    }
+    return count;
+  }
+  /**
    * Splits a mask into its separate patches (touching corners count as joined), biggest first, each as its own small mask.
    * @returns {{x: number, y: number, w: number, h: number, mask: Uint8Array, size: number}[]} At most `keep` patches (x, y is where the small mask sits in the big one).
    */
@@ -2246,6 +2280,6 @@
     toggleDone: toggleDone,
     pickEmoji: pickEmoji,
     soundFor: soundFor,
-    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, sketchDash: sketchDash, fitCurve: fitCurve, sketchPathClean: sketchPathClean, sketchItemCode: sketchItemCode, sketchGradId: sketchGradId, sketchGradDef: sketchGradDef, sketchSoftBlur: sketchSoftBlur, sketchBlurId: sketchBlurId, sketchBlurDef: sketchBlurDef, sketchShape: sketchShape, sketchRibbon: sketchRibbon, traceInk: traceInk, traceColours: traceColours, despeckle: despeckle, traceParts: traceParts, traceSmoothLabels: traceSmoothLabels, sketchClipDef: sketchClipDef, SKETCH_PATTERNS: SKETCH_PATTERNS, SKETCH_SHAPES: SKETCH_SHAPES, sketchWave: sketchWave, SKETCH_STYLES: SKETCH_STYLES, traceLoops: traceLoops, simplifyLine: skSimplify
+    sketchPath: sketchPath, sketchHit: sketchHit, sketchSvg: sketchSvg, tidyStroke: tidyStroke, floodMask: floodMask, sketchXform: sketchXform, inPolygon: inPolygon, sketchDash: sketchDash, fitCurve: fitCurve, sketchPathClean: sketchPathClean, sketchItemCode: sketchItemCode, sketchGradId: sketchGradId, sketchGradDef: sketchGradDef, sketchSoftBlur: sketchSoftBlur, sketchBlurId: sketchBlurId, sketchBlurDef: sketchBlurDef, sketchShape: sketchShape, sketchRibbon: sketchRibbon, traceInk: traceInk, traceColours: traceColours, despeckle: despeckle, traceParts: traceParts, cutBackground: cutBackground, traceSmoothLabels: traceSmoothLabels, sketchClipDef: sketchClipDef, SKETCH_PATTERNS: SKETCH_PATTERNS, SKETCH_SHAPES: SKETCH_SHAPES, sketchWave: sketchWave, SKETCH_STYLES: SKETCH_STYLES, traceLoops: traceLoops, simplifyLine: skSimplify
   };
 })(typeof self !== 'undefined' ? self : globalThis);

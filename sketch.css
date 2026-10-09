@@ -395,3 +395,4 @@ html:root body.skp .cs-pop::after { background: linear-gradient(transparent, var
 .skp-trace [hidden] { display: none; }
 /* the sitting pose is a still picture: the soles do not plop in */
 .preview .sole-part { animation: none !important; }
+.skp-cut { margin-top: 8px; }

@@ -127,6 +127,10 @@
     <section class="skp-box">
       <div class="skp-head"><h2>Images</h2><kbd title="Paste a copied picture">Ctrl+V</kbd><button type="button" class="skp-btn skp-small" id="skAddImage">Add…</button><input type="file" id="skFile" accept="image/*" hidden></div>
       <div class="skp-layers" id="skLayers"></div>
+      <div class="skp-trace skp-cut">
+        <div class="sk-row"><button type="button" class="skp-btn skp-small" id="skCut" title="Make the plain background of the picked picture see-through (it works from the edges, on colours like the corners)">✂ Cut out background</button><button type="button" class="skp-btn skp-small" id="skCutUndo" disabled>Undo cut</button></div>
+        <label class="sk-row">Strength <input type="range" id="skCutTol" min="10" max="120" value="45" aria-label="How different from the corners a colour may be and still count as background"><span class="skp-hint">careful &larr; &rarr; more</span></label>
+      </div>
       <div class="skp-trace">
         <div class="sk-row"><button type="button" class="skp-btn skp-small" id="skTrace" title="Trace the picked picture into shapes you can edit (on a new layer)">✦ Trace</button><select id="skTraceMode" aria-label="What to trace"><option value="lines">Lines (dark ink)</option><option value="colours">Colours (flat patches)</option></select></div>
         <label class="sk-row" id="skTraceLevelRow">Ink <input type="range" id="skTraceLevel" min="-60" max="60" value="0" aria-label="How dark counts as ink"><span class="skp-hint">less &larr; &rarr; more</span></label>

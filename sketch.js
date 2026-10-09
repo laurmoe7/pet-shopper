@@ -1497,6 +1497,40 @@ $('skTrace').addEventListener('click', skTrace);
 $('skTraceMode').addEventListener('change', skTraceUI);
 skTraceUI();
 
+// ---------- cutting out a picture's background ----------
+var skCutOrig = {};   // the picture as it was before the cut, by layer id (kept until the page is closed)
+/** Makes the plain background of the selected picture see-through (it spreads in from the edges over colours like the corners). */
+async function skCut() {
+  var im = skSelected();
+  if (!im) { skStatus.textContent = 'Add a picture first (Images, below).'; return; }
+  try {
+    var img = await skLoadImg(im.src), k = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight)), w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
+    var cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    var g = cv.getContext('2d', { willReadFrequently: true });
+    g.drawImage(img, 0, 0, w, h);
+    var data = g.getImageData(0, 0, w, h), n = L.cutBackground(data.data, w, h, +$('skCutTol').value);
+    if (n < w * h * 0.002) { skStatus.textContent = 'No plain background found at the edges. Try a higher strength.'; return; }
+    g.putImageData(data, 0, 0);
+    if (!skCutOrig[im.id]) skCutOrig[im.id] = { src: im.src, bw: im.bw, bh: im.bh, scale: im.scale };
+    var shown = im.bw * im.scale;
+    im.src = cv.toDataURL('image/png'); im.bw = w; im.bh = h; im.scale = shown / w;
+    skRenderImages(); skLayersUI(); skSaveImages();
+    $('skCutUndo').disabled = false;
+    skStatus.textContent = 'Background cut out (' + Math.round(n / (w * h) * 100) + '% of the picture). Not right? Change the strength and press again, or Undo cut.';
+  } catch (err) { skStatus.textContent = 'Could not cut out that picture.'; }
+}
+function skCutUndo() {
+  var im = skSelected(), o = im && skCutOrig[im.id];
+  if (!o) { skStatus.textContent = 'Nothing to undo for this picture.'; return; }
+  im.src = o.src; im.bw = o.bw; im.bh = o.bh; im.scale = o.scale; delete skCutOrig[im.id];
+  skRenderImages(); skLayersUI(); skSaveImages();
+  $('skCutUndo').disabled = true;
+  skStatus.textContent = 'Background back.';
+}
+$('skCut').addEventListener('click', skCut);
+$('skCutUndo').addEventListener('click', skCutUndo);
+
 // ---------- the pet's own colours ----------
 /** Shows the main colours of whatever is underneath (the pet and its skin, the background, the toy) as swatches, read from how it is drawn. */
 function skPalette() {
