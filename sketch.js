@@ -15,10 +15,10 @@ var L = PetLogic;
 var SK_VIEW = { pet: { x: -30, y: -50, w: 220, h: 220 }, scene: { x: 0, y: 0, w: 400, h: 160 }, toy: { x: 0, y: 0, w: 26, h: 26 }, room: { x: 0, y: 0, w: 400, h: 160 } };
 var SK_COLOURS = ['#5b4239', '#000000', '#ffffff', '#ff8fb1', '#ff6b6b', '#ffa94d', '#ffd166', '#7bd389', '#6ec6ff', '#b69cff'];
 var SK_PEN = 0.001;   // each step of the thickness slider, as a share of the drawing area's width
-var SPECIES = [['mochi', 'Nibble'], ['pig', 'Pig'], ['kitty', 'Cat'], ['puppy', 'Dog'], ['bunny', 'Bunny'], ['birdie', 'Birdie'], ['cow', 'Cow'], ['hamster', 'Hamster'], ['frog', 'Frog'], ['hedgehog', 'Hedgehog'], ['axolotl', 'Axolotl'], ['mouse', 'Mouse'], ['monkey', 'Monkey'], ['dragon', 'Dragon']];
+var SPECIES = [['mochi', 'Mochi'], ['pig', 'Pig'], ['kitty', 'Cat'], ['puppy', 'Dog'], ['bunny', 'Bunny'], ['birdie', 'Birdie'], ['cow', 'Cow'], ['hamster', 'Hamster'], ['frog', 'Frog'], ['hedgehog', 'Hedgehog'], ['axolotl', 'Axolotl'], ['mouse', 'Mouse'], ['monkey', 'Monkey'], ['dragon', 'Dragon']];
 var SLOTS = [['hat', 'Hat'], ['body', 'Clothes'], ['face', 'Glasses'], ['mouth', 'Mouth'], ['neck', 'Neck'], ['feet', 'Shoes']];
 /** What the pet underneath looks like (kept on this computer). */
-var P = { species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, backdrop: 'meadow', night: false, room: {} };
+var P = { seated: false, species: 'mochi', skin: '', outfit: { hat: 'none', body: 'none', face: 'none', mouth: 'none', neck: 'none', feet: 'none' }, backdrop: 'meadow', night: false, room: {} };
 var SK = {
   mode: 'pet', tool: 'pen', color: SK_COLOURS[0], zoom: 1, pen: 9, tab: 'draw', clean: true, style: 'solid', shape: 'heart', bodyClip: false, radial: 0, pressure: true, fillMode: 'none', colour2: '#ffc9d6', clip: [], pasteN: 0, tidy: 6, space: false, sel: null, mirror: false, pick: [],
   strokes: { pet: [], scene: [], toy: [], room: [] }, hist: { pet: [], scene: [], toy: [], room: [] }, redo: { pet: [], scene: [], toy: [], room: [] },
@@ -93,7 +93,7 @@ function skLoad() {
       P.species = SPECIES.some(function (s) { return s[0] === d.P.species; }) ? d.P.species : 'mochi';
       P.skin = d.P.skin || '';
       Object.keys(P.outfit).forEach(function (s) { if (d.P.outfit && d.P.outfit[s]) P.outfit[s] = d.P.outfit[s]; });
-      P.backdrop = d.P.backdrop || 'meadow'; P.night = !!d.P.night; P.room = d.P.room || {}; P.template = !!d.P.template;
+      P.backdrop = d.P.backdrop || 'meadow'; P.night = !!d.P.night; P.room = d.P.room || {}; P.template = !!d.P.template; P.seated = !!d.P.seated;
     }
     ['pet', 'scene', 'toy', 'room'].forEach(function (m) { if (d.strokes && Array.isArray(d.strokes[m])) SK.strokes[m] = d.strokes[m]; });
     if (d.kind) $('skKind').value = d.kind;
@@ -120,7 +120,7 @@ function skLoad() {
 /** @returns {HTMLElement} A still copy of the pet, wearing what it wears, for the picture underneath. */
 function skPet(blank) {
   var v = document.createElement('div');
-  v.className = 'pet preview x-cheeks' + (L.isBird(P.species) ? ' beaked' : '') + (blank ? ' sk-blank' : '');
+  v.className = 'pet preview x-cheeks' + (L.isBird(P.species) ? ' beaked' : '') + (blank ? ' sk-blank' : '') + (P.seated ? ' seated' : '');
   v.dataset.species = P.species;
   v.dataset.skin = P.skin || '';   // a blank template keeps the skin's shapes (floppy ears and so on), just without colour
   v.dataset.state = 'curious';
@@ -340,7 +340,9 @@ function skApplyLook() {
   $('skSceneBox').hidden = SK.mode !== 'scene' && SK.mode !== 'room';
   $('skRoomWrap').hidden = SK.mode !== 'room';
   $('skTemplateWrap').hidden = SK.mode !== 'pet';
+  $('skSeatedWrap').hidden = SK.mode !== 'pet';
   $('skTemplate').checked = !!P.template;
+  $('skSeated').checked = !!P.seated;
   $('skRefLabel').textContent = SK.mode === 'toy' ? 'Toy' : 'Pet';
   $('skTabUnder').hidden = SK.mode === 'toy';
   $('skTabUnder').textContent = SK.mode === 'pet' ? 'Pet' : 'Room';
@@ -1593,7 +1595,7 @@ function skMeta() {
   return {
     page: 'sketchpad', mode: SK.mode, kind: $('skKind').value, note: $('skNote').value.trim(), view: v,
     tidy: SK.tidy ? 'smoothed' + ($('skSnap').checked ? ', lines and ovals snapped' : '') : 'as drawn',
-    pet: SK.mode === 'pet' && P.template ? { species: P.species, skin: P.skin, template: 'blank outline of this skin: shapes kept, colour and outfit removed' } : { species: P.species, skin: P.skin, outfit: P.outfit },
+    pet: SK.mode === 'pet' && P.template ? { species: P.species, skin: P.skin, seated: P.seated, template: 'blank outline of this skin: shapes kept, colour and outfit removed' } : { species: P.species, skin: P.skin, seated: P.seated, outfit: P.outfit },
     backdrop: scene ? P.backdrop + (P.night ? ' (night)' : '') : undefined,
     furniture: SK.mode === 'room' ? Object.keys(P.room).filter(function (k) { return P.room[k]; }) : undefined,
     placement: SK.mode === 'room' ? 'room 400 x 160 (about the stage): draw ONE new piece of furniture; the pet box is x125 y18 w150 h140, placed furniture is shown behind it; convert the piece to a decor.js entry (x, y = its centre / 400 and / 160, w, h in px, own view box)'
@@ -1693,7 +1695,7 @@ function ghEnsureBranch() {
 /** @returns {Object} Everything needed to open the drawing again exactly as it was (the lines as drawn, layers, what was underneath). */
 function skOriginal() {
   return { v: 1, mode: SK.mode, kind: $('skKind').value, note: $('skNote').value.trim(), tidy: SK.tidy, strokes: skOrdered(), layers: skLays(), active: SK.active[SK.mode],
-    pet: { species: P.species, skin: P.skin, outfit: P.outfit, backdrop: P.backdrop, night: P.night, room: P.room, template: P.template } };
+    pet: { species: P.species, skin: P.skin, outfit: P.outfit, backdrop: P.backdrop, night: P.night, room: P.room, template: P.template, seated: P.seated } };
 }
 function skUpload() {
   if (skEmpty()) return;
@@ -1808,7 +1810,7 @@ function skSentEdit(e) {
     if (d.active) SK.active[SK.mode] = d.active;
     SK.layerSet[SK.mode] = []; SK.pick = [];
     if (d.pet) {
-      P.species = d.pet.species || P.species; P.skin = d.pet.skin || ''; P.backdrop = d.pet.backdrop || P.backdrop; P.night = !!d.pet.night; P.room = d.pet.room || {}; P.template = !!d.pet.template;
+      P.species = d.pet.species || P.species; P.skin = d.pet.skin || ''; P.backdrop = d.pet.backdrop || P.backdrop; P.night = !!d.pet.night; P.room = d.pet.room || {}; P.template = !!d.pet.template; P.seated = !!d.pet.seated;
       Object.keys(P.outfit).forEach(function (s) { P.outfit[s] = (d.pet.outfit && d.pet.outfit[s]) || 'none'; });
     }
     if (d.kind) { $('skKind').value = d.kind; }
@@ -2234,6 +2236,7 @@ $('skStyle').addEventListener('change', function () {
 ['skGrid', 'skRef', 'skGhost'].forEach(function (id) { $(id).addEventListener('input', skApplyLook); });
 $('skSpecies').addEventListener('change', function () { P.species = $('skSpecies').value; P.skin = ''; skSkins(); skSave(); skBuild(); });
 $('skSkin').addEventListener('change', function () { P.skin = $('skSkin').value; skSave(); skBuild(); });
+$('skSeated').addEventListener('change', function () { P.seated = $('skSeated').checked; skSave(); skBuild(); });
 $('skTemplate').addEventListener('change', function () { P.template = $('skTemplate').checked; skSave(); skBuild(); });
 $('skBd').addEventListener('change', function () { P.backdrop = $('skBd').value; skSave(); skBuild(); });
 $('skNight').addEventListener('change', function () { P.night = $('skNight').checked; skSave(); skBuild(); });

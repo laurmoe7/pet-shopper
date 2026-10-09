@@ -2,6 +2,548 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 382
+- Sweet is now a soft pastel cake: gradients, icing top, a cherry.
+- Sample alerts always slide away by themselves.
+
+## Build 381
+- Mini Fumu settings window wears the chosen alert style.
+- Sweet looks new: polka dots, candy stripes, red-pink edge.
+
+## Build 380
+- Choosing an alert style shows a quick preview.
+
+## Build 379
+- The ring of buttons matches the alert style.
+
+## Build 378
+- The ring of buttons opens with a double click on him.
+
+## Build 377
+- The Quest alert's "!" sits in line with the title.
+
+## Build 376
+- The alert style choice is only for the small pet; the whole app's alerts and bubbles follow its light or dark appearance.
+
+## Build 375
+- The small pet's speech bubble matches the alert style.
+
+## Build 374
+- A new alert style, Quest: dark panel, gold frame, red buttons.
+
+## Build 373
+- The Cool alert style is black and grey with red accents.
+
+## Build 372
+- Notes and links: swipe left copies, right puts away.
+
+## Build 371
+- Two more alert styles: Sweet (pink, red, hearts) and Cool (navy, sharp).
+
+## Build 370
+- Reminders: swipe left is Done, up or down is In 10 min, right puts it away (sweeping and dragging).
+
+## Build 369
+- Alerts are a little smaller and sit lower, so the top is not cut off.
+
+## Build 368
+- The whole app shows in the taskbar and Alt+Tab, so a game cannot hide it for good.
+
+## Build 367
+- Sweeping alerts is more forgiving: faster or slower, starting outside the card.
+- Different moves for the grab key: a spinning hop when he is solid, a duck and "shh" when the mouse passes through.
+- Alert style in the settings window: Paper, Night (darker) or Plain.
+
+## Build 366
+- He always says something when you press the grab key, even with bubbles off.
+
+## Build 365
+- Alerts are a warm paper card in dark mode too.
+- Sweeping alerts in games: the shell now reports the pointer itself (needs the new installer).
+
+## Build 364
+- Cuter alerts: taped label, round sticker icon, softer buttons, a colour for each kind.
+- The test reminder has a Done button.
+
+## Build 363
+- Alert swipes: right puts away, left snoozes, up or down is Done.
+
+## Build 362
+- Developer tools to try his remarks about programs and games.
+
+## Build 361
+- With the mouse passing through him, sweep over an alert to swipe it away (task reminders: left puts away, right snoozes 10 min).
+
+## Build 360
+- No ring of buttons while the mouse passes through him in a game.
+
+## Build 359
+- Landing on his head no longer cuts him off at the bottom.
+- Developer tool to try the head landing.
+
+## Build 358
+- A little hop when he jumps down from a window.
+- The bell and ball stay visible when grabbed with the room background on.
+- The bell's pieces are no longer cut off at the bottom.
+
+## Build 357
+- The ring of buttons waits until you stop petting him.
+
+## Build 356
+- The bell breaks into pieces that fly apart.
+
+## Build 355
+- Five new generic game lines.
+- Ten special lines for World of Warcraft, plus a hello and a goodbye.
+- New moves: head tilt, flop, spinning hop, shiver and pop-up.
+
+## Build 354
+- He remarks about the game you are playing more often, with more lines.
+
+## Build 353
+- The bed settles back softly after a throw.
+- Fewer server requests: while you are away from the computer he checks for messages once a minute.
+
+## Build 352
+- Bouncing in bed plays the bounce sound and the bell clink together.
+
+## Build 351
+- Thrown in bed he is heavier: no bouncing off walls, lands flat and bounces a few small times.
+- Each bounce in bed makes a faint bell clink.
+
+## Build 350
+- The bell can be shaken anywhere on the screen when "Toy flies around the screen" is on.
+- New shortcut Ctrl+Alt+G: in a full-screen game he catches the mouse (to move him or clear an alert); again to let go.
+- He no longer shrinks when thrown in bed.
+
+## Build 349
+- The bell bounces four times before it breaks.
+- In a full-screen game or program he no longer catches the mouse (new switch "Mouse reaches him in games", off).
+
+## Build 348
+- Wand sparkles come out of the wand tip again (on the to-do list they went to the corner).
+- The wand flicks four times over the longer alert.
+- Swiping an alert: the card follows your pointer and goes with a shorter swipe.
+
+## Build 347
+- A thrown bell flies across the screen like the toy when "Toy flies around the screen" is on.
+- Night light glow fades out at the bottom, no hard line.
+- Sitting in shoes: his own feet are hidden; the sole pictures are 15% bigger.
+- He carries the toy up when he hops onto a window, then it sits next to him.
+- On a fall or throw the toy falls with him; he picks it up and carries it on the walk back.
+
+## Build 346
+- Swiped alerts slide away instead of fading.
+- Claude alerts last twice as long (speech, wand, jingle).
+- A toy thrown far across the screen no longer jumps to him: no sudden leap when it is far, and its place is worked out from where his window really is.
+- He holds his toy when he hops onto a window, and carries it on a fall, a throw or the run back.
+- A toy cut off by the screen edge rolls into view.
+
+## Build 345
+- Ring menu opens again in the small window.
+
+## Build 344
+- At the right edge of the screen the bell and the toy rest on his left, where you can see them.
+
+## Build 343
+- Drowsy at night, he walks back slowly after a throw or a jump off a window.
+
+## Build 342
+- Claude alert: the jingle played up to three times, now once; six jingles, a random one each time.
+- Sitting with shoes on: his own feet are hidden, and the shoe soles are 10% bigger.
+
+## Build 341
+- Ring menu: at the screen side the buttons fan out beside him, none overlap.
+
+## Build 340
+- Alert cards can be swiped away.
+- Every pair of shoes has a sole view for when he sits with his feet showing.
+
+## Build 339
+- Settings window: the "Move him" pad is gone; "His place" has a "Put him back" button for when he is stuck off screen.
+
+## Build 338
+- Knocked off a window, he bounces a few times, sometimes spins and lands on his head, and says "Ow! I'm okay".
+
+## Build 337
+- The ring menu turns away from the side of the screen so every button shows.
+- Alerts keep their normal size at the side of the screen: his window slides onto the screen while the alert shows, then back.
+
+## Build 336
+- The lamp in the whole app works again after the desktop bell has woken him.
+
+## Build 335
+- Settings window: the developer tools are tidied into groups (time and scenes, make him do something, alerts, pet and lists, animations, the program), with the time of day, scenes and the animation player now there.
+- Profile: the title is back on the left with the gift beside it.
+
+## Build 334
+- A broken bell comes back after a few seconds.
+
+## Build 333
+- Sitting on a window, the lowest 15 px of him let clicks through to its buttons.
+- Falling from a window always takes him back to where he was before (also when you carried him onto it).
+
+## Build 332
+- The night light is switched from the ring menu (the lamp on the bed is gone).
+
+## Build 331
+- Lights off only gets him into bed: you still tuck him in.
+- The night light is a little lamp on his bed, not a floating moon (the glow is the same).
+- The cushion is back in the small window (its setting too).
+
+## Build 329
+- If the window he sits on is moved, he falls off, bounces once on the ground and runs back.
+
+## Build 328
+- Desktop: a ring menu opens above him when you rest the pointer on him: play ball, pat, snack, dance, swap list, wave.
+- Drowsy at night, the ring has "Lights off" and he goes to sleep.
+- Asleep, the ring holds the night light, so the lamp no longer floats on the desktop.
+
+## Build 327
+- Thrown: he spins a little smaller, so no part of him is cut off.
+- Carried or thrown: no shadow or cushion left behind on the floor.
+
+## Build 326 (9 Oct)
+- The daily gift moved into the Profile sheet (right of the title), with a count on the Profile button. It no longer shows on the stage or in the desktop pet.
+
+## Build 325 (9 Oct)
+- No bell when he is awake with no bed: he has his toy.
+- Drowsy at night, he chases a thrown toy very slowly.
+- Woken by the bell, he goes back to bed by himself after half an hour.
+
+## Build 324 (9 Oct)
+- The bell's clapper is behind the bell, bigger, and swings when you ring it.
+- The bell rests tucked into his bed beside him, not on the floor.
+
+## Build 323 (9 Oct)
+- The bell's open end is a flat band.
+- The night light is a little plug-in moon lamp by his bed (the glow is back to how it was).
+
+## Build 322 (9 Oct)
+- The bell has no gap under its dome.
+- Night light on the desktop: the bed and the moon lamp glow and fireflies drift, no haze over the desktop.
+
+## Build 321 (9 Oct)
+- The night bell has a handle: you hold it by the handle and it swings like a real hand bell.
+- It flies like the toy when thrown, and breaks on its second bounce.
+
+## Build 320 (9 Oct)
+- Five clear desktop scenes: day, day with clipboard, night in bed, night drowsy, night drowsy with clipboard.
+- Night bell in bed instead of the toy: shake it to wake him drowsy, throw it and it breaks and he goes back to bed.
+- Asleep in bed, alerts and reminders no longer make him jump about.
+- Carrying the toy on the to-do list uses his free hand.
+
+## Build 319 (9 Oct)
+- Thrown: his lower half no longer gets cut off while he spins.
+
+## Build 318 (9 Oct)
+- Night play and the bed throw only apply while he is lying in his bed, not when he is up at night.
+
+## Build 317 (9 Oct)
+- Night: rest the pointer on him and he hums a lullaby in his sleep.
+- Night: pick up his teddy, he reaches for it; put it back and he hugs it.
+- Night: a night light switch gives his room a warm glow.
+- Thrown in bed: he is much heavier and does not go nearly as far.
+
+## Build 316 (9 Oct)
+- Thrown in bed: the bed turns to face the wall it hits, and he stays bouncing where he lands.
+
+## Build 315 (9 Oct)
+- Thrown: he spins round and goes boing at every bounce.
+- Smoother window movement (more steps a second).
+
+## Build 314 (9 Oct)
+- Throw him: let go while moving fast and he bounces off the screen edges, then runs back to his spot.
+
+## Build 313 (9 Oct)
+- Claude alerts no longer show twice.
+
+## Build 312 (9 Oct)
+- Alerts and bubbles stay on screen when he is at the edge (the shell now repeats where the screen edge is).
+- Spinning: he swings round the cursor in an arc.
+- No more sticking to the cursor if the page reloads while he is carried.
+
+## Build 311 (9 Oct)
+- Carried: he tilts even more, and spins round if you move him fast, with a dizzy face.
+- Back to where he started after the toy: no longer cut short by a run still going.
+
+## Build 310 (9 Oct)
+- He comments on what you're doing more often, at every setting.
+- He also remarks now and then while you stay in the same program.
+
+## Build 309 (9 Oct)
+- Carried: he tilts much more.
+
+## Build 308 (9 Oct)
+- Carried: he holds his toy with both hands or just one, at random.
+
+## Build 307 (9 Oct)
+- Developer tools: test Claude, note, link and task alerts (also in the desktop settings).
+- The wand is in his other hand.
+
+## Build 306 (9 Oct)
+- The toy chase ends with a real jump and the toy swings in to him.
+- He carries the toy back to where he started, and always gets there.
+- Carried: he hugs his toy in both arms.
+
+## Build 305 (9 Oct)
+- Carried: his body leans the way he is taken.
+- A long toy chase ends with a jump and a catch.
+- Claude's alert shows a bell.
+- Claude's alert: he flicks a magic wand, with sparkles.
+
+## Build 304 (9 Oct)
+- The update notice isn't talked over by his chatter.
+- Carried: he looks the way he is taken.
+- Carried: he holds his toy and drops it when put down.
+
+## Build 303 (9 Oct)
+- Falling off a window is slower and he waves his arms.
+- He chases the thrown toy harder, also across the screen, and runs back to where he started after catching it.
+
+## Build 302 (9 Oct)
+- A soft chime when Claude's alert arrives.
+- Carried: arms flap about; feet kick like before.
+- Update ready: a card with Restart now, shown again after a few hours and when the app opens.
+
+## Build 301 (9 Oct)
+- Claude's alert pops in, then nudges; Fumu celebrates when it arrives.
+
+## Build 300 (9 Oct)
+- Claude's "replied" alert: no Copy button, nudges gently.
+- Cards and bubbles keep a margin from the screen edge.
+
+## Build 299 (9 Oct)
+- Fixed Ctrl+Alt+S sending "[object Promise]" instead of the copied text.
+
+## Build 298 (9 Oct)
+- Fumu hears when Claude replies or needs you (a hook in the cloud sends a note through your sync inbox); the Claude Code link on the PC is gone.
+- Toy over the whole screen: harder throws, lighter gravity, livelier bounces, longer flights.
+
+## Build 297 (9 Oct)
+- Sitting on a window: 10 px lower.
+- Claude Code link shows the full settings.json path with a button to open it.
+
+## Build 296 (9 Oct)
+- Desktop: the add box and other cards stay on the screen when he is near the edge.
+
+## Build 295 (9 Oct)
+- Desktop (dev build only): Claude Code link, he reacts when Claude Code finishes or needs you.
+
+## Build 294 (9 Oct)
+- Desktop: he says so when an update is ready.
+- Carried: feet kick much more.
+
+## Build 293 (9 Oct)
+- "Tap to feed" label and how-to lines go away after you have fed him 4 times.
+- Fixed him napping with his eyes open.
+
+## Build 292 (9 Oct)
+- Settings: "A little" movement (pacing on the spot), also for games and full-screen.
+- Settings: toy can fly around the whole screen (switch).
+- Carried: bigger squish and stretch, feet kick.
+- Sitting on a window: soles just clip into it.
+- Getting off a window: he drops and runs back to where he was.
+- Removed the "never sees their titles" hint.
+
+## Build 291 (9 Oct)
+- Right-click: "Swap list".
+- Every switch now means on = enabled (Sounds, Show his toy, Show the cushion; "Quiet mode" became "Sounds").
+- "Alerts still show" instead of "Cards".
+
+## Build 290 (9 Oct)
+- Settings: "How much he moves about" (a lot, normal, in his room, still), also for games and full-screen; replaces the wander, nap and stand-still switches.
+- Settings: mute switch for small Fumu; floating scroll bar.
+
+## Build 289 (9 Oct)
+- Desktop: he recognises Claude and comments on it.
+- Settings: room background switch for small Fumu.
+
+## Build 288 (9 Oct)
+- Desktop: speech bubble stays on the visible part when he is half off the screen.
+- Desktop: while carried he wiggles, squishes and stays under the cursor; pick-up is quicker.
+- Settings: sparkles switch; the window's bottom edge fades while scrolling.
+
+## Build 287 (9 Oct)
+- Send sheet is a normal-height sheet again, tighter, so the sending animation stays visible.
+- "Receive from my other devices" moved to Options.
+- Shorter descriptions across Options, Backup & sync and Send.
+
+## Build 286 (9 Oct)
+- Desktop: Ctrl+Alt+S sends copied text or a link, only while pointing at him (also in right-click).
+- Send sheet: last 5 received links and notes, taller sheet.
+
+## Build 285 (8 Oct)
+- Desktop: Ctrl+Alt+S sends the copied link to your other device.
+
+## Build 284 (8 Oct)
+- Desktop: long speech bubbles shrink to fit the small window.
+- Thought bubbles switch only affects small Fumu.
+
+## Build 283 (8 Oct)
+- Desktop: no shortcuts note in the whole app's Options.
+- Settings: thought bubbles switch for small Fumu.
+- Settings: game / full-screen chat greyed out on More privacy.
+- Settings: shorter privacy text, "never" underlined, matching scroll bar.
+
+## Build 282 (8 Oct)
+- Monkey's foot bottoms are face-coloured.
+
+## Build 281 (8 Oct)
+- Sketchpad: "Sitting (foot bottoms)" option for the pet.
+- Sitting hides the standing feet for every pet.
+
+## Build 280 (8 Oct)
+- Sitting feet for every pet.
+- Thought clouds hide while he is carried or walking.
+
+## Build 279 (8 Oct)
+- Desktop: every step of updating is in the right-click Updates menu (check, restart, reload).
+- Desktop: the sitting feet are a little bigger.
+
+## Build 278 (8 Oct)
+- Desktop: the quick-add box stays open for more items; close it with the cross, Esc or by clicking away.
+- Desktop: a switch for speech bubbles in the small window.
+- Desktop: the sitting feet are smaller and cuter.
+- Links: the arriving link now always plays its eating animation (he waits until he is free), and there is a short pause so both animations can be watched.
+
+## Build 277 (8 Oct)
+- Desktop: shorter descriptions in the settings window and Options.
+
+## Build 275 (8 Oct)
+- Desktop: right-click and settings use the name you gave him ("Hide Mochi"), and the app name where it is about the app.
+- Desktop: size and wandering moved out of the right-click menu (they stay in settings).
+- Options text on the PC says his name too.
+
+## Build 274 (8 Oct)
+- Desktop: choose how much he chats on his own (never, rarely, normal, often), and a second choice for when a game or something full-screen is in front.
+- Desktop: friends on the stable app can check for updates, see their progress and restart to update from the normal menu and settings.
+
+## Build 273 (8 Oct)
+- Desktop: choose how often he remarks on what you are doing (never, rarely, normal, often), separately for games and full-screen.
+- Desktop: stand in place options, one for games and full-screen, one for the rest.
+- Desktop: Dark Souls, Dark Souls Remastered and Dark Souls II added; room for lines of their own.
+
+## Build 272 (8 Oct)
+- Desktop: Fumu knows which program is in front and when you play a game (a short list of games and apps).
+- Desktop: he cheers when a game starts, says good game after, and stays quiet while you play or are on a call.
+- Desktop: teach him a game he does not know; a switch for his comments.
+
+## Build 271 (8 Oct)
+- Desktop: a Privacy setting in Fumu settings: More privacy (he only knows idle and time of day, no window sitting, fewer comments) or Normal.
+
+## Build 270 (8 Oct)
+- Desktop: the calendar, Top 10 and dressing room start below the top bar instead of behind it.
+
+## Build 269 (8 Oct)
+- Desktop: the build number and the room options no longer hide behind the bottom bar.
+- Desktop: the room menu is as tall as the other tall menus.
+
+## Build 268 (8 Oct)
+- Desktop: update options moved from right-click to the developer tools; "Restart to update" stays in the menu when one is ready.
+
+## Build 267 (8 Oct)
+- Desktop: on a window he now sits with his feet out and the soles showing (cat, pig and pigeon first).
+- Desktop: he tries to hop onto a window every minute or two, and right away when you switch it on.
+- Desktop: settings say how many windows he could sit on; a message says when none fits.
+- Animation player: sit with soles showing.
+
+## Build 266 (8 Oct)
+- Desktop: update options are back in the right-click menu and in the settings window.
+
+## Build 265 (8 Oct)
+- Desktop: the toy catches clicks instantly, so picking it up and throwing it feels smooth.
+- Desktop: the welcome-back message after being away shows longer and a bit later.
+- Desktop: the quick-add box on the to-do list can set a day, time and repeat.
+
+## Build 264 (8 Oct)
+- Desktop: a bigger "Fumu settings" window (hover over him and press Ctrl+Alt+O, or right-click > More Fumu settings).
+- Desktop: hide his toy and hide the cushion under him.
+- Desktop: change or switch off each shortcut.
+- Desktop: developer tools in settings (make him wander, nap, hop, test reminder, diagnostics).
+- Desktop: the right-click menu is shorter.
+
+## Build 263 (8 Oct)
+- Desktop: the toy no longer gets stuck in the air when dragged fast over a window behind him.
+- Desktop: picking up and throwing the toy is smoother.
+
+## Build 262 (8 Oct)
+- Desktop: Ctrl+Alt+A opens a box by Fumu to add an item from any program.
+- Desktop: Fumu naps when you are away or the screen is locked, and says hello when you are back.
+- Desktop: he can sit on your open windows and ride along with them (a switch in the menu, off by default).
+- Desktop: if a screen is unplugged he moves to the main one and goes back when it returns.
+
+## Build 261 (18 Oct)
+- Links and notes fly into Fumu's mouth again, bigger, when you send one and when one arrives.
+- Birds' food and links now land on the beak.
+- Backup & sync and Send to another device lose their descriptions in Options.
+- Background picker moved from Options to the Room sheet.
+- Options on the PC app lists the shortcuts.
+
+## Build 260 (18 Oct)
+- Desktop: at night the small Fumu has no lamp to switch off; a tap tucks him in.
+- Desktop shortcuts: Ctrl+Alt+F swaps small Fumu and the whole app, Ctrl+Alt+T swaps shopping and to-do.
+- Middle-click on Fumu opens the whole app; double-click the bar to go back.
+
+## Build 259 (18 Oct)
+- Desktop Fumu: no snack clouds, daydreams beside his head, speech bubble a little lower.
+- Links and notes between devices are checked every 10 seconds.
+
+## Build 258 (18 Oct)
+- "Send to another device": phone to PC and PC to phone; only the other device shows it.
+- Sending and receiving links is faster.
+
+## Build 257 (18 Oct)
+- Desktop: Fumu pops up for a task's time with a card (Done, In 10 min).
+- Desktop: size, stay above full-screen apps and nudge or corner him, all in the tray menu.
+- Desktop: now and then he wanders along the screen, peeks round the edge or naps.
+- Nap added to the animation player.
+
+## Build 256 (18 Oct)
+- Send to my PC: links and notes from your phone; Fumu eats them on the PC and shows a card.
+- Desktop: right-click and pick-up keep working with older installed copies; clicks are re-checked after the window changes.
+
+## Build 255 (18 Oct)
+- Desktop: no leftover band, highlight or stuck clicks after opening the list and going back.
+
+## Build 254 (17 Oct)
+- New players start as the pigeon; the pet list begins with bird, cat, dog, mochi.
+- Fumu closes his eyes happily while he nods.
+- Beaks keep the same size when chewing or opening.
+
+## Build 253 (17 Oct)
+- The app is now Fumufumu and the pet is Fumu.
+- Fumu nods twice when you add something.
+- Pigeon sleeves look right, and the wing stripe stays out of clothes.
+
+## Build 252 (16 Oct)
+- New pigeon: orange eyes, bigger wings, soft pink chest.
+- The old pigeon is still there as Pigeon (old).
+
+## Build 251 (16 Oct)
+- New icon: Fumu on a sunburst, for the phone, the web and the desktop.
+
+## Build 250 (15 Oct)
+- Pigeon: the shiny neck band goes all the way to the outline.
+
+## Build 249 (14 Oct)
+- Desktop: his cushion and bed catch clicks too, so right-click works there.
+- Desktop: speech bubble sits closer, smaller window.
+
+## Build 248 (14 Oct)
+- Nibble can live on your Windows desktop (separate app).
+- Friendlier message when too many backups are started.
+
+## Build 247 (13 Oct)
+- Backup & sync in Options: a code keeps your shopping list and Nibble the same on all your devices.
+- Syncing keeps to-do lists private; only the shopping list is shared.
+- Sync log in Developer tools.
+- Saved data prepared for syncing between devices.
+
+## Build 246 (11 Oct)
+- New birdie skin: thrush.
+- Cat friend: thinner outline.
+
 ## Build 244 (11 Oct)
 - Drop-down menus fade at the bottom when they scroll.
 

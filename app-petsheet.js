@@ -4,12 +4,12 @@
 
 // ---------- your pet: name and species ----------
 var SPECIES = [
-  { id: 'mochi', label: 'Nibble' },
-  { id: 'pig', label: 'Pig' },
+  { id: 'birdie', label: 'Birdie' },   // Fumu the pigeon is the mascot, so the bird comes first
   { id: 'kitty', label: 'Cat' },
   { id: 'puppy', label: 'Dog' },
+  { id: 'mochi', label: 'Mochi' },
+  { id: 'pig', label: 'Pig' },
   { id: 'bunny', label: 'Bunny' },
-  { id: 'birdie', label: 'Birdie' },
   { id: 'cow', label: 'Cow' },
   { id: 'hamster', label: 'Hamster' },
   { id: 'frog', label: 'Frog' },
@@ -21,8 +21,8 @@ var SPECIES = [
 ];
 var petNameInput = $('petNameInput'), speciesGrid = $('speciesGrid');
 
-/** @returns {string} The pet's name, or "Nibble" if it is blank. */
-function petName() { return (state.pet.name || '').trim() || 'Nibble'; }
+/** @returns {string} The pet's name, or "Fumu" if it is blank. */
+function petName() { return (state.pet.name || '').trim() || 'Fumu'; }
 /** Shows the pet's name, species and outfit everywhere on the page. */
 function applyPet() {
   var name = petName();
@@ -31,7 +31,7 @@ function applyPet() {
   pet.classList.toggle('beaked', L.isBird(state.pet.species));
   pet.setAttribute('aria-label', name + ', your pet');
   document.querySelectorAll('.pet-name').forEach(function (el) { el.textContent = name; });
-  document.title = name + "'s List";
+  document.title = 'Fumufumu';   // the app's name, whatever the pet is called
   dressUp(pet, state.pet.outfit);
   speciesGrid.querySelectorAll('button').forEach(function (b) {
     b.setAttribute('aria-pressed', b.dataset.species === state.pet.species ? 'true' : 'false');
@@ -123,7 +123,7 @@ function showName() {
   $('petNameText').textContent = petName();
   petNameInput.hidden = true;
   petNameShow.hidden = false;
-  petNameShow.classList.toggle('unnamed', petName() === 'Nibble');   // still the first name: the pencil wiggles to show it can be changed
+  petNameShow.classList.toggle('unnamed', petName() === 'Fumu');   // still the first name: the pencil wiggles to show it can be changed
 }
 function startRename() {
   petNameInput.value = state.pet.name || '';

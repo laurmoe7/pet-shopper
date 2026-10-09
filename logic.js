@@ -168,15 +168,15 @@
   function petProfile(saved) {
     saved = saved || {};
     // the chick and penguin became one species, the birdie, with the penguin as a skin
-    var species = saved.species || 'mochi';
-    var skin = typeof saved.skin === 'string' ? saved.skin : '';
+    var species = saved.species || 'birdie';   // a new pet is Fumu the pigeon (older saves keep the species they have)
+    var skin = typeof saved.skin === 'string' ? saved.skin : (saved.species ? '' : 'pigeon');
     if (skin === 'syrian') skin = 'longhair';
     if (skin === 'yak' || skin === 'lionhead' || skin === 'tabby') skin = '';   // removed skins (the tabby became the plain cat in build 121)
     if (skin === 'flamepoint') skin = 'siamese';                                 // the flame point became the Siamese in build 135
     if (species === 'chick') species = 'birdie';
     else if (species === 'penguin') { species = 'birdie'; skin = 'penguin'; }
     return {
-      name: typeof saved.name === 'string' ? saved.name : 'Nibble',
+      name: typeof saved.name === 'string' ? (saved.name === 'Nibble' ? 'Fumu' : saved.name) : 'Fumu',   // the first name was Nibble: saves that kept it become Fumu
       species: species,
       skin: skin,
       outfit: parseOutfit(saved.outfit || {}),
@@ -228,7 +228,8 @@
   function parseState(raw, nextId) {
     var data = null;
     try { data = JSON.parse(raw); } catch (e) { data = null; }
-    if (!data || !Array.isArray(data.items)) {
+    var fresh = !data || !Array.isArray(data.items);
+    if (fresh) {
       data = { items: [], overrides: {}, quiet: false, lastOpen: 0 };
       SAMPLE.forEach(function (t) {   // a sample can carry an amount: [name, amount]
         var item = createItem(Array.isArray(t) ? t[0] : t, data.overrides, nextId());
@@ -245,6 +246,11 @@
     data.player = parsePlayer(data.player, data.pet && data.pet.birthday);   // build 196 kept the birthday on the pet
     data.pet = petProfile(data.pet);
     data.settings = settings(data.settings);
+    // when each thing last changed, for syncing devices (sync.js); a first launch counts as never edited (time 0), so anything a person did wins
+    if (root.Sync) {
+      data.sync = root.Sync.parse(data.sync);
+      if (fresh) root.Sync.stamp(data, 0, true);
+    }
     // developer-only switches from the dev menu
     data.dev = { noWait: !!(data.dev && data.dev.noWait) };
     return data;
@@ -650,6 +656,18 @@
    * @returns {string} The night this moment belongs to, named by the evening it started (an hour after
    * midnight is still the night before), so a tuck-in lasts until morning.
    */
+  /**
+   * Which of the desktop pet's five scenes he is in (everything he does on the desktop must work in each):
+   * 'day' (normal daytime), 'day-clip' (daytime, the to-do list: the clipboard in his hand), 'night-bed' (at night, in his bed),
+   * 'night-drowsy' (up at night, e.g. from using the shopping list) and 'night-drowsy-clip' (up at night with the clipboard).
+   * @param {{night: boolean, bed: boolean, todo: boolean}} o  Whether it is night, whether his bed is out, whether the to-do list is showing.
+   * @returns {string}
+   */
+  function deskScene(o) {
+    if (o.night && o.bed) return 'night-bed';
+    if (o.night) return o.todo ? 'night-drowsy-clip' : 'night-drowsy';
+    return o.todo ? 'day-clip' : 'day';
+  }
   function nightOf(now) { return dayKey(new Date(now.getTime() - 12 * 3600 * 1000)); }
 
   function dayKey(date) {
@@ -977,7 +995,7 @@
    */
   function cleanName(typed, old) {
     var name = String(typed || '').trim().slice(0, 16).trim();
-    return name || old || 'Nibble';
+    return name || old || 'Fumu';
   }
 
   /** How many outfits the closet holds. */
@@ -1136,7 +1154,7 @@
     profile.tastes = {};
     profile.guard = { day: '', words: [], lastSeen: 0 };
     profile.personality = 'foodie';
-    if (!isUnlocked(profile, 'species', profile.species, achievements, free)) { profile.species = 'mochi'; profile.skin = ''; }
+    if (!isUnlocked(profile, 'species', profile.species, achievements, free)) { profile.species = 'birdie'; profile.skin = 'pigeon'; }
     else if (profile.skin && !isUnlocked(profile, 'skin', profile.skin, achievements, free)) profile.skin = '';
     OUTFIT_SLOTS.forEach(function (slot) {
       var kept = wornIds(profile.outfit, slot).filter(function (id) { return isUnlocked(profile, 'hat', id, achievements, free); });
@@ -1251,7 +1269,7 @@
   }
 
   /**
-   * What Nibble says when you add something you often buy.
+   * What Fumu says when you add something you often buy.
    * @param {PetProfile} profile
    * @param {string} text  The item as typed.
    * @returns {?{key: string, vars: {item: string, n: number, rank: number}}} A voice key
@@ -1268,10 +1286,10 @@
   }
 
   // ---------- treats ----------
-  // Free snacks Nibble asks for now and then (up to three a day, each once) and you can feed him. They count for goals and tastes
+  // Free snacks Fumu asks for now and then (up to three a day, each once) and you can feed him. They count for goals and tastes
   // under the same daily limits as shopping, but never for the Top 10.
 
-  /** How many treats Nibble takes a day. */
+  /** How many treats Fumu takes a day. */
   var TREATS_PER_DAY = 3;
   /** The treats you can pick from, as item words (each maps to a food emoji and kind). */
   var TREAT_WORDS = ['apple', 'strawberry', 'carrot', 'broccoli', 'bread', 'cheese', 'peanuts', 'fish', 'cookie'];
@@ -1288,7 +1306,7 @@
   }
 
   /**
-   * Feeds Nibble a treat if there is room: three a day, each one once a day.
+   * Feeds Fumu a treat if there is room: three a day, each one once a day.
    * @param {PetProfile} profile  Changed in place.
    * @param {string} word  One of TREAT_WORDS.
    * @param {Date} now
@@ -1304,7 +1322,7 @@
   }
 
   /**
-   * What Nibble could ask for next: a treat not yet fed today, or nothing once the day's treats are used up.
+   * What Fumu could ask for next: a treat not yet fed today, or nothing once the day's treats are used up.
    * @param {PetProfile} profile  A new day starts a fresh list.
    * @param {Date} now
    * @param {function(): number} rand  Like Math.random.
@@ -2134,7 +2152,7 @@
   }
 
   /**
-   * What Nibble says about a recipe he has just read: by the dish in its title, else by what is in it, else by how big it is.
+   * What Fumu says about a recipe he has just read: by the dish in its title, else by what is in it, else by how big it is.
    * @param {string} title  The recipe's name ("" for pasted ingredients).
    * @param {{name: string}[]} found  The ingredients found.
    * @param {function(): number} [random]
@@ -2194,6 +2212,7 @@
     TRIP_MIN_ITEMS: TRIP_MIN_ITEMS,
     dayKey: dayKey,
     nightOf: nightOf,
+    deskScene: deskScene,
     countsFor: countsFor,
     recordEaten: recordEaten,
     recordTrip: recordTrip,

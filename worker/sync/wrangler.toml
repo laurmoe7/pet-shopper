@@ -1,0 +1,9 @@
+name = "pet-shopper-sync"
+main = "dist/worker.js"
+compatibility_date = "2025-01-01"
+
+# The D1 database made in the Cloudflare dashboard (the same one is bound as DB there).
+[[d1_databases]]
+binding = "DB"
+database_name = "pet-shopper-sync"
+database_id = "abdfb669-87d3-42d7-9104-6d7653d2fe4a"

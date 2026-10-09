@@ -1,0 +1,52 @@
+name: Build the desktop app (Windows)
+
+# Runs by itself whenever the desktop shell changes on main (the folder desktop/), and by hand:
+# Actions > "Build the desktop app (Windows)" > Run workflow.
+# It publishes a release with the installer. Installed copies of Fumufumu find the release and update themselves,
+# so you only run the installer yourself the first time. Changes to the app itself (everything outside desktop/)
+# need none of this: the desktop app loads the app from the web.
+# This is the DEV channel (Lauren's). Everyone else gets the stable channel: see desktop-stable.yml.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'desktop/**'
+      - '.github/workflows/desktop.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      # each run gets a higher version, which is how installed copies know there is something newer
+      - run: npm version "0.1.${{ github.run_number }}" --no-git-tag-version
+      - run: npm run dist
+      # one step makes the release and attaches everything (the installer, its block map and latest.yml, which installed copies read
+      # to find updates). Letting electron-builder upload by itself raced two uploads against each other and failed.
+      - name: Publish the release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VER=$(node -p "require('./package.json').version")
+          ls dist
+          if gh release view "v$VER" >/dev/null 2>&1; then
+            gh release upload "v$VER" dist/Fumufumu-Setup-*.exe dist/*.blockmap dist/latest.yml --clobber
+          else
+            gh release create "v$VER" dist/Fumufumu-Setup-*.exe dist/*.blockmap dist/latest.yml --target "$GITHUB_SHA" --title "$VER" --notes "Fumufumu for Windows $VER"
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Fumufumu-Windows-installer
+          path: desktop/dist/*.exe

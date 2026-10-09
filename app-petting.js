@@ -1,4 +1,4 @@
-// Petting: stroke Nibble with a finger or the mouse for a purr and hearts.
+// Petting: stroke Fumu with a finger or the mouse for a purr and hearts.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
@@ -15,7 +15,7 @@
     { face: { eyes: 'happy', mouth: 'open', arms: 'cover', x: ['cheeks'] }, move: ['shuffle', 1500], lines: ['hehe, tickles!', 'that tickles!', 'hihihi'] },
     { face: { eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['hearts', 'cheeks'] }, move: ['rocksmall', 1300], lines: ['purrr~', 'right there ♡', 'more pets?'] }
   ];
-  /** Nibble enjoys it: one of a few happy reactions, hearts, a purr and a line. Only a reaction; nothing counts for goals. */
+  /** Fumu enjoys it: one of a few happy reactions, hearts, a purr and a line. Only a reaction; nothing counts for goals. */
   function petted() {
     if (busy) return;
     busy++;
@@ -36,6 +36,7 @@
     setTimeout(function () { busy--; if (!busy) settle(); }, Math.max(1700, r.move[1]));
   }
 
+  window.petHim = petted;   // the ring menu's Pat (app-ring.js)
   pet.addEventListener('pointerdown', function (e) {
     stopWalk();
     down = { x: e.clientX, y: e.clientY };

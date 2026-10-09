@@ -1,10 +1,10 @@
-/* Nibble's sounds, synthesised with the Web Audio API (no audio files).
+/* Fumu's sounds, synthesised with the Web Audio API (no audio files).
  * Sounds.play(kind) where kind is one of:
  *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party,
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
- *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
+ *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), bell, tink and smash (the night bell ringing, clinking and breaking), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
- *   done, sparkle, coin, ring (ticking off a to-do), stamp (the check mark landing), scribble (writing on the clipboard), shutter (the dressing room's camera),
+ *   notice (Claude's note arriving), done, sparkle, coin, ring (ticking off a to-do), stamp (the check mark landing), scribble (writing on the clipboard), shutter (the dressing room's camera),
  *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
  * Every play is pitch-shifted a little, and kinds with several variants pick a
  * different one each time, so nothing sounds exactly the same twice in a row.
@@ -249,6 +249,32 @@
       noise(t, 0.06, 'bandpass', 1800, 1.5, env(t, 0.002, 0.05, 1.1));
       tone(t + 0.02, 0.14, 'sine', 620, 190, env(t + 0.02, 0.005, 0.13, 0.6));
     },
+    // Claude's note arriving: two soft bells
+    bell: function (t) {
+      // a bright little hand bell: ding-ding
+      chime(t, [2093, 2794], 0.0, 0.8, 'sine'); chime(t + 0.16, [2093, 2794], 0.0, 0.6, 'sine'); chime(t + 0.34, [2349], 0.0, 0.35, 'sine');
+    },
+    bedbell: [
+      // the little bell tucked in his bed, jostled by a bump: a faint clink or two
+      function (t) { chime(t, [2349], 0.0, 0.16, 'sine'); chime(t + 0.07, [2794], 0.0, 0.1, 'sine'); },
+      function (t) { chime(t, [2093, 2637], 0.05, 0.14, 'sine'); },
+      function (t) { chime(t, [2637], 0.0, 0.17, 'sine'); chime(t + 0.09, [2093], 0.0, 0.09, 'sine'); }
+    ],
+    tink: function (t) {
+      // one small clink of the clapper
+      chime(t, [2637], 0.0, 0.45, 'sine');
+    },
+    smash: function (t) {
+      // the bell cracks and tinkles into pieces
+      noise(t, 0.12, 'highpass', 1800, 0.8, env(t, 0.003, 0.11, 0.5));
+      chime(t + 0.05, [2637, 3136, 2349, 1976, 1568], 0.045, 0.5, 'triangle');
+    },
+    lullaby: function (t) {
+      // a soft little lullaby, two phrases (resting the pointer on him while he sleeps)
+      chime(t, [659, 784, 988, 784], 0.34, 0.5, 'sine');
+      chime(t + 1.5, [880, 784, 659], 0.36, 0.42, 'sine');
+    },
+    notice: function (t) { chime(t, [988, 1319], 0.12, 0.85, 'sine'); chime(t + 0.34, [1568], 0.1, 0.5, 'sine'); },
     party: function (t) { chime(t, [523, 659, 784, 1047, 1319], 0.09, 1.1); },
     jiggle: function (t) {
       // a belly wobble: soft boings that get smaller and lower
@@ -383,6 +409,15 @@
       tone(t, 0.2, 'sine', 960, 1700, env(t, 0.03, 0.16, 0.04));
     },
     // ---- menu sounds: each is a list of variants ----
+    // Claude's alert: a different little jingle each time
+    claude: [
+      function (t) { chime(t, [988, 1319], 0.12, 0.85, 'sine'); chime(t + 0.34, [1568], 0.1, 0.5, 'sine'); },
+      function (t) { chime(t, [523, 659, 784], 0.1, 0.8, 'sine'); chime(t + 0.42, [1047], 0.1, 1, 'triangle'); },
+      function (t) { chime(t, [1319, 1760, 1568, 2093], 0.08, 0.6, 'triangle'); },
+      function (t) { chime(t, [1175], 0.1, 0.9, 'sine'); chime(t + 0.24, [880], 0.1, 0.8, 'sine'); chime(t + 0.5, [1568], 0.1, 0.5, 'sine'); },
+      function (t) { chime(t, [523, 659, 784, 1047, 1319, 1568, 2093], 0.055, 0.6, 'sine'); },
+      function (t) { chime(t, [988, 988, 1319], 0.11, 0.7, 'sine'); chime(t + 0.5, [1760, 2349], 0.07, 0.45, 'triangle'); }
+    ],
     tap: [
       function (t) { tone(t, 0.06, 'sine', rnd(650, 760), 1150, env(t, 0.003, 0.06, 0.22)); },
       function (t) { tone(t, 0.08, 'triangle', 560, 380, env(t, 0.004, 0.08, 0.2)); },

@@ -1,5 +1,5 @@
 // Copies the OpenMoji SVGs the app uses into ./emoji, recoloring their black
-// outlines to Nibble's soft cocoa brown and softening their colours (emoji-style.js) so they match the hand-drawn style.
+// outlines to Fumu's soft cocoa brown and softening their colours (emoji-style.js) so they match the hand-drawn style.
 // Usage: node tools/copy-emoji.js <path to openmoji package>/color/svg
 const fs = require('fs');
 const { restyle } = require('./emoji-style');
@@ -28,7 +28,9 @@ let missing = [];
 // the foods, the tasks, the personalities' icons
 // and the little pictures on the Pet page's tabs
 const TAB_ICONS = ['🐾', '🎩', '👕', '👓', '👄', '🧣', '👟'];
-const used = global.Foods.all.concat(global.Tasks.all, global.Personalities.map((p) => p.icon), TAB_ICONS);
+// and the things sent from the phone to the PC (app-send.js): a link, a note
+const SEND_ICONS = ['🔗', '📝', '💌'];
+const used = global.Foods.all.concat(global.Tasks.all, global.Personalities.map((p) => p.icon), TAB_ICONS, SEND_ICONS);
 for (const e of used) {
   const file = path.basename(global.Foods.emojiFile(e));
   const from = path.join(src, file);

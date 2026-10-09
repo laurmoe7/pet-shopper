@@ -5,7 +5,7 @@ Free, no ads, English first, revenue from paid pet customization. Deals are park
 
 ## 1. The pet
 
-**Working name: Nibble.** A round, soft blob creature (think mochi or a gumdrop with tiny feet). A blob is cheap to
+**Original working name: Nibble (now Fumu, the pigeon mascot of the app Fumufumu).** A round, soft blob creature (think mochi or a gumdrop with tiny feet). A blob is cheap to
 animate, reads well at small sizes, and takes hats, colors and patterns easily, which matters for paid cosmetics.
 
 **Personality:** cheerful glutton, a bit dramatic about food, never mean. It has opinions (loves fruit, side-eyes

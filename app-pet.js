@@ -1,8 +1,8 @@
-// Nibble: faces, speech bubbles, flying food and crumbs.
+// Fumu: faces, speech bubbles, flying food and crumbs.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
-// ---------- Nibble ----------
+// ---------- Fumu ----------
 // eyes, mouth, arm pose and extras for each mood
 var FACES = {
   sleepy: { eyes: 'closed', mouth: 'o', arms: 'rest', x: ['zzz'] },
@@ -17,7 +17,8 @@ var FACES = {
   suspicious: { eyes: 'squint', mouth: 'wavy', arms: 'scratch', x: ['question'] },
   love: { eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['hearts', 'cheeks'] },
   annoyed: { eyes: 'squint', mouth: 'wavy', arms: 'idle', x: [] },
-  dreamy: { eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks'] }
+  dreamy: { eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks'] },
+  nod: { eyes: 'happy', mouth: 'smile', arms: 'idle', x: ['cheeks'] }   // the "fumu fumu" nod: happy closed eyes
 };
 var CHEW = { eyes: 'happy', mouth: 'chew', arms: 'nom', x: ['cheeks'] };
 var REACTIONS = {
@@ -161,7 +162,9 @@ var SQUISH = {
   // a belly jiggle: quick wobbles side to side that die down (see bellyJiggle)
   jiggle: { ms: 1200, steps: [[0, 1, 1, 0], [.08, 1.08, .95, 0], [.18, .94, 1.04, 0], [.28, 1.07, .96, 0], [.38, .95, 1.035, 0],
     [.48, 1.05, .97, 0], [.58, .97, 1.02, 0], [.68, 1.03, .985, 0], [.8, .99, 1.008, 0], [.9, 1.01, .995, 0], [1, 1, 1, 0]] },
-  breath: { ms: 2400, steps: [[0, 1, 1, 0], [.45, .98, 1.035, 0], [1, 1, 1, 0]] }
+  breath: { ms: 2400, steps: [[0, 1, 1, 0], [.45, .98, 1.035, 0], [1, 1, 1, 0]] },
+  // the "fumu fumu" nod: two quick bobs of the head, down and up, like a pigeon (or someone saying mhm)
+  nod: { ms: 900, steps: [[0, 1, 1, 0], [.13, 1.035, .93, 3.4], [.3, .995, 1.012, -.7], [.47, 1.035, .93, 3.4], [.65, .995, 1.012, -.7], [.82, 1.008, .99, .4], [1, 1, 1, 0]] }
 };
 var squishBody = petSvg.querySelector('.pet-body'), squishRun = 0, squishing = false;
 /**
@@ -204,9 +207,12 @@ function bubbleToStage() {
  * @param {number} [ms=1500] How long it stays.
  * @param {boolean} [own] Already in the personality's voice (from `line`), so not restyled.
  */
+var idleQuiet = false;   // set while an idle moment runs that he was told not to talk during (app-idle.js); a touch or key press ends it
+var chatterRate = 1;     // how much he talks on his own: 0 never, .35 rarely, 1 normal, 2.5 often (the desktop app's settings change it)
+var speechLockUntil = 0;   // while set, nothing else may talk over an important line (the update notice)
 function say(text, ms, own) {
-  if (!text) return;
-  text = text.replace(/\bNibble\b/g, petName());   // lines are written with his first name; use the one you gave him
+  if (!text || idleQuiet || Date.now() < speechLockUntil) return;
+  text = text.replace(/\bFumu\b/g, petName());   // lines are written with his first name; use the one you gave him
   bubble.hidden = true;
   void bubble.offsetWidth;
   var line = own ? text : L.styleLine(personality(), text);
@@ -247,10 +253,10 @@ function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
  */
 function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
-/** @returns {{x: number, y: number}} The pet's mouth in viewport coordinates. */
+/** @returns {{x: number, y: number}} The pet's mouth in viewport coordinates (a bird's beak sits higher than a mouth). */
 function mouthPoint() {
   var r = petSvg.getBoundingClientRect();
-  return { x: r.left + r.width * (80 / 160), y: r.top + r.height * (107 / 150) };
+  return { x: r.left + r.width * (80 / 160), y: r.top + r.height * ((pet.classList.contains('beaked') ? 100 : 107) / 150) };
 }
 /** Makes a sheet as tall as it can be while still leaving the pet's face in view: it opens to just below the pet's mouth. */
 function sheetUnderMouth(dlg) {
@@ -273,7 +279,7 @@ function center(rect) { return { x: rect.left + rect.width / 2, y: rect.top + re
  * @param {string} emoji
  * @param {{x: number, y: number}} from
  * @param {{x: number, y: number}} to
- * @param {{duration?: number, lift?: number, scaleFrom?: number, scaleTo?: number, spin?: number}} [opts]
+ * @param {{duration?: number, lift?: number, scaleFrom?: number, scaleTo?: number, spin?: number, size?: number}} [opts]  size: the emoji's width in px (34 by default).
  * @returns {Promise<void>} Resolves when it lands.
  */
 function fly(emoji, from, to, opts) {
@@ -281,7 +287,8 @@ function fly(emoji, from, to, opts) {
   var el = emojiImg(emoji, '');
   el.className = 'flyer';
   document.body.appendChild(el);
-  var size = 34, half = size / 2;
+  var size = opts.size || 34, half = size / 2;
+  el.style.width = el.style.height = size + 'px';
   var duration = reduceMotion ? 1 : (opts.duration || 600);
   var lift = opts.lift != null ? opts.lift : Math.max(60, Math.abs(to.y - from.y) * 0.35 + 50);
   var frames = [];

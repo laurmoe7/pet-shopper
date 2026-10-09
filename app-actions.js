@@ -7,7 +7,8 @@
  * Plays an eating sound unless quiet mode is on.
  * @param {string} kind A Sounds.play kind, e.g. "glug".
  */
-function sound(kind) { clickSounded = true; if (!state.quiet && state.settings.sounds) Sounds.play(kind); }
+var deskMuted = function () { return false; };   // the desktop app's "mute small Fumu" replaces this (app-desktop.js)
+function sound(kind) { clickSounded = true; if (!state.quiet && state.settings.sounds && !deskMuted()) Sounds.play(kind); }
 // every button and menu item makes a sound: handlers that play their own mark the click,
 // and any click left silent gets a soft tap (switches play on/off from their change event)
 var clickSounded = false;
@@ -31,7 +32,7 @@ document.addEventListener('pointerdown', function unlockAudio() {
 function buzz(ms) { try { if (state.settings.vibration && navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* ignore */ } }
 
 // ---------- the eating queue ----------
-// Taps update the list at once; Nibble works through what you checked in order.
+// Taps update the list at once; Fumu works through what you checked in order.
 var queue = Promise.resolve();
 var pending = 0;
 /**
@@ -167,10 +168,11 @@ function celebrate() {
 /**
  * Adds a typed item to the to-buy list and lets the pet react.
  * @param {string} text
+ * @returns {?Object} The new item (null when the text was empty).
  */
 function addItem(text) {
   text = text.trim();
-  if (!text) return;
+  if (!text) return null;
   var item = L.createItem(text, state.overrides, newId(), Date.now(), state.mode);
   L.addToList(state.items, item);
   if (state.mode === 'todo') state.items = L.sortByDue(state.items, todayKey());   // an undated task goes above the ones for later days
@@ -178,19 +180,20 @@ function addItem(text) {
   save();
   render();
   // asleep, it doesn't wake up for this: it only mumbles in its sleep
-  if (baseState() === 'sleepy') { pulse('rocksmall', 1300); say(pick(state.mode === 'todo' ? ['tomorrow…', 'mm… later…', 'to-do… zzz'] : ['for me…', 'mm… yum…', 'snack…']), 1300); return; }
-  if (state.mode === 'todo') { addedTask(item); return; }
+  if (baseState() === 'sleepy') { pulse('rocksmall', 1300); say(pick(state.mode === 'todo' ? ['tomorrow…', 'mm… later…', 'to-do… zzz'] : ['for me…', 'mm… yum…', 'snack…']), 1300); return item; }
+  if (state.mode === 'todo') { addedTask(item); return item; }
   if (!busy) {
-    pulse('hop', 460);
-    var face = isBagged(item) ? null : FACES.catching;
-    if (face) { setFace(face); setTimeout(function () { if (!busy) settle(); }, 500); }
+    pulse('nod', 900);   // the "fumu fumu" nod, with happy closed eyes
+    setFace(FACES.nod);
+    setTimeout(function () { if (!busy) settle(); }, 950);
   }
   // something you buy a lot gets a remark from its history; the rest get a quick cheer
   var memory = L.memoryLine(state.pet, text);
   if (memory) talk(memory.key, MEMORY_LINES[memory.key], 1900, memory.vars);
-  else say(item.cat === 'mystery' ? 'ooh, mystery!' : pick(['ooh!', 'for me?', 'yes please', 'noted!', 'yum?']), 1100);
+  else say(item.cat === 'mystery' ? 'ooh, mystery!' : pick(['fumu fumu~', 'mhm, mhm!', 'fumu fumu~', 'ooh!', 'for me?', 'yes please', 'noted!']), 1300);
+  return item;
 }
-// what Nibble says about things you buy often ({item}, {n} times, #{rank} in the Top 10)
+// what Fumu says about things you buy often ({item}, {n} times, #{rank} in the Top 10)
 var MEMORY_LINES = {
   memoryTop: ['{item} again? your #1!', 'ah, {item}, my favourite to see', '{item}! {n} times now'],
   memoryFav: ['{item} is #{rank} in the Top 10!', 'we do love {item}', '{item} again, {n} times now'],
@@ -266,7 +269,7 @@ function toggle(id) {
     delete item.counted;
     delete item.countedDay;
   }
-  if (!todoMode) { if (item.done) item.doneAt = Date.now(); else delete item.doneAt; }   // when it was ticked: shopping right now keeps Nibble up at night
+  if (!todoMode) { if (item.done) item.doneAt = Date.now(); else delete item.doneAt; }   // when it was ticked: shopping right now keeps Fumu up at night
   if (todoMode) { repeatTask(item); L.addStamp(state.pet, item.cat, item.done ? 1 : -1); }   // the stamp book
   buzz(12);
   save();

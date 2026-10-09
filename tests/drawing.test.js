@@ -126,7 +126,11 @@ test('speech bubbles are always on: quiet mode and no option can hide them', () 
     .map((f) => fs.readFileSync(path.join(__dirname, '..', f), 'utf8')).join('\n');
   assert.doesNotMatch(app, /settings\.bubbles/);
   assert.doesNotMatch(app, /key: 'bubbles'/);
-  assert.match(app, /function say\(text, ms, own\) \{\s+if \(!text\) return;/);
+  // The one thing that can silence a bubble is idleQuiet: a flag set only while one of his own idle moments runs and he was told (in the desktop
+  // app's settings) not to chat on his own; any touch or key press clears it. Quiet mode and the options never reach say().
+  assert.match(app, /function say\(text, ms, own\) \{\s+if \(!text \|\| idleQuiet \|\| Date\.now\(\) < speechLockUntil\) return;/);
+  assert.doesNotMatch(app, /function say\([^)]*\) \{[^}]*(state\.quiet|settings\.)/);
+  assert.match(app, /\['pointerdown', 'keydown'\]\.forEach\(function \(type\) \{ document\.addEventListener\(type, function \(\) \{ idleQuiet = false; \}, true\); \}\);/);
 });
 
 test('the whole-pet moves on .squash only slide (scaling or rotating them left a seam on her phone)', () => {

@@ -39,6 +39,8 @@ function dressUp(el, outfit) {
   el.classList.toggle('hooded', !!hood);
   el.classList.toggle('snug', hats.some(function (h) { return h.snug; }));
   el.classList.toggle('shod', worn('feet').length > 0); // shoes replace the pet's own feet
+  var soles = el.querySelector('.outfit-soles'); // the shoes seen from below, for the sitting pose
+  if (soles) soles.innerHTML = worn('feet').map(function (w) { return w.sole || ''; }).join('');
 }
 
 var dressSheet = $('dressSheet'), dressPreview = $('dressPreview');

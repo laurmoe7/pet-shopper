@@ -15,13 +15,22 @@ function giftSvg(colour, ribbon) {
     '<path d="M24 13 V44" stroke="' + ribbon + '" stroke-width="6"/><path d="M24 13 C16 3 8 8 15 13 M24 13 C32 3 40 8 33 13" fill="none" stroke="#5b4239" stroke-width="2.4" stroke-linecap="round"/>' +
     '<circle cx="19" cy="31" r="1.6" fill="#5b4239"/><circle cx="29" cy="31" r="1.6" fill="#5b4239"/><path d="M21.5 34 Q24 36.6 26.5 34" fill="none" stroke="#5b4239" stroke-width="1.6" stroke-linecap="round"/></svg>';
 }
-/** Shows or hides the gift on the stage: it waits there while any box for today is still shut. */
+/** For now the gift is not on the stage (so it never has to fit around him): it waits in the Profile sheet, with a count on the Profile button. Set to true to bring it back. */
+var GIFT_ON_STAGE = false;
+/** Shows how many boxes for today are still shut: on the Profile button and in the Profile sheet (and on the stage when GIFT_ON_STAGE). */
 function refreshGift() {
   var left = B.unopened(state.pet, giftDate(), state.player.birthday).length;
   var st = giftEl.parentNode, quiet = st.classList.contains('bedtime') || st.classList.contains('night-lamp');   // (the stage; app-idle.js comes later)
-  giftEl.hidden = !left || quiet;
+  var label = 'Gift: ' + left + (left === 1 ? ' box' : ' boxes') + ' to open';
+  giftEl.hidden = !GIFT_ON_STAGE || !left || quiet;
   giftEl.querySelector('.gift-count').textContent = left > 1 ? String(left) : '';
-  giftEl.setAttribute('aria-label', 'Gift: ' + left + (left === 1 ? ' box' : ' boxes') + ' to open');
+  giftEl.setAttribute('aria-label', label);
+  var badge = $('profileBadge'), mine = $('profileGift');
+  badge.hidden = !left; badge.textContent = String(left);
+  mine.hidden = !left; $('profileGiftCount').textContent = left > 1 ? String(left) : '';
+  mine.setAttribute('aria-label', label);
+  if (!mine.firstChild.firstChild) mine.firstChild.innerHTML = giftSvg('#ffb3c7', '#fff4d6');
+  $('profileBtn').setAttribute('aria-label', 'Profile: your name and birthday' + (left ? ' (' + label + ')' : ''));
 }
 /** Draws the sheet: today's boxes (shut ones to tap, open ones greyed), what is coming up, the collection and the birthday. */
 function renderGifts() {
@@ -78,6 +87,7 @@ giftBoxes.addEventListener('click', function (e) {
   }, 600);
 });
 giftEl.addEventListener('click', function (e) { e.stopPropagation(); renderGifts(); openDialog(giftSheet); });
+$('profileGift').addEventListener('click', function (e) { e.stopPropagation(); renderGifts(); openDialog(giftSheet); });
 /** Developer tool: pretends it is the next special day in the calendar (and back to the real day after the last). @returns {string} What happened. */
 function devGiftCalendar() {
   var days = B.DAYS.filter(function (d) { return !d.birthday; }), cur = devGiftDay ? devGiftDay.getFullYear() * 10000 + devGiftDay.getMonth() * 100 + devGiftDay.getDate() : 0;

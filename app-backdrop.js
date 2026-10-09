@@ -30,9 +30,10 @@ var savedBackdrop = 'none';
 try { savedBackdrop = localStorage.getItem('nibble-backdrop') || 'none'; } catch (e) { /* storage not available */ }
 applyBackdrop(savedBackdrop);
 
+// the picker lives in the Room sheet (under the furniture), not in Options
 var backdropRow = document.createElement('div');
-backdropRow.className = 'option option-theme option-backdrop';
-backdropRow.innerHTML = '<span class="option-title">Background</span>';
+backdropRow.className = 'room-bg';
+backdropRow.innerHTML = '<span class="option-title room-bg-title">Background</span>';
 var backdropBtns = document.createElement('span');
 backdropBtns.className = 'theme-btns';
 BACKDROPS.forEach(function (bd) {
@@ -48,4 +49,4 @@ BACKDROPS.forEach(function (bd) {
   backdropBtns.appendChild(b);
 });
 backdropRow.appendChild(backdropBtns);
-themeRow.after(backdropRow);
+$('roomSheet').querySelector('form').appendChild(backdropRow);

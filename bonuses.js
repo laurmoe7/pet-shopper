@@ -8,7 +8,7 @@
  *   { easter: 0 }                                days from Easter Sunday (Good Friday is -2, Easter Monday 1)
  *   { nth: [11, 4, 4] }                          the 4th Thursday of November: [month, weekday 0=Sunday..6, which one; -1 is the last]
  *   { birthday: true }                           the player's birthday (state.player.birthday, "MM-DD")
- * and may set: boxes (how many extra boxes, default 1), box (a key of BOXES, default 'special'), line (what Nibble says).
+ * and may set: boxes (how many extra boxes, default 1), box (a key of BOXES, default 'special'), line (what Fumu says).
  * The prizes are placeholders for now: they are only counted in pet.prizes. Replace them (and give `kind` and more fields) when real ones exist.
  */
 (function (root) {

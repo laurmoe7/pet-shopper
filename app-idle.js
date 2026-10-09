@@ -14,11 +14,13 @@ function scheduleDream() {
 /** One idle moment, when nothing else is going on. */
 function idle() {
   scheduleDream();
-  if (busy || dreaming || document.hidden || document.querySelector('dialog[open]:not(#roomSheet)')) return;
+  if (busy || dreaming || napping || document.hidden || document.querySelector('dialog[open]:not(#roomSheet)')) return;
   // while it's awake it asks for something now and then (offerSuggestion keeps that to once every three minutes at most)
-  if (Math.random() < 0.3 && dueNag(true)) return;
-  if (baseState() !== 'sleepy' && Math.random() < 0.2 && offerSuggestion()) return;
-  if (state.settings.daydreams && Math.random() < 0.3) daydream();
+  // chatterRate (1 = as usual) scales how often it talks on its own: 0 never, below 1 less, above 1 more
+  var c = chatterRate;
+  if (c > 0 && Math.random() < Math.min(0.9, 0.3 * c) && dueNag(true)) return;
+  if (c > 0 && baseState() !== 'sleepy' && Math.random() < Math.min(0.9, 0.2 * c) && offerSuggestion()) return;
+  if (c > 0 && state.settings.daydreams && Math.random() < Math.min(0.9, 0.3 * c)) daydream();
   else idleMove();
 }
 /** Shows a thought cloud with an item and lets the pet react to it. */
@@ -174,13 +176,58 @@ function walkPath(spots, pause) {
   });
   return t;
 }
+// ---------- a daytime nap ----------
+// Eyes closed, a few z's and a slow breath for a while (the desktop companion does this now and then). A touch, or
+// something to eat, ends it; on its own it ends with a stretch and a yawn.
+var napping = false, napTimer = 0;
+/** @returns {boolean} Whether he is asleep or napping (the snore marks are showing): timers that blink his eyes must leave them shut. */
+function asleepFace() { return napping || pet.classList.contains('x-zzz'); }
+/**
+ * @param {number} [ms=22000] How long it sleeps.
+ * @returns {number} How long the nap lasts in ms (0 when it can't nap now).
+ */
+function napNow(ms) {
+  if (napping || busy || dreaming || document.hidden || baseState() === 'sleepy') return 0;
+  ms = ms || 22000;
+  napping = true;
+  setFace({ eyes: 'closed', mouth: 'o', arms: 'rest', x: ['zzz'] });
+  pulse('sit', 2600);
+  var t0 = Date.now();
+  (function tick() {
+    if (!napping) return;
+    if (busy) { napping = false; return; }   // something to eat: the eating takes over the face
+    if (Date.now() - t0 > ms) { wakeFromNap(false); return; }
+    snore();
+    napTimer = setTimeout(tick, 2600);
+  })();
+  return ms;
+}
+/** Ends a nap: with a start when it was disturbed, or a stretch and a yawn when it was done. */
+function wakeFromNap(startled) {
+  if (!napping) return;
+  napping = false;
+  clearTimeout(napTimer);
+  if (startled) {
+    setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: ['shock'] });
+    eyesDo('wide');
+    pulse('hopsmall', 450);
+    talk('napStart', ["huh! I'm awake!", "wasn't sleeping!", 'oh! hi!'], 1300);
+  } else {
+    setFace({ eyes: 'closed', mouth: 'open', arms: 'reach', x: [] });
+    pulse('stretch', 1000);
+    sound('yawn');
+    say(pick(['*yaaawn*', 'hwaaa~ good nap', '*stretch*']), 1500, true);
+  }
+  setTimeout(function () { if (!busy) settle(); }, startled ? 1400 : 1800);
+}
+pet.addEventListener('pointerdown', function () { wakeFromNap(true); }, true);
 var SHOPPING_WINDOW_MS = 30 * 60 * 1000;
-/** @returns {boolean} Whether you are in the middle of shopping: something on the shopping list was ticked off in the last half hour and more is still to buy. Only that keeps Nibble up at night. */
+/** @returns {boolean} Whether you are in the middle of shopping: something on the shopping list was ticked off in the last half hour and more is still to buy. Only that keeps Fumu up at night. */
 function shoppingNow() {
   var list = isTodo() ? state.stash : state.items, now = Date.now();
   return list.some(function (i) { return !i.done; }) && list.some(function (i) { return i.done && i.doneAt && now - i.doneAt < SHOPPING_WINDOW_MS; });
 }
-/** @returns {boolean} Whether nothing is left to buy. Only the shopping list counts: tasks never keep Nibble up. */
+/** @returns {boolean} Whether nothing is left to buy. Only the shopping list counts: tasks never keep Fumu up. */
 function nothingLeft() { return !(isTodo() ? state.stash : state.items).some(function (i) { return !i.done; }); }
 /** @returns {boolean} True when the pet may wander off its cushion: nothing left to buy, and not bedtime. */
 function mayWander() { return nothingLeft() && !stage.classList.contains('bedtime'); }
@@ -202,6 +249,12 @@ var IDLE_MOVES = [
   { moods: ['curious', 'happy'], run: function () { setFace(FACES.dreamy); lookAround(); pulse('stroll', 3600); } },
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'open', mouth: 'smile', arms: 'idle', x: ['cheeks'] }); pulse('waddle', 1800); } },
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'idle', x: ['cheeks'] }); pulse('rock', 1900); } },
+  // newer moves: a curious head tilt, flopping over, a spinning hop, an excited shiver, ducking down and popping up
+  { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: ['question'] }); pulse('tilt', 1800); } },
+  { moods: ['happy', 'stuffed'], run: function () { setFace({ eyes: 'closed', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('flop', 2400); say(pick(['plop~', 'flop!', 'nap time?']), 1200, true); } },
+  { moods: ['happy'], run: function () { setFace(FACES.tada); pulse('spinhop', 900); drift(['✦', '♥'], petTop(), 3); } },
+  { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('shiver', 700); say(pick(['eee!', "so excited!", 'squee~']), 1000, true); } },
+  { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('popup', 1500); say(pick(['peekaboo!', 'boo~', 'found me!']), 1100, true); } },
   // a big roly-poly roll from side to side, with a giggle
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('roly', 2800); drift(['♥', '✦'], petTop(), 2); } },
   { moods: ['happy'], run: function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'idle', x: ['cheeks', 'sparkles'] }); pulse('roly', 2800); } },
@@ -278,9 +331,9 @@ var IDLE_MOVES = [
   } },
   { moods: ['curious', 'happy', 'stuffed'], night: true, run: function () {
     setFace({ eyes: 'closed', mouth: 'smile', arms: 'idle', x: [] });
-    setTimeout(function () { pet.dataset.eyes = 'open'; }, 700);
-    setTimeout(function () { pet.dataset.eyes = 'closed'; }, 1100);
-    setTimeout(function () { pet.dataset.eyes = 'open'; }, 2100);
+    setTimeout(function () { if (!asleepFace()) pet.dataset.eyes = 'open'; }, 700);
+    setTimeout(function () { if (!asleepFace()) pet.dataset.eyes = 'closed'; }, 1100);
+    setTimeout(function () { if (!asleepFace()) pet.dataset.eyes = 'open'; }, 2100);
     talk('heavyBlink', ['keep… eyes… open…', 'just a little longer…'], 1600);
     return 2400;
   } },
@@ -299,9 +352,15 @@ function idleMove() {
   if (isTodo() && !late && mood !== 'sleepy' && Math.random() < 0.45) moves = TODO_MOVES.map(function (run) { return { run: run }; });
   if (!moves.length) return;
   busy++;
+  // told to talk less (or never): this move happens, but silently, until it is over or you touch him
+  var mute = chatterRate < 1 && Math.random() >= chatterRate;
+  if (mute) idleQuiet = true;
   var ms = pick(moves).run();
   setTimeout(function () { busy--; if (!busy) settle(); }, Math.max(1600, ms || 0));
+  if (mute) setTimeout(function () { idleQuiet = false; }, Math.max(1600, ms || 0) + 2500);   // (a line that is said a moment after the move is muted too)
 }
+// anything you do ends a muted idle moment: what he says back to you is never held back
+['pointerdown', 'keydown'].forEach(function (type) { document.addEventListener(type, function () { idleQuiet = false; }, true); });
 scheduleDream();
 
 // ---------- a soft settle ----------
@@ -351,9 +410,10 @@ function lively() {
     // two quick blinks
     if (pet.dataset.eyes !== 'open') return;
     pet.dataset.eyes = 'closed';
-    setTimeout(function () { if (pet.dataset.eyes === 'closed' && !busy) pet.dataset.eyes = 'open'; }, 120);
-    setTimeout(function () { if (pet.dataset.eyes === 'open' && !busy) pet.dataset.eyes = 'closed'; }, 330);
-    setTimeout(function () { if (pet.dataset.eyes === 'closed' && !busy) pet.dataset.eyes = 'open'; }, 450);
+    // (not once he has dropped off in the middle of it: his shut eyes would be opened by the timers)
+    setTimeout(function () { if (pet.dataset.eyes === 'closed' && !busy && !asleepFace()) pet.dataset.eyes = 'open'; }, 120);
+    setTimeout(function () { if (pet.dataset.eyes === 'open' && !busy && !asleepFace()) pet.dataset.eyes = 'closed'; }, 330);
+    setTimeout(function () { if (pet.dataset.eyes === 'closed' && !busy && !asleepFace()) pet.dataset.eyes = 'open'; }, 450);
   } else if (r < 0.46) {
     pulse('hopsmall', 500);
   } else if (r < 0.62 && mayWander()) {

@@ -1,4 +1,4 @@
-// Developer tool: the animation player. Pick any of Nibble's animations by name and watch it on the pet:
+// Developer tool: the animation player. Pick any of Fumu's animations by name and watch it on the pet:
 // body moves, faces, arms, eyes, mouths, extras, the idle moves, the to-do moves, a few specials and the sounds.
 // Opened from Options > Developer tools. These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
@@ -6,7 +6,7 @@
 var animSheet = $('animSheet'), animList = $('animList'), animFilter = $('animFilter'), animStatus = $('animStatus'), animRepeat = $('animRepeat');
 var BODY_MOVES = [['wiggle', 900], ['twirl', 800], ['peek', 1400], ['bob', 1400], ['shuffle', 1500], ['boogie', 1500], ['rock', 1900], ['roly', 2800], ['rocksmall', 1300],
   ['sniff', 1700], ['stroll', 3600], ['waddle', 1800], ['scoot', 1400], ['sit', 2600], ['hop', 500], ['hopsmall', 450], ['hophop', 1500], ['chomp', 360], ['spit', 450],
-  ['stretch', 1100], ['pat', 1300]];
+  ['stretch', 1100], ['pat', 1300], ['nod', 900], ['tilt', 1800], ['flop', 2400], ['spinhop', 900], ['shiver', 700], ['popup', 1500]];
 var ANIM_ARMS = ['rest', 'idle', 'reach', 'nom', 'hold', 'cover', 'cheer', 'fan', 'clench', 'pat', 'eyerub', 'rub', 'scratch', 'grab'];
 var ANIM_EYES = ['open', 'closed', 'happy', 'sparkle', 'squint'];
 var ANIM_MOUTHS = ['smile', 'open', 'o', 'wavy', 'chew'];
@@ -46,6 +46,13 @@ function animCatalogue() {
   add('Specials', 'hum', function () { hum(); setFace(FACES.dreamy); pulse('bob', 1400); return 1800; });
   add('Specials', 'goodnight kiss', function () { kissGoodnight(); return 2600; });
   add('Specials', 'snore', function () { snore(); return 2400; });
+  add('Specials', 'nap (22 seconds, tap to wake)', function () { return napNow(22000) || 600; });
+  add('Body', 'sit with soles showing (5 seconds)', function () { pet.classList.add('seated'); setTimeout(function () { pet.classList.remove('seated'); }, 5000); return 5200; });
+  if (window.deskDo) {
+    add('Desktop', 'wander along the screen', function () { return window.deskDo('wander') || (say('only in the small pet window', 1800), 1200); });
+    add('Desktop', 'peek round the edge', function () { return window.deskDo('peek') || (say('only in the small pet window', 1800), 1200); });
+    add('Desktop', 'hop on a window / down', function () { return window.deskDo('perch') || (say('only in the small pet window', 1800), 1200); });
+  }
   add('Specials', 'wake with a start', function () { return wakeForSnack(); });
   add('Specials', 'hearts drifting', function () { drift(['♥', '✦', '♥'], petTop(), 4); return 2200; });
   Sounds.kinds.forEach(function (k) { add('Sounds', k, function () { sound(k); return 900; }); });

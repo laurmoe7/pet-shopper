@@ -12,6 +12,7 @@
     { id: 'parrot', base: 'birdie', label: 'Parrot' },
     { id: 'kiwi', base: 'birdie', label: 'Kiwi' },
     { id: 'pigeon', base: 'birdie', label: 'Pigeon' },
+    { id: 'oldpigeon', base: 'birdie', label: 'Pigeon (old)' },
     { id: 'chicken', base: 'birdie', label: 'Chicken' },
     { id: 'strawberry', base: 'mochi', label: 'Strawberry' },
     { id: 'chocolate', base: 'mochi', label: 'Chocolate' },
@@ -46,6 +47,7 @@
     { id: 'rainbowaxo', base: 'axolotl', label: 'Rainbow' },
     { id: 'whitehamster', base: 'hamster', label: 'White hamster' },
     { id: 'longhair', base: 'hamster', label: 'Long-haired' },
+    { id: 'thrush', base: 'birdie', label: 'Thrush' },
     { id: 'snowmonkey', base: 'monkey', label: 'Snow monkey' }
   ];
 })(typeof self !== 'undefined' ? self : globalThis);

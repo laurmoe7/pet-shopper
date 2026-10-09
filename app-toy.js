@@ -5,7 +5,22 @@
 
 var toyEl = $('toy'), toyBall = toyEl.querySelector('.toy-ball'), toyX = toyHome(), playing = false;
 /** @returns {number} The toy's spot beside the cushion: a bigger pet takes more room (its size is --pet-size on the stage). */
-function toyHome() { return Math.round(58 * (parseFloat(getComputedStyle(stage).getPropertyValue('--pet-size')) || 1)); }
+/** @returns {boolean} Whether `px` to the right of him is still on a screen (the small window can hang over the screen's right edge). Always true in the app. */
+function roomOnRight(px) {
+  var root = document.documentElement;
+  if (!root.classList.contains('desktop-pet')) return true;
+  var raw = getComputedStyle(root).getPropertyValue('--vis-r'), vr = !raw || /vw/.test(raw) ? window.innerWidth : parseFloat(raw);
+  return window.innerWidth / 2 + px + 20 <= vr;
+}
+/** @returns {number} Where the toy rests: beside him on the right, or on the left when the right is off the screen. */
+function toyHome() {
+  var h = Math.round(58 * (parseFloat(getComputedStyle(stage).getPropertyValue('--pet-size')) || 1));
+  return roomOnRight(h) ? h : -h;
+}
+/** @returns {boolean} Whether he is up at night and drowsy (not in his bed): he goes after the toy very slowly then. */
+function toyTired() { return typeof petScene === 'function' && petScene().indexOf('night-drowsy') === 0; }
+/** @param {number} pace Ms per px for a walk. @returns {number} The pace, many times slower when he is drowsy. */
+function toyPace(pace) { return toyTired() ? pace * 6 : pace; }
 /** @returns {string} How the species plays: fetch, bat, tongue or hug. */
 function playStyle() {
   var sp = state.pet.species;
@@ -64,6 +79,30 @@ function toyHold(y, x, ms) {
   }
   toyBall.style.transform = to;
 }
+var toyCarried = false, toyHoldX = 0, toyHoldY = 14;   // while carried: where in his arms it sits (px from him, px up)
+/** @returns {boolean} Whether the toy is out and free to be picked up (not put away, hidden, in a game or already held). */
+function toyFree() {
+  return !playing && !held && !toyField && getComputedStyle(toyEl).display !== 'none' && !stage.classList.contains('bedtime');
+}
+/** Picks the toy up in his hands while he is carried (the desktop app), or drops it where he is put down. */
+function toyCarry(on) {
+  if (on) {
+    if (toyCarried || !toyFree()) return;
+    toyCarried = true;
+    // now and then in both arms, now and then in one hand held out to the side (the other arm flaps as usual; styles.css)
+    var side = Math.random() < .5 ? 0 : (Math.random() < .5 ? -1 : 1), k = pet.offsetWidth / 160;
+    if (document.documentElement.dataset.list === 'todo') side = 1;   // his left hand has the clipboard: the toy goes in the right
+    toyHoldX = side * 66 * k; toyHoldY = side ? 24 * k : 14;
+    pet.classList.add(side === 0 ? 'holds-toy' : side < 0 ? 'holds-toy-l' : 'holds-toy-r');
+    toyHold(toyHoldY, walkX + toyHoldX, 220);
+  } else if (toyCarried) {
+    toyCarried = false;
+    pet.classList.remove('holds-toy', 'holds-toy-l', 'holds-toy-r');
+    toyEl.style.translate = Math.round(toyX) + 'px 0';
+    toyBall.style.transform = '';
+    toyBounce(toyHome(), 600, 10, 14);   // it falls from his arms onto the floor beside him
+  }
+}
 /** @returns {number} How far up the pet's mouth is from the floor, in px. */
 function mouthHeight() { return Math.round(pet.offsetHeight * 0.285 - 9); }
 
@@ -99,7 +138,7 @@ function playToy() {
   wait(300).then(function () {
     setFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] });
     pet.classList.add('running');
-    return Promise.all([wait(walkTo(stop, 7)), landed]);
+    return Promise.all([wait(walkTo(stop, toyPace(7))), landed]);
   }).then(function () {
     pet.classList.remove('running');
     return getIt(side);
@@ -116,6 +155,8 @@ function getIt(side) {
 }
 /** The game is over: back to normal. */
 function endPlay() {
+  endField();
+  if (typeof deskToyReturn === 'function') deskToyReturn();   // desktop: back to where he stood when it was thrown
   pet.style.removeProperty('--look-x');
   pet.classList.remove('running');
   playing = false;
@@ -128,7 +169,7 @@ function endPlay() {
 function pounce() {
   pulse('hop', 500);
   sound('squish');
-  walkTo(toyX, 5);
+  walkTo(toyX, toyPace(5));
   return wait(380);
 }
 /** A cat's game: a wiggle, a pounce that knocks the toy away, then a chase after it. */
@@ -149,17 +190,24 @@ function batAbout(side) {
     var rolled = toyBounce(to, 650, 18);
     return wait(300).then(function () {
       pet.classList.add('running');
-      return Promise.all([wait(walkTo(to + side * 34, 7)), rolled]);
+      return Promise.all([wait(walkTo(to + side * 34, toyPace(7))), rolled]);
     }).then(function () { pet.classList.remove('running'); });
   });
+}
+/** With the toy in his mouth or arms (h px up) he carries it back to where he stood when it was thrown (the desktop app; the window runs). */
+function carryBack(h) {
+  toyHold(h, walkX, 150);
+  if (typeof deskToyReturn !== 'function') return Promise.resolve();
+  pet.classList.add('running');
+  return deskToyReturn().then(function () { pet.classList.remove('running'); });
 }
 /** Picks the toy up in its mouth, trots back to the middle and drops it there for another throw. */
 function fetchBack() {
   sound('squeak');
   setFace({ eyes: 'happy', mouth: 'o', arms: 'idle', x: ['cheeks'] });
   toyHold(mouthHeight(), walkX);
-  return wait(350).then(function () {
-    var ms = walkTo(0, 12);
+  return wait(350).then(function () { return carryBack(mouthHeight()); }).then(function () {
+    var ms = walkTo(0, toyPace(12));
     toyHold(mouthHeight(), walkX, ms || 200);
     return wait(ms + 100);
   }).then(function () {
@@ -173,8 +221,11 @@ function fetchBack() {
 /** Hugs the toy for a moment, then lets it roll off a little. */
 function hugToy() {
   sound('squeak');
-  setFace({ eyes: 'happy', mouth: 'open', arms: 'rub', x: ['cheeks', 'hearts'] });
   toyHold(14, walkX);
+  return carryBack(14).then(hugIt);
+}
+function hugIt() {
+  setFace({ eyes: 'happy', mouth: 'open', arms: 'rub', x: ['cheeks', 'hearts'] });
   pulse('pat', 1300);
   drift(['♥', '♡'], petTop(), 3);
   talk('toyGot', ['got it!', 'mine! ♡', 'caught it!', 'hehe, gotcha!'], 1400);
@@ -191,14 +242,27 @@ function hugToy() {
 // the room, and the pet runs underneath to catch it (in its mouth for a dog or bird, in its arms for the rest).
 // If it lands out of reach, the pet runs over and pounces on it. A plain tap still tosses it (playToy).
 var held = null, skipClick = false, flight = 0;
+// the desktop app can let the toy fly over the whole screen (app-desktop.js sets this while a throw is on): {lim, show(x, y, spin), hide(), zoom}
+var toyField = null;
+/** Ends the screen-wide flight: the toy is drawn in the page again (at toyX on the floor). */
+function endField(y) {
+  if (!toyField) return;
+  if (toyField.localX) toyX = toyField.localX();   // (his window ran after it: where it lies in the window now)
+  toyField.hide(); toyField = null;
+  toyEl.style.visibility = '';
+  toyEl.style.translate = Math.round(toyX) + 'px 0';
+  toyBall.style.transform = y > 0 ? 'translateY(' + (-y).toFixed(1) + 'px)' : '';
+}
 /** @returns {{minX: number, maxX: number, maxY: number}} Where the toy can go: px from the middle, px above the floor. */
 function toyLimits() {
+  if (toyField) return toyField.lim;
   var w = stage.clientWidth;
   return { minX: -w / 2 + 18, maxX: w / 2 - 18, maxY: stage.clientHeight - 3 - 32 - 8 };
 }
 /** Puts the toy at x (px from the middle), y (px above the floor), turned by spin degrees. */
 function placeToy(x, y, spin) {
   toyX = x;
+  if (toyField) { toyField.show(x, y, spin || 0); return; }
   toyEl.style.translate = Math.round(x) + 'px 0';
   toyBall.style.transform = 'translateY(' + (-y).toFixed(1) + 'px) rotate(' + Math.round(spin || 0) + 'deg)';
 }
@@ -209,8 +273,9 @@ toyEl.addEventListener('pointerdown', function (e) {
 });
 toyEl.addEventListener('pointermove', function (e) {
   if (!held) return;
+  if (e.buttons === 0 && e.pointerType === 'mouse') { letGoToy(); return; }   // the button is already up: let go
   if (!held.moved) {
-    if (Math.hypot(e.clientX - held.x0, e.clientY - held.y0) < 8) return;
+    if (Math.hypot(e.clientX - held.x0, e.clientY - held.y0) < (e.pointerType === 'mouse' ? 3 : 8)) return;   // a mouse is exact: pick up almost at once
     held.moved = true;
     // picked up: the pet can't wait
     playing = true;
@@ -219,11 +284,14 @@ toyEl.addEventListener('pointermove', function (e) {
     stopWalk();
     setFace({ eyes: 'sparkle', mouth: 'open', arms: 'reach', x: ['cheeks'] });
     pulse('hopsmall', 450);
+    if (typeof deskToyField === 'function') deskToyField();   // desktop app: the toy may fly over the whole screen
     talk('toyHeld', ['throw it! throw it!', 'ooh! ooh!', 'I\'m ready!', 'over here!'], 1300);
   }
-  var st = stage.getBoundingClientRect(), lim = toyLimits();
+  // the boxes are read again only a few times a second while dragging: reading them on every move forces the page to lay itself out each time
+  if (!held.box || e.timeStamp - held.box.t > 120 || (toyField && !held.box.field)) held.box = { t: e.timeStamp, st: stage.getBoundingClientRect(), pr: pet.getBoundingClientRect(), lim: toyLimits(), field: !!toyField };
+  var st = held.box.st, lim = held.box.lim;
   // dangling it over his head: he jumps for it, and after a few seconds of that he gets a little cross
-  var pr = pet.getBoundingClientRect(), over = e.clientY < pr.top + pr.height * 0.25 && Math.abs(e.clientX - (pr.left + pr.width / 2)) < pr.width * 0.5;
+  var pr = held.box.pr, over = e.clientY < pr.top + pr.height * 0.25 && Math.abs(e.clientX - (pr.left + pr.width / 2)) < pr.width * 0.5;
   if (over && !held.over) {
     held.over = true;
     held.hopTimer = setInterval(function () { if (held && held.over && !held.annoyed) pulse('hop', 500); }, 1100);
@@ -256,11 +324,16 @@ function letGoToy() {
   skipClick = true;
   var a = h.pts[0], z = h.pts[h.pts.length - 1], dt = Math.max(16, z.t - a.t) / 1000;
   var vx = (z.x - a.x) / dt, vy = -(z.y - a.y) / dt, speed = Math.hypot(vx, vy);
-  if (speed > 1500) { vx *= 1500 / speed; vy *= 1500 / speed; }
+  // over the whole screen a throw goes twice as hard, so it really crosses it
+  var boost = toyField ? 2.2 : 1, cap = 1500 * boost;
+  vx *= boost; vy *= boost; speed *= boost;
+  if (speed > cap) { vx *= cap / speed; vy *= cap / speed; }
   fling(vx, vy, h.y);
 }
 toyEl.addEventListener('pointerup', letGoToy);
 toyEl.addEventListener('pointercancel', letGoToy);
+toyEl.addEventListener('lostpointercapture', letGoToy);
+window.addEventListener('blur', letGoToy);   // the release went elsewhere (another window): never leave it stuck in the air
 // which toy shows (yarn, tennis ball or ball) is set in styles.css by the species
 toyEl.addEventListener('click', function (e) {
   e.stopPropagation();
@@ -281,22 +354,37 @@ function fling(vx, vy, y) {
   pet.classList.add('running');
   var lim = toyLimits(), x = toyX, spin = 0, start = performance.now(), last = start, chaseAt = 0;
   var catchAt = playStyle() === 'fetch' ? mouthHeight() : 14, frog = playStyle() === 'tongue';
+  // over the whole screen it flies longer: lighter gravity, livelier bounces, and he waits a while before he may catch it
+  var followAt = 0, wide = !!toyField, gravity = wide ? 950 : 1500, wallK = wide ? 0.92 : 0.75, floorK = wide ? 0.74 : 0.6, grace = wide ? 3000 : 250, maxMs = wide ? 12000 : 7000;
   cancelAnimationFrame(flight);
   if (reduceMotion) { placeToy(x, 0, 0); landed(); return; }
+  // if the chase drags on he jumps at the toy and gets it
+  var leapAfter = toyTired() ? Infinity : wide ? 6500 : 3200;   // (drowsy, he does not manage the jump)
+  function leap() {
+    var px0 = parseFloat(getComputedStyle(pet).translate) || 0, fx = x, fy = y, t0 = performance.now(), svg = pet.querySelector('.pet-svg');
+    // he springs up off the floor as the toy swings in to him in an arc, and catches it at the top
+    if (svg && svg.animate) svg.animate([{ translate: '0 0' }, { translate: '0 -6px', offset: .15 }, { translate: '0 -38px', offset: .7 }, { translate: '0 0' }], { duration: 760, easing: 'ease-out' });
+    pulse('hop', 500);
+    (function fly(n) {
+      var u = Math.min(1, (n - t0) / 600), e = u * u * (3 - 2 * u);
+      placeToy(fx + (px0 - fx) * e, fy + (catchAt + 14 - fy) * e + 34 * 4 * u * (1 - u), spin + u * 200);
+      if (u < 1) flight = requestAnimationFrame(fly); else if (frog) caught(px0, catchAt); else caught();
+    })(t0);
+  }
   function step(now) {
     var dt = Math.min(0.033, (now - last) / 1000);
     last = now;
-    vy -= 1500 * dt;
+    vy -= gravity * dt;
     x += vx * dt;
     y += vy * dt;
     // bounce off the sides, the top and the floor of the room
-    if (x < lim.minX) { x = lim.minX; vx = -vx * 0.75; sound('bounce'); }
-    if (x > lim.maxX) { x = lim.maxX; vx = -vx * 0.75; sound('bounce'); }
+    if (x < lim.minX) { x = lim.minX; vx = -vx * wallK; sound('bounce'); }
+    if (x > lim.maxX) { x = lim.maxX; vx = -vx * wallK; sound('bounce'); }
     if (y > lim.maxY) { y = lim.maxY; vy = -Math.abs(vy) * 0.6; }
     if (y < 0) {
       y = 0;
       if (vy < -140) sound('bounce');
-      vy = -vy * 0.6;
+      vy = -vy * floorK;
       if (vy < 70) vy = 0;
       vx *= 0.88;
     }
@@ -304,15 +392,22 @@ function fling(vx, vy, y) {
     spin += vx * dt * 2.4;
     placeToy(x, y, spin);
     // the pet runs to where the toy is heading
-    if (now > chaseAt) { chaseAt = now + 200; walkTo(x + vx * 0.2, 6); }
+    if (now > chaseAt) { chaseAt = now + 110; walkTo(x + vx * 0.3, toyPace(5)); }
+    // over the whole screen his window runs after it too, once it is well past where he can reach inside the window
+    if (wide && now > followAt && typeof deskToyFollow === 'function') {
+      var far = x - clampWalk(x);
+      if (Math.abs(far) > 60) { followAt = now + 600; deskToyFollow(far * 0.8).then(function (moved) { x -= moved || 0; }); }
+    }
     pet.style.setProperty('--look-x', (x > walkX ? 3.2 : -3.2) + 'px');
-    // caught: coming down at the right height, right in front of the pet
     var px = parseFloat(getComputedStyle(pet).translate) || 0;
+    // (only when it is close: a toy far across the screen would otherwise swing over to him in one jump)
+    if (now - start > leapAfter && Math.abs(x - px) < 240) { leap(); return; }
+    // caught: coming down at the right height, right in front of the pet
     // a frog snatches it out of the air with its tongue once it is within reach
-    if (frog && now - start > 250 && y > 6 && Math.hypot(x - px, y - mouthHeight()) < 115) { caught(x, y); return; }
+    if (frog && now - start > grace && y > 6 && Math.hypot(x - px, y - mouthHeight()) < 115) { caught(x, y); return; }
     // a cat does not catch it out of the air: it waits for it to land, then hunts it on the floor (landed > getIt > batAbout)
-    if (playStyle() !== 'bat' && now - start > 250 && vy <= 0 && y < catchAt + 18 && y > catchAt - 24 && Math.abs(x - px) < 30) { caught(); return; }
-    if ((y === 0 && vy === 0 && Math.abs(vx) < 14) || now - start > 7000) { landed(); return; }
+    if (playStyle() !== 'bat' && now - start > grace && vy <= 0 && y < catchAt + 18 && y > catchAt - 24 && Math.abs(x - px) < 30) { caught(); return; }
+    if ((y === 0 && vy === 0 && Math.abs(vx) < 14) || now - start > maxMs) { landed(); return; }
     flight = requestAnimationFrame(step);
   }
   flight = requestAnimationFrame(step);
@@ -323,6 +418,7 @@ function fling(vx, vy, y) {
  * @param {number} y Px above the floor.
  */
 function caught(x, y) {
+  endField(y);
   pet.classList.remove('running');
   stopWalk();
   var style = playStyle();
@@ -339,7 +435,13 @@ function caught(x, y) {
 function landed() {
   var side = toyX >= walkX ? 1 : -1;
   pet.classList.add('running');
-  wait(walkTo(toyX - side * (playStyle() === 'tongue' ? 80 : 40), 7)).then(function () {
+  // it came down far from his window (the toy flies over the whole screen): the window runs along the floor to it first
+  var far = toyField ? toyX - clampWalk(toyX) : 0;
+  (far && typeof deskToyChase === 'function' ? deskToyChase(far) : Promise.resolve(0)).then(function (moved) {
+    if (!toyField) toyX -= moved || 0;   // the window moved under it (with the screen-wide field endField works it out)
+    endField();
+    return wait(walkTo(toyX - side * (playStyle() === 'tongue' ? 80 : 40), toyPace(7)));
+  }).then(function () {
     pet.classList.remove('running');
     return getIt(side);
   }).then(endPlay);
@@ -406,6 +508,20 @@ function tongueGrab(x, y) {
 /** Puts the toy back at its spot beside the cushion (for when the pet's size changes with its species). */
 function toyBackHome() {
   if (playing) return;
+  endField();
   toyEl.style.translate = '';
   toyX = toyHome();
 }
+
+// the small window is at the edge of the screen: a toy resting where it would be cut off by the edge rolls into view
+setInterval(function () {
+  if (typeof held === 'undefined' || playing || held || toyField || toyCarried || stage.classList.contains('bedtime') || getComputedStyle(toyEl).display === 'none') return;
+  var root = document.documentElement;
+  if (!root.classList.contains('desktop-pet')) return;
+  var cs = getComputedStyle(root), rawL = cs.getPropertyValue('--vis-l'), rawR = cs.getPropertyValue('--vis-r');
+  var vl = parseFloat(rawL) || 0, vr = !rawR || /vw/.test(rawR) ? window.innerWidth : parseFloat(rawR);
+  var r = toyEl.getBoundingClientRect();
+  if (!r.width) return;
+  var shift = r.left < vl + 6 ? vl + 6 - r.left : r.right > vr - 6 ? vr - 6 - r.right : 0;
+  if (Math.abs(shift) > 2) toyBounce(toyX + shift, 700, 4, 6);   // (it rolls, with a little hop)
+}, 1000);

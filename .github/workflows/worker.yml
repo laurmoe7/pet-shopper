@@ -1,0 +1,53 @@
+name: Deploy the sync server (Cloudflare)
+
+# Runs by itself whenever the sync server changes on main, and by hand:
+# Actions > "Deploy the sync server (Cloudflare)" > Run workflow.
+# It tests, rebuilds dist/worker.js, makes sure the database tables exist (schema.sql only
+# has "create if missing" lines) and deploys the Worker. Needs two repository secrets:
+# CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID (see worker/sync/README.md).
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'sync.js'
+      - 'worker/sync/**'
+      - 'tools/build-worker.js'
+      - '.github/workflows/worker.yml'
+
+permissions:
+  contents: read
+
+concurrency: worker-deploy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check the secrets are set
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "Add the repository secrets CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID first." >&2
+            exit 1
+          fi
+      - name: Test each permission (prints no secret)
+        continue-on-error: true
+        run: |
+          echo "token length ${#CLOUDFLARE_API_TOKEN}, account id length ${#CLOUDFLARE_ACCOUNT_ID}"
+          api() { curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/$1" | head -c 300; echo; }
+          echo "--- workers scripts"; api "accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts"
+          echo "--- d1 databases"; api "accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database"
+          echo "--- this database"; api "accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database/abdfb669-87d3-42d7-9104-6d7653d2fe4a"
+      - run: npm test
+      - run: npm run build:worker
+      - name: Create missing database tables
+        run: npx --yes wrangler@4 d1 execute pet-shopper-sync --remote --file=worker/sync/schema.sql --config=worker/sync/wrangler.toml
+      - name: Deploy the Worker
+        run: npx --yes wrangler@4 deploy --config=worker/sync/wrangler.toml

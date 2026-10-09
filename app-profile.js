@@ -1,5 +1,5 @@
 // Profile: the player's name and birthday (state.player). Basic for now; the gift boxes (app-gift.js) use the birthday,
-// and Nibble says hello by name (app-start.js). Once a field is filled in it shows as text with an Edit button
+// and Fumu says hello by name (app-start.js). Once a field is filled in it shows as text with an Edit button
 // (like the pet's name), so a stray tap cannot change it. The Top 10 and the Stamp Book open from here too.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
@@ -56,7 +56,7 @@ $('profileForm').addEventListener('submit', function (e) { e.preventDefault(); }
 profileName.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); profileName.blur(); } });
 profileBirthday.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); profileBirthday.blur(); } });
 $('profileBtn').addEventListener('click', function () { renderProfile(); sheetUnderMouth(profileSheet); openDialog(profileSheet); });
-// Nibble only reacts once, when the sheet closes and something changed (not while you are still typing it in)
+// Fumu only reacts once, when the sheet closes and something changed (not while you are still typing it in)
 profileSheet.addEventListener('close', function () {
   if (busy || baseState() === 'sleepy') return;
   var p = state.player;

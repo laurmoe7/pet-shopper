@@ -16,12 +16,12 @@ try { savedTheme = localStorage.getItem('nibble-theme') || 'auto'; } catch (e) {
 applyTheme(savedTheme);
 var optionsSheet = $('optionsSheet'), optionsList = $('optionsList');
 var OPTIONS = [
-  { key: 'quiet', title: 'Quiet mode', text: '' },
+  { key: 'quiet', title: 'Sounds', text: '', invert: true },   // on = sounds on, stored as state.quiet
   { key: 'vibration', title: 'Vibration', text: '' },
-  { key: 'aisles', title: 'Sort by aisle', text: 'Groups the shopping list into fruit & veg, meat, dairy and so on, in the order you walk round a shop.' },
+  { key: 'aisles', title: 'Sort by aisle', text: '' },
   { key: 'time24', title: '24-hour time', text: '' },
   { key: 'goalToasts', title: 'Goal progress display', text: '' },
-  { key: 'fairPlayTips', title: 'Fair-play tips', text: 'Mentions the 15-minute rule and the once-a-day rule. The rules still apply when this is off.' }
+  { key: 'fairPlayTips', title: 'Fair-play tips', text: 'The rules still apply when off.' }
 ];
 var themeRow = document.createElement('div');
 themeRow.className = 'option option-theme';
@@ -55,18 +55,19 @@ OPTIONS.forEach(function (o) {
   box.type = 'checkbox';
   box.setAttribute('role', 'switch');
   box.dataset.key = o.key;
+  if (o.invert) box.dataset.invert = '1';
   if (o.text) label.append(title, box, text); else label.append(title, box);
   optionsList.appendChild(label);
 });
 optionsList.addEventListener('change', function (e) {
   var key = e.target.dataset.key;
   if (!key) return;
-  if (key === 'quiet') state.quiet = e.target.checked; else state.settings[key] = e.target.checked;
+  if (key === 'quiet') state.quiet = !e.target.checked; else state.settings[key] = e.target.checked;
   save();
-  if (!state.quiet) sound(e.target.checked ? 'on' : 'off');
+  if (!state.quiet) sound(e.target.checked ? 'on' : 'off');   // (switching sounds on plays the click; switching them off is silent)
 });
 $('optionsBtn').addEventListener('click', function () {
-  optionsList.querySelectorAll('input').forEach(function (b) { b.checked = b.dataset.key === 'quiet' ? state.quiet : state.settings[b.dataset.key]; });
+  optionsList.querySelectorAll('input[data-key]').forEach(function (b) { b.checked = b.dataset.key === 'quiet' ? !state.quiet : state.settings[b.dataset.key]; });
   openDialog(optionsSheet);
 });
 optionsSheet.addEventListener('click', function (e) { if (e.target === optionsSheet) optionsSheet.close(); });
@@ -94,19 +95,28 @@ var DEV_ACTIONS = [
   { label: 'Unlock everything', run: function () { L.unlockAll(state.pet, Achievements, Personalities); return 'All goals finished and personalities earned.'; } },
   { label: 'Lock everything again', run: function () { L.lockAll(state.pet, Achievements, FreeUnlocks); return 'Progress wiped. Locked items are locked again.'; } },
   { label: 'Skip to tomorrow', run: function () { L.skipDays(state, 1); return 'A day has passed: daily limits are fresh.'; } },
-  { label: 'Reset names: yours, your birthday and Nibble\'s', run: function () {
+  { label: 'Reset names: yours, your birthday and Fumu\'s', run: function () {
     state.player = { name: '', birthday: '' };
-    state.pet.name = 'Nibble';
+    state.pet.name = 'Fumu';
     save();
     applyPet();
     showName();
     refreshGift();
-    return 'Your name and birthday are empty again and he is back to Nibble. Open Pet to see the pencil wiggle.';
+    return 'Your name and birthday are empty again and he is back to Fumu. Open Pet to see the pencil wiggle.';
   } },
-  { label: 'Make Nibble ask for a snack', run: function () { return devWish(); } },
+  { label: 'Test a Claude alert', run: function () { devSheet.close(); return devAlert('claude'); } },
+  { label: 'Test a note alert', run: function () { devSheet.close(); return devAlert('note'); } },
+  { label: 'Test a link alert', run: function () { devSheet.close(); return devAlert('link'); } },
+  { label: 'Test a task reminder', run: function () {
+    devSheet.close();
+    var item = { id: 'test', text: 'A test reminder', emoji: '⏰', time: '', done: false };
+    if (typeof window.deskRemind === 'function' && window.deskRemind([item])) return 'Reminder card shown.';
+    say('A test reminder: time for your task!', 3000); return 'Said as a bubble (the card is for the desktop app).';
+  } },
+  { label: 'Make Fumu ask for a snack', run: function () { return devWish(); } },
   { label: 'Pretend it is the next special day (gifts)', run: function () { return devGiftCalendar(); } },
   { label: 'Shut today\'s gift boxes again', run: function () { return devGiftReset(); } },
-  { label: 'Make Nibble suggest an item', run: function () { return devSuggest(); } },
+  { label: 'Make Fumu suggest an item', run: function () { return devSuggest(); } },
   { label: 'Fill with sample items', run: function () {
     if (isTodo()) { state.items = L.sortByDue(state.items.concat(sampleTodos()), todayKey()); return 'Sample to-dos added.'; }
     state.items = state.items.concat(L.parseState(null, newId).items); return 'Sample items added.';

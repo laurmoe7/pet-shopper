@@ -146,13 +146,14 @@ test('a finished shopping trip counts once a day', () => {
   assert.equal(L.progress(pet, tidy, day(2)).count, 2);
 });
 
-test('Mochi, Cat, Dog, Pig, the top hat, boy cap and cow hoodie are free; the rest are locked at first', () => {
+test('Birdie, Mochi, Cat, Dog, Pig, the top hat, boy cap and cow hoodie are free; the rest are locked at first', () => {
   const pet = fresh();
   const open = (k, id) => L.isUnlocked(pet, k, id, Achievements, FreeUnlocks);
-  for (const id of ['mochi', 'pig', 'kitty', 'puppy']) assert.ok(open('species', id), id);
-  for (const id of ['bunny', 'birdie', 'cow', 'hamster']) assert.ok(!open('species', id), id);
+  for (const id of ['birdie', 'mochi', 'pig', 'kitty', 'puppy']) assert.ok(open('species', id), id);
+  for (const id of ['bunny', 'cow', 'hamster']) assert.ok(!open('species', id), id);
   assert.ok(!open('skin', 'penguin'), 'the penguin skin is earned');
   assert.ok(open('skin', 'parrot'), 'the parrot skin is free for now');
+  assert.ok(open('skin', 'pigeon'), 'the pigeon skin is free: new players start with it');
   assert.ok(open('hat', 'none'));
   assert.ok(open('hat', 'tophat'));
   assert.ok(open('hat', 'cap'));

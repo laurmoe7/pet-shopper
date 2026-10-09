@@ -1,4 +1,4 @@
-// Treats: now and then Nibble asks for a snack (a little thought cloud with the food in it) and you feed it by tapping the cloud.
+// Treats: now and then Fumu asks for a snack (a little thought cloud with the food in it) and you feed it by tapping the cloud.
 // Up to three a day, each one once; they count for goals and personalities like shopping does (same daily limits),
 // but never for the Top 10. Nothing is lost by ignoring a wish: the cloud goes away by itself.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
@@ -20,10 +20,19 @@ function scheduleWish(ms) {
 }
 /** @returns {boolean} Whether it is a good moment to ask: awake, not busy, nothing open, not bedtime. */
 function mayWish() {
-  return !busy && !document.hidden && !wishWord && suggestEl.hidden && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') && !stage.classList.contains('night-lamp') &&
+  // the small desktop window stays uncluttered: no "tap to feed me" clouds there (the big list window still has them)
+  return !document.documentElement.classList.contains('desktop-pet') && !busy && !document.hidden && !wishWord && suggestEl.hidden && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') && !stage.classList.contains('night-lamp') &&
     !document.querySelector('dialog[open]:not(#roomSheet)');
 }
-/** Nibble asks for a snack he has not had today. @param {boolean} [force] Ask now whatever else is going on (the developer tool). */
+/** @returns {number} How many times the cloud was tapped to feed him (device only; players from before it was counted start from the number of asks). */
+function wishFeeds() {
+  try {
+    var n = localStorage.getItem('nibble-wish-fed');
+    return n === null ? (+localStorage.getItem('nibble-wish-asks') || 0) : (+n || 0);
+  } catch (e) { return 0; }
+}
+var WISH_LEARNED = 4;   // after this many feedings the "Tap to feed" label and the how-to line are no longer needed
+/** Fumu asks for a snack he has not had today. @param {boolean} [force] Ask now whatever else is going on (the developer tool). */
 function askForTreat(force) {
   var word = L.nextWish(state.pet, new Date(), Math.random);
   if (!word) { scheduleWish(wishDelay([30 * 60000, 10 * 60000])); return; }   // all treats used today: look again much later
@@ -37,10 +46,11 @@ function askForTreat(force) {
   clearInterval(wishHop);
   wishHop = setInterval(wishPose, 5000);
   sound('ooh');
-  // the first few asks say how it works
-  var asks = 0;
-  try { asks = +localStorage.getItem('nibble-wish-asks') || 0; localStorage.setItem('nibble-wish-asks', String(asks + 1)); } catch (e) { /* storage blocked */ }
-  if (asks < 4) say(pick(['tap my thought cloud to feed me!', 'psst… tap the cloud, I want ' + (WISH_NAME[word] || word) + '!']), 2600);
+  // until you have fed him a few times the label and the first lines say how it works
+  var learned = wishFeeds() >= WISH_LEARNED;
+  wishEl.classList.toggle('wish-learned', learned);
+  try { localStorage.setItem('nibble-wish-asks', String((+localStorage.getItem('nibble-wish-asks') || 0) + 1)); } catch (e) { /* storage blocked */ }
+  if (!learned) say(pick(['tap my thought cloud to feed me!', 'psst… tap the cloud, I want ' + (WISH_NAME[word] || word) + '!']), 2600);
   else say(pick(['could I have ' + (WISH_NAME[word] || word) + '?', 'ooh… ' + word + '?', 'I\'m peckish…', 'snack time?']), 1800);
   clearTimeout(wishGone);
   wishGone = setTimeout(function () { dropWish(false); }, WISH_STAYS_MS);
@@ -72,6 +82,7 @@ wishEl.addEventListener('click', function (e) {
   var from = wishEl.getBoundingClientRect();
   dropWish(given.ok);
   if (!given.ok) return;
+  try { localStorage.setItem('nibble-wish-fed', String(wishFeeds() + 1)); } catch (e) { /* storage blocked */ }
   var item = L.createItem(word, {}, 'treat');   // no added time: a free treat counts straight away
   item.treat = true;
   var goals = creditEaten(item, now);
@@ -97,10 +108,10 @@ function thankForTreat() {
 
 scheduleWish(wishDelay(WISH_FIRST_MS));
 
-/** Developer tool: makes Nibble ask for a snack right now. @returns {string} What happened. */
+/** Developer tool: makes Fumu ask for a snack right now. @returns {string} What happened. */
 function devWish() {
   if (wishWord) return 'He is already asking for ' + wishWord + '. Tap the cloud above his head.';
   if (!L.nextWish(state.pet, new Date(), Math.random)) return 'All ' + L.TREATS_PER_DAY + ' treats are used for today. "Skip to tomorrow" gives fresh ones.';
   askForTreat(true);
-  return 'Nibble is asking for ' + wishWord + '. Close this sheet and tap the cloud.';
+  return 'Fumu is asking for ' + wishWord + '. Close this sheet and tap the cloud.';
 }

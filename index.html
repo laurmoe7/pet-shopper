@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Nibble's List</title>
+<title>Fumufumu</title>
 <meta name="description" content="A grocery list with a little pet who eats what you check off.">
 <meta name="theme-color" content="#fdf1f3">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="icon" href="icon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
 <link rel="apple-touch-icon" href="icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,7 +21,7 @@
   <header class="scene" id="scene">
     <div class="scene-bar">
       <!-- tap the title to swap between the shopping list and the to-do list (app-todo.js) -->
-      <h1 class="brand" id="brand" role="button" tabindex="0" aria-label="Switch between the shopping list and the to-do list"><span class="pet-name" id="brandName">Nibble</span><span class="brand-sub" id="brandSub">'s <span class="brand-kind" id="brandKind">shopping list</span></span><svg class="brand-swap" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h9.5M9.5 3 12.5 6 9.5 9M13 11H3.5M6.5 8 3.5 11l3 3"/></svg><span class="brand-due" id="brandDue" hidden></span></h1>
+      <h1 class="brand" id="brand" role="button" tabindex="0" aria-label="Switch between the shopping list and the to-do list"><span class="pet-name" id="brandName">Fumu</span><span class="brand-sub" id="brandSub">'s <span class="brand-kind" id="brandKind">shopping list</span></span><svg class="brand-swap" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h9.5M9.5 3 12.5 6 9.5 9M13 11H3.5M6.5 8 3.5 11l3 3"/></svg><span class="brand-due" id="brandDue" hidden></span></h1>
       <div class="scene-tools">
         <button class="pill-btn gear-btn" id="optionsBtn" type="button" aria-label="Options"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 2.6h3.4l.5 2.6c.6.2 1.2.5 1.7.9l2.5-.9 1.7 2.9-2 1.7c.1.6.1 1.3 0 1.9l2 1.7-1.7 2.9-2.5-.9c-.5.4-1.1.7-1.7.9l-.5 2.6h-3.4l-.5-2.6c-.6-.2-1.2-.5-1.7-.9l-2.5.9-1.7-2.9 2-1.7c-.1-.6-.1-1.3 0-1.9l-2-1.7 1.7-2.9 2.5.9c.5-.4 1.1-.7 1.7-.9z"/><circle cx="12" cy="11.6" r="3"/></svg></button>
       </div>
@@ -49,9 +50,9 @@
       </svg></button>
       <div class="bubble" id="bubble" role="status" aria-live="polite" hidden></div>
       <!-- a daydream: a thought cloud with something from the list -->
-      <!-- what Nibble is asking for (app-treats.js): tap it to feed him -->
+      <!-- what Fumu is asking for (app-treats.js): tap it to feed him -->
       <button type="button" class="wish" id="wish" hidden><span class="wish-cloud" id="wishCloud"></span><span class="wish-tag" aria-hidden="true">Tap to feed</span><span class="wish-dot d1"></span><span class="wish-dot d2"></span></button>
-      <!-- what Nibble suggests buying: it stays on the stage, so it does not scroll with the list -->
+      <!-- what Fumu suggests buying: it stays on the stage, so it does not scroll with the list -->
       <div class="suggest" id="suggest" hidden>
         <button type="button" class="suggest-btn" id="suggestBtn"></button>
         <button type="button" class="text-btn suggest-no" id="suggestNo" aria-label="No thanks">✕</button>
@@ -59,7 +60,7 @@
       <!-- today's gift box (app-gift.js): tap to open it -->
       <button type="button" class="gift" id="gift" hidden aria-label="Gift"><span class="gift-img" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="6" y="20" width="36" height="24" rx="5" fill="#ffb3c7" stroke="#5b4239" stroke-width="2.4"/><rect x="3" y="13" width="42" height="11" rx="4.5" fill="#ffb3c7" stroke="#5b4239" stroke-width="2.4"/><path d="M24 13 V44" stroke="#fff6ec" stroke-width="6"/><path d="M24 13 C16 3 8 8 15 13 M24 13 C32 3 40 8 33 13" fill="none" stroke="#5b4239" stroke-width="2.4" stroke-linecap="round"/></svg></span><span class="gift-count"></span></button>
       <div class="dream" id="dream" aria-hidden="true" hidden><span class="dream-dot d1"></span><span class="dream-dot d2"></span><span class="dream-cloud" id="dreamCloud"></span></div>
-      <div class="pet" id="pet" data-state="sleepy" data-species="mochi" data-arms="rest" aria-label="Nibble, your pet">
+      <div class="pet beaked" id="pet" data-state="sleepy" data-species="birdie" data-skin="pigeon" data-arms="rest" aria-label="Fumu, your pet">
         <div class="squash"><svg viewBox="0 0 160 150" class="pet-svg" aria-hidden="true">
           <defs>
             <!-- a slight wobble so the lines look drawn by hand -->
@@ -79,6 +80,8 @@
             <!-- the rainbow axolotl's pastel body and the pigeon's shiny neck -->
             <linearGradient id="axoRainbow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc9dc"/><stop offset=".25" stop-color="#ffe2bd"/><stop offset=".45" stop-color="#fff3b8"/><stop offset=".65" stop-color="#ccf2d8"/><stop offset=".82" stop-color="#c9e5ff"/><stop offset="1" stop-color="#e2d3ff"/></linearGradient>
             <linearGradient id="pigeonSheen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8fd9bf"/><stop offset=".5" stop-color="#b9a3e8"/><stop offset="1" stop-color="#8fd9bf"/></linearGradient>
+            <linearGradient id="pigeonChest" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5b3cc" stop-opacity="0"/><stop offset=".45" stop-color="#f5b3cc" stop-opacity=".1"/><stop offset="1" stop-color="#f5b3cc" stop-opacity=".34"/></linearGradient>
+            <radialGradient id="pigeonIris" cx=".5" cy=".38" r=".7"><stop offset="0" stop-color="#ffc56e"/><stop offset="1" stop-color="#f0832e"/></radialGradient>
             <!-- the Siamese mask: darkest round the nose, fading out towards the eyes and cheeks -->
             <radialGradient id="siameseFade" cx=".5" cy=".58" r=".5"><stop offset="0" stop-color="#7a5a49" stop-opacity=".92"/><stop offset=".45" stop-color="#86685a" stop-opacity=".8"/><stop offset="1" stop-color="#a98670" stop-opacity="0"/></radialGradient>
           </defs>
@@ -368,8 +371,15 @@
               <g data-sk="ragdoll" class="ragdoll">
                 <path class="ragdoll-mask" d="M32 96 C28 80 40 64 56 62 C66 61 72 66 76 72 L80 78 L84 72 C88 66 94 61 104 62 C120 64 132 80 128 96 C124 106 110 108 100 102 C94 98 90 94 86 92 L80 96 L74 92 C70 94 66 98 60 102 C50 108 36 106 32 96 Z"/>
               </g>
+              <!-- the old pigeon (kept in case the new one is not wanted): grey, a shiny neck band, small wing nubs -->
+              <g data-sk="oldpigeon" class="oldpigeon">
+                <path class="oldpigeon-sheen" clip-path="url(#bodyClip)" d="M-4 100 C34 124 126 124 164 100 L164 114 C126 138 34 138 -4 114 Z"/>
+                <path class="skin-outline" d="M80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 Z"/>
+              </g>
+              <!-- the pigeon: lilac-grey, a faint pink chest, a shiny neck band right to the outline, orange eyes (see the pigeon rules in styles.css) -->
               <g data-sk="pigeon" class="pigeon">
-                <path class="pigeon-sheen" d="M18 106 C40 122 120 122 142 106 C143 112 143 118 141 123 C118 135 42 135 19 123 C17 118 17 112 18 106 Z"/>
+                <rect class="pigeon-chest" x="0" y="108" width="160" height="40" clip-path="url(#bodyClip)"/>
+                <path class="pigeon-sheen" clip-path="url(#bodyClip)" d="M-4 100 C34 122 126 122 164 100 L164 118 C126 140 34 140 -4 118 Z"/>
                 <path class="skin-outline" d="M80 139 C41 139 13 129 13 102 C13 70 36 38 80 38 C124 38 147 70 147 102 C147 129 119 139 80 139 Z"/>
               </g>
 
@@ -422,6 +432,7 @@
               <g data-sk="longhair" class="lh-face"><ellipse class="lh-muzzle" cx="80" cy="105" rx="25" ry="14"/></g>
               <path data-sk="penguin" class="belly" d="M80 58 C104 58 131 78 131 104 C131 126 110 135 80 135 C50 135 29 126 29 104 C29 78 56 58 80 58 Z"/>
               <ellipse data-sk="penguin" class="belly belly-under" cx="80" cy="100" rx="42" ry="30"/>
+              <g data-sk="thrush" class="thrush" clip-path="url(#bodyClip)"><ellipse cx="80" cy="118" rx="41" ry="25" fill="#f6eddc"/><path d="M52 106.2 C53.65 107.7 53.5 109.5 52 109.65 C50.5 109.5 50.35 107.7 52 106.2Z" fill="#7a5a44"/><path d="M62 109.2 C63.65 110.7 63.5 112.5 62 112.65 C60.5 112.5 60.35 110.7 62 109.2Z" fill="#7a5a44"/><path d="M72 111.2 C73.65 112.7 73.5 114.5 72 114.65 C70.5 114.5 70.35 112.7 72 111.2Z" fill="#7a5a44"/><path d="M88 111.2 C89.65 112.7 89.5 114.5 88 114.65 C86.5 114.5 86.35 112.7 88 111.2Z" fill="#7a5a44"/><path d="M98 109.2 C99.65 110.7 99.5 112.5 98 112.65 C96.5 112.5 96.35 110.7 98 109.2Z" fill="#7a5a44"/><path d="M108 106.2 C109.65 107.7 109.5 109.5 108 109.65 C106.5 109.5 106.35 107.7 108 106.2Z" fill="#7a5a44"/><path d="M57 116.2 C58.65 117.7 58.5 119.5 57 119.65 C55.5 119.5 55.35 117.7 57 116.2Z" fill="#7a5a44"/><path d="M68 119.2 C69.65 120.7 69.5 122.5 68 122.65 C66.5 122.5 66.35 120.7 68 119.2Z" fill="#7a5a44"/><path d="M80 121.2 C81.65 122.7 81.5 124.5 80 124.65 C78.5 124.5 78.35 122.7 80 121.2Z" fill="#7a5a44"/><path d="M92 119.2 C93.65 120.7 93.5 122.5 92 122.65 C90.5 122.5 90.35 120.7 92 119.2Z" fill="#7a5a44"/><path d="M103 116.2 C104.65 117.7 104.5 119.5 103 119.65 C101.5 119.5 101.35 117.7 103 116.2Z" fill="#7a5a44"/><path d="M63 126.2 C64.65 127.7 64.5 129.5 63 129.65 C61.5 129.5 61.35 127.7 63 126.2Z" fill="#7a5a44"/><path d="M97 126.2 C98.65 127.7 98.5 129.5 97 129.65 C95.5 129.5 95.35 127.7 97 126.2Z" fill="#7a5a44"/></g>
               <ellipse data-sk="parrot" class="belly parrot-belly" cx="80" cy="113" rx="33" ry="21"/>
               <g data-sp="cow">
                 <path class="spot" d="M30 84 C28 72 40 66 48 72 C55 77 50 90 42 92 C35 94 31 90 30 84 Z"/>
@@ -447,10 +458,16 @@
                   <ellipse cx="102" cy="92" rx="4.6" ry="5.2" class="eye-r ink"/>
                   <circle cx="56.6" cy="90" r="1.6" class="eye-l glint"/>
                   <circle cx="100.6" cy="90" r="1.6" class="eye-r glint"/>
+                  <circle data-sk="pigeon" cx="60.2" cy="94.6" r="1.4" class="eye-l glint glint2"/>
+                  <circle data-sk="pigeon" cx="104.2" cy="94.6" r="1.4" class="eye-r glint glint2"/>
                   <!-- heavy lids for when it's up at night (.pet.tired); in the pupils' group so they move with the eyes -->
                   <path class="tired-lid eye-l" d="M52.4 90.6 Q58 88.6 63.6 90.6"/>
                   <path class="tired-lid eye-r" d="M96.4 90.6 Q102 88.6 107.6 90.6"/>
                 </g>
+              </g>
+              <g data-eyes="dizzy" class="line dizzy-eyes"><!-- spiral eyes (dizzy after being spun round when carried) -->
+                <g class="eye-l" transform="translate(58 92)"><path class="dz" d="M0 0 a1.2 1.2 0 0 1 2.4 0 a2.4 2.4 0 0 1 -4.8 0 a3.8 3.8 0 0 1 7.6 0 a5.2 5.2 0 0 1 -10.4 0"/></g>
+                <g class="eye-r" transform="translate(102 92)"><path class="dz" d="M0 0 a1.2 1.2 0 0 1 2.4 0 a2.4 2.4 0 0 1 -4.8 0 a3.8 3.8 0 0 1 7.6 0 a5.2 5.2 0 0 1 -10.4 0"/></g>
               </g>
               <g data-eyes="closed" class="line">
                 <path class="eye-l" d="M52 92 Q58 97 64 92"/>
@@ -528,6 +545,7 @@
               </g>
               <path data-sk="chicken" class="chicken-wattle" d="M77.4 101.4 C75.4 107.6 78 111 80 108.6 C82 111 84.6 107.6 82.6 101.4 Z"/>
               <path data-sp="birdie" class="beak" d="M75 99 Q80 95 85 99 Q80 103 75 99Z"/>
+              <path data-sk="pigeon" class="pigeon-cere" d="M77.4 97 Q80 92.6 82.6 97 Q80 98.6 77.4 97 Z"/>
               <path data-sk="kiwi" class="beak kiwi-beak" d="M77.4 96 Q80 94.2 82.6 96 Q82.3 112 80.7 125 Q80 127 79.3 125 Q77.7 112 77.4 96 Z"/>
               <path data-sk="parrot" class="beak parrot-beak" d="M72.5 97 C73 91 87 91 87.5 97 C88 103 85 108 80.5 108.6 C77 108 74.4 105 74 102 C73 100 72.6 98.6 72.5 97 Z"/>
               <!-- hats are drawn at a slightly bigger scale, centred on the top of the head -->
@@ -567,7 +585,18 @@
                    translate property), and asleep it lies tilted under the right paw; drawn before the arms so the paw is on it -->
               <g class="teddy-hug" transform="translate(94 96) rotate(18 19 21) scale(.95)"></g>
               <!-- little nubbly arms -->
-              <g class="arm arm-l"><!-- the to-do list's clipboard (app-todo.js ticks its lines): it is in the hand, so it moves with the arm --><g class="clipboard" id="clipboard" data-ticks="0" transform="translate(-47 1) rotate(-110 80 128)">
+              
+              
+              
+              <g class="soles"><g class="sole-part" transform="rotate(-12.0 54.0 137.5)"><g class="sole-paw"><ellipse class="sole-base" cx="54.0" cy="137.5" rx="8.3" ry="9.13"/><ellipse class="sole-bean" cx="54.0" cy="140.32" rx="4.15" ry="3.15"/><ellipse class="sole-bean" cx="47.86" cy="134.51" rx="1.74" ry="2.24" transform="rotate(-22 47.86 134.51)"/><ellipse class="sole-bean" cx="51.68" cy="131.19" rx="1.74" ry="2.24" transform="rotate(-8 51.68 131.19)"/><ellipse class="sole-bean" cx="56.32" cy="131.19" rx="1.74" ry="2.24" transform="rotate(8 56.32 131.19)"/><ellipse class="sole-bean" cx="60.14" cy="134.51" rx="1.74" ry="2.24" transform="rotate(22 60.14 134.51)"/></g><g class="sole-hoof"><ellipse class="sole-hoof-base" cx="54.0" cy="137.5" rx="8.3" ry="9.13"/><ellipse class="sole-hoof-toe" cx="50.02" cy="136.34" rx="3.49" ry="6.14" transform="rotate(4 50.02 136.34)"/><ellipse class="sole-hoof-toe" cx="57.98" cy="136.34" rx="3.49" ry="6.14" transform="rotate(-4 57.98 136.34)"/></g><g class="sole-bird"><ellipse class="sole-bird-toe" cx="48.69" cy="133.02" rx="2.16" ry="4.48" transform="rotate(-30 48.69 133.02)"/><ellipse class="sole-bird-toe" cx="54.0" cy="130.53" rx="2.16" ry="4.48"/><ellipse class="sole-bird-toe" cx="59.31" cy="133.02" rx="2.16" ry="4.48" transform="rotate(30 59.31 133.02)"/><ellipse class="sole-bird-pad" cx="54.0" cy="138.33" rx="5.64" ry="4.81"/><circle class="sole-claw" cx="47.03" cy="129.53" r="1.0"/><circle class="sole-claw" cx="54.0" cy="126.38" r="1.0"/><circle class="sole-claw" cx="60.97" cy="129.53" r="1.0"/></g><g class="sole-frog"><ellipse class="sole-frog-base" cx="54.0" cy="138.75" rx="7.97" ry="6.97"/><ellipse class="sole-frog-toe" cx="48.52" cy="132.85" rx="2.57" ry="2.57"/><ellipse class="sole-frog-toe" cx="54.0" cy="130.86" rx="2.57" ry="2.57"/><ellipse class="sole-frog-toe" cx="59.48" cy="132.85" rx="2.57" ry="2.57"/></g></g><g class="sole-part" transform="rotate(12.0 106.0 137.5)"><g class="sole-paw"><ellipse class="sole-base" cx="106.0" cy="137.5" rx="8.3" ry="9.13"/><ellipse class="sole-bean" cx="106.0" cy="140.32" rx="4.15" ry="3.15"/><ellipse class="sole-bean" cx="112.14" cy="134.51" rx="1.74" ry="2.24" transform="rotate(22 112.14 134.51)"/><ellipse class="sole-bean" cx="108.32" cy="131.19" rx="1.74" ry="2.24" transform="rotate(8 108.32 131.19)"/><ellipse class="sole-bean" cx="103.68" cy="131.19" rx="1.74" ry="2.24" transform="rotate(-8 103.68 131.19)"/><ellipse class="sole-bean" cx="99.86" cy="134.51" rx="1.74" ry="2.24" transform="rotate(-22 99.86 134.51)"/></g><g class="sole-hoof"><ellipse class="sole-hoof-base" cx="106.0" cy="137.5" rx="8.3" ry="9.13"/><ellipse class="sole-hoof-toe" cx="109.98" cy="136.34" rx="3.49" ry="6.14" transform="rotate(-4 109.98 136.34)"/><ellipse class="sole-hoof-toe" cx="102.02" cy="136.34" rx="3.49" ry="6.14" transform="rotate(4 102.02 136.34)"/></g><g class="sole-bird"><ellipse class="sole-bird-toe" cx="111.31" cy="133.02" rx="2.16" ry="4.48" transform="rotate(30 111.31 133.02)"/><ellipse class="sole-bird-toe" cx="106.0" cy="130.53" rx="2.16" ry="4.48"/><ellipse class="sole-bird-toe" cx="100.69" cy="133.02" rx="2.16" ry="4.48" transform="rotate(-30 100.69 133.02)"/><ellipse class="sole-bird-pad" cx="106.0" cy="138.33" rx="5.64" ry="4.81"/><circle class="sole-claw" cx="112.97" cy="129.53" r="1.0"/><circle class="sole-claw" cx="106.0" cy="126.38" r="1.0"/><circle class="sole-claw" cx="99.03" cy="129.53" r="1.0"/></g><g class="sole-frog"><ellipse class="sole-frog-base" cx="106.0" cy="138.75" rx="7.97" ry="6.97"/><ellipse class="sole-frog-toe" cx="111.48" cy="132.85" rx="2.57" ry="2.57"/><ellipse class="sole-frog-toe" cx="106.0" cy="130.86" rx="2.57" ry="2.57"/><ellipse class="sole-frog-toe" cx="100.52" cy="132.85" rx="2.57" ry="2.57"/></g></g></g>
+              <g class="outfit-soles"></g>
+              <g class="arm arm-l"><!-- the to-do list's clipboard (app-todo.js ticks its lines): it is in the hand, so it moves with the arm -->
+                <g class="wand wand-l">
+                  <path class="wd-edge" d="M27 122 L27 156"/><path class="wd-stick" d="M27 122 L27 156"/>
+                  <path class="wd-band" d="M27 130 L27 134"/>
+                  <path class="wd-star" d="M27 142 l2.6 5.6 l6 .8 l-4.4 4.2 l1.1 6 l-5.3 -2.9 l-5.3 2.9 l1.1 -6 l-4.4 -4.2 l6 -.8 Z" transform="translate(0 4)"/>
+                </g>
+                <g class="clipboard" id="clipboard" data-ticks="0" transform="translate(-47 1) rotate(-110 80 128)">
                   <!-- the front (paper) faces out at his side; while he writes or inspects it turns round so the paper faces him -->
                   <g class="cb-front">
                     <rect class="cb-board" x="66.5" y="112" width="27" height="32" rx="3.4"/>
@@ -585,8 +614,13 @@
                     <rect class="cb-clip" x="73.6" y="109" width="12.8" height="6.4" rx="1.8"/>
                     <circle class="cb-hole" cx="80" cy="140" r="1.4"/>
                   </g>
-                </g><ellipse cx="27" cy="117" rx="7" ry="9"/><path class="arm-cuff" d="M20.4 120.4 Q27 123.4 33.6 120.4"/><path class="arm-hand" d="M21.4 121.6 Q27 124 32.6 121.6 Q32 126 27 126 Q22 126 21.4 121.6 Z"/><path data-sp="frog" class="frog-web frog-web-hand" d="M21.2 122 Q19.4 133 23 132 Q25 128.5 27 132.5 Q29 128.5 31 132 Q34.6 133 32.8 122"/><g class="paw-part paw-hand"><path class="paw-line paw-toe-lines" d="M24.6 122 v3 M29.4 122 v3"/><g class="paw-beans"><path class="paw-bean" d="M24.7 119.8 a2.3 1.7 0 1 0 4.6 0 a2.3 1.7 0 1 0 -4.6 0 Z"/><circle class="paw-bean" cx="24" cy="122.8" r="1.05"/><circle class="paw-bean" cx="27" cy="123.7" r="1.05"/><circle class="paw-bean" cx="30" cy="122.8" r="1.05"/></g></g><g class="hoof-part hoof-hand"><path class="hoof" d="M20.3 119.6 Q27 122.8 33.7 119.6 Q33.2 126.2 27 126.2 Q20.8 126.2 20.3 119.6 Z"/><path class="hoof-split" d="M27 121.6 V126"/></g><ellipse class="arm-hi" cx="25" cy="114" rx="2.4" ry="3"/></g>
+                </g><ellipse cx="27" cy="117" rx="7" ry="9"/><path data-sk="pigeon" class="wing-bar" d="M20.4 116 Q27 112.6 33.6 116"/><path class="arm-cuff" d="M20.4 120.4 Q27 123.4 33.6 120.4"/><path class="arm-hand" d="M21.4 121.6 Q27 124 32.6 121.6 Q32 126 27 126 Q22 126 21.4 121.6 Z"/><path data-sp="frog" class="frog-web frog-web-hand" d="M21.2 122 Q19.4 133 23 132 Q25 128.5 27 132.5 Q29 128.5 31 132 Q34.6 133 32.8 122"/><g class="paw-part paw-hand"><path class="paw-line paw-toe-lines" d="M24.6 122 v3 M29.4 122 v3"/><g class="paw-beans"><path class="paw-bean" d="M24.7 119.8 a2.3 1.7 0 1 0 4.6 0 a2.3 1.7 0 1 0 -4.6 0 Z"/><circle class="paw-bean" cx="24" cy="122.8" r="1.05"/><circle class="paw-bean" cx="27" cy="123.7" r="1.05"/><circle class="paw-bean" cx="30" cy="122.8" r="1.05"/></g></g><g class="hoof-part hoof-hand"><path class="hoof" d="M20.3 119.6 Q27 122.8 33.7 119.6 Q33.2 126.2 27 126.2 Q20.8 126.2 20.3 119.6 Z"/><path class="hoof-split" d="M27 121.6 V126"/></g><ellipse class="arm-hi" cx="25" cy="114" rx="2.4" ry="3"/></g>
               <g class="arm arm-r"><!-- props for the right hand on the to-do list: a chubby pencil and a magnifying glass (app-todo.js shows one at a time) -->
+                <g class="wand"><!-- a cartoon magic wand for Claude's alerts (app-send.js castWand): drawn along the arm, so it points up when the arm is raised -->
+                  <path class="wd-edge" d="M133 122 L133 156"/><path class="wd-stick" d="M133 122 L133 156"/>
+                  <path class="wd-band" d="M133 130 L133 134"/>
+                  <path class="wd-star" d="M133 142 l2.6 5.6 l6 .8 l-4.4 4.2 l1.1 6 l-5.3 -2.9 l-5.3 2.9 l1.1 -6 l-4.4 -4.2 l6 -.8 Z" transform="translate(0 4)"/>
+                </g>
                 <g class="pencil" transform="translate(121 128) rotate(-52) scale(1.4)">
                   <path class="pc-wood" d="M0 5 L7 .6 V9.4 Z"/><path class="pc-lead" d="M0 5 L2.1 3.7 V6.3 Z"/>
                   <rect class="pc-body" x="7" y=".6" width="14" height="8.8" rx="2.4"/>
@@ -599,7 +633,7 @@
                 <g class="magnifier">
                   <path class="mg-handle-edge" d="M128.9 120.2 L141.5 134.5"/>
                   <path class="mg-handle" d="M128.9 120.2 L141.5 134.5"/>
-                </g><ellipse cx="133" cy="117" rx="7" ry="9"/><path class="arm-cuff" d="M126.4 120.4 Q133 123.4 139.6 120.4"/><path class="arm-hand" d="M127.4 121.6 Q133 124 138.6 121.6 Q138 126 133 126 Q128 126 127.4 121.6 Z"/><path data-sp="frog" class="frog-web frog-web-hand" d="M127.2 122 Q125.4 133 129 132 Q131 128.5 133 132.5 Q135 128.5 137 132 Q140.6 133 138.8 122"/><g class="paw-part paw-hand"><path class="paw-line paw-toe-lines" d="M130.6 122 v3 M135.4 122 v3"/><g class="paw-beans"><path class="paw-bean" d="M130.7 119.8 a2.3 1.7 0 1 0 4.6 0 a2.3 1.7 0 1 0 -4.6 0 Z"/><circle class="paw-bean" cx="130" cy="122.8" r="1.05"/><circle class="paw-bean" cx="133" cy="123.7" r="1.05"/><circle class="paw-bean" cx="136" cy="122.8" r="1.05"/></g></g><g class="hoof-part hoof-hand"><path class="hoof" d="M126.3 119.6 Q133 122.8 139.7 119.6 Q139.2 126.2 133 126.2 Q126.8 126.2 126.3 119.6 Z"/><path class="hoof-split" d="M133 121.6 V126"/></g><ellipse class="arm-hi" cx="131" cy="114" rx="2.4" ry="3"/>
+                </g><ellipse cx="133" cy="117" rx="7" ry="9"/><path data-sk="pigeon" class="wing-bar" d="M126.4 116 Q133 112.6 139.6 116"/><path class="arm-cuff" d="M126.4 120.4 Q133 123.4 139.6 120.4"/><path class="arm-hand" d="M127.4 121.6 Q133 124 138.6 121.6 Q138 126 133 126 Q128 126 127.4 121.6 Z"/><path data-sp="frog" class="frog-web frog-web-hand" d="M127.2 122 Q125.4 133 129 132 Q131 128.5 133 132.5 Q135 128.5 137 132 Q140.6 133 138.8 122"/><g class="paw-part paw-hand"><path class="paw-line paw-toe-lines" d="M130.6 122 v3 M135.4 122 v3"/><g class="paw-beans"><path class="paw-bean" d="M130.7 119.8 a2.3 1.7 0 1 0 4.6 0 a2.3 1.7 0 1 0 -4.6 0 Z"/><circle class="paw-bean" cx="130" cy="122.8" r="1.05"/><circle class="paw-bean" cx="133" cy="123.7" r="1.05"/><circle class="paw-bean" cx="136" cy="122.8" r="1.05"/></g></g><g class="hoof-part hoof-hand"><path class="hoof" d="M126.3 119.6 Q133 122.8 139.7 119.6 Q139.2 126.2 133 126.2 Q126.8 126.2 126.3 119.6 Z"/><path class="hoof-split" d="M133 121.6 V126"/></g><ellipse class="arm-hi" cx="131" cy="114" rx="2.4" ry="3"/>
                 <!-- the lens is drawn after the hand, so a sleeve never covers the eye seen through the glass -->
                 <g class="magnifier">
                   <g transform="translate(120 110) scale(1.3) translate(-120 -110)">
@@ -732,7 +766,7 @@
     <button type="button" id="roomBtn" aria-label="Room"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8 1.8 12h3v8.4h14.4V12h3z" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><rect x="9.6" y="13.6" width="4.8" height="6.8" rx="1" fill="#fff" opacity=".85"/></svg></span><span class="dock-label">Room</span></button>
     <button type="button" id="shopBtn" class="shop-only" disabled aria-label="Shop: coming soon"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8.4h14l-1 11.6a1.6 1.6 0 0 1-1.6 1.4H7.6A1.6 1.6 0 0 1 6 20z" fill="currentColor"/><path d="M8.8 10.4V7.2a3.2 3.2 0 0 1 6.4 0v3.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="dock-label">Shop</span></button>
     <button type="button" id="calBtn" aria-label="Calendar: birthdays and plans"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3.4" fill="currentColor"/><rect x="3" y="5" width="18" height="5.2" rx="2.6" fill="currentColor" stroke="currentColor" stroke-width="1"/><path d="M8 2.8v4M16 2.8v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><g fill="#fff" opacity=".9"><circle cx="8" cy="14" r="1.3"/><circle cx="12" cy="14" r="1.3"/><circle cx="16" cy="14" r="1.3"/><circle cx="8" cy="18" r="1.3"/><circle cx="12" cy="18" r="1.3"/></g></svg></span><span class="dock-label">Calendar</span></button>
-          <button type="button" id="profileBtn" aria-label="Profile: your name and birthday"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4.6" fill="currentColor"/><path d="M3.6 21c0-4.6 3.8-7.4 8.4-7.4s8.4 2.8 8.4 7.4z" fill="currentColor"/></svg></span><span class="dock-label">Profile</span></button>
+          <button type="button" id="profileBtn" aria-label="Profile: your name and birthday"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4.6" fill="currentColor"/><path d="M3.6 21c0-4.6 3.8-7.4 8.4-7.4s8.4 2.8 8.4 7.4z" fill="currentColor"/></svg></span><span class="dock-label">Profile</span><span class="dock-badge" id="profileBadge" hidden aria-hidden="true"></span></button>
   </nav>
 </div>
 
@@ -809,8 +843,8 @@
     <div class="dress-panel" data-tab="pet" role="tabpanel">
       <div class="field">
         <span class="field-label" id="petNameLabel">Name</span>
-        <div class="name-show" id="petNameShow"><span id="petNameText">Nibble</span><button type="button" class="name-edit" id="petNameEdit" aria-label="Edit name"><span class="name-pen" aria-hidden="true">✎</span> Edit</button></div>
-        <input id="petNameInput" type="text" maxlength="16" autocomplete="off" enterkeyhint="done" placeholder="Nibble" aria-labelledby="petNameLabel" hidden>
+        <div class="name-show" id="petNameShow"><span id="petNameText">Fumu</span><button type="button" class="name-edit" id="petNameEdit" aria-label="Edit name"><span class="name-pen" aria-hidden="true">✎</span> Edit</button></div>
+        <input id="petNameInput" type="text" maxlength="16" autocomplete="off" enterkeyhint="done" placeholder="Fumu" aria-labelledby="petNameLabel" hidden>
       </div>
       <fieldset class="species">
         <legend class="field-label">Species</legend>
@@ -953,7 +987,7 @@
   <form method="dialog" class="picker-inner">
     <div id="recipeInputBox" class="recipe-inputbox">
       <h2 id="recipeTitle">Let's cook <span class="cook-heart" aria-hidden="true">♥</span></h2>
-      <p class="stamp-sub">✦ <span class="pet-name">Nibble</span> will find the ingredients ✦</p>
+      <p class="stamp-sub">✦ <span class="pet-name">Fumu</span> will find the ingredients ✦</p>
       <textarea id="recipeInput" class="recipe-input" rows="4" placeholder="Paste a recipe link…&#10;or type one ingredient per line" maxlength="4000" enterkeyhint="go"></textarea>
       <button type="button" class="pill-btn recipe-go" id="recipeGo">Find ingredients</button>
       <p class="recipe-status" id="recipeStatus" role="status" aria-live="polite"></p>
@@ -1013,7 +1047,7 @@
   <form method="dialog" class="picker-inner">
     <h2 id="goalsTitle">Goals</h2>
     <p class="stamp-sub">✦ little things to work towards ✦</p>
-    <p class="goals-intro"><span id="goalsFeed">Feed <span class="pet-name">Nibble</span></span><span id="goalsIntroText"> to unlock new friends and hats. Only a few count each day, so come back tomorrow for more.</span><span id="goalsFairPlay"> Items count once they've been on your list for 15 minutes, and each item once a day.</span></p>
+    <p class="goals-intro"><span id="goalsFeed">Feed <span class="pet-name">Fumu</span></span><span id="goalsIntroText"> to unlock new friends and hats. Only a few count each day, so come back tomorrow for more.</span><span id="goalsFairPlay"> Items count once they've been on your list for 15 minutes, and each item once a day.</span></p>
     <ul class="goal-list" id="goalList"></ul>
   </form>
 </dialog>
@@ -1023,7 +1057,7 @@
     <h2 id="favTitle">Top 10</h2>
     <p class="stamp-sub">✦ the things you love most ✦</p>
     <ol class="fav-list" id="favList"></ol>
-    <p class="fav-empty" id="favEmpty" hidden><span class="pet-name">Nibble</span> hasn't seen you buy anything yet. Tick things off and your favourites show up here.</p>
+    <p class="fav-empty" id="favEmpty" hidden><span class="pet-name">Fumu</span> hasn't seen you buy anything yet. Tick things off and your favourites show up here.</p>
   </form>
 </dialog>
 <dialog class="picker pet-sheet cal-sheet cal-full" id="calSheet" aria-label="Calendar">
@@ -1064,7 +1098,7 @@
 
 <dialog class="picker pet-sheet profile-sheet" id="profileSheet" aria-labelledby="profileTitle">
   <form method="dialog" class="picker-inner" id="profileForm" autocomplete="off">
-    <h2 id="profileTitle">Profile</h2>
+    <div class="profile-head"><h2 id="profileTitle">Profile</h2><button type="button" class="profile-gift" id="profileGift" hidden aria-label="Gift"><span class="profile-gift-img" aria-hidden="true"></span><span class="profile-gift-count" id="profileGiftCount"></span></button></div>
     <div class="profile-card"><span class="profile-avatar" id="profileAvatar" aria-hidden="true">♡</span><b id="profileHello">Hello, friend!</b></div>
     <div class="profile-fields">
     <div class="field">
@@ -1109,6 +1143,59 @@
     <div class="anim-list" id="animList"></div>
   </form>
 </dialog>
+<dialog class="picker pet-sheet sync-sheet" id="syncSheet" aria-labelledby="syncTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="syncTitle">Sync log</h2>
+    <p class="dev-status" id="syncSummary"></p>
+    <div class="sync-bar">
+      <button type="button" class="pill-btn" id="syncCheck">Check merging</button>
+      <button type="button" class="pill-btn" id="syncClear">Clear the log</button>
+    </div>
+    <div class="sync-list" id="syncList"></div>
+  </form>
+</dialog>
+<dialog class="picker pet-sheet account-sheet" id="accountSheet" aria-labelledby="accountTitle">
+  <form method="dialog" class="picker-inner" id="accountForm">
+    <h2 id="accountTitle">Backup &amp; sync</h2>
+    <div id="accountOut">
+      <p class="option-text">Syncs your shopping list and <span class="pet-name">Fumu</span> between devices. No password: you get a code.</p>
+      <div class="account-actions"><button type="button" class="pill-btn" id="acctMake">Start a backup</button></div>
+      <label class="account-field"><span class="option-title">Already have a code?</span>
+        <input id="acctCode" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX" aria-label="Your backup code"></label>
+      <div class="account-actions"><button type="button" class="pill-btn" id="acctJoin">Join with this code</button></div>
+    </div>
+    <div id="accountIn" hidden>
+      <p class="account-status" id="acctStatus" aria-live="polite"></p>
+      <p class="account-code" id="acctShown" aria-live="polite"></p>
+      <p class="option-text" id="acctWarn" hidden>Keep this code safe. It is the only way to restore your data, and anyone with it can see your list and pet.</p>
+      <div class="account-actions">
+        <button type="button" class="pill-btn" id="acctNow">Sync now</button>
+        <button type="button" class="pill-btn" id="acctShow">Show my code</button>
+        <button type="button" class="pill-btn" id="acctCopy" hidden>Copy code</button>
+        <button type="button" class="pill-btn" id="acctLink" hidden>Copy link for another device</button>
+      </div>
+      <div class="account-actions">
+        <button type="button" class="pill-btn" id="acctLeave">Sign out of this device</button>
+        <button type="button" class="pill-btn danger" id="acctDelete">Delete my backup</button>
+      </div>
+    </div>
+    <p class="dev-status" id="acctMsg" aria-live="polite"></p>
+    <details class="account-adv"><summary>Server address</summary>
+      <input id="acctServer" type="url" autocomplete="off" spellcheck="false" placeholder="https://…workers.dev" aria-label="Sync server address">
+    </details>
+  </form>
+</dialog>
+<dialog class="picker pet-sheet send-sheet" id="sendSheet" aria-labelledby="sendTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="sendTitle">Send to another device</h2>
+    <p class="option-text">Paste a link or type a note. <span class="pet-name">Fumu</span> brings it to your other device.</p>
+    <textarea id="sendText" rows="2" maxlength="4000" placeholder="https://… or a note" aria-label="What to send"></textarea>
+    <div class="account-actions"><button type="button" class="pill-btn" id="sendGo">Send</button></div>
+    <p class="dev-status" id="sendMsg" aria-live="polite"></p>
+    <h3 class="send-recent-head" id="sendRecentHead" hidden>Received lately</h3>
+    <div class="send-recent" id="sendRecent"></div>
+  </form>
+</dialog>
 <dialog class="picker pet-sheet" id="optionsSheet" aria-labelledby="optionsTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="optionsTitle">Options</h2>
@@ -1127,10 +1214,11 @@
     <label class="option">
       <span class="option-title">Skip the 15-minute wait</span>
       <input type="checkbox" role="switch" id="devNoWait">
-      <span class="option-text">Items count as soon as you tick them off. The once-a-day and daily limits still apply.</span>
+      <span class="option-text">Items count as soon as you tick them off.</span>
     </label>
     <div class="dev-actions" id="devActions"></div>
     <button type="button" class="pill-btn" id="animBtn">Animation player</button>
+    <button type="button" class="pill-btn" id="syncBtn">Sync log</button>
     <p class="dev-status" id="devStatus" aria-live="polite"></p>
   </form>
 </dialog>
@@ -1138,6 +1226,8 @@
 <script src="foods.js"></script>
 <script src="tasks.js"></script>
 <script src="logic.js"></script>
+<script src="sync.js"></script>
+<script src="send.js"></script>
 <script src="achievements.js"></script>
 <script src="wardrobe.js"></script>
 <script src="decor.js"></script>
@@ -1167,6 +1257,10 @@
 <script src="app-gift.js"></script>
 <script src="app-profile.js"></script>
 <script src="app-options.js"></script>
+<script src="app-sync.js"></script>
+<script src="app-account.js"></script>
+<script src="app-send.js"></script>
+<script src="app-desktop.js"></script>
 <script src="app-anims.js"></script>
 <script src="app-voice.js"></script>
 <script src="app-recipe.js"></script>
@@ -1175,6 +1269,8 @@
 <script src="app-idle.js"></script>
 <script src="app-toy.js"></script>
 <script src="app-bedtime.js"></script>
+<script src="app-night.js"></script>
+<script src="app-ring.js"></script>
 <script src="app-fade.js"></script>
 <script src="app-select.js"></script>
 <script src="app-start.js"></script>

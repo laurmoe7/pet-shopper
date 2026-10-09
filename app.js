@@ -3,8 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '244';
-
+var BUILD = '382';
 
 var STORE_KEY = 'nibble.v1';
 var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -14,7 +13,7 @@ var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: red
 var L = PetLogic;
 var nextId = Date.now();
 /** @returns {string} A new unique item id. */
-function newId() { return String(nextId++); }
+function newId() { return String(nextId++) + (state && state.sync ? '-' + state.sync.device : ''); }   // the device name keeps ids apart when devices sync
 var state = load();
 
 /** Reads saved state from the phone, or starts fresh with the sample list. */
@@ -23,8 +22,12 @@ function load() {
   try { raw = localStorage.getItem(STORE_KEY); } catch (e) { /* storage blocked */ }
   return L.parseState(raw, newId);
 }
+/** Called after each save with what changed since the last one, for the sync log (app-sync.js sets it). */
+var syncHook = null;
 /** Saves the whole state on the phone. Fails quietly if storage is blocked. */
 function save() {
+  var found = Sync.stamp(state, Date.now());   // notes what changed, for syncing devices later (sync.js)
+  if (syncHook && (found.items || found.deleted || found.fields.length)) syncHook(found);
   try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* storage blocked */ }
 }
 
@@ -202,6 +205,8 @@ document.addEventListener('click', function (e) {
   function measure() { if (!document.documentElement.classList.contains('typing')) document.documentElement.style.setProperty('--dock-h', dock.offsetHeight + 'px'); }
   measure();
   addEventListener('resize', measure);
+  // also when the bar itself appears, disappears or changes size without the window changing (the desktop app hides it in the small window)
+  if (window.ResizeObserver) new ResizeObserver(measure).observe(dock);
 })();
 
 // ---------- elements ----------
@@ -224,7 +229,7 @@ function petNow() {
 function updateEmptyHint() {
   var name = document.createElement('span');
   name.className = 'pet-name';
-  name.textContent = state.pet.name || 'Nibble';
+  name.textContent = state.pet.name || 'Fumu';
   var night = L.isNight(petNow()), asleep = night && L.restingMood(state.items, petNow(), state.pet.dozing) === 'sleepy';
   if (state.mode === 'todo') {
     emptyHint.replaceChildren(name, asleep

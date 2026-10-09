@@ -1,7 +1,7 @@
 {
   "name": "Varken Sketchpad",
   "short_name": "Sketchpad",
-  "description": "Draw skins, hats, toys, backgrounds and furniture over Nibble's pets.",
+  "description": "Draw skins, hats, toys, backgrounds and furniture over the pets in Fumufumu.",
   "id": "./sketch.html",
   "start_url": "./sketch.html",
   "scope": "./sketch.html",

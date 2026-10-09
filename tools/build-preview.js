@@ -9,8 +9,8 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 const out = path.join(root, 'preview');
 const read = (f) => fs.readFileSync(path.join(root, f), 'utf8');
-const SCRIPTS = ['foods', 'tasks', 'logic', 'achievements', 'wardrobe', 'decor', 'bonuses', 'recipe', 'personalities', 'skins', 'sounds',
-  'app', 'app-pet', 'app-actions', 'app-petsheet', 'app-dress', 'app-closet', 'app-shoot', 'app-photo', 'app-room', 'app-goals', 'app-events', 'app-todo', 'app-calendar', 'app-stamps', 'app-personality', 'app-favourites', 'app-petting', 'app-treats', 'app-gift', 'app-profile', 'app-options', 'app-anims', 'app-voice', 'app-recipe', 'backdrops', 'app-backdrop', 'app-idle', 'app-toy', 'app-bedtime', 'app-fade', 'app-select', 'app-start'];
+const SCRIPTS = ['foods', 'tasks', 'logic', 'sync', 'send', 'achievements', 'wardrobe', 'decor', 'bonuses', 'recipe', 'personalities', 'skins', 'sounds',
+  'app', 'app-pet', 'app-actions', 'app-petsheet', 'app-dress', 'app-closet', 'app-shoot', 'app-photo', 'app-room', 'app-goals', 'app-events', 'app-todo', 'app-calendar', 'app-stamps', 'app-personality', 'app-favourites', 'app-petting', 'app-treats', 'app-gift', 'app-profile', 'app-options', 'app-sync', 'app-account', 'app-send', 'app-desktop', 'app-anims', 'app-voice', 'app-recipe', 'backdrops', 'app-backdrop', 'app-idle', 'app-toy', 'app-bedtime', 'app-night', 'app-ring', 'app-fade', 'app-select', 'app-start'];
 
 if (process.argv.includes('--bump')) {
   const app = read('app.js');
@@ -27,7 +27,7 @@ const body = html
 const inline = (s, tag) => s.replace(new RegExp('</' + tag, 'gi'), '<\\/' + tag);
 
 const page = [
-  "<title>Nibble's List</title>",
+  "<title>Fumufumu</title>",
   '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@500&family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap">',
   '<style>' + inline(read('styles.css'), 'style') + '</style>',
   body,

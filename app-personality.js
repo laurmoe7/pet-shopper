@@ -115,8 +115,8 @@ $('suggestNo').addEventListener('click', function () {
   if (!busy) { setFace(FACES.sheepish); talk('decline', ['ok, maybe next time', 'aww, fine'], 1200); setTimeout(function () { if (!busy) settle(); }, 1000); }
 });
 
-/** Developer tool: makes Nibble suggest an item right now. @returns {string} What happened. */
+/** Developer tool: makes Fumu suggest an item right now. @returns {string} What happened. */
 function devSuggest() {
   if (isTodo()) return 'Suggestions are only for the shopping list. Tap the title to switch.';
-  return offerSuggestion(true) ? 'Nibble is suggesting ' + suggestBtn.dataset.text + '. Close this sheet to see it.' : 'Nothing left to suggest: every favourite is already on the list.';
+  return offerSuggestion(true) ? 'Fumu is suggesting ' + suggestBtn.dataset.text + '. Close this sheet to see it.' : 'Nothing left to suggest: every favourite is already on the list.';
 }

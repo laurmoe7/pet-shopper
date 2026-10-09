@@ -1,4 +1,4 @@
-/* Layout: a sticky stage where Nibble sits on its cushion, the list scrolls underneath, the pet buttons sit in a
+/* Layout: a sticky stage where Fumu sits on its cushion, the list scrolls underneath, the pet buttons sit in a
    bottom bar. Look: a kraft-cardboard box (see "the cardboard look" at the end), rounded Japanese type. */
 :root {
   --bg: #dcb987;
@@ -11,7 +11,7 @@
   --outline: #7b5a3d;
   /* outlines of the toy, lamp, bed, quilt, clipboard and teddy: the pet's own dark brown, in light and dark mode */
   --prop-ink: #5b4239;
-  /* how tall a bottom sheet may be: short enough that Nibble stays in view above it */
+  /* how tall a bottom sheet may be: short enough that Fumu stays in view above it */
   --sheet-h: max(240px, min(75vh, calc(100dvh - 320px)));
   --sheet-h-s: max(220px, min(62vh, calc(100dvh - 320px)));
   --accent: #ff8fab;
@@ -24,7 +24,7 @@
   --danger: #c4505f;
   --shadow: rgba(110, 72, 36, .28);
 
-  /* Nibble's own colours stay the same in both themes */
+  /* Fumu's own colours stay the same in both themes */
   --pet-skin: #fff4ec;
   --pet-skin-hi: #ffffff;
   --pet-skin-shade: #ffe4d8;
@@ -181,7 +181,7 @@ button { font: inherit; color: inherit; }
 @keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes twinkle { 0%, 100% { transform: scale(.6) rotate(0); opacity: .25; } 50% { transform: scale(1) rotate(20deg); opacity: .8; } }
 
-/* ---------- Nibble ---------- */
+/* ---------- Fumu ---------- */
 .skin-under { fill: var(--pet-skin); }
 .skin { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 2.6; stroke-linejoin: round; }
 .shine { fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; opacity: .8; }
@@ -228,9 +228,10 @@ button { font: inherit; color: inherit; }
 /* birds (PetLogic.isBird) talk and eat with their beak, so they have no separate mouth */
 .pet.beaked[data-mouth] [data-mouth] { display: none; }
 .pet.beaked .beak { transform-box: fill-box; transform-origin: 50% 50%; }
+/* a beak never changes size: chewing and opening only move it down a little */
 .pet.beaked[data-mouth="chew"] .beak { animation: beak-chew .16s ease-in-out infinite alternate; }
-.pet.beaked[data-mouth="open"] .beak, .pet.beaked[data-mouth="o"] .beak { transform: scale(1.1, 1.45); }
-@keyframes beak-chew { from { transform: scale(1, 1); } to { transform: scale(1.08, 1.4); } }
+.pet.beaked[data-mouth="open"] .beak, .pet.beaked[data-mouth="o"] .beak { translate: 0 1.3px; }
+@keyframes beak-chew { from { translate: 0 0; } to { translate: 0 1.6px; } }
 
 /* species: colours and which parts show */
 .pet { --pet-skin: #fff8f2; --pet-skin-shade: #ffe4d8; --pet-ear-in: #ffc4cf; --pet-mark: #f3c9a8; }
@@ -327,6 +328,7 @@ button { font: inherit; color: inherit; }
 .pet[data-eyes="closed"] [data-eyes="closed"],
 .pet[data-eyes="happy"] [data-eyes="happy"],
 .pet[data-eyes="sparkle"] [data-eyes="sparkle"],
+.pet[data-eyes="dizzy"] [data-eyes="dizzy"],
 .pet[data-eyes="squint"] [data-eyes="squint"],
 .pet[data-eyes="teary"] [data-eyes="teary"],
 .pet[data-eyes="confused"] [data-eyes="confused"],
@@ -850,6 +852,9 @@ button { font: inherit; color: inherit; }
 /* the room panel stays low and has no dimmed backdrop, so the room is always in view */
 .picker.room-sheet { position: fixed; inset: auto 0 0 0; max-height: calc(42vh + var(--dock-h, 64px)); z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
 .picker.room-sheet .picker-inner { max-height: calc(42vh + var(--dock-h, 64px) - 14px) !important; }
+/* in the desktop app's whole-app window the room sheet is as tall as the other tall menus */
+html.desktop-list .picker.room-sheet { max-height: calc(var(--sheet-h) + var(--dock-h, 64px)); }
+html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--sheet-h) + var(--dock-h, 64px) - 14px) !important; }
 .hat-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .hat-strip button { gap: 4px; padding: 8px 4px; min-width: 0; font-size: .78rem; line-height: 1.2; text-align: center; }
 .hat-strip svg { width: 100%; max-width: 64px; height: 40px; overflow: visible; }
@@ -1177,7 +1182,7 @@ button { font: inherit; color: inherit; }
 .cnose { fill: #ee3a4c; stroke: var(--pet-ink); stroke-width: 1.4; }
 .cnose-shine { fill: #fff; opacity: .85; }
 
-/* treats (a wish is Nibble asking for one) */
+/* treats (a wish is Fumu asking for one) */
 
 /* medals and the #1 pedestal in the Top 10 */
 .fav-rank .medal { width: 22px; height: 28px; display: block; margin: 0 auto; }
@@ -1301,7 +1306,8 @@ button { font: inherit; color: inherit; }
 .pet[data-species="hedgehog"][data-skin="fasthedgehog"] { --pet-skin: #fff6ea; --pet-skin-shade: #eed8bd; --pet-ear-in: #ffc4cf; --pet-mark: #3d78e6; }
 .pet[data-species="frog"][data-skin="toad"] { --pet-skin: #c9a878; --pet-skin-shade: #a98a5c; --pet-mark: #a98a5c; }
 /* skins added in build 115 */
-.pet[data-skin="pigeon"] { --pet-skin: #b4bccd; --pet-skin-shade: #f2939f; }
+.pet[data-skin="oldpigeon"] { --pet-skin: #b4bccd; --pet-skin-shade: #f2939f; }
+.pet[data-skin="pigeon"] { --pet-skin: #c0bddb; --pet-skin-shade: #f2939f; }
 .pet[data-skin="orangecat"] { --pet-skin: #f8b96f; --pet-skin-shade: #eb9d4f; --pet-ear-in: #ffc4cf; --pet-mark: #dd8530; }
 .pet[data-skin="munchkin"] { --pet-skin: #fffaf4; --pet-skin-shade: #efe4d8; --pet-ear-in: #ffc4cf; --pet-mark: #a9a3ae; }
 .pet[data-skin="ragdoll"] { --pet-skin: #fff7ec; --pet-skin-shade: #efdfcd; --pet-ear-in: #f6b4c0; --pet-mark: #b49a86; }
@@ -1316,7 +1322,7 @@ button { font: inherit; color: inherit; }
 .pet[data-skin="potbelly"] { --pet-skin: #9a94a2; --pet-skin-shade: #837d8c; --pet-ear-in: #e8a6b6; }
 .pet[data-species="hedgehog"][data-skin="brandt"] { --pet-skin: #f3e1cc; --pet-skin-shade: #dfc4a6; --pet-ear-in: #f2a8b6; --pet-mark: #5a4a43; }
 .pet[data-species="axolotl"][data-skin="rainbowaxo"] { --pet-skin: #fbe6f2; --pet-skin-shade: #f0cfe4; }
-.pet[data-skin="pigeon"] [data-sk~="pigeon"], .pet[data-skin="orangecat"] [data-sk~="orangecat"], .pet[data-skin="munchkin"] [data-sk~="munchkin"],
+.pet[data-skin="pigeon"] [data-sk~="pigeon"], .pet[data-skin="oldpigeon"] [data-sk~="oldpigeon"], .pet[data-skin="orangecat"] [data-sk~="orangecat"], .pet[data-skin="munchkin"] [data-sk~="munchkin"],
 .pet[data-skin="ragdoll"] [data-sk~="ragdoll"], .pet[data-skin="shiba"] [data-sk~="shiba"], .pet[data-skin="frenchie"] [data-sk~="frenchie"],
 .pet[data-skin="shepherd"] [data-sk~="shepherd"], .pet[data-skin="scottishfold"] [data-sk~="scottishfold"],
 .pet[data-skin="chicken"] [data-sk~="chicken"], .pet[data-skin="potbelly"] [data-sk~="potbelly"],
@@ -1335,11 +1341,26 @@ button { font: inherit; color: inherit; }
 .pet[data-species="puppy"] .up-ears .ear-g { transform-origin: 50% 100%; }
 .pet[data-species="puppy"] .up-ears .ear { fill: var(--pet-skin); }
 .pet[data-skin="shepherd"] .up-ears .ear { fill: #4d3d37; }
-/* pigeon: grey with a shiny green-purple neck, a grey beak and pink feet; no tuft */
-.pet[data-skin="pigeon"] .tuft { display: none; }
-.pigeon-sheen { fill: url(#pigeonSheen); }
-.pet[data-skin="pigeon"] .beak { fill: #8a8592; }
-.pet[data-skin="pigeon"] .arm ellipse { fill: #9ea7ba; }
+/* old pigeon (kept, pick "Pigeon (old)"): grey with a shiny green-purple neck, a grey beak and pink feet; no tuft */
+.pet[data-skin="oldpigeon"] .tuft, .pet[data-skin="pigeon"] .tuft { display: none; }
+.oldpigeon-sheen, .pigeon-sheen { fill: url(#pigeonSheen); }
+.pet[data-skin="oldpigeon"] .beak, .pet[data-skin="pigeon"] .beak { fill: #8a8592; }
+.pet[data-skin="oldpigeon"] .arm ellipse { fill: #9ea7ba; }
+/* pigeon: lilac-grey, a faint pink chest under a shiny neck band that reaches the outline, bigger wings with a pale bar,
+   a white bump over the beak, pink feet and big orange eyes with two glints (no pupil, so they look soft, not stern) */
+.pigeon-chest { fill: url(#pigeonChest); }
+.pet[data-skin="pigeon"] .arm > ellipse { fill: #a9a7cc; rx: 8.8px; ry: 12.4px; cy: 118px; }
+.pet[data-skin="pigeon"] .arm .arm-hi { display: none; }
+.wing-bar { fill: none; stroke: #fff; stroke-width: 2.1; stroke-linecap: round; }
+.pigeon-cere { fill: #f6f3f8; stroke: var(--pet-ink); stroke-width: 1.3; stroke-linejoin: round; }
+.pet[data-skin="pigeon"] .bird-part .bird-toe { fill: #f3869b; }
+.pet[data-skin="pigeon"] .pupils .ink { fill: url(#pigeonIris); stroke: #6b4a3e; stroke-width: 1; rx: 5.43px; ry: 6.14px; }
+.pet[data-skin="pigeon"] .pupils .glint:not(.glint2).eye-l { cx: 56.1px; cy: 90px; r: 2.83px; }
+.pet[data-skin="pigeon"] .pupils .glint:not(.glint2).eye-r { cx: 100.1px; cy: 90px; r: 2.83px; }
+.pet[data-skin="pigeon"] .pupils .glint2 { r: 1.42px; }
+/* in sleeves the wing goes back to the normal arm size (the sleeve ends in its cuff with the hand peeking out) and the pale bar is hidden */
+.pet.sleeved .wing-bar { display: none; }
+.pet[data-skin="pigeon"].sleeved .arm > ellipse { rx: 7px; ry: 9px; cy: 117px; }
 /* cats */
 .pet[data-skin="orangecat"] .tabby-muzzle { fill: #fff1df; }
 .munchkin-cap { fill: #aca6b2; }
@@ -1463,7 +1484,7 @@ button { font: inherit; color: inherit; }
 .lh-muzzle { fill: #dcb88a; }
 .kiwi-fuzz path { fill: none; stroke: #8a6a45; stroke-width: 1.7; stroke-linecap: round; }
 .kiwi-beak { fill: #f3dca8; }
-.pet[data-skin="kiwi"] .beak { animation: none !important; transform: none !important; }
+.pet[data-skin="kiwi"] .beak { animation: none !important; transform: none !important; translate: none !important; }
 .dutch path { fill: #8e8a99; }
 .pet[data-skin="dutch"] [data-sp="bunny"] .ear { fill: #8e8a99; }
 /* frog: webbed hands and feet, and a wide smile instead of the small one */
@@ -1630,7 +1651,7 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
 .pet.has-teddy.hugging .teddy-hug { translate: 0 0; }
 .pet.tucked .arm-r { transition: transform .55s ease-in-out, translate .55s ease-in-out; }
 .pet.tucked[data-arms="grab"] .arm-r { transform: translate(36px, -12px) rotate(-18deg); translate: -6px -4px; }
-/* the teddy's lines are Nibble's own dark brown, so he does not look faded next to him */
+/* the teddy's lines are Fumu's own dark brown, so he does not look faded next to him */
 .teddy-fur { fill: #b9814f; stroke: #5b4239; stroke-width: 1.8; stroke-linejoin: round; }
 .teddy-in { fill: #dfae80; }
 .teddy-muzzle { fill: #f0d2ad; stroke: #5b4239; stroke-width: 1.2; }
@@ -1990,6 +2011,8 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 /* walking about: one foot then the other */
 .pet:is(.stroll, .waddle, .shuffle, .scoot, .boogie, .walking) :is(.foot-l, .shoe-l) { animation: step .5s ease-in-out infinite; }
 .pet:is(.stroll, .waddle, .shuffle, .scoot, .boogie, .walking) :is(.foot-r, .shoe-r) { animation: step .5s ease-in-out -.25s infinite; }
+.pet.plod.walking :is(.foot-l, .shoe-l) { animation-duration: 1.3s; }
+.pet.plod.walking :is(.foot-r, .shoe-r) { animation-duration: 1.3s; animation-delay: -.65s; }
 /* hops: both feet tuck up in the air */
 .pet.hop :is(.foot-side, .shoe-l, .shoe-r) { animation: tuck .5s ease-in-out; }
 .pet.hopsmall :is(.foot-side, .shoe-l, .shoe-r) { animation: tuck .45s ease-in-out; }
@@ -2006,6 +2029,40 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 .pet.sit :is(.foot-l, .shoe-l) { animation: sit-l 2.6s ease-in-out; }
 .pet.sit :is(.foot-r, .shoe-r) { animation: sit-r 2.6s ease-in-out; }
 @media (prefers-reduced-motion: reduce) { .foot-side, .shoe-l, .shoe-r { animation: none !important; } }
+/* sitting for a while (on a window edge on the desktop; app-desktop.js adds .seated): he sinks a little, his feet come out in front, tilted
+   so the soles show: toe beans, split hooves, pigeon toes, frog toes. Every species has a pair. */
+.sole-part, .sole-paw, .sole-hoof, .sole-bird, .sole-frog { display: none; }
+.pet.seated:not(.walking, .shod) .sole-part { display: inline; }
+.pet.seated:not(.walking, .shod):is([data-species="kitty"], [data-species="puppy"], [data-species="bunny"], [data-species="hamster"], [data-species="hedgehog"], [data-species="mouse"], [data-species="dragon"], [data-species="mochi"], [data-species="monkey"]) .sole-paw,
+.pet.seated:not(.walking, .shod):is([data-species="pig"], [data-species="cow"]) .sole-hoof,
+.pet.seated:not(.walking, .shod)[data-species="birdie"] .sole-bird,
+.pet.seated:not(.walking, .shod):is([data-species="frog"], [data-species="axolotl"]) .sole-frog { display: inline; }
+.sole-frog-base { fill: var(--pet-skin-shade); stroke: var(--pet-ink); stroke-width: 2.2; }
+.sole-frog-toe { fill: var(--pet-skin); stroke: var(--pet-ink); stroke-width: 1.6; }
+.pet[data-species="cow"] .sole-hoof-base { fill: #6f5c5c; }
+.pet[data-species="cow"] .sole-hoof-toe { fill: #8a7474; }
+.pet[data-species="mochi"] { --sole-bean: #ffc4cf; }
+.pet[data-species="monkey"] .sole-base { fill: var(--monkey-face, #ffe3c4); }
+.pet[data-species="monkey"] { --sole-bean: #f0c9a4; }
+.pet.seated:not(.walking, .shod) :is(.foot, .paw-feet, .hoof-feet, .bird-feet, .frog-feet, .monkey-feet) { display: none; }
+.pet.seated:not(.walking) .pet-svg { translate: 0 3px; overflow: visible; }
+.outfit-soles { display: none; }
+.pet.seated.shod:not(.walking) .outfit-soles { display: inline; animation: sole-plop .5s ease-out; }
+.pet.seated.shod:not(.walking) :is(.outfit-feet, .soles, .foot, .foot-side, .foot-l, .foot-r, .paw-feet, .hoof-feet, .bird-feet, .frog-feet, .monkey-feet) { display: none !important; }
+.ss-boot { fill: #8a5f47; stroke: var(--pet-ink); stroke-width: 1.8; }
+.ss-boot-in { fill: #c08a62; stroke: none; }
+.ss-cuff circle { fill: #fff6ea; stroke: var(--pet-ink); stroke-width: 1.3; }
+.ss-tread { fill: none; stroke: #6e4a36; stroke-width: 1.2; stroke-linecap: round; }
+.ss-gold-in { fill: none; stroke: #c9962a; stroke-width: 1.2; stroke-linecap: round; }
+.sole-base { fill: var(--pet-skin-shade); stroke: var(--pet-ink); stroke-width: 2.2; }
+.sole-bean { fill: var(--sole-bean, #ff9fb5); stroke: none; }
+.sole-hoof-base { fill: #c98896; stroke: var(--pet-ink); stroke-width: 2.2; }
+.sole-hoof-toe { fill: #e3a9b6; stroke: var(--pet-ink); stroke-width: 1.3; }
+.sole-bird-pad { fill: #f3869b; stroke: var(--pet-ink); stroke-width: 1.8; }
+.sole-bird-toe { fill: #f3869b; stroke: var(--pet-ink); stroke-width: 1.8; }
+.sole-claw { fill: #fff3f0; stroke: var(--pet-ink); stroke-width: 1; }
+@keyframes sole-plop { 0% { transform: translate(0, -6px); opacity: 0; } 60% { transform: translate(0, 1px); opacity: 1; } 100% { transform: translate(0, 0); } }
+.pet.seated .sole-part { animation: sole-plop .5s ease-out; }
 /* more foot moves: shifting weight while rocking, tiptoes while sniffing and stretching, a wiggle,
    an impatient tap while thinking, and little dream twitches while asleep */
 @keyframes rock-l { 0%, 16%, 56%, 100% { transform: translate(0, 0); } 36% { transform: translate(0, -2.2px); } 76% { transform: translate(0, -.8px); } }
@@ -2054,7 +2111,7 @@ html[data-list="todo"] .item:not(.done) .item-text { cursor: pointer; }
 .task-note { margin: 8px 0 0; font-size: .82rem; color: var(--muted); }
 .task-actions { display: flex; justify-content: space-between; }
 .task-delete { color: var(--danger); text-decoration-color: var(--danger); }
-/* the clipboard Nibble holds while the to-do list is showing: one paw holds its side (the other stays free), and a line is ticked for each third of the list done */
+/* the clipboard Fumu holds while the to-do list is showing: one paw holds its side (the other stays free), and a line is ticked for each third of the list done */
 .pet .clipboard { display: none; }
 html[data-list="todo"] #pet:not([data-state="sleepy"]) .clipboard { display: inline; }
 .clipboard .cb-board { fill: #d49a5c; stroke: var(--prop-ink); stroke-width: 1.7; }
@@ -2131,7 +2188,9 @@ html[data-list="todo"] #pet.wishing[data-arms="idle"]:not(.desk):not(.tucked) .a
 @media (prefers-reduced-motion: reduce) { #pet.writing .arm-r > *, #pet.inspecting .magnifier .mg-eye, #pet.mg-aha .magnifier .mg-eye, #pet.mg-squint .magnifier .mg-open { animation: none; } #pet.mg-squint .magnifier .mg-open { transform: scale(1.08, .42); } }
 /* the right hand's props on the to-do list (app-todo.js): a chubby pencil for writing, a magnifying glass for inspecting.
    Both are drawn in the right arm so they move with it; the pet's `desk` pose brings both paws to the clipboard. */
-.arm .pencil, .arm .magnifier { display: none; }
+.arm .pencil, .arm .magnifier, .arm .wand { display: none; }
+#pet[data-prop="wand"] .arm-l .wand, html[data-list="todo"] #pet[data-prop="wand"] .arm-r .wand { display: inline; }
+html[data-list="todo"] #pet[data-prop="wand"] .arm-l .wand { display: none; }   /* on the to-do list his left hand holds the clipboard: the wand goes in the right */
 #pet[data-prop="pencil"] .arm-r .pencil, #pet[data-prop="glass"] .arm-r .magnifier { display: inline; }
 .pencil .pc-wood { fill: #f3d6a8; stroke: var(--prop-ink); stroke-width: 1.4; stroke-linejoin: round; }
 .pencil .pc-lead { fill: #5a4540; }
@@ -2259,13 +2318,20 @@ html::-webkit-scrollbar { display: none; }
 .page-fade.on { opacity: 1; }
 html.typing .page-fade { display: none; }
 
-/* developer tool: the animation player (app-anims.js), a low panel that leaves Nibble in view */
+/* developer tool: the animation player (app-anims.js), a low panel that leaves Fumu in view */
 .picker.anim-sheet { position: fixed; inset: auto 0 0 0; max-height: calc(var(--sheet-h-s) + var(--dock-h, 64px)); z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
 .picker.anim-sheet .picker-inner { max-height: calc(var(--sheet-h-s) + var(--dock-h, 64px) - 14px) !important; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
 .anim-bar { display: flex; align-items: center; gap: 8px; flex: none; }
 .anim-bar input[type="search"] { flex: 1; min-width: 0; padding: 7px 10px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: .9rem; }
 .anim-repeat { display: flex; align-items: center; gap: 4px; font-size: .8rem; font-weight: 700; white-space: nowrap; }
 #animStatus { flex: none; margin: 0; }
+.picker.sync-sheet { position: fixed; inset: auto 0 0 0; max-height: calc(var(--sheet-h-s) + var(--dock-h, 64px)); z-index: 20; box-shadow: 0 -4px 0 rgba(91, 66, 57, .12); }
+.picker.sync-sheet .picker-inner { max-height: calc(var(--sheet-h-s) + var(--dock-h, 64px) - 14px) !important; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+.sync-bar { display: flex; gap: 8px; flex: none; }
+.sync-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 20px; }
+.sync-row { display: flex; gap: 8px; padding: 5px 0; border-bottom: 1px dashed var(--line); font-size: .82rem; font-weight: 700; }
+.sync-row.error { color: var(--danger); }
+.sync-time { flex: none; color: var(--muted); font-variant-numeric: tabular-nums; }
 .anim-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 20px; }
 .anim-list h3 { margin: 8px 0 5px; font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
 .anim-chips { display: flex; flex-wrap: wrap; gap: 5px; }
@@ -2305,7 +2371,7 @@ html.typing .page-fade { display: none; }
 .closet-del.armed { background: #ffd9d4; color: #a3342b; border-color: #e58c84; }
 .closet-empty { grid-column: 1 / -1; }
 
-/* ---------- a wish: Nibble asking for a snack (app-treats.js) ---------- */
+/* ---------- a wish: Fumu asking for a snack (app-treats.js) ---------- */
 .wish { position: absolute; left: calc(50% - 100px * var(--pet-size, 1) + var(--walk-x, 0px)); top: 2px; z-index: 4; width: 58px; height: 62px; padding: 0; border: 0; background: none; cursor: pointer; animation: wish-in .4s cubic-bezier(.3, 1.6, .5, 1); }
 .wish[hidden] { display: none; }
 .wish-cloud { position: absolute; left: 0; top: 0; width: 58px; height: 44px; display: grid; place-items: center; background: var(--surface); border: 1.8px solid var(--outline); border-radius: 24px; box-shadow: 0 2px 0 var(--shadow); animation: wish-bob 3.4s ease-in-out .5s infinite; }
@@ -2337,7 +2403,7 @@ html.typing .page-fade { display: none; }
 .gift-next { margin: 0; text-align: center; }
 .gift-boxes { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
 .gift-box { display: grid; justify-items: center; gap: 2px; width: 92px; padding: 8px 4px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: .75rem; font-weight: 800; cursor: pointer; }
-.gift-box svg, .gift-box img { width: 52px; height: 52px; display: block; }
+.gift-box svg, .gift-box img { width: 52px; height: 52px; }
 .gift-box.opened { cursor: default; background: var(--bg); }
 .gift-box.opened svg { filter: grayscale(1); opacity: .45; }
 .gift-box.shaking svg { animation: gift-shake .5s ease-in-out; }
@@ -2686,7 +2752,7 @@ html[data-list="todo"] .recipe-btn { display: none; }
 @media (prefers-reduced-motion: reduce) { .recipe-more { animation: none; } }
 .picker.pet-sheet.recipe-sheet.results:not(.dress-full):not(.fav-full) .picker-inner { display: flex; flex-direction: column; overflow: hidden; }
 .recipe-sheet.results .recipe-result { flex: 1; }
-/* with ingredients showing, the sheet is kept low so Nibble stays in view above it */
+/* with ingredients showing, the sheet is kept low so Fumu stays in view above it */
 .picker.pet-sheet.recipe-sheet.results { max-height: calc(var(--recipe-h) + var(--dock-h, 64px)); }
 .picker.pet-sheet.recipe-sheet.results:not(.dress-full):not(.fav-full) .picker-inner { max-height: calc(var(--recipe-h) + var(--dock-h, 64px) - 14px); }
 .recipe-sheet { --recipe-h: max(260px, min(62vh, calc(100dvh - 345px))); }
@@ -2718,7 +2784,7 @@ html[data-list="todo"] .recipe-btn { display: none; }
 .photo-btn { padding: 10px 22px; }
 .photo-btn[hidden] { display: none; }
 
-/* the recipe helper is open: Nibble searches with the magnifying glass (app-recipe.js), sweeping it and his eyes about */
+/* the recipe helper is open: Fumu searches with the magnifying glass (app-recipe.js), sweeping it and his eyes about */
 #pet.searching:not([data-state="sleepy"], .tucked) .arm-r { transform: rotate(0deg); translate: -15px -16px; animation: search-sweep 2.6s ease-in-out infinite alternate; }
 #pet.searching:not([data-state="sleepy"], .tucked) .pupils { animation: search-look 2.6s ease-in-out infinite alternate; }
 #pet.searching.inspecting:not(.mg-aha) .magnifier .mg-eye { animation: mg-look 2.6s ease-in-out infinite alternate; }
@@ -2735,3 +2801,361 @@ html[data-list="todo"] .recipe-btn { display: none; }
 #pet.tucked .arm-r .magnifier, #pet[data-state="sleepy"] .arm-r .magnifier { display: none !important; }
 .done-more { display: block; margin: 4px auto 0; font-size: .85rem; }
 .done-more[hidden] { display: none; }
+/* thrush: warm brown with a cream belly, dark teardrop spots on the breast, a dark beak and pink-tan feet; no tuft */
+.pet[data-skin="thrush"] { --pet-skin: #a98256; --pet-skin-shade: #e5bda6; }
+.pet[data-skin="thrush"] [data-sk~="thrush"] { display: inline; }
+.pet[data-skin="thrush"] .beak { fill: #6d5646; }
+.pet[data-skin="thrush"] .arm ellipse { fill: #9a6b41; }
+.pet[data-skin="thrush"] .tuft { display: none; }
+.pet[data-skin="thrush"] .bird-part .bird-toe { fill: #e8b9a4; }
+
+/* Backup & sync sheet */
+.account-sheet .account-field { display: flex; flex-direction: column; gap: 4px; margin: 10px 0 4px; }
+.account-sheet input[type="text"], .account-sheet input[type="url"] { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1.5px solid var(--outline); border-radius: 12px; background: var(--surface); color: var(--ink); font: inherit; font-size: .9rem; letter-spacing: .04em; }
+.account-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.account-status { margin: 6px 0; font-weight: 700; }
+.account-code { margin: 6px 0; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1.05rem; font-weight: 800; letter-spacing: .06em; word-break: break-all; user-select: all; }
+.account-adv { margin-top: 10px; font-size: .85rem; }
+.account-adv summary { cursor: pointer; opacity: .75; }
+.account-adv input { margin-top: 6px; }
+.account-sheet .pill-btn.danger { color: var(--danger); }
+
+/* ---------- the desktop shell (app-desktop.js; only inside the Electron window in desktop/) ----------
+   'pet' mode: Fumu alone, everything else transparent. 'list' mode: the whole app with a small bar on top. */
+html.desktop-pet, html:root.desktop-pet body { background: none !important; }
+html.desktop-pet .scene-bar, html.desktop-pet .list-area, html.desktop-pet .dock, html.desktop-pet:not(.desk-backdrop) .backdrop, html.desktop-pet .room,
+html.desktop-pet .nightshade, html.desktop-pet .lamp, html.desktop-pet .lamp-light, html.desktop-pet .cart, html.desktop-pet .receipt,
+html.desktop-pet .cart-bag, html.desktop-pet .suggest, html.desktop-pet #deskBar { display: none !important; }
+html.desktop-pet .page-fade { display: none !important; }   /* the scrolling list's bottom fade would paint a band over the transparent window */
+html.desktop-pet, html.desktop-pet * { user-select: none; -webkit-user-select: none; }   /* no blue text selection on his speech bubble */
+html.desktop-pet .app { max-width: none; min-height: 0; height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; }
+html.desktop-pet .scene { position: static; padding: 0; background: none !important; }
+html.desktop-pet .scene::after { display: none; }
+html.desktop-pet .stage { width: 100vw; }   /* the stage keeps its own height at the bottom; the free room above is for the speech bubble */
+html.desktop-pet .stage .bubble { left: var(--vis-l, 0px) !important; right: calc(100vw - var(--vis-r, 100vw)) !important; top: auto !important; bottom: calc(100% - 24px); margin: 0 auto; max-width: calc(var(--vis-r, 100vw) - var(--vis-l, 0px) - 24px) !important; transform-origin: 50% 100% !important; }
+html.desktop-list #deskBar { display: flex; }
+/* the full-height sheets (calendar, Top 10, dressing room) start under the bar, not behind it */
+html.desktop-list .picker.pet-sheet:is(.cal-full, .fav-full, .dress-full) { inset: 34px 0 0 0; }
+#deskBar { display: none; position: fixed; top: 0; left: 0; right: 0; height: 34px; z-index: 50; align-items: center; gap: 8px; padding: 0 8px 0 14px;
+  background: var(--surface); color: var(--ink); border-bottom: 1.5px dashed var(--cb-edge, var(--outline)); -webkit-app-region: drag; user-select: none; font-weight: 800; font-size: .85rem; }
+#deskBar .desk-title { flex: 1; font-family: var(--font-display); }
+#deskBar button { -webkit-app-region: no-drag; border: 1.5px solid var(--outline); border-radius: 999px; background: var(--surface); color: var(--ink); font: inherit; font-size: .78rem; padding: 2px 10px; cursor: pointer; box-shadow: 0 2px 0 var(--outline); }
+html.desktop-list .app { padding-top: 34px; }
+html.desktop-list .scene { top: 34px; }
+/* the cushion (or the bed at night) is part of him: an invisible area under him catches clicks, so they don't pass through to the desktop */
+html.desktop-pet #pet::after { content: ""; position: absolute; left: calc(50% - 82px); width: 164px; bottom: -12px; height: 44px; border-radius: 22px; }
+html.desktop-pet .stage.bedtime #pet::after { left: calc(50% - 125px); width: 250px; height: 52px; display: block; }
+/* a daydream sits beside his head, not above it, so it never meets the speech bubble; its little dots lead back to him */
+html.desktop-pet .dream { left: calc(50% + 66px + var(--walk-x, 0px)); top: 34px; }
+html.desktop-pet .dream-dot.d1 { left: -4px; top: 44px; }
+html.desktop-pet .dream-dot.d2 { left: -12px; top: 54px; }
+
+/* ---------- Send to my PC (app-send.js) ---------- */
+.send-recent-head { margin: 6px 0 2px; font-size: .95rem; font-weight: 500; }
+.send-recent { display: flex; flex-direction: column; gap: 4px; flex: none; }
+.send-recent-row { display: flex; align-items: center; gap: 8px; padding: 3px 8px; border: 1.5px solid var(--outline); border-radius: 12px; background: var(--surface); }
+.send-recent-icon { width: 22px; height: 22px; flex: none; }
+.send-recent-text { flex: 1; min-width: 0; font-size: .88rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; word-break: break-word; }
+.send-recent-row .pill-btn { flex: none; padding: 4px 10px; font-size: .8rem; }
+.send-sheet textarea { flex: none; min-height: 52px; width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1.5px solid var(--outline); border-radius: 12px; background: var(--surface); color: var(--ink); font: inherit; font-size: .95rem; resize: none; margin: 8px 0 2px; }
+/* what arrived, on a card by Fumu: a picture, what it is, and Open / Copy / done */
+.inbox-card, .remind-card { position: absolute; left: 8px; right: 8px; top: 4px; z-index: 8; display: grid; grid-template-columns: 30px 1fr; gap: 2px 8px; align-items: center; padding: 6px 10px; border: 1.8px solid var(--outline); border-radius: 14px; background: var(--surface); color: var(--ink); box-shadow: 0 2px 0 var(--shadow); animation: pop .3s cubic-bezier(.3, 1.6, .5, 1); }
+.inbox-icon { width: 28px; height: 28px; grid-row: 1 / span 2; }
+.inbox-text { min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
+.inbox-text b { font-family: var(--font-display); font-weight: 500; font-size: .95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inbox-text span { font-size: .72rem; opacity: .7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inbox-actions { grid-column: 2; display: flex; gap: 6px; margin-top: 3px; }
+.inbox-actions button { border: 1.5px solid var(--outline); border-radius: 999px; background: var(--surface); color: var(--ink); font: inherit; font-size: .74rem; font-weight: 800; padding: 1px 10px; cursor: pointer; box-shadow: 0 2px 0 var(--outline); }
+.inbox-actions button:active { transform: translateY(2px); box-shadow: none; }
+.inbox-actions .inbox-done { margin-left: auto; }
+.stage:has(.inbox-card) .bubble { display: none; }
+html.desktop-pet .stage .inbox-card { top: auto; bottom: calc(100% + 1px); }   /* normal size: if he is at the side of the screen his window slides onto it while the card shows (app-desktop.js) */
+html.desktop-pet.card-narrow .stage .inbox-card { left: calc(var(--vis-l, 0px) + 8px); right: calc(100vw - var(--vis-r, 100vw) + 8px); }   /* (only when it cannot slide: then it is as wide as the part of the window that shows) */
+/* choices from the settings window: no toy, no cushion under him (the bed at night stays) */
+html.desktop-pet.desk-notoy .toy { display: none !important; }
+html.desktop-pet.desk-nocushion .stage:not(.bedtime) .cushion { display: none; }
+html.desktop-pet.desk-nobubbles:not(.grab-say) .bubble { display: none !important; }   /* (the grab key's answer still shows) */
+html.desktop-pet.desk-nosparkles .stage::before, html.desktop-pet.desk-nosparkles .stage::after { display: none; }
+html.desktop-pet.desk-noclouds :is(.dream, .wish) { display: none !important; }
+/* the quick-add box by Fumu (the shell's Ctrl+Alt+A): a field and an Add button */
+.quick-card { grid-template-columns: 1fr auto auto; gap: 6px; }
+.quick-card:has(.quick-more) { grid-template-columns: 1fr auto auto auto; }
+.quick-card .quick-close { padding: 3px 9px; }
+.quick-card .quick-more { padding: 3px 9px; white-space: nowrap; }
+.quick-card .quick-more.set { background: var(--accent); }
+.quick-opts { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 5px; padding-top: 2px; }
+.quick-opts[hidden] { display: none; }
+.quick-chips, .quick-line { display: flex; flex-wrap: wrap; gap: 4px; }
+.quick-card .quick-chip { padding: 1px 9px; font-size: .72rem; box-shadow: 0 1.5px 0 var(--outline); }
+.quick-card .quick-chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.quick-card .quick-in { flex: 1 1 0; min-width: 0; font: inherit; font-size: .8rem; padding: 3px 8px; border: 1.5px solid var(--outline); border-radius: 10px; background: var(--surface); color: var(--ink); }
+.quick-opts > select.quick-in { flex: none; width: 100%; }
+/* with the choices open the box sits over the top of the window, over Fumu, so it has room to grow */
+html.desktop-pet .stage .quick-card.opts-open { bottom: auto; top: calc(-1 * var(--quick-up, 0px)); }
+.quick-card input { min-width: 0; font: inherit; font-size: .95rem; padding: 5px 10px; border: 1.5px solid var(--outline); border-radius: 12px; background: var(--surface); color: var(--ink); user-select: text; -webkit-user-select: text; }
+.quick-card input:focus { outline: 2px solid var(--outline); outline-offset: 0; }
+.quick-card button { border: 1.5px solid var(--outline); border-radius: 999px; background: var(--surface); color: var(--ink); font: inherit; font-size: .8rem; font-weight: 800; padding: 3px 12px; cursor: pointer; box-shadow: 0 2px 0 var(--outline); }
+.quick-card button:active { transform: translateY(2px); box-shadow: none; }
+html.desktop-pet .quick-card input { user-select: text; -webkit-user-select: text; }
+
+/* the Background picker in the Room sheet, under the furniture */
+.room-bg { margin-top: 12px; }
+.room-bg-title { display: block; }
+
+/* thought clouds hide while he moves about quickly (carried, strolling, gliding along the screen) */
+html.desk-moving :is(.dream, .wish), .stage:has(.pet.walking) :is(.dream, .wish) { visibility: hidden; }
+
+/* carried by the cursor (app-desktop.js): his feet dangle and kick */
+@keyframes dangle-a { 0%, 100% { rotate: -14deg; translate: 0 -1px; } 50% { rotate: 16deg; translate: 0 2.5px; } }
+@keyframes dangle-b { 0%, 100% { rotate: 16deg; translate: 0 2.5px; } 50% { rotate: -14deg; translate: 0 -1px; } }
+.pet.carried :is(.foot-side, .shoe-l, .shoe-r) { transform-box: fill-box; transform-origin: 50% 0; animation: dangle-a .28s ease-in-out infinite; }
+.pet.carried :is(.foot-r, .shoe-r) { animation-name: dangle-b; }
+@media (prefers-reduced-motion: reduce) { .pet.carried :is(.foot-side, .shoe-l, .shoe-r) { animation: none; } }
+.wish.wish-learned .wish-tag { display: none; }   /* fed him a few times: the label is not needed any more */
+
+/* Claude's "replied" note nudges gently now and then, so it is noticed */
+@keyframes claude-nudge { 0%, 78%, 100% { translate: 0 0; rotate: 0deg; } 82% { translate: -2px 0; rotate: -1.2deg; } 86% { translate: 2px 0; rotate: 1.2deg; } 90% { translate: -1.5px 0; rotate: -.8deg; } 94% { translate: 1px 0; rotate: .5deg; } }
+.inbox-card.claude-card { animation: pop .3s cubic-bezier(.3, 1.6, .5, 1), claude-nudge 2.6s ease-in-out .5s infinite; transform-origin: 50% 100%; }   /* pops in, then nudges */
+@media (prefers-reduced-motion: reduce) { .inbox-card.claude-card { animation: none; } }
+
+/* carried by the cursor: his arms flap about (the feet kick too, above) */
+@keyframes flap-l { from { transform: rotate(10deg); } to { transform: rotate(125deg); } }
+@keyframes flap-r { from { transform: rotate(-10deg); } to { transform: rotate(-125deg); } }
+.pet:is(.carried, .falling) .arm-l { animation: flap-l .17s ease-in-out infinite alternate; }
+.pet:is(.carried, .falling) .arm-r { animation: flap-r .17s ease-in-out infinite alternate .085s; }
+/* holding his toy while carried: both arms hug it (app-toy.js toyCarry) and only jiggle a little */
+.pet.carried.holds-toy .arm-l { animation: hold-l .17s ease-in-out infinite alternate; }
+.pet.carried.holds-toy .arm-r { animation: hold-r .17s ease-in-out infinite alternate .085s; }
+/* or in one hand held out to the side: that arm lifts and jiggles, the other flaps */
+.pet.carried.holds-toy-l .arm-l { animation: hand-l .17s ease-in-out infinite alternate; }
+.pet.carried.holds-toy-r .arm-r { animation: hand-r .17s ease-in-out infinite alternate; }
+@keyframes hand-l { from { transform: rotate(50deg); } to { transform: rotate(56deg); } }
+@keyframes hand-r { from { transform: rotate(-50deg); } to { transform: rotate(-56deg); } }
+@keyframes hold-l { from { transform: translate(18px, 9px) rotate(-86deg); } to { transform: translate(19px, 12px) rotate(-82deg); } }
+@keyframes hold-r { from { transform: translate(-18px, 9px) rotate(86deg); } to { transform: translate(-19px, 12px) rotate(82deg); } }
+@media (prefers-reduced-motion: reduce) { .pet:is(.carried, .falling) .arm-l, .pet:is(.carried, .falling) .arm-r { animation: none; } }
+
+/* Claude's alert: he flicks a cartoon magic wand (app-send.js castWand) */
+.wand .wd-edge { stroke: var(--prop-ink); stroke-width: 5; stroke-linecap: round; fill: none; }
+.wand .wd-stick { stroke: #b58be0; stroke-width: 2.6; stroke-linecap: round; fill: none; }
+.wand .wd-band { stroke: #fff; stroke-width: 2.6; fill: none; }
+.wand .wd-star { fill: #ffd45e; stroke: var(--prop-ink); stroke-width: 1.4; stroke-linejoin: round; transform-box: fill-box; transform-origin: center; animation: wand-twinkle .5s ease-in-out infinite alternate; }
+@keyframes wand-twinkle { from { transform: translate(0, 4px) scale(1.25); } to { transform: translate(0, 4px) scale(1.5); } }
+@keyframes wand-flick { 0%, 31%, 53%, 75% { transform: rotate(-110deg); } 19%, 42%, 64%, 86% { transform: rotate(-148deg); } 100% { transform: rotate(-128deg); } }
+@keyframes wand-flick-l { 0%, 31%, 53%, 75% { transform: rotate(110deg); } 19%, 42%, 64%, 86% { transform: rotate(148deg); } 100% { transform: rotate(128deg); } }
+/* the arm turns about its shoulder (the wand would otherwise change the arm's box, and so its pivot) */
+html[data-list="todo"] #pet.wanding .arm-r { transform-box: view-box; transform-origin: 133px 110.2px; animation: wand-flick 3.6s ease-in-out both; }
+html:not([data-list="todo"]) #pet.wanding .arm-l { transform-box: view-box; transform-origin: 27px 110.2px; animation: wand-flick-l 3.6s ease-in-out both; }
+@media (prefers-reduced-motion: reduce) { html[data-list="todo"] #pet.wanding .arm-r { animation: none; transform: rotate(-128deg); } html:not([data-list="todo"]) #pet.wanding .arm-l { animation: none; transform: rotate(128deg); } .wand .wd-star { animation: none; } }
+
+/* spiral eyes: dizzy (carried and spun round, app-desktop.js) */
+.dizzy-eyes .dz { fill: none; stroke: var(--pet-ink); stroke-width: 1.5; stroke-linecap: round; }
+@media (prefers-reduced-motion: no-preference) { .dizzy-eyes .dz { animation: dizzy-turn .5s linear infinite; transform-box: fill-box; transform-origin: center; } }
+@keyframes dizzy-turn { to { rotate: 360deg; } }
+
+/* thrown by the desktop shell (app-desktop.js onThrown): he spins round the whole flight */
+.pet.thrown .pet-svg { animation: throw-spin .5s linear infinite; animation-direction: normal; }
+/* he turns about his middle, so he is lifted off the window's bottom edge or his lower half would be cut off as he swings round */
+@keyframes throw-spin { from { translate: 0 -34px; rotate: 0deg; scale: .84; } to { translate: 0 -34px; rotate: 360deg; scale: .84; } }
+.pet.thrown[style*="--spin-dir: -1"] .pet-svg { animation-direction: reverse; }
+@media (prefers-reduced-motion: reduce) { .pet.thrown .pet-svg { animation: none; } }
+
+/* thrown while asleep in bed (app-desktop.js onFlight): the bed turns to face where it is flying */
+html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); translate: 0 -38px; transform-origin: 50% 58%; transition: rotate .22s ease-out; }
+html.desktop-pet .stage.bed-settle { transition: rotate .6s cubic-bezier(.3, 1.3, .5, 1), translate .6s cubic-bezier(.3, 1.3, .5, 1); }   /* back in place after a throw in bed */
+@media (prefers-reduced-motion: reduce) { html.desktop-pet .stage.bed-thrown, html.desktop-pet .stage.bed-settle { transition: none; } }
+
+/* night play (app-night.js): the teddy to pick up, the night light and its glow */
+.pet.teddy-taken .teddy-hug { display: none !important; }
+.teddy-btn { position: absolute; z-index: 5; padding: 0; border: 0; background: transparent; cursor: grab; touch-action: none; border-radius: 50%; }
+.teddy-float { position: fixed; z-index: 30; width: 44px; height: 44px; pointer-events: none; filter: drop-shadow(0 3px 2px rgba(91, 66, 57, .3)); }
+.night-btn { position: absolute; right: 8px; bottom: 3px; z-index: 6; width: 30px; height: 38px; padding: 0; border: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.night-btn svg { display: block; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 2px 1px rgba(91, 66, 57, .3)); }
+.nl-plug { fill: #e8dcc8; stroke: #5b4239; stroke-width: 1.5; }
+.nl-base { fill: #f6ecd8; stroke: #5b4239; stroke-width: 1.7; }
+.nl-glass { fill: #dfe7f2; stroke: #5b4239; stroke-width: 1.7; }
+.nl-moon { fill: #b9c4d6; }
+.nl-shine { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; opacity: .8; }
+.night-btn[aria-pressed="true"] .nl-glass { fill: #fff0b8; }
+.night-btn[aria-pressed="true"] .nl-moon { fill: #ffc94a; }
+.night-btn[aria-pressed="true"] svg { filter: drop-shadow(0 0 6px rgba(255, 205, 110, .95)) drop-shadow(0 0 14px rgba(255, 175, 90, .6)); }
+.night-btn[hidden], .teddy-btn[hidden] { display: none; }
+.night-glow { position: absolute; inset: -10px; z-index: 0; pointer-events: none; opacity: 0; transition: opacity .8s ease; -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%); mask-image: linear-gradient(to bottom, #000 55%, transparent 100%); background: radial-gradient(ellipse at 50% 78%, rgba(255, 196, 120, .55), rgba(255, 176, 96, .2) 42%, transparent 70%); }
+.stage.night-light .night-glow { opacity: 1; animation: glow-breathe 5.5s ease-in-out infinite; }
+@keyframes glow-breathe { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
+.stage.night-light .zzz text { animation-duration: 4s; }
+@media (prefers-reduced-motion: reduce) { .stage.night-light .night-glow { animation: none; } }
+
+/* the night bell (app-night.js): it sits where the toy would be; the toy is put away while it is out. A brass hand bell with a wooden handle. */
+.bell { position: absolute; left: calc(50% - 18px); bottom: 3px; width: 36px; height: 48px; padding: 0; border: 0; background: none; z-index: 6; cursor: grab; touch-action: none; translate: -138px 0; -webkit-tap-highlight-color: transparent; }
+.bell::after { content: ""; position: absolute; inset: -10px; }
+.bell[hidden] { display: none; }
+.bell-img { display: block; width: 100%; height: 100%; pointer-events: none; filter: drop-shadow(0 2px 1px rgba(91, 66, 57, .3)); }
+.bell-svg { display: block; overflow: visible; transform-origin: 50% 17%; }   /* it swings from the handle */
+.bl-handle { fill: #d6a066; stroke: #5b4239; stroke-width: 1.7; }
+.bl-body { fill: #f2c14e; stroke: #5b4239; stroke-width: 1.8; stroke-linejoin: round; }
+.bl-collar { fill: #e0a93a; stroke: #5b4239; stroke-width: 1.6; }
+.bl-shine { fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; opacity: .75; }
+.bl-clapper { fill: #c98f4f; stroke: #5b4239; stroke-width: 1.5; }
+.bl-clap { transform-box: view-box; transform-origin: 18px 26px; }
+.bl-clap-arm { fill: none; stroke: #5b4239; stroke-width: 1.5; stroke-linecap: round; }
+.bell.held { cursor: grabbing; }
+.bell.held .bell-img { filter: drop-shadow(0 6px 3px rgba(91, 66, 57, .25)); }
+.bell.pop { animation: pop .35s cubic-bezier(.3, 1.6, .5, 1); }
+.stage.bell-mode .toy { display: none; }
+
+
+/* resting, it is tucked into the bed beside him: the bed's front edge is over its lower half */
+.bell.nested { z-index: 1; }
+.bell.putaway { transition: opacity .4s ease, scale .4s ease; opacity: 0; scale: .5; pointer-events: none; }
+
+/* the daily gift lives in the Profile sheet for now: a box to the right of the title, and a count on the Profile button */
+.profile-head { display: flex; align-items: center; justify-content: flex-start; gap: 10px; }
+.profile-head h2 { margin: 0; }
+.profile-gift { position: relative; width: 38px; height: 38px; padding: 0; border: 0; background: none; cursor: pointer; animation: gift-wiggle 3.2s ease-in-out infinite; }
+.profile-gift[hidden], .dock-badge[hidden] { display: none; }
+.profile-gift-img svg { display: block; width: 100%; height: 100%; }
+.profile-gift-img { display: block; width: 100%; height: 100%; }
+.profile-gift-count { position: absolute; right: -5px; top: -4px; min-width: 18px; padding: 0 5px; border-radius: 999px; background: var(--accent); color: #fff; border: 1.5px solid #fff; font-size: .7rem; font-weight: 800; line-height: 1.35; text-align: center; }
+.profile-gift-count:empty { display: none; }
+@keyframes gift-wiggle { 0%, 82%, 100% { rotate: 0deg; } 86% { rotate: -9deg; } 90% { rotate: 9deg; } 94% { rotate: -5deg; } }
+.dock #profileBtn { position: relative; }
+.dock-badge { position: absolute; top: 0; left: calc(50% + 8px); min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 999px; background: var(--accent); color: #fff; border: 1.8px solid #fff; font-size: .68rem; font-weight: 800; line-height: 15px; text-align: center; z-index: 2; box-shadow: 0 1px 0 rgba(91, 66, 57, .25); }
+@media (prefers-reduced-motion: reduce) { .profile-gift { animation: none; } }
+
+/* in the air (carried or thrown) he has no shadow on the floor under him, and no cushion */
+.pet.carried::before, .pet.thrown::before, .pet.falling::before { display: none; }
+.stage.flying .cushion { display: none; }
+
+/* the ring menu (app-ring.js): little round buttons in an arc above him when the pointer rests on him (small desktop window only) */
+.ring { position: absolute; inset: 0; z-index: 9; pointer-events: none; }
+.ring[hidden] { display: none; }
+.ring-btn { position: absolute; width: 34px; height: 34px; padding: 5px; border: 1.8px solid var(--outline); border-radius: 50%; background: var(--surface); box-shadow: 0 2px 0 var(--outline); cursor: pointer; pointer-events: auto; animation: ring-pop .28s cubic-bezier(.3, 1.6, .5, 1) both; animation-delay: calc(var(--i, 0) * 40ms); -webkit-tap-highlight-color: transparent; }
+.ring-btn img { display: block; width: 100%; height: 100%; pointer-events: none; }
+.ring-btn:hover { background: #fff4d6; translate: 0 -2px; }
+.ring-btn:active { translate: 0 1px; box-shadow: none; }
+.ring-btn[aria-pressed="true"] { background: #ffe3a8; box-shadow: 0 0 10px 3px rgba(255, 205, 120, .7), 0 2px 0 var(--outline); }
+@keyframes ring-pop { from { opacity: 0; scale: .3; } to { opacity: 1; scale: 1; } }
+html.desktop-pet .night-btn { display: none !important; }   /* in the small window the night light switch is in his ring menu */
+@media (prefers-reduced-motion: reduce) { .ring-btn { animation: none; } }
+
+/* landed on his head after a fall (app-desktop.js): upside down for a moment, then he rights himself */
+.pet.head-down .pet-svg { rotate: 180deg; translate: 0 10px; scale: .92; }   /* (the window ends 10 px below him: any lower and his head is cut off) */
+.pet.righting .pet-svg { animation: right-up .45s cubic-bezier(.3, 1.2, .5, 1); }
+@keyframes right-up { from { rotate: 180deg; translate: 0 10px; scale: .92; } 55% { translate: 0 -8px; scale: 1; } to { rotate: 360deg; translate: 0 0; scale: 1; } }
+
+/* newer body moves (build 354): tilts and turns of the drawing are fine now, so these rotate and scale it */
+@keyframes tilt { 0%, 100% { transform: rotate(0deg); } 22%, 62% { transform: rotate(-13deg) translate(-2px, 1px); } 80% { transform: rotate(6deg); } }
+@keyframes flop { 0% { transform: rotate(0deg); } 22% { transform: rotate(-8deg); } 42% { transform: rotate(84deg) translate(6px, 4px); } 52% { transform: rotate(76deg) translate(6px, 4px); } 62% { transform: rotate(84deg) translate(6px, 4px); } 80% { transform: rotate(-9deg); } 90% { transform: rotate(4deg); } 100% { transform: rotate(0deg); } }
+@keyframes spinhop { 0% { transform: translateY(0) rotate(0deg) scale(1, 1); } 12% { transform: translateY(2px) rotate(0deg) scale(1.1, .9); } 50% { transform: translateY(-22px) rotate(180deg) scale(1, 1); } 85% { transform: translateY(0) rotate(360deg) scale(1.08, .92); } 100% { transform: translateY(0) rotate(360deg) scale(1, 1); } }
+@keyframes shiver { 0%, 100% { transform: translateX(0) scale(1); } 10% { transform: translateX(-2px) rotate(-2deg) scale(1.04); } 20% { transform: translateX(2px) rotate(2deg) scale(1.05); } 30% { transform: translateX(-2px) rotate(-2deg) scale(1.05); } 40% { transform: translateX(2px) rotate(2deg) scale(1.05); } 50% { transform: translateX(-1.5px) rotate(-1.5deg) scale(1.05); } 60% { transform: translateX(1.5px) rotate(1.5deg) scale(1.04); } 75% { transform: translateX(-1px) scale(1.02); } }
+@keyframes popup { 0% { transform: scale(1); } 22% { transform: scale(1.06, .9); } 40% { transform: scale(.05, .05); } 62% { transform: scale(.05, .05); } 80% { transform: scale(1.14, 1.16); } 92% { transform: scale(.97, .96); } 100% { transform: scale(1); } }
+.pet.tilt .pet-svg { animation: tilt 1.8s ease-in-out; transform-origin: 50% 94%; }
+.pet.flop .pet-svg { animation: flop 2.4s ease-in-out; transform-origin: 50% 94%; }
+.pet.spinhop .pet-svg { animation: spinhop .9s ease-in-out; transform-origin: 50% 62%; }
+.pet.shiver .pet-svg { animation: shiver .7s linear; transform-origin: 50% 94%; }
+.pet.popup .pet-svg { animation: popup 1.5s ease-in-out; transform-origin: 50% 94%; }
+.pet:is(.spinhop, .popup, .flop) :is(.ear-l, .ear-r) { animation: ear-jiggle-l .7s ease-out .3s; }
+@media (prefers-reduced-motion: reduce) { .pet:is(.tilt, .flop, .spinhop, .shiver, .popup) .pet-svg { animation: none; } }
+
+/* alerts, made cuter (builds 364-368): a paper label with a bit of tape, a round sticker for the icon, soft pill buttons, a colour per kind.
+   Three styles, picked in the settings window (alertStyle, class on <html>): al-paper (warm cream), al-night (the same in deep plum), none = the plain old card. */
+html.al-paper { --al-bg: #fff8ea; --al-ink: #4a3128; --al-sub: #6b4d41; --al-edge: #5b4239; --al-chip: #fff; --al-shadow: rgba(40, 25, 20, .3); --al-mix: #fff; --al-tint: 1; }
+html.al-night { --al-bg: #3b2c47; --al-ink: #fdf0e0; --al-sub: #cdb9d6; --al-edge: #170f1d; --al-chip: #55405f; --al-shadow: rgba(0, 0, 0, .5); --al-mix: #2b1f33; --al-tint: 0; }
+html[class*="al-"] .inbox-card, html[class*="al-"] .remind-card { --ac: #f3b6c8; grid-template-columns: 36px 1fr; gap: 1px 10px; padding: 7px 12px 6px; border-width: 2px; border-radius: 18px; overflow: visible;
+  background: var(--al-bg); color: var(--al-ink); border-color: var(--al-edge); box-shadow: 0 3px 0 var(--al-edge), 0 8px 14px var(--al-shadow);
+  outline: 1.5px dashed color-mix(in srgb, var(--ac) 80%, var(--al-edge)); outline-offset: -5px; }
+html[class*="al-"] .inbox-card { --ac2: color-mix(in srgb, var(--ac) 40%, #4d3560); }
+html.al-paper .inbox-card { --ac2: color-mix(in srgb, var(--ac) 30%, #fff); }
+html[class*="al-"] .remind-card { --ac: #f5d36b; }
+html[class*="al-"] .claude-card { --ac: #c9b3f0; }
+html[class*="al-"] .note-card { --ac: #a9dcc3; }
+html[class*="al-"] .link-card { --ac: #9fd0ee; }
+html[class*="al-"] .inbox-card::before { content: ""; position: absolute; top: -4px; left: 16px; width: 38px; height: 13px; border-radius: 3px; background: color-mix(in srgb, var(--ac) 80%, var(--al-mix)); opacity: .92; rotate: -4deg; box-shadow: 0 1px 0 rgba(0, 0, 0, .15); pointer-events: none; }
+html[class*="al-"] .inbox-card::after { content: "✦"; position: absolute; top: 5px; right: 11px; font-size: .7rem; color: var(--ac); text-shadow: 0 1px 0 var(--al-edge); animation: alert-twinkle 2.4s ease-in-out infinite; pointer-events: none; }
+@keyframes alert-twinkle { 0%, 100% { opacity: .35; scale: .8; } 50% { opacity: 1; scale: 1.15; } }
+html[class*="al-"] .inbox-icon { width: 34px; height: 34px; padding: 4px; box-sizing: border-box; border-radius: 50%; background: var(--ac2); border: 1.8px solid var(--al-edge); box-shadow: 0 2px 0 var(--al-edge); rotate: -6deg; }
+html[class*="al-"] .remind-card .inbox-icon { animation: alarm-ring 2.8s ease-in-out .6s infinite; transform-origin: 50% 60%; }
+html[class*="al-"] .claude-card .inbox-icon { animation: bell-sway 2.6s ease-in-out .5s infinite; transform-origin: 50% 15%; }
+@keyframes alarm-ring { 0%, 70%, 100% { rotate: -6deg; } 74% { rotate: 10deg; } 78% { rotate: -14deg; } 82% { rotate: 10deg; } 86% { rotate: -10deg; } 90% { rotate: 4deg; } }
+@keyframes bell-sway { 0%, 100% { rotate: -6deg; } 50% { rotate: 8deg; } }
+html[class*="al-"] .inbox-text b { font-size: .98rem; }
+html.desktop-pet[class*="al-"] .stage .inbox-card { bottom: calc(100% - 10px); }   /* (a little lower: the top of the window must not cut the tape and the edge) */
+html[class*="al-"] .inbox-text span { opacity: .8; color: var(--al-sub); }
+html[class*="al-"] .inbox-actions { gap: 6px; margin-top: 3px; align-items: center; flex-wrap: nowrap; }
+html[class*="al-"] .inbox-actions button { padding: 2px 10px; white-space: nowrap; background: var(--ac2); color: var(--al-ink); border: 1.8px solid var(--al-edge); box-shadow: 0 2px 0 var(--al-edge); transition: translate .12s, filter .12s; }
+html[class*="al-"] .inbox-actions button:hover { translate: 0 -1px; filter: brightness(1.06); }
+html.al-paper .inbox-actions .ia-done { background: linear-gradient(180deg, #ffd0dd, #f8a9c0); }
+html.al-night .inbox-actions .ia-done { background: linear-gradient(180deg, #8a4d78, #6d3a5f); }
+html[class*="al-"] .inbox-actions .inbox-done { width: 26px; height: 26px; padding: 0; display: grid; place-items: center; border-radius: 50%; background: var(--al-chip); color: var(--al-ink); line-height: 1; }
+@media (prefers-reduced-motion: reduce) { html[class*="al-"] .inbox-card::after, html[class*="al-"] .remind-card .inbox-icon, html[class*="al-"] .claude-card .inbox-icon { animation: none; } }
+
+/* two more alert styles (build 371): Sweet (pastel pink and red, hearts) and Cool (navy, sharp corners, a stripe) */
+@keyframes alert-heart { 0%, 100% { scale: .85; } 40% { scale: 1.25; } 60% { scale: 1; } }
+/* Sweet (build 382): a soft pastel cake: vanilla sponge fading to pink, a scalloped icing top and a cherry */
+html.al-sweet { --al-bg: #fff3f4; --al-ink: #7a4a5a; --al-sub: #b98a98; --al-edge: #f0b4c6; --al-chip: #fffaf6; --al-shadow: rgba(235, 150, 175, .32); --al-mix: #fff; }
+html.al-sweet .inbox-card { --ac: #f7a8c0; --ac2: #ffe3ec; border-radius: 22px; border-width: 2px; outline: none; padding-top: 14px;
+  background: linear-gradient(180deg, #fffaf0 0%, #fff1f4 55%, #ffe4ed 100%);
+  box-shadow: 0 3px 0 #f3b9ca, 0 8px 16px var(--al-shadow), inset 0 -8px 12px rgba(255, 190, 210, .3); }
+html.al-sweet :is(.remind-card, .claude-card, .note-card, .link-card) { --ac: #f7a8c0; }
+html.al-sweet .inbox-card::before { content: ""; top: -2px; left: -2px; right: -2px; width: auto; height: 17px; border-radius: 22px 22px 0 0; rotate: 0deg; opacity: 1; box-shadow: none;
+  background: radial-gradient(circle at 11px 6px, #ffd0de 9px, transparent 9.6px) 0 0 / 22px 17px repeat-x, linear-gradient(180deg, #ffc4d6, #ffd0de) 0 0 / 100% 8px no-repeat; }
+html.al-sweet .inbox-card::after { content: ""; top: -8px; right: 22px; width: 15px; height: 15px; border-radius: 50%; font-size: 0; text-shadow: none;
+  background: radial-gradient(circle at 34% 30%, #fff 0 1.8px, #ff8aa5 2.6px, #e8456b); box-shadow: 0 2px 3px rgba(180, 40, 80, .3); animation: alert-bob 2.4s ease-in-out infinite; }
+@keyframes alert-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2px; } }
+html.al-sweet :is(.inbox-icon, .remind-card .inbox-icon, .claude-card .inbox-icon) { background: linear-gradient(180deg, #fff, #ffeef2); border-radius: 50%; box-shadow: 0 0 0 2px #f7c6d4, 0 3px 6px rgba(235, 150, 175, .35); }
+html.al-sweet .inbox-text b { color: #7a4a5a; }
+html.al-sweet .inbox-actions button { background: linear-gradient(180deg, #fff, #fff1f5); color: #b35a78; border: 1.5px solid #f3b9ca; border-radius: 999px; box-shadow: 0 2px 0 #f3b9ca; }
+html.al-sweet .inbox-actions .ia-done { background: linear-gradient(180deg, #ffd3e0, #ffb3cb); color: #7a2a4a; text-shadow: none; }
+html.al-sweet .inbox-actions .inbox-done { color: #b35a78; }
+@media (prefers-reduced-motion: reduce) { html.al-sweet .inbox-card::after { animation: none; } }
+html.al-cool { --al-bg: #1c1d21; --al-ink: #f1f2f4; --al-sub: #9b9ea6; --al-edge: #050506; --al-chip: #33353b; --al-shadow: rgba(0, 0, 0, .6); --al-mix: #1c1d21; }
+html.al-cool .inbox-card { --ac: #e63946; --ac2: #2b2d33; border-radius: 9px; outline: none; border-width: 2.5px; border-color: #4a4d55; background: linear-gradient(105deg, #e63946 0 6px, transparent 6px), linear-gradient(180deg, #2a2c31, #17181b); padding-left: 18px; box-shadow: 0 3px 0 var(--al-edge), 0 8px 14px var(--al-shadow), inset 0 1px 0 rgba(255, 255, 255, .08); }
+html.al-cool .remind-card, html.al-cool .claude-card, html.al-cool .note-card, html.al-cool .link-card { --ac: #e63946; }
+html.al-cool .inbox-card::before { content: ""; top: 5px; left: auto; right: 34px; width: 44px; height: 5px; border-radius: 0; background: repeating-linear-gradient(115deg, #e63946 0 8px, transparent 8px 14px); rotate: 0deg; opacity: .95; box-shadow: none; }
+html.al-cool .inbox-card::after { content: "▲"; font-size: .55rem; top: 5px; right: 12px; animation: none; color: #e63946; text-shadow: none; }
+html.al-cool .inbox-icon { border-radius: 9px; rotate: 0deg; background: #3a3d44; box-shadow: 0 2px 0 var(--al-edge), inset 0 0 0 2px #e63946; }
+html.al-cool .inbox-text b { letter-spacing: .01em; }
+html.al-cool .inbox-actions button { border-radius: 6px; background: linear-gradient(180deg, #43464d, #31333a); color: var(--al-ink); border-color: #0b0b0d; }
+html.al-cool .inbox-actions .ia-done { background: linear-gradient(180deg, #f0505c, #c42232); color: #fff; text-shadow: 0 1px 0 rgba(0, 0, 0, .35); }
+html.al-cool .inbox-actions .inbox-done { border-radius: 6px; width: 26px; }
+@media (prefers-reduced-motion: reduce) { html.al-sweet .inbox-card::after { animation: none; } }
+
+/* Quest (build 374): the alert dressed like a fantasy-RPG dialog frame: dark panel, double gold border, gold serif title, red stone buttons, a quest "!" */
+html.al-quest { --al-bg: #1b140c; --al-ink: #f2e6c4; --al-sub: #b9a77c; --al-edge: #0a0704; --al-chip: #3a2a14; --al-shadow: rgba(0, 0, 0, .65); --al-mix: #1b140c; }
+html.al-quest .inbox-card { --ac: #d4a72c; --ac2: #2a1f10; border-radius: 6px; outline: none; border: 3px solid #c9a227; font-family: "Palatino Linotype", Palatino, Georgia, serif;
+  background: radial-gradient(ellipse at 50% 0, rgba(255, 215, 120, .1), transparent 70%), linear-gradient(180deg, #2a1d10, #140e08);
+  box-shadow: 0 0 0 1.5px #5a420f, inset 0 0 0 2px #0a0704, inset 0 0 0 3.5px #7a5a14, inset 0 0 14px rgba(0, 0, 0, .7), 0 8px 14px var(--al-shadow); }
+html.al-quest .remind-card, html.al-quest .claude-card, html.al-quest .note-card, html.al-quest .link-card { --ac: #d4a72c; }
+html.al-quest .inbox-card::before { content: ""; top: -6px; left: 50%; right: auto; translate: -50% 0; width: 54px; height: 9px; rotate: 0deg; border-radius: 3px; border: 1.5px solid #5a420f; background: linear-gradient(180deg, #f0cf66, #b8891c); box-shadow: 0 1px 0 #000; opacity: 1; }
+html.al-quest .inbox-card::after { content: "!"; top: 8px; right: 12px; font: 900 1.25rem/1 "Palatino Linotype", Georgia, serif; color: #ffd100; text-shadow: 0 0 6px rgba(255, 209, 0, .75), 0 1px 0 #000; animation: azeroth-bob 1.6s ease-in-out infinite; scale: 1; }
+@keyframes azeroth-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2px; } }
+html.al-quest :is(.inbox-icon, .remind-card .inbox-icon, .claude-card .inbox-icon) { animation: none; border-radius: 4px; rotate: 0deg; background: #120c06; padding: 3px; border: 2px solid #c9a227; box-shadow: 0 0 0 1.5px #000, inset 0 0 6px rgba(0, 0, 0, .9); }
+html.al-quest .inbox-text b { font-family: inherit; font-weight: 700; color: #ffd100; text-shadow: 0 1px 0 #000, 0 0 5px rgba(0, 0, 0, .8); letter-spacing: .02em; }
+html.al-quest .inbox-text span { color: #c9b98c; font-style: italic; }
+html.al-quest .inbox-actions button { font-family: inherit; font-weight: 700; border-radius: 4px; background: linear-gradient(180deg, #8a1f17, #4a0d09); color: #ffd100; border: 1.5px solid #c9a227; box-shadow: 0 0 0 1px #000, inset 0 1px 0 rgba(255, 170, 120, .35); text-shadow: 0 1px 0 #000; }
+html.al-quest .inbox-actions button:hover { filter: brightness(1.25); }
+html.al-quest .inbox-actions .ia-done { background: linear-gradient(180deg, #a52a1f, #5c120d); color: #fff2b0; }
+html.al-quest .inbox-actions .inbox-done { border-radius: 4px; width: 26px; }
+@media (prefers-reduced-motion: reduce) { html.al-quest .inbox-card::after { animation: none; } }
+/* the desktop app's speech bubbles follow the alert style (build 375): the small pet's own choice, and in the whole app light (Paper) or dark (Night) as its appearance says */
+html[class*="al-"] .stage .bubble { background: var(--al-bg); color: var(--al-ink); border: 2px solid var(--al-edge); box-shadow: 0 2px 0 var(--al-edge), 0 6px 10px var(--al-shadow); border-radius: 16px 16px 16px 5px; }
+html.al-paper .stage .bubble { outline: 1.5px dashed #f3b6c8; outline-offset: -4px; }
+html.al-night .stage .bubble { outline: 1.5px dashed #c9b3f0; outline-offset: -4px; }
+html.al-sweet .stage .bubble { border: 2px solid #f3b9ca; border-radius: 20px 20px 20px 6px; outline: none; padding-right: 20px; background: linear-gradient(180deg, #fffaf0, #ffe9f0); box-shadow: 0 3px 0 #f3b9ca, 0 6px 12px var(--al-shadow); }
+html.al-sweet .stage .bubble::after { content: ""; position: absolute; top: -6px; right: 12px; width: 11px; height: 11px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #fff 0 1.4px, #ff8aa5 2px, #e8456b); box-shadow: 0 1px 2px rgba(180, 40, 80, .3); }
+html.al-cool .stage .bubble { border-radius: 8px; border-color: #4a4d55; background: linear-gradient(105deg, #e63946 0 5px, transparent 5px), linear-gradient(180deg, #2a2c31, #17181b); padding-left: 16px; box-shadow: 0 2px 0 #050506, 0 6px 10px rgba(0, 0, 0, .55); }
+html.al-quest .stage .bubble { border: 3px solid #c9a227; border-radius: 6px; font-family: "Palatino Linotype", Palatino, Georgia, serif; font-weight: 700; color: #ffd100; text-shadow: 0 1px 0 #000; padding: 5px 12px; background: radial-gradient(ellipse at 50% 0, rgba(255, 215, 120, .1), transparent 70%), linear-gradient(180deg, #2a1d10, #140e08); box-shadow: 0 0 0 1.5px #5a420f, inset 0 0 0 2px #0a0704, inset 0 0 0 3.5px #7a5a14, 0 6px 10px rgba(0, 0, 0, .6); }
+
+/* the ring of buttons follows the alert style too (build 379) */
+html[class*="al-"] .ring-btn { background: var(--al-bg); border: 2px solid var(--al-edge); box-shadow: 0 2px 0 var(--al-edge), 0 4px 8px var(--al-shadow); }
+html[class*="al-"] .ring-btn:hover { background: color-mix(in srgb, var(--al-bg) 80%, #fff); }
+html[class*="al-"] .ring-btn[aria-pressed="true"] { background: color-mix(in srgb, var(--al-bg) 55%, #ffd877); box-shadow: 0 0 10px 3px rgba(255, 205, 120, .6), 0 2px 0 var(--al-edge); }
+html.al-night .ring-btn:hover { background: #4d3a5a; }
+html.al-sweet .ring-btn { background: linear-gradient(180deg, #fffaf0, #ffe9f0); border: 2px solid #f3b9ca; box-shadow: 0 2px 0 #f3b9ca, 0 4px 8px var(--al-shadow); }
+html.al-sweet .ring-btn:hover { background: linear-gradient(180deg, #fff, #ffdbe6); }
+html.al-cool .ring-btn { border-radius: 9px; background: linear-gradient(180deg, #43464d, #26282d); border-color: #0b0b0d; box-shadow: 0 2px 0 #050506, inset 0 0 0 1.5px #e63946; }
+html.al-cool .ring-btn:hover { background: linear-gradient(180deg, #55585f, #33353b); }
+html.al-quest .ring-btn { border-radius: 4px; background: radial-gradient(ellipse at 50% 0, rgba(255, 215, 120, .15), transparent 70%), linear-gradient(180deg, #2a1d10, #140e08); border: 2px solid #c9a227; box-shadow: 0 0 0 1px #000, inset 0 0 0 1.5px #0a0704, 0 3px 6px rgba(0, 0, 0, .6); }
+html.al-quest .ring-btn:hover { background: linear-gradient(180deg, #4a3217, #24170b); }
+html.al-quest .ring-btn[aria-pressed="true"] { background: linear-gradient(180deg, #8a1f17, #4a0d09); }

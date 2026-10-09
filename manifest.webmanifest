@@ -1,6 +1,6 @@
 {
-  "name": "Nibble's List",
-  "short_name": "Nibble",
+  "name": "Fumufumu",
+  "short_name": "Fumufumu",
   "description": "A grocery list with a little pet who eats what you check off.",
   "start_url": "./",
   "scope": "./",
@@ -8,11 +8,12 @@
   "background_color": "#fdf1f3",
   "theme_color": "#fde3ea",
   "shortcuts": [
-    { "name": "Add by voice", "short_name": "Voice", "url": "./?voice=1", "icons": [{ "src": "icon-180.png", "sizes": "180x180", "type": "image/png" }] }
+    { "name": "Add by voice", "short_name": "Voice", "url": "./?voice=1", "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }] }
   ],
+  "share_target": { "action": "./?share=1", "method": "GET", "params": { "title": "title", "text": "text", "url": "url" } },
   "icons": [
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" },
-    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

@@ -1,8 +1,8 @@
-// Start: Nibble wakes up, and the service worker registers.
+// Start: Fumu wakes up, and the service worker registers.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
-// ---------- start: Nibble wakes up with a stretch ----------
+// ---------- start: Fumu wakes up with a stretch ----------
 applyListMode();
 render();
 var wakeState = baseState();

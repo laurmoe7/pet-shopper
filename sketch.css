@@ -393,3 +393,5 @@ html:root body.skp .cs-pop::after { background: linear-gradient(transparent, var
 .skp-trace .sk-row { align-items: center; gap: 8px; font-size: .78rem; color: var(--muted); }
 .skp-trace input[type="range"] { flex: 1; }
 .skp-trace [hidden] { display: none; }
+/* the sitting pose is a still picture: the soles do not plop in */
+.preview .sole-part { animation: none !important; }
