@@ -699,6 +699,23 @@ function skCancel() {
   skDrawing = false; skPan = null;
   skStage.classList.remove('panning');
 }
+var skAutoLayers = {};   // layers made by a tool (Trace), by id: Undo takes the empty ones away again and Redo brings them back
+/** After Undo or Redo: drops tool-made layers nothing is on any more, and restores ones the lines are on again. */
+function skFixAutoLayers() {
+  var lays = SK.layers[SK.mode], used = {};
+  SK.strokes[SK.mode].forEach(function (s) { used[s.lay] = true; });
+  Object.keys(skAutoLayers).forEach(function (id) {
+    var at = lays.findIndex(function (l) { return l.id === id; });
+    if (used[id] && at === -1) lays.push(skAutoLayers[id]);
+    else if (!used[id] && at !== -1 && lays.length > 1) {
+      lays.splice(at, 1);
+      if (SK.active[SK.mode] === id) SK.active[SK.mode] = lays[lays.length - 1].id;
+      SK.layerSet[SK.mode] = SK.layerSet[SK.mode].filter(function (x) { return x !== id; });
+      if (!SK.layerSet[SK.mode].length) SK.layerSet[SK.mode] = [SK.active[SK.mode]];
+    }
+  });
+  skLinesUI(); skMarkActive();
+}
 function skUndo() {
   if (skCurve) { skCurve.pts.pop(); if (!skCurve.pts.length) skCurve = null; skCurveRender(skLastPt); skFlash('skUndo'); return; }
   SK.pick = []; skXfRender();
@@ -707,6 +724,7 @@ function skUndo() {
   skFlash('skUndo');
   SK.redo[SK.mode].push(JSON.stringify(SK.strokes[SK.mode]));
   SK.strokes[SK.mode] = JSON.parse(h.pop());
+  skFixAutoLayers();
   skRedraw();
   skHistoryUI();
   skStatus.textContent = 'Undone.';
@@ -719,6 +737,7 @@ function skRedo() {
   skFlash('skRedo');
   SK.hist[SK.mode].push(JSON.stringify(SK.strokes[SK.mode]));
   SK.strokes[SK.mode] = JSON.parse(r.pop());
+  skFixAutoLayers();
   skRedraw();
   skHistoryUI();
   skStatus.textContent = 'Redone.';
@@ -995,6 +1014,7 @@ function skStrokeAt(pt) {
 /** Draws the box, the four corner handles and the round turning handle round whatever is picked. */
 function skXfRender() {
   skSelButtons();
+  skPickBarPlace();
   if (!skXf) return;
   skXf.replaceChildren();
   var box = skPickBox();
@@ -1376,8 +1396,10 @@ function skRepeat() {
   skRedraw(); skXfRender(); skSave();
   skStatus.textContent = n + ' copies along the line. Undo brings the single shape back.';
 }
-$('skRepeat').addEventListener('click', skRepeat);
-$('skOutline').addEventListener('click', skOutline);
+$('skRepeat').addEventListener('click', function () { skPop('skRepPop'); });
+$('skRepGo').addEventListener('click', function () { skRepeat(); skPop(null); });
+$('skOutline').addEventListener('click', function () { skPop('skOlPop'); });
+$('skOlGo').addEventListener('click', function () { skOutline(); skPop(null); });
 $('skToCurve').addEventListener('click', skToCurve);
 $('skSmooth').addEventListener('click', skSmooth);
 $('skJoin').addEventListener('click', skJoin);
@@ -1428,6 +1450,52 @@ function skCombine(op) {
 $('skUnion').addEventListener('click', function () { skCombine('union'); });
 $('skSubtract').addEventListener('click', function () { skCombine('subtract'); });
 $('skIntersect').addEventListener('click', function () { skCombine('intersect'); });
+
+// ---------- the bar that floats by the picked lines, messages and the size ring ----------
+/** Opens one of the settings pop-ups under the bar (or shuts them all when given null; the same one again closes it). */
+function skPop(id) {
+  ['skOlPop', 'skRepPop'].forEach(function (x) { $(x).hidden = x !== id || !$(x).hidden; });
+}
+/** Puts the bar of buttons for the picked lines just above them (below if there is no room), or hides it when nothing is picked. */
+function skPickBarPlace() {
+  var bar = $('skPickBar'), box = skPickBox(), main = bar.parentElement;
+  if (!box || !skIsSel() || !skDraw || (skDrawing && skDrawing.xf)) { bar.hidden = true; skPop(null); return; }
+  var v = SK_VIEW[SK.mode], dr = skDraw.getBoundingClientRect(), mr = main.getBoundingClientRect(), k = dr.width / v.w;
+  bar.hidden = false;
+  var bw = bar.offsetWidth, bh = bar.offsetHeight, left = dr.left - mr.left + (box.x0 - v.x) * k, right = dr.left - mr.left + (box.x1 - v.x) * k;
+  var top = dr.top - mr.top + (box.y0 - v.y) * k, bottom = dr.top - mr.top + (box.y1 - v.y) * k;
+  var x = Math.max(8, Math.min(mr.width - bw - 8, (left + right) / 2 - bw / 2)), y = top - bh - 46;   // clear of the round turning handle
+  if (y < 8) y = bottom + 12;
+  y = Math.max(8, Math.min(mr.height - bh - 8, y));
+  bar.style.left = Math.round(x) + 'px'; bar.style.top = Math.round(y) + 'px';
+}
+new ResizeObserver(function () { skPickBarPlace(); }).observe($('skStage'));
+skView.addEventListener('scroll', skPickBarPlace);
+/** Every message also shows for a few seconds by the canvas, where you are looking. */
+var skToastTimer = 0;
+new MutationObserver(function () {
+  var t = $('skToast'), text = skStatus.textContent;
+  if (!text) { t.classList.remove('on'); return; }
+  t.textContent = text; t.classList.add('on');
+  clearTimeout(skToastTimer);
+  skToastTimer = setTimeout(function () { t.classList.remove('on'); }, 4200);
+}).observe(skStatus, { childList: true, characterData: true, subtree: true });
+/** A ring the size of the pen or eraser follows the pointer over the drawing. */
+function skRingMove(e) {
+  var ring = $('skRing');
+  if (!skDraw || (SK.tool !== 'pen' && SK.tool !== 'blob' && SK.tool !== 'erase') || SK.tool === 'hand' || SK.space) { ring.hidden = true; return; }
+  var v = SK_VIEW[SK.mode], dr = skDraw.getBoundingClientRect(), mr = ring.parentElement.getBoundingClientRect(), k = dr.width / v.w, pen = v.w * SK_PEN * SK.pen;
+  var d = (SK.tool === 'erase' ? 2 * Math.max(v.w * 0.012, pen / 2) : pen) * k;
+  if (e.clientX < dr.left || e.clientX > dr.right || e.clientY < dr.top || e.clientY > dr.bottom) { ring.hidden = true; return; }
+  d = Math.max(6, d);
+  ring.hidden = false;
+  ring.style.width = ring.style.height = d + 'px';
+  ring.style.left = (e.clientX - mr.left - d / 2) + 'px'; ring.style.top = (e.clientY - mr.top - d / 2) + 'px';
+}
+skView.addEventListener('pointermove', skRingMove);
+skView.addEventListener('pointerleave', function () { $('skRing').hidden = true; });
+// the Pictures box opens by itself the first time a picture is added; its Add button should not also fold it
+$('skPics').querySelector('summary').addEventListener('click', function (e) { if (e.target.closest('button')) e.preventDefault(); });
 
 // ---------- tracing a picture ----------
 /** @returns {number} How far a point is from the segment a-b. */
@@ -1509,6 +1577,7 @@ async function skTrace() {
     });
     if (!made.length) { skStatus.textContent = mode === 'lines' ? 'No ink found. Slide the ink level towards “more”, or try Colours.' : 'Nothing to trace in that picture.'; return; }
     var lays = skLays(), x = { id: 'l' + Date.now().toString(36), name: 'Trace', show: true };
+    skAutoLayers[x.id] = x;
     lays.push(x); SK.active[SK.mode] = x.id; SK.layerSet[SK.mode] = [x.id];
     made.forEach(function (s) { s.lay = x.id; skNew(s); });
     skPushHistory();
@@ -1988,9 +2057,12 @@ function skRenderImages() {
     skSelBox.appendChild(r);
   }
 }
+var skPicsHad = false;
 /** Rebuilds the list of layers in the panel. */
 function skLayersUI() {
   var box = $('skLayers'), list = SK.images[SK.mode];
+  if (list.length && !skPicsHad) $('skPics').open = true;
+  skPicsHad = list.length > 0;
   box.replaceChildren.apply(box, list.length ? list.slice().reverse().map(function (im) {
     var row = document.createElement('div');
     row.className = 'skp-layer'; row.dataset.id = im.id; row.setAttribute('aria-selected', String(im.id === SK.sel));
