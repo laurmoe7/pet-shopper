@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 408
+- Quest bubble has no leftover sharp corner next to the new pointer.
+
 ## Build 407
 - Bottom bar names take their button's colour, with a cream outline.
 
