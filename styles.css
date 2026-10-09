@@ -3175,11 +3175,11 @@ html:root .dress-tabs button { padding: 3px 0 3px; gap: 1px; border-radius: 16px
 html:root .dress-tabs button img { width: 16px; height: 16px; padding: 4px; }
 .dress-panels { padding-bottom: 10px; }
 .dress-search { margin-top: 3px; padding-top: 4px; padding-bottom: 4px; }
-html:root .dock { padding: 9px 8px calc(1px + env(safe-area-inset-bottom, 0px)); }   /* (the buttons sit below the dotted line) */
-html:root .dock button { padding: 2px 0; gap: 0; }
-html:root .dock-icon { width: 33px; height: 33px; border-width: 2.5px; }
-.dock-svg { width: 18px; height: 18px; }
-.dock-label { font-size: .64rem; }
+/* bottom bar (build 406): back to the original button size; the label sits up over the bottom of the sticker with a cream outline */
+html:root .dock-label { position: relative; z-index: 3; margin-top: -9px; font-size: .72rem; color: var(--ink); --lbl-edge: #fff3dc; -webkit-text-stroke: 3.5px var(--lbl-edge); paint-order: stroke fill; text-shadow: 0 1px 0 rgba(91, 66, 57, .45); }
 html:root .closet-btn { width: 40px; padding: 3px 0 2px; border-radius: 12px; font-size: .56rem; right: 8px; bottom: 6px; }
 .closet-btn svg { width: 18px; height: 18px; }
 html:root .shoot-btn { bottom: 50px; }
+
+html:root[data-theme="dark"] .dock-label { --lbl-edge: #2b1d17; text-shadow: 0 1px 0 rgba(0, 0, 0, .5); }
+@media (prefers-color-scheme: dark) { html:root:not([data-theme="light"]) .dock-label { --lbl-edge: #2b1d17; text-shadow: 0 1px 0 rgba(0, 0, 0, .5); } }

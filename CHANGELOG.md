@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 406
+- Bottom bar buttons are back to their old size and peeling stickers.
+- Their names sit over the bottom of the button, with an outline like the list stickers.
+
 ## Build 405
 - Quest bubble pointer sits on whole pixels, so the seam no longer shows where it lands.
 
