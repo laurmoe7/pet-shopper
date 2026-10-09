@@ -190,6 +190,7 @@ function start() {
     if (!win || mode !== 'pet') return;
     const all = areas(), b0 = win.getBounds();
     const box = { x: Math.min(...all.map((a) => a.x)), y: Math.min(...all.map((a) => a.y)), r: Math.max(...all.map((a) => a.x + a.width)), b: Math.max(...all.map((a) => a.y + a.height)) };
+    const bedLift = inBed ? Math.round(38 * zoom()) : 0;
     const bi = bodyIn(b0);   // the window has clear space round him: it is his body that touches the edge, not the window
     // while he spins (a turn every half second, see .thrown in styles.css) the corners of his box swing out past his sides, and past the screen
     // edge those parts are not drawn: the wall is moved in by how far they reach at this moment of the turn
@@ -219,7 +220,7 @@ function start() {
         if (x < box.x - bi.l + sr.x) { x = box.x - bi.l + sr.x; if (inBed) vx = 0; else { hit = Math.abs(vx); wall = 'l'; vx = Math.abs(vx) * WALL; } }
         if (x > box.r - bi.r - sr.x) { x = box.r - bi.r - sr.x; if (inBed) vx = 0; else { hit = Math.abs(vx); wall = 'r'; vx = -Math.abs(vx) * WALL; } }
         if (y < box.y - bi.t + sr.y) { y = box.y - bi.t + sr.y; if (inBed) vy = 0; else { hit = Math.max(hit, Math.abs(vy)); wall = wall || 't'; vy = Math.abs(vy) * WALL; } }
-        const floorY = lowestY(screen.getDisplayNearestPoint({ x: Math.round(x + b0.width / 2), y: Math.round(y + b0.height) }), b0);
+        const floorY = lowestY(screen.getDisplayNearestPoint({ x: Math.round(x + b0.width / 2), y: Math.round(y + b0.height) }), b0) + bedLift;   // (the bed is drawn 38 px higher while it flies: its bottom meets the floor)
         let rest = false;
         if (y >= floorY) { y = floorY; if (Math.abs(vy) > (inBed ? 90 : 260) && !(opts.maxBounces && floorHits >= opts.maxBounces)) { floorHits++; hit = Math.max(hit, Math.abs(vy)); vy = -vy * FLOOR; } else { vy = 0; rest = true; } vx *= 0.85; }
         if (hit > (inBed ? 80 : 220) && now - lastHit > (inBed ? 60 : 90)) { lastHit = now; win.webContents.send('desk:bounce', Math.min(1, hit / 2500), wall); }
@@ -230,6 +231,7 @@ function start() {
       }, 8);
       tween = { timer, done: resolve };
     });
+    if (win && inBed && bedLift) { const bb = win.getBounds(); win.setBounds({ x: bb.x, y: bb.y - bedLift, width: bb.width, height: bb.height }); }   // (the page puts the bed down at the same moment: no sinking)
     if (win) { if (!inBed) win.webContents.send('desk:fall', false); if (!opts.noSpin || opts.ouch) win.webContents.send('desk:thrown', false, 0, inBed, { ouch: !!opts.ouch, head: !!opts.head }); }
     if (!ok || !win) return;
     if (inBed) {   // in his bed: after bouncing about on the floor the whole bed springs back to where it was (no running: he is asleep)

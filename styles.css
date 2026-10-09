@@ -2967,7 +2967,7 @@ html:not([data-list="todo"]) #pet.wanding .arm-l { transform-box: view-box; tran
 
 /* thrown while asleep in bed (app-desktop.js onFlight): the bed turns to face where it is flying */
 html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); translate: 0 -38px; transform-origin: 50% 58%; transition: rotate .22s ease-out; }
-html.desktop-pet .stage.bed-settle { transition: rotate .6s cubic-bezier(.3, 1.3, .5, 1), translate .6s cubic-bezier(.3, 1.3, .5, 1); }   /* back in place after a throw in bed */
+html.desktop-pet .stage.bed-settle { transition: rotate .6s cubic-bezier(.3, 1.3, .5, 1); }   /* (only the turn eases back: the lift ends at once, the shell moves the window up by the same amount) */   /* back in place after a throw in bed */
 @media (prefers-reduced-motion: reduce) { html.desktop-pet .stage.bed-thrown, html.desktop-pet .stage.bed-settle { transition: none; } }
 
 /* night play (app-night.js): the teddy to pick up, the night light and its glow */

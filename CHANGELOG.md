@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 438
+- No sinking when the bed lands after being thrown.
+
 ## Build 437
 - The bed springs back to its place in a few bounces instead of sliding.
 
