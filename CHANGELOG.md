@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 441
+- Alert cards no longer make Fumu move up and down: the card sits a little lower instead.
+
 ## Build 440
 - Quest appearance: bigger text so it is easier to read.
 

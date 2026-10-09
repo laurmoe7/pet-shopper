@@ -2874,7 +2874,7 @@ html.desktop-pet .dream-dot.d2 { left: -12px; top: 54px; }
 .inbox-actions .inbox-done { margin-left: auto; }
 .stage:has(.inbox-card) .bubble { display: none; }
 html.desktop-pet .stage:has(.look-preview) .bubble { display: block; z-index: 40; left: auto !important; right: 2px !important; bottom: 58px; top: auto !important; margin: 0; max-width: 30% !important; }   /* the style preview shows card, bubble and ring together: the bubble stands to the side so nothing covers it */
-html.desktop-pet .stage .inbox-card { top: auto; bottom: calc(100% + 1px); }   /* normal size: if he is at the side of the screen his window slides onto it while the card shows (app-desktop.js) */
+html.desktop-pet .stage .inbox-card { top: auto; bottom: calc(100% - 20px); }   /* (its lower part sits in the empty space above his head, so the whole card fits in the window without him moving) */   /* normal size: if he is at the side of the screen his window slides onto it while the card shows (app-desktop.js) */
 html.desktop-pet.card-narrow .stage .inbox-card { left: calc(var(--vis-l, 0px) + 8px); right: calc(100vw - var(--vis-r, 100vw) + 8px); }   /* (only when it cannot slide: then it is as wide as the part of the window that shows) */
 /* choices from the settings window: no toy, no cushion under him (the bed at night stays) */
 html.desktop-pet.desk-notoy .toy { display: none !important; }
