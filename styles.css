@@ -450,6 +450,9 @@ button { font: inherit; color: inherit; }
 .pet[data-arms="nom"] .arm-r { animation: nom-r .32s ease-in-out infinite alternate .16s; }
 .pet[data-arms="hold"] .arm-l { transform: translate(20px, -10px) rotate(-120deg); }
 .pet[data-arms="hold"] .arm-r { transform: translate(-20px, -10px) rotate(120deg); }
+/* both arms out in front, low, under something he carries (the toy on the run back): not up at his face like hold */
+.pet[data-arms="carry"] .arm-l { transform: translate(18px, 9px) rotate(-86deg); }
+.pet[data-arms="carry"] .arm-r { transform: translate(-18px, 9px) rotate(86deg); }
 .pet[data-arms="cover"] .arm-l { transform: translate(24px, -12px) rotate(-130deg); }
 .pet[data-arms="cover"] .arm-r { transform: translate(-24px, -12px) rotate(130deg); }
 .pet[data-arms="cheer"] .arm-l { animation: cheer-l .3s ease-in-out infinite alternate; }

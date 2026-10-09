@@ -7,7 +7,7 @@ var animSheet = $('animSheet'), animList = $('animList'), animFilter = $('animFi
 var BODY_MOVES = [['wiggle', 900], ['twirl', 800], ['peek', 1400], ['bob', 1400], ['shuffle', 1500], ['boogie', 1500], ['rock', 1900], ['roly', 2800], ['rocksmall', 1300],
   ['sniff', 1700], ['stroll', 3600], ['waddle', 1800], ['scoot', 1400], ['sit', 2600], ['hop', 500], ['hopsmall', 450], ['hophop', 1500], ['chomp', 360], ['spit', 450],
   ['stretch', 1100], ['pat', 1300], ['nod', 900], ['tilt', 1800], ['flop', 2400], ['spinhop', 900], ['shiver', 700]];
-var ANIM_ARMS = ['rest', 'idle', 'reach', 'nom', 'hold', 'cover', 'cheer', 'fan', 'clench', 'pat', 'eyerub', 'rub', 'scratch', 'grab'];
+var ANIM_ARMS = ['rest', 'idle', 'reach', 'nom', 'hold', 'cover', 'carry', 'cheer', 'fan', 'clench', 'pat', 'eyerub', 'rub', 'scratch', 'grab'];
 var ANIM_EYES = ['open', 'closed', 'happy', 'sparkle', 'squint'];
 var ANIM_MOUTHS = ['smile', 'open', 'o', 'wavy', 'chew'];
 var ANIM_EXTRAS = ['hearts', 'sparkles', 'zzz', 'steam', 'question', 'sweat', 'shock', 'redface', 'cheeks'];

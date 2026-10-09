@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 456
+- New carry pose: he holds the ball low in front of him on the run back, no longer with paws over his eyes.
+
 ## Build 455
 - The dragon's wings count as part of him at the edge of the screen, so they are no longer cut off.
 

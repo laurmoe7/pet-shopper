@@ -221,7 +221,7 @@ function fetchBack() {
 /** Hugs the toy for a moment, then lets it roll off a little. */
 function hugToy() {
   sound('squeak');
-  setFace({ eyes: 'happy', mouth: 'smile', arms: 'hold', x: ['cheeks'] });   // (arms round it while he carries it back, not up in the air as for the catch)
+  setFace({ eyes: 'happy', mouth: 'smile', arms: 'carry', x: ['cheeks'] });   // (arms under it while he carries it back, not up in the air as for the catch)
   toyHold(14, walkX);
   return carryBack(14).then(hugIt);
 }
