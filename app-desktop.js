@@ -1068,7 +1068,7 @@
   };
   // ---------- developer tools for the settings window (the shell calls these; see desktop/panel-ui.js) ----------
   // Only the shell may call them (it runs a fixed list of names), and none of them reads or sends anything about the player.
-  var devAnims = [], devAnimTimer = 0, devAnimBusy = false;
+  var devAnims = [], devAnimTimer = 0, devAnimBusy = false, devRemarkAt = 0, devGameAt = 0;
   function devRefresh() { updateEmptyHint(); refreshBackdrop(); refreshBedtime(); if (!busy) settle(); }
   /** Marks one item on the list as just ticked (so "shopping now" is true) and the rest as still to do. @param {Object[]} list */
   function devShopping(list) {
@@ -1090,6 +1090,20 @@
     link: function () { return devAlert('link'); },
     update: function () { showUpdateCard(); return 'Update card.'; },
     ring: function () { return window.deskRing && window.deskRing() ? 'Ring menu open.' : 'Not now.'; },
+    remark: function () {   // a remark about the kind of program in front, one kind after another (ignores the awareness level and the rate)
+      if (!isPet() || stage.classList.contains('bedtime')) return 'Not while he is in bed.';
+      var kinds = Object.keys(PROGRAM_LINES), k = kinds[devRemarkAt++ % kinds.length];
+      remark(pick(PROGRAM_LINES[k]), k === 'launcher' ? 'a launcher' : k);
+      return 'Remark: ' + k + ' (' + devRemarkAt + '/' + kinds.length + ' kinds, press again for the next).';
+    },
+    gameremark: function () {   // what he says about a game: first a cheer, then a line during play, then good game, game after game
+      if (!isPet() || stage.classList.contains('bedtime')) return 'Not while he is in bed.';
+      var games = ['World of Warcraft', 'Dark Souls', 'Some other game'], g = games[Math.floor(devGameAt / 3) % games.length], part = ['start', 'during', 'end'][devGameAt % 3];
+      devGameAt++;
+      if (part === 'start') setFace({ eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['cheeks'] });
+      remark(pick(linesFor(g, part)), g);
+      return g + ': ' + part + ' line.';
+    },
     headfall: function () {   // the page side of being knocked off a window and landing on his head (the window itself does not move)
       if (!isPet() || stage.classList.contains('bedtime')) return 'Not while he is in bed.';
       pageThrown(true, 1, false, { head: true });

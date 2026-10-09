@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 362
+- Developer tools to try his remarks about programs and games.
+
 ## Build 361
 - With the mouse passing through him, sweep over an alert to swipe it away (task reminders: left puts away, right snoozes 10 min).
 

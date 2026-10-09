@@ -181,7 +181,7 @@
     showState();
 
     var does = group('Make him do something');
-    [['wander', 'Wander'], ['peek', 'Peek round the edge'], ['perch', 'Hop on a window / down'], ['sit', 'Sit / stand (soles)'], ['nap', 'Nap'], ['ring', 'Open the ring menu'], ['headfall', 'Land on his head'], ['bellring', 'Ring the bell'], ['bellbreak', 'Break the bell'], ['nightlight', 'Night light on / off']].forEach(function (d) { devBtn(does, d[1], 'run', d[0]); });
+    [['wander', 'Wander'], ['peek', 'Peek round the edge'], ['perch', 'Hop on a window / down'], ['sit', 'Sit / stand (soles)'], ['nap', 'Nap'], ['ring', 'Open the ring menu'], ['remark', 'Remark about a program'], ['gameremark', 'Remark about a game'], ['headfall', 'Land on his head'], ['bellring', 'Ring the bell'], ['bellbreak', 'Break the bell'], ['nightlight', 'Night light on / off']].forEach(function (d) { devBtn(does, d[1], 'run', d[0]); });
 
     var alerts = group('Alerts');
     [['remind', 'Task alert'], ['claude', 'Claude alert'], ['note', 'Note alert'], ['link', 'Link alert'], ['update', 'Update ready card']].forEach(function (d) { devBtn(alerts, d[1], 'run', d[0]); });
