@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 488
+- Fumu stands 15 px lower on the taskbar; spinning throws keep every part of him on screen
+
 ## Build 487
 - Wrecking ball in the app: shatters piece by piece (picture, words, bar), also breaks the lamp and the gear
 

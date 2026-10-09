@@ -170,8 +170,9 @@ function start() {
     if (!bodyBox) return { l: -Math.round(b.width * 0.14), t: -Math.round(b.height * 0.3), r: -Math.round(b.width * 0.14), b: b.height + place.MARGIN / 2 };   // (not told yet: the old guess)
     return { l: bodyBox[0] * z, t: bodyBox[1] * z, r: bodyBox[2] * z, b: bodyBox[3] * z + 3 };
   }
-  /** @returns {number} The lowest top edge the window may have on a screen: his cushion rests on the bottom of the work area, on top of the taskbar. `display` is a Display. */
-  function lowestY(display, b) { const a = display.workArea; return Math.round(a.y + a.height - bodyIn(b).b); }
+  /** @returns {number} The lowest top edge the window may have on a screen: his cushion rests on the taskbar, TASKBAR_SINK px below the top of it (never below the screen). `display` is a Display. */
+  const TASKBAR_SINK = 15;
+  function lowestY(display, b) { const a = display.workArea, d = display.bounds; return Math.round(Math.min(a.y + a.height + TASKBAR_SINK, d.y + d.height) - bodyIn(b).b); }
 
   /** He is let go while moving fast: he flies on, bounces off the edges of the screens and the floor, then runs back to where he was picked up. */
   let lastThrow = null;   // where the last throw started, landed and ended (shown in the diagnostics, to track down a wrong run-back)
@@ -211,7 +212,9 @@ function start() {
         if (x < box.x - bi.l + sr.x) { x = box.x - bi.l + sr.x; if (inBed) vx = 0; else { hit = Math.abs(vx); wall = 'l'; vx = Math.abs(vx) * WALL; } }
         if (x > box.r - bi.r - sr.x) { x = box.r - bi.r - sr.x; if (inBed) vx = 0; else { hit = Math.abs(vx); wall = 'r'; vx = -Math.abs(vx) * WALL; } }
         if (y < box.y - bi.t + sr.y) { y = box.y - bi.t + sr.y; if (inBed) vy = 0; else { hit = Math.max(hit, Math.abs(vy)); wall = wall || 't'; vy = Math.abs(vy) * WALL; } }
-        const floorY = lowestY(screen.getDisplayNearestPoint({ x: Math.round(x + b0.width / 2), y: Math.round(y + b0.height) }), b0) + bedLift;   // (the bed is drawn 38 px higher while it flies: its bottom meets the floor)
+        const fd = screen.getDisplayNearestPoint({ x: Math.round(x + b0.width / 2), y: Math.round(y + b0.height) });
+        // (while he spins, the corners of his box swing below his cushion: they must not go below the bottom of the screen, where they are not drawn)
+        const floorY = Math.min(lowestY(fd, b0), Math.round(fd.bounds.y + fd.bounds.height - bi.b - sr.y)) + bedLift;   // (the bed is drawn 38 px higher while it flies: its bottom meets the floor)
         let rest = false;
         if (y >= floorY) { y = floorY; if (Math.abs(vy) > (inBed ? 90 : 260) && !(opts.maxBounces && floorHits >= opts.maxBounces)) { floorHits++; hit = Math.max(hit, Math.abs(vy)); vy = -vy * FLOOR; } else { vy = 0; rest = true; } vx *= 0.85; }
         if (hit > (inBed ? 80 : 220) && now - lastHit > (inBed ? 60 : 90)) { lastHit = now; win.webContents.send('desk:bounce', Math.min(1, hit / 2500), wall); }
