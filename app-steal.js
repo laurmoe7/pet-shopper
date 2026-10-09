@@ -84,7 +84,7 @@ function stealNow() {
   return true;
 }
 /** He is poked while he has one: embarrassed, he spits it back out onto its row. */
-function spitBack() {
+function stealSpit() {
   var s = stolen;
   s.phase = 'spit';
   busy++;
@@ -105,7 +105,7 @@ function spitBack() {
 }
 // poking him while he has it
 pet.addEventListener('click', function (e) {
-  if (stolen && stolen.phase === 'eaten') { e.stopImmediatePropagation(); e.preventDefault(); spitBack(); }
+  if (stolen && stolen.phase === 'eaten') { e.stopImmediatePropagation(); e.preventDefault(); stealSpit(); }
 }, true);
 
 /** Now and then, while it is quiet. */

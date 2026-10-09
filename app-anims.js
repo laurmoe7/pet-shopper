@@ -58,7 +58,7 @@ function animCatalogue() {
   }
   add('Specials', 'wake with a start', function () { return wakeForSnack(); });
   add('Specials', 'steal an emoji (shopping list, in the app)', function () { return stealNow() ? 4200 : 600; });
-  add('Specials', 'spit the emoji back (poke him after it)', function () { if (stolen && stolen.phase === 'eaten') { spitBack(); return 3200; } say('he has not taken one', 1500); return 600; });
+  add('Specials', 'spit the emoji back (poke him after it)', function () { if (stolen && stolen.phase === 'eaten') { stealSpit(); return 3200; } say('he has not taken one', 1500); return 600; });
   add('Specials', 'hearts drifting', function () { drift(['♥', '✦', '♥'], petTop(), 4); return 2200; });
   Sounds.kinds.forEach(function (k) { add('Sounds', k, function () { sound(k); return 900; }); });
   return out;
