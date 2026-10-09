@@ -220,10 +220,10 @@
     root.classList.toggle('desk-noclouds', deskPrefs.clouds === false);
     // the look of alert cards and speech bubbles: the small pet uses the style chosen in the settings window; the whole app always has the
     // Classic look, which follows its own Light or Dark appearance
-    var style = root.classList.contains('desktop-pet') ? (deskPrefs.alertStyle || 'paper') : (root.dataset.skin === 'quest' ? (root.dataset.quest === 'slots' ? 'quest2' : 'quest') : 'classic');   // (the whole app: Classic, or Quest / Quest2 when that is its appearance)
+    var style = root.classList.contains('desktop-pet') ? (deskPrefs.alertStyle || 'paper') : (root.dataset.skin === 'quest' ? (root.dataset.quest === 'slots' ? 'quest2' : root.dataset.quest === 'osrs' ? 'osrs' : 'quest') : 'classic');   // (the whole app: Classic, or Quest / Quest2 when that is its appearance)
     // Quest2 wears Quest's classes too, so its speech bubble stays exactly Quest's; al-quest2 only restyles the cards and the ring on top
-    var want = style === 'classic' ? [] : ({ night: ['al-night'], sweet: ['al-sweet'], cool: ['al-cool'], quest: ['al-quest'], quest2: ['al-quest', 'al-quest2'] }[style] || ['al-paper']);
-    var ALL = ['al-paper', 'al-night', 'al-sweet', 'al-cool', 'al-quest', 'al-quest2'];
+    var want = style === 'classic' ? [] : ({ night: ['al-night'], sweet: ['al-sweet'], cool: ['al-cool'], quest: ['al-quest'], quest2: ['al-quest', 'al-quest2'], osrs: ['al-osrs'] }[style] || ['al-paper']);
+    var ALL = ['al-paper', 'al-night', 'al-sweet', 'al-cool', 'al-quest', 'al-quest2', 'al-osrs'];
     var have = ALL.filter(function (c) { return root.classList.contains(c); });
     if (have.length !== want.length || want.some(function (c) { return have.indexOf(c) === -1; })) {   // (only touched when it is wrong, so this is cheap to call often)
       ALL.forEach(function (c) { root.classList.remove(c); });

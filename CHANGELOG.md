@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 516
+- New Old School theme (app) and alert style (Mini Fumu)
+
 ## Build 515
 - Wrecking ball in the app flies all over and sometimes breaks several pieces
 

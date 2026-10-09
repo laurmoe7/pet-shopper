@@ -3442,3 +3442,100 @@ html.al-cool .stage .bubble {
 html.al-cool .ring-btn { border-radius: 50%; border: 1.5px solid #5ef0ff; background: radial-gradient(circle at 50% 28%, #1d3355, #0a1220); box-shadow: 0 0 10px rgba(94, 240, 255, .45), inset 0 0 8px rgba(94, 240, 255, .18); }
 html.al-cool .ring-btn:hover { background: radial-gradient(circle at 50% 28%, #2a4a7a, #0e1a30); }
 html.al-cool .ring-btn[aria-pressed="true"] { background: radial-gradient(circle at 50% 28%, #3b4fa8, #12183a); box-shadow: 0 0 14px rgba(122, 139, 255, .8), inset 0 0 8px rgba(255, 255, 255, .2); }
+
+/* ---------- Old School (App settings > Appearance > Old School; Mini Fumu alert style "Old School") ----------
+   Old School RuneScape's interface: flat brown stone panels with a thin black frame and square corners, bright yellow lettering with a hard black
+   shadow, orange titles, red selected tabs. It rides on Quest (data-skin="quest") plus data-quest="osrs"; every rule starts with that, so Quest and Quest2 are untouched.
+   The lettering is Pixelify Sans (Google Fonts), the nearest free font to the game's. His speech bubble is the game's overhead text: yellow, outlined, no box. */
+html:root[data-skin="quest"][data-quest="osrs"] {
+  --os-stone: #494034; --os-dark: #3e3529; --os-pit: #2b251c; --os-hi: #6b6150; --os-lo: #1d1810; --os-yellow: #ffff00; --os-orange: #ff981f; --os-red: #8b2a1d;
+  --os-font: "Pixelify Sans", "Press Start 2P", "Courier New", monospace;
+  --os-text: 1px 1px 0 #000;
+  --bg: #3a3226; --surface: #494034; --surface-2: #3e3529; --cb-dock-a: #494034; --cb-dock-b: #3e3529; --outline: #1d1810; --line: #2b251c;
+  --ink: #ffff00; --muted: #d9a441; --accent: #8b2a1d; --accent-ink: #ffff00; --mint: #2f4a1f; --butter: #5a4a1a; --shadow: rgba(0, 0, 0, .55);
+  --cb-edge: #1d1810; --cb-edge-strong: #000; --cb-done: rgba(43, 37, 28, .7);
+}
+html:root[data-skin="quest"][data-quest="osrs"], html:root[data-skin="quest"][data-quest="osrs"] :is(button, input, select, textarea) { font-family: var(--os-font); letter-spacing: .01em; }
+html:root[data-skin="quest"][data-quest="osrs"] body { background-color: #3a3226; background-image: repeating-conic-gradient(#40372b 0 25%, #3a3226 0 50%); background-size: 6px 6px; background-attachment: scroll; }
+html:root[data-skin="quest"][data-quest="osrs"] .picker { background: var(--os-stone); border: 2px solid; border-color: var(--os-hi) var(--os-lo) var(--os-lo) var(--os-hi); border-bottom: 0; border-radius: 0; box-shadow: 0 0 0 1px #000, 0 -6px 18px rgba(0, 0, 0, .55), inset 0 0 0 2px #000, inset 0 0 0 3px #5b5140; }
+html:root[data-skin="quest"][data-quest="osrs"] .picker h2 { border: 1px solid #000; border-radius: 0; background: var(--os-dark); color: var(--os-orange); text-shadow: var(--os-text); letter-spacing: 0; box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 var(--os-hi); }
+html:root[data-skin="quest"][data-quest="osrs"] :is(.item, .picker h2)::before { display: none; }
+html:root[data-skin="quest"][data-quest="osrs"] :is(.add, .item, .goal, .fav, .options, .picker .closet-wear) { border: 1px solid #000; border-radius: 0; background: var(--os-dark); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 var(--os-hi); }
+html:root[data-skin="quest"][data-quest="osrs"] .item-text { color: var(--os-yellow); text-shadow: var(--os-text); font-weight: 400; }
+html:root[data-skin="quest"][data-quest="osrs"] .item.done .item-text { color: #b58a24; text-decoration-color: #000; }
+html:root[data-skin="quest"][data-quest="osrs"] :is(.qty-tag, .due-tag) { color: var(--os-orange); text-shadow: var(--os-text); }
+html:root[data-skin="quest"][data-quest="osrs"] .item .emoji-btn { width: 44px; height: 44px; padding: 3px; border: 1px solid #000; border-radius: 0; background: var(--os-pit); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 #5b5140; }
+html:root[data-skin="quest"][data-quest="osrs"] .check { border: 1px solid #000; border-radius: 0; background: var(--os-pit); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 #5b5140; }
+html:root[data-skin="quest"][data-quest="osrs"] .check::before { border-radius: 0; border: 0; box-shadow: none; background: transparent; }
+html:root[data-skin="quest"][data-quest="osrs"] .item.done .check::before { background-color: #1f6b14; border-radius: 0; }
+html:root[data-skin="quest"][data-quest="osrs"] .add input { background: transparent; color: var(--os-yellow); text-shadow: var(--os-text); box-shadow: none; }
+html:root[data-skin="quest"][data-quest="osrs"] .add input::placeholder { color: #a8883c; }
+html:root[data-skin="quest"][data-quest="osrs"] :is(.pill-btn, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .dress-tabs button, .cal-add-btn, .recipe-btn, .mic-btn) {
+  border: 1px solid #000; border-radius: 0; color: var(--os-yellow); text-shadow: var(--os-text); background: var(--os-stone);
+  box-shadow: inset 1px 1px 0 var(--os-hi), inset -1px -1px 0 var(--os-lo);
+}
+html:root[data-skin="quest"][data-quest="osrs"] :is(.pill-btn, .picker-grid button, .dress-tabs button, .recipe-btn, .mic-btn):hover { background: #564c3d; }
+html:root[data-skin="quest"][data-quest="osrs"] :is(.pill-btn, .picker-grid button, .dress-tabs button, .recipe-btn, .mic-btn):active { background: var(--os-pit); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 var(--os-hi); }
+html:root[data-skin="quest"][data-quest="osrs"] :is(.pill-btn[aria-pressed="true"], .dress-tabs button[aria-selected="true"], .picker [aria-pressed="true"]:is(button)) { background: var(--os-red); color: #fff; border: 1px solid #000; box-shadow: inset 1px 1px 0 #b8432f, inset -1px -1px 0 #4a130b; }
+html:root[data-skin="quest"][data-quest="osrs"] .add-btn { border: 1px solid #000; border-radius: 0; color: #fff; text-shadow: var(--os-text); background: #1f6b14; box-shadow: inset 1px 1px 0 #3f9a30, inset -1px -1px 0 #0f3a09; }
+html:root[data-skin="quest"][data-quest="osrs"] .dress-tabs button img { border-radius: 0; border: 1px solid #000; background: var(--os-pit); box-shadow: none; }
+html:root[data-skin="quest"][data-quest="osrs"] .dock { background: var(--os-stone); border-top: 2px solid #000; box-shadow: inset 0 2px 0 var(--os-hi), inset 0 -2px 0 var(--os-lo); }
+html:root[data-skin="quest"][data-quest="osrs"] .dock-icon { border: 1px solid #000; border-radius: 0; background: var(--os-dark); color: var(--os-yellow); box-shadow: inset 1px 1px 0 var(--os-hi), inset -1px -1px 0 var(--os-lo); }
+html:root[data-skin="quest"][data-quest="osrs"] .dock-icon:active { background: var(--os-red); }
+html:root[data-skin="quest"][data-quest="osrs"] .dock-label { color: var(--os-yellow); text-shadow: var(--os-text); }
+html:root[data-skin="quest"][data-quest="osrs"] .cal-sheet #calGrid { background: var(--os-pit); border: 1px solid #000; border-radius: 0; box-shadow: none; }
+html:root[data-skin="quest"][data-quest="osrs"] .cal-sheet .cal-cell { background: var(--os-dark); border: 1px solid #000; border-radius: 0; box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 var(--os-hi); }
+html:root[data-skin="quest"][data-quest="osrs"] .cal-sheet .cal-cell:nth-child(7n), html:root[data-skin="quest"][data-quest="osrs"] .cal-sheet .cal-cell:nth-child(7n-1) { background: #43372a; }
+html:root[data-skin="quest"][data-quest="osrs"] .cal-sheet .cal-cell:is(.today, .sel) { background: var(--os-red); border: 1px solid #000; box-shadow: inset 1px 1px 0 #b8432f, inset -1px -1px 0 #4a130b; }
+html:root[data-skin="quest"][data-quest="osrs"] .cal-sheet .cal-list li { background: var(--os-dark); border: 1px solid #000; border-radius: 0; box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 var(--os-hi); }
+html:root[data-skin="quest"][data-quest="osrs"] :is(.cal-month select, .cal-add input) { background: var(--os-pit); border: 1px solid #000; border-radius: 0; box-shadow: none; color: var(--os-yellow); }
+html:root[data-skin="quest"][data-quest="osrs"] :is(.profile-avatar, .profile-link-icon) { border: 1px solid #000 !important; border-radius: 0 !important; background: var(--os-pit) !important; }
+html:root[data-skin="quest"][data-quest="osrs"] :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button) { aspect-ratio: 1 / 1; background: var(--os-pit); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 #5b5140; }
+html:root[data-skin="quest"][data-quest="osrs"] :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button):hover { background: #3a3226; }
+html:root[data-skin="quest"][data-quest="osrs"] :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button)[aria-pressed="true"] { background: #5a2a1a; border: 1px solid #000; box-shadow: inset 0 0 0 2px var(--os-red); }
+html:root[data-skin="quest"][data-quest="osrs"] .picker .species-grid button .pet.mini { width: 94px; height: 86px; background: none; }
+html:root[data-skin="quest"][data-quest="osrs"] .picker .species-grid button { padding: 4px 2px 5px; }
+html:root[data-skin="quest"][data-quest="osrs"] .picker-grid button { padding: 3px; }
+html:root[data-skin="quest"][data-quest="osrs"] .picker-grid button img { width: 100%; height: 100%; }
+html:root[data-skin="quest"][data-quest="osrs"] .dress-panel .hat-strip button { padding: 5px 2px 3px; gap: 2px; font-size: .68rem; line-height: 1.1; overflow: hidden; justify-content: center; }
+html:root[data-skin="quest"][data-quest="osrs"] .dress-panel .hat-strip button > svg { width: 100%; max-width: 78px; height: 56px; padding: 0; background: none; border-radius: 0; }
+
+/* Old School for Mini Fumu (alert style "Old School"): the same stone cards and square buttons; his speech is the game's overhead text (yellow, black outline, no box, no fin) */
+html.al-osrs { --os-stone: #494034; --os-dark: #3e3529; --os-pit: #2b251c; --os-hi: #6b6150; --os-lo: #1d1810; --os-yellow: #ffff00; --os-orange: #ff981f; --os-red: #8b2a1d; --os-font: "Pixelify Sans", "Press Start 2P", "Courier New", monospace; }
+html.al-osrs .inbox-card, html.al-osrs .inbox-card * { font-family: var(--os-font); }
+html.al-osrs .inbox-card { border: 1px solid #000; border-radius: 0; outline: none; background: var(--os-stone); box-shadow: inset 0 0 0 1px var(--os-hi), inset 0 0 0 2px #000, inset 0 0 0 3px #5b5140, 0 6px 12px var(--al-shadow); }
+html.al-osrs .inbox-card::before, html.al-osrs .inbox-card::after { display: none; }
+html.al-osrs .inbox-text b { color: var(--os-orange); text-shadow: 1px 1px 0 #000; font-weight: 400; letter-spacing: 0; }
+html.al-osrs .inbox-text span { color: var(--os-yellow); text-shadow: 1px 1px 0 #000; }
+html.al-osrs .inbox-icon { border-radius: 0; rotate: 0deg; border: 1px solid #000; background: var(--os-pit); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 #5b5140; }
+html.al-osrs .inbox-actions button { border: 1px solid #000; border-radius: 0; background: var(--os-dark); color: var(--os-yellow); text-shadow: 1px 1px 0 #000; font-weight: 400; box-shadow: inset 1px 1px 0 var(--os-hi), inset -1px -1px 0 var(--os-lo); }
+html.al-osrs .inbox-actions button:hover { background: #564c3d; }
+html.al-osrs .inbox-actions .ia-done { background: #1f6b14; color: #fff; box-shadow: inset 1px 1px 0 #3f9a30, inset -1px -1px 0 #0f3a09; }
+html.al-osrs .ring-btn { border: 1px solid #000; border-radius: 0; background: var(--os-stone); box-shadow: inset 1px 1px 0 var(--os-hi), inset -1px -1px 0 var(--os-lo); }
+html.al-osrs .ring-btn:hover { background: #564c3d; }
+html.al-osrs .ring-btn[aria-pressed="true"] { background: var(--os-red); box-shadow: inset 1px 1px 0 #b8432f, inset -1px -1px 0 #4a130b; }
+html.al-osrs .stage .bubble:not(.in-sheet) {
+  background: none; border: 0; border-radius: 0; box-shadow: none; padding: 2px 4px; filter: none; max-width: 260px; text-align: center;
+  font-family: var(--os-font); font-size: 1.05rem; font-weight: 400; color: var(--os-yellow);
+  text-shadow: -1px 0 #000, 1px 0 #000, 0 -1px #000, 0 1px #000, 1px 1px 0 #000, -1px -1px 0 #000;
+}
+html.al-osrs .stage .bubble:not(.in-sheet)::before, html.al-osrs .stage .bubble:not(.in-sheet)::after { display: none; }
+
+/* Old School: leftovers (labels, rounded pills, tape, fonts everywhere) */
+html:root[data-skin="quest"][data-quest="osrs"] *:not(svg *):not(svg) { font-family: var(--os-font); }
+html:root[data-skin="quest"][data-quest="osrs"] .field-label, html:root[data-skin="quest"][data-quest="osrs"] .picker legend { color: var(--os-orange); text-shadow: var(--os-text); background: none; border: 0; box-shadow: none; transform: none; font-weight: 400; }
+html:root[data-skin="quest"][data-quest="osrs"] .field-label::before, html:root[data-skin="quest"][data-quest="osrs"] .field-label::after { display: none; }
+html:root[data-skin="quest"][data-quest="osrs"] .items .aisle { color: var(--os-orange); text-shadow: var(--os-text); font-weight: 400; letter-spacing: 0; }
+html:root[data-skin="quest"][data-quest="osrs"] .brand { color: var(--os-yellow); text-shadow: var(--os-text); font-weight: 400; }
+html:root[data-skin="quest"][data-quest="osrs"] :is(.name-show, .name-edit, .dress-search, .qty-tag, .due-tag, .badge, .dock-badge, .picker input, .picker select) { border-radius: 0; }
+html:root[data-skin="quest"][data-quest="osrs"] .name-show { background: var(--os-dark); border: 1px solid #000; box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 var(--os-hi); color: var(--os-yellow); text-shadow: var(--os-text); }
+html:root[data-skin="quest"][data-quest="osrs"] .name-edit { background: var(--os-red); color: #fff; border: 1px solid #000; text-shadow: var(--os-text); box-shadow: inset 1px 1px 0 #b8432f, inset -1px -1px 0 #4a130b; }
+html:root[data-skin="quest"][data-quest="osrs"] .dress-search { background: var(--os-pit); border: 1px solid #000; color: var(--os-yellow); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 #5b5140; }
+html:root[data-skin="quest"][data-quest="osrs"] :is(.qty-tag, .due-tag) { background: var(--os-pit); border: 1px solid #000; }
+html:root[data-skin="quest"][data-quest="osrs"] .gear-btn { border-radius: 0; background: var(--os-stone); border: 1px solid #000; box-shadow: inset 1px 1px 0 var(--os-hi), inset -1px -1px 0 var(--os-lo); }
+html:root[data-skin="quest"][data-quest="osrs"] :is(.gear-btn, .dock-icon)::before, html:root[data-skin="quest"][data-quest="osrs"] :is(.gear-btn, .dock-icon)::after { display: none; }
+html:root[data-skin="quest"][data-quest="osrs"] .stage .bubble:not(.in-sheet) { background: none; border: 0; box-shadow: none; color: var(--os-yellow); text-shadow: -1px 0 #000, 1px 0 #000, 0 -1px #000, 0 1px #000; font-size: 1.05rem; }
+html:root[data-skin="quest"][data-quest="osrs"] .stage .bubble:not(.in-sheet)::before, html:root[data-skin="quest"][data-quest="osrs"] .stage .bubble:not(.in-sheet)::after { display: none; }
+
+html:root[data-skin="quest"][data-quest="osrs"] :is(.dock-icon, .gear-btn, .add-btn, .dock button) { rotate: 0deg; transform: none; }
+html:root[data-skin="quest"][data-quest="osrs"] .dock-icon::before, html:root[data-skin="quest"][data-quest="osrs"] .dock-icon::after, html:root[data-skin="quest"][data-quest="osrs"] .add-btn::before, html:root[data-skin="quest"][data-quest="osrs"] .add-btn::after, html:root[data-skin="quest"][data-quest="osrs"] .dock-icon > i, html:root[data-skin="quest"][data-quest="osrs"] .dock-icon .tape { display: none; }
