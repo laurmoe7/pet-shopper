@@ -2,6 +2,20 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 421
+- Back to keeping him above the taskbar: Windows draws it over him when he overlaps it.
+
+## Build 420
+- After a throw he runs back to exactly where he was, even when that was half off the side of the screen.
+
+## Build 419
+- Mini Fumu is petted by holding the mouse down again, not by just moving over him.
+- With the ring menu open, speech bubbles move out of the way of its buttons.
+
+## Build 418
+- When thrown he bounces off the real edges of the screen, not an invisible padded edge.
+- He rests right on the taskbar's edge but never goes under it.
+
 ## Build 417
 - The ring menu always opens on a double click or a style preview, whatever state he is in.
 

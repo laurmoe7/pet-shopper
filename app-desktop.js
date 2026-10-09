@@ -1054,6 +1054,16 @@
     }
     return out;
   }
+  // where his body is in the window (left, top, right, the bottom of his cushion): the shell lets HIM touch the screen edges and the taskbar
+  var lastBody = '';
+  if (D.setBody) setInterval(function () {
+    if (!isPet() || document.hidden || pet.classList.contains('thrown') || pet.classList.contains('falling')) return;
+    var r = pet.getBoundingClientRect();
+    if (r.width < 1) return;
+    var cx = (r.left + r.right) / 2, hw = stage.classList.contains('bedtime') ? 125 : 82;   // (the cushion, or his bed, is wider than he is)
+    var box = [Math.round(Math.min(r.left, cx - hw)), Math.round(r.top), Math.round(Math.max(r.right, cx + hw)), Math.round(r.bottom + 12)], key = box.join();
+    if (key !== lastBody) { lastBody = key; D.setBody(box); }
+  }, 500);
   if (D.setRects) setInterval(function () {
     if (!isPet() || document.hidden) return;
     var r = solidRects(), key = JSON.stringify(r);

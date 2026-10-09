@@ -41,6 +41,7 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   /** The shortcut for swapping the shopping list and the to-do list was pressed. */
   onSwapList: (fn) => ipcRenderer.on('desk:swapList', () => fn()),
   /** Where the solid parts are, as [left, top, right, bottom] in page pixels: the shell checks the pointer against them itself. */
+  setBody: (box) => ipcRenderer.send('desk:body', Array.isArray(box) ? box.slice(0, 4) : []),
   setRects: (rects) => ipcRenderer.send('desk:rects', Array.isArray(rects) ? rects.slice(0, 40) : []),
   /** A mouse button is held that went down on Fumu or the toy: stay solid until it is let go. */
   sweep: (on) => ipcRenderer.send('desk:sweep', !!on),
