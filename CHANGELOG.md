@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 470
+- He sits right on top of a window again (he floated 28 px above it).
+- After falling on his head he stands up first, then runs back (needs the new installer).
+
 ## Build 469
 - New way to hold the ball: the app moves it to the mouse itself, so it follows smoothly (needs the new installer).
 

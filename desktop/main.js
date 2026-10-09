@@ -259,6 +259,7 @@ function start() {
       if (lastThrow) lastThrow.end = win.getBounds();
       return;
     }
+    if (opts.head) { await new Promise((r) => setTimeout(r, 1650)); if (!win || mode !== 'pet') return; }   // (he lies on his head for a moment, then rights himself (page: pageThrown); only then does he run back, on his feet)
     // back to exactly where he was picked up: that may be half off the side of the screen (peeking in), so it is not squeezed back inside the
     // screen; only a spot that is mostly off the screen, or below it, is pulled in
     const cur = win.getBounds(), disp = screen.getDisplayMatching(home).bounds;
