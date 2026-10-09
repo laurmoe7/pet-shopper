@@ -2,6 +2,20 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 388
+- Done and snooze swipes each make their own sound.
+
+## Build 387
+- Only the bell swings in Claude alerts, in every theme.
+- A soft swoosh when you swipe an alert away.
+
+## Build 386
+- Speech bubble pointers always aim at his head.
+
+## Build 385
+- Quest speech bubble looks like a game chat bubble: dark, see-through, with a pointer.
+- Style preview: the bubble stands to the side, and the ring stays for the whole time.
+
 ## Build 384
 - Choosing an alert style also previews the speech bubble and ring menu, all gone after 2 seconds.
 - Diagnostics note where the last throw started and ended.

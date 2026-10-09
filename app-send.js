@@ -174,6 +174,10 @@ function showInboxCard(msg, more) {
   card.setAttribute('role', 'status');
   var img = emojiImg(msg.from === 'claude' ? '🔔' : pv.icon, '');   // Claude's note is a bell
   img.className = 'inbox-icon';
+  if (msg.from === 'claude') {   // the bell swings by itself inside its round button (the button stays still)
+    var bell = img; bell.className = 'inbox-bell';
+    img = document.createElement('span'); img.className = 'inbox-icon'; img.appendChild(bell);
+  }
   var text = document.createElement('div'), t = document.createElement('b'), d = document.createElement('span');
   text.className = 'inbox-text';
   t.textContent = pv.title || (msg.kind === 'link' ? 'a link' : 'a note');
@@ -211,7 +215,13 @@ function cardCopy(card) {
   return true;
 }
 /** An alert card slides on out of the window the way it was pushed, then `then` runs. @param {Element} card @param {number} dir -1 left, 1 right. */
-function slideAway(card, dir, then) {
+/** The swipe sound for what the swipe does: Done and snooze each have their own, anything else is a plain swoosh. @param {?Element} btn */
+function swipeSound(btn) {
+  var t = btn ? btn.textContent : '';
+  return /^Done/.test(t) ? 'swooshdone' : /^In 10 min/.test(t) ? 'swooshsnooze' : 'swoosh';
+}
+function slideAway(card, dir, then, kind) {
+  if (kind !== 'none') sound(kind || 'swoosh');
   var away = dir * (window.innerWidth + card.offsetWidth);
   card.style.animation = 'none';
   card.style.transition = 'translate .26s cubic-bezier(.4, 0, 1, 1)';
@@ -259,11 +269,12 @@ function slideAway(card, dir, then) {
     if (vertical) btn = named(/^In 10 min/) || btn;
     else if (remind && d.dx < 0) btn = named(/^Done/) || btn;
     if (vertical) {
+      sound(swipeSound(btn));
       d.card.style.animation = 'none';
       d.card.style.transition = 'translate .26s ease-in, opacity .26s';
       d.card.style.translate = '0 ' + (d.dy < 0 ? -60 : 60) + 'px'; d.card.style.opacity = '0';
       setTimeout(function () { if (d.card.parentNode && btn) btn.click(); }, 270);
-    } else slideAway(d.card, d.dx < 0 ? -1 : 1, function () { if (btn) btn.click(); });
+    } else slideAway(d.card, d.dx < 0 ? -1 : 1, function () { if (btn) btn.click(); }, swipeSound(btn));
   }
   document.addEventListener('pointerup', end);
   document.addEventListener('pointercancel', end);

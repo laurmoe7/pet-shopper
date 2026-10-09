@@ -10,7 +10,7 @@
   var ring = document.createElement('div');
   ring.className = 'ring'; ring.hidden = true; ring.setAttribute('role', 'menu'); ring.setAttribute('aria-label', 'Play');
   stage.appendChild(ring);
-  var shown = false, previewing = false, hoverAt = 0, leaveTimer = 0, quietUntil = 0, center = { x: 0, y: 0, r: 100 };
+  var shown = false, previewing = false, previewTimer = 0, hoverAt = 0, leaveTimer = 0, quietUntil = 0, center = { x: 0, y: 0, r: 100 };
 
   function ringSnack() {
     if (busy) return;
@@ -116,7 +116,8 @@
     build();
     ring.hidden = false; shown = true;
   }
-  function hide() {
+  function hide(force) {
+    if (previewing && force !== true) return;   // (the style preview stays up for its time whatever the pointer does)
     clearTimeout(leaveTimer);
     if (!shown) return;
     shown = false; ring.hidden = true; ring.replaceChildren();
@@ -146,7 +147,8 @@
   window.deskRingPreview = function (ms) {
     previewing = true;
     show(true, true);   // (even with the sample alert showing)
-    setTimeout(function () { previewing = false; if (shown) hide(); }, ms || 2000);
+    clearTimeout(previewTimer);   // trying another style restarts the time, so it never goes while you are still choosing
+    previewTimer = setTimeout(function () { previewing = false; if (shown) hide(true); }, ms || 2000);
     return shown;
   };
   window.deskRing = function () { show(); return shown; };   // for tests and the animation player
