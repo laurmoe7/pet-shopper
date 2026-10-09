@@ -504,8 +504,8 @@
         say(pick(['Ow! I\'m okay', 'Ow! …I\'m okay!', 'Ouch! I\'m okay~']), 2200, true);
         setFace({ eyes: 'dizzy', mouth: 'o', arms: 'idle', x: ['sweat'] });
         if (extra.head) setTimeout(function () { pet.classList.remove('head-down'); pet.classList.add('righting'); setTimeout(function () { pet.classList.remove('righting'); }, 450); }, 1100);
-        setTimeout(function () { if (!pet.classList.contains('thrown') && !carried && !busy) settle(); }, extra.head ? 1700 : 1000);
-      } else if (!bed) setTimeout(function () { if (!pet.classList.contains('thrown') && !carried && !busy) settle(); }, 900);
+        setTimeout(function () { if (!pet.classList.contains('thrown') && !carried && !busy) settle(); }, extra.head ? 1700 : 1500);
+      } else if (!bed) setTimeout(function () { if (!pet.classList.contains('thrown') && !carried && !busy) settle(); }, 1500);   // (the dizzy face stays for a moment after he lands)
     }
     if (!on) stage.style.removeProperty('--bed-turn');
     if (!on && stage.classList.contains('bed-thrown')) {   // the bed settles back into place softly instead of snapping

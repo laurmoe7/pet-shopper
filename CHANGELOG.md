@@ -2,8 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 433
+- He can sit over the taskbar again (the window stays above it).
+- While spinning he no longer gets cut off at the screen edge: the walls move in as his spin swings out.
+- The dizzy face stays for 1.5 seconds after he lands from a throw.
+
 ## Build 432
-- He stays just above the taskbar again: sitting over it cut him off.
+- (Taskbar change tried and taken back in 433.)
 
 ## Build 431
 - Claude alerts: the wand celebration plays right after the card appears.
