@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 391
+- Alert and bubble style is re-checked whenever an alert shows.
+
 ## Build 390
 - Pet stage is back to its old size; Photo and Closet buttons are smaller.
 - Bottom bar buttons sit below the dotted line.
