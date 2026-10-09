@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 392
+- Removed the line across the base of the speech bubble pointer.
+- The pointer glides smoothly after him while the bubble is open.
+
 ## Build 391
 - Alert and bubble style is re-checked whenever an alert shows.
 
