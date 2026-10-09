@@ -652,6 +652,7 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 - Sketchpad: New canvas and Resize in the top bar, with a free Canvas mode.
 - Sketchpad: Trace row fits on one line.
 - Sketchpad: Lazy brush next to the pen, with strength.
+- Sketchpad: “Cut out subject” replaced by “Pick object”: click what to keep (Alt+click to take away).
 - Sketchpad: Click a picture to pick it, click empty space to let go.
 - Sketchpad: Trace renamed To shapes.
 - Sketchpad: Layer name outline only shows while it can be edited.

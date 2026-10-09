@@ -591,6 +591,7 @@ function skDown(e) {
     skStage.classList.add('panning');
     return;
   }
+  if (skCutSess) { skCutPoint(skPoint(e), e.altKey); return; }
   if (SK.tool === 'drop') { skPickInPage(e.clientX, e.clientY); return; }
   var pt = skPoint(e), v = SK_VIEW[SK.mode];
   if (SK.tool === 'bucket') { skBucket(pt); return; }
@@ -1653,13 +1654,14 @@ async function skCut() {
   if (!im) { skStatus.textContent = 'Add a picture first (Images, below).'; return; }
   try {
     var c = await skCutCanvas(im), data = c.g.getImageData(0, 0, c.w, c.h), n = L.cutBackground(data.data, c.w, c.h, +$('skCutTol').value);
-    if (n < c.w * c.h * 0.002) { skStatus.textContent = 'No plain background found at the edges. Try a higher strength, or use Cut out subject.'; return; }
+    if (n < c.w * c.h * 0.002) { skStatus.textContent = 'No plain background found at the edges. Try a higher strength, or use Pick object.'; return; }
     c.g.putImageData(data, 0, 0);
     skCutApply(im, c.cv, 'Plain background cut out (' + Math.round(n / (c.w * c.h) * 100) + '% of the picture). Not right? Change the strength and press again, or Undo cut.');
   } catch (err) { skStatus.textContent = 'Could not cut out that picture.'; }
 }
-var skAi = null;   // the cut-out model, loaded the first time it is needed and kept while the page is open
-/** Loads the AI cut-out model (RMBG-1.4 through transformers.js, from public CDNs; the browser keeps the download). */
+var skAi = null;   // the pick-an-object model, loaded the first time it is needed and kept while the page is open
+var skCutSess = null;   // the picture being picked from: its original pixels, the model's reading of it and the clicks so far
+/** Loads the click-to-pick model (SlimSAM, a small Segment Anything, through transformers.js from public CDNs; the browser keeps the download). */
 function skAiLoad() {
   if (skAi) return skAi;
   skAi = (async function () {
@@ -1667,49 +1669,79 @@ function skAiLoad() {
     T.env.allowLocalModels = false;
     var shown = 0;
     function progress(p) {
-      if (p.status === 'progress' && p.total > 5e6 && p.progress - shown >= 2) { shown = p.progress; skStatus.textContent = 'Downloading the cut-out model, first time only: ' + Math.round(p.progress) + '%'; }
+      if (p.status === 'progress' && p.total > 2e6 && p.progress - shown >= 2) { shown = p.progress; skStatus.textContent = 'Downloading the model, first time only: ' + Math.round(p.progress) + '%'; }
     }
-    var opts = { config: { model_type: 'custom' }, progress_callback: progress };
-    var model;
-    try { model = await T.AutoModel.from_pretrained('briaai/RMBG-1.4', Object.assign({ dtype: 'q8' }, opts)); }
-    catch (e) { model = await T.AutoModel.from_pretrained('briaai/RMBG-1.4', opts); }
-    var processor = await T.AutoProcessor.from_pretrained('briaai/RMBG-1.4', {
-      config: { do_normalize: true, do_pad: false, do_rescale: true, do_resize: true, image_mean: [0.5, 0.5, 0.5], feature_extractor_type: 'ImageFeatureExtractor', image_std: [1, 1, 1], resample: 2, rescale_factor: 0.00392156862745098, size: { width: 1024, height: 1024 } }
-    });
+    var id = 'Xenova/slimsam-77-uniform';
+    var model = await T.SamModel.from_pretrained(id, { progress_callback: progress });
+    var processor = await T.AutoProcessor.from_pretrained(id);
     return { T: T, model: model, processor: processor };
   })();
   skAi.catch(function () { skAi = null; });   // a failed load can be tried again
   return skAi;
 }
-/** Cuts the subject out of the selected picture with the AI model, the way photo apps do. */
+/** Starts or ends pick mode: click the object to keep in the selected picture. */
 async function skCutAi() {
+  if (skCutSess) { skCutPickOff('Pick mode off.'); return; }
   var im = skSelected();
   if (!im) { skStatus.textContent = 'Add a picture first (Images, below).'; return; }
   var btns = [$('skCutAi'), $('skCut')];
   btns.forEach(function (b) { b.disabled = true; });
   try {
-    skStatus.textContent = skAi ? 'Cutting out…' : 'Loading the cut-out model…';
+    skStatus.textContent = skAi ? 'Reading the picture…' : 'Loading the model…';
     var ai = await skAiLoad(), c = await skCutCanvas(im);
-    skStatus.textContent = 'Cutting out…';
-    var image = await ai.T.RawImage.fromCanvas(c.cv);
-    var out = await ai.model({ input: (await ai.processor(image)).pixel_values });
-    var mask = await ai.T.RawImage.fromTensor(out.output[0].mul(255).to('uint8')).resize(c.w, c.h);
-    var data = c.g.getImageData(0, 0, c.w, c.h), i, gone = 0;
-    for (i = 0; i < c.w * c.h; i++) {
-      var m = mask.data[i];
-      data.data[i * 4 + 3] = Math.round(data.data[i * 4 + 3] * m / 255);
-      if (m < 128) gone++;
-    }
-    c.g.putImageData(data, 0, 0);
-    skCutApply(im, c.cv, 'Subject cut out (' + Math.round(gone / (c.w * c.h) * 100) + '% removed). Not right? Undo cut.');
+    skStatus.textContent = 'Reading the picture…';
+    var image = await ai.T.RawImage.fromCanvas(c.cv), inputs = await ai.processor(image);
+    skCutSess = { id: im.id, c: c, ai: ai, inputs: inputs, emb: await ai.model.get_image_embeddings(inputs), pts: [], labels: [] };
+    $('skCutAi').classList.add('on');
+    skStatus.textContent = 'Click the object to keep. Click again to add more of it; Alt+click takes a part away. Press “Pick object” again when done.';
   } catch (err) {
-    skStatus.textContent = 'The cut-out model could not run (' + String(err && err.message || err).slice(0, 80) + '). It needs an internet connection the first time. “Plain background” still works offline.';
+    skCutSess = null;
+    skStatus.textContent = 'The model could not run (' + String(err && err.message || err).slice(0, 80) + '). It needs an internet connection the first time. “Plain background” still works offline.';
   } finally { btns.forEach(function (b) { b.disabled = false; }); }
+}
+function skCutPickOff(note) {
+  skCutSess = null;
+  $('skCutAi').classList.remove('on');
+  if (note) skStatus.textContent = note;
+}
+/** A click in pick mode: adds a point (or, with Alt, a point to leave out) and keeps only the object the model finds. */
+async function skCutPoint(pt, minus) {
+  var s = skCutSess, im = skSelected();
+  if (!s || !im || im.id !== s.id) { skCutPickOff('Pick mode off (a different picture is selected).'); return; }
+  var a = -(im.rot || 0) * Math.PI / 180, dx = pt[0] - im.cx, dy = pt[1] - im.cy;
+  var x = dx * Math.cos(a) - dy * Math.sin(a), y = dx * Math.sin(a) + dy * Math.cos(a);
+  var u = x / (im.bw * im.scale) + 0.5, w = y / (im.bh * im.scale) + 0.5;
+  if (u < 0 || u > 1 || w < 0 || w > 1) return;
+  if (s.busy) return;
+  s.busy = true;
+  try {
+    skStatus.textContent = 'Finding the object…';
+    s.pts.push([u, w]); s.labels.push(minus ? 0 : 1);
+    var T = s.ai.T, rs = s.inputs.reshaped_input_sizes[0], n = s.pts.length;
+    var pts = new T.Tensor('float32', s.pts.map(function (p) { return [p[0] * rs[1], p[1] * rs[0]]; }).flat(), [1, 1, n, 2]);
+    var lab = new T.Tensor('int64', s.labels.map(BigInt), [1, 1, n]);
+    var out = await s.ai.model(Object.assign({}, s.emb, { input_points: pts, input_labels: lab }));
+    var masks = await s.ai.processor.post_process_masks(out.pred_masks, s.inputs.original_sizes, s.inputs.reshaped_input_sizes);
+    var m = masks[0], sc = out.iou_scores.data, best = 0, i;
+    for (i = 1; i < sc.length; i++) if (sc[i] > sc[best]) best = i;
+    var c = s.c, size = c.w * c.h, off = best * size;
+    var data = c.g.getImageData(0, 0, c.w, c.h), kept = 0;
+    for (i = 0; i < size; i++) {
+      if (m.data[off + i]) kept++; else data.data[i * 4 + 3] = 0;
+    }
+    var cv = document.createElement('canvas');
+    cv.width = c.w; cv.height = c.h;
+    cv.getContext('2d').putImageData(data, 0, 0);
+    skCutApply(im, cv, 'Kept ' + Math.round(kept / size * 100) + '% of the picture. Click more of the object to add, Alt+click to take away, or Undo cut.');
+  } catch (err) {
+    skStatus.textContent = 'Could not pick that (' + String(err && err.message || err).slice(0, 80) + ').';
+  } finally { if (skCutSess === s) s.busy = false; }
 }
 function skCutUndo() {
   var im = skSelected(), o = im && skCutOrig[im.id];
   if (!o) { skStatus.textContent = 'Nothing to undo for this picture.'; return; }
   im.src = o.src; im.bw = o.bw; im.bh = o.bh; im.scale = o.scale; delete skCutOrig[im.id];
+  if (skCutSess) skCutPickOff();
   skRenderImages(); skLayersUI(); skSaveImages();
   $('skCutUndo').disabled = true;
   skStatus.textContent = 'Background back.';

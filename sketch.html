@@ -150,7 +150,7 @@
       <summary class="skp-head"><h2>Pictures</h2><kbd title="Paste a copied picture">Ctrl+V</kbd><button type="button" class="skp-btn skp-small" id="skAddImage">Add…</button><input type="file" id="skFile" accept="image/*" hidden></summary>
       <div class="skp-layers" id="skLayers"></div>
       <div class="skp-trace skp-cut">
-        <div class="sk-row"><button type="button" class="skp-btn skp-small" id="skCutAi" title="Cut the subject out of the picked picture with an AI model (downloads the model the first time, about 45 MB)">✂ Cut out subject</button><button type="button" class="skp-btn skp-small" id="skCutUndo" disabled>Undo cut</button></div>
+        <div class="sk-row"><button type="button" class="skp-btn skp-small" id="skCutAi" title="Click the object you want to keep in the picked picture; the rest goes see-through (an AI model downloads the first time)">✂ Pick object</button><button type="button" class="skp-btn skp-small" id="skCutUndo" disabled>Undo cut</button></div>
         <div class="sk-row"><button type="button" class="skp-btn skp-small" id="skCut" title="Make the plain background of the picked picture see-through (it works from the edges, on colours like the corners; no internet needed)">Plain background</button><label class="sk-row">Strength <input type="range" id="skCutTol" min="10" max="120" value="45" aria-label="How different from the corners a colour may be and still count as background"></label></div>
       </div>
       <div class="skp-trace">
