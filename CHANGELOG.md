@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 483
+- Wrecking ball: windows crack like glass instead of breaking into pieces
+
 ## Build 482
 - Wrecking ball: no screen capture (it stalled the PC), pale rim so the ball shows on dark windows, lighter overlay
 
