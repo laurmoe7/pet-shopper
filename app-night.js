@@ -54,6 +54,7 @@ function teddyBack(near) {
     pet.classList.remove('teddy-taken');
     grabbing = false;
     pet.classList.add('hugging');
+    settle();   // (the sleeping face and paw come back: they were left in the reaching pose while the teddy was away)
     sound('squeak');
     drift(['♡', '♥', '♡'], petTop(), 3);
     if (!reduceMotion && !squishing) svgSquish(SQUISH.nod);

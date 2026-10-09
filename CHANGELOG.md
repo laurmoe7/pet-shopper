@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 494
+- Taking his teddy and giving it back no longer leaves him stuck reaching
+
 ## Build 493
 - Dizzy eyes stay through the whole fall off a window, also with an older installer
 
