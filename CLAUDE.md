@@ -54,7 +54,7 @@ Plain web app, no build step, no dependencies. `npm test` runs Node's built-in t
   - `app-fade.js`: bottom-edge fades for scrolling menus and the page. `app-options.js`: Options and Developer tools. `app-anims.js`: the animation player (Developer tools > Animation player): `animCatalogue` lists every body move, face, arm pose, eye, mouth, extra, idle move, to-do move, special and sound, searchable by name, with Repeat and Stop; add a new animation to that list so it can be previewed. `app-backdrop.js`: backgrounds. `app-idle.js`: daydreams, idle moves, walking, eye following. `app-toy.js`: the toy. `app-bedtime.js`: tucking in, the lamp. `app-start.js` (last): startup.
   - Backgrounds' pictures (`BACKDROPS` and the `bd*` helpers) are in `backdrops.js`, plain data like `decor.js`, so `sketch.html` can use them; `app-backdrop.js` has the page part.
 
-  - A new `app-*.js` file must be added to `index.html`, `SHELL` in `sw.js` and `SCRIPTS` in `tools/build-preview.js`.
+  - A new `app-*.js` file must be added to `index.html` and `SHELL` in `sw.js` (a test checks; the preview build reads its script list from `index.html`).
 - **Sync, Send and the Windows desktop app**: details are in `docs/design/sync-send-and-desktop-notes.md` (read it before touching `sync.js`, `send.js`, `app-account.js`, `app-send.js`, `app-desktop.js` or `desktop/`). Rules that matter every time:
   - `sync.js` (`Sync`, tested in `tests/sync.test.js`; server `worker/sync/`, `npm run build:worker` after changing `sync.js` or `server.js`): only the shopping list syncs, to-dos stay private. Keep new pet data in `state.pet` and list it in `sync.js` (`FIELDS` or `COUNTERS`) or it will not sync; per-device things (sleep, options, which list is showing) are left out on purpose.
   - `app-send.js` / `send.js`: Options > Send to another device, and `inboxPoll` (every 10 s, once a minute while he is away) shows other devices' notes and links as an `.inbox-card`. Claude tells Fumu through the same inbox.
@@ -92,6 +92,13 @@ Details are in `docs/design/pet-todo-bedtime-notes.md`: read it before touching 
 ### Service worker and builds
 
 `sw.js` caches the app shell. Whenever you change a cached file: bump `CACHE` in `sw.js` (`nibble-vNN`) and `BUILD` in `app.js` to the same number (a test checks), and add any new script to `SHELL`.
+
+### Tools (`tools/`, for me; they save repeating the same steps)
+
+- `node tools/bump.js "line" "line"` (`npm run bump -- "line"`): raises `BUILD` and `CACHE` together and adds the `CHANGELOG.md` heading with those lines. Use it for every build.
+- `node tools/shot.js out.png --size 320x250 --html desktop-pet,al-quest --pet species=hamster --eval "say('hi', 5000, true)"`: screenshot of the preview in a given state (run `npm run preview` first). The small window is 320 x 250.
+- `node tools/frames.js video.mp4 sheet.png --fps 3 --crop 0.5,0.5,0.5,0.5`: contact sheet from a screen recording (frame n is at (n - 1) / fps seconds). Look at the whole screen first, then crop.
+- `node tools/bigpush.js` (`npm run bigpush`): "big push": merges `main`, runs the tests, pushes to `main` only if they pass, and says whether `desktop/` changed. The Mini Fumu version still comes from the releases.
 
 ### Phone preview
 

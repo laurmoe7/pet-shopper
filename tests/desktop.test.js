@@ -389,3 +389,10 @@ test('copied text is read from the clipboard as a string even when Electron answ
   assert.match(m, /Promise\.resolve\(clipboard\.readText\(\)\)/);
   assert.doesNotMatch(m, /String\(clipboard\.readText/);
 });
+
+test('a window may stand partly off the sides of a screen, no more than 60% off the left or 40% off the right', () => {
+  const disp = { x: 0, width: 1000 };
+  assert.equal(P.keepPartlyOn(500, 320, disp), 500);
+  assert.equal(P.keepPartlyOn(-900, 320, disp), -192);
+  assert.equal(P.keepPartlyOn(5000, 320, disp), 872);
+});

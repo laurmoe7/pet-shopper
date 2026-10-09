@@ -81,6 +81,15 @@ function walkEnd(b, area, dx) {
 }
 
 /**
+ * Where a window may stand on a screen: it may be partly off the sides (he peeks in), but at most 60% off the left and 40% off the right.
+ * @param {number} x The wanted left edge. @param {number} width The window's width. @param {{x:number,width:number}} disp The screen's full rectangle.
+ * @returns {number} The left edge, held to that.
+ */
+function keepPartlyOn(x, width, disp) {
+  return Math.max(Math.round(disp.x - width * 0.6), Math.min(Math.round(x), Math.round(disp.x + disp.width - width * 0.4)));
+}
+
+/**
  * Where Fumu hides to peek round the edge of the screen: the nearest side with no other screen next to it, so he
  * never shows up on the wrong monitor. Half of his window goes past the edge.
  * @param {Object} b  The window.
@@ -207,4 +216,4 @@ function hitTest(rects, x, y, pad) {
 
 module.exports = {
   hitTest: hitTest,  afterScreensChange: afterScreensChange, idleStep: idleStep, perches: perches, perchBounds: perchBounds, perchUnder: perchUnder, perchesNear: perchesNear, floorBounds: floorBounds, arcAt: arcAt, PERCH_BODY: PERCH_BODY,
-  SIZES: SIZES, sizeFactor: sizeFactor, resizeKeepingBottom: resizeKeepingBottom, within: within, nudge: nudge, corner: corner, walkEnd: walkEnd, peekSpot: peekSpot, tweenAt: tweenAt, MARGIN: MARGIN, visibleFraction: visibleFraction, defaultBounds: defaultBounds, startBounds: startBounds, listBounds: listBounds, dragBounds: dragBounds };
+  SIZES: SIZES, sizeFactor: sizeFactor, resizeKeepingBottom: resizeKeepingBottom, within: within, nudge: nudge, corner: corner, walkEnd: walkEnd, keepPartlyOn: keepPartlyOn, peekSpot: peekSpot, tweenAt: tweenAt, MARGIN: MARGIN, visibleFraction: visibleFraction, defaultBounds: defaultBounds, startBounds: startBounds, listBounds: listBounds, dragBounds: dragBounds };

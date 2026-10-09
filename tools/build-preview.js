@@ -9,8 +9,8 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 const out = path.join(root, 'preview');
 const read = (f) => fs.readFileSync(path.join(root, f), 'utf8');
-const SCRIPTS = ['foods', 'tasks', 'logic', 'sync', 'send', 'achievements', 'wardrobe', 'decor', 'bonuses', 'recipe', 'personalities', 'skins', 'sounds',
-  'app', 'app-pet', 'app-actions', 'app-petsheet', 'app-dress', 'app-closet', 'app-shoot', 'app-photo', 'app-room', 'app-goals', 'app-events', 'app-todo', 'app-calendar', 'app-stamps', 'app-personality', 'app-favourites', 'app-petting', 'app-treats', 'app-gift', 'app-profile', 'app-shop', 'app-options', 'app-sync', 'app-account', 'app-send', 'app-desktop', 'app-anims', 'app-voice', 'app-recipe', 'backdrops', 'app-backdrop', 'app-idle', 'app-toy', 'app-bedtime', 'app-night', 'app-ring', 'app-fade', 'app-select', 'app-start'];
+// the scripts, in the order index.html loads them (the one list; sw.js SHELL must hold the same files, a test checks)
+const SCRIPTS = [...read('index.html').matchAll(/<script src="([^"]+)\.js"><\/script>/g)].map((m) => m[1]);
 
 if (process.argv.includes('--bump')) {
   const app = read('app.js');

@@ -247,7 +247,7 @@ function start() {
     if (!ok || !win) return;
     if (inBed) {   // in his bed: after bouncing about on the floor the whole bed springs back to where it was (no running: he is asleep)
       const cur0 = win.getBounds(), disp0 = screen.getDisplayMatching(home).bounds;
-      const back0 = { x: Math.max(Math.round(disp0.x - home.width * 0.6), Math.min(Math.round(home.x), Math.round(disp0.x + disp0.width - home.width * 0.4))), y: Math.max(disp0.y, Math.min(Math.round(home.y), lowestY(screen.getDisplayMatching(home), home))), width: home.width, height: home.height };
+      const back0 = { x: place.keepPartlyOn(home.x, home.width, disp0), y: Math.max(disp0.y, Math.min(Math.round(home.y), lowestY(screen.getDisplayMatching(home), home))), width: home.width, height: home.height };
       lastThrow = { home, back: back0, landed: cur0, area: here(), inBed: true };
       await new Promise((r) => setTimeout(r, 450));   // (it lies where it landed for a moment first)
       if (!win || mode !== 'pet') return;
@@ -263,7 +263,7 @@ function start() {
     // back to exactly where he was picked up: that may be half off the side of the screen (peeking in), so it is not squeezed back inside the
     // screen; only a spot that is mostly off the screen, or below it, is pulled in
     const cur = win.getBounds(), disp = screen.getDisplayMatching(home).bounds;
-    const back = { x: Math.max(Math.round(disp.x - home.width * 0.6), Math.min(Math.round(home.x), Math.round(disp.x + disp.width - home.width * 0.4))), y: Math.max(disp.y, Math.min(Math.round(home.y), lowestY(screen.getDisplayMatching(home), home))), width: home.width, height: home.height };
+    const back = { x: place.keepPartlyOn(home.x, home.width, disp), y: Math.max(disp.y, Math.min(Math.round(home.y), lowestY(screen.getDisplayMatching(home), home))), width: home.width, height: home.height };
     lastThrow = { home, back, landed: cur, area: here() };
     if (Math.abs(back.x - cur.x) > 20 || Math.abs(back.y - cur.y) > 20) {
       win.webContents.send('desk:run', back.x > cur.x ? 1 : -1);
@@ -625,7 +625,7 @@ function start() {
     to = { x: to.x, y: from.y, width: from.width, height: from.height };   // (sideways only: sitting over the taskbar, `within` pulled him up into the work area, and the slide back left him there)
     if (free && !perch) {   // back to a spot that may be half off the side of the screen (after an alert slid him onto it): not squeezed inside
       const disp = screen.getDisplayMatching(from).bounds;
-      to = { x: Math.max(Math.round(disp.x - from.width * 0.6), Math.min(Math.round(from.x + want), Math.round(disp.x + disp.width - from.width * 0.4))), y: from.y, width: from.width, height: from.height };
+      to = { x: place.keepPartlyOn(from.x + want, from.width, disp), y: from.y, width: from.width, height: from.height };
     }
     if (perch) {   // along the edge he sits on, not past its ends
       const seg = perchesNow().find((s) => s.id === perch.id && from.x + from.width / 2 >= s.x1 - 30 && from.x + from.width / 2 <= s.x2 + 30);
