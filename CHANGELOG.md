@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 444
+- The Shop is always on for the test; the Developer tools switch is gone.
+- Premium lists phone-and-computer syncing and household syncing; the cancel line is gone.
+
 ## Build 443
 - Tapping the greyed Shop button says how to switch it on; the Developer tools switch shows whether it is on or off.
 
