@@ -1121,7 +1121,10 @@
     var r = pet.getBoundingClientRect();
     if (r.width < 1) return;
     var cx = (r.left + r.right) / 2, hw = stage.classList.contains('bedtime') ? 125 : 82;   // (the cushion, or his bed, is wider than he is)
-    var box = [Math.round(Math.min(r.left, cx - hw)), Math.round(r.top), Math.round(Math.max(r.right, cx + hw)), Math.round(r.bottom + 12)], key = box.join();
+    var left = Math.min(r.left, cx - hw), right = Math.max(r.right, cx + hw), top = r.top;
+    var wings = pet.querySelectorAll('.dragon-wing');   // (the dragon's wings stick out past the pet's box: they are part of him at the screen's edge)
+    for (var i = 0; i < wings.length; i++) { var wr = wings[i].getBoundingClientRect(); if (wr.width > 0) { left = Math.min(left, wr.left); right = Math.max(right, wr.right); top = Math.min(top, wr.top); } }
+    var box = [Math.max(0, Math.round(left)), Math.max(0, Math.round(top)), Math.round(right), Math.round(r.bottom + 12)], key = box.join();
     if (key !== lastBody) { lastBody = key; D.setBody(box); }
   }, 500);
   if (D.setRects) setInterval(function () {

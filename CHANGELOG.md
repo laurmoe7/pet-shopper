@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 455
+- The dragon's wings count as part of him at the edge of the screen, so they are no longer cut off.
+
 ## Build 454
 - Hamster and dragon sizes now really apply (hamster 20% smaller like the munchkin, dragon 20% bigger).
 
