@@ -663,6 +663,13 @@ What changed in Nibble, newest first. Build numbers match the one in Options.
 - Sketchpad: Pictures box folds away.
 - Sketchpad: Pen and eraser show a size ring.
 - Sketchpad: Undo takes away the empty Trace layer.
+- Sketchpad: Undo trace button.
+- Sketchpad: New canvas and Resize in the top bar, with a free Canvas mode.
+- Sketchpad: Trace row fits on one line.
+- Sketchpad: Lazy brush next to the pen, with strength.
+- Sketchpad: Click a picture to pick it, click empty space to let go.
+- Sketchpad: Trace renamed To shapes.
+- Sketchpad: Layer name outline only shows while it can be edited.
 - Sketchpad: icon has both ear insides and rounded corners, Clip lines meet the edge.
 - Sketchpad: game outline, pen pressure, pattern fills, clip to body, spin copies, make a curve.
 - Sketchpad: pig icon ears sit behind the head.
