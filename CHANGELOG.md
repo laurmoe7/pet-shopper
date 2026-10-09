@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 372
+- Notes and links: swipe left copies, right puts away.
+
+## Build 371
+- Two more alert styles: Sweet (pink, red, hearts) and Cool (navy, sharp).
+
 ## Build 370
 - Reminders: swipe left is Done, up or down is In 10 min, right puts it away (sweeping and dragging).
 

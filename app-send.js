@@ -201,6 +201,15 @@ function showInboxCard(msg, more) {
   stageEl.appendChild(card);
   inboxCard = card;
 }
+/** Swiped left on a note or link alert: copies it (the Copy button) and the card gives a little nudge; it stays up until swiped right or closed.
+ *  @param {Element} card @returns {boolean} Whether there was something to copy. */
+function cardCopy(card) {
+  var b = [].slice.call(card.querySelectorAll('button')).filter(function (x) { return /^Copy/.test(x.textContent); })[0];
+  if (!b) return false;
+  b.click();
+  try { card.animate([{ translate: '0 0' }, { translate: '-12px 0' }, { translate: '0 0' }], { duration: 240, easing: 'ease-out' }); } catch (err) { /* old browser */ }
+  return true;
+}
 /** An alert card slides on out of the window the way it was pushed, then `then` runs. @param {Element} card @param {number} dir -1 left, 1 right. */
 function slideAway(card, dir, then) {
   var away = dir * (window.innerWidth + card.offsetWidth);
@@ -236,6 +245,11 @@ function slideAway(card, dir, then) {
     if (!vertical && Math.abs(d.dx) < 40 && !(fast && Math.abs(d.dx) > 18)) {   // not far enough: it springs back
       d.card.style.transition = 'translate .18s';
       d.card.style.translate = '';
+      setTimeout(function () { d.card.style.transition = ''; }, 200);
+      return;
+    }
+    if (!remind && !vertical && d.dx < 0 && cardCopy(d.card)) {   // a note or link: left copies it and the card springs back
+      d.card.style.transition = 'translate .18s'; d.card.style.translate = '';
       setTimeout(function () { d.card.style.transition = ''; }, 200);
       return;
     }
