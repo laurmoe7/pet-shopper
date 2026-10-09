@@ -2,6 +2,11 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 491
+- Fumu sneaks an emoji off the shopping list and eats it; poke him and he spits it back
+- Dev tool: Make Fumu steal an emoji
+- App: double tap on Fumu opens a ring with the toys
+
 ## Build 490
 - The night bell is in the app too: shake it to wake him, throw it and it breaks
 

@@ -3296,3 +3296,6 @@ html.desktop-pet.ring-open .stage .bubble.ring-moved { left: var(--rl, 4px) !imp
 .shop-premium { background: var(--stage-top); border-color: var(--outline); }
 .shop-buy { background: var(--surface); white-space: nowrap; }
 .shop-note { min-height: 1.2em; margin: 0; text-align: center; }
+
+/* the sneaky snack (app-steal.js): the emoji he took is gone from its row until he spits it back */
+.item.stolen .emoji-btn img { visibility: hidden; }

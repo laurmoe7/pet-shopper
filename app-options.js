@@ -117,6 +117,7 @@ var DEV_ACTIONS = [
     say('A test reminder: time for your task!', 3000); return 'Said as a bubble (the card is for the desktop app).';
   } },
   { label: 'Make Fumu ask for a snack', run: function () { return devWish(); } },
+  { label: 'Make Fumu steal an emoji', run: function () { return devSteal(); } },
   { label: 'Pretend it is the next special day (gifts)', run: function () { return devGiftCalendar(); } },
   { label: 'Shut today\'s gift boxes again', run: function () { return devGiftReset(); } },
   { label: 'Make Fumu suggest an item', run: function () { return devSuggest(); } },

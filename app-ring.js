@@ -1,4 +1,4 @@
-// The ring menu: in the small desktop window, rest the pointer on him and a ring of little buttons opens above him (play ball, the toy switch, a snack,
+// The ring menu (in the app it is only the toy switch, opened with a double tap on him): in the small desktop window, rest the pointer on him and a ring of little buttons opens above him (play ball, the toy switch, a snack,
 // a dance, swap the list, and at night the lights or the night light). It lives in his own window, so it never has to fit round the edge of the
 // screen. What it offers follows his scene (petScene): in bed only the night light; drowsy at night he can be sent to bed (then you tuck him in).
 // Plain script, shares one scope, loaded after app-night.js.
@@ -10,7 +10,7 @@
   var ring = document.createElement('div');
   ring.className = 'ring'; ring.hidden = true; ring.setAttribute('role', 'menu'); ring.setAttribute('aria-label', 'Play');
   stage.appendChild(ring);
-  var shown = false, previewing = false, previewTimer = 0, hoverAt = 0, leaveTimer = 0, quietUntil = 0, center = { x: 0, y: 0, r: 100 };
+  var appHide = 0, shown = false, previewing = false, previewTimer = 0, hoverAt = 0, leaveTimer = 0, quietUntil = 0, center = { x: 0, y: 0, r: 100 };
 
   function ringSnack() {
     if (busy) return;
@@ -53,6 +53,7 @@
   /** @returns {string[]} The buttons for the scene he is in now. */
   function items() {
     var scene = petScene();
+    if (!isDesk()) return scene === 'night-bed' ? [] : ['toy'];   // in the app it only has the toys (none picked: his own); in bed they are put away
     if (scene === 'night-bed') return ['night'];   // in bed: only the night light
     if (scene.indexOf('night-drowsy') === 0) return ['ball', 'toy', 'snack', 'dance', 'swap', 'lights'];
     return ['ball', 'toy', 'snack', 'dance', 'swap', 'wave'];
@@ -60,6 +61,7 @@
   function canShow(now, force) {
     // a double click on him or a style preview is asked for on purpose: only the mode is checked, so a stuck state (hidden window, a leftover
     // 'thrown' class, pass-through) can never keep it from opening. The idle cases (nothing asked for it) keep all the checks.
+    if (!isDesk()) return !!now && !document.querySelector('dialog[open]');   // (the app: only when asked for, with a double tap)
     if (now) return isDesk() && (force || !document.querySelector('.inbox-card, .quick-card, dialog[open]'));
     return isDesk() && !document.hidden && Date.now() > quietUntil && !(window.deskPassThrough && window.deskPassThrough()) &&
       !pet.classList.contains('carried') && !pet.classList.contains('thrown') && !pet.classList.contains('falling') &&
@@ -147,6 +149,7 @@
     build();
     ring.hidden = false; shown = true;
     placeBubble();
+    if (!isDesk()) { clearTimeout(appHide); appHide = setTimeout(function () { hide(true); }, 7000); }   // (in the app it goes by itself if you do nothing)
   }
   function hide(force) {
     if (previewing && force !== true) return;   // (the style preview stays up for its time whatever the pointer does)
@@ -157,7 +160,6 @@
   }
   // opens with a double click on him (resting the pointer on him was slow and unreliable), and closes when the pointer has gone well away from him, on a click elsewhere or on Esc
   document.addEventListener('mousemove', function (e) {
-    if (!isDesk()) return;
     if (e.buttons) { hoverAt = 0; return; }   // stroking or carrying him: no ring until the button is let go
     var pr = pet.getBoundingClientRect(), sr = stage.getBoundingClientRect();
     var onHim = e.clientX >= pr.left && e.clientX <= pr.right && e.clientY >= pr.top && e.clientY <= pr.bottom;
@@ -188,7 +190,7 @@
   pet.addEventListener('pointerdown', function (e) { tapDown = { t: Date.now(), x: e.screenX, y: e.screenY }; }, true);
   pet.addEventListener('pointerup', function (e) {
     var d = tapDown; tapDown = null;
-    if (!d || !isDesk() || e.button > 0) return;
+    if (!d || e.button > 0) return;
     var now = Date.now();
     if (now - d.t > 400 || Math.hypot(e.screenX - d.x, e.screenY - d.y) > 12) { lastTap = null; return; }   // a hold or a stroke is not a tap
     if (lastTap && now - lastTap.t < 520 && Math.hypot(e.screenX - lastTap.x, e.screenY - lastTap.y) < 24) { lastTap = null; show(true); }
