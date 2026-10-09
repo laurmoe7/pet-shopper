@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 462
+- Picking up the ball no longer blinks out, and shows up at once (needs the new installer).
+
 ## Build 461
 - After a ball catch he returns to his exact old spot (he also comes back to the middle of his window, not only the window).
 

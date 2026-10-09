@@ -406,7 +406,10 @@
     });
   }
   /** Called when the toy is picked up: if the switch is on, from now on it can go anywhere on the screen. */
-  setTimeout(function () { if (isPet() && deskPrefs.toyRoam === true) toyPicture(); }, 4000);   // (made ahead of time)
+  setTimeout(function () {   // (made ahead of time: the picture, and the toy window with it loaded, so picking the toy up shows it at once)
+    if (!isPet() || deskPrefs.toyRoam !== true || !D.toyField || !D.toyShow) return;
+    Promise.all([D.toyField(), toyPicture()]).then(function (r) { if (r[0] && r[1]) D.toyShow(r[1], Math.round(32 * (r[0].zoom || 1))); });
+  }, 4000);
   window.deskToyField = function () {
     if (deskPrefs.toyRoam !== true || deskPrefs.hideToy || !isPet() || !D.toyField || !D.toyShow || toyField) return;
     var token = ++fieldToken;
@@ -422,7 +425,7 @@
         lim: { minX: (f.area.x - f.wx) / z - mid + 18, maxX: (f.area.x + f.area.width - f.wx) / z - mid - 18, maxY: fl - (f.area.y - f.wy) / z - 20 },
         ax: 0,   // where the toy is on the screen (px), so that wherever his window has got to, its place in the window can be worked out again
         localX: function () { return (this.ax - f.wx) / z - mid; },
-        show: function (x, y, spin) { toyEl.style.visibility = 'hidden'; var p = spot(x, y); this.ax = p[0]; D.toyAt(p[0], p[1], spin); },
+        show: function (x, y, spin) { var p = spot(x, y); this.ax = p[0]; D.toyAt(p[0], p[1], spin); if (!this.shown) { this.shown = true; setTimeout(function () { if (toyField) toyEl.style.visibility = 'hidden'; }, 90); } },   // (the page's own toy goes only once the window's one is up: no blink)
         hide: function () { D.toyHide(); },
         shift: function (p) { f.wx += p * z; this.lim.minX -= p; this.lim.maxX -= p; }   // his window moved p page px to the right
       };

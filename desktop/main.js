@@ -684,7 +684,8 @@ function start() {
     }
     return toyWin;
   }
-  function hideToy() { if (toyWin && !toyWin.isDestroyed()) toyWin.hide(); }
+  // (it is parked far off the screen rather than hidden: a hidden transparent window needs a moment to appear again, and the toy blinked out when it was picked up)
+  function hideToy() { if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) toyWin.setBounds({ x: -10000, y: -10000, width: toyWin.getBounds().width, height: toyWin.getBounds().height }); }
   setTimeout(() => { if (prefs.toyRoam && win && mode === 'pet') toyWindow(56); }, 3000);   // (made ahead of time: picking the toy up must not wait for a new window)
   // where his window is and how big the screen is (what the page needs to let the toy fly over all of it)
   ipcMain.handle('desk:toyField', () => {
