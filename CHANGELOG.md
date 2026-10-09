@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 501
+- Quest 2: smooth bottom bar (no texture); Pet menu choices are square inventory slots
+
 ## Build 500
 - Quest 2, second attempt: real stone texture, thin metal frames, dark slots, charcoal metal buttons
 
