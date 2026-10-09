@@ -496,3 +496,6 @@ body.skp-nopanel .skp-panel { display: none; }
 .skp-keys dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 14px; margin: 0; font-size: .85rem; }
 .skp-keys dt { font-weight: 800; color: #ffd3e1; white-space: nowrap; }
 .skp-keys dd { margin: 0; color: var(--ink); }
+
+.skp-sliptip { position: fixed; z-index: 60; transform: translate(-50%, -100%); padding: 2px 8px; border-radius: 8px; background: #ff8fab; color: #3b1f2b; font-size: .8rem; font-weight: 800; pointer-events: none; box-shadow: 0 2px 0 #c9577f; }
+.skp-sliptip[hidden] { display: none; }
