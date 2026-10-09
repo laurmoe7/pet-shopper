@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 467
+- The ball stays visible while it is picked up: the page draws it until the screen-wide window really has its picture (needs the new installer).
+- Fewer messages to the ball's window while dragging.
+
 ## Build 466
 - Reminder and alert cards are no longer cut off at the start: the room for them is worked out at once.
 

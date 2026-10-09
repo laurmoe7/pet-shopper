@@ -368,8 +368,12 @@
     return Promise.all([D.toyField(), svgPicture(svg, w, h)]).then(function (r) {
       var f = r[0], png = r[1];
       if (!f || !png) return null;
+      D.toyShow(png, Math.round(48 * (f.zoom || 1)));
+      return (D.toyReady ? D.toyReady() : Promise.resolve()).then(function () { return r; });
+    }).then(function (r) {
+      if (!r) return null;
+      var f = r[0], png = r[1];
       var z = f.zoom || 1, st = stage.getBoundingClientRect(), mid = st.left + st.width / 2, fl = st.bottom - 3 - h / 2;
-      D.toyShow(png, Math.round(48 * z));
       return {
         zoom: z, ax: 0,
         lim: { minX: (f.area.x - f.wx) / z - mid + w / 2 + 2, maxX: (f.area.x + f.area.width - f.wx) / z - mid - w / 2 - 2, maxY: fl - (f.area.y - f.wy) / z - h / 2 - 8 },
@@ -423,7 +427,13 @@
     if (homeX === null && D.where) D.where().then(function (x) { if (homeX === null && x !== null) homeX = x; });
     Promise.all([D.toyField(), toyPicture()]).then(function (r) {
       var f = r[0], png = r[1];
-      if (!f || !png || token !== fieldToken || !playing || toyField) return;
+      if (!f || !png) return null;
+      D.toyShow(png, Math.round(32 * (f.zoom || 1)));   // (loads the picture; the page keeps drawing the toy until the window has it)
+      return (D.toyReady ? D.toyReady() : Promise.resolve()).then(function () { return r; });
+    }).then(function (r) {
+      if (!r) return;
+      var f = r[0], png = r[1];
+      if (token !== fieldToken || !playing || toyField || !held) return;   // (let go meanwhile: the throw has begun in the page, it stays there)
       var z = f.zoom || 1, st = stage.getBoundingClientRect(), mid = st.left + st.width / 2, fl = st.bottom - 19;
       fieldZoom = z; knownWx = f.wx;
       var spot = function (x, y) { return [f.wx + (mid + x) * z, f.wy + (fl - y) * z]; };
@@ -436,7 +446,6 @@
         hide: function () { cancelAnimationFrame(toyAtRaf); toyAtRaf = 0; D.toyHide(); },
         shift: function (p) { f.wx += p * z; this.lim.minX -= p; this.lim.maxX -= p; }   // his window moved p page px to the right
       };
-      D.toyShow(png, Math.round(32 * z));
       toyField.show(toyX, held ? held.y : 0, 0);
     });
   };

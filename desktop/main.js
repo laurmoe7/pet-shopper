@@ -674,7 +674,7 @@ function start() {
   // ---------- the toy flying about the whole screen (a switch in the settings window) ----------
   // His own window is small, so while a thrown toy is in the air it is drawn by a second little transparent window that the page moves
   // along with the toy (the page does the bouncing, the shell only places the picture). Clicks always go through it.
-  let toyWin = null, toyImg = '', toyPx = 0, toySpinAt = 0, toyTopAt = 0;
+  let toyWin = null, toyImg = '', toyPx = 0, toySpinAt = 0, toyTopAt = 0, toyDeg = null, toyReady = Promise.resolve();
   function toyWindow(px) {
     if (!toyWin || toyWin.isDestroyed()) {
       toyWin = new BrowserWindow({ width: px, height: px, frame: false, transparent: true, resizable: false, skipTaskbar: true, focusable: false, hasShadow: false, show: false, alwaysOnTop: true, webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false } });
@@ -699,9 +699,11 @@ function start() {
     const w = toyWindow(px + 24);
     if (dataUrl !== toyImg || px !== toyPx) {
       toyImg = dataUrl; toyPx = px;
+      toyReady = new Promise((res) => { w.webContents.once('did-finish-load', () => setTimeout(res, 60)); setTimeout(res, 700); });   // (the picture is up: until then the page keeps drawing the toy itself)
       w.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent('<!doctype html><body style="margin:0;background:transparent;overflow:hidden;display:grid;place-items:center;height:100vh"><img id="t" src="' + dataUrl + '" style="width:' + px + 'px;height:' + px + 'px;display:block"></body>'));
     }
   });
+  ipcMain.handle('desk:toyReady', () => toyReady);
   ipcMain.on('desk:toyAt', (_e, x, y, deg) => {
     if (!toyWin || toyWin.isDestroyed() || !toyPx) return;
     const s = toyPx + 24;
@@ -709,8 +711,9 @@ function start() {
     if (cur.width === s && cur.height === s) { if (cur.x !== nx || cur.y !== ny) toyWin.setPosition(nx, ny); } else toyWin.setBounds({ x: nx, y: ny, width: s, height: s });   // (moving only: resizing it every time is slower)
     if (!toyWin.isVisible()) toyWin.showInactive();
     const now = Date.now();
-    if (now - toyTopAt > 150) { toyTopAt = now; toyWin.moveTop(); }   // (his window comes to the front when clicked; with the room background it would hide the toy)
-    if (now - toySpinAt > 30) { toySpinAt = now; toyWin.webContents.executeJavaScript('document.getElementById("t")&&(document.getElementById("t").style.transform="rotate(' + Math.round(+deg || 0) + 'deg)")').catch(() => {}); }
+    if (now - toyTopAt > 300) { toyTopAt = now; toyWin.moveTop(); }   // (his window comes to the front when clicked; with the room background it would hide the toy)
+    const dg = Math.round(+deg || 0);
+    if (dg !== toyDeg && now - toySpinAt > 30) { toySpinAt = now; toyDeg = dg; toyWin.webContents.executeJavaScript('document.getElementById("t")&&(document.getElementById("t").style.transform="rotate(' + Math.round(+deg || 0) + 'deg)")').catch(() => {}); }
   });
   ipcMain.on('desk:toyHide', () => hideToy());
   app.on('before-quit', () => { if (toyWin && !toyWin.isDestroyed()) toyWin.destroy(); });
