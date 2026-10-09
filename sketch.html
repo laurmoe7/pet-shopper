@@ -54,6 +54,8 @@
         <button type="button" role="menuitem" data-cmd="invert">Invert selection</button>
         <hr>
         <button type="button" role="menuitem" data-cmd="clear">Clear drawing</button>
+        <hr>
+        <button type="button" role="menuitem" data-cmd="prefs">Preferences…</button>
       </div>
     </div>
     <div class="skp-menu">
@@ -292,6 +294,19 @@
     <h3>Edit</h3>
     <dl><dt>Ctrl+Z / Ctrl+Y</dt><dd>Undo, redo</dd><dt>Ctrl+A</dt><dd>Select all</dd><dt>Ctrl+C / X / V</dt><dd>Copy, cut, paste</dd><dt>Ctrl+D</dt><dd>Duplicate</dd><dt>Delete</dt><dd>Remove picked lines</dd><dt>Alt+click</dt><dd>Take away, in Pick object</dd></dl>
   </div>
+</dialog>
+<dialog class="skp-dlg" id="skPrefsDlg" aria-label="Preferences">
+  <div class="skp-dlg-head"><strong>Preferences</strong><button type="button" class="skp-x" data-close aria-label="Close">✕</button></div>
+  <h3>Sound</h3>
+  <label class="sk-check"><input type="checkbox" id="skPrefSound" checked> Play sounds</label>
+  <div class="sk-row"><label class="sk-size">Volume <input type="range" id="skPrefVol" min="0" max="100" value="40" aria-label="Volume"><output id="skPrefVolNum">40</output></label><button type="button" class="skp-btn skp-small" id="skPrefTest">Test</button></div>
+  <h3>Drawing</h3>
+  <label class="sk-check"><input type="checkbox" id="skPrefRing" checked> Show the brush size ring</label>
+  <label class="sk-check"><input type="checkbox" id="skPrefTip" checked> Show a number while a slider moves</label>
+  <div class="sk-row"><label>Undo steps <select id="skPrefUndo" aria-label="How many steps Undo and History keep"><option value="30">30</option><option value="60" selected>60</option><option value="100">100</option><option value="200">200</option></select></label></div>
+  <h3>Look</h3>
+  <label class="sk-check"><input type="checkbox" id="skPrefCalm"> Calm mode: stop the fireflies and the mascot’s bobbing</label>
+  <div class="sk-row"><button type="button" class="skp-btn skp-small" id="skPrefReset">Reset preferences</button></div>
 </dialog>
 <dialog class="skp-dlg skp-dlg-wide" id="skSendDlg" aria-label="Send to Claude">
   <div class="skp-dlg-head"><strong>Send to Claude</strong><button type="button" class="skp-x" data-close aria-label="Close">✕</button></div>

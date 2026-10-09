@@ -528,3 +528,8 @@ body.skp-nopanel .skp-panel { display: none; }
 }
 @keyframes sk-oink-ear { 20% { transform: rotate(-18deg); } 45% { transform: rotate(14deg); } 70% { transform: rotate(-8deg); } }
 @media (prefers-reduced-motion: reduce) { .sk-mascot.oink, .sk-mascot.oink .mt { animation: none !important; } }
+
+body.skp-calm .sk-flies, body.skp-calm .sk-flies * { animation: none !important; }
+body.skp-calm .sk-mascot, body.skp-calm .sk-mascot *:not(.oink) { animation: none !important; }
+body.skp-calm .sk-mascot.oink { animation: sk-oink .75s cubic-bezier(.3, .7, .4, 1) !important; }
+.skp-dlg .sk-size { display: inline-flex; align-items: center; gap: 8px; }

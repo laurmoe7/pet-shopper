@@ -376,7 +376,7 @@ function skPushHistory() {
   SK.redo[SK.mode] = [];
   var h = SK.hist[SK.mode];
   h.push(JSON.stringify(SK.strokes[SK.mode]));
-  if (h.length > 60) h.shift();
+  while (h.length > SK_PREFS.undo) h.shift();
   skHistoryUI();
 }
 /** Greys out Undo and Redo when there is nothing to undo or redo. */
@@ -1561,7 +1561,7 @@ skView.addEventListener('scroll', skPickBarPlace);
 /** A ring the size of the pen or eraser follows the pointer over the drawing. */
 function skRingMove(e) {
   var ring = $('skRing');
-  if (!skDraw || (SK.tool !== 'pen' && SK.tool !== 'blob' && SK.tool !== 'erase') || SK.tool === 'hand' || SK.space) { ring.hidden = true; return; }
+  if (!SK_PREFS.ring || !skDraw || (SK.tool !== 'pen' && SK.tool !== 'blob' && SK.tool !== 'erase') || SK.tool === 'hand' || SK.space) { ring.hidden = true; return; }
   var v = SK_VIEW[SK.mode], dr = skDraw.getBoundingClientRect(), mr = ring.parentElement.getBoundingClientRect(), k = dr.width / v.w, pen = v.w * SK_PEN * SK.pen;
   var d = (SK.tool === 'erase' ? 2 * Math.max(v.w * 0.012, pen / 2) : pen) * k;
   if (e.clientX < dr.left || e.clientX > dr.right || e.clientY < dr.top || e.clientY > dr.bottom) { ring.hidden = true; return; }
@@ -2784,6 +2784,7 @@ var skTipEl = document.createElement('div'), skTipTimer = 0, skTipDown = false, 
 skTipEl.className = 'skp-sliptip'; skTipEl.hidden = true; skTipEl.setAttribute('aria-hidden', 'true');
 document.body.appendChild(skTipEl);
 function skTipShow(inp) {
+  if (!SK_PREFS.tip) return;
   if (!inp || inp.type !== 'range' || (inp.parentElement && inp.parentElement.querySelector('output'))) return;   // sliders with a number beside them need no second one
   var r = inp.getBoundingClientRect(), min = +inp.min || 0, max = +inp.max || 100, f = max > min ? (+inp.value - min) / (max - min) : 0;
   skTipEl.textContent = inp.value + (SK_TIP_UNIT[inp.dataset.act] || SK_TIP_UNIT[inp.id] || '');
@@ -2802,17 +2803,54 @@ document.addEventListener('pointercancel', function () { skTipDown = false; skTi
 document.addEventListener('keyup', function (e) { if (e.target.matches && e.target.matches('input[type="range"]')) skTipHide(700); });
 $('skHist').addEventListener('toggle', skHistLog);
 $('skHistList').addEventListener('click', function (e) { var b = e.target.closest('[data-step]'); if (b) skHistGo(+b.dataset.step); });
+// ---------- preferences ----------
+var SK_PREFS = { sound: true, vol: 40, ring: true, tip: true, undo: 60, calm: false };
+function skPrefsLoad() {
+  try {
+    var d = JSON.parse(localStorage.getItem('nibble-sketchpad-prefs') || 'null') || {};
+    if (typeof d.sound === 'boolean') SK_PREFS.sound = d.sound;
+    if (d.vol >= 0 && d.vol <= 100) SK_PREFS.vol = Math.round(d.vol);
+    if (typeof d.ring === 'boolean') SK_PREFS.ring = d.ring;
+    if (typeof d.tip === 'boolean') SK_PREFS.tip = d.tip;
+    if ([30, 60, 100, 200].indexOf(d.undo) !== -1) SK_PREFS.undo = d.undo;
+    if (typeof d.calm === 'boolean') SK_PREFS.calm = d.calm;
+  } catch (e) { /* defaults */ }
+}
+function skPrefsApply() {
+  document.body.classList.toggle('skp-calm', SK_PREFS.calm);
+  $('skPrefSound').checked = SK_PREFS.sound; $('skPrefVol').value = SK_PREFS.vol; $('skPrefVolNum').textContent = SK_PREFS.vol;
+  $('skPrefVol').disabled = $('skPrefTest').disabled = !SK_PREFS.sound;
+  $('skPrefRing').checked = SK_PREFS.ring; $('skPrefTip').checked = SK_PREFS.tip; $('skPrefUndo').value = String(SK_PREFS.undo); $('skPrefCalm').checked = SK_PREFS.calm;
+  if (!SK_PREFS.ring) $('skRing').hidden = true;
+}
+function skPrefsSave() { try { localStorage.setItem('nibble-sketchpad-prefs', JSON.stringify(SK_PREFS)); } catch (e) { /* storage not available */ } }
+$('skPrefsDlg').addEventListener('input', function (e) {
+  var id = e.target.id;
+  if (id === 'skPrefSound') SK_PREFS.sound = e.target.checked;
+  else if (id === 'skPrefVol') SK_PREFS.vol = +e.target.value;
+  else if (id === 'skPrefRing') SK_PREFS.ring = e.target.checked;
+  else if (id === 'skPrefTip') SK_PREFS.tip = e.target.checked;
+  else if (id === 'skPrefUndo') { SK_PREFS.undo = +e.target.value; Object.keys(SK.hist).forEach(function (m) { while (SK.hist[m].length > SK_PREFS.undo) SK.hist[m].shift(); }); skHistoryUI(); }
+  else if (id === 'skPrefCalm') SK_PREFS.calm = e.target.checked;
+  else return;
+  skPrefsApply(); skPrefsSave();
+});
+$('skPrefsDlg').addEventListener('change', function (e) { if (e.target.id === 'skPrefVol') skOink(); });   // a sample when you let go of the slider
+$('skPrefTest').addEventListener('click', skOink);
+$('skPrefReset').addEventListener('click', function () { SK_PREFS = { sound: true, vol: 40, ring: true, tip: true, undo: 60, calm: false }; skPrefsApply(); skPrefsSave(); });
+skPrefsLoad(); skPrefsApply();
 // ---------- the pig mascot: click him for an oink ----------
 var skAudio = null;
 /** A little synthesized oink: a grunt that rises and then drops, with a short snort at the end. */
 function skOink() {
+  if (!SK_PREFS.sound || SK_PREFS.vol <= 0) return;
   try {
     var AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
     skAudio = skAudio || new AC();
     if (skAudio.state === 'suspended') skAudio.resume();
     var ctx = skAudio, t = ctx.currentTime, jit = 0.92 + Math.random() * 0.16;
-    var out = ctx.createGain(); out.gain.value = 0.5; out.connect(ctx.destination);
+    var out = ctx.createGain(); out.gain.value = 0.5 * Math.pow(SK_PREFS.vol / 100, 2); out.connect(ctx.destination);   // the volume slider, on a curve so the low end is gentle
     // the grunt: a buzzy tone that goes up ("oi") and then down and rough ("nk")
     var osc = ctx.createOscillator(), vib = ctx.createOscillator(), vibG = ctx.createGain(), lp = ctx.createBiquadFilter(), bp = ctx.createBiquadFilter(), g = ctx.createGain();
     osc.type = 'sawtooth';
@@ -2882,6 +2920,7 @@ function skCommand(cmd) {
   else if (cmd === 'fliph') skFlipAll('x');
   else if (cmd === 'flipv') skFlipAll('y');
   else if (cmd === 'keys') $('skKeysDlg').showModal();
+  else if (cmd === 'prefs') $('skPrefsDlg').showModal();
   else if (cmd === 'undo') skUndo();
   else if (cmd === 'redo') skRedo();
   else if (cmd === 'selectall') { skSetTool('select'); SK.pick = SK.strokes[SK.mode].filter(skSelectable); skXfRender(); }
