@@ -8,7 +8,7 @@
 'use strict';
 
 var TOY_KIND_KEY = 'nibble-toy-kind';
-var WRECK_MS = 10000;
+var WRECK_MS = 10000, PAGE_WRECK_MS = 16000;   // (how long the ball flies: the small window, the page)
 
 /** @returns {string} Which toy is out: 'ball' (the one for his species) or 'wrecker'. */
 function toyKind() {
@@ -309,7 +309,7 @@ function pageWreck(vx, vy, px, py) {
   /** Cuts a thing into pieces (each one is a shard), in the order they break: first the border, then a row's picture, then its words, then the bar. */
   function prepare(t, hx, hy) {
     var r = t.el.getBoundingClientRect(), W2 = r.width, H2 = r.height, th = Math.max(4, Math.min(9, Math.min(W2, H2) * 0.14));
-    var iw = W2 - 2 * th, ih = H2 - 2 * th, cols = Math.max(3, Math.min(7, Math.round(iw / 60))), rows = Math.max(2, Math.min(3, Math.round(ih / 28)));
+    var iw = W2 - 2 * th, ih = H2 - 2 * th, cols = Math.max(2, Math.min(4, Math.round(iw / 110))), rows = Math.max(1, Math.min(2, Math.round(ih / 38)));   // (big chunks)
     var v = [], gx, gy, tris = [];
     for (gy = 0; gy <= rows; gy++) {   // (the inside: a jagged grid of triangles)
       v.push([]);
@@ -388,7 +388,7 @@ function pageWreck(vx, vy, px, py) {
     if (t.cracks.length < 4 && !t.cracks.some(function (c) { return Math.hypot(c[0] - lx, c[1] - ly) < Math.max(46, Math.min(r2.width, r2.height) * 0.9); })) { t.cracks.push([lx, ly]); t.mark.insertAdjacentHTML('beforeend', crackSvg(r2.width, r2.height, lx, ly)); }
     // the pieces that come away now: the lowest stage (picture, words, bar) that still has any, nearest to the hit first
     t.left.sort(function (m, n) { return m.cat - n.cat || Math.hypot(m.cx - lx, m.cy - ly) - Math.hypot(n.cx - lx, n.cy - ly); });
-    var k = Math.max(2, Math.ceil(t.tris.length / 8)) * (Math.random() < 0.3 ? 2 + ((Math.random() * 2) | 0) : 1), take = t.left.splice(0, k);   // (now and then a bigger bite: a couple of pieces at once)
+    var k = Math.max(2, Math.ceil(t.tris.length / 4)) * (Math.random() < 0.3 ? 2 + ((Math.random() * 2) | 0) : 1), take = t.left.splice(0, k);   // (now and then a bigger bite: a couple of pieces at once)
     take.forEach(function (g, i) {
       t.timers.push(setTimeout(function () {
         if (ended && t.mended) return;
@@ -398,6 +398,13 @@ function pageWreck(vx, vy, px, py) {
       }, 120 + i * 70));
     });
     if (performance.now() - shatterSound > 90) { shatterSound = performance.now(); sound('glass'); }
+    if (take.length >= 4 || t.left.length === 0) {   // a big bite: a flash and a puff
+      var fl = document.createElement('div');
+      fl.style.cssText = 'position:fixed;inset:0;z-index:9988;pointer-events:none;background:#fff;opacity:.22;';
+      document.body.appendChild(fl);
+      fl.animate([{ opacity: .22 }, { opacity: 0 }], { duration: 160 }).onfinish = function () { fl.remove(); };
+      drift(['💥', '✦'], { x: hx, y: hy }, 2);
+    }
   }
 
   function step(now) {
@@ -407,9 +414,14 @@ function pageWreck(vx, vy, px, py) {
     vyd += G * dt;
     // now and then it gets a random kick, so it flies all over the page instead of bouncing down in a line
     if (now > kickAt) {
-      kickAt = now + 450 + Math.random() * 700;
-      var ka = Math.random() * Math.PI * 2, ks = 700 + Math.random() * 700;
-      vx = Math.cos(ka) * ks; vyd = Math.sin(ka) * ks - 450;
+      kickAt = now + 400 + Math.random() * 600;
+      // mostly it is thrown at something that is still whole (so it crosses the whole page and keeps wrecking), sometimes just anywhere
+      var left = targets.filter(function (q) { return !q.done && q.hitsLeft !== 0; }), ka, ks = 1000 + Math.random() * 600;
+      if (left.length && Math.random() < 0.75) {
+        var rowsLeft = left.filter(function (q) { return q.el.classList.contains('item'); }), pool = rowsLeft.length && Math.random() < 0.7 ? rowsLeft : left, tq = pool[Math.floor(Math.random() * pool.length)];
+        ka = Math.atan2(tq.r.top + tq.r.height / 2 - y, tq.r.left + tq.r.width / 2 - x) + (Math.random() - .5) * 0.35;
+        vx = Math.cos(ka) * ks; vyd = Math.sin(ka) * ks - 120;
+      } else { ka = Math.random() * Math.PI * 2; vx = Math.cos(ka) * ks; vyd = Math.sin(ka) * ks - 450; }
     }
     var sp = Math.hypot(vx, vyd);
     if (sp > 1700) { vx *= 1700 / sp; vyd *= 1700 / sp; }
@@ -447,7 +459,7 @@ function pageWreck(vx, vy, px, py) {
         vx = Math.cos(ha) * hs; vyd = Math.sin(ha) * hs;
       }
       if (now > (t.cool || 0)) {
-        t.cool = now + 160; chip(t, x - ux * R, y - uy * R); broke++;
+        t.cool = now + 160; chip(t, x - ux * R, y - uy * R); broke++; kickAt = Math.min(kickAt, now + 250 + Math.random() * 300);
         if (Math.random() < 0.3) {   // the crash shakes the thing next to it as well: it breaks too
           var nb = null, nbd = 150;
           targets.forEach(function (o) { if (o !== t && !o.done && now > (o.cool || 0)) { var od = Math.hypot(o.r.left + o.r.width / 2 - x, o.r.top + o.r.height / 2 - y); if (od < nbd) { nbd = od; nb = o; } } });
@@ -473,7 +485,7 @@ function pageWreck(vx, vy, px, py) {
       if (jsvg && jsvg.animate) jsvg.animate([{ translate: '0 0' }, { translate: '0 -26px', offset: .5 }, { translate: '0 0' }], { duration: 440, easing: 'ease-out' });
     }
     if (now > talkAt) { talkAt = now + 1800 + Math.random() * 800; say(pick(['stop it!', 'no no no!', 'come back!', 'bad ball!', 'wait wait wait!']), 1000, true); }
-    if (now - start > WRECK_MS) { finish(); return; }
+    if (now - start > PAGE_WRECK_MS) { finish(); return; }
     flight = requestAnimationFrame(step);
   }
   function finish() {
@@ -509,7 +521,7 @@ function pageWreck(vx, vy, px, py) {
     }, back);
     wait(back + 4200).then(function () { shield.remove(); shardBox.remove(); endPlay(); });
   }
-  setTimeout(finish, WRECK_MS + 1500);   // (if the page was in the background and no frames came: it is still mended)
+  setTimeout(finish, PAGE_WRECK_MS + 1500);   // (if the page was in the background and no frames came: it is still mended)
   flight = requestAnimationFrame(step);
 }
 

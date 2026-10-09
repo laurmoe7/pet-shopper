@@ -2,6 +2,13 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 518
+- Old School: more detail (rivets, framed stage, striped rows)
+- Profile badge and icon wiggle to get noticed
+
+## Build 517
+- Wrecking ball in the app aims at things, breaks bigger chunks, flashes on big hits
+
 ## Build 516
 - New Old School theme (app) and alert style (Mini Fumu)
 

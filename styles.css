@@ -3539,3 +3539,31 @@ html:root[data-skin="quest"][data-quest="osrs"] .stage .bubble:not(.in-sheet)::b
 
 html:root[data-skin="quest"][data-quest="osrs"] :is(.dock-icon, .gear-btn, .add-btn, .dock button) { rotate: 0deg; transform: none; }
 html:root[data-skin="quest"][data-quest="osrs"] .dock-icon::before, html:root[data-skin="quest"][data-quest="osrs"] .dock-icon::after, html:root[data-skin="quest"][data-quest="osrs"] .add-btn::before, html:root[data-skin="quest"][data-quest="osrs"] .add-btn::after, html:root[data-skin="quest"][data-quest="osrs"] .dock-icon > i, html:root[data-skin="quest"][data-quest="osrs"] .dock-icon .tape { display: none; }
+
+/* the Profile button's badge and icon wiggle every few seconds, in every theme, so a new gift or birthday is noticed */
+@keyframes badgeWiggle { 0%, 62%, 100% { rotate: 0deg; translate: 0 0; } 66% { rotate: -14deg; translate: 0 -2px; } 72% { rotate: 12deg; } 78% { rotate: -10deg; translate: 0 -1px; } 84% { rotate: 8deg; } 90% { rotate: -4deg; } 95% { rotate: 0deg; translate: 0 0; } }
+.dock button:has(.dock-badge:not([hidden])) .dock-icon, .dock-badge:not([hidden]) { animation: badgeWiggle 3.2s ease-in-out infinite; transform-origin: 50% 80%; }
+.dock-badge:not([hidden]) { animation-delay: .12s; transform-origin: 50% 50%; }
+@media (prefers-reduced-motion: reduce) { .dock button:has(.dock-badge:not([hidden])) .dock-icon, .dock-badge:not([hidden]) { animation: none; } }
+
+/* Old School: more polish and detail */
+html:root[data-skin="quest"][data-quest="osrs"] { --os-rivet: radial-gradient(circle at 50% 50%, #8a7d63 0 1.5px, #1d1810 2px, transparent 2.5px); }
+html:root[data-skin="quest"][data-quest="osrs"] .picker { background-image: var(--os-rivet), var(--os-rivet), var(--os-rivet), var(--os-rivet), repeating-conic-gradient(#4d4437 0 25%, #494034 0 50%); background-size: 9px 9px, 9px 9px, 9px 9px, 9px 9px, 4px 4px; background-position: 6px 6px, calc(100% - 6px) 6px, 6px calc(100% - 6px), calc(100% - 6px) calc(100% - 6px), 0 0; background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat; }
+html:root[data-skin="quest"][data-quest="osrs"] .stage { border: 3px solid; border-color: var(--os-hi) var(--os-lo) var(--os-lo) var(--os-hi); border-radius: 0; box-shadow: 0 0 0 1px #000, inset 0 0 0 2px #000, inset 0 0 0 3px #5b5140; }
+html:root[data-skin="quest"][data-quest="osrs"] .scene-bar { background: var(--os-dark); border: 1px solid #000; box-shadow: inset 1px 1px 0 var(--os-hi), inset -1px -1px 0 var(--os-lo); padding: 4px 8px; }
+html:root[data-skin="quest"][data-quest="osrs"] .items .item:nth-child(even of .item) { background: #43392c; }
+html:root[data-skin="quest"][data-quest="osrs"] .item:hover { background: #4a3f31; }
+html:root[data-skin="quest"][data-quest="osrs"] .item.done { background: #332c22; border-style: solid; }
+html:root[data-skin="quest"][data-quest="osrs"] .item.done .emoji-btn img { opacity: .55; }
+html:root[data-skin="quest"][data-quest="osrs"] .item .emoji-btn:active, html:root[data-skin="quest"][data-quest="osrs"] .check:active { background: var(--os-red); }
+html:root[data-skin="quest"][data-quest="osrs"] .item.done .check::before { background-image: none; outline: 1px solid #000; outline-offset: -3px; }
+html:root[data-skin="quest"][data-quest="osrs"] .items .aisle::after { border-top: 1px solid #1d1810; border-bottom: 1px solid #6b6150; height: 0; opacity: 1; background: none; }
+html:root[data-skin="quest"][data-quest="osrs"] .pill-btn:focus-visible, html:root[data-skin="quest"][data-quest="osrs"] .add-btn:focus-visible, html:root[data-skin="quest"][data-quest="osrs"] .check:focus-visible { outline: 2px solid var(--os-yellow); outline-offset: 1px; }
+html:root[data-skin="quest"][data-quest="osrs"] .add-btn:active { background: #164f0e; box-shadow: inset 1px 1px 0 #0f3a09, inset -1px -1px 0 #3f9a30; }
+html:root[data-skin="quest"][data-quest="osrs"] .dock button[aria-current="page"] .dock-icon, html:root[data-skin="quest"][data-quest="osrs"] .dock button.on .dock-icon { background: var(--os-red); box-shadow: inset 1px 1px 0 #b8432f, inset -1px -1px 0 #4a130b; }
+html:root[data-skin="quest"][data-quest="osrs"] :is(.dock-badge, .brand-due, .gift-count, .profile-gift-count) { background: var(--os-red); color: var(--os-yellow); border: 1px solid #000; text-shadow: 1px 1px 0 #000; box-shadow: inset 1px 1px 0 #b8432f, inset -1px -1px 0 #4a130b; }
+html:root[data-skin="quest"][data-quest="osrs"] .options { padding: 4px; }
+html:root[data-skin="quest"][data-quest="osrs"] .option { border-bottom: 1px solid #1d1810; box-shadow: 0 1px 0 var(--os-hi); }
+html:root[data-skin="quest"][data-quest="osrs"] .option-title { color: var(--os-yellow); text-shadow: var(--os-text); }
+html:root[data-skin="quest"][data-quest="osrs"] input[type="checkbox"][role="switch"] { accent-color: #1f6b14; }
+html:root[data-skin="quest"][data-quest="osrs"] ::selection { background: var(--os-red); color: var(--os-yellow); }
