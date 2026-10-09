@@ -2802,6 +2802,48 @@ document.addEventListener('pointercancel', function () { skTipDown = false; skTi
 document.addEventListener('keyup', function (e) { if (e.target.matches && e.target.matches('input[type="range"]')) skTipHide(700); });
 $('skHist').addEventListener('toggle', skHistLog);
 $('skHistList').addEventListener('click', function (e) { var b = e.target.closest('[data-step]'); if (b) skHistGo(+b.dataset.step); });
+// ---------- the pig mascot: click him for an oink ----------
+var skAudio = null;
+/** A little synthesized oink: a grunt that rises and then drops, with a short snort at the end. */
+function skOink() {
+  try {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    skAudio = skAudio || new AC();
+    if (skAudio.state === 'suspended') skAudio.resume();
+    var ctx = skAudio, t = ctx.currentTime, jit = 0.92 + Math.random() * 0.16;
+    var out = ctx.createGain(); out.gain.value = 0.5; out.connect(ctx.destination);
+    // the grunt: a buzzy tone that goes up ("oi") and then down and rough ("nk")
+    var osc = ctx.createOscillator(), vib = ctx.createOscillator(), vibG = ctx.createGain(), lp = ctx.createBiquadFilter(), bp = ctx.createBiquadFilter(), g = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(190 * jit, t);
+    osc.frequency.exponentialRampToValueAtTime(330 * jit, t + 0.12);
+    osc.frequency.exponentialRampToValueAtTime(150 * jit, t + 0.34);
+    vib.frequency.value = 38; vibG.gain.value = 16;   // the roughness
+    vib.connect(vibG); vibG.connect(osc.frequency);
+    lp.type = 'lowpass'; lp.frequency.setValueAtTime(1500, t); lp.frequency.linearRampToValueAtTime(700, t + 0.34);
+    bp.type = 'peaking'; bp.frequency.value = 1100; bp.gain.value = 9; bp.Q.value = 2.5;   // the nasal honk
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.7, t + 0.03); g.gain.setValueAtTime(0.7, t + 0.2); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
+    osc.connect(lp); lp.connect(bp); bp.connect(g); g.connect(out);
+    osc.start(t); vib.start(t); osc.stop(t + 0.42); vib.stop(t + 0.42);
+    // the snort: a short puff of filtered noise
+    var len = Math.floor(ctx.sampleRate * 0.12), buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0), i;
+    for (i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+    var nz = ctx.createBufferSource(), nf = ctx.createBiquadFilter(), ng = ctx.createGain();
+    nz.buffer = buf; nf.type = 'bandpass'; nf.frequency.value = 1800; nf.Q.value = 1.2;
+    ng.gain.setValueAtTime(0.0001, t + 0.3); ng.gain.exponentialRampToValueAtTime(0.35, t + 0.33); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.46);
+    nz.connect(nf); nf.connect(ng); ng.connect(out);
+    nz.start(t + 0.3);
+  } catch (e) { /* no sound available */ }
+}
+function skMascotOink() {
+  var m = $('skMascot');
+  m.classList.remove('oink'); void m.getBoundingClientRect(); m.classList.add('oink');
+  clearTimeout(skMascotOink.t); skMascotOink.t = setTimeout(function () { m.classList.remove('oink'); }, 900);
+  skOink();
+}
+$('skMascot').addEventListener('click', skMascotOink);
+$('skMascot').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); skMascotOink(); } });
 function skCommand(cmd) {
   if (cmd === 'new') skCanvasPop('new');
   else if (cmd === 'resize') skCanvasPop('resize');
