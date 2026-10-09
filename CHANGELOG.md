@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 375
+- The small pet's speech bubble matches the alert style.
+
 ## Build 374
 - A new alert style, Quest: parchment, a bronze frame, red buttons.
 
