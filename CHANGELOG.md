@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 539
+- Hand dance: three rounds, the hand grows only when pushed to the cheek, one-foot stand
+
 ## Build 538
 - Old School: speech text stays inside the room
 

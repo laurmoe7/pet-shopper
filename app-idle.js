@@ -440,21 +440,21 @@ function morningStart(onDone) {
   return true;
 }
 
-/** Hand dance: an idle dance (3.6 s). A quick tilt with a hand raised by his cheek and his eyes closed, then swaying side to side with a hand on his belly.
- * The body, arms and feet are the `handdance` CSS (styles.css); this sets the face. */
+/** Hand dance: an idle dance, one 3.6 s round played three times (10.8 s). In each round he stands on one foot (the other tucked behind it) and pushes one hand
+ * towards you in front of his cheek with his eyes closed, then sways side to side with a hand on his belly. The body, arms and feet are the `handdance`
+ * CSS (styles.css); this sets the face and shows the palm (toe beans) while the hand is pushed out. */
 function handDance() {
   setFace({ eyes: 'open', mouth: 'smile', arms: 'rest', x: ['cheeks'] });
-  pulse('handdance', 3600);
-  setTimeout(function () { if (pet.classList.contains('handdance')) setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); }, 300);
-  setTimeout(function () { if (pet.classList.contains('handdance')) setFace({ eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); }, 800);
-  // the held-out hand (it swaps each sway) shows its palm for a moment: left on the 2nd, 4th and 6th sway, right on the 1st, 3rd and 5th
-  [[1000, 'r'], [1450, 'l'], [1900, 'r'], [2350, 'l'], [2800, 'r'], [3250, 'l']].forEach(function (w) {
-    setTimeout(function () { pet.classList.add('bs-out-' + w[1]); }, w[0] - 280);
-    setTimeout(function () { pet.classList.remove('bs-out-' + w[1]); }, w[0] + 280);
-  });
-  setTimeout(function () { pet.classList.remove('bs-out-l', 'bs-out-r'); }, 3600);
+  pulse('handdance', 10800);
+  for (var k = 0; k < 3; k++) (function (t0) {
+    function at(ms, fn) { setTimeout(function () { if (pet.classList.contains('handdance')) fn(); }, t0 + ms); }
+    at(300, function () { setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); });
+    at(400, function () { pet.classList.add('bs-out-r'); });
+    at(950, function () { pet.classList.remove('bs-out-r'); setFace({ eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); });
+  })(k * 3600);
+  setTimeout(function () { pet.classList.remove('bs-out-r'); }, 10800);
   hum();
-  return 3600;
+  return 10800;
 }
 
 /** @returns {{x: number, y: number}} A point just above the pet's head. */
