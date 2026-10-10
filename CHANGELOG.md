@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 538
+- Old School: speech text stays inside the room
+
 ## Build 537
 - Old School and Scribbling: room picture has the same rounded shape as the other looks
 

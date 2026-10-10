@@ -3543,7 +3543,7 @@ html.al-osrs .ring-btn { border: 1px solid #000; border-radius: 0; background: v
 html.al-osrs .ring-btn:hover { background: #564c3d; }
 html.al-osrs .ring-btn[aria-pressed="true"] { background: var(--os-red); box-shadow: inset 1px 1px 0 #b8432f, inset -1px -1px 0 #4a130b; }
 html.al-osrs .stage .bubble:not(.in-sheet) {
-  background: none; border: 0; border-radius: 0; box-shadow: none; padding: 2px 4px; filter: none; max-width: 260px; text-align: center;
+  background: none; border: 0; border-radius: 0; box-shadow: none; padding: 2px 4px; filter: none; max-width: min(260px, calc(50% - 62px * var(--pet-size, 1) - var(--walk-x, 0px))); text-align: center;
   font-family: var(--os-font); font-size: 1.05rem; font-weight: 400; color: var(--os-yellow);
   text-shadow: -1px 0 #000, 1px 0 #000, 0 -1px #000, 0 1px #000, 1px 1px 0 #000, -1px -1px 0 #000;
 }
