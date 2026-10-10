@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 571
+- Chorus dance redone: paw under chin and turn left and right, one-leg bottom shake, paw to the eye
+
 ## Build 570
 - Mini Fumu's Dark is the classic dark look again (the plum Night colours are gone)
 

@@ -463,16 +463,26 @@ function handDance() {
   return 10800;
 }
 
-/** Chorus dance: an idle dance of 6.6 s (the `chorus` CSS, styles.css): a sway with both paws at his chin, a quick shimmy facing you, then both arms up and waving, with confetti and notes. */
+/** Chorus dance: an idle dance of 8 s (the `chorus` CSS, styles.css): the left paw up under his chin, squishing as if he turned right, then the right paw and left; then he stands on his
+ * right leg and shakes his bottom with his paws up; then the left paw comes down and the right paw goes up to his eye. This sets the face and the glance of his eyes, with notes and sparkles. */
 function chorusDance() {
   setFace({ eyes: 'open', mouth: 'smile', arms: 'rest', x: ['cheeks'] });
-  pulse('chorus', 6600);
+  pulse('chorus', 8000);
   function at(ms, fn) { setTimeout(function () { if (pet.classList.contains('chorus')) fn(); }, ms); }
-  at(2350, function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'rest', x: ['cheeks', 'sparkles'] }); drift(['♪', '✦', '♫'], petTop(), 3); crumbs(mouthPoint(), '#ff9fc0', 6); });
-  at(4000, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'rest', x: ['cheeks'] }); drift(['♪', '♫', '✦'], petTop(), 4); crumbs(mouthPoint(), '#ffd36a', 6); });
-  at(5900, function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'rest', x: ['cheeks'] }); drift(['✦', '♥'], petTop(), 3); });
+  at(350, function () { pet.style.setProperty('--look-x', '3.2px'); });                 // turning right: his eyes go that way
+  at(1200, function () { pet.style.setProperty('--look-x', '-3.2px'); });                // and left
+  at(2350, function () {
+    pet.style.removeProperty('--look-x');
+    setFace({ eyes: 'happy', mouth: 'open', arms: 'rest', x: ['cheeks', 'sparkles'] });  // on one leg, shaking
+    drift(['♪', '✦', '♫'], petTop(), 3);
+  });
+  at(3800, function () { drift(['♪', '♫'], petTop(), 2); });
+  at(4800, function () { setFace({ eyes: 'open', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); });   // paw to the eye
+  at(5600, function () { setFace({ eyes: 'squint', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); drift(['✦'], petTop(), 2); });
+  at(7300, function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); drift(['♥', '✦'], petTop(), 2); });
+  setTimeout(function () { pet.style.removeProperty('--look-x'); }, 8000);
   hum();
-  return 6600;
+  return 8000;
 }
 
 /** @returns {{x: number, y: number}} A point just above the pet's head. */
