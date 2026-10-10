@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 548
+- Dizzy face while standing: he wobbles about a little
+
 ## Build 547
 - Mini Fumu: loading card stays until fully loaded, no brown behind it
 
