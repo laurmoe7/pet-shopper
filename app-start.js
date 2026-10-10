@@ -6,6 +6,16 @@
 applyListMode();
 render();
 var wakeState = baseState();
+// before noon he does the morning exercise first (app-idle.js), and the usual hello and reminders come after it
+var morning = wakeState !== 'sleepy' && morningOk();
+/** The hello he says on opening: what he was thinking about, a yawn after a long time away, or a plain hi. */
+function startupTalk() {
+  var away = Date.now() - (state.lastOpen || 0);
+  var top = L.topFavourites(state.pet, 1)[0];
+  if (top && top.count >= 3 && Math.random() < 0.3) talk('memoryHi', ['thinking about {item}…', 'psst, more {item}?', 'hi! {item} soon?'], 1900, { item: top.label.toLowerCase() });
+  else if (away > 6 * 3600 * 1000) say('*yaaawn* hi!', 1400);
+  else talk('hi', state.player.name ? ['oh, hi!', 'hi, ' + state.player.name + '!', 'welcome back, ' + state.player.name + '!'] : ['oh, hi!'], 1400);
+}
 if (wakeState !== 'sleepy') {
   busy++;
   pet.dataset.state = 'sleepy';
@@ -13,16 +23,13 @@ if (wakeState !== 'sleepy') {
   setTimeout(function () {
     setFace(FACES.wake);
     pulse('stretch', 1000);
-    var away = Date.now() - (state.lastOpen || 0);
-    var top = L.topFavourites(state.pet, 1)[0];
-    if (top && top.count >= 3 && Math.random() < 0.3) talk('memoryHi', ['thinking about {item}…', 'psst, more {item}?', 'hi! {item} soon?'], 1900, { item: top.label.toLowerCase() });
-    else if (away > 6 * 3600 * 1000) say('*yaaawn* hi!', 1400);
-    else talk('hi', state.player.name ? ['oh, hi!', 'hi, ' + state.player.name + '!', 'welcome back, ' + state.player.name + '!'] : ['oh, hi!'], 1400);
+    if (!morning) startupTalk();
     setTimeout(function () { busy--; if (!busy) settle(); }, 1000);
   }, 700);
 }
-setTimeout(morningStart, 3200);   // before noon he does the morning exercise (a tap stops it)
-setTimeout(function () { dueNag(); }, 3800);   // then it mentions anything due
+function afterMorning() { startupTalk(); setTimeout(dueNag, 2600); }
+if (morning) setTimeout(function () { if (!morningStart(afterMorning)) afterMorning(); }, 2000);   // a tap stops the dance, then the hello comes
+else setTimeout(function () { dueNag(); }, 3800);   // then it mentions anything due
 state.lastOpen = Date.now();
 save();
 

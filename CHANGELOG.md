@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 531
+- Before noon he dances first, then says hello and mentions what is due
+
 ## Build 530
 - Morning exercise plays when you open the app or Mini Fumu before noon; a tap or key stops it
 
