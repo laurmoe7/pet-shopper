@@ -486,20 +486,20 @@ function chorusDance() {
   return 8000;
 }
 
-/** Free spirited dance: an idle dance of 7.2 s (the `freespirit` CSS, styles.css): his right arm pumps out and back four times, his paws together shake to one side and the other, then his paws go down and out
- * while one leg crosses in front of the other. This sets the face and the notes. */
+/** Free spirited dance: an idle dance of 8 s (the `freespirit` CSS, styles.css): his right arm pumps out and back four times, his paws together shake to one side and the other, then, slowly, his paws go down and out
+ * while his right leg crosses in front of the left once. This sets the face and the notes. */
 function freeSpiritDance() {
   setFace({ eyes: 'open', mouth: 'open', arms: 'rest', x: ['cheeks'] });
-  pulse('freespirit', 7200);
+  pulse('freespirit', 8000);
   function at(ms, fn) { setTimeout(function () { if (pet.classList.contains('freespirit')) fn(); }, ms); }
   at(500, function () { drift(['♪'], petTop(), 1); });
   at(1500, function () { drift(['♫'], petTop(), 1); });
   at(2500, function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'rest', x: ['cheeks', 'sparkles'] }); drift(['♪', '✦', '♫'], petTop(), 3); });
   at(3800, function () { drift(['♫', '♪'], petTop(), 2); });
   at(4800, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'rest', x: ['cheeks'] }); drift(['✦', '♪'], petTop(), 3); });
-  at(6200, function () { drift(['♫', '✦'], petTop(), 2); });
+  at(6300, function () { drift(['♫', '✦'], petTop(), 2); });
   hum();
-  return 7200;
+  return 8000;
 }
 
 /** @returns {{x: number, y: number}} A point just above the pet's head. */

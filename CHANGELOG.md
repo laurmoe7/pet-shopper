@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 575
+- Free spirited dance: one slower leg cross, feet closer and touching
+
 ## Build 574
 - Free spirited dance redone: arm pumps, paws shaking together, crossed legs
 
