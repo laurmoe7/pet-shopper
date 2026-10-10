@@ -393,6 +393,18 @@ function softSettle() {
 // Everything here only slides or fades the pet (no squashing or tilting, which left a seam on her phone),
 // and every hop has a landing and a shadow, so it looks like it moves on the floor, not in the air.
 var livelyTimer;
+/** Morning exercise: a 6 s radio-calisthenics routine (arm swings with side bends, jumping jacks, squats, a big reach, a bow).
+ * The body is the `exercise` CSS move; the arms and face change at the same moments. */
+function morningExercise() {
+  var steps = [[0, 'reach'], [1200, 'cheer'], [2300, 'idle'], [2500, 'cheer'], [2700, 'idle'], [2900, 'cheer'], [3100, 'idle'], [3700, 'reach'], [4900, 'cheer'], [5500, 'idle']];
+  setFace({ eyes: 'happy', mouth: 'open', arms: 'reach', x: ['cheeks'] });
+  pulse('exercise', 6000);
+  say(pick(['ichi, ni, san, shi!', 'morning exercise~', 'stretch, stretch!']), 1500, true);
+  steps.forEach(function (st) { setTimeout(function () { if (pet.classList.contains('exercise')) pet.dataset.arms = st[1]; }, st[0]); });
+  setTimeout(function () { settle(); }, 6000);
+  return 6000;
+}
+
 /** @returns {{x: number, y: number}} A point just above the pet's head. */
 function petTop() {
   var r = pet.getBoundingClientRect();

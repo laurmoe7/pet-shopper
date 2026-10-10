@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 526
+- New dance: morning exercise (animation player)
+
 ## Build 525
 - Old School: square switches
 

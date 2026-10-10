@@ -22,6 +22,7 @@ function animCatalogue() {
   var out = [];
   function add(group, name, run) { out.push({ group: group, name: name, run: run }); }
   BODY_MOVES.forEach(function (m) { add('Body moves', m[0], function () { pulse(m[0], m[1]); return m[1]; }); });
+  add('Body moves', 'morning exercise', morningExercise);
   Object.keys(SQUISH).forEach(function (k) {
     if (!BODY_MOVES.some(function (m) { return m[0] === k; })) add('Body moves', k + ' (squash only)', function () { svgSquish(SQUISH[k]); return SQUISH[k].ms; });
   });

@@ -3078,6 +3078,19 @@ html.desktop-pet .night-btn { display: none !important; }   /* in the small wind
 .pet:is(.spinhop, .flop) :is(.ear-l, .ear-r) { animation: ear-jiggle-l .7s ease-out .3s; }
 @media (prefers-reduced-motion: reduce) { .pet:is(.tilt, .flop, .spinhop, .shiver) .pet-svg { animation: none; } }
 
+/* morning exercise (build 5xx): radio-calisthenics: arm swings with side bends, jumping jacks, squats, a big reach and a bow (arms are set by morningExercise in app-idle.js, in step with these times) */
+@keyframes exercise {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  4% { transform: translateY(-5px); } 8% { transform: translateY(0); }
+  12% { transform: rotate(-9deg); } 20% { transform: rotate(9deg); } 28% { transform: rotate(-9deg); } 34% { transform: rotate(0deg); }
+  38% { transform: translateY(-9px); } 42% { transform: translateY(0); } 46% { transform: translateY(-9px); } 50% { transform: translateY(0); } 54% { transform: translateY(-9px); } 58% { transform: translateY(0); }
+  63% { transform: translateY(5px); } 68% { transform: translateY(0); } 73% { transform: translateY(5px); } 78% { transform: translateY(0); }
+  84% { transform: translateY(-4px); } 88% { transform: translateY(0); }
+  94% { transform: rotate(10deg) translateY(2px); } 97% { transform: rotate(0deg); }
+}
+.pet.exercise .pet-svg { animation: exercise 6s ease-in-out; transform-origin: 50% 94%; }
+@media (prefers-reduced-motion: reduce) { .pet.exercise .pet-svg { animation: none; } }
+
 /* alerts, made cuter (builds 364-368): a paper label with a bit of tape, a round sticker for the icon, soft pill buttons, a colour per kind.
    Three styles, picked in the settings window (alertStyle, class on <html>): al-paper (warm cream), al-night (the same in deep plum), none = the plain old card. */
 html.al-paper { --al-bg: #fff8ea; --al-ink: #4a3128; --al-sub: #6b4d41; --al-edge: #5b4239; --al-chip: #fff; --al-shadow: rgba(40, 25, 20, .3); --al-mix: #fff; --al-tint: 1; }
