@@ -8,7 +8,7 @@ $('buildLabel').textContent = 'Build ' + BUILD;
    in the pet's saved data); in the Windows app the shell keeps it (its alertStyle pref, so the settings window and both windows agree). */
 var THEMES = [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark'], ['sweet', 'Sweet'], ['quest2', 'Quest'], ['osrs', 'Old School'], ['bonfire', 'Bonfire']];
 /** Older saved names: the paper, night, cool, scribble and classic looks are gone (quest was replaced by quest2, build 544). */
-var OLD_THEMES = { quest: 'quest2', paper: 'light', night: 'dark', cool: 'light', scribble: 'light', classic: 'auto' };
+var OLD_THEMES = { quest: 'quest2', paper: 'light', night: 'dark', cool: 'light', scribble: 'light', classic: 'dark' };
 var currentTheme = 'auto';
 function applyTheme(t) {
   var de = document.documentElement, pet = de.classList.contains('desktop-pet');

@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 567
+- Classic is now Dark; Auto follows the phone's light or dark
+
 ## Build 566
 - One theme shared by the app and Mini Fumu; Light, Dark and new Sweet; Paper, Cool and Scribbling removed
 

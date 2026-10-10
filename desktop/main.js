@@ -37,7 +37,7 @@ function start() {
   delete prefs.chat;
   // the one theme shared by the whole app, Mini Fumu and this settings window (id alertStyle, kept under that name): auto, light, dark, sweet, quest2, osrs, bonfire
   const THEMES = ['auto', 'light', 'dark', 'sweet', 'quest2', 'osrs', 'bonfire'];
-  const OLD_THEMES = { quest: 'quest2', paper: 'light', night: 'dark', cool: 'light', scribble: 'light', classic: 'auto' };   // the paper, night, cool, scribble and classic looks are gone
+  const OLD_THEMES = { quest: 'quest2', paper: 'light', night: 'dark', cool: 'light', scribble: 'light', classic: 'dark' };   // the paper, night, cool, scribble and classic looks are gone
   prefs.alertStyle = OLD_THEMES[prefs.alertStyle] || prefs.alertStyle;
   if (!THEMES.includes(prefs.alertStyle)) prefs.alertStyle = 'auto';
   prefs.chatNormal = privacy.cleanChat(prefs.chatNormal, 'normal'); prefs.chatFull = privacy.cleanChat(prefs.chatFull, 'normal');
