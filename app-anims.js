@@ -14,7 +14,7 @@ var ANIM_EXTRAS = ['hearts', 'sparkles', 'zzz', 'steam', 'question', 'sweat', 's
 
 /** @returns {string} A short name for an idle move, taken from what its code does (they are unnamed in the list). */
 function idleName(run, i) {
-  var src = String(run), m = src.match(/pulse\('(\w+)'/) || src.match(/FACES\.(\w+)/) || src.match(/(lookAround|bellyJiggle|bellySway|eyesDo|drift)\(/);
+  var src = String(run), m = src.match(/pulse\('(\w+)'/) || src.match(/FACES\.(\w+)/) || src.match(/(lookAround|bellyJiggle|handDance|eyesDo|drift)\(/);
   return (i + 1) + ' ' + (m ? m[1] : 'move');
 }
 /** @returns {{group: string, name: string, run: function(): (number|undefined)}[]} Everything the player can run. */
@@ -23,7 +23,7 @@ function animCatalogue() {
   function add(group, name, run) { out.push({ group: group, name: name, run: run }); }
   BODY_MOVES.forEach(function (m) { add('Body moves', m[0], function () { pulse(m[0], m[1]); return m[1]; }); });
   add('Body moves', 'morning exercise', morningExercise);
-  add('Body moves', 'belly sway', bellySway);
+  add('Body moves', 'hand dance', handDance);
   Object.keys(SQUISH).forEach(function (k) {
     if (k !== 'exercise' && !BODY_MOVES.some(function (m) { return m[0] === k; })) add('Body moves', k + ' (squash only)', function () { svgSquish(SQUISH[k]); return SQUISH[k].ms; });
   });

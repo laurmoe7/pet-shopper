@@ -282,7 +282,7 @@ var IDLE_MOVES = [
   // little dances
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('shuffle', 1500); hum(); } },
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'reach', x: ['sparkles', 'cheeks'] }); pulse('boogie', 1500); hum(); } },
-  { moods: ['curious', 'happy'], run: function () { return bellySway(); } },
+  { moods: ['curious', 'happy'], run: function () { return handDance(); } },
   { moods: ['sleepy', 'stuffed'], run: function () { pulse('wiggle', 900); } },
   { moods: ['stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); } },
   // daytime things to do
@@ -440,13 +440,13 @@ function morningStart(onDone) {
   return true;
 }
 
-/** Belly sway: an idle dance (3.6 s). A quick tilt with a hand raised by his cheek and his eyes closed, then swaying side to side with a hand on his belly.
- * The body, arms and feet are the `bellysway` CSS (styles.css); this sets the face. */
-function bellySway() {
+/** Hand dance: an idle dance (3.6 s). A quick tilt with a hand raised by his cheek and his eyes closed, then swaying side to side with a hand on his belly.
+ * The body, arms and feet are the `handdance` CSS (styles.css); this sets the face. */
+function handDance() {
   setFace({ eyes: 'open', mouth: 'smile', arms: 'rest', x: ['cheeks'] });
-  pulse('bellysway', 3600);
-  setTimeout(function () { if (pet.classList.contains('bellysway')) setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); }, 300);
-  setTimeout(function () { if (pet.classList.contains('bellysway')) setFace({ eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); }, 800);
+  pulse('handdance', 3600);
+  setTimeout(function () { if (pet.classList.contains('handdance')) setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); }, 300);
+  setTimeout(function () { if (pet.classList.contains('handdance')) setFace({ eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); }, 800);
   // the held-out hand (it swaps each sway) shows its palm for a moment: left on the 2nd, 4th and 6th sway, right on the 1st, 3rd and 5th
   [[1000, 'r'], [1450, 'l'], [1900, 'r'], [2350, 'l'], [2800, 'r'], [3250, 'l']].forEach(function (w) {
     setTimeout(function () { pet.classList.add('bs-out-' + w[1]); }, w[0] - 280);
