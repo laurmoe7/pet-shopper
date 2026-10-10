@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 553
+- Bonfire: flame beside titles, square plan field
+
+## Build 552
+- Bonfire: more detail (corner brackets, flame titles, drifting embers, glowing picks, vignettes)
+
 ## Build 551
 - Bonfire: Profile cards darker
 

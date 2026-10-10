@@ -3864,3 +3864,64 @@ html:root[data-skin="quest"][data-quest="bonfire"] .dress-fx .df-bulbs circle { 
 html:root[data-skin="quest"][data-quest="bonfire"] .dress-fx .sp { fill: #ffb05a; }
 html:root[data-skin="quest"][data-quest="bonfire"] .dress-fx .ht { fill: #c8641f; }
 html:root[data-skin="quest"][data-quest="bonfire"] .profile-link { background: rgba(12, 10, 9, .6) !important; }
+
+/* ---------- Bonfire: details and polish ----------
+   corner brackets on panels, a small flame and a fading gold rule on titles, embers drifting up over the room, a soft pulsing glow on what is picked, a vignette
+   on the room picture, and richer hover, focus and button states */
+html:root[data-skin="quest"][data-quest="bonfire"], html.al-bonfire {
+  --bf-flame: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 1.5c.9 4.2-3.6 6.2-3.6 11a5.6 5.6 0 0 0 11.2 0c0-2.6-1.2-4.1-2.6-6.2-.3 2.2-1.2 3.4-2.4 3.8.9-3.6-.4-6.6-2.6-8.6z' fill='%23d9822b'/><path d='M12.2 12.2c.4 2.2-2 3.2-2 5.2a2 2 0 0 0 4 0c0-2.2-1.8-3.2-2-5.2z' fill='%23ffd88a'/></svg>");
+  --bf-corner: #8f7e4e;
+}
+@keyframes bf-glow { 0%, 100% { box-shadow: 0 0 10px rgba(217, 130, 43, .42), inset 0 0 0 1px rgba(0, 0, 0, .4); } 50% { box-shadow: 0 0 18px rgba(255, 160, 60, .62), inset 0 0 0 1px rgba(0, 0, 0, .4); } }
+@keyframes bf-ember { 0% { transform: translateY(0) scale(1); opacity: 0; } 15% { opacity: .95; } 100% { transform: translateY(-46px) translateX(8px) scale(.4); opacity: 0; } }
+/* panels: gold corner brackets */
+html:root[data-skin="quest"][data-quest="bonfire"] .picker {
+  background:
+    linear-gradient(var(--bf-corner), var(--bf-corner)) left 8px top 8px / 16px 1px no-repeat, linear-gradient(var(--bf-corner), var(--bf-corner)) left 8px top 8px / 1px 16px no-repeat,
+    linear-gradient(var(--bf-corner), var(--bf-corner)) right 8px top 8px / 16px 1px no-repeat, linear-gradient(var(--bf-corner), var(--bf-corner)) right 8px top 8px / 1px 16px no-repeat,
+    linear-gradient(var(--bf-corner), var(--bf-corner)) left 8px bottom 8px / 16px 1px no-repeat, linear-gradient(var(--bf-corner), var(--bf-corner)) left 8px bottom 8px / 1px 16px no-repeat,
+    linear-gradient(var(--bf-corner), var(--bf-corner)) right 8px bottom 8px / 16px 1px no-repeat, linear-gradient(var(--bf-corner), var(--bf-corner)) right 8px bottom 8px / 1px 16px no-repeat,
+    radial-gradient(ellipse at 50% 0, rgba(150, 95, 35, .13), transparent 55%), var(--bf-grain), #181512;
+  background-size: 16px 1px, 1px 16px, 16px 1px, 1px 16px, 16px 1px, 1px 16px, 16px 1px, 1px 16px, auto, 160px 160px, auto;
+}
+/* titles: a flame, spaced small capitals, and a rule that fades out */
+html:root[data-skin="quest"][data-quest="bonfire"] .picker h2 { font-variant: small-caps; letter-spacing: .09em; border-bottom: 1px solid; border-image: linear-gradient(90deg, #a08d58, #5b4f33 55%, transparent) 1; padding-bottom: 6px; }
+html:root[data-skin="quest"][data-quest="bonfire"] .picker h2::before { display: inline-block !important; content: ""; width: 17px; height: 17px; margin-right: 8px; vertical-align: -3px; background: var(--bf-flame) center / contain no-repeat; filter: drop-shadow(0 0 4px rgba(224, 138, 46, .65)); }
+html:root[data-skin="quest"][data-quest="bonfire"] .items .aisle::after { height: 1px; border: 0; background: linear-gradient(90deg, #5b4f33, transparent); opacity: 1; }
+/* rows: an ember edge and a faint glow on hover, a glow when the add bar is used */
+html:root[data-skin="quest"][data-quest="bonfire"] .item:hover { box-shadow: inset 3px 0 0 #d9822b, inset 0 0 0 1px rgba(0, 0, 0, .55), 0 0 16px rgba(217, 130, 43, .12); }
+html:root[data-skin="quest"][data-quest="bonfire"] .add:focus-within { border-color: #d9822b; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .55), 0 0 14px rgba(217, 130, 43, .32); }
+html:root[data-skin="quest"][data-quest="bonfire"] .item.done .check::before { box-shadow: 0 0 8px rgba(217, 130, 43, .55); }
+/* buttons: a faint top highlight; Add glows a little */
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.pill-btn, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .dress-tabs button, .cal-add-btn, .recipe-btn, .mic-btn, .gear-btn) { box-shadow: inset 0 0 0 1px #000, inset 0 1px 0 1px rgba(255, 235, 190, .07); }
+html:root[data-skin="quest"][data-quest="bonfire"] .add-btn { box-shadow: inset 0 1px 0 rgba(255, 225, 170, .35), inset 0 0 0 1px rgba(0, 0, 0, .45), 0 0 10px rgba(217, 130, 43, .25); }
+html:root[data-skin="quest"][data-quest="bonfire"] .add-btn:hover { background: linear-gradient(#bd6120, #7c3612); }
+/* what is picked glows and breathes like a flame */
+@media (prefers-reduced-motion: no-preference) {
+  html:root[data-skin="quest"][data-quest="bonfire"] :is(.pill-btn[aria-pressed="true"], .dress-tabs button[aria-selected="true"], .dock button[aria-current="page"] .dock-icon, .dock button.on .dock-icon, .cal-sheet .cal-cell:is(.today, .sel)) { animation: bf-glow 3.4s ease-in-out infinite; }
+  /* embers drift up over the room (the two little sparkles above the pet) */
+  html:root[data-skin="quest"][data-quest="bonfire"] .stage::before, html:root[data-skin="quest"][data-quest="bonfire"] .stage::after { clip-path: none; border-radius: 50%; width: 4px; height: 4px; background: #ffb05a; box-shadow: 0 0 7px 2px rgba(255, 150, 60, .65); opacity: 0; animation: bf-ember 5.4s ease-out infinite; }
+  html:root[data-skin="quest"][data-quest="bonfire"] .stage::before { left: 26%; top: 120px; }
+  html:root[data-skin="quest"][data-quest="bonfire"] .stage::after { right: 24%; top: 128px; width: 3px; height: 3px; background: #ffd27a; animation-delay: 2.6s; animation-duration: 6.2s; }
+}
+/* the room picture: a soft dark vignette inside its frame, and a hairline of gold light on the frame's top edge */
+html:root[data-skin="quest"][data-quest="bonfire"] .backdrop::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; box-shadow: inset 0 0 34px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(255, 220, 150, .16); }
+/* the dock and the page: a faint ember light along the dock's top edge, and a darker vignette at the page's foot */
+html:root[data-skin="quest"][data-quest="bonfire"] .dock { box-shadow: 0 -1px 0 #000, 0 -3px 14px rgba(217, 130, 43, .1), inset 0 1px 0 rgba(255, 235, 190, .08); }
+html:root[data-skin="quest"][data-quest="bonfire"] body { background-image: radial-gradient(ellipse at 50% 0, rgba(130, 85, 30, .22), transparent 60%), radial-gradient(ellipse at 50% 108%, rgba(0, 0, 0, .55), transparent 55%), var(--bf-grain); background-size: auto, auto, 160px 160px; }
+/* his speech: a second fine line inside the panel */
+html:root[data-skin="quest"][data-quest="bonfire"] .stage .bubble:not(.in-sheet), html.al-bonfire .stage .bubble:not(.in-sheet) { box-shadow: 0 0 0 1px #000, inset 0 0 0 1px #000, inset 0 0 0 2px var(--bf-line), 0 4px 14px rgba(0, 0, 0, .6); }
+/* Mini Fumu's cards: the same corner brackets and a gold light along the top */
+html.al-bonfire .inbox-card {
+  background:
+    linear-gradient(var(--bf-corner), var(--bf-corner)) left 6px top 6px / 12px 1px no-repeat, linear-gradient(var(--bf-corner), var(--bf-corner)) left 6px top 6px / 1px 12px no-repeat,
+    linear-gradient(var(--bf-corner), var(--bf-corner)) right 6px top 6px / 12px 1px no-repeat, linear-gradient(var(--bf-corner), var(--bf-corner)) right 6px top 6px / 1px 12px no-repeat,
+    linear-gradient(var(--bf-corner), var(--bf-corner)) left 6px bottom 6px / 12px 1px no-repeat, linear-gradient(var(--bf-corner), var(--bf-corner)) left 6px bottom 6px / 1px 12px no-repeat,
+    linear-gradient(var(--bf-corner), var(--bf-corner)) right 6px bottom 6px / 12px 1px no-repeat, linear-gradient(var(--bf-corner), var(--bf-corner)) right 6px bottom 6px / 1px 12px no-repeat,
+    var(--bf-grain), #181512;
+  background-size: 12px 1px, 1px 12px, 12px 1px, 1px 12px, 12px 1px, 1px 12px, 12px 1px, 1px 12px, 160px 160px, auto;
+}
+html.al-bonfire .inbox-text b::before { content: ""; display: inline-block; width: 15px; height: 15px; margin-right: 6px; vertical-align: -2px; background: var(--bf-flame) center / contain no-repeat; filter: drop-shadow(0 0 3px rgba(224, 138, 46, .6)); }
+html:root[data-skin="quest"][data-quest="bonfire"] .picker h2::before { position: static !important; inset: auto !important; rotate: 0deg !important; transform: none !important; translate: none !important; width: 17px !important; height: 17px !important; top: auto !important; left: auto !important; }
+html:root[data-skin="quest"][data-quest="bonfire"] #calInput { border-radius: 2px; background: #0d0b0a; border: 1px solid #4a3f28; color: var(--os-yellow); box-shadow: inset 0 0 0 1px #000; }
+html:root[data-skin="quest"][data-quest="bonfire"] #calInput:focus { border-color: #d9822b; box-shadow: inset 0 0 0 1px #000, 0 0 12px rgba(217, 130, 43, .3); }
