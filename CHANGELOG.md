@@ -2,6 +2,10 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 536
+- Old School: rounded room frame that the picture fits
+- Scribbling: room picture fits the crayon frame
+
 ## Build 535
 - Belly sway renamed hand dance
 

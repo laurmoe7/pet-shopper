@@ -3715,3 +3715,9 @@ html:root[data-skin="quest"][data-quest="osrs"] .option input:checked { backgrou
 .pet.handdance:not(#x) :is(.foot-r, .shoe-r) { animation: bs-foot-r 3.6s ease-in-out; }
 .pet.handdance :is(.ear-l, .ear-r) { animation: ear-jiggle-l .9s ease-out 4; }
 @media (prefers-reduced-motion: reduce) { .pet.handdance :is(.pet-svg, .arm-l, .arm-r, .ear-l, .ear-r), .pet.handdance:not(#x) :is(.foot-l, .shoe-l, .foot-r, .shoe-r) { animation: none; } }
+
+/* the room picture follows the frame (build 536). Old School: the frame is rounded and the picture fills it with matching corners.
+   Scribbling: the crayon frame clips the picture (it fills it right up to the frame, no corners or border of its own) */
+html:root[data-skin="quest"][data-quest="osrs"] .stage { border-radius: 16px; }
+html:root[data-skin="quest"][data-quest="osrs"] .backdrop { inset: 0 0 18px; border: 0; box-shadow: none; border-radius: 13px 13px 16px 16px; }
+html:root[data-skin="scribble"] .backdrop { inset: 0 0 18px; border: 0; box-shadow: none; border-radius: 0 0 16px 16px; }
