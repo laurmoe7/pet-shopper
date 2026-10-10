@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 543
+- Hand dance: quicker sway and push, like the video
+
 ## Build 542
 - Morning exercise: nothing interrupts it, and he waits a second after it before talking
 
