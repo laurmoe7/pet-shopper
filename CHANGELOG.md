@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 568
+- Dragon: wing bones reach the body (no gap)
+
 ## Build 567
 - Classic is now Dark; Auto follows the phone's light or dark
 
