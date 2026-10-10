@@ -1303,6 +1303,16 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .pet[data-skin="snowmonkey"] { --pet-skin: #cfd3dc; --pet-skin-shade: #b7bcc8; --pet-ear-in: #ffc9c9; --monkey-face: #ff9f9f; }
 .pet[data-skin="snowmonkey"] [data-sp="monkey"] .ear { fill: #ff9f9f; }
 .pet[data-skin="snowmonkey"] .monkey-belly { fill: #eceef3; }
+/* red dragon: red scales, a warm cream belly and snout, golden-cream horns, orange-pink wings and dark red head tufts */
+.pet[data-skin="reddragon"] { --pet-skin: #ea5a52; --pet-skin-shade: #d1403f; --pet-ear-in: #ffe6b8; }
+.pet[data-skin="reddragon"] .dragon-wing { fill: #ffb48f; }
+.pet[data-skin="reddragon"] .wing-bone { stroke: #d1403f; }
+.pet[data-skin="reddragon"] .horn-fill { fill: #ffefc7; }
+.pet[data-skin="reddragon"] .horn-ring { stroke: #e3b672; }
+.pet[data-skin="reddragon"] .dragon-plate, .pet[data-skin="reddragon"] .dragon-muzzle { fill: #ffe0a3; }
+.pet[data-skin="reddragon"] .dragon-band { stroke: #efbd6c; }
+.pet[data-skin="reddragon"] .dragon-nostril { fill: #c9484a; }
+.pet[data-skin="reddragon"] .dragon-tuft { fill: #b8312f; }
 .pet[data-skin="whitehamster"] { --pet-skin: #fffaf6; --pet-skin-shade: #efe3da; --pet-ear-in: #ffc4cf; }
 .pet[data-skin="longhair"] { --pet-skin: #57525f; --pet-skin-shade: #403b49; --pet-ear-in: #e7a3b0; }
 .pet[data-skin="kiwi"] { --pet-skin: #b68f63; --pet-skin-shade: #dcaa5c; --pet-mark: #7a5a38; }

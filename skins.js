@@ -48,6 +48,7 @@
     { id: 'whitehamster', base: 'hamster', label: 'White hamster' },
     { id: 'longhair', base: 'hamster', label: 'Long-haired' },
     { id: 'thrush', base: 'birdie', label: 'Thrush' },
-    { id: 'snowmonkey', base: 'monkey', label: 'Snow monkey' }
+    { id: 'snowmonkey', base: 'monkey', label: 'Snow monkey' },
+    { id: 'reddragon', base: 'dragon', label: 'Red dragon' }
   ];
 })(typeof self !== 'undefined' ? self : globalThis);

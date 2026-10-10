@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 546
+- New dragon skin: Red dragon
+
 ## Build 545
 - Quest2 replaces the original Quest and is now called Quest
 
