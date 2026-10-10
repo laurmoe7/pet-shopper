@@ -249,6 +249,7 @@ function toggle(id) {
   var wasAsleep = item.done && baseState() === 'sleepy' && L.isNight(petNow());
   var todoMode = state.mode === 'todo';   // to-dos don't count for goals, tastes or the Top 10
   if (item.done) {
+    if (L.isNight(petNow())) setBellAwake(true);   // checking anything off (either list) gets him out of bed for a while, even with the lamp off
     if (!todoMode) state.pet.dozing = ''; // a snack wakes it up (a task only wakes it for a moment, then it goes back to sleep)
     if (!todoMode) {
       goals = creditEaten(item, now);

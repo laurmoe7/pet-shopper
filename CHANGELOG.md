@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 558
+- Fumu gets out of bed when anything is ticked off, on either list
+
 ## Build 557
 - Loading card: the update check happens before the app shows, so it no longer loads twice
 
