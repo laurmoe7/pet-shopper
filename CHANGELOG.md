@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 563
+- Bonfire: closer to the Dark Souls menu (bone frames, pale picked slots, double-line panels, small capitals)
+
+## Build 562
+- Shopping / To-do tabs under the title
+
 ## Build 561
 - Bonfire: bottom bar buttons get slot corners, ember glow, dividers and a lit current page
 

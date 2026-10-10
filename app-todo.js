@@ -22,6 +22,8 @@ function applyListMode(animate) {
     setTimeout(function () { brandKind.textContent = kind; }, 190);
   } else brandKind.textContent = kind;
   brandEl.classList.toggle('swapped', todo);
+  $('tabShop').setAttribute('aria-selected', String(!todo));
+  $('tabTodo').setAttribute('aria-selected', String(todo));
   addInput.placeholder = todo ? 'Add a to-do, like call mum' : 'Add an item…';
   $('addLabel').textContent = todo ? 'Add a to-do' : 'Add an item';
   addForm.querySelector('.add-btn').setAttribute('aria-label', todo ? 'Add to-do' : 'Add item');
@@ -58,6 +60,10 @@ function switchList() {
   setTimeout(function () { if (!busy) settle(); }, 900);
 }
 brandEl.addEventListener('click', switchList);
+$('listTabs').addEventListener('click', function (e) {
+  var b = e.target.closest('.list-tab');
+  if (b && (b.dataset.list === 'todo') !== isTodo()) switchList();
+});
 brandEl.addEventListener('keydown', function (e) {
   if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); switchList(); }
 });
@@ -400,6 +406,7 @@ function updateTodoExtras() {
   var n = isTodo() ? 0 : dueTasks().length;
   brandDue.hidden = !n;
   brandDue.textContent = n;
+  $('tabDue').hidden = !n; $('tabDue').textContent = n;
   brandEl.setAttribute('aria-label', 'Switch between the shopping list and the to-do list' + (n ? ' (' + n + ' to-do' + (n > 1 ? 's' : '') + ' due)' : ''));
 }
 // a new day: tags like "tomorrow" need redrawing when the app comes back to the front

@@ -4017,3 +4017,95 @@ html:root[data-skin="quest"][data-quest="bonfire"] .dock :is(button[aria-current
 }
 html:root[data-skin="quest"][data-quest="bonfire"] .dock button:active .dock-icon { background-color: #3a1f0d; }
 html:root[data-skin="quest"][data-quest="bonfire"] .dock .dock-badge { border-radius: 2px; box-shadow: 0 0 0 1px #000, 0 0 8px rgba(217, 130, 43, .55); }
+
+/* ---------- the shopping / to-do tabs under the title ---------- */
+.list-tabs { display: flex; gap: 4px; width: max-content; max-width: 100%; margin: 6px 0 0; padding: 3px; border: 1.5px solid var(--outline, var(--line)); border-radius: 999px; background: color-mix(in srgb, var(--surface) 70%, transparent); }
+.list-tab { display: inline-flex; align-items: center; gap: 5px; padding: 5px 14px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: inherit; font-size: .86rem; font-weight: 800; cursor: pointer; touch-action: manipulation; }
+.list-tab[aria-selected="true"] { background: var(--hl, var(--accent)); color: #fff; box-shadow: 0 2px 0 rgba(0, 0, 0, .18); }
+.list-tab:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
+.tab-due { min-width: 17px; height: 17px; padding: 0 5px; box-sizing: border-box; border-radius: 9px; background: var(--badge); color: #fff; font-size: .68rem; line-height: 17px; text-align: center; }
+.tab-due[hidden] { display: none; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .list-tabs { border-radius: 0; border: 1px solid #000; background: var(--os-dark); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .list-tab { border-radius: 0; color: var(--os-yellow); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .list-tab[aria-selected="true"] { background: var(--os-red); }
+html:root[data-skin="quest"][data-quest="bonfire"] .list-tabs { border-radius: 2px; border-color: #4a3f28; background: #0d0b0a; box-shadow: inset 0 0 0 1px #000; }
+html:root[data-skin="quest"][data-quest="bonfire"] .list-tab { border-radius: 1px; color: #cbbf9f; font-weight: 500; }
+html:root[data-skin="quest"][data-quest="bonfire"] .list-tab[aria-selected="true"] { background: var(--bf-ember); color: #fff6e4; box-shadow: 0 0 10px rgba(217, 130, 43, .45), inset 0 0 0 1px rgba(0, 0, 0, .4); }
+html:root[data-skin="scribble"] .list-tabs { border: 3px solid var(--cr-ink); border-radius: 22px 18px 24px 16px; }
+html.desktop-pet .list-tabs { display: none; }
+
+/* ---------- Bonfire, toward the Dark Souls menu ----------
+   Cold bone-grey lettering and frames (the gold stays for titles), near-black glass panels with a double hairline, and what is picked is a pale bone frame
+   with a soft white glow on a dark slot (the game's cursor), not an orange fill. Ember stays as a small accent (flame, diamond, badges). */
+html:root[data-skin="quest"][data-quest="bonfire"] {
+  --os-yellow: #d9d3bf; --os-orange: #c9b27a; --bone: #cfc8b0; --bone-dim: #7d776a; --bone-line: #4d493f;
+  --soul-pick: radial-gradient(ellipse at 50% 0, rgba(235, 228, 205, .16), transparent 75%), linear-gradient(#26221d, #14110e);
+  --soul-glow: 0 0 10px rgba(225, 218, 190, .28), inset 0 0 0 1px #000, inset 0 0 0 2px rgba(207, 200, 176, .35);
+  --ink: #d9d3bf; --muted: #8f897a; --cb-edge-strong: #6a6556;
+}
+/* panels: a thin bone line, a dark gap, a fainter inner line, a soft shadow around */
+html:root[data-skin="quest"][data-quest="bonfire"] .picker { border-color: #6a6556; background-color: rgba(14, 12, 11, .97); box-shadow: 0 0 0 1px #000, 0 -8px 28px rgba(0, 0, 0, .75), inset 0 0 0 1px #050404, inset 0 0 0 2px #3a372f; }
+html:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { border-color: var(--bone-line); box-shadow: inset 0 0 0 1px #000, inset 0 0 0 2px #26231e; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock { border-top-color: #6a6556; box-shadow: 0 -1px 0 #000, 0 -3px 14px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(235, 228, 205, .08), inset 0 2px 0 #050404, inset 0 3px 0 #2e2b25; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.add, .item, .goal, .fav, .options, .picker .closet-wear, .name-show, .dress-search, .scene-bar) { border-color: var(--bone-line); }
+/* titles: pale, spaced, with a bone hairline that fades out */
+html:root[data-skin="quest"][data-quest="bonfire"] .picker h2 { color: #e6e0cc; letter-spacing: .12em; border-bottom: 1px solid; border-image: linear-gradient(90deg, #8f897a, #3a372f 65%, transparent) 1; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.field-label, .picker legend) { color: #b7ae90; letter-spacing: .14em; font-variant: small-caps; font-size: 1.02em; }
+html:root[data-skin="quest"][data-quest="bonfire"] .items .aisle { color: #a89f84; }
+/* buttons: dark glass with a bone line, pale lettering; hover lights the frame */
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.pill-btn, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .dress-tabs button, .cal-add-btn, .recipe-btn, .mic-btn, .gear-btn, .name-edit, .add-btn, .list-tab) {
+  border-color: #5d5849; background: linear-gradient(#1d1a16, #100e0c); color: var(--os-yellow); text-shadow: none; box-shadow: inset 0 0 0 1px #000, inset 0 1px 0 rgba(235, 228, 205, .06);
+}
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.pill-btn, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .dress-tabs button, .cal-add-btn, .recipe-btn, .mic-btn, .gear-btn, .name-edit, .add-btn, .list-tab):hover { border-color: var(--bone); color: #f0eada; background: linear-gradient(#26221d, #14110e); box-shadow: inset 0 0 0 1px #000, 0 0 8px rgba(225, 218, 190, .18); }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.name-edit, .add-btn) { letter-spacing: .08em; font-variant: small-caps; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.name-edit, .add-btn):active { background: #0a0908; box-shadow: inset 0 2px 6px rgba(0, 0, 0, .8); }
+/* picked: the bone frame and a soft glow, no orange fill */
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.pill-btn[aria-pressed="true"], .dress-tabs button[aria-selected="true"], .picker [aria-pressed="true"]:is(button), .list-tab[aria-selected="true"], .cal-sheet .cal-cell:is(.today, .sel)) {
+  background: var(--soul-pick); border-color: var(--bone); color: #fbf6e6; box-shadow: var(--soul-glow);
+}
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button)[aria-pressed="true"] {
+  background: var(--soul-pick); border: 1px solid var(--bone); box-shadow: var(--soul-glow);
+}
+html:root[data-skin="quest"][data-quest="bonfire"] .dock :is(button[aria-current="page"], button.on) .dock-icon, html:root[data-skin="quest"][data-quest="bonfire"]:is(:has(#dressSheet[open]) #dressBtn, :has(#roomSheet[open]) #roomBtn, :has(#shopSheet[open]) #shopBtn, :has(#calSheet[open]) #calBtn, :has(#profileSheet[open]) #profileBtn) .dock-icon {
+  background-color: #1a1713; border-color: var(--bone); --bk: #f0eada;
+  background-image: linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), radial-gradient(circle at 50% 35%, rgba(235, 228, 205, .22), transparent 72%), linear-gradient(#26221d, #14110e);
+  box-shadow: var(--soul-glow);
+}
+/* the check mark on the picked card: a small pale seal instead of the orange dot */
+html:root[data-skin="quest"][data-quest="bonfire"] .picker [aria-pressed="true"] :is(.sel-badge, .check-badge, .picked, .tick) { background: #1a1713; color: #f0eada; box-shadow: 0 0 0 1px var(--bone); }
+/* rows: the menu cursor, a pale band that fades out to the right with a hairline under it */
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.option:hover, .item:hover, .cal-sheet .cal-list li:hover) { background: linear-gradient(90deg, rgba(225, 218, 190, .1), transparent 75%), rgba(20, 17, 14, .8); }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.item .emoji-btn, .check, .dress-tabs button img) { border-color: #5d5849; }
+html:root[data-skin="quest"][data-quest="bonfire"] .item.done .check::before { background-color: #2a2620; outline-color: var(--bone); }
+html:root[data-skin="quest"][data-quest="bonfire"] .item-text, html:root[data-skin="quest"][data-quest="bonfire"] .option-title { color: #ddd7c3; }
+html:root[data-skin="quest"][data-quest="bonfire"] .hint, html:root[data-skin="quest"][data-quest="bonfire"] .option-text, html:root[data-skin="quest"][data-quest="bonfire"] .list-hint { font-style: italic; color: #8f897a; }
+/* the pet menu: the stage is a dark vignette, the tabs are equipment slots joined by a hairline, the panel under them is a recessed inventory */
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-stage { border: 1px solid #6a6556; box-shadow: inset 0 0 40px rgba(0, 0, 0, .7), inset 0 0 0 1px #000, 0 1px 0 #000; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-tabs { padding-bottom: 6px; border-bottom: 1px solid; border-image: linear-gradient(90deg, transparent, #6a6556 20%, #6a6556 80%, transparent) 1; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-tabs button { font-variant: small-caps; letter-spacing: .06em; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-tabs button img { filter: grayscale(.35) brightness(.95); }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-tabs button[aria-selected="true"] img { filter: none; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-panels { background: rgba(8, 7, 6, .55); border: 1px solid var(--bone-line); box-shadow: inset 0 0 0 1px #000, inset 0 0 24px rgba(0, 0, 0, .5); }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button) { background: #0e0c0b; border: 1px solid var(--bone-line); }
+html:root[data-skin="quest"][data-quest="bonfire"] .picker .species-grid button { font-variant: small-caps; letter-spacing: .06em; font-size: 1.05em; }
+/* list tabs and the dock's names: small capitals like the rest */
+html:root[data-skin="quest"][data-quest="bonfire"] .list-tab { font-variant: small-caps; letter-spacing: .08em; font-size: 1.02em; }
+html:root[data-skin="quest"][data-quest="bonfire"] .list-tabs { border-color: var(--bone-line); }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock :is(button[aria-current="page"], button.on) .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:is(:has(#dressSheet[open]) #dressBtn, :has(#roomSheet[open]) #roomBtn, :has(#shopSheet[open]) #shopBtn, :has(#calSheet[open]) #calBtn, :has(#profileSheet[open]) #profileBtn) .dock-label { color: #f0eada; text-shadow: 0 0 8px rgba(225, 218, 190, .5); }
+/* the dock's divider and brackets go bone-coloured too; the tilted Profile sticker stands straight */
+html:root[data-skin="quest"][data-quest="bonfire"] .dock .dock-icon { --bk: #7d776a; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock button:not(:first-child) { background-image: linear-gradient(transparent, #4d493f 22%, #4d493f 78%, transparent); }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock #profileBtn .dock-icon { rotate: 0deg; transform: none; }
+
+/* fixes: opaque panels (the list showed through), the current dock button in bone, the picked seal, Profile standing straight */
+html:root[data-skin="quest"][data-quest="bonfire"] .picker { background-color: #14110f; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-panels { background: #0b0a09 var(--bf-grain); background-size: 160px 160px; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.dress-panel .species-grid button, .dress-panel .hat-strip button)[aria-pressed="true"]::after { background: #1a1713; color: #f0eada; box-shadow: 0 0 0 1px var(--bone); border-radius: 2px; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock :is(button[aria-current="page"], button.on) .dock-icon, html:root[data-skin="quest"][data-quest="bonfire"]:has(#dressSheet[open]) .dock #dressBtn .dock-icon, html:root[data-skin="quest"][data-quest="bonfire"]:has(#roomSheet[open]) .dock #roomBtn .dock-icon, html:root[data-skin="quest"][data-quest="bonfire"]:has(#shopSheet[open]) .dock #shopBtn .dock-icon, html:root[data-skin="quest"][data-quest="bonfire"]:has(#calSheet[open]) .dock #calBtn .dock-icon, html:root[data-skin="quest"][data-quest="bonfire"]:has(#profileSheet[open]) .dock #profileBtn .dock-icon {
+  background-color: #1a1713; border-color: var(--bone); --bk: #f0eada;
+  background-image: linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), radial-gradient(circle at 50% 35%, rgba(235, 228, 205, .22), transparent 72%), linear-gradient(#26221d, #14110e);
+  box-shadow: var(--soul-glow);
+}
+html:root[data-skin="quest"][data-quest="bonfire"] .dock :is(button[aria-current="page"], button.on) .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#dressSheet[open]) .dock #dressBtn .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#roomSheet[open]) .dock #roomBtn .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#shopSheet[open]) .dock #shopBtn .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#calSheet[open]) .dock #calBtn .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#profileSheet[open]) .dock #profileBtn .dock-label { color: #f0eada; text-shadow: 0 0 8px rgba(225, 218, 190, .5); }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock #profileBtn .dock-icon { rotate: 0deg !important; transform: none !important; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-fx { filter: saturate(.5) brightness(.75) contrast(1.05); }
