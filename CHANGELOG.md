@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 544
+- Hand dance: smoother hand coming down
+
 ## Build 543
 - Hand dance: quicker sway and push, like the video
 

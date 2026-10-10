@@ -455,7 +455,7 @@ function handDance() {
     function at(ms, fn) { setTimeout(function () { if (pet.classList.contains('handdance')) fn(); }, t0 + ms); }
     at(330, function () { setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); });   // eyes closed only while the hand is pushed out
     at(380, function () { pet.classList.add('bs-out-r'); });
-    at(850, function () { pet.classList.remove('bs-out-r'); setFace({ eyes: 'open', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); });
+    at(950, function () { pet.classList.remove('bs-out-r'); setFace({ eyes: 'open', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); });
   })(k * 3600);
   setTimeout(function () { pet.classList.remove('bs-out-r'); }, 10800);
   hum();
