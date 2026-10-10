@@ -284,6 +284,7 @@ var IDLE_MOVES = [
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'reach', x: ['sparkles', 'cheeks'] }); pulse('boogie', 1500); hum(); } },
   { moods: ['curious', 'happy'], run: function () { return handDance(); } },
   { moods: ['curious', 'happy'], run: function () { return chorusDance(); } },
+  { moods: ['curious', 'happy'], run: function () { return freeSpiritDance(); } },
   { moods: ['sleepy', 'stuffed'], run: function () { pulse('wiggle', 900); } },
   { moods: ['stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); } },
   // daytime things to do
@@ -483,6 +484,20 @@ function chorusDance() {
   setTimeout(function () { pet.style.removeProperty('--look-x'); }, 8000);
   hum();
   return 8000;
+}
+
+/** Free spirited dance: an idle dance of 6.4 s (the `freespirit` CSS, styles.css): a loose sway with swinging arms and a bottom shake, then big leans from side to side with the high arm flung out, and a hop. */
+function freeSpiritDance() {
+  setFace({ eyes: 'open', mouth: 'open', arms: 'rest', x: ['cheeks'] });
+  pulse('freespirit', 6400);
+  function at(ms, fn) { setTimeout(function () { if (pet.classList.contains('freespirit')) fn(); }, ms); }
+  at(500, function () { drift(['♪'], petTop(), 1); });
+  at(1700, function () { drift(['♫', '♪'], petTop(), 2); });
+  at(2500, function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'rest', x: ['cheeks', 'sparkles'] }); drift(['♪', '✦', '♫'], petTop(), 3); });
+  at(4200, function () { drift(['♫', '✦'], petTop(), 2); });
+  at(5400, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'rest', x: ['cheeks'] }); drift(['✦', '♥'], petTop(), 3); });
+  hum();
+  return 6400;
 }
 
 /** @returns {{x: number, y: number}} A point just above the pet's head. */
