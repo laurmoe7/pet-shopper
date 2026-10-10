@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 561
+- Bonfire: bottom bar buttons get slot corners, ember glow, dividers and a lit current page
+
+## Build 560
+- Options gear in the Pet menu, top right
+
 ## Build 559
 - The light comes on when Fumu is fed or something is ticked off at night
 

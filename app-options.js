@@ -170,3 +170,5 @@ $('devBtn').addEventListener('click', function () {
   openDialog(devSheet);
 });
 devSheet.addEventListener('click', function (e) { if (e.target === devSheet) devSheet.close(); });
+// the Pet page's gear (top right of its stage) opens the same Options
+$('dressOptionsBtn').addEventListener('click', function () { $('optionsBtn').click(); });
