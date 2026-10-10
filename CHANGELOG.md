@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 573
+- Chorus dance: more squish and bounce, paw beside the right eye
+
 ## Build 572
 - New idle dance: the free spirited dance (loose sway, bottom shake, big side leans)
 
