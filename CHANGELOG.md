@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 554
+- Bonfire: square gold close button on cards, flickering flame, gold tick, ember focus rings
+
 ## Build 553
 - Bonfire: flame beside titles, square plan field
 

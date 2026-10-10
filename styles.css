@@ -3925,3 +3925,26 @@ html.al-bonfire .inbox-text b::before { content: ""; display: inline-block; widt
 html:root[data-skin="quest"][data-quest="bonfire"] .picker h2::before { position: static !important; inset: auto !important; rotate: 0deg !important; transform: none !important; translate: none !important; width: 17px !important; height: 17px !important; top: auto !important; left: auto !important; }
 html:root[data-skin="quest"][data-quest="bonfire"] #calInput { border-radius: 2px; background: #0d0b0a; border: 1px solid #4a3f28; color: var(--os-yellow); box-shadow: inset 0 0 0 1px #000; }
 html:root[data-skin="quest"][data-quest="bonfire"] #calInput:focus { border-color: #d9822b; box-shadow: inset 0 0 0 1px #000, 0 0 12px rgba(217, 130, 43, .3); }
+
+/* ---------- Bonfire: the alert card's close button, and more details ---------- */
+/* the close button is a small gold-framed square in the card's top-right corner (it used to be a round button at the bottom) */
+html.al-bonfire .inbox-actions .inbox-done { position: absolute; top: 9px; right: 11px; width: 22px; height: 22px; margin: 0; padding: 0; display: grid; place-items: center; border: 1px solid #5b4f33; border-radius: 2px; background: #0d0b0a; color: #a39673; font-size: .82rem; line-height: 1; box-shadow: inset 0 0 0 1px #000, inset 0 1px 0 1px rgba(255, 235, 190, .06); }
+html.al-bonfire .inbox-actions .inbox-done:hover { border-color: #d9822b; color: #ffd9a0; box-shadow: inset 0 0 0 1px #000, 0 0 10px rgba(217, 130, 43, .45); filter: none; translate: none; }
+html.al-bonfire .inbox-actions .inbox-done:active { background: #3a1f0d; }
+html.al-bonfire .inbox-actions:has(> .inbox-done:only-child) { margin: 0; height: 0; min-height: 0; }
+html.al-bonfire .inbox-text { padding-right: 30px; }
+/* the card: a gold rule under its title, a bell frame with a soft glow, and a flame that flickers */
+html.al-bonfire .inbox-text b { display: block; padding-bottom: 3px; border-bottom: 1px solid; border-image: linear-gradient(90deg, #8f7e4e, #4a3f28 70%, transparent) 1; margin-bottom: 3px; }
+html.al-bonfire .inbox-icon { border-color: #6f6240; box-shadow: inset 0 0 0 1px #000, 0 0 10px rgba(217, 130, 43, .18); }
+@keyframes bf-flame { 0%, 100% { transform: scale(1, 1); opacity: 1; } 35% { transform: scale(.94, 1.1) translateY(-.6px); } 70% { transform: scale(1.03, .96); opacity: .92; } }
+@media (prefers-reduced-motion: no-preference) {
+  html:root[data-skin="quest"][data-quest="bonfire"] .picker h2::before, html.al-bonfire .inbox-text b::before { transform-origin: 50% 90%; animation: bf-flame 1.9s ease-in-out infinite; }
+}
+/* done items get a gold tick; keyboard focus gets an ember ring */
+html:root[data-skin="quest"][data-quest="bonfire"] .item.done .check::before { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='%23ffe3b0' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/></svg>"); background-size: 74%; background-position: center; background-repeat: no-repeat; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(button, input, select, .check, .emoji-btn):focus-visible { outline: 2px solid #d9822b; outline-offset: 2px; box-shadow: 0 0 12px rgba(217, 130, 43, .4); }
+/* the title bar: a gold hairline that fades out underneath, the dock names in small capitals */
+html:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { border-bottom: 1px solid; border-image: linear-gradient(90deg, #8f7e4e, #3a3220 60%, transparent) 1; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock-label { font-variant: small-caps; letter-spacing: .06em; font-size: .88em; }
+html:root[data-skin="quest"][data-quest="bonfire"] .option-title { letter-spacing: .02em; }
+html:root[data-skin="quest"][data-quest="bonfire"] .option:hover { background: linear-gradient(90deg, rgba(217, 130, 43, .08), transparent 60%); }
