@@ -397,17 +397,18 @@ var livelyTimer;
 /** Morning exercise: a 10 s routine in five steps. 1: right arm + left leg, then left arm + right leg; 2: two steps left, two steps right, with the arms circling;
  * 3: squished down, touching toes; 4: squished down, shaking his bottom; 5: arms high. The body, arms and feet are the `exercise` CSS
  * (styles.css) and SQUISH.exercise; this sets the face and the lines for each step. */
-var exerciseTimers = [], exerciseDone = null;
+var exerciseTimers = [], exerciseDone = null, exerciseBusy = false;
 function morningExercise(onDone) {
   stopExercise();
   exerciseDone = onDone || null;
+  busy++; exerciseBusy = true;   // nothing else (idle moves, chatter, reminders) happens during the dance, nor for a second after it
   var lines = [[0, 'one, two, one, two!'], [2500, 'left, left~'], [3400, 'right, right~'], [4500, 'touch your toes!'], [6500, 'wiggle wiggle~'], [8500, 'yaaay!']];
   function later(fn, ms) { exerciseTimers.push(setTimeout(fn, ms)); }
   setFace({ eyes: 'happy', mouth: 'open', arms: 'rest', x: ['cheeks'] });
   pulse('exercise', 10000);
   lines.forEach(function (l) { later(function () { say(l[1], 1700, true); }, l[0]); });
   later(function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'rest', x: ['cheeks', 'sparkles'] }); }, 8400);
-  later(function () { exerciseTimers = []; settle(); finishExercise(0); }, 10000);
+  later(function () { exerciseTimers = []; settle(); finishExercise(1000); }, 10000);
   return 10000;
 }
 /** Stops the morning exercise where he is (any tap or key does this): the squish ends and he goes back to his resting face. */
@@ -417,12 +418,16 @@ function stopExercise() {
   pet.classList.remove('exercise');
   squishRun++; squishing = false; drawBody(1, 1, 0);
   settle();
-  finishExercise(500);
+  finishExercise(1000);
 }
-/** Runs what was waiting for the dance to end (the usual start-up talk), once. */
+/** A second after the dance ends (or is stopped) he is free again: the hold on `busy` is let go and what was waiting for the dance (the usual start-up talk) runs, once. */
 function finishExercise(delay) {
-  var cb = exerciseDone; exerciseDone = null;
-  if (cb) setTimeout(cb, delay);
+  var cb = exerciseDone, held = exerciseBusy;
+  exerciseDone = null; exerciseBusy = false;
+  setTimeout(function () {
+    if (held) { busy--; if (!busy) settle(); }
+    if (cb) cb();
+  }, delay);
 }
 document.addEventListener('pointerdown', stopExercise, true);
 document.addEventListener('keydown', stopExercise, true);

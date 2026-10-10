@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 542
+- Morning exercise: nothing interrupts it, and he waits a second after it before talking
+
 ## Build 541
 - Hand dance: eyes closed only while the hand is pushed out
 
