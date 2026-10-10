@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 541
+- Hand dance: eyes closed only while the hand is pushed out
+
 ## Build 540
 - Morning exercise: no sinking into the floor on the toe touches and the shake
 

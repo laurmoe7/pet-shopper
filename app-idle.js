@@ -448,9 +448,9 @@ function handDance() {
   pulse('handdance', 10800);
   for (var k = 0; k < 3; k++) (function (t0) {
     function at(ms, fn) { setTimeout(function () { if (pet.classList.contains('handdance')) fn(); }, t0 + ms); }
-    at(300, function () { setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); });
+    at(350, function () { setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); });   // eyes closed only while the hand is pushed out
     at(400, function () { pet.classList.add('bs-out-r'); });
-    at(950, function () { pet.classList.remove('bs-out-r'); setFace({ eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); });
+    at(900, function () { pet.classList.remove('bs-out-r'); setFace({ eyes: 'open', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); });
   })(k * 3600);
   setTimeout(function () { pet.classList.remove('bs-out-r'); }, 10800);
   hum();
