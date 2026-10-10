@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 574
+- Free spirited dance redone: arm pumps, paws shaking together, crossed legs
+
 ## Build 573
 - Chorus dance: more squish and bounce, paw beside the right eye
 
