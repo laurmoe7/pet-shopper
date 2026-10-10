@@ -8,7 +8,7 @@
 'use strict';
 
 var TOY_KIND_KEY = 'nibble-toy-kind';
-var WRECK_MS = 10000, PAGE_WRECK_MS = 13000;   // (how long the ball flies: the small window, the page)
+var WRECK_MS = 10000, PAGE_WRECK_MS = 10000;   // (how long the ball flies: the small window, the page)
 
 /** @returns {string} Which toy is out: 'ball' (the one for his species) or 'wrecker'. */
 function toyKind() {

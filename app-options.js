@@ -143,6 +143,7 @@ var DEV_ACTIONS = [
   { label: 'Make Fumu steal an emoji', run: function () { return devSteal(); } },
   { label: 'Pretend it is the next special day (gifts)', run: function () { return devGiftCalendar(); } },
   { label: 'Shut today\'s gift boxes again', run: function () { return devGiftReset(); } },
+  { label: 'Play the birthday celebration', run: function () { devSheet.close(); return devBirthdayNow(); } },
   { label: 'Make Fumu suggest an item', run: function () { return devSuggest(); } },
   { label: 'Fill with sample items', run: function () {
     if (isTodo()) { state.items = L.sortByDue(state.items.concat(sampleTodos()), todayKey()); return 'Sample to-dos added.'; }
