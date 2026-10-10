@@ -4,24 +4,36 @@
 
 // ---------- options ----------
 $('buildLabel').textContent = 'Build ' + BUILD;
-/* Appearance (light or dark): Auto follows the phone. Kept on this device only (not in the pet's saved data). */
-var THEMES = [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Classic'], ['quest2', 'Quest'], ['osrs', 'Old School'], ['bonfire', 'Bonfire'], ['scribble', 'Scribbling']];
+/* Appearance: one theme for the whole app and Mini Fumu (they always match). Auto follows the phone's light or dark. On the phone it is kept on the device only (not
+   in the pet's saved data); in the Windows app the shell keeps it (its alertStyle pref, so the settings window and both windows agree). */
+var THEMES = [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark'], ['sweet', 'Sweet'], ['quest2', 'Quest'], ['osrs', 'Old School'], ['bonfire', 'Bonfire']];
+/** Older saved names: the paper, night, cool, scribble and classic looks are gone (quest was replaced by quest2, build 544). */
+var OLD_THEMES = { quest: 'quest2', paper: 'light', night: 'dark', cool: 'light', scribble: 'light', classic: 'auto' };
+var currentTheme = 'auto';
 function applyTheme(t) {
-  var de = document.documentElement;
-  if (t === 'quest') t = 'quest2';   // the original Quest was replaced by Quest2 (build 544, shown as "Quest"): a saved choice of the old one becomes the new one
-  // Quest is a dark look with its own skin on top (data-skin), so everything that reads "dark" keeps working
-  // Quest (id quest2) is the base Quest rules with a second layer on top (data-quest="slots": dark stone panels, bevelled bronze frames, inventory-slot rows); the plain base look is no longer offered, but Old School is built on it too, so its rules stay
-  // Bonfire is Quest plus data-quest="bonfire" (near-black panels, thin gold lines, parchment lettering, ember-orange picks): it shares Old School's rules and then changes the palette and looks
-  // Old School is Quest plus data-quest="osrs" (flat brown stone, yellow lettering); its speech is the game's overhead text (al-osrs, not al-quest)
-  if (t === 'quest' || t === 'quest2' || t === 'osrs' || t === 'bonfire') { de.dataset.theme = 'dark'; de.dataset.skin = 'quest'; if (t === 'quest2') de.dataset.quest = 'slots'; else if (t === 'osrs' || t === 'bonfire') de.dataset.quest = t; else delete de.dataset.quest; }
-  else if (t === 'scribble') { de.dataset.theme = 'light'; de.dataset.skin = 'scribble'; delete de.dataset.quest; }   // (colourful crayon on paper: a light look with its own skin)
-  else { delete de.dataset.skin; delete de.dataset.quest; if (t === 'light' || t === 'dark') de.dataset.theme = t; else delete de.dataset.theme; }
-  de.classList.toggle('al-quest', (t === 'quest' || t === 'quest2') && !de.classList.contains('desktop-pet'));
-  de.classList.toggle('al-scribble', t === 'scribble' && !de.classList.contains('desktop-pet'));
-  de.classList.toggle('al-osrs', t === 'osrs' && !de.classList.contains('desktop-pet'));
-  de.classList.toggle('al-bonfire', t === 'bonfire' && !de.classList.contains('desktop-pet'));
-  de.classList.toggle('al-quest2', t === 'quest2' && !de.classList.contains('desktop-pet'));   // (its alert cards get the Quest2 look; the bubble stays Quest's)   // its bubbles and alerts use the Quest look too
+  var de = document.documentElement, pet = de.classList.contains('desktop-pet');
+  t = OLD_THEMES[t] || t;
+  if (!THEMES.some(function (x) { return x[0] === t; })) t = 'auto';
+  currentTheme = t;
+  // Quest (id quest2) is the base Quest rules with a second layer on top (data-quest="slots"); Old School is Quest plus data-quest="osrs"; Bonfire is Quest plus data-quest="bonfire" and shares
+  // Old School's rules. Sweet is a light skin of its own (data-skin="sweet"). Those skins restyle the whole app; the small window (Mini Fumu) only wears their al-* classes (cards, bubble, ring)
+  var skinned = t === 'quest2' || t === 'osrs' || t === 'bonfire';
+  if (pet || !(skinned || t === 'sweet')) { delete de.dataset.skin; delete de.dataset.quest; }
+  if (!pet && skinned) { de.dataset.skin = 'quest'; de.dataset.quest = t === 'quest2' ? 'slots' : t; }
+  if (!pet && t === 'sweet') de.dataset.skin = 'sweet';
+  if (skinned && !pet) de.dataset.theme = 'dark';
+  else if (t === 'sweet' && !pet) de.dataset.theme = 'light';
+  else if (t === 'light' || t === 'dark') de.dataset.theme = t;
+  else delete de.dataset.theme;
+  var want = { sweet: ['al-sweet'], quest2: ['al-quest', 'al-quest2'], osrs: ['al-osrs'], bonfire: ['al-bonfire'] }[t] || [];
+  ['al-sweet', 'al-quest', 'al-quest2', 'al-osrs', 'al-bonfire'].forEach(function (c) { de.classList.toggle(c, want.indexOf(c) !== -1); });
   setTimeout(function () { if (typeof refreshStickers === 'function') refreshStickers(); }, 50);   // the list's stickers are drawn in the new colours
+}
+/** The player picked a theme (the app's Appearance): the Windows shell keeps it for both windows and the settings window, the phone keeps it here. */
+function chooseTheme(t) {
+  applyTheme(t);
+  try { localStorage.setItem('nibble-theme', currentTheme); } catch (e) { /* storage not available */ }
+  if (window.nibbleDesktop && window.nibbleDesktop.setTheme) window.nibbleDesktop.setTheme(currentTheme);
 }
 var savedTheme = 'auto';
 try { savedTheme = localStorage.getItem('nibble-theme') || 'auto'; } catch (e) { /* storage not available */ }
@@ -43,16 +55,18 @@ themeBtns.className = 'theme-btns';
 THEMES.forEach(function (t) {
   var b = document.createElement('button');
   b.type = 'button'; b.className = 'pill-btn'; b.dataset.theme = t[0]; b.textContent = t[1];
-  b.setAttribute('aria-pressed', String(t[0] === savedTheme));
+  
   b.addEventListener('click', function () {
-    applyTheme(t[0]);
-    try { localStorage.setItem('nibble-theme', t[0]); } catch (e) { /* storage not available */ }
-    themeBtns.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    chooseTheme(t[0]);
+    syncThemeButtons();
     sound('pick');
   });
   themeBtns.appendChild(b);
 });
 themeRow.appendChild(themeBtns);
+/** Marks the picked theme (it can change from the shell, when it is picked in Mini Fumu's settings). */
+function syncThemeButtons() { themeBtns.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x.dataset.theme === currentTheme)); }); }
+syncThemeButtons();
 optionsList.appendChild(themeRow);
 OPTIONS.forEach(function (o) {
   var label = document.createElement('label');

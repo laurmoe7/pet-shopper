@@ -27,7 +27,7 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, displaced = false, perch = null, perchTimer = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { alertStyle: 'paper', x: null, y: null, onTop: true, aboveFull: false, clickThrough: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, mute: false, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
+  let prefs = { alertStyle: 'auto', x: null, y: null, onTop: true, aboveFull: false, clickThrough: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, mute: false, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
   const DEFAULTS = Object.assign({}, prefs);
   try { prefs = Object.assign(prefs, JSON.parse(fs.readFileSync(prefsFile(), 'utf8'))); } catch (e) { /* first run */ }
   prefs.keys = keys.clean(prefs.keys);
@@ -35,8 +35,11 @@ function start() {
   prefs.petName = typeof prefs.petName === 'string' && prefs.petName.trim() ? prefs.petName.trim().slice(0, 16) : 'Fumu';
   if (prefs.chat === false) { prefs.chatNormal = 'off'; prefs.chatFull = 'off'; }   // the old on/off switch for his comments
   delete prefs.chat;
-  if (prefs.alertStyle === 'quest') prefs.alertStyle = 'quest2';   // the original Quest was replaced by Quest2 (shown as "Quest")
-  if (!['paper', 'night', 'sweet', 'cool', 'quest', 'quest2', 'osrs', 'bonfire', 'scribble', 'classic'].includes(prefs.alertStyle)) prefs.alertStyle = 'paper';
+  // the one theme shared by the whole app, Mini Fumu and this settings window (id alertStyle, kept under that name): auto, light, dark, sweet, quest2, osrs, bonfire
+  const THEMES = ['auto', 'light', 'dark', 'sweet', 'quest2', 'osrs', 'bonfire'];
+  const OLD_THEMES = { quest: 'quest2', paper: 'light', night: 'dark', cool: 'light', scribble: 'light', classic: 'auto' };   // the paper, night, cool, scribble and classic looks are gone
+  prefs.alertStyle = OLD_THEMES[prefs.alertStyle] || prefs.alertStyle;
+  if (!THEMES.includes(prefs.alertStyle)) prefs.alertStyle = 'auto';
   prefs.chatNormal = privacy.cleanChat(prefs.chatNormal, 'normal'); prefs.chatFull = privacy.cleanChat(prefs.chatFull, 'normal');
   prefs.talkNormal = privacy.cleanChat(prefs.talkNormal, 'normal'); prefs.talkFull = privacy.cleanChat(prefs.talkFull, 'rare');
   // the old switches (wander, nap, stand still) became two movement choices
@@ -349,7 +352,7 @@ function start() {
       prefs[key] = privacy.cleanChat(value, prefs[key]); savePrefs(); sendPrefs();
       return;
     }
-    if (key === 'alertStyle') { if (['paper', 'night', 'sweet', 'cool', 'quest', 'quest2', 'osrs', 'bonfire', 'scribble', 'classic'].includes(value)) { prefs.alertStyle = value; savePrefs(); sendPrefs(); } return; }
+    if (key === 'alertStyle') { if (THEMES.includes(value)) { prefs.alertStyle = value; savePrefs(); sendPrefs(); } return; }
     if (key === 'moveNormal' || key === 'moveFull') { prefs[key] = privacy.cleanMove(value, prefs[key]); savePrefs(); sendPrefs(); return; }
     if (key === 'size') { if (['small', 'normal', 'large'].includes(value)) setSize(value); return; }
     if (!BOOLS.includes(key)) return;
@@ -612,6 +615,7 @@ function start() {
     restHere();
   });
   ipcMain.handle('desk:getPrefs', () => publicPrefs());
+  ipcMain.on('desk:setTheme', (_e, t) => setPref('alertStyle', typeof t === 'string' ? t : ''));   // the app's Appearance: the same theme for both windows and the settings window
   // where the window is now (the page notes his spot before the toy takes him away, to come back to it exactly)
   let drowsy = false;   // up at night and tired (the page tells us): he walks back slowly
   ipcMain.on('desk:drowsy', (_e, on) => { drowsy = !!on; });

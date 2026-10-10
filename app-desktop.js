@@ -32,7 +32,8 @@
   function showMode(mode) {
     root.classList.toggle('desktop-pet', mode !== 'list');
     root.classList.toggle('desktop-list', mode === 'list');
-    if (typeof applyLook === 'function') applyLook();   // (the alert style depends on which window this is)
+    if (typeof applyTheme === 'function') applyTheme(currentTheme);   // (the app's skin shows in the whole app only; the small window wears just the cards' look)
+    if (typeof applyLook === 'function') applyLook();
     var sel = window.getSelection && window.getSelection(); if (sel) sel.removeAllRanges();   // nothing stays highlighted across a switch
     if (mode !== 'list') for (var i = 0, open = document.querySelectorAll('dialog[open]'); i < open.length; i++) open[i].close();
     if (typeof fadeSoon === 'function') fadeSoon();
@@ -202,7 +203,7 @@
   })();
 
   // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------
-  var deskPrefs = { moveNormal: 'normal', moveFull: 'still', alertStyle: 'paper', mute: false, remind: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare' };
+  var deskPrefs = { moveNormal: 'normal', moveFull: 'still', alertStyle: '', mute: false, remind: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare' };
   /** Awareness: 1 = more privacy (idle and time only), 2 = normal. Anything he says about what you are doing, or knows about your windows and programs, checks this first. */
   window.deskAware = function (level) { return (deskPrefs.awareness === 1 ? 1 : 2) >= level; };
   /** The small window's look choices from the settings window: no toy, no cushion (classes on <html>, CSS at the end of styles.css). */
@@ -218,16 +219,11 @@
     root.classList.toggle('desk-backdrop', deskPrefs.backdrop === true);
     root.classList.toggle('desk-nosparkles', deskPrefs.sparkles === false);
     root.classList.toggle('desk-noclouds', deskPrefs.clouds === false);
-    // the look of alert cards and speech bubbles: the small pet uses the style chosen in the settings window; the whole app always has the
-    // Classic look, which follows its own Light or Dark appearance
-    var style = root.classList.contains('desktop-pet') ? (deskPrefs.alertStyle === 'quest' ? 'quest2' : deskPrefs.alertStyle || 'paper') : (root.dataset.skin === 'scribble' ? 'scribble' : root.dataset.skin === 'quest' ? (root.dataset.quest === 'slots' ? 'quest2' : root.dataset.quest === 'osrs' ? 'osrs' : root.dataset.quest === 'bonfire' ? 'bonfire' : 'quest') : 'classic');   // (the whole app: Classic, or Quest / Quest2 when that is its appearance)
-    // Quest2 wears Quest's classes too, so its speech bubble stays exactly Quest's; al-quest2 only restyles the cards and the ring on top
-    var want = style === 'classic' ? [] : ({ night: ['al-night'], sweet: ['al-sweet'], cool: ['al-cool'], quest: ['al-quest'], quest2: ['al-quest', 'al-quest2'], osrs: ['al-osrs'], bonfire: ['al-bonfire'], scribble: ['al-scribble'] }[style] || ['al-paper']);
-    var ALL = ['al-paper', 'al-night', 'al-sweet', 'al-cool', 'al-quest', 'al-quest2', 'al-osrs', 'al-bonfire', 'al-scribble'];
-    var have = ALL.filter(function (c) { return root.classList.contains(c); });
-    if (have.length !== want.length || want.some(function (c) { return have.indexOf(c) === -1; })) {   // (only touched when it is wrong, so this is cheap to call often)
-      ALL.forEach(function (c) { root.classList.remove(c); });
-      want.forEach(function (c) { root.classList.add(c); });
+    // the look (cards, speech bubbles, ring, and the whole app's skin) is the one theme shared by both windows: the shell keeps it (alertStyle) and applyTheme wears it
+    if (deskPrefs.alertStyle && typeof applyTheme === 'function' && (OLD_THEMES[deskPrefs.alertStyle] || deskPrefs.alertStyle) !== currentTheme) {
+      applyTheme(deskPrefs.alertStyle);
+      try { localStorage.setItem('nibble-theme', currentTheme); } catch (e) { /* storage blocked */ }
+      if (typeof syncThemeButtons === 'function') syncThemeButtons();
     }
     root.classList.toggle('desk-nobubbles', deskPrefs.bubbles === false);   // speech bubbles in the small window only; cards (reminders, links) are separate
     lastSolidReset();

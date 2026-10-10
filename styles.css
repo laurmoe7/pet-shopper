@@ -2126,7 +2126,6 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 .pet[data-state="sleepy"]:not(.hop) :is(.foot-r, .shoe-r) { animation: twitch 6.5s ease-in-out infinite; }
 .pet[data-state="sleepy"]:not(.hop) :is(.foot-l, .shoe-l) { animation: twitch 8s ease-in-out 2.4s infinite; }
 
-
 /* the to-do list (app-todo.js): no cart, receipt or bag, and a ticked task earns a check-mark stamp instead of being eaten */
 html[data-list="todo"] .cart, html[data-list="todo"] .receipt, html[data-list="todo"] .cart-bag { display: none !important; }
 .list-area.list-swap { animation: list-swap .38s ease-out; }
@@ -2471,7 +2470,6 @@ html:root .dock #profileBtn { --tilt: 5deg; --sticker: #d9ccf5; --sticker-ink: #
 .gift-placeholder { position: absolute; left: 50%; top: -6px; translate: -50% 0; rotate: -6deg; padding: 1px 9px 2px; border-radius: 999px; background: var(--accent); color: #fff; border: 1.5px solid #fff; box-shadow: 0 2px 0 var(--shadow); font-size: .72rem; font-weight: 800; letter-spacing: .02em; white-space: nowrap; animation: gift-placeholder 2.2s cubic-bezier(.3, 1.8, .5, 1) both; }
 @keyframes gift-placeholder { 0% { scale: .2; opacity: 0; translate: -50% 18px; } 35% { scale: 1.25; opacity: 1; translate: -50% -4px; } 55% { scale: 1; } 100% { scale: 1; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .gift-placeholder { animation: none; } }
-
 
 /* colours for the newer cards (Stamp Book, Calendar, Profile): paper and pastel tints that follow light and dark mode */
 :root { --paper: #fffaf0; --paper-edge: #f1e3cf; --paper-cell: #fff; --paper-pink: #fff1f4; --paper-today: #ffe3ec; --paper-sel: #ffc2d4;
@@ -3051,7 +3049,6 @@ html.desktop-pet .stage.bed-settle { transition: rotate .6s cubic-bezier(.3, 1.3
 .bell.pop { animation: pop .35s cubic-bezier(.3, 1.6, .5, 1); }
 .stage.bell-mode .toy { display: none; }
 
-
 /* resting, it is tucked into the bed beside him: the bed's front edge is over its lower half */
 .bell.nested { z-index: 1; }
 .bell.putaway { transition: opacity .4s ease, scale .4s ease; opacity: 0; scale: .5; pointer-events: none; }
@@ -3130,14 +3127,13 @@ html.desktop-pet .night-btn { display: none !important; }   /* in the small wind
 @media (prefers-reduced-motion: reduce) { .pet.exercise :is(.pet-svg, .arm-l, .arm-r, .ear-l, .ear-r), .pet.exercise:not(#x) :is(.foot-l, .shoe-l, .foot-r, .shoe-r) { animation: none; } }
 
 /* alerts, made cuter (builds 364-368): a paper label with a bit of tape, a round sticker for the icon, soft pill buttons, a colour per kind.
-   Three styles, picked in the settings window (alertStyle, class on <html>): al-paper (warm cream), al-night (the same in deep plum), none = the plain old card. */
-html.al-paper { --al-bg: #fff8ea; --al-ink: #4a3128; --al-sub: #6b4d41; --al-edge: #5b4239; --al-chip: #fff; --al-shadow: rgba(40, 25, 20, .3); --al-mix: #fff; --al-tint: 1; }
-html.al-night { --al-bg: #3b2c47; --al-ink: #fdf0e0; --al-sub: #cdb9d6; --al-edge: #170f1d; --al-chip: #55405f; --al-shadow: rgba(0, 0, 0, .5); --al-mix: #2b1f33; --al-tint: 0; }
+   The look is the one theme shared by the app and Mini Fumu (alertStyle in the shell, nibble-theme on the phone; a class al-* on <html>, set by applyTheme): none = the plain card (Auto, Light, Dark), or sweet, quest, quest2, osrs, bonfire. */
+
 html[class*="al-"] .inbox-card, html[class*="al-"] .remind-card { --ac: #f3b6c8; grid-template-columns: 36px 1fr; gap: 1px 10px; padding: 7px 12px 6px; border-width: 2px; border-radius: 18px; overflow: visible;
   background: var(--al-bg); color: var(--al-ink); border-color: var(--al-edge); box-shadow: 0 3px 0 var(--al-edge), 0 8px 14px var(--al-shadow);
   outline: 1.5px dashed color-mix(in srgb, var(--ac) 80%, var(--al-edge)); outline-offset: -5px; }
 html[class*="al-"] .inbox-card { --ac2: color-mix(in srgb, var(--ac) 40%, #4d3560); }
-html.al-paper .inbox-card { --ac2: color-mix(in srgb, var(--ac) 30%, #fff); }
+
 html[class*="al-"] .remind-card { --ac: #f5d36b; }
 html[class*="al-"] .claude-card { --ac: #c9b3f0; }
 html[class*="al-"] .note-card { --ac: #a9dcc3; }
@@ -3154,12 +3150,10 @@ html[class*="al-"] .inbox-text span { opacity: .8; color: var(--al-sub); }
 html[class*="al-"] .inbox-actions { gap: 6px; margin-top: 3px; align-items: center; flex-wrap: nowrap; }
 html[class*="al-"] .inbox-actions button { padding: 2px 10px; white-space: nowrap; background: var(--ac2); color: var(--al-ink); border: 1.8px solid var(--al-edge); box-shadow: 0 2px 0 var(--al-edge); transition: translate .12s, filter .12s; }
 html[class*="al-"] .inbox-actions button:hover { translate: 0 -1px; filter: brightness(1.06); }
-html.al-paper .inbox-actions .ia-done { background: linear-gradient(180deg, #ffd0dd, #f8a9c0); }
-html.al-night .inbox-actions .ia-done { background: linear-gradient(180deg, #8a4d78, #6d3a5f); }
+
 html[class*="al-"] .inbox-actions .inbox-done { width: 26px; height: 26px; padding: 0; display: grid; place-items: center; border-radius: 50%; background: var(--al-chip); color: var(--al-ink); line-height: 1; }
 @media (prefers-reduced-motion: reduce) { html[class*="al-"] .inbox-card::after, html[class*="al-"] .remind-card .inbox-icon, .inbox-bell { animation: none; } }
 
-/* two more alert styles (build 371): Sweet (pastel pink and red, hearts) and Cool (navy, sharp corners, a stripe) */
 @keyframes alert-heart { 0%, 100% { scale: .85; } 40% { scale: 1.25; } 60% { scale: 1; } }
 /* Sweet (build 382): a soft pastel cake: vanilla sponge fading to pink, a scalloped icing top and a cherry */
 html.al-sweet { --al-bg: #fff3f4; --al-ink: #7a4a5a; --al-sub: #b98a98; --al-edge: #f0b4c6; --al-chip: #fffaf6; --al-shadow: rgba(235, 150, 175, .32); --al-mix: #fff; }
@@ -3199,8 +3193,7 @@ html.al-quest .inbox-actions .inbox-done { border-radius: 4px; width: 26px; }
 @media (prefers-reduced-motion: reduce) { html.al-quest .inbox-card::after { animation: none; } }
 /* the desktop app's speech bubbles follow the alert style (build 375): the small pet's own choice, and in the whole app light (Paper) or dark (Night) as its appearance says */
 html[class*="al-"] .stage .bubble { background: var(--al-bg); color: var(--al-ink); border: 2px solid var(--al-edge); box-shadow: 0 2px 0 var(--al-edge), 0 6px 10px var(--al-shadow); border-radius: 16px 16px 16px 5px; }
-html.al-paper .stage .bubble { outline: 1.5px dashed #f3b6c8; outline-offset: -4px; }
-html.al-night .stage .bubble { outline: 1.5px dashed #c9b3f0; outline-offset: -4px; }
+
 html.al-sweet .stage .bubble { border: 2px solid #f3b9ca; border-radius: 20px 20px 20px 6px; outline: none; padding-right: 20px; background: linear-gradient(180deg, #fffaf0, #ffe9f0); box-shadow: 0 3px 0 #f3b9ca, 0 6px 12px var(--al-shadow); }
 html.al-sweet .stage .bubble::after { content: ""; position: absolute; top: -6px; right: 12px; width: 11px; height: 11px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #fff 0 1.4px, #ff8aa5 2px, #e8456b); box-shadow: 0 1px 2px rgba(180, 40, 80, .3); }
 html.al-quest .stage .bubble { border: 2px solid #bdbdbd; border-radius: 9px; font-family: "Palatino Linotype", Palatino, Georgia, serif; font-weight: 700; color: #f4e8a6; text-shadow: 0 1px 1px #000, 0 0 4px rgba(0, 0, 0, .8); padding: 6px 13px; background: linear-gradient(180deg, #2f2f2f 0%, #1e1e1e 55%, #0b0b0b 85%, #0b0b0b 100%); opacity: .92; box-shadow: inset 0 0 0 1.5px #040404, 0 4px 10px rgba(0, 0, 0, .5); }   /* (bubble and pointer are one solid shape, see-through as a whole, so they share the same border and inner ring) */
@@ -3216,7 +3209,7 @@ html.al-quest .stage .bubble[data-tail="left"]::after { top: calc(var(--tail, 14
 html[class*="al-"] .ring-btn { background: var(--al-bg); border: 2px solid var(--al-edge); box-shadow: 0 2px 0 var(--al-edge), 0 4px 8px var(--al-shadow); }
 html[class*="al-"] .ring-btn:hover { background: color-mix(in srgb, var(--al-bg) 80%, #fff); }
 html[class*="al-"] .ring-btn[aria-pressed="true"] { background: color-mix(in srgb, var(--al-bg) 55%, #ffd877); box-shadow: 0 0 10px 3px rgba(255, 205, 120, .6), 0 2px 0 var(--al-edge); }
-html.al-night .ring-btn:hover { background: #4d3a5a; }
+
 html.al-sweet .ring-btn { background: linear-gradient(180deg, #fffaf0, #ffe9f0); border: 2px solid #f3b9ca; box-shadow: 0 2px 0 #f3b9ca, 0 4px 8px var(--al-shadow); }
 html.al-sweet .ring-btn:hover { background: linear-gradient(180deg, #fff, #ffdbe6); }
 html.al-quest .ring-btn { border-radius: 4px; background: radial-gradient(ellipse at 50% 0, rgba(255, 215, 120, .15), transparent 70%), linear-gradient(180deg, #2a1d10, #140e08); border: 2px solid #c9a227; box-shadow: 0 0 0 1px #000, inset 0 0 0 1.5px #0a0704, 0 3px 6px rgba(0, 0, 0, .6); }
@@ -3468,34 +3461,7 @@ html.al-quest2 .ring-btn {
 html.al-quest2 .ring-btn:hover { background: radial-gradient(circle at 50% 28%, #54442f, #14100b 75%); }
 html.al-quest2 .ring-btn[aria-pressed="true"] { background: radial-gradient(circle at 50% 28%, #6b3a1a, #1d0f08 75%); box-shadow: 0 0 0 1.5px #000, 0 0 10px rgba(255, 200, 60, .55), inset 0 0 8px rgba(255, 190, 60, .25); }
 
-/* ---------- Cool (Mini Fumu alert style), third try: a chilled, airy look ----------
-   Pale frosted-ice cards (white-blue, soft sky shadows, a thick white rim), round "ice cube" icons and pill buttons in sky blue and mint, with a snowflake that twinkles in the corner.
-   Light, soft and quiet: the opposite of the earlier dark neon glass. The speech bubble is a pointer bubble (no fin), like the other non-Quest looks. */
-html.al-cool { --al-bg: #eaf7ff; --al-ink: #1f4a66; --al-sub: #5f8aa3; --al-edge: #b9dff2; --al-chip: #d6efff; --al-shadow: rgba(60, 140, 190, .3); --al-mix: #eaf7ff; --ice-a: #f4fbff; --ice-b: #d9f0fb; --ice-line: #9fd3ee; --ice-deep: #2f93c9; --ice-mint: #bff1e4; }
-html.al-cool .inbox-card {
-  --ac: #2f93c9; --ac2: #d6efff; border-radius: 24px; outline: none; border: 3px solid #fff; padding-left: 14px; font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif; color: #1f4a66;
-  background: radial-gradient(circle at 12% 0, #ffffff 0, rgba(255, 255, 255, 0) 55%), linear-gradient(160deg, var(--ice-a), var(--ice-b));
-  box-shadow: 0 0 0 1.5px var(--ice-line), 0 10px 20px var(--al-shadow), inset 0 -6px 12px rgba(120, 190, 230, .25), inset 0 2px 0 #fff;
-}
-html.al-cool .remind-card, html.al-cool .claude-card, html.al-cool .note-card, html.al-cool .link-card { --ac: #2f93c9; }
-html.al-cool .inbox-card::before { content: ""; top: 6px; left: 18px; right: auto; width: 34px; height: 8px; border-radius: 8px; rotate: -8deg; opacity: .9; background: rgba(255, 255, 255, .85); box-shadow: none; }
-html.al-cool .inbox-card::after { content: "❄"; font-size: .75rem; top: 7px; right: 12px; color: #7cc6ea; animation: cool-twinkle 3.2s ease-in-out infinite; text-shadow: 0 0 6px #fff; }
 @keyframes cool-twinkle { 0%, 100% { opacity: .35; transform: rotate(0deg) scale(.85); } 50% { opacity: 1; transform: rotate(60deg) scale(1.15); } }
-html.al-cool .inbox-icon { border-radius: 50%; rotate: 0deg; border: 2.5px solid #fff; background: radial-gradient(circle at 35% 28%, #ffffff, #cdeaf9 70%); box-shadow: 0 0 0 1.5px var(--ice-line), 0 3px 6px rgba(60, 140, 190, .3), inset 0 -3px 5px rgba(120, 190, 230, .35); }
-html.al-cool .inbox-text b { letter-spacing: .01em; color: #1f4a66; text-shadow: 0 1px 0 #fff; font-family: inherit; }
-html.al-cool .inbox-text span { color: #5f8aa3; }
-html.al-cool .inbox-actions button { border-radius: 999px; border: 2px solid #fff; background: linear-gradient(180deg, #ffffff, #d6efff); color: #2a77a3; font-family: inherit; font-weight: 700; box-shadow: 0 0 0 1.5px var(--ice-line), 0 2px 4px rgba(60, 140, 190, .25); text-shadow: none; }
-html.al-cool .inbox-actions button:hover { background: linear-gradient(180deg, #ffffff, #bfe6f8); }
-html.al-cool .inbox-actions .ia-done { background: linear-gradient(180deg, #5cc0ee, #2f93c9); color: #fff; border-color: #fff; text-shadow: 0 1px 0 rgba(0, 60, 100, .35); }
-html.al-cool .inbox-actions .inbox-done { border-radius: 50%; width: 26px; }
-html.al-cool .stage .bubble {
-  border-radius: 20px; border: 2.5px solid #fff; color: #1f4a66; font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
-  background: radial-gradient(circle at 15% 0, #ffffff 0, rgba(255, 255, 255, 0) 60%), linear-gradient(160deg, var(--ice-a), var(--ice-b));
-  box-shadow: 0 0 0 1.5px var(--ice-line), 0 6px 12px var(--al-shadow), inset 0 -4px 8px rgba(120, 190, 230, .22);
-}
-html.al-cool .ring-btn { border-radius: 50%; border: 2.5px solid #fff; background: radial-gradient(circle at 35% 28%, #ffffff, #cdeaf9 72%); box-shadow: 0 0 0 1.5px var(--ice-line), 0 3px 6px rgba(60, 140, 190, .3), inset 0 -3px 5px rgba(120, 190, 230, .35); }
-html.al-cool .ring-btn:hover { background: radial-gradient(circle at 35% 28%, #ffffff, #b4e0f5 72%); }
-html.al-cool .ring-btn[aria-pressed="true"] { background: radial-gradient(circle at 35% 28%, #e6fff8, #8fe3cd 72%); box-shadow: 0 0 0 1.5px #5cc9ae, 0 0 10px rgba(92, 201, 174, .55), inset 0 -3px 5px rgba(60, 170, 140, .3); }
 
 /* ---------- Old School (App settings > Appearance > Old School; Mini Fumu alert style "Old School") ----------
    Old School RuneScape's interface: flat brown stone panels with a thin black frame and square corners, bright yellow lettering with a hard black
@@ -3626,96 +3592,18 @@ html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) ::s
 html:root[data-skin="quest"]:not([data-quest="osrs"], [data-quest="bonfire"]) .item:not(.done) .check::before { background: #120d07; border: 2.5px solid #efe2bd; box-shadow: 0 0 0 1.5px #000; }
 html:root[data-skin="quest"]:not([data-quest="osrs"], [data-quest="bonfire"]) .item:not(.done) .check:hover::before { border-color: #ffd100; }
 
-/* ---------- Scribbling (App settings > Appearance > Scribbling; Mini Fumu alert style "Scribbling") ----------
-   Colourful crayon on paper: waxy grain over bright colours, wobbly hand-drawn outlines (uneven corner radii and a slight tilt), a handwriting font (Patrick Hand,
-   Google Fonts) and a different crayon colour for each row, button and tab. It is a light look (data-theme="light") with its own skin (data-skin="scribble"). */
-html:root[data-skin="scribble"] {
-  --cr-paper: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='g' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.9 .35' numOctaves='2' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 -1.6 1.05'/></filter><rect width='140' height='140' filter='url(%23g)'/></svg>");
-  --cr-grain: repeating-linear-gradient(-58deg, rgba(255, 255, 255, .3) 0 2px, rgba(255, 255, 255, 0) 2px 7px); --cr-r: 16px 24px 14px 26px / 24px 14px 26px 16px; --cr-r2: 24px 14px 26px 16px / 14px 26px 16px 24px;
-  --cr-red: #ff6b6b; --cr-orange: #ffa94d; --cr-yellow: #ffd93d; --cr-green: #6bcb77; --cr-blue: #4d96ff; --cr-purple: #b57bff; --cr-pink: #ff8fc7;
-  --cr-ink: #3a3350; --cr-font: "Patrick Hand", "Comic Sans MS", "Chalkboard SE", cursive;
-  --bg: #fff8e8; --surface: #fffdf5; --surface-2: #fff3d6; --ink: #3a3350; --muted: #7d7396; --line: #3a3350; --outline: #3a3350;
-  --accent: #ff6b6b; --accent-ink: #fff; --mint: #6bcb77; --butter: #ffd93d; --stage-top: #fff8e8; --shadow: rgba(58, 51, 80, .25);
-  --hl: #ff6b6b; --hl-soft: rgba(255, 107, 107, .18); --hl-glow: rgba(255, 107, 107, .35); --badge: #ff6b6b;
-  --cb-edge: #3a3350; --cb-edge-strong: #3a3350; --cb-done: rgba(255, 253, 245, .7);
-}
-html:root[data-skin="scribble"], html:root[data-skin="scribble"] :is(button, input, select, textarea) { font-family: var(--cr-font); letter-spacing: .01em; }
-html:root[data-skin="scribble"] body { background-color: #fff8e8; background-image: var(--cr-doodles), var(--cr-paper), radial-gradient(circle at 12% 18%, rgba(255, 217, 61, .25) 0 60px, transparent 61px), radial-gradient(circle at 88% 30%, rgba(77, 150, 255, .18) 0 80px, transparent 81px), radial-gradient(circle at 20% 82%, rgba(255, 143, 199, .2) 0 70px, transparent 71px); background-size: 100% auto, 140px 140px, auto, auto, auto; background-position: 0 0, 0 0, 0 0, 0 0, 0 0; background-repeat: no-repeat, repeat, repeat, repeat, repeat; background-attachment: fixed, scroll, fixed, fixed, fixed; }
-html:root[data-skin="scribble"] .picker { background: #fffdf5 var(--cr-paper); background-size: 140px 140px; border: 4px solid var(--cr-blue); border-bottom: 0; border-radius: 26px 22px 0 0 / 22px 26px 0 0; box-shadow: 0 -6px 18px rgba(58, 51, 80, .25), inset 0 0 0 2px #fff; }
-html:root[data-skin="scribble"] .picker h2 { border: 0; border-radius: var(--cr-r); background: var(--cr-yellow) var(--cr-grain); color: var(--cr-ink); rotate: -1deg; box-shadow: 2px 3px 0 rgba(58, 51, 80, .25); font-weight: 400; font-size: 1.15rem; }
-html:root[data-skin="scribble"] :is(.item, .picker h2)::before { display: none; }
-html:root[data-skin="scribble"] :is(.add, .item, .goal, .fav, .options, .picker .closet-wear) { border: 3px solid var(--rc, var(--cr-blue)); border-radius: var(--cr-r); background: color-mix(in srgb, var(--rc, var(--cr-blue)) 14%, #fffdf5) var(--cr-grain); box-shadow: 2px 3px 0 rgba(58, 51, 80, .22); }
-html:root[data-skin="scribble"] .item:nth-child(5n+1) { --rc: var(--cr-red); rotate: -.35deg; } html:root[data-skin="scribble"] .item:nth-child(5n+2) { --rc: var(--cr-orange); rotate: .3deg; } html:root[data-skin="scribble"] .item:nth-child(5n+3) { --rc: var(--cr-green); rotate: -.2deg; } html:root[data-skin="scribble"] .item:nth-child(5n+4) { --rc: var(--cr-blue); rotate: .35deg; } html:root[data-skin="scribble"] .item:nth-child(5n) { --rc: var(--cr-purple); rotate: -.3deg; }
-html:root[data-skin="scribble"] .add { --rc: var(--cr-pink); } html:root[data-skin="scribble"] .options { --rc: var(--cr-purple); } html:root[data-skin="scribble"] .goal, html:root[data-skin="scribble"] .fav { --rc: var(--cr-green); }
-html:root[data-skin="scribble"] .item-text { color: var(--cr-ink); font-weight: 400; font-size: 1.1rem; }
-html:root[data-skin="scribble"] .item.done { border-style: dashed; background: #f4efe0; }
-html:root[data-skin="scribble"] .item.done .item-text { color: #9a91b0; text-decoration-color: var(--cr-red); text-decoration-thickness: 3px; }
-html:root[data-skin="scribble"] :is(.qty-tag, .due-tag) { background: #fff; border: 2px solid var(--cr-ink); border-radius: var(--cr-r2); color: var(--cr-ink); }
-html:root[data-skin="scribble"] .item .emoji-btn { border-radius: var(--cr-r2); }
-html:root[data-skin="scribble"] .check::before { border: 3px solid var(--rc, var(--cr-blue)); border-radius: 50% 46% 52% 48%; background: #fff; box-shadow: none; }
-html:root[data-skin="scribble"] .item.done .check::before { background-color: var(--rc, var(--cr-green)); }
-html:root[data-skin="scribble"] .add input { background: transparent; color: var(--cr-ink); box-shadow: none; font-size: 1.1rem; }
-html:root[data-skin="scribble"] .add input::placeholder { color: #a79fc0; }
-html:root[data-skin="scribble"] :is(.pill-btn, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .dress-tabs button, .cal-add-btn, .recipe-btn, .mic-btn) {
-  border: 3px solid var(--cr-ink); border-radius: var(--cr-r); color: var(--cr-ink); font-weight: 400; background: var(--bc, var(--cr-yellow)) var(--cr-grain); box-shadow: 2px 3px 0 rgba(58, 51, 80, .3);
-}
-html:root[data-skin="scribble"] :is(.pill-btn, .dress-tabs button):nth-child(4n+1) { --bc: var(--cr-yellow); } html:root[data-skin="scribble"] :is(.pill-btn, .dress-tabs button):nth-child(4n+2) { --bc: var(--cr-pink); } html:root[data-skin="scribble"] :is(.pill-btn, .dress-tabs button):nth-child(4n+3) { --bc: #8fe3a0; } html:root[data-skin="scribble"] :is(.pill-btn, .dress-tabs button):nth-child(4n) { --bc: #8cc0ff; }
-html:root[data-skin="scribble"] :is(.picker-grid button, .picker .hat-strip button, .picker .species-grid button) { --bc: #fffdf5; background-color: #fffdf5; }
-html:root[data-skin="scribble"] :is(.pill-btn, .picker-grid button, .dress-tabs button, .recipe-btn, .mic-btn):active { translate: 2px 3px; box-shadow: none; }
-html:root[data-skin="scribble"] :is(.pill-btn[aria-pressed="true"], .dress-tabs button[aria-selected="true"], .picker [aria-pressed="true"]:is(button)) { --bc: var(--cr-orange); border-color: var(--cr-red); box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--cr-red); }
-html:root[data-skin="scribble"] .add-btn { border: 3px solid var(--cr-ink); border-radius: var(--cr-r2); color: #fff; font-weight: 400; font-size: 1.15rem; text-shadow: 1px 1px 0 rgba(58, 51, 80, .45); background: var(--cr-red) var(--cr-grain); box-shadow: 2px 3px 0 rgba(58, 51, 80, .3); }
-html:root[data-skin="scribble"] .dock { background: #fffdf5 var(--cr-paper); background-size: 140px 140px; border-top: 4px solid var(--cr-purple); box-shadow: 0 -4px 12px rgba(58, 51, 80, .15); }
-html:root[data-skin="scribble"] .dock button:nth-child(5n+1) .dock-icon { --dc: var(--cr-red); } html:root[data-skin="scribble"] .dock button:nth-child(5n+2) .dock-icon { --dc: var(--cr-orange); } html:root[data-skin="scribble"] .dock button:nth-child(5n+3) .dock-icon { --dc: var(--cr-green); } html:root[data-skin="scribble"] .dock button:nth-child(5n+4) .dock-icon { --dc: var(--cr-blue); } html:root[data-skin="scribble"] .dock button:nth-child(5n) .dock-icon { --dc: var(--cr-purple); }
-html:root[data-skin="scribble"] .dock-icon { border: 3px solid var(--dc, var(--cr-blue)); border-radius: 50% 44% 52% 46%; background: color-mix(in srgb, var(--dc, var(--cr-blue)) 20%, #fff) var(--cr-grain); color: var(--cr-ink); box-shadow: 2px 3px 0 rgba(58, 51, 80, .22); }
-html:root[data-skin="scribble"] .dock-label { color: var(--cr-ink); font-size: .85rem; }
-html:root[data-skin="scribble"] .items .aisle { color: var(--cr-ink); font-weight: 400; font-size: .95rem; letter-spacing: .02em; }
-html:root[data-skin="scribble"] .brand { color: var(--cr-ink); font-weight: 400; font-size: 1.4rem; }
-html:root[data-skin="scribble"] .stage { border: 4px solid var(--cr-green); border-radius: 26px 20px 28px 18px / 20px 28px 18px 26px; box-shadow: 2px 3px 0 rgba(58, 51, 80, .25); overflow: hidden; }
-html:root[data-skin="scribble"] .field-label, html:root[data-skin="scribble"] .picker legend { color: var(--cr-ink); font-weight: 400; font-size: 1.05rem; }
-html:root[data-skin="scribble"] .name-show, html:root[data-skin="scribble"] .dress-search, html:root[data-skin="scribble"] :is(.cal-month select, .cal-add input) { border: 3px solid var(--cr-purple); border-radius: var(--cr-r); background: #fff; color: var(--cr-ink); box-shadow: none; }
-html:root[data-skin="scribble"] .name-edit { border: 3px solid var(--cr-ink); border-radius: var(--cr-r2); background: var(--cr-blue); color: #fff; box-shadow: 2px 3px 0 rgba(58, 51, 80, .3); }
-html:root[data-skin="scribble"] .gear-btn { border: 3px solid var(--cr-ink); border-radius: 50% 44% 52% 46%; background: var(--cr-yellow) var(--cr-grain); box-shadow: 2px 3px 0 rgba(58, 51, 80, .3); }
-html:root[data-skin="scribble"] .cal-sheet .cal-cell { border: 2px solid var(--cr-blue); border-radius: var(--cr-r2); background: #fff; }
-html:root[data-skin="scribble"] .cal-sheet .cal-cell:is(.today, .sel) { background: var(--cr-yellow); border: 3px solid var(--cr-red); }
-html:root[data-skin="scribble"] .stage .bubble:not(.in-sheet), html:root[data-skin="scribble"] .stage .bubble { border: 3px solid var(--cr-ink); border-radius: var(--cr-r); background: #fffdf5 var(--cr-paper); background-size: 140px 140px; color: var(--cr-ink); font-family: var(--cr-font); font-size: 1.1rem; box-shadow: 2px 3px 0 rgba(58, 51, 80, .25); }
+    
+  
 
-/* Scribbling for Mini Fumu (alert style "Scribbling"): paper cards with crayon outlines, chunky crayon buttons */
-html.al-scribble { --cr-paper: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='g' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.9 .35' numOctaves='2' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 -1.6 1.05'/></filter><rect width='140' height='140' filter='url(%23g)'/></svg>"); --cr-grain: repeating-linear-gradient(-58deg, rgba(255, 255, 255, .3) 0 2px, rgba(255, 255, 255, 0) 2px 7px); --cr-r: 16px 24px 14px 26px / 24px 14px 26px 16px; --cr-r2: 24px 14px 26px 16px / 14px 26px 16px 24px; --cr-red: #ff6b6b; --cr-orange: #ffa94d; --cr-yellow: #ffd93d; --cr-green: #6bcb77; --cr-blue: #4d96ff; --cr-purple: #b57bff; --cr-pink: #ff8fc7; --cr-ink: #3a3350; --cr-font: "Patrick Hand", "Comic Sans MS", "Chalkboard SE", cursive; }
-html.al-scribble .inbox-card, html.al-scribble .inbox-card * { font-family: var(--cr-font); }
-html.al-scribble .inbox-card { border: 3px solid var(--cr-blue); border-radius: var(--cr-r); outline: none; background: #fffdf5 var(--cr-paper); background-size: 140px 140px; box-shadow: 2px 4px 0 rgba(58, 51, 80, .3), 0 8px 14px var(--al-shadow); rotate: -.4deg; }
-html.al-scribble .remind-card { border-color: var(--cr-orange); } html.al-scribble .claude-card { border-color: var(--cr-purple); } html.al-scribble .note-card { border-color: var(--cr-green); } html.al-scribble .link-card { border-color: var(--cr-pink); }
-html.al-scribble .inbox-card::before { content: ""; top: -9px; left: 20px; right: auto; width: 46px; height: 14px; border-radius: 3px; rotate: -4deg; opacity: .9; background: var(--cr-yellow) var(--cr-grain); box-shadow: none; }
-html.al-scribble .inbox-card::after { content: "★"; font-size: .9rem; top: 5px; right: 12px; color: var(--cr-orange); animation: none; }
-html.al-scribble .inbox-text b { color: var(--cr-ink); font-weight: 400; font-size: 1.05rem; letter-spacing: 0; }
-html.al-scribble .inbox-text span { color: #7d7396; }
-html.al-scribble .inbox-icon { border-radius: 50% 44% 52% 46%; rotate: 0deg; border: 3px solid var(--cr-green); background: #fff; box-shadow: 2px 2px 0 rgba(58, 51, 80, .2); }
-html.al-scribble .inbox-actions button { border: 3px solid var(--cr-ink); border-radius: var(--cr-r); background: var(--cr-yellow) var(--cr-grain); color: var(--cr-ink); font-weight: 400; box-shadow: 2px 2px 0 rgba(58, 51, 80, .3); }
-html.al-scribble .inbox-actions button:nth-child(2) { background-color: var(--cr-pink); } html.al-scribble .inbox-actions button:nth-child(3) { background-color: #8cc0ff; }
-html.al-scribble .inbox-actions .ia-done { background-color: var(--cr-green); color: var(--cr-ink); }
-html.al-scribble .ring-btn { border: 3px solid var(--cr-ink); border-radius: 50% 44% 52% 46%; background: #fffdf5 var(--cr-grain); box-shadow: 2px 3px 0 rgba(58, 51, 80, .3); }
-html.al-scribble .ring-btn:nth-child(4n+1) { background-color: #ffe0e0; } html.al-scribble .ring-btn:nth-child(4n+2) { background-color: #fff3c4; } html.al-scribble .ring-btn:nth-child(4n+3) { background-color: #d8f5dc; } html.al-scribble .ring-btn:nth-child(4n) { background-color: #dbe9ff; }
-html.al-scribble .ring-btn[aria-pressed="true"] { background-color: var(--cr-orange); border-color: var(--cr-red); }
-html.al-scribble .stage .bubble { border: 3px solid var(--cr-ink); border-radius: var(--cr-r); background: #fffdf5 var(--cr-paper); background-size: 140px 140px; color: var(--cr-ink); font-family: var(--cr-font); font-size: 1.05rem; box-shadow: 2px 3px 0 rgba(58, 51, 80, .25); }
-html:root[data-skin="scribble"] :is(.dock-icon, .gear-btn, .add-btn, .item, .add)::before { display: none; }
-html:root[data-skin="scribble"] .dock-icon::after { display: none; }
-html:root[data-skin="scribble"] :is(.picker-grid button, .picker .hat-strip button, .picker .species-grid button) { border-style: solid; }
+   
 
-/* Scribbling, more things: doodles in the corners of the page, flat crayon buttons with a block shadow and colouring-in strokes (no grain), a marker underline, wiggly hover */
-html:root[data-skin="scribble"] { --cr-doodles: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='390' height='800' viewBox='0 0 390 800' fill='none' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M330 40 l5 12 13 1 -10 8 3 13 -11 -7 -11 7 3 -13 -10 -8 13 -1z' stroke='%23ffa94d'/><path d='M20 300 q10 -14 20 0 t20 0 t20 0' stroke='%234d96ff'/><path d='M340 520 c-14 -14 -30 4 -14 18 l14 12 14 -12 c16 -14 0 -32 -14 -18z' stroke='%23ff8fc7'/><circle cx='30' cy='640' r='11' stroke='%236bcb77'/><path d='M350 700 q12 -16 24 0 t24 0' stroke='%23b57bff'/><path d='M22 120 l14 14 m0 -14 l-14 14' stroke='%23ff6b6b'/></svg>"); }
-html:root[data-skin="scribble"] :is(.pill-btn, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .dress-tabs button, .cal-add-btn, .recipe-btn, .mic-btn, .add-btn, .name-edit, .gear-btn, .dock-icon) { box-shadow: 3px 4px 0 rgba(58, 51, 80, .35); }
-html:root[data-skin="scribble"] :is(.pill-btn, .dress-tabs button, .recipe-btn, .mic-btn, .add-btn, .name-edit, .dock button):hover { animation: crWiggle .5s ease-in-out; }
-@keyframes crWiggle { 0%, 100% { rotate: 0deg; } 25% { rotate: -2.5deg; } 75% { rotate: 2.5deg; } }
-html:root[data-skin="scribble"] .picker h2 { background: linear-gradient(180deg, transparent 52%, var(--cr-yellow) 52% 92%, transparent 92%); box-shadow: none; padding-left: 6px; border-radius: 4px 14px 6px 12px; rotate: -1deg; }
-html:root[data-skin="scribble"] .items .aisle { text-decoration: underline wavy var(--cr-orange); text-decoration-thickness: 2px; text-underline-offset: 4px; }
-html:root[data-skin="scribble"] .items .aisle::after { display: none; }
-html:root[data-skin="scribble"] .item { box-shadow: 3px 4px 0 rgba(58, 51, 80, .25); }
-html:root[data-skin="scribble"] .item.done .check::before { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M5 13 l5 5 L19 6' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/></svg>"); background-size: 80%; background-position: center; background-repeat: no-repeat; }
-html:root[data-skin="scribble"] .brand { text-decoration: underline wavy var(--cr-pink); text-decoration-thickness: 2px; text-underline-offset: 5px; }
-html:root[data-skin="scribble"] .stage { box-shadow: 3px 4px 0 rgba(58, 51, 80, .3); }
-html.al-scribble .inbox-card { box-shadow: 3px 5px 0 rgba(58, 51, 80, .3), 0 8px 14px var(--al-shadow); }
-html.al-scribble :is(.inbox-actions button, .ring-btn) { box-shadow: 3px 3px 0 rgba(58, 51, 80, .35); }
-@media (prefers-reduced-motion: reduce) { html:root[data-skin="scribble"] * { animation: none !important; } }
-html:root[data-skin="scribble"] :is(.item, .add, .options, .goal, .fav) { outline: none; }
+    
+
+   
+
+ 
+
+   
 
 /* Old School: square switches (the track and the knob) */
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .option input { border-radius: 0; border: 1px solid #000; background: var(--os-pit); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 #5b5140; }
@@ -3744,12 +3632,8 @@ html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .op
 .pet.handdance :is(.ear-l, .ear-r) { animation: ear-jiggle-l .4s ease-out 27; }
 @media (prefers-reduced-motion: reduce) { .pet.handdance :is(.pet-svg, .arm-l, .arm-r, .ear-l, .ear-r), .pet.handdance:not(#x) :is(.foot-l, .shoe-l, .foot-r, .shoe-r) { animation: none; } }
 
-/* the room picture has the same shape in every look: a rounded picture with a little room round it (build 537). Old School and Scribbling
-   give that picture their own outline, and the stage has no frame of its own (it used to, which did not match the picture) */
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .stage { border: 0; border-radius: 0; box-shadow: none; }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .backdrop { border: 2px solid #000; border-radius: 16px; box-shadow: 0 0 0 3px #5b5140, 0 0 0 4px #000; }
-html:root[data-skin="scribble"] .stage { border: 0; border-radius: 0; box-shadow: none; overflow: visible; }
-html:root[data-skin="scribble"] .backdrop { border: 4px solid var(--cr-green); border-radius: 16px; box-shadow: 3px 4px 0 rgba(58, 51, 80, .3); }
 
 /* ---------- Bonfire (App settings > Appearance > Bonfire; Mini Fumu alert style "Bonfire") ----------
    A dark fantasy-adventure menu look: near-black panels with a fine grain, thin muted-gold double lines, parchment lettering in a Garamond-style serif (EB Garamond,
@@ -4031,7 +3915,7 @@ html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .li
 html:root[data-skin="quest"][data-quest="bonfire"] .list-tabs { border-radius: 2px; border-color: #4a3f28; background: #0d0b0a; box-shadow: inset 0 0 0 1px #000; }
 html:root[data-skin="quest"][data-quest="bonfire"] .list-tab { border-radius: 1px; color: #cbbf9f; font-weight: 500; }
 html:root[data-skin="quest"][data-quest="bonfire"] .list-tab[aria-selected="true"] { background: var(--bf-ember); color: #fff6e4; box-shadow: 0 0 10px rgba(217, 130, 43, .45), inset 0 0 0 1px rgba(0, 0, 0, .4); }
-html:root[data-skin="scribble"] .list-tabs { border: 3px solid var(--cr-ink); border-radius: 22px 18px 24px 16px; }
+
 html.desktop-pet .list-tabs { display: none; }
 
 /* ---------- Bonfire, toward the Dark Souls menu ----------
@@ -4116,68 +4000,85 @@ html:not(.desktop-pet) .list-tabs { margin: 0; }
 html:not(.desktop-pet) .scene-bar { justify-content: space-between; }
 html:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { background: transparent; border: 0; box-shadow: none; padding-left: 0; padding-right: 0; }
 
-/* ---------- Scribbling, calmer (build 565) ----------
-   It was too busy: every row a different strong colour and tilt, thick dark outlines on everything, striped crayon grain, dashed cards, wavy underlines, doodles
-   and big colour blobs behind. Now: soft pastel crayons, thin soft-ink outlines, flat fills, straight rows, one small splash of colour per thing, a faint
-   dotted notebook page. */
-html:root[data-skin="scribble"] {
-  --cr-red: #f58a8a; --cr-orange: #f7b878; --cr-yellow: #fadf86; --cr-green: #9bd8a8; --cr-blue: #8bb9f2; --cr-purple: #bba6f0; --cr-pink: #f7b0d3;
-  --cr-ink: #3f3858; --cr-line: #6e6590; --cr-grain: linear-gradient(transparent, transparent);
-  --cr-doodles: linear-gradient(transparent, transparent);
-  --cr-edge: 0 2px 0 rgba(63, 56, 88, .16);
-  --hl: #f58a8a; --badge: #f58a8a; --accent: #f58a8a; --line: #6e6590; --outline: #6e6590; --cb-edge: #6e6590; --cb-edge-strong: #6e6590;
-}
-html:root[data-skin="scribble"] body { background: radial-gradient(circle, rgba(110, 101, 144, .16) 1.1px, transparent 1.6px) 0 0 / 22px 22px, #fff9ec; }
 /* rows and cards: cream paper, one thin outline, a coloured edge down the left only */
-html:root[data-skin="scribble"] :is(.add, .item, .goal, .fav, .options, .picker .closet-wear) {
-  border: 2px solid var(--cr-line); border-left: 8px solid var(--rc, var(--cr-blue)); border-radius: 14px 18px 16px 18px / 18px 14px 18px 14px; background: #fffdf6; box-shadow: var(--cr-edge); rotate: 0deg;
-}
-html:root[data-skin="scribble"] .item { rotate: 0deg !important; box-shadow: var(--cr-edge); }
-html:root[data-skin="scribble"] .item.done { background: #f6f1e4; border-style: solid; border-color: #b4acc8; border-left-color: #cfc8de; }
-html:root[data-skin="scribble"] .item.done .item-text { color: #9d95b4; text-decoration-color: var(--cr-red); text-decoration-thickness: 2px; }
-html:root[data-skin="scribble"] .check::before { border: 2.5px solid var(--cr-line); }
-html:root[data-skin="scribble"] .item.done .check::before { background-color: var(--rc, var(--cr-green)); border-color: var(--cr-line); }
-html:root[data-skin="scribble"] :is(.qty-tag, .due-tag) { border: 1.5px solid var(--cr-line); background: #fffdf6; }
+
 /* buttons: flat pastel fill, thin outline, a small flat shadow */
-html:root[data-skin="scribble"] :is(.pill-btn, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .dress-tabs button, .cal-add-btn, .recipe-btn, .mic-btn, .add-btn, .name-edit, .gear-btn, .dock-icon, .list-tab) {
-  border: 2px solid var(--cr-line); box-shadow: var(--cr-edge); background-image: none;
-}
-html:root[data-skin="scribble"] :is(.pill-btn, .dress-tabs button, .recipe-btn, .mic-btn, .add-btn, .name-edit):hover { animation: none; translate: 0 -1px; }
-html:root[data-skin="scribble"] .add-btn { background: var(--cr-red); color: #fff; text-shadow: 0 1px 0 rgba(63, 56, 88, .35); }
-html:root[data-skin="scribble"] .name-edit { background: var(--cr-blue); }
-html:root[data-skin="scribble"] .gear-btn { background: var(--cr-yellow); }
-html:root[data-skin="scribble"] .mic-btn, html:root[data-skin="scribble"] .recipe-btn { background-color: var(--cr-yellow); }
-html:root[data-skin="scribble"] :is(.picker-grid button, .picker .hat-strip button, .picker .species-grid button) { background: #fffdf6; border-style: solid; }
-html:root[data-skin="scribble"] .picker .species-grid button::before, html:root[data-skin="scribble"] .picker .hat-strip button::before { display: none; }
+
 /* picked: just the crayon colour filling in, one outline */
-html:root[data-skin="scribble"] :is(.pill-btn[aria-pressed="true"], .dress-tabs button[aria-selected="true"], .picker [aria-pressed="true"]:is(button), .list-tab[aria-selected="true"]) { box-shadow: var(--cr-edge); border-color: var(--cr-line); }
-html:root[data-skin="scribble"] :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button)[aria-pressed="true"] { background: #ffe9e9; border-color: var(--cr-red); border-width: 3px; }
-html:root[data-skin="scribble"] .dress-tabs button[aria-selected="true"] { background-color: var(--cr-yellow); }
-html:root[data-skin="scribble"] .list-tabs { border: 2px solid var(--cr-line); background: #fffdf6; }
-html:root[data-skin="scribble"] .list-tab { background: transparent; border-color: transparent; box-shadow: none; color: #7d7396; }
-html:root[data-skin="scribble"] .list-tab[aria-selected="true"] { background: var(--cr-red); border-color: var(--cr-line); color: #fff; box-shadow: var(--cr-edge); }
-html:root[data-skin="scribble"] .list-tab + .list-tab[aria-selected="true"] { background: var(--cr-blue); }
+
 /* panels and fields */
-html:root[data-skin="scribble"] .picker { border: 3px solid var(--cr-blue); border-bottom: 0; box-shadow: 0 -4px 14px rgba(63, 56, 88, .14); }
-html:root[data-skin="scribble"] :is(.name-show, .dress-search, .cal-month select, .cal-add input) { border: 2px solid var(--cr-line); }
-html:root[data-skin="scribble"] .add { --rc: var(--cr-pink); }
-html:root[data-skin="scribble"] .dock { border-top: 2px solid var(--cr-line); box-shadow: 0 -3px 10px rgba(63, 56, 88, .1); }
-html:root[data-skin="scribble"] .dock-icon { background-image: none; }
-html:root[data-skin="scribble"] .dock-label { font-size: .82rem; }
+
 /* titles and labels: no wavy underlines, a small dot-dash rule instead */
-html:root[data-skin="scribble"] .brand { text-decoration: none; }
-html:root[data-skin="scribble"] .items .aisle { text-decoration: none; color: #6e6590; letter-spacing: .06em; text-transform: uppercase; font-size: .82rem; }
-html:root[data-skin="scribble"] .items .aisle::after { display: block; border-top: 2px dotted #bdb4d6; }
-html:root[data-skin="scribble"] .picker h2 { rotate: 0deg; background: linear-gradient(180deg, transparent 58%, var(--cr-yellow) 58% 90%, transparent 90%); }
-html:root[data-skin="scribble"] :is(.field-label, .picker legend) { background: none; }
+
 /* the room: a thinner frame, no heavy shadow */
-html:root[data-skin="scribble"] .backdrop { border: 3px solid var(--cr-green); box-shadow: var(--cr-edge); }
-html:root[data-skin="scribble"] .dress-stage { border-color: var(--cr-line); }
-html:root[data-skin="scribble"] .cal-sheet .cal-cell { border-width: 2px; border-color: #c9c0e0; }
-html:root[data-skin="scribble"] .cal-sheet .cal-cell:is(.today, .sel) { background: var(--cr-yellow); border: 2px solid var(--cr-red); }
-html:root[data-skin="scribble"] .picker :is(.species-grid, .hat-strip, .picker-grid) button:not([aria-pressed="true"])::after { display: none; }
-html:root[data-skin="scribble"] .picker :is(.species-grid, .hat-strip) button { outline: none; }
-html:root[data-skin="scribble"] .dress-tabs button { --bc: var(--cr-yellow); }
-html:root[data-skin="scribble"] .dress-tabs button:nth-child(6n+1) { --bc: var(--cr-yellow); } html:root[data-skin="scribble"] .dress-tabs button:nth-child(6n+2) { --bc: var(--cr-pink); } html:root[data-skin="scribble"] .dress-tabs button:nth-child(6n+3) { --bc: var(--cr-green); } html:root[data-skin="scribble"] .dress-tabs button:nth-child(6n+4) { --bc: var(--cr-blue); } html:root[data-skin="scribble"] .dress-tabs button:nth-child(6n+5) { --bc: var(--cr-orange); } html:root[data-skin="scribble"] .dress-tabs button:nth-child(6n) { --bc: var(--cr-purple); }
-html:root[data-skin="scribble"] .dress-tabs button { background-color: var(--bc); opacity: .85; }
-html:root[data-skin="scribble"] .dress-tabs button[aria-selected="true"] { opacity: 1; background-color: var(--bc); border-width: 3px; }
+
+     
+
+
+/* ---------- Sweet (App settings > Appearance > Sweet; also the alert look of the small window: al-sweet) ----------
+   Candy and strawberry milk: a pink page with white polka dots, puffy white cards with a pink outline, a thick soft edge underneath and a white ring round it, glossy pill
+   buttons with a shine, pastel sticker icons, sprinkles. A light look with its own skin (data-skin="sweet", data-theme="light"). To drop it, delete this block and the
+   `sweet` entry in THEMES (app-options.js, desktop/main.js, desktop/panel-ui.js). */
+html:root[data-skin="sweet"] {
+  --sw-pink: #ff8fb0; --sw-pink-d: #f06a94; --sw-edge: #f3b9ca; --sw-ink: #7a4a5a; --sw-mint: #bfeed7; --sw-butter: #ffe9a8; --sw-lav: #dccbff; --sw-sky: #bfe3ff;
+  --bg: #ffe6ee; --surface: #fffaf6; --surface-2: #ffeef2; --ink: #7a4a5a; --muted: #b98a98; --line: #f3b9ca; --outline: #eaa3b8;
+  --accent: #ff8fb0; --accent-ink: #fff; --mint: #bfeed7; --butter: #ffe9a8; --stage-top: #ffe6ee; --shadow: rgba(235, 150, 175, .3);
+  --hl: #ff7fa6; --hl-soft: rgba(255, 127, 166, .18); --hl-glow: rgba(255, 127, 166, .4); --badge: #ff6f9a;
+  --cb-edge: #f3b9ca; --cb-edge-strong: #eaa3b8; --cb-done: rgba(255, 250, 246, .7); --cb-dock-a: #fff3f6; --cb-dock-b: #ffe3ec;
+  --sw-puff: 0 0 0 3px #fff, 0 4px 0 3px var(--sw-edge), 0 8px 14px var(--shadow);
+  --sw-gloss: linear-gradient(180deg, rgba(255, 255, 255, .75) 0, rgba(255, 255, 255, 0) 55%);
+  --sw-dots: radial-gradient(circle, rgba(255, 255, 255, .85) 2.2px, transparent 2.8px) 0 0 / 26px 26px, radial-gradient(circle, rgba(255, 255, 255, .5) 1.6px, transparent 2.2px) 13px 13px / 26px 26px;
+}
+html:root[data-skin="sweet"] body { background: var(--sw-dots), linear-gradient(180deg, #ffd9e6 0, #ffe9f0 38%, #fff1e6 100%); background-attachment: fixed; }
+html:root[data-skin="sweet"] .picker { background: linear-gradient(180deg, #fff7fa, #ffedf3); border: 3px solid var(--sw-edge); border-bottom: 0; border-radius: 28px 28px 0 0; box-shadow: 0 -6px 18px rgba(235, 150, 175, .3), inset 0 0 0 3px #fff; }
+html:root[data-skin="sweet"] .picker h2 { border: 0; border-radius: 999px; background: linear-gradient(180deg, #ffd3e0, #ffb3cb); color: #7a2a4a; box-shadow: 0 2px 0 #f3a3bb, inset 0 1px 0 rgba(255, 255, 255, .8); padding: 4px 18px; font-weight: 700; }
+/* cards: white and puffy, a pink outline, a ring and a soft edge under them; no tape or stitching */
+html:root[data-skin="sweet"] :is(.add, .item, .goal, .fav, .options, .picker .closet-wear, .scene-bar, .dress-panels) {
+  background: linear-gradient(180deg, #fffdfb, #fff4f6); border: 2px solid var(--sw-edge); border-radius: 22px; box-shadow: 0 0 0 3px #fff, 0 4px 0 3px var(--sw-edge), 0 8px 12px rgba(235, 150, 175, .22);
+}
+html:root[data-skin="sweet"] :is(.item, .add, .options)::before, html:root[data-skin="sweet"] :is(.item, .add)::after { display: none; }
+html:root[data-skin="sweet"] .items .item { margin-bottom: 14px; }
+html:root[data-skin="sweet"] .items .item:nth-child(3n+2) { background: linear-gradient(180deg, #fffdf6, #fff6df); }
+html:root[data-skin="sweet"] .items .item:nth-child(3n) { background: linear-gradient(180deg, #fbfffd, #effbf4); }
+html:root[data-skin="sweet"] .item.done { background: #fff6f8; opacity: .8; }
+html:root[data-skin="sweet"] .item-text { color: var(--sw-ink); font-weight: 600; }
+html:root[data-skin="sweet"] .item.done .item-text { color: #cfa9b6; text-decoration-color: #f59ab5; }
+html:root[data-skin="sweet"] .check::before { border: 2.5px solid #f3a3bb; background: #fff; box-shadow: inset 0 2px 0 rgba(235, 150, 175, .25); }
+html:root[data-skin="sweet"] .item.done .check::before { background-color: var(--sw-pink); border-color: var(--sw-pink-d); }
+html:root[data-skin="sweet"] :is(.qty-tag, .due-tag) { background: #ffe3ec; color: #b35a78; border: 0; border-radius: 999px; box-shadow: inset 0 0 0 1.5px #f7c0d0; }
+/* buttons: glossy pastel pills with a soft edge under them */
+html:root[data-skin="sweet"] :is(.pill-btn, .recipe-btn, .mic-btn, .cal-add-btn, .gear-btn, .dress-tabs button, .picker-grid button, .list-tab, .closet-btn) {
+  background: var(--sw-gloss), linear-gradient(180deg, #fffaf6, #ffeaf0); color: #b35a78; border: 2px solid var(--sw-edge); border-radius: 999px; box-shadow: 0 3px 0 var(--sw-edge); text-shadow: none;
+}
+html:root[data-skin="sweet"] .dress-tabs button { border-radius: 20px; }
+html:root[data-skin="sweet"] :is(.pill-btn, .recipe-btn, .mic-btn, .dress-tabs button, .list-tab, .closet-btn):active { translate: 0 2px; box-shadow: 0 1px 0 var(--sw-edge); }
+html:root[data-skin="sweet"] :is(.pill-btn[aria-pressed="true"], .dress-tabs button[aria-selected="true"], .list-tab[aria-selected="true"], .picker [aria-pressed="true"]:is(button)) {
+  background: var(--sw-gloss), linear-gradient(180deg, #ffb3cb, #ff8fb0); color: #fff; border-color: #f06a94; box-shadow: 0 3px 0 #e0608a; text-shadow: 0 1px 0 rgba(180, 40, 80, .35);
+}
+html:root[data-skin="sweet"] :is(.picker .species-grid button, .picker .hat-strip button)[aria-pressed="true"] { background: linear-gradient(180deg, #fff, #ffe3ec); color: var(--sw-ink); border: 2.5px solid #ff7fa6; box-shadow: 0 0 0 3px #fff, 0 0 0 5px #ffb3cb; text-shadow: none; }
+html:root[data-skin="sweet"] :is(.picker .species-grid button, .picker .hat-strip button) { border-radius: 22px; background: linear-gradient(180deg, #fffdfb, #fff4f6); color: var(--sw-ink); }
+html:root[data-skin="sweet"] .add-btn { background: var(--sw-gloss), linear-gradient(180deg, #ff9fbd, #ff6f9a); color: #fff; border: 2px solid #f06a94; border-radius: 999px; box-shadow: 0 3px 0 #e0608a; text-shadow: 0 1px 0 rgba(180, 40, 80, .4); }
+html:root[data-skin="sweet"] .name-edit { background: var(--sw-gloss), linear-gradient(180deg, #ffb3cb, #ff8fb0); color: #fff; border: 2px solid #f06a94; box-shadow: 0 2px 0 #e0608a; }
+html:root[data-skin="sweet"] :is(.name-show, .dress-search, .cal-month select, .cal-add input) { background: #fff; border: 2px solid var(--sw-edge); border-radius: 999px; color: var(--sw-ink); }
+html:root[data-skin="sweet"] .list-tabs { background: #fff; border: 2px solid var(--sw-edge); box-shadow: 0 3px 0 var(--sw-edge); }
+html:root[data-skin="sweet"] .list-tab { background: transparent; border-color: transparent; box-shadow: none; text-shadow: none; }
+html:root[data-skin="sweet"] .list-tab[aria-selected="true"] { background: var(--sw-gloss), linear-gradient(180deg, #ffb3cb, #ff8fb0); color: #fff; border-color: #f06a94; box-shadow: 0 2px 0 #e0608a; }
+/* the bottom bar: a frosted pink shelf, round pastel stickers with a shine */
+html:root[data-skin="sweet"] .dock { background: linear-gradient(180deg, #fff7fa, #ffe3ec); border-top: 3px solid var(--sw-edge); box-shadow: 0 -4px 14px rgba(235, 150, 175, .3), inset 0 2px 0 #fff; }
+html:root[data-skin="sweet"] .dock-icon { border: 2.5px solid #fff; background: var(--sw-gloss), var(--sticker, #ffd3dd); box-shadow: 0 0 0 2px var(--sw-edge), 0 3px 0 2px var(--sw-edge); }
+html:root[data-skin="sweet"] .dock-label { color: #b35a78; }
+html:root[data-skin="sweet"] :is(.dock-badge, .brand-due, .gift-count, .profile-gift-count, .tab-due) { background: #ff6f9a; color: #fff; box-shadow: 0 0 0 2px #fff; }
+html:root[data-skin="sweet"] .items .aisle { color: #c0728f; font-weight: 700; letter-spacing: .05em; }
+html:root[data-skin="sweet"] .items .aisle::after { border-top: 3px dotted #f6bfd0; border-bottom: 0; }
+html:root[data-skin="sweet"] .field-label, html:root[data-skin="sweet"] .picker legend { color: #c0728f; font-weight: 700; }
+html:root[data-skin="sweet"] .backdrop { border: 3px solid #fff; border-radius: 22px; box-shadow: 0 0 0 3px var(--sw-edge), 0 8px 14px rgba(235, 150, 175, .28); }
+html:root[data-skin="sweet"] .stage { border: 0; box-shadow: none; }
+html:root[data-skin="sweet"] .dress-stage { border: 3px solid #fff; box-shadow: 0 0 0 3px var(--sw-edge); }
+html:root[data-skin="sweet"] .cal-sheet .cal-cell { background: #fffdfb; border: 2px solid #f9d3df; border-radius: 14px; }
+html:root[data-skin="sweet"] .cal-sheet .cal-cell:is(.today, .sel) { background: linear-gradient(180deg, #ffb3cb, #ff8fb0); border-color: #f06a94; color: #fff; }
+/* a few sprinkles falling over the page (the dots are the page's own) */
+html:root[data-skin="sweet"] body::after { content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .55; background:
+  linear-gradient(35deg, transparent 46%, #ff8fb0 46% 54%, transparent 54%) 8% 12% / 14px 5px no-repeat, linear-gradient(-30deg, transparent 46%, #8fd8b5 46% 54%, transparent 54%) 90% 22% / 14px 5px no-repeat,
+  linear-gradient(60deg, transparent 46%, #ffd36a 46% 54%, transparent 54%) 14% 62% / 14px 5px no-repeat, linear-gradient(-55deg, transparent 46%, #b79bff 46% 54%, transparent 54%) 93% 70% / 14px 5px no-repeat; }
+html:root[data-skin="sweet"] .scene-bar { background: transparent; border: 0; box-shadow: none; padding-left: 0; padding-right: 0; }
+html:root[data-skin="sweet"] :is(.field-label, .picker legend) { background: #ffe3ec; color: #c0728f; border-radius: 999px; padding: 2px 12px; }
