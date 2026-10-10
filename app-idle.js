@@ -400,7 +400,7 @@ var exerciseTimers = [], exerciseDone = null;
 function morningExercise(onDone) {
   stopExercise();
   exerciseDone = onDone || null;
-  var lines = [[0, 'ichi, ni, ichi, ni!'], [2500, 'left, left~'], [3400, 'right, right~'], [4500, 'touch your toes!'], [6500, 'wiggle wiggle~'], [8500, 'yaaay!']];
+  var lines = [[0, 'one, two, one, two!'], [2500, 'left, left~'], [3400, 'right, right~'], [4500, 'touch your toes!'], [6500, 'wiggle wiggle~'], [8500, 'yaaay!']];
   function later(fn, ms) { exerciseTimers.push(setTimeout(fn, ms)); }
   setFace({ eyes: 'happy', mouth: 'open', arms: 'rest', x: ['cheeks'] });
   pulse('exercise', 10000);

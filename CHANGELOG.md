@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 532
+- Morning exercise: hands reach to the toes, bigger bottom shake, says one two
+
 ## Build 531
 - Before noon he dances first, then says hello and mentions what is due
 
