@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 557
+- Loading card: the update check happens before the app shows, so it no longer loads twice
+
 ## Build 556
 - Bonfire: pedestal on the reminder and update card icons
 

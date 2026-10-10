@@ -52,9 +52,14 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
     reloaded = true;
     location.reload();   // (the loading card stays up until the new page has started)
   });
-  bootTimer = setTimeout(revealApp, 4000);   // never wait long for the network
+  bootTimer = setTimeout(revealApp, 6000);   // never wait long for the network
+  // register() does not look for a newer build when this one is already registered (the browser does that later, in the background, after the page
+  // has shown: the page then reloaded a few seconds in, and the loading card came back). So the check is made here, while the card is still up.
   navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (reg) {
-    function waitForTakeover() { clearTimeout(bootTimer); bootTimer = setTimeout(revealApp, 8000); }   // a newer build is on its way: wait for it
+    return reg.update().then(function () { return reg; }, function () { return reg; });
+  }).then(function (reg) {
+    function waitForTakeover() { clearTimeout(bootTimer); bootTimer = setTimeout(revealApp, 10000); }   // a newer build is on its way: wait for it
+    if (reloaded) return;   // it has taken over already and the page is reloading: the card stays up
     if (reg.installing || reg.waiting) waitForTakeover(); else revealApp();
     reg.addEventListener('updatefound', function () { if (!bootRevealed) waitForTakeover(); });
   }).catch(function () { revealApp(); /* not available here */ });
