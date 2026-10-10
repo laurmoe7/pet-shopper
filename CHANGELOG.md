@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 559
+- The light comes on when Fumu is fed or something is ticked off at night
+
 ## Build 558
 - Fumu gets out of bed when anything is ticked off, on either list
 
