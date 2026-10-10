@@ -5,19 +5,21 @@
 // ---------- options ----------
 $('buildLabel').textContent = 'Build ' + BUILD;
 /* Appearance (light or dark): Auto follows the phone. Kept on this device only (not in the pet's saved data). */
-var THEMES = [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Classic'], ['quest2', 'Quest'], ['osrs', 'Old School'], ['scribble', 'Scribbling']];
+var THEMES = [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Classic'], ['quest2', 'Quest'], ['osrs', 'Old School'], ['bonfire', 'Bonfire'], ['scribble', 'Scribbling']];
 function applyTheme(t) {
   var de = document.documentElement;
   if (t === 'quest') t = 'quest2';   // the original Quest was replaced by Quest2 (build 544, shown as "Quest"): a saved choice of the old one becomes the new one
   // Quest is a dark look with its own skin on top (data-skin), so everything that reads "dark" keeps working
   // Quest (id quest2) is the base Quest rules with a second layer on top (data-quest="slots": dark stone panels, bevelled bronze frames, inventory-slot rows); the plain base look is no longer offered, but Old School is built on it too, so its rules stay
+  // Bonfire is Quest plus data-quest="bonfire" (near-black panels, thin gold lines, parchment lettering, ember-orange picks): it shares Old School's rules and then changes the palette and looks
   // Old School is Quest plus data-quest="osrs" (flat brown stone, yellow lettering); its speech is the game's overhead text (al-osrs, not al-quest)
-  if (t === 'quest' || t === 'quest2' || t === 'osrs') { de.dataset.theme = 'dark'; de.dataset.skin = 'quest'; if (t === 'quest2') de.dataset.quest = 'slots'; else if (t === 'osrs') de.dataset.quest = 'osrs'; else delete de.dataset.quest; }
+  if (t === 'quest' || t === 'quest2' || t === 'osrs' || t === 'bonfire') { de.dataset.theme = 'dark'; de.dataset.skin = 'quest'; if (t === 'quest2') de.dataset.quest = 'slots'; else if (t === 'osrs' || t === 'bonfire') de.dataset.quest = t; else delete de.dataset.quest; }
   else if (t === 'scribble') { de.dataset.theme = 'light'; de.dataset.skin = 'scribble'; delete de.dataset.quest; }   // (colourful crayon on paper: a light look with its own skin)
   else { delete de.dataset.skin; delete de.dataset.quest; if (t === 'light' || t === 'dark') de.dataset.theme = t; else delete de.dataset.theme; }
   de.classList.toggle('al-quest', (t === 'quest' || t === 'quest2') && !de.classList.contains('desktop-pet'));
   de.classList.toggle('al-scribble', t === 'scribble' && !de.classList.contains('desktop-pet'));
   de.classList.toggle('al-osrs', t === 'osrs' && !de.classList.contains('desktop-pet'));
+  de.classList.toggle('al-bonfire', t === 'bonfire' && !de.classList.contains('desktop-pet'));
   de.classList.toggle('al-quest2', t === 'quest2' && !de.classList.contains('desktop-pet'));   // (its alert cards get the Quest2 look; the bubble stays Quest's)   // its bubbles and alerts use the Quest look too
   setTimeout(function () { if (typeof refreshStickers === 'function') refreshStickers(); }, 50);   // the list's stickers are drawn in the new colours
 }

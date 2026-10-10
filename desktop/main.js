@@ -36,7 +36,7 @@ function start() {
   if (prefs.chat === false) { prefs.chatNormal = 'off'; prefs.chatFull = 'off'; }   // the old on/off switch for his comments
   delete prefs.chat;
   if (prefs.alertStyle === 'quest') prefs.alertStyle = 'quest2';   // the original Quest was replaced by Quest2 (shown as "Quest")
-  if (!['paper', 'night', 'sweet', 'cool', 'quest', 'quest2', 'osrs', 'scribble', 'classic'].includes(prefs.alertStyle)) prefs.alertStyle = 'paper';
+  if (!['paper', 'night', 'sweet', 'cool', 'quest', 'quest2', 'osrs', 'bonfire', 'scribble', 'classic'].includes(prefs.alertStyle)) prefs.alertStyle = 'paper';
   prefs.chatNormal = privacy.cleanChat(prefs.chatNormal, 'normal'); prefs.chatFull = privacy.cleanChat(prefs.chatFull, 'normal');
   prefs.talkNormal = privacy.cleanChat(prefs.talkNormal, 'normal'); prefs.talkFull = privacy.cleanChat(prefs.talkFull, 'rare');
   // the old switches (wander, nap, stand still) became two movement choices
@@ -349,7 +349,7 @@ function start() {
       prefs[key] = privacy.cleanChat(value, prefs[key]); savePrefs(); sendPrefs();
       return;
     }
-    if (key === 'alertStyle') { if (['paper', 'night', 'sweet', 'cool', 'quest', 'quest2', 'osrs', 'scribble', 'classic'].includes(value)) { prefs.alertStyle = value; savePrefs(); sendPrefs(); } return; }
+    if (key === 'alertStyle') { if (['paper', 'night', 'sweet', 'cool', 'quest', 'quest2', 'osrs', 'bonfire', 'scribble', 'classic'].includes(value)) { prefs.alertStyle = value; savePrefs(); sendPrefs(); } return; }
     if (key === 'moveNormal' || key === 'moveFull') { prefs[key] = privacy.cleanMove(value, prefs[key]); savePrefs(); sendPrefs(); return; }
     if (key === 'size') { if (['small', 'normal', 'large'].includes(value)) setSize(value); return; }
     if (!BOOLS.includes(key)) return;

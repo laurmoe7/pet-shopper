@@ -2,6 +2,15 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 551
+- Bonfire: Profile cards darker
+
+## Build 550
+- Bonfire: dark dressing-room stage, Profile cards, ember switches
+
+## Build 549
+- New look: Bonfire (App settings > Appearance, and a Mini Fumu alert style)
+
 ## Build 548
 - Dizzy face while standing: he wobbles about a little
 
