@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 547
+- Mini Fumu: loading card stays until fully loaded, no brown behind it
+
 ## Build 546
 - New dragon skin: Red dragon
 

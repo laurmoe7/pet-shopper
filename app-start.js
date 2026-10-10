@@ -33,21 +33,31 @@ else setTimeout(function () { dueNag(); }, 3800);   // then it mentions anything
 state.lastOpen = Date.now();
 save();
 
-if ('serviceWorker' in navigator && location.protocol === 'https:') {
-  // a new build takes over as soon as it is installed; reload once so the page runs the new code too
-  var hadWorker = !!navigator.serviceWorker.controller, reloaded = false;
-  navigator.serviceWorker.addEventListener('controllerchange', function () {
-    if (!hadWorker || reloaded) { hadWorker = true; return; }
-    reloaded = true;
-    location.reload();
-  });
-  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () { /* not available here */ });
-}
-
-// the app is built: the loading card fades out and the page shows (index.html)
-(function () {
+// the app is built: the loading card fades out and the page shows (index.html). It waits until the service worker has settled: when a newer build
+// is installing, the page reloads itself once it takes over, and the card stays up through that instead of showing the app and then loading again
+var bootRevealed = false, bootTimer = 0;
+function revealApp() {
+  if (bootRevealed) return;
+  bootRevealed = true; clearTimeout(bootTimer);
   var boot = document.getElementById('boot');
   if (boot) boot.classList.add('out');
   document.documentElement.classList.remove('booting');
   setTimeout(function () { if (boot && boot.parentNode) boot.parentNode.removeChild(boot); }, 500);
-})();
+}
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  // a new build takes over as soon as it is installed; reload once so the page runs the new code too
+  var hadWorker = !!navigator.serviceWorker.controller, reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function () {
+    if (!hadWorker || reloaded) { hadWorker = true; revealApp(); return; }   // (the first install: nothing to reload)
+    reloaded = true;
+    location.reload();   // (the loading card stays up until the new page has started)
+  });
+  bootTimer = setTimeout(revealApp, 4000);   // never wait long for the network
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (reg) {
+    function waitForTakeover() { clearTimeout(bootTimer); bootTimer = setTimeout(revealApp, 8000); }   // a newer build is on its way: wait for it
+    if (reg.installing || reg.waiting) waitForTakeover(); else revealApp();
+    reg.addEventListener('updatefound', function () { if (!bootRevealed) waitForTakeover(); });
+  }).catch(function () { revealApp(); /* not available here */ });
+} else {
+  revealApp();
+}

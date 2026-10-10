@@ -33,8 +33,10 @@ html.booting .app{visibility:hidden}
 @keyframes bootDot{0%,100%{transform:translateY(0);opacity:.5}40%{transform:translateY(-5px);opacity:1}}
 @media (prefers-color-scheme:dark){#boot .card{background:#2b2326;color:#f3dfe3;border-color:#5a4249}#boot .blob{background:#d9d3d0;border-color:#f3dfe3}}
 @media (prefers-reduced-motion:reduce){#boot *{animation-duration:3s!important}}
+/* in the Windows app the window is see-through: the page's own brown must not show behind the card while it loads */
+html.desk-boot.booting,html.desk-boot.booting body{background:transparent!important}
 </style>
-<script>document.documentElement.classList.add('booting');setTimeout(function(){document.documentElement.classList.remove('booting')},10000)</script>
+<script>document.documentElement.classList.add('booting');if(window.nibbleDesktop)document.documentElement.classList.add('desk-boot');setTimeout(function(){document.documentElement.classList.remove('booting')},10000)</script>
 </head>
 <body>
 <div id="boot" aria-hidden="true"><div class="card"><div class="blob"></div><div class="shadow"></div><div>Fumufumu</div><small>Loading <span class="dots"><i></i><i></i><i></i></span></small></div></div>
