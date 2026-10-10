@@ -24,7 +24,7 @@ function animCatalogue() {
   BODY_MOVES.forEach(function (m) { add('Body moves', m[0], function () { pulse(m[0], m[1]); return m[1]; }); });
   add('Body moves', 'morning exercise', morningExercise);
   Object.keys(SQUISH).forEach(function (k) {
-    if (!BODY_MOVES.some(function (m) { return m[0] === k; })) add('Body moves', k + ' (squash only)', function () { svgSquish(SQUISH[k]); return SQUISH[k].ms; });
+    if (k !== 'exercise' && !BODY_MOVES.some(function (m) { return m[0] === k; })) add('Body moves', k + ' (squash only)', function () { svgSquish(SQUISH[k]); return SQUISH[k].ms; });
   });
   Object.keys(FACES).forEach(function (k) { add('Faces', k, function () { setFace(FACES[k]); return 2600; }); });
   ANIM_ARMS.forEach(function (a) { add('Arms', a, function () { setFace({ eyes: 'open', mouth: 'smile', arms: a, x: [] }); return 2600; }); });

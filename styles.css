@@ -3081,13 +3081,14 @@ html.desktop-pet .night-btn { display: none !important; }   /* in the small wind
 /* morning exercise (build 5xx): radio-calisthenics: arm swings with side bends, jumping jacks, squats, a big reach and a bow (arms are set by morningExercise in app-idle.js, in step with these times) */
 @keyframes exercise {
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  4% { transform: translateY(-5px); } 8% { transform: translateY(0); }
-  12% { transform: rotate(-9deg); } 20% { transform: rotate(9deg); } 28% { transform: rotate(-9deg); } 34% { transform: rotate(0deg); }
-  38% { transform: translateY(-9px); } 42% { transform: translateY(0); } 46% { transform: translateY(-9px); } 50% { transform: translateY(0); } 54% { transform: translateY(-9px); } 58% { transform: translateY(0); }
-  63% { transform: translateY(5px); } 68% { transform: translateY(0); } 73% { transform: translateY(5px); } 78% { transform: translateY(0); }
-  84% { transform: translateY(-4px); } 88% { transform: translateY(0); }
-  94% { transform: rotate(10deg) translateY(2px); } 97% { transform: rotate(0deg); }
+  3% { transform: translateY(3px); } 5% { transform: translateY(-14px); } 8% { transform: translateY(0); }
+  12% { transform: translateX(-12px) rotate(-20deg); } 16% { transform: translateX(0) rotate(0deg); } 20% { transform: translateX(12px) rotate(20deg); } 24% { transform: translateX(0) rotate(0deg); } 28% { transform: translateX(-12px) rotate(-20deg); } 34% { transform: translateX(0) rotate(0deg); }
+  36% { transform: translateY(3px); } 38% { transform: translateY(-28px); } 42% { transform: translateY(0); } 44% { transform: translateY(3px); } 46% { transform: translateY(-28px); } 50% { transform: translateY(0); } 52% { transform: translateY(3px); } 54% { transform: translateY(-28px); } 58% { transform: translateY(0); }
+  63% { transform: translateY(8px); } 68% { transform: translateY(-4px); } 73% { transform: translateY(8px); } 78% { transform: translateY(-4px); } 80% { transform: translateY(0); }
+  84% { transform: translateY(-14px) rotate(-4deg); } 88% { transform: translateY(0) rotate(4deg); } 90% { transform: rotate(0deg); }
+  94% { transform: rotate(24deg) translate(8px, 5px); } 97% { transform: rotate(0deg); }
 }
+.pet.exercise :is(.ear-l, .ear-r) { animation: ear-jiggle-l .5s ease-out 12; }
 .pet.exercise .pet-svg { animation: exercise 6s ease-in-out; transform-origin: 50% 94%; }
 @media (prefers-reduced-motion: reduce) { .pet.exercise .pet-svg { animation: none; } }
 

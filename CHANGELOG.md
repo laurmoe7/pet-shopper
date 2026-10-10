@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 527
+- Morning exercise: bigger squishes and moves
+
 ## Build 526
 - New dance: morning exercise (animation player)
 
