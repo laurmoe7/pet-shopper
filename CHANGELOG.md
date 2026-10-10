@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 570
+- Mini Fumu's Dark is the classic dark look again (the plum Night colours are gone)
+
 ## Build 569
 - New idle dance: the chorus dance (sway, shimmy, arms up)
 
