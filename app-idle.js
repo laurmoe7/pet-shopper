@@ -393,17 +393,37 @@ function softSettle() {
 // Everything here only slides or fades the pet (no squashing or tilting, which left a seam on her phone),
 // and every hop has a landing and a shadow, so it looks like it moves on the floor, not in the air.
 var livelyTimer;
-/** Morning exercise: a 10 s routine in five steps. 1: right arm + left leg, then left arm + right leg; 2: two steps left with the arms circling;
+/** Morning exercise: a 10 s routine in five steps. 1: right arm + left leg, then left arm + right leg; 2: two steps left, two steps right, with the arms circling;
  * 3: squished down, touching toes; 4: squished down, shaking his bottom; 5: arms high. The body, arms and feet are the `exercise` CSS
  * (styles.css) and SQUISH.exercise; this sets the face and the lines for each step. */
+var exerciseTimers = [];
 function morningExercise() {
-  var lines = [[0, 'ichi, ni, ichi, ni!'], [2500, 'left, left~'], [4500, 'touch your toes!'], [6500, 'wiggle wiggle~'], [8500, 'yaaay!']];
+  stopExercise();
+  var lines = [[0, 'ichi, ni, ichi, ni!'], [2500, 'left, left~'], [3400, 'right, right~'], [4500, 'touch your toes!'], [6500, 'wiggle wiggle~'], [8500, 'yaaay!']];
+  function later(fn, ms) { exerciseTimers.push(setTimeout(fn, ms)); }
   setFace({ eyes: 'happy', mouth: 'open', arms: 'rest', x: ['cheeks'] });
   pulse('exercise', 10000);
-  lines.forEach(function (l) { setTimeout(function () { if (pet.classList.contains('exercise')) say(l[1], 1700, true); }, l[0]); });
-  setTimeout(function () { if (pet.classList.contains('exercise')) setFace({ eyes: 'sparkle', mouth: 'open', arms: 'rest', x: ['cheeks', 'sparkles'] }); }, 8400);
-  setTimeout(function () { settle(); }, 10000);
+  lines.forEach(function (l) { later(function () { say(l[1], 1700, true); }, l[0]); });
+  later(function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'rest', x: ['cheeks', 'sparkles'] }); }, 8400);
+  later(function () { exerciseTimers = []; settle(); }, 10000);
   return 10000;
+}
+/** Stops the morning exercise where he is (any tap or key does this): the squish ends and he goes back to his resting face. */
+function stopExercise() {
+  if (!exerciseTimers.length) return;
+  exerciseTimers.forEach(clearTimeout); exerciseTimers = [];
+  pet.classList.remove('exercise');
+  squishRun++; squishing = false; drawBody(1, 1, 0);
+  settle();
+}
+document.addEventListener('pointerdown', stopExercise, true);
+document.addEventListener('keydown', stopExercise, true);
+/** Opening the app (or Mini Fumu) before noon, awake in the day on the shopping list: he does the morning exercise once. */
+function morningStart() {
+  var now = petNow();
+  if (reduceMotion || busy || document.hidden || isTodo() || L.isNight(now) || now.getHours() >= 12) return;
+  if (baseState() === 'sleepy' || (typeof inBed === 'function' && inBed()) || pet.classList.contains('walking')) return;
+  morningExercise();
 }
 
 /** @returns {{x: number, y: number}} A point just above the pet's head. */

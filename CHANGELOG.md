@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 530
+- Morning exercise plays when you open the app or Mini Fumu before noon; a tap or key stops it
+
+## Build 529
+- Morning exercise: right arm now lifts, steps right after left, gentler squish, arms reach down to toes
+
 ## Build 528
 - Morning exercise redone: arm and leg lifts, steps left with arm circles, toe touches, bottom shake, arms high
 
