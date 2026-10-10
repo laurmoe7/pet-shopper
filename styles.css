@@ -3704,8 +3704,13 @@ html:root[data-skin="quest"][data-quest="osrs"] .option input:checked { backgrou
 @keyframes bs-foot-l { 0% { transform: translate(0, 0); } 27.78% { transform: translate(0, 0); } 40.28% { transform: translate(0, -2.6px); } 52.78% { transform: translate(0, 0); } 65.28% { transform: translate(0, -2.6px); } 77.78% { transform: translate(0, 0); } 90.28% { transform: translate(0, -2.6px); } 100% { transform: translate(0, 0); } }
 @keyframes bs-foot-r { 0% { transform: translate(0, 0); } 27.78% { transform: translate(0, -2.6px); } 40.28% { transform: translate(0, 0); } 52.78% { transform: translate(0, -2.6px); } 65.28% { transform: translate(0, 0); } 77.78% { transform: translate(0, -2.6px); } 90.28% { transform: translate(0, 0); } 100% { transform: translate(0, 0); } }
 .pet.bellysway .pet-svg { animation: bellysway 3.6s ease-in-out; transform-origin: 50% 94%; }
-.pet.bellysway .arm-l { animation: bs-arm-l 3.6s ease-in-out; }
-.pet.bellysway .arm-r { animation: bs-arm-r 3.6s ease-in-out; }
+@keyframes bs-grow-l { 0% { scale: 1; } 27.78% { scale: 1; } 40.28% { scale: 1.7; } 52.78% { scale: 1; } 65.28% { scale: 1.7; } 77.78% { scale: 1; } 90.28% { scale: 1.7; } 100% { scale: 1; } }
+@keyframes bs-grow-r { 0% { scale: 1; } 27.78% { scale: 1.7; } 40.28% { scale: 1; } 52.78% { scale: 1.7; } 65.28% { scale: 1; } 77.78% { scale: 1.7; } 90.28% { scale: 1; } 100% { scale: 1; } }
+/* the held-out hand grows, as if it comes towards you, and shows its palm (toe beans); bs-out-l / bs-out-r are set for those moments by bellySway */
+.pet.bellysway .arm-l { animation: bs-arm-l 3.6s ease-in-out, bs-grow-l 3.6s ease-in-out; }
+.pet.bellysway .arm-r { animation: bs-arm-r 3.6s ease-in-out, bs-grow-r 3.6s ease-in-out; }
+.pet.bs-out-l .arm-l .paw-beans, .pet.bs-out-r .arm-r .paw-beans { display: inline; }
+.pet.bs-out-l .arm-l .paw-toe-lines, .pet.bs-out-r .arm-r .paw-toe-lines { display: none; }
 .pet.bellysway:not(#x) :is(.foot-l, .shoe-l) { animation: bs-foot-l 3.6s ease-in-out; }
 .pet.bellysway:not(#x) :is(.foot-r, .shoe-r) { animation: bs-foot-r 3.6s ease-in-out; }
 .pet.bellysway :is(.ear-l, .ear-r) { animation: ear-jiggle-l .9s ease-out 4; }

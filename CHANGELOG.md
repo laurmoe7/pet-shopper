@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 534
+- Belly sway: the held-out hand grows toward you and shows its toe beans
+
 ## Build 533
 - New idle dance: belly sway
 

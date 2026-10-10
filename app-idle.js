@@ -447,6 +447,12 @@ function bellySway() {
   pulse('bellysway', 3600);
   setTimeout(function () { if (pet.classList.contains('bellysway')) setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); }, 300);
   setTimeout(function () { if (pet.classList.contains('bellysway')) setFace({ eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); }, 800);
+  // the held-out hand (it swaps each sway) shows its palm for a moment: left on the 2nd, 4th and 6th sway, right on the 1st, 3rd and 5th
+  [[1000, 'r'], [1450, 'l'], [1900, 'r'], [2350, 'l'], [2800, 'r'], [3250, 'l']].forEach(function (w) {
+    setTimeout(function () { pet.classList.add('bs-out-' + w[1]); }, w[0] - 280);
+    setTimeout(function () { pet.classList.remove('bs-out-' + w[1]); }, w[0] + 280);
+  });
+  setTimeout(function () { pet.classList.remove('bs-out-l', 'bs-out-r'); }, 3600);
   hum();
   return 3600;
 }
