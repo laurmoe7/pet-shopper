@@ -4109,3 +4109,9 @@ html:root[data-skin="quest"][data-quest="bonfire"] .dock :is(button[aria-current
 html:root[data-skin="quest"][data-quest="bonfire"] .dock :is(button[aria-current="page"], button.on) .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#dressSheet[open]) .dock #dressBtn .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#roomSheet[open]) .dock #roomBtn .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#shopSheet[open]) .dock #shopBtn .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#calSheet[open]) .dock #calBtn .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#profileSheet[open]) .dock #profileBtn .dock-label { color: #f0eada; text-shadow: 0 0 8px rgba(225, 218, 190, .5); }
 html:root[data-skin="quest"][data-quest="bonfire"] .dock #profileBtn .dock-icon { rotate: 0deg !important; transform: none !important; }
 html:root[data-skin="quest"][data-quest="bonfire"] .dress-fx { filter: saturate(.5) brightness(.75) contrast(1.05); }
+
+/* the tabs take the place of the title words (the title stays in the page for the code that uses it) */
+html:not(.desktop-pet) .brand { display: none; }
+html:not(.desktop-pet) .list-tabs { margin: 0; }
+html:not(.desktop-pet) .scene-bar { justify-content: space-between; }
+html:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { background: transparent; border: 0; box-shadow: none; padding-left: 0; padding-right: 0; }
