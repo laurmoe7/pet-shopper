@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 528
+- Morning exercise redone: arm and leg lifts, steps left with arm circles, toe touches, bottom shake, arms high
+
 ## Build 527
 - Morning exercise: bigger squishes and moves
 
