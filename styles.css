@@ -4115,3 +4115,69 @@ html:not(.desktop-pet) .brand { display: none; }
 html:not(.desktop-pet) .list-tabs { margin: 0; }
 html:not(.desktop-pet) .scene-bar { justify-content: space-between; }
 html:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { background: transparent; border: 0; box-shadow: none; padding-left: 0; padding-right: 0; }
+
+/* ---------- Scribbling, calmer (build 565) ----------
+   It was too busy: every row a different strong colour and tilt, thick dark outlines on everything, striped crayon grain, dashed cards, wavy underlines, doodles
+   and big colour blobs behind. Now: soft pastel crayons, thin soft-ink outlines, flat fills, straight rows, one small splash of colour per thing, a faint
+   dotted notebook page. */
+html:root[data-skin="scribble"] {
+  --cr-red: #f58a8a; --cr-orange: #f7b878; --cr-yellow: #fadf86; --cr-green: #9bd8a8; --cr-blue: #8bb9f2; --cr-purple: #bba6f0; --cr-pink: #f7b0d3;
+  --cr-ink: #3f3858; --cr-line: #6e6590; --cr-grain: linear-gradient(transparent, transparent);
+  --cr-doodles: linear-gradient(transparent, transparent);
+  --cr-edge: 0 2px 0 rgba(63, 56, 88, .16);
+  --hl: #f58a8a; --badge: #f58a8a; --accent: #f58a8a; --line: #6e6590; --outline: #6e6590; --cb-edge: #6e6590; --cb-edge-strong: #6e6590;
+}
+html:root[data-skin="scribble"] body { background: radial-gradient(circle, rgba(110, 101, 144, .16) 1.1px, transparent 1.6px) 0 0 / 22px 22px, #fff9ec; }
+/* rows and cards: cream paper, one thin outline, a coloured edge down the left only */
+html:root[data-skin="scribble"] :is(.add, .item, .goal, .fav, .options, .picker .closet-wear) {
+  border: 2px solid var(--cr-line); border-left: 8px solid var(--rc, var(--cr-blue)); border-radius: 14px 18px 16px 18px / 18px 14px 18px 14px; background: #fffdf6; box-shadow: var(--cr-edge); rotate: 0deg;
+}
+html:root[data-skin="scribble"] .item { rotate: 0deg !important; box-shadow: var(--cr-edge); }
+html:root[data-skin="scribble"] .item.done { background: #f6f1e4; border-style: solid; border-color: #b4acc8; border-left-color: #cfc8de; }
+html:root[data-skin="scribble"] .item.done .item-text { color: #9d95b4; text-decoration-color: var(--cr-red); text-decoration-thickness: 2px; }
+html:root[data-skin="scribble"] .check::before { border: 2.5px solid var(--cr-line); }
+html:root[data-skin="scribble"] .item.done .check::before { background-color: var(--rc, var(--cr-green)); border-color: var(--cr-line); }
+html:root[data-skin="scribble"] :is(.qty-tag, .due-tag) { border: 1.5px solid var(--cr-line); background: #fffdf6; }
+/* buttons: flat pastel fill, thin outline, a small flat shadow */
+html:root[data-skin="scribble"] :is(.pill-btn, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .dress-tabs button, .cal-add-btn, .recipe-btn, .mic-btn, .add-btn, .name-edit, .gear-btn, .dock-icon, .list-tab) {
+  border: 2px solid var(--cr-line); box-shadow: var(--cr-edge); background-image: none;
+}
+html:root[data-skin="scribble"] :is(.pill-btn, .dress-tabs button, .recipe-btn, .mic-btn, .add-btn, .name-edit):hover { animation: none; translate: 0 -1px; }
+html:root[data-skin="scribble"] .add-btn { background: var(--cr-red); color: #fff; text-shadow: 0 1px 0 rgba(63, 56, 88, .35); }
+html:root[data-skin="scribble"] .name-edit { background: var(--cr-blue); }
+html:root[data-skin="scribble"] .gear-btn { background: var(--cr-yellow); }
+html:root[data-skin="scribble"] .mic-btn, html:root[data-skin="scribble"] .recipe-btn { background-color: var(--cr-yellow); }
+html:root[data-skin="scribble"] :is(.picker-grid button, .picker .hat-strip button, .picker .species-grid button) { background: #fffdf6; border-style: solid; }
+html:root[data-skin="scribble"] .picker .species-grid button::before, html:root[data-skin="scribble"] .picker .hat-strip button::before { display: none; }
+/* picked: just the crayon colour filling in, one outline */
+html:root[data-skin="scribble"] :is(.pill-btn[aria-pressed="true"], .dress-tabs button[aria-selected="true"], .picker [aria-pressed="true"]:is(button), .list-tab[aria-selected="true"]) { box-shadow: var(--cr-edge); border-color: var(--cr-line); }
+html:root[data-skin="scribble"] :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button)[aria-pressed="true"] { background: #ffe9e9; border-color: var(--cr-red); border-width: 3px; }
+html:root[data-skin="scribble"] .dress-tabs button[aria-selected="true"] { background-color: var(--cr-yellow); }
+html:root[data-skin="scribble"] .list-tabs { border: 2px solid var(--cr-line); background: #fffdf6; }
+html:root[data-skin="scribble"] .list-tab { background: transparent; border-color: transparent; box-shadow: none; color: #7d7396; }
+html:root[data-skin="scribble"] .list-tab[aria-selected="true"] { background: var(--cr-red); border-color: var(--cr-line); color: #fff; box-shadow: var(--cr-edge); }
+html:root[data-skin="scribble"] .list-tab + .list-tab[aria-selected="true"] { background: var(--cr-blue); }
+/* panels and fields */
+html:root[data-skin="scribble"] .picker { border: 3px solid var(--cr-blue); border-bottom: 0; box-shadow: 0 -4px 14px rgba(63, 56, 88, .14); }
+html:root[data-skin="scribble"] :is(.name-show, .dress-search, .cal-month select, .cal-add input) { border: 2px solid var(--cr-line); }
+html:root[data-skin="scribble"] .add { --rc: var(--cr-pink); }
+html:root[data-skin="scribble"] .dock { border-top: 2px solid var(--cr-line); box-shadow: 0 -3px 10px rgba(63, 56, 88, .1); }
+html:root[data-skin="scribble"] .dock-icon { background-image: none; }
+html:root[data-skin="scribble"] .dock-label { font-size: .82rem; }
+/* titles and labels: no wavy underlines, a small dot-dash rule instead */
+html:root[data-skin="scribble"] .brand { text-decoration: none; }
+html:root[data-skin="scribble"] .items .aisle { text-decoration: none; color: #6e6590; letter-spacing: .06em; text-transform: uppercase; font-size: .82rem; }
+html:root[data-skin="scribble"] .items .aisle::after { display: block; border-top: 2px dotted #bdb4d6; }
+html:root[data-skin="scribble"] .picker h2 { rotate: 0deg; background: linear-gradient(180deg, transparent 58%, var(--cr-yellow) 58% 90%, transparent 90%); }
+html:root[data-skin="scribble"] :is(.field-label, .picker legend) { background: none; }
+/* the room: a thinner frame, no heavy shadow */
+html:root[data-skin="scribble"] .backdrop { border: 3px solid var(--cr-green); box-shadow: var(--cr-edge); }
+html:root[data-skin="scribble"] .dress-stage { border-color: var(--cr-line); }
+html:root[data-skin="scribble"] .cal-sheet .cal-cell { border-width: 2px; border-color: #c9c0e0; }
+html:root[data-skin="scribble"] .cal-sheet .cal-cell:is(.today, .sel) { background: var(--cr-yellow); border: 2px solid var(--cr-red); }
+html:root[data-skin="scribble"] .picker :is(.species-grid, .hat-strip, .picker-grid) button:not([aria-pressed="true"])::after { display: none; }
+html:root[data-skin="scribble"] .picker :is(.species-grid, .hat-strip) button { outline: none; }
+html:root[data-skin="scribble"] .dress-tabs button { --bc: var(--cr-yellow); }
+html:root[data-skin="scribble"] .dress-tabs button:nth-child(6n+1) { --bc: var(--cr-yellow); } html:root[data-skin="scribble"] .dress-tabs button:nth-child(6n+2) { --bc: var(--cr-pink); } html:root[data-skin="scribble"] .dress-tabs button:nth-child(6n+3) { --bc: var(--cr-green); } html:root[data-skin="scribble"] .dress-tabs button:nth-child(6n+4) { --bc: var(--cr-blue); } html:root[data-skin="scribble"] .dress-tabs button:nth-child(6n+5) { --bc: var(--cr-orange); } html:root[data-skin="scribble"] .dress-tabs button:nth-child(6n) { --bc: var(--cr-purple); }
+html:root[data-skin="scribble"] .dress-tabs button { background-color: var(--bc); opacity: .85; }
+html:root[data-skin="scribble"] .dress-tabs button[aria-selected="true"] { opacity: 1; background-color: var(--bc); border-width: 3px; }
