@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 555
+- Bonfire cards: icon on a bronze pedestal, no overlapping corner lines
+
 ## Build 554
 - Bonfire: square gold close button on cards, flickering flame, gold tick, ember focus rings
 
