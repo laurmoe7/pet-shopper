@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 545
+- Quest2 replaces the original Quest and is now called Quest
+
 ## Build 544
 - Hand dance: smoother hand coming down
 

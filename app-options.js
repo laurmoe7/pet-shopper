@@ -5,11 +5,12 @@
 // ---------- options ----------
 $('buildLabel').textContent = 'Build ' + BUILD;
 /* Appearance (light or dark): Auto follows the phone. Kept on this device only (not in the pet's saved data). */
-var THEMES = [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Classic'], ['quest', 'Quest'], ['quest2', 'Quest2'], ['osrs', 'Old School'], ['scribble', 'Scribbling']];
+var THEMES = [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Classic'], ['quest2', 'Quest'], ['osrs', 'Old School'], ['scribble', 'Scribbling']];
 function applyTheme(t) {
   var de = document.documentElement;
+  if (t === 'quest') t = 'quest2';   // the original Quest was replaced by Quest2 (build 544, shown as "Quest"): a saved choice of the old one becomes the new one
   // Quest is a dark look with its own skin on top (data-skin), so everything that reads "dark" keeps working
-  // Quest 2 is Quest with a second layer of rules on top (data-quest="slots": dark stone panels, bevelled bronze frames, inventory-slot rows); Quest itself is untouched
+  // Quest (id quest2) is the base Quest rules with a second layer on top (data-quest="slots": dark stone panels, bevelled bronze frames, inventory-slot rows); the plain base look is no longer offered, but Old School is built on it too, so its rules stay
   // Old School is Quest plus data-quest="osrs" (flat brown stone, yellow lettering); its speech is the game's overhead text (al-osrs, not al-quest)
   if (t === 'quest' || t === 'quest2' || t === 'osrs') { de.dataset.theme = 'dark'; de.dataset.skin = 'quest'; if (t === 'quest2') de.dataset.quest = 'slots'; else if (t === 'osrs') de.dataset.quest = 'osrs'; else delete de.dataset.quest; }
   else if (t === 'scribble') { de.dataset.theme = 'light'; de.dataset.skin = 'scribble'; delete de.dataset.quest; }   // (colourful crayon on paper: a light look with its own skin)

@@ -220,7 +220,7 @@
     root.classList.toggle('desk-noclouds', deskPrefs.clouds === false);
     // the look of alert cards and speech bubbles: the small pet uses the style chosen in the settings window; the whole app always has the
     // Classic look, which follows its own Light or Dark appearance
-    var style = root.classList.contains('desktop-pet') ? (deskPrefs.alertStyle || 'paper') : (root.dataset.skin === 'scribble' ? 'scribble' : root.dataset.skin === 'quest' ? (root.dataset.quest === 'slots' ? 'quest2' : root.dataset.quest === 'osrs' ? 'osrs' : 'quest') : 'classic');   // (the whole app: Classic, or Quest / Quest2 when that is its appearance)
+    var style = root.classList.contains('desktop-pet') ? (deskPrefs.alertStyle === 'quest' ? 'quest2' : deskPrefs.alertStyle || 'paper') : (root.dataset.skin === 'scribble' ? 'scribble' : root.dataset.skin === 'quest' ? (root.dataset.quest === 'slots' ? 'quest2' : root.dataset.quest === 'osrs' ? 'osrs' : 'quest') : 'classic');   // (the whole app: Classic, or Quest / Quest2 when that is its appearance)
     // Quest2 wears Quest's classes too, so its speech bubble stays exactly Quest's; al-quest2 only restyles the cards and the ring on top
     var want = style === 'classic' ? [] : ({ night: ['al-night'], sweet: ['al-sweet'], cool: ['al-cool'], quest: ['al-quest'], quest2: ['al-quest', 'al-quest2'], osrs: ['al-osrs'], scribble: ['al-scribble'] }[style] || ['al-paper']);
     var ALL = ['al-paper', 'al-night', 'al-sweet', 'al-cool', 'al-quest', 'al-quest2', 'al-osrs', 'al-scribble'];

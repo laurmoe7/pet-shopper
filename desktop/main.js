@@ -35,6 +35,7 @@ function start() {
   prefs.petName = typeof prefs.petName === 'string' && prefs.petName.trim() ? prefs.petName.trim().slice(0, 16) : 'Fumu';
   if (prefs.chat === false) { prefs.chatNormal = 'off'; prefs.chatFull = 'off'; }   // the old on/off switch for his comments
   delete prefs.chat;
+  if (prefs.alertStyle === 'quest') prefs.alertStyle = 'quest2';   // the original Quest was replaced by Quest2 (shown as "Quest")
   if (!['paper', 'night', 'sweet', 'cool', 'quest', 'quest2', 'osrs', 'scribble', 'classic'].includes(prefs.alertStyle)) prefs.alertStyle = 'paper';
   prefs.chatNormal = privacy.cleanChat(prefs.chatNormal, 'normal'); prefs.chatFull = privacy.cleanChat(prefs.chatFull, 'normal');
   prefs.talkNormal = privacy.cleanChat(prefs.talkNormal, 'normal'); prefs.talkFull = privacy.cleanChat(prefs.talkFull, 'rare');

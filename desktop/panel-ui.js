@@ -21,7 +21,7 @@
   function act(name, arg) { return function () { P.action(name, arg); }; }
 
   function render() {
-    document.documentElement.dataset.look = S.prefs.alertStyle || 'paper';   // the window wears the chosen look (panel.html)
+    document.documentElement.dataset.look = S.prefs.alertStyle === 'quest' ? 'quest2' : (S.prefs.alertStyle || 'paper');   // the window wears the chosen look (panel.html)
     root.textContent = '';
     document.getElementById('ver').textContent = (S.packaged ? '' : 'running from source · ') + (S.channel === 'stable' ? 'stable channel' : 'dev channel');
     // friends use the stable channel: updating is a normal part of settings for them (for the dev channel it stays in the developer tools)
@@ -78,7 +78,7 @@
     sizeRow.appendChild(seg); look.appendChild(sizeRow);
     var alertRow = el('div', 'row stack'); alertRow.appendChild(el('span', 'text', 'Alert style'));
     var alertSeg = el('span', 'seg wrap');
-    [['paper', 'Paper'], ['night', 'Night'], ['sweet', 'Sweet'], ['cool', 'Cool'], ['quest', 'Quest'], ['quest2', 'Quest2'], ['osrs', 'Old School'], ['scribble', 'Scribbling'], ['classic', 'Classic']].forEach(function (o) { var b = button(alertSeg, o[1], function () { P.set('alertStyle', o[0]).then(take); }); if ((S.prefs.alertStyle || 'paper') === o[0]) b.className = 'on'; });
+    [['paper', 'Paper'], ['night', 'Night'], ['sweet', 'Sweet'], ['cool', 'Cool'], ['quest2', 'Quest'], ['osrs', 'Old School'], ['scribble', 'Scribbling'], ['classic', 'Classic']].forEach(function (o) { var b = button(alertSeg, o[1], function () { P.set('alertStyle', o[0]).then(take); }); if ((S.prefs.alertStyle || 'paper') === o[0]) b.className = 'on'; });
     alertRow.appendChild(alertSeg); look.appendChild(alertRow);
     toggle(look, 'Speech bubbles', 'bubbles', 'In the small window. Alerts still show.');
     toggle(look, 'Thought bubbles', 'clouds', 'Daydreams and wishes.');
