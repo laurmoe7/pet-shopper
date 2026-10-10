@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 533
+- New idle dance: belly sway
+
 ## Build 532
 - Morning exercise: hands reach to the toes, bigger bottom shake, says one two
 

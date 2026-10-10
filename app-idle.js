@@ -282,6 +282,7 @@ var IDLE_MOVES = [
   // little dances
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('shuffle', 1500); hum(); } },
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'reach', x: ['sparkles', 'cheeks'] }); pulse('boogie', 1500); hum(); } },
+  { moods: ['curious', 'happy'], run: function () { return bellySway(); } },
   { moods: ['sleepy', 'stuffed'], run: function () { pulse('wiggle', 900); } },
   { moods: ['stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); } },
   // daytime things to do
@@ -437,6 +438,17 @@ function morningStart(onDone) {
   if (busy || document.hidden || !morningOk()) return false;
   morningExercise(onDone);
   return true;
+}
+
+/** Belly sway: an idle dance (3.6 s). A quick tilt with a hand raised by his cheek and his eyes closed, then swaying side to side with a hand on his belly.
+ * The body, arms and feet are the `bellysway` CSS (styles.css); this sets the face. */
+function bellySway() {
+  setFace({ eyes: 'open', mouth: 'smile', arms: 'rest', x: ['cheeks'] });
+  pulse('bellysway', 3600);
+  setTimeout(function () { if (pet.classList.contains('bellysway')) setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); }, 300);
+  setTimeout(function () { if (pet.classList.contains('bellysway')) setFace({ eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); }, 800);
+  hum();
+  return 3600;
 }
 
 /** @returns {{x: number, y: number}} A point just above the pet's head. */
