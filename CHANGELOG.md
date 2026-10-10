@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 556
+- Bonfire: pedestal on the reminder and update card icons
+
 ## Build 555
 - Bonfire cards: icon on a bronze pedestal, no overlapping corner lines
 

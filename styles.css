@@ -3964,3 +3964,17 @@ html.al-bonfire img.inbox-icon {
     radial-gradient(circle at 50% 52%, rgba(217, 130, 43, .2), transparent 66%);
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .6));
 }
+
+/* Bonfire: the reminder card's icon rings by shaking sideways (a tilt would slant its pedestal), and the update card's empty first slot gets a package on a pedestal */
+@keyframes bf-alarm { 0%, 60%, 100% { translate: 0 0; } 66% { translate: -2px 0; } 72% { translate: 2px 0; } 78% { translate: -2px 0; } 84% { translate: 2px 0; } 90% { translate: -1px 0; } }
+html.al-bonfire .remind-card .inbox-icon { rotate: 0deg; transform: none; animation: bf-alarm 2.8s ease-in-out .6s infinite; transform-origin: 50% 50%; }
+@media (prefers-reduced-motion: reduce) { html.al-bonfire .remind-card .inbox-icon { animation: none; } }
+html.al-bonfire .update-card > span:first-child {
+  display: block; width: 46px; height: 48px; margin: 0;
+  background:
+    url("emoji/1F4E6.svg") 50% 4px / 28px 28px no-repeat,
+    radial-gradient(ellipse 19px 5.5px at 50% calc(100% - 8px), #e2bd72 0, #a98446 48%, #5a4522 90%, transparent 100%) no-repeat,
+    radial-gradient(ellipse 20px 6px at 50% calc(100% - 5px), #2a2010 0 88%, transparent 100%) no-repeat,
+    radial-gradient(circle at 50% 52%, rgba(217, 130, 43, .2), transparent 66%);
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .6));
+}
