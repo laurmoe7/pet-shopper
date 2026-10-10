@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 569
+- New idle dance: the chorus dance (sway, shimmy, arms up)
+
 ## Build 568
 - Dragon: wing bones reach the body (no gap)
 

@@ -283,6 +283,7 @@ var IDLE_MOVES = [
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('shuffle', 1500); hum(); } },
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'reach', x: ['sparkles', 'cheeks'] }); pulse('boogie', 1500); hum(); } },
   { moods: ['curious', 'happy'], run: function () { return handDance(); } },
+  { moods: ['curious', 'happy'], run: function () { return chorusDance(); } },
   { moods: ['sleepy', 'stuffed'], run: function () { pulse('wiggle', 900); } },
   { moods: ['stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); } },
   // daytime things to do
@@ -460,6 +461,18 @@ function handDance() {
   setTimeout(function () { pet.classList.remove('bs-out-r'); }, 10800);
   hum();
   return 10800;
+}
+
+/** Chorus dance: an idle dance of 6.6 s (the `chorus` CSS, styles.css): a sway with both paws at his chin, a quick shimmy facing you, then both arms up and waving, with confetti and notes. */
+function chorusDance() {
+  setFace({ eyes: 'open', mouth: 'smile', arms: 'rest', x: ['cheeks'] });
+  pulse('chorus', 6600);
+  function at(ms, fn) { setTimeout(function () { if (pet.classList.contains('chorus')) fn(); }, ms); }
+  at(2350, function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'rest', x: ['cheeks', 'sparkles'] }); drift(['♪', '✦', '♫'], petTop(), 3); crumbs(mouthPoint(), '#ff9fc0', 6); });
+  at(4000, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'rest', x: ['cheeks'] }); drift(['♪', '♫', '✦'], petTop(), 4); crumbs(mouthPoint(), '#ffd36a', 6); });
+  at(5900, function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'rest', x: ['cheeks'] }); drift(['✦', '♥'], petTop(), 3); });
+  hum();
+  return 6600;
 }
 
 /** @returns {{x: number, y: number}} A point just above the pet's head. */
