@@ -3716,8 +3716,9 @@ html:root[data-skin="quest"][data-quest="osrs"] .option input:checked { backgrou
 .pet.handdance :is(.ear-l, .ear-r) { animation: ear-jiggle-l .9s ease-out 4; }
 @media (prefers-reduced-motion: reduce) { .pet.handdance :is(.pet-svg, .arm-l, .arm-r, .ear-l, .ear-r), .pet.handdance:not(#x) :is(.foot-l, .shoe-l, .foot-r, .shoe-r) { animation: none; } }
 
-/* the room picture follows the frame (build 536). Old School: the frame is rounded and the picture fills it with matching corners.
-   Scribbling: the crayon frame clips the picture (it fills it right up to the frame, no corners or border of its own) */
-html:root[data-skin="quest"][data-quest="osrs"] .stage { border-radius: 16px; }
-html:root[data-skin="quest"][data-quest="osrs"] .backdrop { inset: 0 0 18px; border: 0; box-shadow: none; border-radius: 13px 13px 16px 16px; }
-html:root[data-skin="scribble"] .backdrop { inset: 0 0 18px; border: 0; box-shadow: none; border-radius: 0 0 16px 16px; }
+/* the room picture has the same shape in every look: a rounded picture with a little room round it (build 537). Old School and Scribbling
+   give that picture their own outline, and the stage has no frame of its own (it used to, which did not match the picture) */
+html:root[data-skin="quest"][data-quest="osrs"] .stage { border: 0; border-radius: 0; box-shadow: none; }
+html:root[data-skin="quest"][data-quest="osrs"] .backdrop { border: 2px solid #000; border-radius: 16px; box-shadow: 0 0 0 3px #5b5140, 0 0 0 4px #000; }
+html:root[data-skin="scribble"] .stage { border: 0; border-radius: 0; box-shadow: none; overflow: visible; }
+html:root[data-skin="scribble"] .backdrop { border: 4px solid var(--cr-green); border-radius: 16px; box-shadow: 3px 4px 0 rgba(58, 51, 80, .3); }

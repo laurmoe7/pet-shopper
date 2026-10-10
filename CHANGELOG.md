@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 537
+- Old School and Scribbling: room picture has the same rounded shape as the other looks
+
 ## Build 536
 - Old School: rounded room frame that the picture fits
 - Scribbling: room picture fits the crayon frame
