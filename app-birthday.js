@@ -19,7 +19,7 @@ function bdayLayer() {
 }
 /** A paper party hat on his head, drawn in the pet's own picture on the hat layer, so it goes with him in every dance and squash; it comes off again after ms. */
 function bdayHat(ms) {
-  var layer = pet.querySelector('.outfit-hat');
+  var slot = pet.querySelector('.outfit-hat'), layer = slot && slot.parentNode;   // (beside the worn hats, not inside: the dressing code empties that layer whenever his outfit is drawn again, which took the party hat off)
   if (!layer) return;
   var hat = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   hat.setAttribute('class', 'bday-hat');
@@ -102,6 +102,9 @@ function bdayCake() {
     '<rect x="30" y="4" width="4" height="9" rx="1.5" fill="#8fd3ff" stroke="#5b4239" stroke-width="1.6"/>' +
     '<path class="flame" d="M32 -1 Q36 3 32 6 Q28 3 32 -1 Z" fill="#ffd36b" stroke="#e8885a" stroke-width="1.2"/></svg>';
   pet.appendChild(cake);
+  var finale = bdayLayer();   // (a couple more fireworks as the party ends)
+  bdayFireworks(finale, 2);
+  setTimeout(function () { finale.remove(); }, 4500);
   setFace({ eyes: 'happy', mouth: 'smile', arms: clip ? 'rest' : 'carry', x: ['cheeks', 'hearts'] });
   sound('sparkle');
   say(pick(['this cake is for you! ♡', 'happy birthday! cake for you ♡']), 2600, true);
