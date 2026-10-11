@@ -41,13 +41,13 @@ function easterEars(ms) {
   g.setAttribute('class', 'easter-ears');
   if (pet.dataset.species === 'bunny') {
     var fl = '', cols = ['#ff9ec1', '#fffaf0', '#ffe27a', '#ffb8d9', '#fffaf0', '#ff9ec1'];
-    for (var i = 0; i < 6; i++) { var fx = 66 + i * 6.6, fy = 38 - Math.sin((i / 5) * Math.PI) * 5; fl += '<g transform="translate(' + fx + ' ' + fy + ')"><circle r="4.4" fill="' + cols[i] + '" stroke="#5b4239" stroke-width="1.4"/><circle r="1.5" fill="#ffd36b"/></g>'; }
-    g.innerHTML = '<path d="M64 40 Q83 28 102 40" fill="none" stroke="#5b9b6b" stroke-width="2.4" stroke-linecap="round"/>' + fl;
+    for (var i = 0; i < 6; i++) { var fx = 63.5 + i * 6.6, fy = 38 - Math.sin((i / 5) * Math.PI) * 5; fl += '<g transform="translate(' + fx + ' ' + fy + ')"><circle r="4.4" fill="' + cols[i] + '" stroke="#5b4239" stroke-width="1.4"/><circle r="1.5" fill="#ffd36b"/></g>'; }
+    g.innerHTML = '<path d="M61 40 Q80 28 99 40" fill="none" stroke="#5b9b6b" stroke-width="2.4" stroke-linecap="round"/>' + fl;
   } else {
-    g.innerHTML = '<g class="easter-ear" style="transform-box:fill-box;transform-origin:50% 100%"><g transform="translate(70 38) rotate(-12)"><ellipse cx="0" cy="-17" rx="6.5" ry="18" fill="#fffaf0" stroke="#5b4239" stroke-width="2"/><ellipse cx="0" cy="-16" rx="3.2" ry="13" fill="#ffb8c6"/></g></g>' +
-      '<g class="easter-ear" style="transform-box:fill-box;transform-origin:50% 100%"><g transform="translate(96 38) rotate(12)"><ellipse cx="0" cy="-17" rx="6.5" ry="18" fill="#fffaf0" stroke="#5b4239" stroke-width="2"/><ellipse cx="0" cy="-16" rx="3.2" ry="13" fill="#ffb8c6"/></g></g>' +
-      '<path d="M63 41 Q83 31 103 41" fill="none" stroke="#ff9ec1" stroke-width="3.6" stroke-linecap="round"/><path d="M63 41 Q83 31 103 41" fill="none" stroke="#5b4239" stroke-width=".9" stroke-linecap="round" opacity=".5"/>' +
-      '<g transform="translate(83 33)"><circle cx="-5" cy="0" r="3.2" fill="#ffe27a" stroke="#5b4239" stroke-width="1.2"/><circle cx="5" cy="0" r="3.2" fill="#ffe27a" stroke="#5b4239" stroke-width="1.2"/><circle r="2.4" fill="#ff9ec1" stroke="#5b4239" stroke-width="1.2"/></g>';
+    g.innerHTML = '<g class="easter-ear" style="transform-box:fill-box;transform-origin:50% 100%"><g transform="translate(67 38) rotate(-12)"><ellipse cx="0" cy="-17" rx="6.5" ry="18" fill="#fffaf0" stroke="#5b4239" stroke-width="2"/><ellipse cx="0" cy="-16" rx="3.2" ry="13" fill="#ffb8c6"/></g></g>' +
+      '<g class="easter-ear" style="transform-box:fill-box;transform-origin:50% 100%"><g transform="translate(93 38) rotate(12)"><ellipse cx="0" cy="-17" rx="6.5" ry="18" fill="#fffaf0" stroke="#5b4239" stroke-width="2"/><ellipse cx="0" cy="-16" rx="3.2" ry="13" fill="#ffb8c6"/></g></g>' +
+      '<path d="M60 41 Q80 31 100 41" fill="none" stroke="#ff9ec1" stroke-width="3.6" stroke-linecap="round"/><path d="M60 41 Q80 31 100 41" fill="none" stroke="#5b4239" stroke-width=".9" stroke-linecap="round" opacity=".5"/>' +
+      '<g transform="translate(80 33)"><circle cx="-5" cy="0" r="3.2" fill="#ffe27a" stroke="#5b4239" stroke-width="1.2"/><circle cx="5" cy="0" r="3.2" fill="#ffe27a" stroke="#5b4239" stroke-width="1.2"/><circle r="2.4" fill="#ff9ec1" stroke="#5b4239" stroke-width="1.2"/></g>';
   }
   layer.appendChild(g);
   if (!reduceMotion) [].forEach.call(g.querySelectorAll('.easter-ear'), function (ear, k) {   // the ears flop with every beat of the dance (0.75 s)
@@ -82,11 +82,11 @@ function bunnyDance() {
   if (!reduceMotion) svgSquish(EASTER_SQUISH);
   function at(ms, fn) { setTimeout(function () { if (pet.classList.contains('bunnydance')) fn(); }, ms); }
   at(1500, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: arms('carry'), x: ['cheeks', 'sparkles'] }); drift(['🌸', '✦'], petTop(), 2); });
-  at(3000, function () { setFace({ eyes: 'happy', mouth: 'open', arms: arms('carry'), x: ['cheeks'] }); drift(['🥚', '🌷'], petTop(), 2); });
+  at(3000, function () { setFace({ eyes: 'happy', mouth: 'open', arms: arms('carry'), x: ['cheeks'] }); drift(['🌷', '🌸'], petTop(), 2); });
   at(5250, function () { setFace({ eyes: 'happy', mouth: 'open', arms: arms('cheer'), x: ['cheeks', 'sparkles'] }); drift(['🦋', '🌸', '✦'], petTop(), 3); });   // the binkies
-  at(6750, function () { setFace({ eyes: 'happy', mouth: 'smile', arms: arms('carry'), x: ['cheeks'] }); drift(['🌷', '🥚'], petTop(), 2); });
+  at(6750, function () { setFace({ eyes: 'happy', mouth: 'smile', arms: arms('carry'), x: ['cheeks'] }); drift(['🌷', '🦋'], petTop(), 2); });
   at(7500, function () { setFace({ eyes: 'squint', mouth: 'smile', arms: arms('carry'), x: ['cheeks'] }); });   // crouching...
-  at(8250, function () { setFace({ eyes: 'open', mouth: 'open', arms: arms('cheer'), x: ['cheeks', 'sparkles'] }); drift(['🐰', '🌸', '✦', '🥚'], petTop(), 4); });   // ...and the leap!
+  at(8250, function () { setFace({ eyes: 'open', mouth: 'open', arms: arms('cheer'), x: ['cheeks', 'sparkles'] }); drift(['🐰', '🌸', '✦', '🌷'], petTop(), 4); });   // ...and the leap!
   hum();
   return 9000;
 }
@@ -261,7 +261,7 @@ function easterParty() {
   easterPetals(layer, total);
   easterButterflies(layer, total);
   easterEggs(layer, total);
-  setTimeout(function () { drift(['🌸', '🥚', '🐰'], petTop(), 4); }, 1500);
+  setTimeout(function () { drift(['🌸', '🌷', '🐰'], petTop(), 4); }, 1500);
   setTimeout(function () { say('hop hop hop~', 1800); }, 3600);
   setTimeout(function () { say('bunny hops!', 2000); }, 6000);
   setTimeout(function () { layer.remove(); }, total + 800);
