@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 601
+- Top bar a little higher
+- Goal and trip toasts moved to the top-left corner of the room, off Fumu
+
 ## Build 600
 - Same room and top-bar size in every theme; Sweet loses the long bar
 

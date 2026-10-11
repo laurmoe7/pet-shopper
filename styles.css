@@ -119,7 +119,7 @@ button { font: inherit; color: inherit; }
 .app { max-width: 560px; margin: 0 auto; min-height: 100vh; }
 
 /* ---------- stage ---------- */
-.scene { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; padding: 10px 16px 0; }
+.scene { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; padding: 4px 16px 0; }
 .scene-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .brand { font-family: var(--font-display); font-weight: 500; font-size: 1.12rem; margin: 0; display: flex; align-items: center; white-space: nowrap; min-width: 0; overflow: hidden; }
 .brand .pet-name { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
@@ -1029,17 +1029,17 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 
 /* ---------- goals and locks ---------- */
 .goal-toast {
-  /* sits on the cushion under the pet, clear of the buttons and the speech bubble */
-  position: absolute; left: 50%; bottom: 0; z-index: 3; transform: translateX(-50%);
-  display: flex; align-items: center; gap: 6px; width: max-content; max-width: 100%;
+  /* up in the top-left corner of the room, clear of Fumu and of the speech bubble (build 601) */
+  position: absolute; left: 0; top: 2px; z-index: 3;
+  display: flex; align-items: center; gap: 6px; width: max-content; max-width: calc(50% - 72px);
   font-weight: 800; font-size: .78rem; line-height: 1.2; color: var(--ink);
-  background: var(--surface); border: 1.5px solid var(--outline); border-radius: 999px;
+  background: var(--surface); border: 1.5px solid var(--outline); border-radius: 16px;
   padding: 4px 10px 4px 6px; box-shadow: 0 2px 0 var(--outline); pointer-events: none;
 }
 .goal-toast img { width: 22px; height: 22px; flex: none; }
 .goal-toast.win { background: var(--butter); }
 .goal-toast:not([hidden]) { animation: toast-in .35s cubic-bezier(.3, 1.4, .5, 1); }
-@keyframes toast-in { from { transform: translateX(-50%) translateY(-8px) scale(.8); opacity: 0; } }
+@keyframes toast-in { from { transform: translateY(-8px) scale(.8); opacity: 0; } }
 
 .species-grid button.locked, .hat-strip button.locked { background: var(--bg); border-style: dashed; color: var(--muted); }
 .species-grid button.locked .pet.mini, .hat-strip button.locked svg { filter: grayscale(1) brightness(.8); opacity: .45; }
