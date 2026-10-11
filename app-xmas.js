@@ -65,8 +65,10 @@ function xmasLights(layer, ms, cols) {
   layer.appendChild(svg);
   if (reduceMotion) return;
   svg.animate([{ transform: 'translateY(-50px)' }, { transform: 'translateY(0)' }], { duration: 700, easing: 'cubic-bezier(.3,1.4,.5,1)', fill: 'both' });
-  [].forEach.call(svg.querySelectorAll('.xmas-bulb ellipse:first-of-type'), function (b, k) {   // (a soft glow that travels along the string; slow and gentle, never a flash)
-    b.animate([{ opacity: 1, filter: 'brightness(1)' }, { opacity: 1, filter: 'brightness(1.5) saturate(1.3)', offset: 0.5 }, { opacity: 1, filter: 'brightness(1)' }], { duration: 1600, delay: k * 140, iterations: Infinity, easing: 'ease-in-out' });
+  [].forEach.call(svg.querySelectorAll('.xmas-bulb'), function (g, k) {   // each bulb blinks on its own, unevenly and softly, glowing in its own colour (the same flicker as the Halloween lights)
+    var glow = g.querySelector('ellipse').getAttribute('fill');
+    g.style.filter = 'drop-shadow(0 0 4px ' + glow + ') drop-shadow(0 0 9px ' + glow + ')';
+    g.animate([{ opacity: 1 }, { opacity: .5, offset: 0.18 }, { opacity: .95, offset: 0.32 }, { opacity: .65, offset: 0.55 }, { opacity: 1, offset: 0.7 }, { opacity: .55, offset: 0.86 }, { opacity: 1 }], { duration: 1900 + (k * 313) % 900, delay: (k * 170) % 600, iterations: Infinity, easing: 'ease-in-out' });
   });
   setTimeout(function () { svg.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-60px)' }], { duration: 600, easing: 'ease-in', fill: 'both' }); }, ms - 700);
 }

@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 618
+- No toe beans when hands are held to the face or cover the eyes
+- Christmas lights blink like the Halloween ones, in Christmas colours
+
 ## Build 617
 - Halloween: the screen goes dark except round his room, ghosts give off light, spooky flickering lantern and ghost lights, and a new monster mash dance
 
