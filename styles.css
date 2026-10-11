@@ -531,6 +531,9 @@ button { font: inherit; color: inherit; }
 .species-grid button { gap: 2px; padding: 8px 4px 6px; font-size: .85rem; }
 .species-grid button:focus-visible, .hat-strip button:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
 .pet.mini { width: 72px; height: 66px; margin: 0; cursor: inherit; pointer-events: none; }
+/* the mini pets (species, skins, closet) are still pictures: the pet's own blinks, glints and sways would run in every one of them
+   (over twenty tiles, hundreds of animations: the open dressing room used most of a phone's processor) */
+.pet.mini, .pet.mini * { animation: none !important; }
 /* one scroll area per sheet: lists inside it grow instead of scrolling on their own,
    and the Done row stays pinned to the bottom */
 .pet-sheet .options, .pet-sheet .goal-list { overflow: visible; }

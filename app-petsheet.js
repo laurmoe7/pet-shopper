@@ -41,35 +41,49 @@ function applyPet() {
   if (typeof dressSheet !== 'undefined' && dressSheet.open) buildDressView();   // the dressing room shows the new species or skin
 }
 
-/** @returns {SVGSVGElement} A copy of the pet drawing for a button or the dressing room. */
-function petCopy() {
+/**
+ * A copy of the pet drawing for a button or the dressing room.
+ * @param {string} [species] For a small still copy of one species: the other species' parts are left out (they would be hidden anyway,
+ *   and the drawing holds every species, so a full copy is about 900 nodes; the species and skin tiles hold over twenty of them).
+ * @param {string} [skin] With `species`: the skin whose parts to keep ('' keeps none).
+ * @returns {SVGSVGElement}
+ */
+function petCopy(species, skin) {
   var copy = petSvg.cloneNode(true);
   copy.querySelectorAll('defs').forEach(function (d) { d.remove(); });
   copy.querySelector('.pet-body').removeAttribute('transform'); // not caught mid-squish
+  if (species) {
+    copy.querySelectorAll('[data-sp]').forEach(function (el) { if (el.dataset.sp !== species) el.remove(); });
+    copy.querySelectorAll('[data-sk]').forEach(function (el) { if (!skin || el.dataset.sk.split(' ').indexOf(skin) === -1) el.remove(); });
+  }
   return copy;
 }
-// species buttons show a small static copy of the pet
-SPECIES.forEach(function (sp) {
-  var b = document.createElement('button');
-  b.type = 'button';
-  b.dataset.species = sp.id;
-  var mini = document.createElement('div');
-  mini.className = 'pet mini x-cheeks' + (L.isBird(sp.id) ? ' beaked' : '');
-  mini.dataset.species = sp.id;
-  mini.dataset.eyes = 'open';
-  mini.dataset.mouth = 'smile';
-  mini.dataset.arms = 'rest';
-  mini.appendChild(petCopy());
-  var label = document.createElement('span');
-  label.textContent = sp.label;
-  b.append(mini, label);
-  speciesGrid.appendChild(b);
-});
+/** Species buttons show a small still copy of the pet. They are built the first time the dressing room opens: twenty mini pets are a lot of page. */
+function buildSpeciesGrid() {
+  if (speciesGrid.firstChild) return;
+  SPECIES.forEach(function (sp) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.species = sp.id;
+    var mini = document.createElement('div');
+    mini.className = 'pet mini x-cheeks' + (L.isBird(sp.id) ? ' beaked' : '');
+    mini.dataset.species = sp.id;
+    mini.dataset.eyes = 'open';
+    mini.dataset.mouth = 'smile';
+    mini.dataset.arms = 'rest';
+    mini.appendChild(petCopy(sp.id, ''));
+    var label = document.createElement('span');
+    label.textContent = sp.label;
+    b.append(mini, label);
+    speciesGrid.appendChild(b);
+  });
+}
 
 // ---------- skins: a species can wear a skin that changes how it looks ----------
 var skinGrid = $('skinGrid'), skinField = $('skinField');
 /** Shows the skin choices for the current species (an "original" look plus its skins), or hides them if it has none. */
 function renderSkins() {
+  if (!speciesGrid.firstChild) return;   // the dressing room has not been opened yet (buildSpeciesGrid draws these then)
   var mine = Skins.filter(function (s) { return s.base === state.pet.species; });
   skinField.hidden = mine.length === 0;
   var options = [{ id: '', label: 'Original' }].concat(mine);
@@ -85,7 +99,7 @@ function renderSkins() {
     mini.dataset.eyes = 'open';
     mini.dataset.mouth = 'smile';
     mini.dataset.arms = 'rest';
-    mini.appendChild(petCopy());
+    mini.appendChild(petCopy(state.pet.species, sk.id));
     var label = document.createElement('span');
     label.textContent = sk.label;
     b.append(mini, label);

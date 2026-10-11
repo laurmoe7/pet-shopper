@@ -2,6 +2,9 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 577
+- Dressing room: still mini pets on the species and skin tiles, drawn when the room first opens (opens faster, saves battery)
+
 ## Build 576
 - Birthday celebration: the app rains confetti with a banner, Mini Fumu sends up balloons
 - Developer tools: play the birthday celebration

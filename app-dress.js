@@ -120,6 +120,7 @@ $('dressBtn').addEventListener('click', function () {
   nameAtOpen = petName();
   showName();
   lastNameTap = 0;
+  buildSpeciesGrid();   // (the first time only)
   refreshLocks();
   applyPet();
   renderPersonalities();
