@@ -521,19 +521,3 @@ function pageWreck(vx, vy, px, py) {
   setTimeout(finish, PAGE_WRECK_MS + 1500);   // (if the page was in the background and no frames came: it is still mended)
   flight = requestAnimationFrame(step);
 }
-
-// the switch for it in App settings (Options): the ring menu only exists in the small desktop window
-(function () {
-  if (typeof optionsList === 'undefined' || !optionsList) return;
-  var label = document.createElement('label'), title = document.createElement('span'), box = document.createElement('input');
-  label.className = 'option'; title.className = 'option-title'; title.textContent = 'Wrecking ball';
-  box.type = 'checkbox'; box.setAttribute('role', 'switch');
-  label.append(title, box);
-  optionsList.appendChild(label);
-  box.addEventListener('change', function () {
-    if (box.checked !== (toyKind() === 'wrecker')) toggleToyKind();
-    box.checked = toyKind() === 'wrecker';
-  });
-  var btn = $('optionsBtn');
-  if (btn) btn.addEventListener('click', function () { box.checked = toyKind() === 'wrecker'; });
-})();

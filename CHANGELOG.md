@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 604
+- Wrecking ball switch removed from Options (it stays in the ring menu)
+
 ## Build 603
 - Free spirited dance removed
 - Birthday: chorus dance, fireworks, and the party hat stays on his head
