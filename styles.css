@@ -4144,3 +4144,10 @@ html:root:root .list-tab { box-sizing: border-box; height: 30px; padding-top: 0;
 /* Old School and Bonfire draw a frame round the bar: it grows outwards over the room's edge instead of pushing the room down */
 html:root:root[data-skin="quest"][data-quest="osrs"] .scene-bar { margin-block: -5px; }
 html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-block: -4px; }
+
+/* the birthday cake he hands you at the end of the party (bdayCake in app-birthday.js; build 605): in front of his tummy, the flame flickers softly */
+.bday-cake { position: absolute; left: 50%; bottom: 0; width: 64px; height: 60px; margin-left: -32px; z-index: 6; pointer-events: none; }
+.bday-cake svg { display: block; overflow: visible; }
+.bday-cake .flame { transform-box: fill-box; transform-origin: 50% 100%; animation: cake-flame .9s ease-in-out infinite alternate; }
+@keyframes cake-flame { from { transform: scale(1, 1) rotate(-4deg); } to { transform: scale(.9, 1.15) rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) { .bday-cake .flame { animation: none; } }

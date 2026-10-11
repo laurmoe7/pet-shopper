@@ -1,4 +1,4 @@
-// The birthday celebration: once on the player's birthday (state.player.birthday), Fumu puts on a party hat and does the chorus dance, with fireworks.
+// The birthday celebration: once on the player's birthday (state.player.birthday), Fumu puts on a party hat and does the chorus dance, with fireworks, and ends by handing you a cake.
 // The app (phone, full app) rains confetti over the page and shows a banner; Mini Fumu (the small window) sends up balloons instead, with no banner.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
@@ -68,7 +68,7 @@ function bdayApp(name) {
   banner.textContent = '🎂 Happy birthday' + (name ? ', ' + name : '') + '! 🎉';
   layer.appendChild(banner);
   if (!reduceMotion) banner.animate([{ transform: 'translateY(-90px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0)', opacity: 1, offset: 0.85 }, { transform: 'translateY(-90px)', opacity: 0 }], { duration: 7000, fill: 'both' });
-  bdayFireworks(layer, 6);
+  bdayFireworks(layer, 3);
   setTimeout(function () { layer.remove(); }, 8200);
 }
 /** Mini Fumu: balloons float up past him, and hearts and stars drift off him. */
@@ -86,24 +86,54 @@ function bdayDesk() {
       { transform: 'translate(' + (x - 6) + 'px,-50px)', opacity: 1 }
     ], { duration: 4200 + Math.random() * 1800, delay: i * 420, easing: 'ease-in-out', fill: 'both' });
   }
-  bdayFireworks(layer, 5);
+  bdayFireworks(layer, 3);
   setTimeout(function () { layer.remove(); }, 9500);
 }
+/** The end of the party: he holds out a birthday cake for you, says so, and after a few seconds it goes again (build 605). @returns {number} How long it takes, in ms. */
+function bdayCake() {
+  var cake = document.createElement('span'), clip = document.documentElement.matches('[data-scene$="clip"], [data-list="todo"]');
+  cake.className = 'bday-cake';
+  cake.setAttribute('aria-hidden', 'true');
+  cake.innerHTML = '<svg viewBox="0 0 64 60" width="64" height="60"><ellipse cx="32" cy="55" rx="29" ry="5" fill="#fff6ec" stroke="#5b4239" stroke-width="2"/>' +
+    '<path d="M9 31 H55 V50 Q32 57 9 50 Z" fill="#f3c98f" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
+    '<path d="M9 31 Q9 20 20 20 H44 Q55 20 55 31 Q50 36 46 31 Q42 38 37 31 Q32 38 27 31 Q22 36 18 31 Q13 36 9 31 Z" fill="#ff8fb1" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
+    '<path d="M16 40 H48" stroke="#fff6ec" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="2 5"/>' +
+    '<circle cx="32" cy="16" r="5" fill="#ee5b6f" stroke="#5b4239" stroke-width="2"/>' +
+    '<rect x="30" y="4" width="4" height="9" rx="1.5" fill="#8fd3ff" stroke="#5b4239" stroke-width="1.6"/>' +
+    '<path class="flame" d="M32 -1 Q36 3 32 6 Q28 3 32 -1 Z" fill="#ffd36b" stroke="#e8885a" stroke-width="1.2"/></svg>';
+  pet.appendChild(cake);
+  setFace({ eyes: 'happy', mouth: 'smile', arms: clip ? 'rest' : 'carry', x: ['cheeks', 'hearts'] });
+  sound('sparkle');
+  say(pick(['this cake is for you! ♡', 'happy birthday! cake for you ♡']), 2600, true);
+  if (!reduceMotion) {
+    cake.animate([{ transform: 'translateY(26px) scale(.4)', opacity: 0 }, { transform: 'translateY(-4px) scale(1.08)', opacity: 1, offset: 0.5 }, { transform: 'translateY(0) scale(1)', opacity: 1 }], { duration: 650, easing: 'ease-out', fill: 'both' });
+    pulse('hopsmall', 450);
+  }
+  setTimeout(function () { say(pick(['make a wish~', 'blow out the candle!']), 2000, true); }, 2800);
+  setTimeout(function () {
+    if (!cake.parentNode) return;
+    if (reduceMotion) { cake.remove(); return; }
+    cake.animate([{ opacity: 1, transform: 'translateY(0) scale(1)' }, { opacity: 0, transform: 'translateY(12px) scale(.6)' }], { duration: 500, easing: 'ease-in', fill: 'both' }).onfinish = function () { cake.remove(); };
+  }, 5200);
+  return 5800;
+}
 /** Plays the celebration once (the app's or Mini Fumu's). @returns {boolean} Whether it started. */
+var partyOn = false;   // (one party at a time: the developer tool pretends it is the birthday, and the check that runs every so often would start a second one)
 function birthdayParty() {
-  if (!devBirthday && (busy || baseState() === 'sleepy')) return false;
+  if (partyOn || (!devBirthday && (busy || baseState() === 'sleepy'))) return false;
+  partyOn = true;
   var small = document.documentElement.classList.contains('desktop-pet'), name = state.player.name;
   busy++;
   if (pet.dataset.state === 'sleepy') pet.dataset.state = 'happy';   // (the developer tool wakes him)
   sound('party');
-  bdayHat(9500);
+  bdayHat(14500);   // (on until the cake has gone)
   setFace({ eyes: 'happy', mouth: 'open', arms: 'rest', x: ['cheeks', 'sparkles'] });
   say(small ? 'happy birthday' + (name ? ', ' + name : '') + '!! ♡' : 'yay, party time! ♡', 3000);   // (the app's banner already says it)
   pulse('hop', 500);
   var ms;
   if (small) { bdayDesk(); ms = chorusDance(); setTimeout(function () { drift(['🎈', '♥', '✦'], petTop(), 4); }, 1500); }
   else { bdayApp(name); ms = chorusDance(); setTimeout(function () { drift(['🎂', '🎉', '♥'], petTop(), 4); }, 1500); }
-  setTimeout(function () { busy--; if (!busy) settle(); }, ms + 300);
+  setTimeout(function () { var more = bdayCake(); setTimeout(function () { partyOn = false; busy--; if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the cake)
   return true;
 }
 /** Starts it once a day, on the birthday, when he is awake and not busy. */
@@ -121,7 +151,7 @@ function devBirthdayNow() {
   devBirthday = true;
   if (!birthdayParty()) { devBirthday = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devBirthday = false; }, 9000);
-  return document.documentElement.classList.contains('desktop-pet') ? 'Mini Fumu\'s birthday: balloons, fireworks and the chorus dance.' : 'The app\'s birthday: confetti, a banner, fireworks and the chorus dance.';
+  return document.documentElement.classList.contains('desktop-pet') ? 'Mini Fumu\'s birthday: balloons, fireworks, the chorus dance and a cake.' : 'The app\'s birthday: confetti, a banner, fireworks, the chorus dance and a cake.';
 }
 setTimeout(birthdayCheck, 7000);
 setInterval(birthdayCheck, 60000);   // (also when he was asleep or busy at first)

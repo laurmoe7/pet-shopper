@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 605
+- Birthday: he hands you a cake at the end
+- Half as many fireworks
+
 ## Build 604
 - Wrecking ball switch removed from Options (it stays in the ring menu)
 
