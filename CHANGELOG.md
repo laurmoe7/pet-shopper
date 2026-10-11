@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 589
+- App ring menu: feed him a snack
+
 ## Build 588
 - Ring menu: a No toy switch next to the wrecking ball; the Show his toy setting is gone
 - Stamp book: Pets and Study are gone again (back in Care and Work)

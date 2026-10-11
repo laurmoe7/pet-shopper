@@ -1,4 +1,4 @@
-// The ring menu (in the app it is only the toy switch, opened with a double tap on him): in the small desktop window, rest the pointer on him and a ring of little buttons opens above him (play ball, the toy switch, a snack,
+// The ring menu (in the app it is only the toy switches and a snack, opened with a double tap on him): in the small desktop window, rest the pointer on him and a ring of little buttons opens above him (play ball, the toy switch, a snack,
 // a dance, swap the list, and at night the lights or the night light). It lives in his own window, so it never has to fit round the edge of the
 // screen. What it offers follows his scene (petScene): in bed only the night light; drowsy at night he can be sent to bed (then you tuck him in).
 // Plain script, shares one scope, loaded after app-night.js.
@@ -54,7 +54,7 @@
   /** @returns {string[]} The buttons for the scene he is in now. */
   function items() {
     var scene = petScene();
-    if (!isDesk()) return scene === 'night-bed' ? [] : ['toy', 'notoy'];   // in the app it only has the toys (none picked: his own); in bed they are put away
+    if (!isDesk()) return scene === 'night-bed' ? [] : ['toy', 'notoy', 'snack'];   // in the app: the toys (none picked: his own) and a snack; in bed they are put away
     if (scene === 'night-bed') return ['night'];   // in bed: only the night light
     var play = toyKind() === 'none' ? [] : ['ball'];   // (nothing to play with when there is no toy)
     if (scene.indexOf('night-drowsy') === 0) return play.concat(['toy', 'notoy', 'snack', 'dance', 'swap', 'lights']);
