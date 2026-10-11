@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 608
+- Birthday: Happy Birthday Name!, and it plays first when the app is opened that day, holding back alerts and other animations until it is over
+
 ## Build 607
 - New birthday dance: bouncy party dance with lots of squash and stretch
 

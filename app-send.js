@@ -316,6 +316,7 @@ function whenCanEat(fn, maxMs) {
 }
 /** Fumu eats the thing that arrived (it flies in from above), then the card shows. */
 function receiveMessage(msg, more) {
+  if (typeof birthdayHolding === 'function' && birthdayHolding()) { setTimeout(function () { receiveMessage(msg, more); }, 2500); return; }   // (the birthday party plays first)
   var link = msg.kind === 'link';
   if (msg.id) shownIds[msg.id] = 1;
   if (msg.from === 'claude' && !msg.test) accountApi('/v1/inbox/ack', 'POST', account.code, { ids: [msg.id] });   // a tap on the shoulder: gone from the server at once, so it cannot come back

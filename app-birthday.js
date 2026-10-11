@@ -10,6 +10,11 @@ function isBirthday() {
   var b = state.player.birthday;
   return !!b && b === B.dayKey(giftDate()).slice(5);
 }
+/** @returns {string} "Happy Birthday Name!" (in Dutch "Gefeliciteerd Name!"), without the name when there is none. @param {string} name */
+function bdayGreeting(name) {
+  var nl = typeof Lang === 'object' && Lang.get() === 'nl';
+  return (nl ? 'Gefeliciteerd' : 'Happy Birthday') + (name ? ' ' + name : '') + '!';
+}
 var BDAY_COLOURS = ['#ff8fb1', '#ffd36b', '#8fd3ff', '#b69cff', '#9be3a8', '#ff9f7a'];
 function bdayLayer() {
   var el = document.createElement('div');
@@ -65,7 +70,7 @@ function bdayApp(name) {
   var banner = document.createElement('div');
   banner.style.cssText = 'position:absolute;left:0;right:0;top:14px;margin:0 auto;width:90%;max-width:360px;box-sizing:border-box;padding:10px 14px;border-radius:18px;background:#fff6ec;color:#5b4239;' +
     'border:2.5px solid #ff8fb1;box-shadow:0 4px 0 #ffd0dd;text-align:center;font-weight:700;font-size:17px';
-  banner.textContent = '🎂 Happy birthday' + (name ? ', ' + name : '') + '! 🎉';
+  banner.textContent = '🎂 ' + bdayGreeting(name) + ' 🎉';
   layer.appendChild(banner);
   if (!reduceMotion) banner.animate([{ transform: 'translateY(-90px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0)', opacity: 1, offset: 0.85 }, { transform: 'translateY(-90px)', opacity: 0 }], { duration: 7000, fill: 'both' });
   bdayFireworks(layer, 3);
@@ -121,17 +126,34 @@ function bdayCake() {
   return 5800;
 }
 /** Plays the celebration once (the app's or Mini Fumu's). @returns {boolean} Whether it started. */
+var bdayHold = false, bdayHoldTimer = 0;   // on the birthday, from the moment the app opens until the party starts, he is held "busy" so nothing else (a wish, a steal, an idle move) begins first
+/** @returns {boolean} Whether today's party has already played (or started). */
+function bdayDoneToday() {
+  var done = '';
+  try { done = localStorage.getItem('nibble-bday-done') || ''; } catch (e) { /* storage not available */ }
+  return done === B.dayKey(giftDate());
+}
+/** Ends the hold (the party is starting, or it could not start in time: he was asleep, say). */
+function releaseBdayHold() {
+  if (!bdayHold) return;
+  bdayHold = false;
+  clearTimeout(bdayHoldTimer);
+  busy--;
+}
+/** @returns {boolean} Whether alerts and reminders should wait: the birthday party is about to play or is playing. */
+function birthdayHolding() { return bdayHold || partyOn; }
 var partyOn = false;   // (one party at a time: the developer tool pretends it is the birthday, and the check that runs every so often would start a second one)
 function birthdayParty() {
-  if (partyOn || (!devBirthday && (busy || baseState() === 'sleepy'))) return false;
+  if (partyOn || (!devBirthday && (busy - (bdayHold ? 1 : 0) > 0 || baseState() === 'sleepy'))) return false;
   partyOn = true;
   var small = document.documentElement.classList.contains('desktop-pet'), name = state.player.name;
   busy++;
+  releaseBdayHold();   // (the party's count replaces the hold's, so he is never free in between)
   if (pet.dataset.state === 'sleepy') pet.dataset.state = 'happy';   // (the developer tool wakes him)
   sound('party');
   bdayHat(14500);   // (on until the cake has gone)
   setFace({ eyes: 'happy', mouth: 'open', arms: 'rest', x: ['cheeks', 'sparkles'] });
-  say(small ? 'happy birthday' + (name ? ', ' + name : '') + '!! ♡' : 'yay, party time! ♡', 3000);   // (the app's banner already says it)
+  if (small) say(bdayGreeting(name) + ' ♡', 3200, true); else say('yay, party time! ♡', 3000);   // (the app's banner already says it)
   pulse('hop', 500);
   var ms;
   if (small) { bdayDesk(); ms = partyDance(); setTimeout(function () { drift(['🎈', '♥', '✦'], petTop(), 4); }, 1500); }
@@ -142,9 +164,8 @@ function birthdayParty() {
 /** Starts it once a day, on the birthday, when he is awake and not busy. */
 function birthdayCheck() {
   if (!isBirthday()) return;
-  var key = B.dayKey(giftDate()), done = '';
-  try { done = localStorage.getItem('nibble-bday-done') || ''; } catch (e) { /* storage not available */ }
-  if (done === key && !devBirthday) return;
+  var key = B.dayKey(giftDate());
+  if (bdayDoneToday() && !devBirthday) return;
   if (document.hidden || document.querySelector('dialog[open]')) return;
   if (!birthdayParty()) return;
   try { localStorage.setItem('nibble-bday-done', key); } catch (e) { /* storage not available */ }
@@ -156,5 +177,7 @@ function devBirthdayNow() {
   setTimeout(function () { devBirthday = false; }, 9000);
   return document.documentElement.classList.contains('desktop-pet') ? 'Mini Fumu\'s birthday: balloons, fireworks, the party dance and a cake.' : 'The app\'s birthday: confetti, a banner, fireworks, the party dance and a cake.';
 }
-setTimeout(birthdayCheck, 7000);
+// the first time the app is opened on the birthday the party comes first: a moment after it opens (the hold keeps everything else back until then, for at most 45 s)
+if (isBirthday() && !bdayDoneToday()) { bdayHold = true; busy++; bdayHoldTimer = setTimeout(function () { releaseBdayHold(); if (!busy) settle(); }, 45000); }
+var bdayTry = setInterval(function () { if (!bdayHold) { clearInterval(bdayTry); return; } birthdayCheck(); }, 1000);   // (he may still be busy with the opening: try again every second)
 setInterval(birthdayCheck, 60000);   // (also when he was asleep or busy at first)

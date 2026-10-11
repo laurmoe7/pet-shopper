@@ -731,6 +731,7 @@
    */
   window.deskRemind = function (items) {
     if (deskPrefs.remind === false) return false;
+    if (typeof birthdayHolding === 'function' && birthdayHolding()) { setTimeout(function () { window.deskRemind(items); }, 2500); return true; }   // (the birthday party plays first)
     if (D.reveal) D.reveal();   // he may be hidden: bring him back, without taking the keyboard
     if (!isPet()) return false; // the big window shows the usual bubble
     if (peeking) endPeek();
