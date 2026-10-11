@@ -1,5 +1,5 @@
 // The King's Day celebration (build 624): once on King's Day (Koningsdag, 27 April, or the 26th when the 27th is a Sunday), the first time the app is opened that day, everything goes orange: Fumu puts on a
-// crown and does a marching, waving dance while orange and Dutch-flag bunting hangs along the top, orange confetti falls, orange balloons rise and a little windmill turns in the corner, to a brass-band polka;
+// crown and does a marching, waving dance while orange and Dutch-flag bunting hangs along the top, orange confetti falls, and orange balloons rise, to a brass-band polka;
 // at the end he holds out an orange-iced tompouce and a tiny Dutch flag pops up out of it. A real King's Day box (the `kingsdaygift` day in bonuses.js) is then waiting in Profile.
 // It works like the other celebrations (app-birthday.js, app-xmas.js, app-halloween.js, app-newyear.js, app-easter.js): the hold that keeps alerts and other animations back, the toy put away and popping
 // back in, the card in the app and the bubble in Mini Fumu. The others go first when they are pending the same day.
@@ -136,21 +136,6 @@ function kingsBalloons(layer, ms) {
   }
 }
 
-/** A little windmill turning in the bottom corner, above the card. @param {Element} layer @param {number} ms */
-function kingsWindmill(layer, ms) {
-  var mill = document.createElement('span');
-  mill.style.cssText = 'position:absolute;left:8px;bottom:calc(env(safe-area-inset-bottom, 0px) + 150px);width:70px;height:92px;line-height:0';
-  mill.innerHTML = '<svg viewBox="0 0 70 92" width="70" height="92" style="overflow:visible"><path d="M22 90 L26 36 H44 L48 90 Z" fill="#fffaf0" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/><path d="M26 36 Q35 22 44 36 Z" fill="#d6283a" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
-    '<rect x="31" y="72" width="8" height="18" rx="3" fill="#b8794a" stroke="#5b4239" stroke-width="1.6"/><rect x="31" y="50" width="8" height="9" rx="2" fill="#a9d4ff" stroke="#5b4239" stroke-width="1.4"/>' +
-    '<g class="mill-blades" style="transform-box:fill-box;transform-origin:50% 50%"><g stroke="#5b4239" stroke-width="2" stroke-linejoin="round" fill="#fffaf0"><rect x="33" y="-4" width="4" height="28" rx="1"/><rect x="33" y="24" width="4" height="28" rx="1" transform="rotate(180 35 24)"/><rect x="33" y="-4" width="4" height="28" rx="1" transform="rotate(90 35 24)"/><rect x="33" y="-4" width="4" height="28" rx="1" transform="rotate(270 35 24)"/></g></g><circle cx="35" cy="24" r="4" fill="#ff8a1f" stroke="#5b4239" stroke-width="1.6"/></svg>';
-  layer.appendChild(mill);
-  if (reduceMotion) return;
-  mill.animate([{ transform: 'scale(0)', opacity: 0 }, { transform: 'scale(1.15)', opacity: 1, offset: 0.6 }, { transform: 'scale(1)', opacity: 1 }], { duration: 600, delay: 700, easing: 'ease-out', fill: 'both' });
-  var blades = mill.querySelector('.mill-blades');
-  if (blades) blades.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], { duration: 3600, iterations: Infinity, easing: 'linear' });
-  setTimeout(function () { mill.animate([{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(0)', opacity: 0 }], { duration: 450, easing: 'ease-in', fill: 'both' }); }, ms - 600);
-}
-
 /** The app: a card slides up from the bottom, above the bottom bar (an orange and blue one). @param {Element} layer @param {string} name */
 function kingsBanner(layer, name) {
   var banner = document.createElement('div');
@@ -167,13 +152,13 @@ function kingsTreat() {
   treat.className = 'bday-cake kings-treat';   // (the same spot in front of his tummy as the birthday cake)
   treat.setAttribute('aria-hidden', 'true');
   treat.style.cssText = 'width:64px;height:60px';
-  treat.innerHTML = '<svg viewBox="0 0 64 60" width="64" height="60" style="overflow:visible"><ellipse cx="32" cy="55" rx="29" ry="4.5" fill="#fff6ec" stroke="#5b4239" stroke-width="2"/>' +
-    '<g class="treat-flag" opacity="0"><path d="M32 30 V4" stroke="#5b4239" stroke-width="2" stroke-linecap="round"/><rect x="32" y="4" width="17" height="4.4" fill="#d6283a"/><rect x="32" y="8.4" width="17" height="4.4" fill="#fffaf0"/><rect x="32" y="12.8" width="17" height="4.4" fill="#2a56b8"/><rect x="32" y="4" width="17" height="13.2" fill="none" stroke="#5b4239" stroke-width="1.5"/></g>' +
-    '<path d="M8 40 H56 V50 Q56 53 53 53 H11 Q8 53 8 50 Z" fill="#e8b35f" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
-    '<path d="M8 33 H56 V40 H8 Z" fill="#ffeaa8" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
-    '<path d="M8 28 Q8 24 12 24 H52 Q56 24 56 28 V33 H8 Z" fill="#ff8a1f" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
-    '<path d="M13 28.5 Q20 25.5 27 28.5 T41 28.5 T51 28" fill="none" stroke="#fffaf0" stroke-width="2" stroke-linecap="round"/>' +
-    '<path d="M12 44 H52" stroke="#c98a45" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="2 4"/></svg>';
+  treat.innerHTML = '<svg viewBox="0 0 64 60" width="64" height="60" style="overflow:visible"><ellipse cx="32" cy="56" rx="29" ry="4.5" fill="#fff6ec" stroke="#5b4239" stroke-width="2"/>' +
+    '<g class="treat-flag" opacity="0"><path d="M32 30 V3" stroke="#5b4239" stroke-width="2" stroke-linecap="round"/><rect x="32" y="3" width="17" height="4.4" fill="#d6283a"/><rect x="32" y="7.4" width="17" height="4.4" fill="#fffaf0"/><rect x="32" y="11.8" width="17" height="4.4" fill="#2a56b8"/><rect x="32" y="3" width="17" height="13.2" fill="none" stroke="#5b4239" stroke-width="1.5"/></g>' +
+    // a tompouce from the bottom: a layer of puff pastry, a thick layer of custard cream, another layer of puff pastry, and the orange icing on top
+    '<rect x="8" y="46" width="48" height="8" rx="2.5" fill="#e8b35f" stroke="#5b4239" stroke-width="2"/><path d="M13 49 H27 M33 49 H51 M16 52 H46" stroke="#c98a45" stroke-width="1.4" stroke-linecap="round"/>' +
+    '<path d="M8 39 Q5.5 42.5 8 46 H56 Q58.5 42.5 56 39 Z" fill="#ffefb0" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/><path d="M13 42.5 Q32 44.5 51 42.5" fill="none" stroke="#fff8d8" stroke-width="1.8" stroke-linecap="round"/>' +
+    '<rect x="8" y="33" width="48" height="6" rx="2" fill="#e8b35f" stroke="#5b4239" stroke-width="2"/><path d="M13 36 H25 M31 36 H47" stroke="#c98a45" stroke-width="1.3" stroke-linecap="round"/>' +
+    '<path d="M8 33 V29.5 Q8 24.5 13 24.5 H51 Q56 24.5 56 29.5 V33 Z" fill="#ff8a1f" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/><path d="M14 29 Q21 26.5 28 29 T42 29 T50 28.5" fill="none" stroke="#fffaf0" stroke-width="1.8" stroke-linecap="round"/><path d="M13 27.4 H23" stroke="#ffc58a" stroke-width="2" stroke-linecap="round"/></svg>';
   pet.appendChild(treat);
   setFace({ eyes: 'happy', mouth: 'smile', arms: clip ? 'rest' : 'carry', x: ['cheeks', 'hearts'] });
   sound('sparkle');
@@ -224,7 +209,6 @@ function kingsParty() {
   var ms = kingsDance(), total = ms + 5800, layer = bdayLayer(9000);
   if (!small) kingsBanner(layer, name);   // (first, so everything else is drawn over the card)
   kingsBunting(layer, total);
-  kingsWindmill(layer, total);
   kingsBalloons(layer, total);
   kingsConfetti(layer, total);
   setTimeout(function () { drift(['👑', '🧡', '🎉'], petTop(), 4); }, 1500);
@@ -248,7 +232,7 @@ function devKingsDayNow() {
   devKingsDay = true;
   if (!kingsParty()) { devKingsDay = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devKingsDay = false; }, 9000);
-  return document.documentElement.classList.contains('desktop-pet') ? 'Mini Fumu\'s King\'s Day: a crown, the royal dance, orange balloons and a tompouce. The King\'s Day box is in Profile on King\'s Day only.' : 'The app\'s King\'s Day: a card, a crown, the royal dance, bunting, balloons, confetti, a windmill and a tompouce. The King\'s Day box is in Profile on King\'s Day only.';
+  return document.documentElement.classList.contains('desktop-pet') ? 'Mini Fumu\'s King\'s Day: a crown, the royal dance, orange balloons and a tompouce. The King\'s Day box is in Profile on King\'s Day only.' : 'The app\'s King\'s Day: a card, a crown, the royal dance, bunting, balloons, confetti and a tompouce. The King\'s Day box is in Profile on King\'s Day only.';
 }
 // the first time the app is opened on King's Day the celebration comes first, like the others (the hold keeps everything else back, for at most 60 s)
 if (isKingsDay() && !kingsDoneToday()) { kingsHold = true; busy++; bdayToyAway(true); kingsHoldTimer = setTimeout(function () { if (!kingsHold) return; releaseKingsHold(); if (!kingsOn && !bdayHold && !partyOn) bdayToyAway(false); if (!busy) settle(); }, 60000); }

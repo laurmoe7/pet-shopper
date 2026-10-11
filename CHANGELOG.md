@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 625
+- Developer tools folded into sections with short names for the celebrations
+- King's Day: the windmill is gone and the tompouce has its layers right (pastry, cream, pastry, orange icing)
+
 ## Build 624
 - King's Day celebration (27 April): crown, royal dance with a waving arm, orange and Dutch-flag bunting, balloons, confetti, a windmill, a brass-band polka, a tompouce with a flag and a real King's Day box in Profile
 - Celebrations pending on the same day no longer hold each other up

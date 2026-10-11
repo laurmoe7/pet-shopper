@@ -694,7 +694,14 @@ button { font: inherit; color: inherit; }
 .build-label { margin: 8px 0 0; font-size: .75rem; color: var(--muted); text-align: center; }
 .dev-link { font-size: .8rem; color: var(--muted); text-decoration-color: var(--line); }
 .dev-warning { margin: 0; font-size: .85rem; font-weight: 700; color: var(--ink); background: var(--butter); border: 1.5px dashed var(--outline); border-radius: 14px; padding: 8px 12px; }
-.dev-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.dev-actions { display: flex; flex-direction: column; gap: 8px; }
+.dev-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0 8px 10px; }
+/* the developer tools are folded into sections (build 625) */
+.dev-group { border: 1.5px solid var(--line); border-radius: 16px; background: var(--surface); overflow: hidden; }
+.dev-group > summary { list-style: none; cursor: pointer; padding: 10px 14px; font-weight: 800; font-size: .88rem; display: flex; align-items: center; justify-content: space-between; -webkit-user-select: none; user-select: none; }
+.dev-group > summary::-webkit-details-marker { display: none; }
+.dev-group > summary::after { content: "▾"; color: var(--muted); transition: transform .2s; }
+.dev-group:not([open]) > summary::after { transform: rotate(-90deg); }
 .dev-actions button { border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 14px; padding: 10px 8px; font-weight: 800; font-size: .82rem; cursor: pointer; text-align: center; line-height: 1.25; }
 .dev-actions button:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
 .dev-actions button.danger { color: var(--danger); border-color: var(--danger); }

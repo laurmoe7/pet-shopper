@@ -175,20 +175,47 @@ var DEV_ACTIONS = [
     return 'Resetting…';
   } }
 ];
-DEV_ACTIONS.forEach(function (a, i) {
-  var b = document.createElement('button');
-  b.type = 'button';
-  b.dataset.i = i;
-  b.textContent = typeof a.label === 'function' ? a.label() : a.label;
-  if (a.danger) b.className = 'danger';
-  $('devActions').appendChild(b);
-});
+/** The developer tools are grouped into folding sections (build 625) so the list is not one long wall of buttons; the celebrations get short names. */
+var DEV_GROUPS = [
+  ['Time and progress', ['Day / night: real clock → day → night', 'Unlock everything', 'Lock everything again', 'Skip to tomorrow']],
+  ['Alerts and notifications', ['Test a Claude alert', 'Test a note alert', 'Test a link alert', 'Test a task reminder', 'Test a goal notification', 'Test an unlocked notification', 'Test a trip stamp notification']],
+  ['Celebrations', ['Play the birthday celebration', 'Play the Christmas celebration', 'Play the Halloween celebration', 'Play the New Year\'s Day celebration', 'Play the Easter celebration', 'Play the King\'s Day celebration']],
+  ['Fumu does something', ['Make Fumu ask for a snack', 'Make Fumu steal an emoji', 'Make Fumu suggest an item']],
+  ['Gifts', ['Pretend it is the next special day (gifts)', 'Shut today\'s gift boxes again']],
+  ['List and saved data', ['Fill with sample items', 'Clear the list', 'Reset names: yours, your birthday and Fumu\'s', 'Reset all saved data']]
+];
+var DEV_SHORT = { 'Play the birthday celebration': 'Birthday', 'Play the Christmas celebration': 'Christmas', 'Play the Halloween celebration': 'Halloween', 'Play the New Year\'s Day celebration': 'New Year\'s Day', 'Play the Easter celebration': 'Easter', 'Play the King\'s Day celebration': 'King\'s Day' };
+var devButtons = [];
+(function () {
+  var shown = {}, host = $('devActions');
+  function make(i) {
+    var a = DEV_ACTIONS[i], b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.i = i;
+    b.textContent = typeof a.label === 'function' ? a.label() : (DEV_SHORT[a.label] || a.label);
+    if (a.danger) b.className = 'danger';
+    devButtons[i] = b;
+    shown[i] = 1;
+    return b;
+  }
+  DEV_GROUPS.concat([['Other', []]]).forEach(function (g, gi) {
+    var idx = [];
+    DEV_ACTIONS.forEach(function (a, i) { var name = typeof a.label === 'function' ? null : a.label; if (gi < DEV_GROUPS.length ? g[1].indexOf(name) !== -1 : !shown[i]) idx.push(i); });
+    if (!idx.length) return;
+    var d = document.createElement('details'), s = document.createElement('summary'), grid = document.createElement('div');
+    d.className = 'dev-group'; s.textContent = g[0]; grid.className = 'dev-grid';
+    idx.forEach(function (i) { grid.appendChild(make(i)); });
+    d.append(s, grid);
+    host.appendChild(d);
+  });
+  DEV_ACTIONS.forEach(function (a, i) { if (typeof a.label === 'function' && !devButtons[i]) { /* a label that shows a state belongs to Other: made above when not matched */ } });
+})();
 $('devActions').addEventListener('click', function (e) {
   var b = e.target.closest('button');
   if (!b) return;
   sound('tap');
   devStatus.textContent = DEV_ACTIONS[b.dataset.i].run();
-  DEV_ACTIONS.forEach(function (a, i) { if (typeof a.label === 'function') $('devActions').children[i].textContent = a.label(); });   // (labels that show a state)
+  DEV_ACTIONS.forEach(function (a, i) { if (typeof a.label === 'function' && devButtons[i]) devButtons[i].textContent = a.label(); });   // (labels that show a state)
   refreshAll();
 });
 devNoWait.addEventListener('change', function () {
