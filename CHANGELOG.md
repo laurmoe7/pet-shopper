@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 609
+- Birthday jingle plays during the celebration
+
 ## Build 608
 - Birthday: Happy Birthday Name!, and it plays first when the app is opened that day, holding back alerts and other animations until it is over
 

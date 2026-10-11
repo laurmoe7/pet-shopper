@@ -1,6 +1,6 @@
 /* Fumu's sounds, synthesised with the Web Audio API (no audio files).
  * Sounds.play(kind) where kind is one of:
- *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party,
+ *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party, birthday (the birthday jingle),
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
  *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), bell, tink and smash (the night bell ringing, clinking and breaking), glass (a piece of window breaking off, the wrecking ball), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
@@ -297,6 +297,31 @@
     },
     notice: function (t) { chime(t, [988, 1319], 0.12, 0.85, 'sine'); chime(t + 0.34, [1568], 0.1, 0.5, 'sine'); },
     party: function (t) { chime(t, [523, 659, 784, 1047, 1319], 0.09, 1.1); },
+    birthday: function (t) {
+      // the birthday jingle (about 9 s, to go with the party dance): a bouncy bell tune in C, a bass on every second beat, soft ticks, and a sparkly run up at the end
+      var beat = 0.375;
+      var bars = [
+        [523, 659, 784, 659, 784, 1047, 1047, 0],
+        [698, 880, 1047, 880, 784, 988, 1047, 0],
+        [1047, 1319, 1047, 1319, 1568, 1568, 1568, 0]
+      ];
+      var bass = [[131, 196, 131, 196], [175, 196, 175, 196], [131, 196, 131, 262]];
+      bars.forEach(function (bar, bi) {
+        bar.forEach(function (hz, i) {
+          var at = t + (bi * 8 + i) * beat;
+          if (hz) {
+            tone(at, 0.3, 'triangle', hz, null, env(at, 0.01, 0.28, 0.2));
+            tone(at, 0.3, 'sine', hz * 2, null, env(at, 0.01, 0.2, 0.05));
+          }
+          noise(at + beat / 2, 0.04, 'highpass', 6000, 1, env(at + beat / 2, 0.001, 0.03, 0.07));
+        });
+        bass[bi].forEach(function (hz, i) {
+          var at = t + (bi * 8 + i * 2) * beat;
+          tone(at, 0.34, 'triangle', hz, null, env(at, 0.012, 0.32, 0.22));
+        });
+      });
+      chime(t + 8.4, [1047, 1319, 1568, 2093], 0.1, 1.2);
+    },
     jiggle: function (t) {
       // a belly wobble: soft boings that get smaller and lower
       for (var i = 0; i < 4; i++) tone(t + i * 0.12, 0.13, 'sine', 330 - i * 28, 230 - i * 22, env(t + i * 0.12, 0.008, 0.12, 0.3 - i * 0.05));

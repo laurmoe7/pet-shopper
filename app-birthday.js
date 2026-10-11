@@ -150,7 +150,7 @@ function birthdayParty() {
   busy++;
   releaseBdayHold();   // (the party's count replaces the hold's, so he is never free in between)
   if (pet.dataset.state === 'sleepy') pet.dataset.state = 'happy';   // (the developer tool wakes him)
-  sound('party');
+  sound('birthday');   // (the jingle: about 9 s, the length of the party dance)
   bdayHat(14500);   // (on until the cake has gone)
   setFace({ eyes: 'happy', mouth: 'open', arms: 'rest', x: ['cheeks', 'sparkles'] });
   if (small) say(bdayGreeting(name) + ' ♡', 3200, true); else say('yay, party time! ♡', 3000);   // (the app's banner already says it)
