@@ -115,12 +115,16 @@ function stealTrip(li, src, from) {
       e.style.cssText = 'position:absolute;left:' + (paw.x - sr.left - es / 2) + 'px;top:' + (paw.y - sr.top - es / 2) + 'px;width:' + es + 'px;height:' + es + 'px;z-index:2;';
       gs.appendChild(e);
       e.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.25)', offset: .4 }, { transform: 'scale(.9)' }], { duration: 260 });
+      // it is in his paw: he freezes and looks around to see whether anyone saw (eyes wide open, glancing one way, the other, and back)
+      gp.dataset.eyes = 'open';
+      [[150, -1], [560, 1], [980, -1]].forEach(function (g) { setTimeout(function () { gp.style.setProperty('--look-x', (g[1] * 3.6) + 'px'); gp.style.setProperty('--look-y', '-1px'); }, g[0]); });
       setTimeout(function () {   // and he runs back, fast
+        gp.style.removeProperty('--look-y');
         gp.classList.add('walking', 'running'); gp.dataset.eyes = 'happy';
         gp.style.setProperty('--look-x', (tx > 0 ? -3.2 : 3.2) + 'px');
         var back = gs.animate([{ transform: at(tx, ty) }, { transform: at(0, 0) }], { duration: Math.max(380, ms * .4), easing: 'ease-in-out', fill: 'forwards' });
         back.onfinish = function () { gs.remove(); pet.style.visibility = ''; resolve(paw); };
-      }, 320);
+      }, 1450);
     };
   });
 }

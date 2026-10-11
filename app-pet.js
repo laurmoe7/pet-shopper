@@ -134,11 +134,22 @@ function bellyJiggle() {
  * @param {number} ms How long to keep the class.
  */
 function pulse(cls, ms) {
+  if (cls === 'sit') return sitFor(ms);   // (sitting is the soles-out pose, .seated, since build 598)
   pet.classList.remove(cls);
   void pet.offsetWidth;
   pet.classList.add(cls);
   setTimeout(function () { pet.classList.remove(cls); }, ms);
   if (SQUISH[cls] && !reduceMotion) svgSquish(SQUISH[cls]);
+}
+
+var sitTimer = 0, sitOwn = false;
+/** Sits him down for a while, feet out in front (the one sit he has: the idle, petting and bedtime sits and the desktop's sit all use it). A sit that was already on (the desktop's long one, a nap) is left alone. @param {number} ms */
+function sitFor(ms) {
+  if (pet.classList.contains('seated') && !sitOwn) return;
+  clearTimeout(sitTimer);
+  sitOwn = true;
+  pet.classList.add('seated');
+  sitTimer = setTimeout(function () { sitOwn = false; if (!(typeof perched !== 'undefined' && perched)) pet.classList.remove('seated'); }, ms);
 }
 
 // ---------- squash and stretch, drawn inside the SVG ----------

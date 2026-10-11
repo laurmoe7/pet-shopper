@@ -2,6 +2,13 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 599
+- Emoji thief freezes and looks around once it is in his paw
+
+## Build 598
+- One sit: feet out in front, everywhere he sat before
+- Middle click swaps Mini Fumu and the app from anywhere in the window
+
 ## Build 597
 - Dutch: long words wrap inside the speech bubble
 - Add button is a plus in both languages
