@@ -10,21 +10,25 @@
 var TOY_KIND_KEY = 'nibble-toy-kind';
 var WRECK_MS = 10000, PAGE_WRECK_MS = 10000;   // (how long the ball flies: the small window, the page)
 
-/** @returns {string} Which toy is out: 'ball' (the one for his species) or 'wrecker'. */
+/** @returns {string} Which toy is out: 'ball' (the one for his species), 'wrecker' or 'none' (no toy at all). */
 function toyKind() {
-  try { return localStorage.getItem(TOY_KIND_KEY) === 'wrecker' ? 'wrecker' : 'ball'; } catch (e) { return 'ball'; }
+  try { var k = localStorage.getItem(TOY_KIND_KEY); return k === 'wrecker' || k === 'none' ? k : 'ball'; } catch (e) { return 'ball'; }
 }
 /** Shows the toy that is picked (a class on the stage; styles.css). */
-function applyToyKind() { stage.classList.toggle('toy-wreck', toyKind() === 'wrecker'); }
-/** The ring menu's toy switch: ball <-> wrecking ball. */
+function applyToyKind() {
+  stage.classList.toggle('toy-wreck', toyKind() === 'wrecker');
+  stage.classList.toggle('toy-none', toyKind() === 'none');
+}
+/** The ring menu's toy switch: his ball, the wrecking ball, no toy, and round again. */
 function toggleToyKind() {
   if (playing) return;   // (not while a game is on)
-  var next = toyKind() === 'wrecker' ? 'ball' : 'wrecker';
+  var next = { ball: 'wrecker', wrecker: 'none', none: 'ball' }[toyKind()];
   try { localStorage.setItem(TOY_KIND_KEY, next); } catch (e) { /* storage blocked */ }
   applyToyKind();
   sound('pick');
   if (typeof window.deskToyWarm === 'function') setTimeout(window.deskToyWarm, 200);   // (its picture ready for the screen-wide window)
-  say(next === 'wrecker' ? pick(['the wrecking ball… careful!', 'ooh, a big spiky one!']) : pick(['the nice ball again ♡', 'back to the ball~']), 1600);
+  if (next === 'none' && window.nibbleDesktop && window.nibbleDesktop.toyHide) window.nibbleDesktop.toyHide();   // (the screen-wide toy window goes too)
+  say(next === 'wrecker' ? pick(['the wrecking ball… careful!', 'ooh, a big spiky one!']) : next === 'none' ? pick(['no toy, then~', 'all put away!']) : pick(['the nice ball again ♡', 'back to the ball~']), 1600);
 }
 applyToyKind();
 

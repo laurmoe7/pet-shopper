@@ -82,8 +82,6 @@ var TASK_REACTIONS = {
   fun: { face: { eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['sparkles', 'cheeks'] }, move: ['wiggle', 800], bits: ['♪', '★', '✦'], color: '#d6b9f2', sound: 'done', lines: ['fun time!', 'nice break ♡', 'treat yourself!', 'whee!'] },
   travel: { face: { eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['sparkles', 'cheeks'] }, move: ['hop', 460], bits: ['✦', '➜', '★'], color: '#9fd3e8', sound: 'done', lines: ['adventure ahead!', 'ready to go!', 'bon voyage!', 'pack the snacks!'] },
   care: { face: { eyes: 'happy', mouth: 'smile', arms: 'cheer', x: ['hearts', 'cheeks'] }, bits: ['♥', '✧', '✦'], color: '#b8e3a8', sound: 'done', lines: ['good caretaker!', 'they say thanks ♡', 'so kind!', 'well looked after!'] },
-  pets: { face: { eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['hearts', 'cheeks'] }, move: ['hop', 460], bits: ['♥', '✦', '✧'], color: '#f2c9a0', sound: 'done', lines: ['good pet parent!', 'paws up!', 'they are so happy!', 'woof meow!'] },
-  study: { face: { eyes: 'happy', mouth: 'smile', arms: 'cheer', x: ['sparkles', 'cheeks'] }, bits: ['✎', '★', '✧'], color: '#c9b9f2', sound: 'done', lines: ['so smart!', 'big brain time!', 'studied hard ♡', 'A+ for you!'] },
   cook: { face: { eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }, move: ['wiggle', 800], bits: ['♨', '✦', '♥'], color: '#f6cf86', sound: 'done', lines: ['chef Fumu!', 'smells so good!', 'mmm, cooked!', 'ding! ready!'] },
   other: { face: { eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['sparkles', 'cheeks'] }, move: ['hop', 460], bits: ['✦', '✧', '♥'], color: '#9bdcb4', sound: 'done', lines: ['done! ✓', 'nice one!', 'tick tick!', 'checked off!'] }
 };
@@ -113,8 +111,6 @@ var TASK_ADDED = {
   fun: ['fun! finally!', 'yes, relax!'],
   travel: ['adventure!', 'pack the snacks!'],
   care: ['good caretaker!', 'they need you!'],
-  pets: ['paws first!', 'they need you!'],
-  study: ['brain time!', 'learning is cool!'],
   cook: ['smells good already!', 'chef time!'],
   other: ['noted!', 'on the list!', 'got it!', 'to-do, to-do!']
 };

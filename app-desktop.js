@@ -214,7 +214,8 @@
     return t === 'dark' || (t !== 'light' && !!window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
   }
   function applyLook() {
-    root.classList.toggle('desk-notoy', !!deskPrefs.hideToy);
+    // the old "Show his toy" setting is gone (the ring menu's Toy button has a no-toy choice): once, an old choice of no toy carries over
+    try { if (deskPrefs.hideToy && !localStorage.getItem('nibble-toy-migrated')) { localStorage.setItem('nibble-toy-migrated', '1'); localStorage.setItem('nibble-toy-kind', 'none'); if (typeof applyToyKind === 'function') applyToyKind(); } } catch (e) { /* storage blocked */ }
     root.classList.toggle('desk-nocushion', !!deskPrefs.hideCushion);
     root.classList.toggle('desk-backdrop', deskPrefs.backdrop === true);
     root.classList.toggle('desk-nosparkles', deskPrefs.sparkles === false);
@@ -423,7 +424,7 @@
   };
   setTimeout(window.deskToyWarm, 4000);
   window.deskToyField = function () {
-    if (deskPrefs.toyRoam !== true || deskPrefs.hideToy || !isPet() || !D.toyField || !D.toyShow || toyField) return;
+    if (deskPrefs.toyRoam !== true || toyKind() === 'none' || !isPet() || !D.toyField || !D.toyShow || toyField) return;
     var token = ++fieldToken;
     if (homeX === null && D.where) D.where().then(function (x) { if (homeX === null && x !== null) homeX = x; });
     Promise.all([D.toyField(), toyPicture()]).then(function (r) {

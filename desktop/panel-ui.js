@@ -85,8 +85,7 @@
     toggle(look, 'Sparkles around him', 'sparkles');
     toggle(look, 'Room background', 'backdrop', 'The scene from the whole app.');
     toggle(look, 'Sounds', 'mute', 'In the small window.', { invert: true });
-    toggle(look, 'Show his toy', 'hideToy', '', { invert: true });
-    toggle(look, 'Toy flies around the screen', 'toyRoam', '', { disabled: !!S.prefs.hideToy });
+    toggle(look, 'Toy flies around the screen', 'toyRoam');
     toggle(look, 'Show the cushion under him', 'hideCushion', 'His bed still shows at bedtime.', { invert: true });
 
     var does = section('What he does on his own');

@@ -5,10 +5,10 @@
 'use strict';
 
 var stampSheet = $('stampSheet'), stampGrid = $('stampGrid');
-// a book entry can join several task kinds with '+': calls and chats count as social, and stamps already earned for either show together
+// a book entry can join several task kinds with '+': calls and chats count as social, and stamps already earned for either show together (pets and study, build 583 to 587, went back into care and work)
 var STAMP_KINDS = [
   ['trip', 'Trips'], ['chore', 'Chores'], ['social+call', 'Social'], ['health', 'Health'], ['money', 'Money'], ['errand', 'Errands'], ['fitness', 'Fitness'],
-  ['work', 'Work'], ['fun', 'Fun'], ['travel', 'Travel'], ['care', 'Care'], ['pets', 'Pets'], ['study', 'Study'], ['cook', 'Cooking'], ['other', 'Other']
+  ['work+study', 'Work'], ['fun', 'Fun'], ['travel', 'Travel'], ['care+pets', 'Care'], ['cook', 'Cooking'], ['other', 'Other']
 ];
 /** @returns {string} The emoji that stands for a kind of stamp: the cart for trips, else the first one in tasks.js for that kind of task. */
 function stampEmoji(kind) {
