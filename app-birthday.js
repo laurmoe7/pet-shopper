@@ -226,7 +226,7 @@ function celebrationHolds() {
 function birthdayHolding() { return bdayHold || partyOn || celebAskUp() || (typeof xmasHolding === 'function' && xmasHolding()) || (typeof halloweenHolding === 'function' && halloweenHolding()) || (typeof newyearHolding === 'function' && newyearHolding()) || (typeof easterHolding === 'function' && easterHolding()) || (typeof kingsHolding === 'function' && kingsHolding()); }   // (the Christmas celebration holds things back the same way)
 /** @returns {boolean} Whether this is Mini Fumu, the small window on the desktop. */
 function deskPet() { return document.documentElement.classList.contains('desktop-pet'); }
-var celebCard = null, celebDevGift = 0;   // (the card asking whether to celebrate, and until when the developer tools may hand out a gift again)
+var celebCard = null, celebDevGift = 0, celebFxUntil = 0;   // (celebFxUntil: while the overlay is drawing a celebration, the small window leaves out the effects that the overlay draws bigger)   // (the card asking whether to celebrate, and until when the developer tools may hand out a gift again)
 /** @returns {boolean} Whether the card asking about a celebration is up (alerts wait for it, like for the party itself). */
 function celebAskUp() { return !!celebCard; }
 /**
@@ -239,6 +239,7 @@ function celebFx(kind, ms, total, name) {
   var D = window.nibbleDesktop;
   if (!deskPet() || !D || typeof D.celebrateFx !== 'function' || (window.deskPref && !window.deskPref('celebScreen'))) return false;   // (the Celebrations tab in his settings can keep the effects in his small window)
   try { D.celebrateFx(kind, { name: name, ms: ms, total: total, lang: typeof Lang === 'object' && Lang.get() === 'nl' ? 'nl' : 'en', rect: { x: 0, y: 0, w: window.innerWidth, h: window.innerHeight } }); } catch (e) { return false; }
+  celebFxUntil = Date.now() + total + 3000;
   return true;
 }
 /**

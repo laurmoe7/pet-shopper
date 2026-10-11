@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 631
+- Mini Fumu celebrations: no greeting card on the screen
+- Mini Fumu New Year: disco lights fill the whole screen
+- Mini Fumu New Year: blower confetti flies outside his room
+
 ## Build 630
 - Mini Fumu settings: tabs along the top and sorted sections
 - Mini Fumu settings: Special days tab, a switch and Play for each celebration

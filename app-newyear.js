@@ -80,8 +80,8 @@ function discoDance() {
 }
 
 /** The disco ball: it drops in from the top on its string, sways, and spins; round it the light spots it throws sweep right across the page. @param {Element} layer @param {number} ms */
-function newyearDiscoBall(layer, ms) {
-  var w = window.innerWidth, cx = Math.max(62, Math.round(w * 0.2)), cy = 70, R = 30;   // (hanging off to the left, clear of him and of his speech bubble)
+function newyearDiscoBall(layer, ms, big) {
+  var w = window.innerWidth, h = window.innerHeight, cx = big ? Math.round(w * 0.5) : Math.max(62, Math.round(w * 0.2)), cy = 70, R = 30;   // (`big`: Mini Fumu's overlay, the lights sweep the whole screen from a ball hanging in the middle of the top)   // (hanging off to the left, clear of him and of his speech bubble)
   var ball = document.createElement('div');
   ball.style.cssText = 'position:absolute;left:' + (cx - 40) + 'px;top:-10px;width:80px;height:100px;transform-origin:50% 0';
   var cells = '', k = 0, shades = ['#f4f7fd', '#cdd6ea', '#ffffff', '#aebbdc', '#e3e9f6', '#9fb0d8'];
@@ -96,9 +96,10 @@ function newyearDiscoBall(layer, ms) {
   // the light spots: they sit on circles round the ball and the whole set turns, so they sweep across the page like the real thing
   var spots = document.createElement('div'), pal = ['#ff8fb1', '#8fd3ff', '#ffe27a', '#b69cff', '#9be3a8', '#ffffff', '#ff9f7a'];
   spots.style.cssText = 'position:absolute;left:' + cx + 'px;top:' + (cy + 8) + 'px;width:0;height:0';
-  for (var i = 0; i < 22; i++) {
-    var a = Math.random() * Math.PI * 2, r = 70 + Math.random() * Math.min(520, Math.max(w, 700) * 0.6), sz = 16 + Math.random() * 30, col = pal[i % pal.length], sp = document.createElement('i');
-    sp.style.cssText = 'position:absolute;left:' + (Math.cos(a) * r - sz / 2) + 'px;top:' + (Math.sin(a) * r - sz / 2) + 'px;width:' + sz + 'px;height:' + sz + 'px;border-radius:50%;background:radial-gradient(circle,' + col + 'dd 0%,' + col + '66 45%,transparent 72%);opacity:.85';
+  var count = big ? Math.min(90, Math.round(w * h / 14000)) : 22, reachMax = big ? Math.hypot(Math.max(cx, w - cx), h) : 0;
+  for (var i = 0; i < count; i++) {
+    var a = Math.random() * Math.PI * 2, r = big ? 60 + Math.sqrt(Math.random()) * (reachMax - 60) : 70 + Math.random() * Math.min(520, Math.max(w, 700) * 0.6), sz = big ? 34 + Math.random() * 56 : 16 + Math.random() * 30, col = pal[i % pal.length], sp = document.createElement('i');
+    sp.style.cssText = 'position:absolute;left:' + (Math.cos(a) * r - sz / 2) + 'px;top:' + (Math.sin(a) * r - sz / 2) + 'px;width:' + sz + 'px;height:' + sz + 'px;border-radius:50%;background:radial-gradient(circle,' + col + (big ? 'ff 0%,' + col + 'aa 50%,transparent 76%' : 'dd 0%,' + col + '66 45%,transparent 72%') + ');opacity:.85';
     spots.appendChild(sp);
     if (!reduceMotion) sp.animate([{ opacity: .35, transform: 'scale(.8)' }, { opacity: .95, transform: 'scale(1.15)' }, { opacity: .35, transform: 'scale(.8)' }], { duration: 900 + (i * 211) % 700, delay: (i * 97) % 500, iterations: Infinity, easing: 'ease-in-out' });
   }
@@ -125,11 +126,12 @@ function newyearBanner(layer, name) {
 }
 
 /** Confetti and a few streamers shot out of the blower's tip, which fall in a curve. @param {{x: number, y: number}} at @param {number} n How many pieces. */
-function newyearPuff(at, n) {
-  if (reduceMotion) return;
+function newyearPuff(at, n, spread) {
+  if (reduceMotion || Date.now() < celebFxUntil) return;   // (while the overlay covers the screen it throws the confetti, past the edges of his window)
+  spread = spread || 1;
   var layer = bdayLayer(9000), cols = ['#ff8fb1', '#ffd36b', '#8fd3ff', '#b69cff', '#9be3a8', '#ff9f7a'];
   for (var i = 0; i < n; i++) {
-    var el = document.createElement('i'), ang = -0.5 + Math.random() * 1.0 - 0.15, sp = 90 + Math.random() * 190, streamer = i % 5 === 0, dx = Math.cos(ang) * sp, dy = Math.sin(ang) * sp * 0.9;
+    var el = document.createElement('i'), ang = -0.5 + Math.random() * 1.0 - 0.15, sp = (90 + Math.random() * 190) * spread, streamer = i % 5 === 0, dx = Math.cos(ang) * sp, dy = Math.sin(ang) * sp * 0.9;
     el.style.cssText = 'position:absolute;left:' + at.x + 'px;top:' + at.y + 'px;' + (streamer ? 'width:3px;height:' + (22 + Math.random() * 18) + 'px;border-radius:2px;' : 'width:' + (6 + Math.random() * 5) + 'px;height:' + (9 + Math.random() * 6) + 'px;border-radius:2px;') + 'background:' + cols[i % cols.length];
     layer.appendChild(el);
     el.animate([
