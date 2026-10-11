@@ -15,10 +15,11 @@ function bdayGreeting(name) {
   var nl = typeof Lang === 'object' && Lang.get() === 'nl';
   return (nl ? 'Gefeliciteerd' : 'Happy Birthday') + (name ? ' ' + name : '') + '!';
 }
+var FW_COLOURS = ['#ff3d7f', '#ff9f1a', '#1e9bff', '#8e5bff', '#12b886', '#ff6a3d'];   // (fireworks: stronger than the confetti, so they show up on the pale page)
 var BDAY_COLOURS = ['#ff8fb1', '#ffd36b', '#8fd3ff', '#b69cff', '#9be3a8', '#ff9f7a'];
-function bdayLayer() {
+function bdayLayer(z) {
   var el = document.createElement('div');
-  el.style.cssText = 'position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:9000';
+  el.style.cssText = 'position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:' + (z || 9000);
   document.body.appendChild(el);
   return el;
 }
@@ -33,27 +34,79 @@ function bdayHat(ms) {
   layer.appendChild(hat);
   setTimeout(function () { if (hat.parentNode) hat.remove(); }, ms);
 }
-/** Fireworks over the page: soft bursts of sparks, one after another (gentle: no flashing). @param {Element} layer @param {number} bursts */
-function bdayFireworks(layer, bursts) {
+/**
+ * Fireworks for the whole party (build 611): a rocket climbs with a trail, then bursts into streaks of light with a soft glow, a few sparks hang and fall like glitter, and every
+ * third one is a heart. One burst about every 1.7 s from the start until `ms`, the last of them a double one. They go off away from him (`bdaySpot`), over the page. Gentle on purpose: slow, soft glow, nothing flashes. @param {Element} layer @param {number} ms How long to keep going.
+ */
+function bdayFireworks(layer, ms) {
   if (reduceMotion) return;
-  var w = window.innerWidth, h = window.innerHeight, reach = Math.max(50, Math.min(w, h) * 0.3);
-  for (var b = 0; b < bursts; b++) (function (b) {
-    setTimeout(function () {
-      if (!layer.parentNode) return;
-      var cx = w * (0.15 + Math.random() * 0.7), cy = h * (0.12 + Math.random() * 0.38), col = BDAY_COLOURS[(b * 2 + 1) % BDAY_COLOURS.length], col2 = BDAY_COLOURS[(b * 2 + 3) % BDAY_COLOURS.length];
-      sound('sparkle');
-      for (var k = 0; k < 28; k++) {   // two rings of sparks (the inner one smaller), each with a soft glow
-        var inner = k % 2, a = ((k >> 1) / 14) * Math.PI * 2 + inner * 0.22, d = reach * (inner ? 0.62 : 1), c = inner ? col2 : col, sp = document.createElement('i');
-        sp.style.cssText = 'position:absolute;left:' + cx + 'px;top:' + cy + 'px;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:' + c + ';box-shadow:0 0 0 2px #fff,0 0 8px 2px ' + c;
-        layer.appendChild(sp);
-        sp.animate([
-          { transform: 'translate(0,0) scale(1.3)', opacity: 1 },
-          { transform: 'translate(' + Math.cos(a) * d + 'px,' + Math.sin(a) * d + 'px) scale(1)', opacity: 1, offset: 0.55 },
-          { transform: 'translate(' + Math.cos(a) * d * 1.1 + 'px,' + (Math.sin(a) * d * 1.1 + reach * 0.4) + 'px) scale(.2)', opacity: 0 }
-        ], { duration: 1500, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'both' }).onfinish = function () { sp.remove(); };
+  var w = window.innerWidth, h = window.innerHeight, reach = Math.max(46, Math.min(w, h) * 0.32), n = 0;
+  /** One burst at (cx, cy) in colours a and b; kind: 0 streaks, 1 ring of dots, 2 heart. */
+  function burst(cx, cy, a, b, kind) {
+    var glow = document.createElement('i');   // a soft round glow that eases in and out (no flash)
+    glow.style.cssText = 'position:absolute;left:' + (cx - reach * 0.6) + 'px;top:' + (cy - reach * 0.6) + 'px;width:' + reach * 1.2 + 'px;height:' + reach * 1.2 + 'px;border-radius:50%;background:radial-gradient(circle,' + a + '88 0%,' + a + '33 45%,transparent 70%)';
+    layer.appendChild(glow);
+    glow.animate([{ opacity: 0, transform: 'scale(.4)' }, { opacity: 1, transform: 'scale(1)', offset: 0.3 }, { opacity: 0, transform: 'scale(1.15)' }], { duration: 1500, easing: 'ease-out', fill: 'both' }).onfinish = function () { glow.remove(); };
+    var pts = [], k, t;
+    if (kind === 2) for (k = 0; k < 30; k++) { t = (k / 30) * Math.PI * 2; pts.push([16 * Math.pow(Math.sin(t), 3) / 16, -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) / 16]); }   // (a heart)
+    else for (k = 0; k < (kind ? 22 : 26); k++) { t = (k / (kind ? 22 : 26)) * Math.PI * 2 + (kind ? 0 : (k % 2) * 0.1); pts.push([Math.cos(t), Math.sin(t)]); }
+    pts.forEach(function (p, i) {
+      var col = i % 2 ? b : a, dx = p[0] * reach * (kind === 0 && i % 2 ? 0.7 : 1), dy = p[1] * reach * (kind === 0 && i % 2 ? 0.7 : 1), el = document.createElement('i'), ang = Math.atan2(dy, dx) * 180 / Math.PI;
+      layer.appendChild(el);
+      if (kind === 0) {   // streaks: short bars that point away from the middle and shrink as they go
+        el.style.cssText = 'position:absolute;left:' + (cx - 11) + 'px;top:' + (cy - 2) + 'px;width:22px;height:4px;border-radius:2px;background:linear-gradient(90deg,transparent,' + col + ' 60%,#fff);box-shadow:0 0 8px 1px ' + col;
+        el.animate([
+          { transform: 'translate(0,0) rotate(' + ang + 'deg) scaleX(.2)', opacity: 1 },
+          { transform: 'translate(' + dx * 0.8 + 'px,' + dy * 0.8 + 'px) rotate(' + ang + 'deg) scaleX(1.1)', opacity: 1, offset: 0.55 },
+          { transform: 'translate(' + dx * 1.05 + 'px,' + (dy * 1.05 + reach * 0.3) + 'px) rotate(' + (ang + 25) + 'deg) scaleX(.2)', opacity: 0 }
+        ], { duration: 2000, easing: 'cubic-bezier(.15,.7,.3,1)', fill: 'both' }).onfinish = function () { el.remove(); };
+      } else {   // rings and hearts: glowing dots that open out, hang, and sink
+        el.style.cssText = 'position:absolute;left:' + (cx - 5) + 'px;top:' + (cy - 5) + 'px;width:10px;height:10px;border-radius:50%;background:' + col + ';box-shadow:0 0 0 2px #fff,0 0 10px 3px ' + col;
+        el.animate([
+          { transform: 'translate(0,0) scale(.4)', opacity: 1 },
+          { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(1)', opacity: 1, offset: 0.55 },
+          { transform: 'translate(' + dx * 1.04 + 'px,' + (dy * 1.04 + reach * 0.45) + 'px) scale(.3)', opacity: 0 }
+        ], { duration: 2400, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'both' }).onfinish = function () { el.remove(); };
       }
-    }, 600 + b * 900 + Math.random() * 300);
-  })(b);
+    });
+    for (k = 0; k < 9; k++) {   // glitter: little sparks that hang in the air, twinkle and drift down
+      var g = document.createElement('i'), ga = Math.random() * Math.PI * 2, gd = reach * (0.35 + Math.random() * 0.7), gc = k % 2 ? a : '#ffd84a', gx = cx + Math.cos(ga) * gd, gy = cy + Math.sin(ga) * gd;
+      g.style.cssText = 'position:absolute;left:' + (gx - 3) + 'px;top:' + (gy - 3) + 'px;width:6px;height:6px;border-radius:50%;background:' + gc + ';box-shadow:0 0 0 1.5px #fff,0 0 8px 2px ' + gc;
+      layer.appendChild(g);
+      g.animate([{ transform: 'translate(0,0) scale(0)', opacity: 0 }, { transform: 'translate(0,0) scale(1)', opacity: 1, offset: 0.25 }, { transform: 'translate(0,' + reach * 0.15 + 'px) scale(.7)', opacity: 0.35, offset: 0.55 }, { transform: 'translate(0,' + (reach * 0.4 + Math.random() * 20) + 'px) scale(.2)', opacity: 0 }],
+        { duration: 2100, delay: 450 + Math.random() * 450, easing: 'ease-out', fill: 'both' }).onfinish = function () { g.remove(); };
+    }
+  }
+  /** @returns {number[]} A random place for a burst, as far from him as a dozen tries give: his own drawing stays clear, in the app and in the small window. */
+  function bdaySpot(w, h, reach) {
+    var r = pet.getBoundingClientRect(), best = null, bestD = -1;
+    for (var i = 0; i < 14; i++) {
+      var x = w * (0.12 + Math.random() * 0.76), y = h * (0.12 + Math.random() * 0.5);
+      var dx = Math.max(r.left - x, 0, x - r.right), dy = Math.max(r.top - y, 0, y - r.bottom), d = Math.hypot(dx, dy);
+      if (d >= reach * 0.9) return [x, y];
+      if (d > bestD) { bestD = d; best = [x, y]; }
+    }
+    return best;
+  }
+  /** Sends a rocket up from the bottom and bursts it where it stops. */
+  function launch(last) {
+    if (!layer.parentNode) return;
+    var kind = n % 3 === 2 ? 2 : n % 3, spot = bdaySpot(w, h, reach), cx = spot[0], cy = spot[1];
+    var a = FW_COLOURS[(n * 2) % FW_COLOURS.length], b = FW_COLOURS[(n * 2 + 3) % FW_COLOURS.length];
+    var rocket = document.createElement('i');
+    rocket.style.cssText = 'position:absolute;left:' + (cx - 1.5) + 'px;top:0;width:3px;height:22px;border-radius:2px;background:linear-gradient(0deg,transparent,#fff6ec);box-shadow:0 0 6px #ffd36b';
+    layer.appendChild(rocket);
+    var rise = h - cy + 20;
+    rocket.animate([{ transform: 'translateY(' + (h + 10) + 'px)', opacity: 0.9 }, { transform: 'translateY(' + cy + 'px)', opacity: 1, offset: 0.92 }, { transform: 'translateY(' + cy + 'px)', opacity: 0 }], { duration: 550 + rise * 0.35, easing: 'cubic-bezier(.3,.6,.5,1)', fill: 'both' }).onfinish = function () {
+      rocket.remove();
+      if (!layer.parentNode) return;
+      sound('sparkle');
+      burst(cx, cy, a, b, kind);
+      if (last) burst(Math.min(w - reach * 0.4, Math.max(reach * 0.4, w - cx)), cy + reach * 0.3, FW_COLOURS[(n * 2 + 1) % FW_COLOURS.length], FW_COLOURS[(n * 2 + 4) % FW_COLOURS.length], 0);
+    };
+    n++;
+  }
+  for (var at = 500; at < ms - 900; at += 1700 + Math.random() * 300) (function (at, last) { setTimeout(function () { launch(last); }, at); })(at, at + 2000 >= ms - 900);
 }
 /** The app: confetti rains down over the whole page and a banner drops in from the top. */
 function bdayApp(name) {
@@ -73,7 +126,6 @@ function bdayApp(name) {
   banner.textContent = '🎂 ' + bdayGreeting(name) + ' 🎉';
   layer.appendChild(banner);
   if (!reduceMotion) banner.animate([{ transform: 'translateY(-90px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0)', opacity: 1, offset: 0.85 }, { transform: 'translateY(-90px)', opacity: 0 }], { duration: 7000, fill: 'both' });
-  bdayFireworks(layer, 3);
   setTimeout(function () { layer.remove(); }, 8200);
 }
 /** Mini Fumu: balloons float up past him, and hearts and stars drift off him. */
@@ -91,7 +143,6 @@ function bdayDesk() {
       { transform: 'translate(' + (x - 6) + 'px,-50px)', opacity: 1 }
     ], { duration: 4200 + Math.random() * 1800, delay: i * 420, easing: 'ease-in-out', fill: 'both' });
   }
-  bdayFireworks(layer, 3);
   setTimeout(function () { layer.remove(); }, 9500);
 }
 /** The end of the party: he holds out a birthday cake for you, says so, and after a few seconds it goes again (build 605). @returns {number} How long it takes, in ms. */
@@ -107,9 +158,6 @@ function bdayCake() {
     '<rect x="30" y="4" width="4" height="9" rx="1.5" fill="#8fd3ff" stroke="#5b4239" stroke-width="1.6"/>' +
     '<path class="flame" d="M32 -1 Q36 3 32 6 Q28 3 32 -1 Z" fill="#ffd36b" stroke="#e8885a" stroke-width="1.2"/></svg>';
   pet.appendChild(cake);
-  var finale = bdayLayer();   // (a couple more fireworks as the party ends)
-  bdayFireworks(finale, 2);
-  setTimeout(function () { finale.remove(); }, 4500);
   setFace({ eyes: 'happy', mouth: 'smile', arms: clip ? 'rest' : 'carry', x: ['cheeks', 'hearts'] });
   sound('sparkle');
   say(pick(['this cake is for you! ♡', 'happy birthday! cake for you ♡']), 2600, true);
@@ -158,6 +206,9 @@ function birthdayParty() {
   var ms;
   if (small) { bdayDesk(); ms = partyDance(); setTimeout(function () { drift(['🎈', '♥', '✦'], petTop(), 4); }, 1500); }
   else { bdayApp(name); ms = partyDance(); setTimeout(function () { drift(['🎂', '🎉', '♥'], petTop(), 4); }, 1500); }
+  var fw = bdayLayer(8000), fwMs = ms + 5500;   // (fireworks away from him, one every couple of seconds right through to the end of the cake)
+  bdayFireworks(fw, fwMs);
+  setTimeout(function () { fw.remove(); }, fwMs + 3500);
   setTimeout(function () { var more = bdayCake(); setTimeout(function () { partyOn = false; busy--; if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the cake)
   return true;
 }
