@@ -1,4 +1,4 @@
-// The birthday celebration: once on the player's birthday (state.player.birthday), Fumu puts on a party hat and does the chorus dance, with fireworks, and ends by handing you a cake.
+// The birthday celebration: once on the player's birthday (state.player.birthday), Fumu puts on a party hat and does the party dance, with fireworks, and ends by handing you a cake.
 // The app (phone, full app) rains confetti over the page and shows a banner; Mini Fumu (the small window) sends up balloons instead, with no banner.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
@@ -134,8 +134,8 @@ function birthdayParty() {
   say(small ? 'happy birthday' + (name ? ', ' + name : '') + '!! ♡' : 'yay, party time! ♡', 3000);   // (the app's banner already says it)
   pulse('hop', 500);
   var ms;
-  if (small) { bdayDesk(); ms = chorusDance(); setTimeout(function () { drift(['🎈', '♥', '✦'], petTop(), 4); }, 1500); }
-  else { bdayApp(name); ms = chorusDance(); setTimeout(function () { drift(['🎂', '🎉', '♥'], petTop(), 4); }, 1500); }
+  if (small) { bdayDesk(); ms = partyDance(); setTimeout(function () { drift(['🎈', '♥', '✦'], petTop(), 4); }, 1500); }
+  else { bdayApp(name); ms = partyDance(); setTimeout(function () { drift(['🎂', '🎉', '♥'], petTop(), 4); }, 1500); }
   setTimeout(function () { var more = bdayCake(); setTimeout(function () { partyOn = false; busy--; if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the cake)
   return true;
 }
@@ -154,7 +154,7 @@ function devBirthdayNow() {
   devBirthday = true;
   if (!birthdayParty()) { devBirthday = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devBirthday = false; }, 9000);
-  return document.documentElement.classList.contains('desktop-pet') ? 'Mini Fumu\'s birthday: balloons, fireworks, the chorus dance and a cake.' : 'The app\'s birthday: confetti, a banner, fireworks, the chorus dance and a cake.';
+  return document.documentElement.classList.contains('desktop-pet') ? 'Mini Fumu\'s birthday: balloons, fireworks, the party dance and a cake.' : 'The app\'s birthday: confetti, a banner, fireworks, the party dance and a cake.';
 }
 setTimeout(birthdayCheck, 7000);
 setInterval(birthdayCheck, 60000);   // (also when he was asleep or busy at first)

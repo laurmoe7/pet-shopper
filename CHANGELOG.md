@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 607
+- New birthday dance: bouncy party dance with lots of squash and stretch
+
 ## Build 606
 - Birthday: party hat no longer lost when his outfit is drawn again
 - A couple more fireworks at the end

@@ -485,6 +485,34 @@ function chorusDance() {
   return 8000;
 }
 
+/** The squash and stretch of the party dance: twelve beats of 750 ms, each a crouch, a stretch up, a squash on landing (the hops themselves are the `partydance` CSS in styles.css; keep them in step). Beat 11 is the big jump. */
+var PARTY_SQUISH = (function () {
+  var steps = [], beats = 12;
+  for (var b = 0; b < beats; b++) {
+    var t = b / beats, w = 1 / beats, big = b === 10, soft = b === 11;
+    var cr = big ? [1.26, .74] : [1.15, .85], up = big ? [.82, 1.3] : [.88, 1.19], ld = big ? [1.26, .76] : soft ? [1.1, .9] : [1.18, .82];
+    steps.push([t, 1, 1, 0], [t + w * .15, cr[0], cr[1], 0], [t + w * .35, up[0], up[1], -4], [t + w * .55, .95, 1.07, -3], [t + w * .8, ld[0], ld[1], 0], [t + w * .93, .97, 1.03, 0]);
+  }
+  steps.push([1, 1, 1, 0]);
+  return { ms: 9000, steps: steps };
+})();
+/** Party dance: the birthday dance of 9 s (the `partydance` CSS in styles.css and PARTY_SQUISH above): bouncy hops full of squash and stretch, first on the spot, then from side to side, then a turn in the air, one big jump and a happy landing, with his arms up cheering the whole time. This sets the face and the notes. */
+function partyDance() {
+  var arms = document.documentElement.matches('[data-scene$="clip"], [data-list="todo"]') ? 'rest' : 'cheer';   // (his left hand holds the clipboard on the to-do list)
+  setFace({ eyes: 'happy', mouth: 'open', arms: arms, x: ['cheeks', 'sparkles'] });
+  pulse('partydance', 9000);
+  if (!reduceMotion) svgSquish(PARTY_SQUISH);
+  function at(ms, fn) { setTimeout(function () { if (pet.classList.contains('partydance')) fn(); }, ms); }
+  at(750, function () { drift(['♪', '✦'], petTop(), 2); });
+  at(2250, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: arms, x: ['cheeks'] }); drift(['♫', '♥'], petTop(), 2); });
+  at(3750, function () { setFace({ eyes: 'happy', mouth: 'open', arms: arms, x: ['cheeks', 'hearts'] }); drift(['🎉', '♪'], petTop(), 3); });
+  at(6000, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: arms, x: ['cheeks', 'sparkles'] }); drift(['✦', '♫', '🎈'], petTop(), 3); });
+  at(7600, function () { drift(['🎉', '♥', '✦'], petTop(), 4); });
+  at(8400, function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks', 'hearts'] }); });
+  hum();
+  return 9000;
+}
+
 /** @returns {{x: number, y: number}} A point just above the pet's head. */
 function petTop() {
   var r = pet.getBoundingClientRect();
