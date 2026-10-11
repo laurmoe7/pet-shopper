@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 634
+- Radial menu: a Plant button to hide or show the little plant
+- The little plant is for the app only, not Mini Fumu
+- Preview build: keeps the error keeper, so Options opens again
+
 ## Build 633
 - Weather: Fumu reacts to rain, storms, snow, cold and heat (turn it on in Options)
 - Little plant in the room: grows when you tick things off, then flowers

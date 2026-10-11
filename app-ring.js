@@ -44,6 +44,7 @@
     ball: { icon: '⚽', label: 'Play ball', run: function () { if (!busy && typeof playToy === 'function') playToy(); } },
     toy: { icon: '💥', label: 'Wrecking ball', on: function () { return toyKind() === 'wrecker'; }, run: function () { toggleToyKind('wrecker'); } },
     notoy: { icon: '🚫', label: 'No toy', on: function () { return toyKind() === 'none'; }, run: function () { toggleToyKind('none'); } },   // (neither switch on: his own ball)
+    plant: { icon: '🌱', label: 'Plant', on: function () { return !!state.pet.room.plant; }, run: function () { if (typeof togglePlant === 'function') togglePlant(); } },   // (the app only: shows or hides the little plant)
     snack: { icon: '🍪', label: 'Snack', run: ringSnack },
     dance: { icon: '🎉', label: 'Dance', run: ringDance },
     wave: { icon: '👋', label: 'Wave', run: ringWave },
@@ -54,7 +55,7 @@
   /** @returns {string[]} The buttons for the scene he is in now. */
   function items() {
     var scene = petScene();
-    if (!isDesk()) return scene === 'night-bed' ? [] : ['toy', 'notoy', 'snack'];   // in the app: the toys (none picked: his own) and a snack; in bed they are put away
+    if (!isDesk()) return scene === 'night-bed' ? [] : ['toy', 'notoy', 'plant', 'snack'];   // in the app: the toys (none picked: his own) and a snack; in bed they are put away
     if (scene === 'night-bed') return ['night'];   // in bed: only the night light
     var play = toyKind() === 'none' ? [] : ['ball'];   // (nothing to play with when there is no toy)
     if (scene.indexOf('night-drowsy') === 0) return play.concat(['toy', 'notoy', 'snack', 'dance', 'swap', 'lights']);

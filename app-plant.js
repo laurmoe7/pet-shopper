@@ -5,6 +5,8 @@
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
+/** @returns {boolean} Whether this is the app (phone or the whole app on the desktop): the plant is not in Mini Fumu, the small window. */
+function plantApp() { return !document.documentElement.classList.contains('desktop-pet'); }
 /** @returns {{stage: number, flowers: number, thirsty: boolean, bloom: boolean}} How the plant is now. */
 function plantNow() { return L.plantInfo(state.pet.plant, L.dayNumber(giftDate())); }
 /** Draws the plant's picture again, for the stage it has reached (the room calls this after it draws). */
@@ -39,7 +41,7 @@ function plantDrops(done) {
 }
 /** Waters the plant if today's drink is still due (called when something is ticked off). */
 function plantWater() {
-  if (!state.pet.room.plant) return;   // taken out of the room: it waits
+  if (!plantApp() || !state.pet.room.plant) return;   // taken out of the room: it waits
   var r = L.waterPlant(state.pet, L.dayNumber(giftDate()));
   if (!r.watered) return;
   save();
@@ -51,6 +53,7 @@ function plantWater() {
 }
 /** The flower is out: Fumu shows it off (waits a moment if he is busy with something else). */
 function plantProud(tries) {
+  if (!plantApp()) return;
   if (busy || document.querySelector('dialog[open]')) { if ((tries | 0) < 10) setTimeout(function () { plantProud((tries | 0) + 1); }, 3500); return; }
   sound('sparkle');
   setFace({ eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['cheeks', 'sparkles'] });
@@ -79,12 +82,19 @@ roomEl.addEventListener('pointerup', function (e) {
 });
 // the first time the feature is there, the plant goes into the room (take it out in the Room list if it is not wanted)
 try {
-  if (!localStorage.getItem('nibble-plant-placed')) {
+  if (plantApp() && !localStorage.getItem('nibble-plant-placed')) {
     localStorage.setItem('nibble-plant-placed', '1');
     if (!state.pet.room.plant) { var plantItem = decorItem('plant'); state.pet.room.plant = { x: plantItem.x, y: plantItem.y }; save(); renderRoom(); }
   }
 } catch (e) { /* storage not available */ }
 plantRefresh();
+/** The ring menu's Plant button: puts the plant away or brings it back (the same as taking it out of the room in the Room list: while it is away it does not grow). */
+function togglePlant() {
+  var placed = L.toggleDecor(state.pet.room, decorItem('plant'));
+  save(); renderRoom();
+  sound(placed ? 'place' : 'remove');
+  say(placed ? 'my plant is back!' : 'plant put away for now', 1500, true);
+}
 /** Developer tool: waters the plant now, whatever the day (so every stage can be seen). @returns {string} */
 function devPlantGrow() {
   if (!state.pet.room.plant) { state.pet.room.plant = { x: 0.13, y: 0.8 }; renderRoom(); }

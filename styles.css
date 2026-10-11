@@ -4336,3 +4336,4 @@ html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-bloc
 .decor-plant { cursor: pointer; }
 .decor-plant.plant-bloom svg { filter: drop-shadow(0 0 5px rgba(255, 214, 120, .85)); }
 .decor-plant svg { transform-origin: 50% 90%; overflow: visible; }
+html.desktop-pet .decor-plant { display: none; }   /* the plant is for the app only, not Mini Fumu */
