@@ -2,6 +2,8 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+- Sketchpad moved to its own repo (laurmoe7/varken-sketchpad).
+
 ## Build 430
 - He sits down while he naps.
 - Gentler squish against a wall, with a little lean and a burst where he hits.
