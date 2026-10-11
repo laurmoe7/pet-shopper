@@ -173,6 +173,7 @@ button { font: inherit; color: inherit; }
 .stage { --pet-size: 1; }
 .stage:has(#pet[data-skin="munchkin"]) { --pet-size: .8; }   /* the munchkin cat is a short-legged little one */
 .stage:has(#pet[data-species="hamster"]) { --pet-size: .8; }   /* the hamster is a small one, like the munchkin */
+.stage:has(#pet[data-species="mouse"]) { --pet-size: .8; }   /* the mouse is as small as the hamster (build 584) */
 .stage:has(#pet[data-species="dragon"]) { --pet-size: 1.1; }   /* the dragon is a tenth bigger (1.1 is the most any pet may be: a test checks) */
 #pet { width: calc(150px * var(--pet-size)); height: calc(140px * var(--pet-size)); }
 
@@ -1421,13 +1422,13 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .pet[data-skin="scottishfold"] .fold-ears .ear-g { transform-origin: 50% 100%; }
 .ear-crease { fill: none; stroke: #9d99ab; stroke-width: 1.8; stroke-linecap: round; }
 .pet[data-skin="scottishfold"] .eyes-open .ink { rx: 5.6px; ry: 6.2px; }
-/* hamster: big round eyes with two glints (the second one is shown here for every hamster skin), */
-.pet[data-species="hamster"] .eyes-open .ink { rx: 6.9px; ry: 7.8px; }
-.pet[data-species="hamster"] .pupils .glint:not(.glint2).eye-l { cx: 55.6px; cy: 88.8px; r: 2.3px; }
-.pet[data-species="hamster"] .pupils .glint:not(.glint2).eye-r { cx: 99.6px; cy: 88.8px; r: 2.3px; }
-.pet[data-species="hamster"] .pupils .glint2 { display: inline; r: 1.3px; }
-.pet[data-species="hamster"] .pupils .glint2.eye-l { cx: 61.2px; cy: 95.4px; }
-.pet[data-species="hamster"] .pupils .glint2.eye-r { cx: 105.2px; cy: 95.4px; }
+/* hamster and mouse: big round eyes with two glints (the second one is shown here for every hamster and mouse skin; the mouse got the hamster's eyes in build 584), */
+.pet:is([data-species="hamster"], [data-species="mouse"]) .eyes-open .ink { rx: 6.9px; ry: 7.8px; }
+.pet:is([data-species="hamster"], [data-species="mouse"]) .pupils .glint:not(.glint2).eye-l { cx: 55.6px; cy: 88.8px; r: 2.3px; }
+.pet:is([data-species="hamster"], [data-species="mouse"]) .pupils .glint:not(.glint2).eye-r { cx: 99.6px; cy: 88.8px; r: 2.3px; }
+.pet:is([data-species="hamster"], [data-species="mouse"]) .pupils .glint2 { display: inline; r: 1.3px; }
+.pet:is([data-species="hamster"], [data-species="mouse"]) .pupils .glint2.eye-l { cx: 61.2px; cy: 95.4px; }
+.pet:is([data-species="hamster"], [data-species="mouse"]) .pupils .glint2.eye-r { cx: 105.2px; cy: 95.4px; }
 /* chicken: white with a red comb and wattle */
 .pet[data-skin="chicken"] .tuft { display: none; }
 .chicken-comb path, .chicken-wattle { fill: #ef5d63; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }

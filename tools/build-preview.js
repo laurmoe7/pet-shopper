@@ -21,6 +21,10 @@ if (process.argv.includes('--bump')) {
 }
 
 const html = read('index.html');
+// the head's own inline scripts and styles (the error keeper at the top of the page, the loading card's rules) come along: without
+// the error keeper, window.Errors is missing and the gear's Options cannot open (build 584)
+const head = html.slice(0, html.indexOf('<body>'));
+const headBits = [...head.matchAll(/<(script|style)(?:\s[^>]*)?>[\s\S]*?<\/\1>/g)].filter((m) => !/\ssrc=|\shref=/.test(m[0].slice(0, m[0].indexOf('>')))).map((m) => m[0]);
 const body = html
   .slice(html.indexOf('<body>') + 6, html.indexOf('</body>'))
   .replace(/<script src="[^"]+"><\/script>\s*/g, '');
@@ -29,6 +33,7 @@ const inline = (s, tag) => s.replace(new RegExp('</' + tag, 'gi'), '<\\/' + tag)
 const page = [
   "<title>Fumufumu</title>",
   '<style>' + inline(read('fonts.css') + read('styles.css'), 'style') + '</style>',
+  ...headBits,
   body,
   ...SCRIPTS.map((n) => '<script>' + inline(read(n + '.js'), 'script') + '</script>'),
   ''

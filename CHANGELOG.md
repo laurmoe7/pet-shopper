@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 584
+- The mouse is as small as the hamster and has its big round eyes
+- Preview: the gear opens Options again (the page's error script was missing from the preview build)
+
 ## Build 583
 - Old School and Bonfire: the pet and skin tiles all stay the same size, long names wrap onto two lines inside the tile
 - The app no longer fails to start now and then on a slow load (the stickers redraw waited for the wrong moment)
