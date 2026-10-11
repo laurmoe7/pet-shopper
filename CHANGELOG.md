@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 619
+- New Year's Day celebration on 1 January: gold party hat, disco ball with light spots, a disco dance with the pointing pose, disco music, and a party blower with confetti
+
 ## Build 618
 - No toe beans when hands are held to the face or cover the eyes
 - Christmas lights blink like the Halloween ones, in Christmas colours

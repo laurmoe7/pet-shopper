@@ -530,11 +530,11 @@ var HALLOWEEN_BEATS = [
   { x: 0, ay: 5, r: 0, cy: 7, up: [1.12, .88], ld: [1.26, .74], still: 1 },          // 11: crouching right down...
   { x: 0, ay: -40, r: 0, cy: 3, up: [.8, 1.32], ld: [1.28, .74] }                    // 12: BOO! one huge jump
 ];
-/** @returns {string} The CSS for the Halloween dance, built from HALLOWEEN_BEATS. */
-function halloweenDanceCss() {
-  var B = 100 / HALLOWEEN_BEATS.length, f = function (n) { return +n.toFixed(3); }, out = '@keyframes halloweendance {\n', x = 0, y = 0, s = 1;
+/** @returns {string} The CSS for a dance made from a table of beats (like HALLOWEEN_BEATS above: each beat is a hop or sway, `x` is where it lands, `ay` the top of the hop, `r` the lean, `cy` how far he crouches first, `ey` the height he ends at, `flip` for a turn in the air, `still` for a crouch, `up` and `ld` the squash and stretch). The class is `.pet.<name>`, 9 s long. */
+function danceCss(name, beats) {
+  var B = 100 / beats.length, f = function (n) { return +n.toFixed(3); }, out = '@keyframes ' + name + ' {\n', x = 0, y = 0, s = 1;
   function stop(p, X, Y, R, S) { out += '  ' + f(p) + '% { transform: translate(' + f(X) + 'px, ' + f(Y) + 'px) rotate(' + f(R) + 'deg) scaleX(' + S + '); }\n'; }
-  HALLOWEEN_BEATS.forEach(function (b, i) {
+  beats.forEach(function (b, i) {
     var p = i * B, s1 = b.flip ? -s : s, ey = b.ey || 0;
     stop(p, x, y, 0, s);
     stop(p + B * .15, x, y + b.cy, 0, s);
@@ -547,19 +547,21 @@ function halloweenDanceCss() {
     }
     x = b.still ? x : b.x; y = ey; s = s1;
   });
-  return out + '}\n.pet.halloweendance .pet-svg { animation: halloweendance 9s ease-in-out; transform-origin: 50% 94%; }\n@media (prefers-reduced-motion: reduce) { .pet.halloweendance .pet-svg { animation: none; } }\n';
+  return out + '}\n.pet.' + name + ' .pet-svg { animation: ' + name + ' 9s ease-in-out; transform-origin: 50% 94%; }\n@media (prefers-reduced-motion: reduce) { .pet.' + name + ' .pet-svg { animation: none; } }\n';
 }
-var HALLOWEEN_SQUISH = (function () {
-  var steps = [], n = HALLOWEEN_BEATS.length;
-  HALLOWEEN_BEATS.forEach(function (b, i) {
+/** @returns {{ms: number, steps: number[][]}} The squash and stretch for a table of beats (see danceCss), for svgSquish. */
+function danceSquish(beats) {
+  var steps = [], n = beats.length;
+  beats.forEach(function (b, i) {
     var t = i / n, w = 1 / n, cr = [1 + (1 - b.up[0]) * 1.2, 1 - (b.up[1] - 1) * 1.1];
     if (b.still) steps.push([t, 1, 1, 0], [t + w * .35, b.ld[0], b.ld[1], 0], [t + w * .8, b.ld[0], b.ld[1], 0], [t + w * .95, 1, 1, 0]);
     else steps.push([t, 1, 1, 0], [t + w * .15, cr[0], cr[1], 0], [t + w * .35, b.up[0], b.up[1], -4], [t + w * .55, .96, 1.05, -3], [t + w * .8, b.ld[0], b.ld[1], 0], [t + w * .93, .98, 1.02, 0]);
   });
   steps.push([1, 1, 1, 0]);
   return { ms: 9000, steps: steps };
-})();
-(function () { var st = document.createElement('style'); st.id = 'halloween-dance-css'; st.textContent = halloweenDanceCss(); document.head.appendChild(st); })();
+}
+var HALLOWEEN_SQUISH = danceSquish(HALLOWEEN_BEATS);
+(function () { var st = document.createElement('style'); st.id = 'halloween-dance-css'; st.textContent = danceCss('halloweendance', HALLOWEEN_BEATS); document.head.appendChild(st); })();
 /** Halloween dance (build 617): 9 s, a monster mash: zombie shuffle, bat hops, a floating ghost wobble, claws, a spin and a jump scare, with his arms to match and a bat or ghost drifting off now and then. */
 function halloweenDance() {
   var clip = document.documentElement.matches('[data-scene$="clip"], [data-list="todo"]'), arms = function (a) { return clip ? 'rest' : a; };   // (his left hand holds the clipboard on the to-do list)

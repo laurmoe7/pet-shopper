@@ -1,6 +1,6 @@
 /* Fumu's sounds, synthesised with the Web Audio API (no audio files).
  * Sounds.play(kind) where kind is one of:
- *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party, birthday (the Happy Birthday tune), christmas (Jingle Bells), halloween (a spooky-cute tune),
+ *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party, birthday (the Happy Birthday tune), christmas (Jingle Bells), halloween (a spooky-cute tune), newyear (a disco groove), blower (a party blower toot),
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
  *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), bell, tink and smash (the night bell ringing, clinking and breaking), glass (a piece of window breaking off, the wrecking ball), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
@@ -386,6 +386,41 @@
       var wl = ctx.createOscillator(), wd = ctx.createGain(); wl.frequency.value = 6; wd.gain.value = 18 * pitch; wl.connect(wd); wd.connect(wo.frequency); wl.start(wt); wl.stop(wt + 1.15);
       [4.2, 7.5, 9.6, 13.1].forEach(function (when) { var bt = t + when; tone(bt, 0.07, 'sine', 3200, 5200, env(bt, 0.004, 0.06, 0.06)); tone(bt + 0.1, 0.06, 'sine', 3600, 5600, env(bt + 0.1, 0.004, 0.05, 0.05)); });   // bat squeaks
       chime(t + total - 0.2, [440, 523, 659, 880], 0.12, 1.1, 'sine');
+    },
+    blower: function (t) {
+      // a party blower: a squeaky paper horn that toots as it unrolls
+      tone(t, 0.22, 'square', 620, 940, env(t, 0.01, 0.2, 0.09));
+      tone(t, 0.22, 'sawtooth', 624, 944, env(t, 0.01, 0.2, 0.05));
+      noise(t, 0.2, 'bandpass', 2200, 1.4, env(t, 0.01, 0.18, 0.1));
+    },
+    newyear: function (t) {
+      // a disco groove (original, about 15 s, 128 beats a minute): a kick on every beat, handclaps on two and four, open hats between, a funky octave-jumping bass, string stabs, a squelchy synth riff and a whoop up into it; ends on a big chord with a sparkle (build 619)
+      var u = 0.47;   // one beat
+      var bars = 8, bassOct = [[110, 220, 110, 220, 131, 262, 147, 196], [110, 220, 110, 220, 98, 196, 131, 165]];
+      var riff = [0, 659, 784, 880, 784, 659, 587, 523,   587, 0, 659, 0, 523, 0, 440, 0];   // two bars of eighth notes, 0 is a rest
+      for (var bar = 0; bar < bars; bar++) {
+        var b0 = t + bar * 4 * u;
+        for (var beat = 0; beat < 4; beat++) {
+          var bt = b0 + beat * u;
+          tone(bt, 0.16, 'sine', 160, 48, env(bt, 0.003, 0.15, 0.55));   // kick
+          if (beat % 2 === 1) { noise(bt, 0.1, 'bandpass', 1700, 1.1, env(bt, 0.002, 0.09, 0.4)); noise(bt + 0.012, 0.08, 'bandpass', 2400, 1.1, env(bt + 0.012, 0.002, 0.07, 0.25)); }   // clap
+          noise(bt + u / 2, 0.11, 'highpass', 7000, 1, env(bt + u / 2, 0.002, 0.1, 0.12));   // open hat on the off beat
+          noise(bt, 0.03, 'highpass', 8000, 1, env(bt, 0.001, 0.025, 0.05)); noise(bt + u / 4, 0.025, 'highpass', 8000, 1, env(bt + u / 4, 0.001, 0.02, 0.035)); noise(bt + u * 0.75, 0.025, 'highpass', 8000, 1, env(bt + u * 0.75, 0.001, 0.02, 0.035));   // 16th ticks
+        }
+        for (var e = 0; e < 8; e++) { var et = b0 + e * u / 2; tone(et, 0.2, 'sawtooth', bassOct[bar % 2][e], null, env(et, 0.006, 0.18, 0.2)); }   // funky bass: root, octave, root, octave...
+        [0, 2.5].forEach(function (beatPos) {   // string stabs (Am7) on the one and the and of two
+          var st = b0 + beatPos * u;
+          [220, 262, 330, 392].forEach(function (hz) { tone(st, 0.2, 'triangle', hz * 2, null, env(st, 0.01, 0.17, 0.05)); tone(st, 0.2, 'sine', hz, null, env(st, 0.01, 0.17, 0.035)); });
+        });
+        if (bar >= 2) for (var r = 0; r < 8; r++) {   // the synth riff from bar three, a little squelch on each note
+          var hz = riff[(bar % 2) * 8 + r], rt = b0 + r * u / 2;
+          if (hz) { var o = tone(rt, 0.17, 'square', hz * 0.9, hz, env(rt, 0.008, 0.15, 0.07)); }
+        }
+      }
+      var wt = t + 4 * u * 2 - 0.9, w = tone(wt, 0.9, 'sawtooth', 220, 1320, env(wt, 0.3, 0.6, 0.08));   // a whoop up into bar three
+      var end = t + bars * 4 * u;
+      [262, 330, 392, 494, 659].forEach(function (hz) { tone(end - 0.05, 0.9, 'triangle', hz, null, env(end - 0.05, 0.01, 0.85, 0.1)); });
+      chime(end - 0.05, [1047, 1319, 1568, 2093, 2637], 0.07, 1.2);
     },
     jiggle: function (t) {
       // a belly wobble: soft boings that get smaller and lower

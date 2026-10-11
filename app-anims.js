@@ -7,14 +7,14 @@ var animSheet = $('animSheet'), animList = $('animList'), animFilter = $('animFi
 var BODY_MOVES = [['wiggle', 900], ['twirl', 800], ['peek', 1400], ['bob', 1400], ['shuffle', 1500], ['boogie', 1500], ['rock', 1900], ['roly', 2800], ['rocksmall', 1300],
   ['sniff', 1700], ['stroll', 3600], ['waddle', 1800], ['scoot', 1400], ['sit', 2600], ['hop', 500], ['hopsmall', 450], ['hophop', 1500], ['chomp', 360], ['spit', 450],
   ['stretch', 1100], ['pat', 1300], ['nod', 900], ['tilt', 1800], ['flop', 2400], ['spinhop', 900], ['shiver', 700]];
-var ANIM_ARMS = ['rest', 'idle', 'listen', 'reach', 'nom', 'hold', 'cover', 'carry', 'cheer', 'fan', 'clench', 'pat', 'eyerub', 'rub', 'scratch', 'grab'];
+var ANIM_ARMS = ['rest', 'idle', 'listen', 'reach', 'nom', 'hold', 'cover', 'carry', 'cheer', 'fan', 'clench', 'pat', 'eyerub', 'rub', 'scratch', 'grab', 'disco'];
 var ANIM_EYES = ['open', 'closed', 'happy', 'sparkle', 'squint'];
 var ANIM_MOUTHS = ['smile', 'open', 'o', 'wavy', 'chew'];
 var ANIM_EXTRAS = ['hearts', 'sparkles', 'zzz', 'steam', 'question', 'sweat', 'shock', 'redface', 'cheeks'];
 
 /** @returns {string} A short name for an idle move, taken from what its code does (they are unnamed in the list). */
 function idleName(run, i) {
-  var src = String(run), m = src.match(/pulse\('(\w+)'/) || src.match(/FACES\.(\w+)/) || src.match(/(lookAround|bellyJiggle|handDance|chorusDance|partyDance|halloweenDance|eyesDo|drift)\(/);
+  var src = String(run), m = src.match(/pulse\('(\w+)'/) || src.match(/FACES\.(\w+)/) || src.match(/(lookAround|bellyJiggle|handDance|chorusDance|partyDance|halloweenDance|discoDance|eyesDo|drift)\(/);
   return (i + 1) + ' ' + (m ? m[1] : 'move');
 }
 /** @returns {{group: string, name: string, run: function(): (number|undefined)}[]} Everything the player can run. */
@@ -27,6 +27,7 @@ function animCatalogue() {
   add('Body moves', 'chorus dance', chorusDance);
   add('Body moves', 'party dance (the birthday one)', partyDance);
   add('Body moves', 'monster mash (the Halloween dance)', halloweenDance);
+  add('Body moves', 'disco dance (the New Year\'s Day one)', discoDance);
   Object.keys(SQUISH).forEach(function (k) {
     if (k !== 'exercise' && !BODY_MOVES.some(function (m) { return m[0] === k; })) add('Body moves', k + ' (squash only)', function () { svgSquish(SQUISH[k]); return SQUISH[k].ms; });
   });

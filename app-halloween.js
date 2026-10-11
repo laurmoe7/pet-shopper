@@ -113,11 +113,11 @@ function halloweenDecor(layer, ms) {
   });
 }
 
-/** The screen goes dark and purple for the party, except round Fumu's room (a soft-edged window on the room); it fades in and out. Not in the small window, where it would be a dark box on the desktop. @param {Element} layer @param {number} ms */
-function halloweenDark(layer, ms) {
+/** The screen goes dark and purple for the party, except round Fumu's room (a soft-edged window on the room); it fades in and out. Not in the small window, where it would be a dark box on the desktop. @param {Element} layer @param {number} ms @param {string} [color] The colour of the dark (the New Year's Day celebration uses it too, in blue). */
+function halloweenDark(layer, ms, color) {
   var r = stage.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, rx = r.width * 1.0, ry = r.height * 1.05 + 20;
   var dark = document.createElement('div'), mask = 'radial-gradient(ellipse ' + rx + 'px ' + ry + 'px at ' + cx + 'px ' + cy + 'px, transparent 70%, #000 100%)';
-  dark.style.cssText = 'position:absolute;inset:0;background:rgba(20,8,42,.66);-webkit-mask-image:' + mask + ';mask-image:' + mask;
+  dark.style.cssText = 'position:absolute;inset:0;background:' + (color || 'rgba(20,8,42,.66)') + ';-webkit-mask-image:' + mask + ';mask-image:' + mask;
   layer.appendChild(dark);
   if (!reduceMotion) dark.animate([{ opacity: 0 }, { opacity: 1, offset: 0.06 }, { opacity: 1, offset: 0.93 }, { opacity: 0 }], { duration: ms, fill: 'both' });
 }

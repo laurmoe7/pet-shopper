@@ -219,7 +219,7 @@ function releaseBdayHold() {
   busy--;
 }
 /** @returns {boolean} Whether alerts and reminders should wait: the birthday party is about to play or is playing. */
-function birthdayHolding() { return bdayHold || partyOn || (typeof xmasHolding === 'function' && xmasHolding()) || (typeof halloweenHolding === 'function' && halloweenHolding()); }   // (the Christmas celebration holds things back the same way)
+function birthdayHolding() { return bdayHold || partyOn || (typeof xmasHolding === 'function' && xmasHolding()) || (typeof halloweenHolding === 'function' && halloweenHolding()) || (typeof newyearHolding === 'function' && newyearHolding()); }   // (the Christmas celebration holds things back the same way)
 var partyOn = false;   // (one party at a time: the developer tool pretends it is the birthday, and the check that runs every so often would start a second one)
 function birthdayParty() {
   if (partyOn || (!devBirthday && (busy - (bdayHold ? 1 : 0) > 0 || baseState() === 'sleepy'))) return false;
