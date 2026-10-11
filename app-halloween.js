@@ -216,11 +216,11 @@ function halloweenParty() {
   pulse('hop', 500);
   var ms = halloweenDance(), total = ms + 5800, layer = bdayLayer(9000);
   if (!small) halloweenDark(layer, total);   // (first, so everything else is drawn over it)
+  if (!small) halloweenBanner(layer, name);   // (before the ghosts and bats, so they are drawn over the card)
   halloweenDecor(layer, total);
   halloweenLights(layer, total);
   halloweenGhosts(layer, total);
   halloweenBats(layer, total);
-  if (!small) halloweenBanner(layer, name);
   setTimeout(function () { drift(['🎃', '🦇', '👻'], petTop(), 4); }, 1500);
   setTimeout(function () { say('spooky~', 1800); }, 3600);
   setTimeout(function () { say('look, a ghost!', 2000); }, 6200);

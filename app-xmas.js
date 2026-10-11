@@ -155,9 +155,9 @@ function xmasParty() {
   if (small) say(xmasGreeting(name) + ' ♡', 3200, true); else say('ho ho ho! ♡', 3000);   // (the app's banner already says it)
   pulse('hop', 500);
   var ms = partyDance(true), total = ms + 5800, layer = bdayLayer(9000);
+  if (!small) xmasBanner(layer, name);   // (first, so the snow and lights are drawn over the card)
   xmasLights(layer, total);   // (the lights hang along the very top edge, over the bar)
   xmasSnow(layer, total);
-  if (!small) xmasBanner(layer, name);
   setTimeout(function () { drift(['🎄', '⭐', '❄'], petTop(), 4); }, 1500);
   setTimeout(function () { say('jingle jingle~', 1800); }, 3600);
   setTimeout(function () { say('look, it is snowing!', 2000); }, 6200);

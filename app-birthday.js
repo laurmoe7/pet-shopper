@@ -111,6 +111,12 @@ function bdayFireworks(layer, ms) {
 /** The app: confetti rains down over the whole page and a banner slides up from the bottom, above the bottom bar, so it never covers Fumu. */
 function bdayApp(name) {
   var layer = bdayLayer(), w = window.innerWidth, h = window.innerHeight;
+  var banner = document.createElement('div');
+  banner.style.cssText = 'position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom, 0px) + 92px);margin:0 auto;width:90%;max-width:360px;box-sizing:border-box;padding:10px 14px;border-radius:18px;background:#fff6ec;color:#5b4239;' +
+    'border:2.5px solid #ff8fb1;box-shadow:0 4px 0 #ffd0dd;text-align:center;font-weight:700;font-size:17px';
+  banner.textContent = '🎂 ' + bdayGreeting(name) + ' 🎉';
+  layer.appendChild(banner);
+  if (!reduceMotion) banner.animate([{ transform: 'translateY(110px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0)', opacity: 1, offset: 0.85 }, { transform: 'translateY(110px)', opacity: 0 }], { duration: 7000, fill: 'both' });
   if (!reduceMotion) for (var i = 0; i < 46; i++) {
     var c = document.createElement('i'), x = Math.random() * w, sz = 6 + Math.random() * 6;
     c.style.cssText = 'position:absolute;left:0;top:0;width:' + sz + 'px;height:' + sz * 1.6 + 'px;border-radius:2px;background:' + BDAY_COLOURS[i % BDAY_COLOURS.length];
@@ -120,12 +126,6 @@ function bdayApp(name) {
       { transform: 'translate(' + (x + (Math.random() - 0.5) * 120) + 'px,' + h + 'px) rotate(' + (360 + Math.random() * 360) + 'deg)', opacity: 1 }
     ], { duration: 3200 + Math.random() * 2600, delay: Math.random() * 2600, easing: 'ease-in', fill: 'both' });
   }
-  var banner = document.createElement('div');
-  banner.style.cssText = 'position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom, 0px) + 92px);margin:0 auto;width:90%;max-width:360px;box-sizing:border-box;padding:10px 14px;border-radius:18px;background:#fff6ec;color:#5b4239;' +
-    'border:2.5px solid #ff8fb1;box-shadow:0 4px 0 #ffd0dd;text-align:center;font-weight:700;font-size:17px';
-  banner.textContent = '🎂 ' + bdayGreeting(name) + ' 🎉';
-  layer.appendChild(banner);
-  if (!reduceMotion) banner.animate([{ transform: 'translateY(110px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0)', opacity: 1, offset: 0.85 }, { transform: 'translateY(110px)', opacity: 0 }], { duration: 7000, fill: 'both' });
   setTimeout(function () { layer.remove(); }, 8200);
 }
 /** Mini Fumu: balloons float up past him, and hearts and stars drift off him. */
@@ -219,7 +219,7 @@ function releaseBdayHold() {
   busy--;
 }
 /** @returns {boolean} Whether alerts and reminders should wait: the birthday party is about to play or is playing. */
-function birthdayHolding() { return bdayHold || partyOn || (typeof xmasHolding === 'function' && xmasHolding()) || (typeof halloweenHolding === 'function' && halloweenHolding()) || (typeof newyearHolding === 'function' && newyearHolding()); }   // (the Christmas celebration holds things back the same way)
+function birthdayHolding() { return bdayHold || partyOn || (typeof xmasHolding === 'function' && xmasHolding()) || (typeof halloweenHolding === 'function' && halloweenHolding()) || (typeof newyearHolding === 'function' && newyearHolding()) || (typeof easterHolding === 'function' && easterHolding()); }   // (the Christmas celebration holds things back the same way)
 var partyOn = false;   // (one party at a time: the developer tool pretends it is the birthday, and the check that runs every so often would start a second one)
 function birthdayParty() {
   if (partyOn || (!devBirthday && (busy - (bdayHold ? 1 : 0) > 0 || baseState() === 'sleepy'))) return false;
@@ -237,7 +237,7 @@ function birthdayParty() {
   var ms;
   if (small) { bdayDesk(); ms = partyDance(); setTimeout(function () { drift(['🎈', '♥', '✦'], petTop(), 4); }, 1500); }
   else { bdayApp(name); ms = partyDance(); setTimeout(function () { drift(['🎂', '🎉', '♥'], petTop(), 4); }, 1500); }
-  var fw = bdayLayer(8000), fwMs = ms + 5500;   // (fireworks away from him, one every couple of seconds right through to the end of the cake)
+  var fw = bdayLayer(9500), fwMs = ms + 5500;   // (fireworks away from him, one every couple of seconds right through to the end of the cake)
   bdayFireworks(fw, fwMs);
   setTimeout(function () { fw.remove(); }, fwMs + 3500);
   setTimeout(function () { var more = bdayCake(); setTimeout(function () { partyOn = false; busy--; bdayToyAway(false); if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the cake)

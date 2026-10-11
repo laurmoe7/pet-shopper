@@ -1,6 +1,6 @@
 /* Fumu's sounds, synthesised with the Web Audio API (no audio files).
  * Sounds.play(kind) where kind is one of:
- *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party, birthday (the Happy Birthday tune), christmas (Jingle Bells), halloween (a spooky-cute tune), newyear (a disco groove), blower and blowerbig (party blower toots),
+ *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party, birthday (the Happy Birthday tune), christmas (Jingle Bells), halloween (a spooky-cute tune), newyear (a disco groove), easter (a bouncy spring tune), peep (a chick), blower and blowerbig (party blower toots),
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
  *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), bell, tink and smash (the night bell ringing, clinking and breaking), glass (a piece of window breaking off, the wrecking ball), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
@@ -403,6 +403,37 @@
       tone(t, 0.95, 'sine', 960, 2000, env(t, 0.02, 0.8, 0.05));
       var lfo = ctx.createOscillator(), depth = ctx.createGain(); lfo.frequency.value = 24; depth.gain.value = 30 * pitch; lfo.connect(depth); depth.connect(o.frequency); lfo.start(t); lfo.stop(t + 0.97);
       noise(t, 0.9, 'bandpass', 2800, 1.3, env(t, 0.01, 0.85, 0.15));
+    },
+    easter: function (t) {
+      // a bouncy spring tune (an original one): a marimba playing hop-hop-hop arpeggios in C over an oom-pah bass, shakers on every eighth, a couple of springy boings, about 15 s (build 622)
+      var q = 0.42;   // one beat
+      var C5 = 523, D5 = 587, E5 = 659, F5 = 698, G5 = 784, A5 = 880, B5 = 988, C6 = 1047, G4 = 392;
+      var A = [[E5, .5], [G5, .5], [C6, 1], [G5, .5], [E5, .5], [C5, 1],  [F5, .5], [A5, .5], [C6, 1], [A5, .5], [F5, .5], [C5, 1]];
+      var Bp = [[D5, .5], [F5, .5], [B5, 1], [F5, .5], [D5, .5], [G5, 1],  [E5, .5], [G5, .5], [C6, 1], [G5, 1], [C6, 1]];
+      var end = [[C6, .5], [G5, .5], [E5, .5], [C5, .5], [C6, 2]];
+      var lead = A.concat(Bp, A, Bp, end), at = t;
+      lead.forEach(function (n) {
+        var d = Math.min(n[1] * q * 1.1, 0.7);
+        tone(at, d + 0.08, 'triangle', n[0], null, env(at, 0.004, d, 0.24));
+        tone(at, 0.2, 'sine', n[0] * 2, null, env(at, 0.004, 0.16, 0.07));
+        tone(at, 0.06, 'sine', n[0] * 4, null, env(at, 0.002, 0.05, 0.03));
+        at += n[1] * q;
+      });
+      var total = at - t;
+      var chords = [[131, [262, 330, 392]], [175, [262, 349, 440]], [98, [247, 294, 392]], [131, [262, 330, 392]], [131, [262, 330, 392]], [175, [262, 349, 440]], [98, [247, 294, 392]], [131, [262, 330, 392]], [131, [262, 330, 392]]];
+      for (var bar = 0; bar < 9; bar++) for (var k = 0; k < 4; k++) {
+        var bt = t + (bar * 4 + k) * q;
+        if (bt - t > total) break;
+        if (k % 2 === 0) tone(bt, 0.3, 'triangle', chords[bar][0] * (k === 2 ? 1.5 : 1), null, env(bt, 0.008, 0.28, 0.22));
+        else chords[bar][1].forEach(function (hz) { tone(bt, 0.16, 'sine', hz, null, env(bt, 0.006, 0.14, 0.04)); });
+      }
+      for (var j = 0; j < total / (q / 2); j++) { var jt = t + j * (q / 2); noise(jt, 0.04, 'highpass', 7000, 1, env(jt, 0.002, 0.035, j % 2 ? 0.035 : 0.06)); }   // shakers
+      [8 * q, 24 * q, 32 * q].forEach(function (when) { var bt = t + when + q * 1.5; tone(bt, 0.28, 'sine', 170, 540, env(bt, 0.01, 0.26, 0.2)); });   // boing!
+      chime(t + total - 0.1, [1047, 1319, 1568, 2093], 0.09, 1.2);
+    },
+    peep: function (t) {
+      // a chick peeping: two quick high chirps
+      tone(t, 0.09, 'sine', 2300, 3100, env(t, 0.004, 0.08, 0.14)); tone(t + 0.13, 0.1, 'sine', 2500, 3300, env(t + 0.13, 0.004, 0.09, 0.14));
     },
     newyear: function (t) {
       // a disco groove (original, about 15 s, 128 beats a minute): a kick on every beat, handclaps on two and four, open hats between, a funky octave-jumping bass, string stabs, a squelchy synth riff and a whoop up into it; ends on a big chord with a sparkle (build 619)

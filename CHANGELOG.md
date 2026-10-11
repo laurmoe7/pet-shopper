@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 622
+- Celebration effects (ghosts, bats, snow, confetti, fireworks...) now go over the cards
+- Easter celebration on Easter Sunday: bunny ears, a bouncy bunny dance, flags, petals, butterflies, hopping eggs, a spring tune, an egg that hatches a chick and a real Easter egg in Profile
+
 ## Build 621
 - Celebration banners slide up from the bottom, above the bottom bar, so they never cover him
 

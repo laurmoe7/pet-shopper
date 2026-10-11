@@ -208,8 +208,8 @@ function newyearParty() {
   pulse('hop', 500);
   var ms = discoDance(), total = ms + 5800, layer = bdayLayer(9000);
   if (!small && typeof halloweenDark === 'function') halloweenDark(layer, total, 'rgba(22,18,84,.5)');   // (a blue dusk round his lit room, so the light spots show)
+  if (!small) newyearBanner(layer, name);   // (before the disco ball, so the light spots are drawn over the card)
   newyearDiscoBall(layer, total);
-  if (!small) newyearBanner(layer, name);
   setTimeout(function () { drift(['✨', '🎉', '✦'], petTop(), 4); }, 1500);
   setTimeout(function () { layer.remove(); }, total + 800);
   setTimeout(function () { var more = newyearBlower(); setTimeout(function () { newyearOn = false; busy--; bdayToyAway(false); if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the blower)

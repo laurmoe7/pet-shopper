@@ -160,6 +160,7 @@ var DEV_ACTIONS = [
   { label: 'Play the Christmas celebration', run: function () { devSheet.close(); return devXmasNow(); } },
   { label: 'Play the Halloween celebration', run: function () { devSheet.close(); return devHalloweenNow(); } },
   { label: 'Play the New Year\'s Day celebration', run: function () { devSheet.close(); return devNewYearNow(); } },
+  { label: 'Play the Easter celebration', run: function () { devSheet.close(); return devEasterNow(); } },
   { label: 'Make Fumu suggest an item', run: function () { return devSuggest(); } },
   { label: 'Fill with sample items', run: function () {
     if (isTodo()) { state.items = L.sortByDue(state.items.concat(sampleTodos()), todayKey()); return 'Sample to-dos added.'; }

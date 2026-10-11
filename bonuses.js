@@ -40,7 +40,8 @@
     special: { label: 'Special box', colour: '#ffd36e', ribbon: '#ff8fb1', table: 'party' },
     birthday: { label: 'Birthday box', colour: '#b69cff', ribbon: '#ffe6b8', table: 'party' },
     christmas: { label: 'Christmas box', colour: '#e8445a', ribbon: '#ffe08a', table: 'party' },
-    halloween: { label: 'Halloween box', colour: '#ff9a3c', ribbon: '#8e5bff', table: 'party' }
+    halloween: { label: 'Halloween box', colour: '#ff9a3c', ribbon: '#8e5bff', table: 'party' },
+    easter: { label: 'Easter box', colour: '#ffb3d9', ribbon: '#9be3c3', table: 'party' }
   };
 
   /** The special days. Add a line to add a day. */
@@ -49,6 +50,7 @@
     { id: 'valentine', label: "Valentine's Day", month: 2, day: 14 },
     { id: 'goodfriday', label: 'Good Friday', easter: -2, boxes: 1 },
     { id: 'easter', label: 'Easter', easter: 0, boxes: 2 },
+    { id: 'eastergift', label: "Fumu's Easter egg", easter: 0, box: 'easter', line: 'happy easter! ♡' },   // (the box he hands you in the Easter celebration, app-easter.js)
     { id: 'easter2', label: 'Easter Monday', easter: 1 },
     { id: 'kingsday', label: "King's Day", month: 4, day: 27 },
     { id: 'halloween', label: 'Halloween', month: 10, day: 31 },
