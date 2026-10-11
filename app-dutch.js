@@ -365,7 +365,7 @@ Object.assign(Dutch, {
   'hehe, tickles': 'hehe, kietelt', 'hehe, tickles!': 'hehe, het kietelt!', 'melting…': 'ik smelt…', 'mmm, nice': 'mmm, lekker', 'more pets?': 'nog meer aaien?', 'right there ♡': 'precies daar ♡', 'so nice…': 'zo fijn…', 'that tickles!': 'dat kietelt!',
   'I\'ll remember your birthday! ♡': 'ik onthoud je verjaardag! ♡', 'I love it here!': 'ik vind het hier geweldig!', 'home sweet home!': 'oost west, thuis best!', 'so cozy!': 'zo knus!',
   'He is busy or asleep: try again in a moment.': 'Hij is bezig of slaapt: probeer het zo nog eens.', 'happy birthday': 'gefeliciteerd', 'yay, party time! ♡': 'yes, feestje! ♡', '🎂 Happy birthday': '🎂 Gefeliciteerd', 'happy birthday!! ♡': 'gefeliciteerd!! ♡',
-  'Mini Fumu\'s birthday: balloons and the chorus dance.': 'Mini Fumu\'s verjaardag: ballonnen en de koordans.', 'The app\'s birthday: confetti, a banner and the free spirited dance.': 'De verjaardag in de app: confetti, een banner en de vrije dans.',
+  'Mini Fumu\'s birthday: balloons, fireworks and the chorus dance.': 'Mini Fumu\'s verjaardag: ballonnen, vuurwerk en de koordans.', 'The app\'s birthday: confetti, a banner, fireworks and the chorus dance.': 'De verjaardag in de app: confetti, een banner, vuurwerk en de koordans.',
   'Nothing was planned.': 'Er was niets gepland.', 'Tap to edit': 'Tik om aan te passen', 'Whose birthday?': 'Wiens verjaardag?', '{x}\'s birthday': 'verjaardag van {x}',
   // recipes
   '{x} (already on your list)': '{x} (staat al op je lijstje)', '{x} (optional)': '{x} (optioneel)', '{x} (you probably have it)': '{x} (heb je waarschijnlijk al)', 'Add {n} thing to the list': '{n} ding aan het lijstje toevoegen', 'Add {n} things to the list': '{n} dingen aan het lijstje toevoegen',

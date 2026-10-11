@@ -284,7 +284,6 @@ var IDLE_MOVES = [
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'reach', x: ['sparkles', 'cheeks'] }); pulse('boogie', 1500); hum(); } },
   { moods: ['curious', 'happy'], run: function () { return handDance(); } },
   { moods: ['curious', 'happy'], run: function () { return chorusDance(); } },
-  { moods: ['curious', 'happy'], run: function () { return freeSpiritDance(); } },
   { moods: ['sleepy', 'stuffed'], run: function () { pulse('wiggle', 900); } },
   { moods: ['stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); } },
   // daytime things to do
@@ -482,22 +481,6 @@ function chorusDance() {
   at(5600, function () { setFace({ eyes: 'squint', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); drift(['✦'], petTop(), 2); });
   at(7300, function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); drift(['♥', '✦'], petTop(), 2); });
   setTimeout(function () { pet.style.removeProperty('--look-x'); }, 8000);
-  hum();
-  return 8000;
-}
-
-/** Free spirited dance: an idle dance of 8 s (the `freespirit` CSS, styles.css): his right arm pumps out and back four times, his paws together shake to one side and the other, then, slowly, his paws go down and out
- * while his right leg crosses in front of the left once. This sets the face and the notes. */
-function freeSpiritDance() {
-  setFace({ eyes: 'open', mouth: 'open', arms: 'rest', x: ['cheeks'] });
-  pulse('freespirit', 8000);
-  function at(ms, fn) { setTimeout(function () { if (pet.classList.contains('freespirit')) fn(); }, ms); }
-  at(500, function () { drift(['♪'], petTop(), 1); });
-  at(1500, function () { drift(['♫'], petTop(), 1); });
-  at(2500, function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'rest', x: ['cheeks', 'sparkles'] }); drift(['♪', '✦', '♫'], petTop(), 3); });
-  at(3800, function () { drift(['♫', '♪'], petTop(), 2); });
-  at(4800, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'rest', x: ['cheeks'] }); drift(['✦', '♪'], petTop(), 3); });
-  at(6300, function () { drift(['♫', '✦'], petTop(), 2); });
   hum();
   return 8000;
 }

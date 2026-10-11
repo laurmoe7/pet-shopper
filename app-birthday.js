@@ -1,4 +1,4 @@
-// The birthday celebration: once on the player's birthday (state.player.birthday), Fumu puts on a party hat and dances.
+// The birthday celebration: once on the player's birthday (state.player.birthday), Fumu puts on a party hat and does the chorus dance, with fireworks.
 // The app (phone, full app) rains confetti over the page and shows a banner; Mini Fumu (the small window) sends up balloons instead, with no banner.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
@@ -17,15 +17,38 @@ function bdayLayer() {
   document.body.appendChild(el);
   return el;
 }
-/** A paper party hat on his head; it goes with him, and comes off again after ms. */
+/** A paper party hat on his head, drawn in the pet's own picture on the hat layer, so it goes with him in every dance and squash; it comes off again after ms. */
 function bdayHat(ms) {
-  var hat = document.createElement('span');
-  hat.setAttribute('aria-hidden', 'true');
-  hat.style.cssText = 'position:absolute;left:50%;top:-4%;width:34px;height:40px;margin-left:-17px;pointer-events:none;z-index:5;transform-origin:50% 100%';
-  hat.innerHTML = '<svg viewBox="0 0 34 40" width="34" height="40"><path d="M17 3 L30 37 Q17 41 4 37 Z" fill="#ff8fb1" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
-    '<path d="M10 22 L24 22 M7 30 L27 30" stroke="#fff6ec" stroke-width="3" stroke-linecap="round"/><circle cx="17" cy="4" r="4" fill="#ffd36b" stroke="#5b4239" stroke-width="2"/></svg>';
-  pet.appendChild(hat);
+  var layer = pet.querySelector('.outfit-hat');
+  if (!layer) return;
+  var hat = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  hat.setAttribute('class', 'bday-hat');
+  hat.innerHTML = '<g transform="translate(83 37) rotate(-4)"><path d="M0 -30 L15 0 Q0 5 -15 0 Z" fill="#ff8fb1" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
+    '<path d="M-8 -12 L8 -12 M-12 -5 L12 -5" stroke="#fff6ec" stroke-width="3" stroke-linecap="round"/><circle cx="0" cy="-31" r="4" fill="#ffd36b" stroke="#5b4239" stroke-width="2"/></g>';
+  layer.appendChild(hat);
   setTimeout(function () { if (hat.parentNode) hat.remove(); }, ms);
+}
+/** Fireworks over the page: soft bursts of sparks, one after another (gentle: no flashing). @param {Element} layer @param {number} bursts */
+function bdayFireworks(layer, bursts) {
+  if (reduceMotion) return;
+  var w = window.innerWidth, h = window.innerHeight, reach = Math.max(50, Math.min(w, h) * 0.3);
+  for (var b = 0; b < bursts; b++) (function (b) {
+    setTimeout(function () {
+      if (!layer.parentNode) return;
+      var cx = w * (0.15 + Math.random() * 0.7), cy = h * (0.12 + Math.random() * 0.38), col = BDAY_COLOURS[(b * 2 + 1) % BDAY_COLOURS.length], col2 = BDAY_COLOURS[(b * 2 + 3) % BDAY_COLOURS.length];
+      sound('sparkle');
+      for (var k = 0; k < 28; k++) {   // two rings of sparks (the inner one smaller), each with a soft glow
+        var inner = k % 2, a = ((k >> 1) / 14) * Math.PI * 2 + inner * 0.22, d = reach * (inner ? 0.62 : 1), c = inner ? col2 : col, sp = document.createElement('i');
+        sp.style.cssText = 'position:absolute;left:' + cx + 'px;top:' + cy + 'px;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:' + c + ';box-shadow:0 0 0 2px #fff,0 0 8px 2px ' + c;
+        layer.appendChild(sp);
+        sp.animate([
+          { transform: 'translate(0,0) scale(1.3)', opacity: 1 },
+          { transform: 'translate(' + Math.cos(a) * d + 'px,' + Math.sin(a) * d + 'px) scale(1)', opacity: 1, offset: 0.55 },
+          { transform: 'translate(' + Math.cos(a) * d * 1.1 + 'px,' + (Math.sin(a) * d * 1.1 + reach * 0.4) + 'px) scale(.2)', opacity: 0 }
+        ], { duration: 1500, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'both' }).onfinish = function () { sp.remove(); };
+      }
+    }, 600 + b * 900 + Math.random() * 300);
+  })(b);
 }
 /** The app: confetti rains down over the whole page and a banner drops in from the top. */
 function bdayApp(name) {
@@ -45,6 +68,7 @@ function bdayApp(name) {
   banner.textContent = '🎂 Happy birthday' + (name ? ', ' + name : '') + '! 🎉';
   layer.appendChild(banner);
   if (!reduceMotion) banner.animate([{ transform: 'translateY(-90px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0)', opacity: 1, offset: 0.85 }, { transform: 'translateY(-90px)', opacity: 0 }], { duration: 7000, fill: 'both' });
+  bdayFireworks(layer, 6);
   setTimeout(function () { layer.remove(); }, 8200);
 }
 /** Mini Fumu: balloons float up past him, and hearts and stars drift off him. */
@@ -62,6 +86,7 @@ function bdayDesk() {
       { transform: 'translate(' + (x - 6) + 'px,-50px)', opacity: 1 }
     ], { duration: 4200 + Math.random() * 1800, delay: i * 420, easing: 'ease-in-out', fill: 'both' });
   }
+  bdayFireworks(layer, 5);
   setTimeout(function () { layer.remove(); }, 9500);
 }
 /** Plays the celebration once (the app's or Mini Fumu's). @returns {boolean} Whether it started. */
@@ -77,7 +102,7 @@ function birthdayParty() {
   pulse('hop', 500);
   var ms;
   if (small) { bdayDesk(); ms = chorusDance(); setTimeout(function () { drift(['🎈', '♥', '✦'], petTop(), 4); }, 1500); }
-  else { bdayApp(name); ms = freeSpiritDance(); setTimeout(function () { drift(['🎂', '🎉', '♥'], petTop(), 4); }, 1500); }
+  else { bdayApp(name); ms = chorusDance(); setTimeout(function () { drift(['🎂', '🎉', '♥'], petTop(), 4); }, 1500); }
   setTimeout(function () { busy--; if (!busy) settle(); }, ms + 300);
   return true;
 }
@@ -96,7 +121,7 @@ function devBirthdayNow() {
   devBirthday = true;
   if (!birthdayParty()) { devBirthday = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devBirthday = false; }, 9000);
-  return document.documentElement.classList.contains('desktop-pet') ? 'Mini Fumu\'s birthday: balloons and the chorus dance.' : 'The app\'s birthday: confetti, a banner and the free spirited dance.';
+  return document.documentElement.classList.contains('desktop-pet') ? 'Mini Fumu\'s birthday: balloons, fireworks and the chorus dance.' : 'The app\'s birthday: confetti, a banner, fireworks and the chorus dance.';
 }
 setTimeout(birthdayCheck, 7000);
 setInterval(birthdayCheck, 60000);   // (also when he was asleep or busy at first)

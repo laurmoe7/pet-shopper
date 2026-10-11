@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 603
+- Free spirited dance removed
+- Birthday: chorus dance, fireworks, and the party hat stays on his head
+
 ## Build 602
 - Developer tools: test goal, unlocked and trip stamp notifications
 
