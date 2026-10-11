@@ -515,6 +515,68 @@ function partyDance(themed) {
   return 9000;
 }
 
+/** The Halloween dance: one table of twelve beats (0.75 s each) that makes both the hops, sways and spins (CSS keyframes, built below) and the squash and stretch (HALLOWEEN_SQUISH): a stiff zombie shuffle, two bat hops, a floaty ghost wobble, claws swaying, a spin in the air, a crouch, and one big jump scare. (build 617) */
+var HALLOWEEN_BEATS = [
+  { x: -10, ay: -4, r: -7, cy: 2, up: [.95, 1.06], ld: [1.1, .92] },                 // 1-2: the zombie shuffle: stiff steps with a lean
+  { x: 10, ay: -4, r: 7, cy: 2, up: [.95, 1.06], ld: [1.1, .92] },
+  { x: 0, ay: -20, r: 0, cy: 4, up: [.86, 1.22], ld: [1.2, .8] },                    // 3-4: bat hops, big
+  { x: 0, ay: -20, r: 0, cy: 4, up: [.86, 1.22], ld: [1.2, .8] },
+  { x: -8, ay: -16, ey: -7, r: -5, cy: 0, up: [.94, 1.1], ld: [1.04, .97] },         // 5-6: floating like a ghost
+  { x: 8, ay: -16, ey: -7, r: 5, cy: 0, up: [.94, 1.1], ld: [1.04, .97] },
+  { x: 11, ay: -8, ey: 0, r: 9, cy: 3, up: [.92, 1.1], ld: [1.12, .9] },             // 7-8: claws, hopping from side to side
+  { x: -11, ay: -8, r: -9, cy: 3, up: [.92, 1.1], ld: [1.12, .9] },
+  { x: 0, ay: -20, r: 0, cy: 3, flip: 1, up: [.9, 1.16], ld: [1.16, .86] },          // 9-10: spinning in the air
+  { x: 0, ay: -20, r: 0, cy: 3, flip: 1, up: [.9, 1.16], ld: [1.16, .86] },
+  { x: 0, ay: 5, r: 0, cy: 7, up: [1.12, .88], ld: [1.26, .74], still: 1 },          // 11: crouching right down...
+  { x: 0, ay: -40, r: 0, cy: 3, up: [.8, 1.32], ld: [1.28, .74] }                    // 12: BOO! one huge jump
+];
+/** @returns {string} The CSS for the Halloween dance, built from HALLOWEEN_BEATS. */
+function halloweenDanceCss() {
+  var B = 100 / HALLOWEEN_BEATS.length, f = function (n) { return +n.toFixed(3); }, out = '@keyframes halloweendance {\n', x = 0, y = 0, s = 1;
+  function stop(p, X, Y, R, S) { out += '  ' + f(p) + '% { transform: translate(' + f(X) + 'px, ' + f(Y) + 'px) rotate(' + f(R) + 'deg) scaleX(' + S + '); }\n'; }
+  HALLOWEEN_BEATS.forEach(function (b, i) {
+    var p = i * B, s1 = b.flip ? -s : s, ey = b.ey || 0;
+    stop(p, x, y, 0, s);
+    stop(p + B * .15, x, y + b.cy, 0, s);
+    if (b.still) { stop(p + B * .8, x, y + b.cy, 0, s); stop(p + B, x, ey, 0, s); }
+    else {
+      stop(p + B * .35, x + (b.x - x) * .3, y + (b.ay - y) * .5, b.r * .4, s);
+      stop(p + B * .55, x + (b.x - x) * .5, b.ay, b.r, s1);
+      stop(p + B * .8, b.x, ey, b.r * .3, s1);
+      stop(p + B, b.x, ey, 0, s1);
+    }
+    x = b.still ? x : b.x; y = ey; s = s1;
+  });
+  return out + '}\n.pet.halloweendance .pet-svg { animation: halloweendance 9s ease-in-out; transform-origin: 50% 94%; }\n@media (prefers-reduced-motion: reduce) { .pet.halloweendance .pet-svg { animation: none; } }\n';
+}
+var HALLOWEEN_SQUISH = (function () {
+  var steps = [], n = HALLOWEEN_BEATS.length;
+  HALLOWEEN_BEATS.forEach(function (b, i) {
+    var t = i / n, w = 1 / n, cr = [1 + (1 - b.up[0]) * 1.2, 1 - (b.up[1] - 1) * 1.1];
+    if (b.still) steps.push([t, 1, 1, 0], [t + w * .35, b.ld[0], b.ld[1], 0], [t + w * .8, b.ld[0], b.ld[1], 0], [t + w * .95, 1, 1, 0]);
+    else steps.push([t, 1, 1, 0], [t + w * .15, cr[0], cr[1], 0], [t + w * .35, b.up[0], b.up[1], -4], [t + w * .55, .96, 1.05, -3], [t + w * .8, b.ld[0], b.ld[1], 0], [t + w * .93, .98, 1.02, 0]);
+  });
+  steps.push([1, 1, 1, 0]);
+  return { ms: 9000, steps: steps };
+})();
+(function () { var st = document.createElement('style'); st.id = 'halloween-dance-css'; st.textContent = halloweenDanceCss(); document.head.appendChild(st); })();
+/** Halloween dance (build 617): 9 s, a monster mash: zombie shuffle, bat hops, a floating ghost wobble, claws, a spin and a jump scare, with his arms to match and a bat or ghost drifting off now and then. */
+function halloweenDance() {
+  var clip = document.documentElement.matches('[data-scene$="clip"], [data-list="todo"]'), arms = function (a) { return clip ? 'rest' : a; };   // (his left hand holds the clipboard on the to-do list)
+  setFace({ eyes: 'squint', mouth: 'wavy', arms: arms('carry'), x: ['cheeks'] });   // the zombie shuffle: arms out in front
+  pulse('halloweendance', 9000);
+  if (!reduceMotion) svgSquish(HALLOWEEN_SQUISH);
+  function at(ms, fn) { setTimeout(function () { if (pet.classList.contains('halloweendance')) fn(); }, ms); }
+  at(1500, function () { setFace({ eyes: 'happy', mouth: 'open', arms: arms('cheer'), x: ['cheeks', 'sparkles'] }); drift(['🦇', '✦'], petTop(), 2); });   // the bat hops: flapping arms
+  at(3000, function () { setFace({ eyes: 'closed', mouth: 'o', arms: arms('cheer'), x: ['cheeks'] }); drift(['👻', '✦'], petTop(), 2); });   // the ghost wobble
+  at(4500, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: arms('hold'), x: ['cheeks', 'sparkles'] }); drift(['🎃', '🦇'], petTop(), 3); });   // claws
+  at(6000, function () { setFace({ eyes: 'happy', mouth: 'open', arms: arms('cheer'), x: ['cheeks'] }); drift(['🦇', '✦', '👻'], petTop(), 3); });   // the spin
+  at(7500, function () { setFace({ eyes: 'squint', mouth: 'smile', arms: arms('cover'), x: ['cheeks'] }); });   // crouching...
+  at(8250, function () { setFace({ eyes: 'open', mouth: 'open', arms: arms('cheer'), x: ['cheeks', 'sparkles'] }); drift(['🎃', '🦇', '👻', '✦'], petTop(), 4); });   // BOO!
+  hum();
+  return 9000;
+}
+
 /** @returns {{x: number, y: number}} A point just above the pet's head. */
 function petTop() {
   var r = pet.getBoundingClientRect();

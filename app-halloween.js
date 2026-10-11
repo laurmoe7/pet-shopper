@@ -1,5 +1,5 @@
 // The Halloween celebration (build 616): once on 31 October, the first time the app is opened that day, Fumu puts on a witch hat and does the party dance while bats flutter past, cute
-// ghosts float up, a little spider hangs from a web in the corner, mist drifts along the bottom, a string of pumpkin lights glows along the top and spooky music plays; at the end he
+// ghosts float up, a little spider hangs from a web in the corner, mist drifts along the bottom, the screen goes dark round Fumu's room, a string of flickering jack-o'-lantern and ghost lights glows along the top and spooky music plays; at the end he
 // holds out a trick-or-treat pumpkin bucket and a ghost pops out of it. A real Halloween box (the `halloweengift` day in bonuses.js) is then waiting in Profile.
 // It works like the Christmas celebration (app-xmas.js) and the birthday one (app-birthday.js): the hold that keeps alerts and other animations back, the toy put away and popping back in, the
 // banner in the app and the bubble in Mini Fumu. The birthday goes first when it is also the birthday.
@@ -80,8 +80,8 @@ function halloweenGhosts(layer, ms) {
   var w = window.innerWidth, h = window.innerHeight;
   for (var i = 0; i < 6; i++) {
     var el = document.createElement('span'), x = 20 + Math.random() * (w - 70), sway = 26 + Math.random() * 30, dur = 8000 + Math.random() * 3000;
-    el.innerHTML = HALLOWEEN_GHOST;
-    el.style.cssText = 'position:absolute;left:0;top:0;line-height:0';
+    el.innerHTML = '<i style="position:absolute;left:-40px;top:-36px;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,rgba(200,230,255,.6) 0%,rgba(170,205,255,.28) 40%,transparent 70%)"></i>' + HALLOWEEN_GHOST;   // (a soft halo: they give off light, which shows up against the dark)
+    el.style.cssText = 'position:absolute;left:0;top:0;line-height:0;filter:drop-shadow(0 0 5px rgba(210,235,255,.95)) drop-shadow(0 0 12px rgba(160,200,255,.7))';
     layer.appendChild(el);
     el.animate([
       { transform: 'translate(' + x + 'px,' + (h + 30) + 'px) rotate(-6deg)', opacity: 0 },
@@ -111,6 +111,41 @@ function halloweenDecor(layer, ms) {
     var sp = web.querySelector('.web-spider');
     if (sp && !reduceMotion) sp.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(7px)' }, { transform: 'translateY(0)' }], { duration: 1900 + k * 500, iterations: Infinity, easing: 'ease-in-out' });
   });
+}
+
+/** The screen goes dark and purple for the party, except round Fumu's room (a soft-edged window on the room); it fades in and out. Not in the small window, where it would be a dark box on the desktop. @param {Element} layer @param {number} ms */
+function halloweenDark(layer, ms) {
+  var r = stage.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, rx = r.width * 1.0, ry = r.height * 1.05 + 20;
+  var dark = document.createElement('div'), mask = 'radial-gradient(ellipse ' + rx + 'px ' + ry + 'px at ' + cx + 'px ' + cy + 'px, transparent 70%, #000 100%)';
+  dark.style.cssText = 'position:absolute;inset:0;background:rgba(20,8,42,.66);-webkit-mask-image:' + mask + ';mask-image:' + mask;
+  layer.appendChild(dark);
+  if (!reduceMotion) dark.animate([{ opacity: 0 }, { opacity: 1, offset: 0.06 }, { opacity: 1, offset: 0.93 }, { opacity: 0 }], { duration: ms, fill: 'both' });
+}
+/** The string of lights along the top, made spooky: little glowing jack-o'-lanterns and ghosts on a dark wire, each flickering like a candle. @param {Element} layer @param {number} ms */
+function halloweenLights(layer, ms) {
+  var w = window.innerWidth, step = 36, n = Math.max(4, Math.round(w / step)), sx = w / n;
+  var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', w); svg.setAttribute('height', 50); svg.setAttribute('viewBox', '0 0 ' + w + ' 50');
+  svg.style.cssText = 'position:absolute;left:0;top:0;overflow:visible';
+  var d = 'M0 1', items = '';
+  for (var i = 0; i < n; i++) {
+    var x0 = i * sx, bx = x0 + sx / 2, by = 10;
+    d += ' Q' + bx + ' 17 ' + (x0 + sx) + ' 1';
+    if (i % 2 === 0) items += '<g class="hw-light" data-glow="#ffa43a"><path d="M' + bx + ' ' + (by - 1) + ' v3" stroke="#2c2025" stroke-width="1.4"/><ellipse cx="' + bx + '" cy="' + (by + 8) + '" rx="7" ry="6.2" fill="#ff9a3c" stroke="#2c2025" stroke-width="1.3"/>' +
+      '<path d="M' + (bx - 3.6) + ' ' + (by + 7) + ' l1.8 -2.4 1.8 2.4 z M' + (bx + 0.2) + ' ' + (by + 7) + ' l1.8 -2.4 1.8 2.4 z" fill="#fff0a8"/><path d="M' + (bx - 3.4) + ' ' + (by + 10.4) + ' l1.7 1.4 1.7 -1.4 1.7 1.4 1.7 -1.4 1.7 1.4" fill="none" stroke="#fff0a8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></g>';
+    else items += '<g class="hw-light" data-glow="#bfe0ff"><path d="M' + bx + ' ' + (by - 1) + ' v3" stroke="#2c2025" stroke-width="1.4"/><path d="M' + bx + ' ' + (by + 2) + ' Q' + (bx - 6) + ' ' + (by + 2) + ' ' + (bx - 6) + ' ' + (by + 9) + ' V' + (by + 17) + ' Q' + (bx - 4.5) + ' ' + (by + 15) + ' ' + (bx - 3) + ' ' + (by + 17) + ' Q' + (bx - 1.5) + ' ' + (by + 15) + ' ' + bx + ' ' + (by + 17) + ' Q' + (bx + 1.5) + ' ' + (by + 15) + ' ' + (bx + 3) + ' ' + (by + 17) + ' Q' + (bx + 4.5) + ' ' + (by + 15) + ' ' + (bx + 6) + ' ' + (by + 17) + ' V' + (by + 9) + ' Q' + (bx + 6) + ' ' + (by + 2) + ' ' + bx + ' ' + (by + 2) + ' Z" fill="#fffaf0" stroke="#2c2025" stroke-width="1.2" stroke-linejoin="round"/>' +
+      '<circle cx="' + (bx - 2.2) + '" cy="' + (by + 8) + '" r="1.1" fill="#2c2025"/><circle cx="' + (bx + 2.2) + '" cy="' + (by + 8) + '" r="1.1" fill="#2c2025"/><ellipse cx="' + bx + '" cy="' + (by + 11.4) + '" rx="1.2" ry="1.5" fill="#2c2025"/></g>';
+  }
+  svg.innerHTML = '<path d="' + d + '" fill="none" stroke="#2c2025" stroke-width="1.8"/>' + items;
+  layer.appendChild(svg);
+  if (reduceMotion) return;
+  svg.animate([{ transform: 'translateY(-55px)' }, { transform: 'translateY(0)' }], { duration: 700, easing: 'cubic-bezier(.3,1.4,.5,1)', fill: 'both' });
+  [].forEach.call(svg.querySelectorAll('.hw-light'), function (g, k) {   // each flickers on its own, like a candle that is about to go out: uneven, never a flash
+    var glow = g.getAttribute('data-glow');
+    g.style.filter = 'drop-shadow(0 0 4px ' + glow + ') drop-shadow(0 0 9px ' + glow + ')';
+    g.animate([{ opacity: 1 }, { opacity: .55, offset: 0.18 }, { opacity: .95, offset: 0.32 }, { opacity: .7, offset: 0.55 }, { opacity: 1, offset: 0.7 }, { opacity: .6, offset: 0.86 }, { opacity: 1 }], { duration: 1900 + (k * 313) % 900, delay: (k * 170) % 600, iterations: Infinity, easing: 'ease-in-out' });
+  });
+  setTimeout(function () { svg.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-60px)' }], { duration: 600, easing: 'ease-in', fill: 'both' }); }, ms - 700);
 }
 
 /** The app: a banner drops in from the top (an orange and purple one). @param {Element} layer @param {string} name */
@@ -179,9 +214,10 @@ function halloweenParty() {
   setFace({ eyes: 'happy', mouth: 'open', arms: 'rest', x: ['cheeks', 'sparkles'] });
   if (small) say(halloweenGreeting(name) + ' ♡', 3200, true); else say('boo! happy halloween! ♡', 3000);   // (the app's banner already says it)
   pulse('hop', 500);
-  var ms = partyDance('halloween'), total = ms + 5800, layer = bdayLayer(9000);
+  var ms = halloweenDance(), total = ms + 5800, layer = bdayLayer(9000);
+  if (!small) halloweenDark(layer, total);   // (first, so everything else is drawn over it)
   halloweenDecor(layer, total);
-  if (typeof xmasLights === 'function') xmasLights(layer, total, ['#ff8a1f', '#9b5de5', '#7bd35b', '#ff8a1f']);   // (the same string of lights as at Christmas, in pumpkin colours)
+  halloweenLights(layer, total);
   halloweenGhosts(layer, total);
   halloweenBats(layer, total);
   if (!small) halloweenBanner(layer, name);

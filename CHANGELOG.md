@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 617
+- Halloween: the screen goes dark except round his room, ghosts give off light, spooky flickering lantern and ghost lights, and a new monster mash dance
+
 ## Build 616
 - Halloween celebration on 31 October: witch hat, party dance, bats, ghosts, spider webs, mist, pumpkin lights, spooky music, a trick-or-treat bucket and a real Halloween box in Profile
 - Christmas: the tree, gingerbread men and candy canes are gone again
