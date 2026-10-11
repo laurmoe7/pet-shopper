@@ -1,11 +1,11 @@
-// The little plant (build 633): a plant in a pot with a face, in the room. The first thing ticked off each day (either list) waters it and it grows one stage; after seven
+// The little plant (build 633): a plant in a pot with a face, in the room, on the to-do list only (build 635). The first task ticked off each day waters it and it grows one stage; after seven
 // watered days it flowers, Fumu shows it off, and the next watering picks the flower and plants a new seed (each flower a different colour). It never dies: it waits when a day
 // is missed (and droops a little after two). The days are counted in `pet.plant` (logic.js: plantInfo, waterPlant; it syncs). The picture is PlantArt in decor.js; the plant is
 // room furniture like the rest (drag it, or take it out of the room in the Room list and it stops growing).
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
-/** @returns {boolean} Whether this is the app (phone or the whole app on the desktop): the plant is not in Mini Fumu, the small window. */
+/** @returns {boolean} Whether this is the app (phone or the whole app on the desktop): the plant is not drawn in Mini Fumu, the small window (a reminder ticked off there still waters it). */
 function plantApp() { return !document.documentElement.classList.contains('desktop-pet'); }
 /** @returns {{stage: number, flowers: number, thirsty: boolean, bloom: boolean}} How the plant is now. */
 function plantNow() { return L.plantInfo(state.pet.plant, L.dayNumber(giftDate())); }
@@ -20,9 +20,9 @@ function plantRefresh() {
 }
 /** A few drops of water fall onto the plant. @param {function} [done] Called when they have landed. */
 function plantDrops(done) {
-  var el = document.querySelector('.decor-plant');
-  if (!el || reduceMotion) { if (done) done(); return; }
-  var r = el.getBoundingClientRect(), layer = document.createElement('div');
+  var el = document.querySelector('.decor-plant'), r = el && el.getBoundingClientRect();
+  if (!el || !r.width || reduceMotion) { if (done) done(); return; }   // (not drawn: in Mini Fumu, or on the shopping list)
+  var layer = document.createElement('div');
   layer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:40';
   document.body.appendChild(layer);
   for (var k = 0; k < 4; k++) {
@@ -39,14 +39,15 @@ function plantDrops(done) {
     if (done) done();
   }, 1250);
 }
-/** Waters the plant if today's drink is still due (called when something is ticked off). */
+/** Waters the plant if today's drink is still due (called when a task is ticked off, in the app or from a reminder card in Mini Fumu). */
 function plantWater() {
-  if (!plantApp() || !state.pet.room.plant) return;   // taken out of the room: it waits
+  if (!isTodo() || !state.pet.room.plant) return;   // taken out of the room: it waits
   var r = L.waterPlant(state.pet, L.dayNumber(giftDate()));
   if (!r.watered) return;
   save();
   plantDrops(function () {
     plantRefresh();
+    if (!plantApp()) return;   // (Mini Fumu: it grew, and that is all)
     if (r.picked) showToast('🌷', T('You picked a flower! A new seed is in the pot.'), true, 4200);
     else if (r.bloomed) setTimeout(plantProud, 600);
   });

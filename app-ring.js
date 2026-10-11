@@ -55,7 +55,7 @@
   /** @returns {string[]} The buttons for the scene he is in now. */
   function items() {
     var scene = petScene();
-    if (!isDesk()) return scene === 'night-bed' ? [] : ['toy', 'notoy', 'plant', 'snack'];   // in the app: the toys (none picked: his own) and a snack; in bed they are put away
+    if (!isDesk()) return scene === 'night-bed' ? [] : ['toy', 'notoy'].concat(isTodo() ? ['plant'] : [], ['snack']);   // in the app: the toys (none picked: his own) and a snack; in bed they are put away
     if (scene === 'night-bed') return ['night'];   // in bed: only the night light
     var play = toyKind() === 'none' ? [] : ['ball'];   // (nothing to play with when there is no toy)
     if (scene.indexOf('night-drowsy') === 0) return play.concat(['toy', 'notoy', 'snack', 'dance', 'swap', 'lights']);

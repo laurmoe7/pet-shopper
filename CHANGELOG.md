@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 635
+- The little plant is for the to-do list only
+- Ticking a reminder done in Mini Fumu waters the plant
+
 ## Build 634
 - Radial menu: a Plant button to hide or show the little plant
 - The little plant is for the app only, not Mini Fumu
