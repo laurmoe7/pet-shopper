@@ -2,8 +2,12 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 591
+- Dutch language: pick it with the flags at the top of Options (first part of the app is translated)
+- Ring menu: the wrecking ball is gone from it (still in Options)
+
 ## Build 590
-- Options: Item suggestions switch (turns off his shopping-list suggestions)
+- Options: Shopping suggestions switch (turns off his shopping-list suggestions)
 
 ## Build 589
 - App ring menu: feed him a snack

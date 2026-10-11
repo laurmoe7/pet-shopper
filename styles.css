@@ -4145,3 +4145,8 @@ html[data-scene$="clip"] .pet.freespirit .arm-l, html[data-list="todo"] .pet.fre
 .dress-panel[data-tab="pet"] > .field:first-child :is(.name-show, input) { min-height: 30px; padding-top: 2px; padding-bottom: 2px; font-size: .95rem; }
 .dress-panel[data-tab="pet"] > .field:first-child .name-edit { min-height: 24px; padding: 1px 10px; font-size: .8rem; }
 .dress-panel[data-tab="pet"] > .field:first-child + .species { margin-top: 12px; }
+
+/* the language flags at the top of Options (app-lang.js) */
+.lang-btns { gap: 10px; }
+.lang-flag { display: inline-flex; align-items: center; justify-content: center; padding: 3px 8px; }
+.lang-flag img { width: 32px; height: 32px; display: block; }

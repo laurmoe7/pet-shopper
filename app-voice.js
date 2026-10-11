@@ -36,7 +36,7 @@ var VOICE_LANGS = [['auto', 'Auto'], ['en-GB', 'English'], ['nl-NL', 'Nederlands
 var voiceLang = 'auto';
 try { voiceLang = localStorage.getItem('nibble-voice') || 'auto'; } catch (e) { /* storage not available */ }
 /** @returns {string} The language the speech engine should listen for. */
-function speechLang() { return voiceLang === 'auto' ? (navigator.language || 'en-US') : voiceLang; }
+function speechLang() { return voiceLang === 'auto' ? (typeof Lang === 'object' && Lang.get() === 'nl' ? 'nl-NL' : (navigator.language || 'en-US')) : voiceLang; }   // (Auto follows the app's language when it is Dutch)
 
 /** Stops listening and puts the face and the button back. */
 function micDone() {

@@ -42,7 +42,6 @@
   /** Everything the ring can offer. `on` is for switches. */
   var ITEMS = {
     ball: { icon: '⚽', label: 'Play ball', run: function () { if (!busy && typeof playToy === 'function') playToy(); } },
-    toy: { icon: '💥', label: 'Wrecking ball', on: function () { return toyKind() === 'wrecker'; }, run: function () { toggleToyKind('wrecker'); } },
     notoy: { icon: '🚫', label: 'No toy', on: function () { return toyKind() === 'none'; }, run: function () { toggleToyKind('none'); } },   // (neither switch on: his own ball)
     snack: { icon: '🍪', label: 'Snack', run: ringSnack },
     dance: { icon: '🎉', label: 'Dance', run: ringDance },
@@ -54,11 +53,11 @@
   /** @returns {string[]} The buttons for the scene he is in now. */
   function items() {
     var scene = petScene();
-    if (!isDesk()) return scene === 'night-bed' ? [] : ['toy', 'notoy', 'snack'];   // in the app: the toys (none picked: his own) and a snack; in bed they are put away
+    if (!isDesk()) return scene === 'night-bed' ? [] : ['notoy', 'snack'];   // in the app: no toy, and a snack; in bed they are put away
     if (scene === 'night-bed') return ['night'];   // in bed: only the night light
     var play = toyKind() === 'none' ? [] : ['ball'];   // (nothing to play with when there is no toy)
-    if (scene.indexOf('night-drowsy') === 0) return play.concat(['toy', 'notoy', 'snack', 'dance', 'swap', 'lights']);
-    return play.concat(['toy', 'notoy', 'snack', 'dance', 'swap', 'wave']);
+    if (scene.indexOf('night-drowsy') === 0) return play.concat(['notoy', 'snack', 'dance', 'swap', 'lights']);
+    return play.concat(['notoy', 'snack', 'dance', 'swap', 'wave']);
   }
   function canShow(now, force) {
     // a double click on him or a style preview is asked for on purpose: only the mode is checked, so a stuck state (hidden window, a leftover
