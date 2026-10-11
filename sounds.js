@@ -1,6 +1,6 @@
 /* Fumu's sounds, synthesised with the Web Audio API (no audio files).
  * Sounds.play(kind) where kind is one of:
- *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party, birthday (the birthday jingle),
+ *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party, birthday (the Happy Birthday tune),
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
  *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), bell, tink and smash (the night bell ringing, clinking and breaking), glass (a piece of window breaking off, the wrecking ball), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
@@ -298,29 +298,30 @@
     notice: function (t) { chime(t, [988, 1319], 0.12, 0.85, 'sine'); chime(t + 0.34, [1568], 0.1, 0.5, 'sine'); },
     party: function (t) { chime(t, [523, 659, 784, 1047, 1319], 0.09, 1.1); },
     birthday: function (t) {
-      // the birthday jingle (about 9 s, to go with the party dance): a bouncy bell tune in C, a bass on every second beat, soft ticks, and a sparkly run up at the end
-      var beat = 0.375;
-      var bars = [
-        [523, 659, 784, 659, 784, 1047, 1047, 0],
-        [698, 880, 1047, 880, 784, 988, 1047, 0],
-        [1047, 1319, 1047, 1319, 1568, 1568, 1568, 0]
+      // the "Happy Birthday" tune (a very old one, in the public domain) played on bells in C with a waltz under it, about 14 s: the party's length, until the cake goes (build 610)
+      var u = 0.57;   // one beat
+      var lead = [   // [pitch in Hz, beats]: "happy birthday to you" four times over
+        [392, .75], [392, .25],
+        [440, 1], [392, 1], [523, 1], [494, 2], [392, .75], [392, .25],
+        [440, 1], [392, 1], [587, 1], [523, 2], [392, .75], [392, .25],
+        [784, 1], [659, 1], [523, 1], [494, 1], [440, 1], [698, .75], [698, .25],
+        [659, 1], [523, 1], [587, 1], [523, 3]
       ];
-      var bass = [[131, 196, 131, 196], [175, 196, 175, 196], [131, 196, 131, 262]];
-      bars.forEach(function (bar, bi) {
-        bar.forEach(function (hz, i) {
-          var at = t + (bi * 8 + i) * beat;
-          if (hz) {
-            tone(at, 0.3, 'triangle', hz, null, env(at, 0.01, 0.28, 0.2));
-            tone(at, 0.3, 'sine', hz * 2, null, env(at, 0.01, 0.2, 0.05));
-          }
-          noise(at + beat / 2, 0.04, 'highpass', 6000, 1, env(at + beat / 2, 0.001, 0.03, 0.07));
-        });
-        bass[bi].forEach(function (hz, i) {
-          var at = t + (bi * 8 + i * 2) * beat;
-          tone(at, 0.34, 'triangle', hz, null, env(at, 0.012, 0.32, 0.22));
-        });
+      var at = t;
+      lead.forEach(function (n) {
+        var d = Math.min(n[1] * u * 1.05, 1.3);
+        tone(at, d + 0.1, 'triangle', n[0], null, env(at, 0.012, d, 0.22));
+        tone(at, d + 0.1, 'sine', n[0] * 2, null, env(at, 0.012, d * 0.7, 0.05));
+        at += n[1] * u;
       });
-      chime(t + 8.4, [1047, 1319, 1568, 2093], 0.1, 1.2);
+      // the waltz: a bass note on the first beat of each bar, a soft chord on the other two (the first bar starts one beat in)
+      var bass = [131, 98, 98, 131, 131, 87, 98, 131], chord = [[262, 330, 392], [247, 294, 392], [247, 294, 392], [262, 330, 392], [262, 330, 392], [262, 349, 440], [247, 294, 392], [262, 330, 392]];
+      for (var b = 0; b < 8; b++) {
+        var bar = t + u * (1 + b * 3);
+        tone(bar, 0.5, 'triangle', bass[b], null, env(bar, 0.012, 0.48, 0.24));
+        for (var k = 1; k <= 2; k++) chord[b].forEach(function (hz) { tone(bar + k * u, 0.3, 'sine', hz, null, env(bar + k * u, 0.01, 0.26, 0.04)); });
+      }
+      chime(t + u * 25 - 0.15, [1047, 1319, 1568, 2093], 0.1, 1.2);
     },
     jiggle: function (t) {
       // a belly wobble: soft boings that get smaller and lower

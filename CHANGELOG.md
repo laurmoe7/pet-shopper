@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 610
+- Birthday tune: the Happy Birthday song, playing until the cake goes
+
 ## Build 609
 - Birthday jingle plays during the celebration
 
