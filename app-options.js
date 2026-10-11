@@ -149,6 +149,9 @@ var DEV_ACTIONS = [
     if (typeof window.deskRemind === 'function' && window.deskRemind([item])) return 'Reminder card shown.';
     say('A test reminder: time for your task!', 3000); return 'Said as a bubble (the card is for the desktop app).';
   } },
+  { label: 'Test a goal notification', run: function () { devSheet.close(); return devToasts('goal'); } },
+  { label: 'Test an unlocked notification', run: function () { devSheet.close(); return devToasts('unlock'); } },
+  { label: 'Test a trip stamp notification', run: function () { devSheet.close(); return devToasts('trip'); } },
   { label: 'Make Fumu ask for a snack', run: function () { return devWish(); } },
   { label: 'Make Fumu steal an emoji', run: function () { return devSteal(); } },
   { label: 'Pretend it is the next special day (gifts)', run: function () { return devGiftCalendar(); } },

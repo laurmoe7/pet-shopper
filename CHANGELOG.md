@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 602
+- Developer tools: test goal, unlocked and trip stamp notifications
+
 ## Build 601
 - Top bar a little higher
 - Goal and trip toasts moved to the top-left corner of the room, off Fumu

@@ -181,3 +181,21 @@ document.querySelectorAll('dialog:not(#picker)').forEach(function (d) {
 document.querySelectorAll('dialog').forEach(function (d) {
   d.addEventListener('close', function () { if (bubble.parentNode === d) { bubble.hidden = true; bubbleToStage(); } });
 });
+
+/**
+ * Developer tools: shows a goal, unlocked or trip stamp notification as it looks in play, without changing anything saved.
+ * @param {'goal'|'unlock'|'trip'} kind
+ * @returns {string} What to tell.
+ */
+function devToasts(kind) {
+  var ach = Achievements[0];
+  if (kind === 'trip') {
+    sound('stamp');
+    tripStampAt(tripStampSpot());
+    showToast('🛒', 'Trip #12 stamped!', true, 3400);
+    return 'Trip stamp shown.';
+  }
+  if (kind === 'unlock') { sound('party'); showToast(ach.icon, 'Unlocked: Grumpy Chef!', true, 3200); return 'Unlocked notification shown.'; }
+  showToast(ach.icon, ach.title + ' 3/' + (ach.goal || 5), false, 2600);
+  return 'Goal notification shown.';
+}
