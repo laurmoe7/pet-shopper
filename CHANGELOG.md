@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 613
+- Birthday: he blows the candle out in the last second
+
 ## Build 612
 - Birthday: the toy is put away for the party and pops back in after
 

@@ -166,8 +166,24 @@ function bdayCake() {
     pulse('hopsmall', 450);
   }
   setTimeout(function () { say(pick(['make a wish~', 'blow out the candle!']), 2000, true); }, 2800);
+  setTimeout(function () {   // the last second: he blows the candle out (the flame snuffs, a curl of smoke rises, a puff of air leaves his mouth)
+    if (!cake.parentNode) return;
+    setFace({ eyes: 'closed', mouth: 'o', arms: clip ? 'rest' : 'carry', x: ['cheeks'] });
+    sound('swoosh');
+    drift(['💨'], mouthPoint(), 1);
+    var flame = cake.querySelector('.flame'), svg = cake.querySelector('svg');
+    if (flame) { flame.style.animation = 'none'; if (!reduceMotion) flame.animate([{ opacity: 1, transform: 'scale(1) translateX(0)' }, { opacity: 1, transform: 'scale(.9,.7) translateX(-3px)', offset: 0.3 }, { opacity: 0, transform: 'scale(.1) translateX(-5px)' }], { duration: 350, easing: 'ease-in', fill: 'both' }); else flame.style.display = 'none'; }
+    if (svg && !reduceMotion) {
+      var smoke = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      smoke.setAttribute('d', 'M32 4 Q28 -2 33 -6 Q37 -10 32 -15');
+      smoke.setAttribute('fill', 'none'); smoke.setAttribute('stroke', '#b9aaa3'); smoke.setAttribute('stroke-width', '2.2'); smoke.setAttribute('stroke-linecap', 'round');
+      svg.appendChild(smoke);
+      smoke.animate([{ opacity: 0, transform: 'translateY(4px)' }, { opacity: .9, transform: 'translateY(-2px)', offset: 0.3 }, { opacity: 0, transform: 'translateY(-14px)' }], { duration: 900, easing: 'ease-out', fill: 'both' }).onfinish = function () { smoke.remove(); };
+    }
+  }, 4200);
   setTimeout(function () {
     if (!cake.parentNode) return;
+    setFace({ eyes: 'happy', mouth: 'smile', arms: clip ? 'rest' : 'carry', x: ['cheeks', 'hearts'] });
     if (reduceMotion) { cake.remove(); return; }
     cake.animate([{ opacity: 1, transform: 'translateY(0) scale(1)' }, { opacity: 0, transform: 'translateY(12px) scale(.6)' }], { duration: 500, easing: 'ease-in', fill: 'both' }).onfinish = function () { cake.remove(); };
   }, 5200);
