@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 621
+- Celebration banners slide up from the bottom, above the bottom bar, so they never cover him
+
 ## Build 620
 - New Year's Day: the party blower is held in his mouth (beak, snout, whatever he is) and toots louder, with a longer big toot
 

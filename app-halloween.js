@@ -148,14 +148,14 @@ function halloweenLights(layer, ms) {
   setTimeout(function () { svg.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-60px)' }], { duration: 600, easing: 'ease-in', fill: 'both' }); }, ms - 700);
 }
 
-/** The app: a banner drops in from the top (an orange and purple one). @param {Element} layer @param {string} name */
+/** The app: a banner slides up from the bottom, above the bottom bar, so it never covers Fumu (an orange and purple one). @param {Element} layer @param {string} name */
 function halloweenBanner(layer, name) {
   var banner = document.createElement('div');
-  banner.style.cssText = 'position:absolute;left:0;right:0;top:34px;margin:0 auto;width:90%;max-width:360px;box-sizing:border-box;padding:10px 14px;border-radius:18px;background:#fff6ec;color:#4d3c43;' +
+  banner.style.cssText = 'position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom, 0px) + 92px);margin:0 auto;width:90%;max-width:360px;box-sizing:border-box;padding:10px 14px;border-radius:18px;background:#fff6ec;color:#4d3c43;' +
     'border:2.5px solid #ff8a1f;box-shadow:0 4px 0 #8e5bff;text-align:center;font-weight:700;font-size:17px';
   banner.textContent = '🎃 ' + halloweenGreeting(name) + ' 👻';
   layer.appendChild(banner);
-  if (!reduceMotion) banner.animate([{ transform: 'translateY(-110px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0)', opacity: 1, offset: 0.85 }, { transform: 'translateY(-110px)', opacity: 0 }], { duration: 8000, fill: 'both' });
+  if (!reduceMotion) banner.animate([{ transform: 'translateY(110px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0)', opacity: 1, offset: 0.85 }, { transform: 'translateY(110px)', opacity: 0 }], { duration: 8000, fill: 'both' });
 }
 
 /** The end of the party: he holds out a trick-or-treat pumpkin bucket full of sweets; in the last second a little ghost pops out of it and says boo; then a real Halloween box is waiting in Profile. @returns {number} How long it takes, in ms. */

@@ -108,7 +108,7 @@ function bdayFireworks(layer, ms) {
   }
   for (var at = 500; at < ms - 900; at += 1700 + Math.random() * 300) (function (at, last) { setTimeout(function () { launch(last); }, at); })(at, at + 2000 >= ms - 900);
 }
-/** The app: confetti rains down over the whole page and a banner drops in from the top. */
+/** The app: confetti rains down over the whole page and a banner slides up from the bottom, above the bottom bar, so it never covers Fumu. */
 function bdayApp(name) {
   var layer = bdayLayer(), w = window.innerWidth, h = window.innerHeight;
   if (!reduceMotion) for (var i = 0; i < 46; i++) {
@@ -121,11 +121,11 @@ function bdayApp(name) {
     ], { duration: 3200 + Math.random() * 2600, delay: Math.random() * 2600, easing: 'ease-in', fill: 'both' });
   }
   var banner = document.createElement('div');
-  banner.style.cssText = 'position:absolute;left:0;right:0;top:14px;margin:0 auto;width:90%;max-width:360px;box-sizing:border-box;padding:10px 14px;border-radius:18px;background:#fff6ec;color:#5b4239;' +
+  banner.style.cssText = 'position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom, 0px) + 92px);margin:0 auto;width:90%;max-width:360px;box-sizing:border-box;padding:10px 14px;border-radius:18px;background:#fff6ec;color:#5b4239;' +
     'border:2.5px solid #ff8fb1;box-shadow:0 4px 0 #ffd0dd;text-align:center;font-weight:700;font-size:17px';
   banner.textContent = '🎂 ' + bdayGreeting(name) + ' 🎉';
   layer.appendChild(banner);
-  if (!reduceMotion) banner.animate([{ transform: 'translateY(-90px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0)', opacity: 1, offset: 0.85 }, { transform: 'translateY(-90px)', opacity: 0 }], { duration: 7000, fill: 'both' });
+  if (!reduceMotion) banner.animate([{ transform: 'translateY(110px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0)', opacity: 1, offset: 0.85 }, { transform: 'translateY(110px)', opacity: 0 }], { duration: 7000, fill: 'both' });
   setTimeout(function () { layer.remove(); }, 8200);
 }
 /** Mini Fumu: balloons float up past him, and hearts and stars drift off him. */

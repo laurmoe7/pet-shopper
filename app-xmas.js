@@ -91,14 +91,14 @@ function xmasSnow(layer, ms) {
   }
 }
 
-/** The app: a banner drops in from the top (a red and green one). @param {Element} layer @param {string} name */
+/** The app: a banner slides up from the bottom, above the bottom bar, so it never covers Fumu (a red and green one). @param {Element} layer @param {string} name */
 function xmasBanner(layer, name) {
   var banner = document.createElement('div');
-  banner.style.cssText = 'position:absolute;left:0;right:0;top:34px;margin:0 auto;width:90%;max-width:360px;box-sizing:border-box;padding:10px 14px;border-radius:18px;background:#fffaf0;color:#5b4239;' +
+  banner.style.cssText = 'position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom, 0px) + 92px);margin:0 auto;width:90%;max-width:360px;box-sizing:border-box;padding:10px 14px;border-radius:18px;background:#fffaf0;color:#5b4239;' +
     'border:2.5px solid #e8445a;box-shadow:0 4px 0 #2fbf71;text-align:center;font-weight:700;font-size:17px';
   banner.textContent = '🎄 ' + xmasGreeting(name) + ' 🎅';
   layer.appendChild(banner);
-  if (!reduceMotion) banner.animate([{ transform: 'translateY(-110px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0)', opacity: 1, offset: 0.85 }, { transform: 'translateY(-110px)', opacity: 0 }], { duration: 8000, fill: 'both' });
+  if (!reduceMotion) banner.animate([{ transform: 'translateY(110px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0)', opacity: 1, offset: 0.85 }, { transform: 'translateY(110px)', opacity: 0 }], { duration: 8000, fill: 'both' });
 }
 
 /** The end of the party: he holds out a gift box for you; in the last second the lid pops off with a puff of stars; then a real Christmas box is waiting in Profile. @returns {number} How long it takes, in ms. */

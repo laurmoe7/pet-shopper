@@ -114,14 +114,14 @@ function newyearDiscoBall(layer, ms) {
   setTimeout(function () { ball.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-150px)' }], { duration: 700, easing: 'ease-in', fill: 'both' }); }, ms - 800);
 }
 
-/** The app: a banner drops in from the top (a gold and blue one). @param {Element} layer @param {string} name */
+/** The app: a banner slides up from the bottom, above the bottom bar, so it never covers Fumu (a gold and blue one). @param {Element} layer @param {string} name */
 function newyearBanner(layer, name) {
   var banner = document.createElement('div');
-  banner.style.cssText = 'position:absolute;left:0;right:0;top:34px;margin:0 auto;width:90%;max-width:360px;box-sizing:border-box;padding:10px 14px;border-radius:18px;background:#fffaf0;color:#3a3560;' +
+  banner.style.cssText = 'position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom, 0px) + 92px);margin:0 auto;width:90%;max-width:360px;box-sizing:border-box;padding:10px 14px;border-radius:18px;background:#fffaf0;color:#3a3560;' +
     'border:2.5px solid #ffc83a;box-shadow:0 4px 0 #3fa7ff;text-align:center;font-weight:700;font-size:17px';
   banner.textContent = '🎉 ' + newyearGreeting(name) + ' 🥳';
   layer.appendChild(banner);
-  if (!reduceMotion) banner.animate([{ transform: 'translateY(-110px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0)', opacity: 1, offset: 0.85 }, { transform: 'translateY(-110px)', opacity: 0 }], { duration: 8000, fill: 'both' });
+  if (!reduceMotion) banner.animate([{ transform: 'translateY(110px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0)', opacity: 1, offset: 0.85 }, { transform: 'translateY(110px)', opacity: 0 }], { duration: 8000, fill: 'both' });
 }
 
 /** Confetti and a few streamers shot out of the blower's tip, which fall in a curve. @param {{x: number, y: number}} at @param {number} n How many pieces. */
