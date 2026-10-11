@@ -198,7 +198,9 @@
       guard: {
         day: (saved.guard && saved.guard.day) || '',
         words: (saved.guard && Array.isArray(saved.guard.words)) ? saved.guard.words : [],
-        lastSeen: (saved.guard && saved.guard.lastSeen) || 0
+        lastSeen: (saved.guard && saved.guard.lastSeen) || 0,
+        // the day of the last trip stamp (the stamp book's Trips): one a day
+        trip: (saved.guard && typeof saved.guard.trip === 'string') ? saved.guard.trip : ''
       }
     };
   }
@@ -803,6 +805,27 @@
     var real = items.filter(function (i) { return isFresh(i, now); }).length;
     if (real < TRIP_MIN_ITEMS) return result('small-trip');
     return record(profile, dayKey(now), matching);
+  }
+
+  /**
+   * Gives a stamp for a finished shopping trip (the stamp book's Trips, kept as `stamps.trip`). The same
+   * fair-play rules as the trip goals (enough items that sat on the list for a while, the clock in order),
+   * and one a day, so ticking a list on and off cannot fill the book.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {Item[]} items  The finished list.
+   * @param {Date} now
+   * @returns {{stamped: boolean, count: number, blocked: ?string}} count is the trips stamped so far;
+   *   blocked is 'small-trip', 'clock', 'today' (already stamped today) or null.
+   */
+  function recordTripStamp(profile, items, now) {
+    var count = (profile.stamps && profile.stamps.trip) || 0;
+    if (!clockOk(profile, now)) return { stamped: false, count: count, blocked: 'clock' };
+    var real = items.filter(function (i) { return isFresh(i, now); }).length;
+    if (real < TRIP_MIN_ITEMS) return { stamped: false, count: count, blocked: 'small-trip' };
+    var today = dayKey(now);
+    if (profile.guard.trip === today) return { stamped: false, count: count, blocked: 'today' };
+    profile.guard.trip = today;
+    return { stamped: true, count: addStamp(profile, 'trip', 1), blocked: null };
   }
 
   /**
@@ -2285,6 +2308,7 @@
     countsFor: countsFor,
     recordEaten: recordEaten,
     recordTrip: recordTrip,
+    recordTripStamp: recordTripStamp,
     refundEaten: refundEaten,
     recordFavourite: recordFavourite,
     refundFavourite: refundFavourite,

@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 582
+- Finishing a shopping trip earns a trip stamp: Trips in the Stamp Book (one a day, 3 items or more)
+- All bought: the trip stamp thumps onto the receipt before the party, and Fumu says which trip it was
+- Animation player: trip stamp, trip done
+
 ## Build 581
 - Mini Fumu: the solid-spot check does a little less work
 

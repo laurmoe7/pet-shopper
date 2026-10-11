@@ -248,10 +248,16 @@
     }
     a = isObj(a) ? a : {}; b = isObj(b) ? b : {};
     var list = name === 'treats' ? 'used' : 'words';   // treats and guard: a day and what was done that day
-    if ((a.day || '') !== (b.day || '')) return copy((a.day || '') > (b.day || '') ? a : b);
+    var trip = name === 'guard' ? ((a.trip || '') > (b.trip || '') ? a.trip : b.trip) : '';   // the day of the last trip stamp: the later one
+    if ((a.day || '') !== (b.day || '')) {
+      var later = copy((a.day || '') > (b.day || '') ? a : b);
+      if (trip) later.trip = trip;
+      return later;
+    }
     var joined = { day: a.day || '' };
     joined[list] = unionSorted(a[list], b[list]);
     if (name === 'guard') joined.lastSeen = Math.max(num(a.lastSeen), num(b.lastSeen));
+    if (trip) joined.trip = trip;
     return joined;
   }
 

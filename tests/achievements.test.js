@@ -271,3 +271,17 @@ test('every skin belongs to a species that is drawn, and has its colours', () =>
     assert.match(css, new RegExp('data-skin="' + s.id + '"\\] \\{ --pet-skin'), s.id + ' has colours');
   }
 });
+
+test('a finished trip earns a trip stamp: the trip rules, and one a day', () => {
+  const pet = fresh();
+  assert.equal(L.recordTripStamp(pet, trip(2), day(1)).blocked, 'small-trip');
+  assert.deepEqual(L.recordTripStamp(pet, trip(3), day(1)), { stamped: true, count: 1, blocked: null });
+  assert.equal(L.recordTripStamp(pet, trip(3), day(1)).blocked, 'today');   // ticking the list on and off again
+  assert.deepEqual(L.recordTripStamp(pet, trip(4), day(2)), { stamped: true, count: 2, blocked: null });
+  assert.equal(pet.stamps.trip, 2);
+  assert.equal(L.stampTotal(pet), 2);
+  assert.equal(pet.guard.trip, L.dayKey(day(2)));
+  assert.equal(L.recordTripStamp(pet, trip(3), day(1)).blocked, 'clock');   // the clock went back
+  const fast = trip(3).map((i) => ({ ...i, added: day(3).getTime() - 60 * 1000 }));   // just added: not a real trip
+  assert.equal(L.recordTripStamp(pet, fast, day(3)).blocked, 'small-trip');
+});

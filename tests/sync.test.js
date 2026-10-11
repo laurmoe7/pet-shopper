@@ -235,10 +235,15 @@ test('gift boxes, treats and the fair-play memory join on the same day and follo
   for (const d of [a, b]) {
     assert.deepEqual(d.pet.gifts, { '2026-10-06': ['x'], '2026-10-07': ['y', 'z'] });
     assert.deepEqual(d.pet.treats, { day: '2026-10-07', used: ['apple', 'cake'] });
-    assert.deepEqual(d.pet.guard, { day: '2026-10-07', words: ['egg'], lastSeen: 40 });
+    assert.deepEqual(d.pet.guard, { day: '2026-10-07', words: ['egg'], lastSeen: 40, trip: '' });
   }
   const same = Sync.merge({ counters: { guard: { day: 'd', words: ['a'], lastSeen: 9 } } }, { counters: { guard: { day: 'd', words: ['b'], lastSeen: 3 } } });
   assert.deepEqual(same.counters.guard, { day: 'd', words: ['a', 'b'], lastSeen: 9 });
+  // the day of the last trip stamp: the later one, whichever guard wins
+  const trips = Sync.merge({ counters: { guard: { day: 'd', words: [], lastSeen: 1, trip: '2026-10-05' } } }, { counters: { guard: { day: 'd', words: [], lastSeen: 1, trip: '2026-10-07' } } });
+  assert.equal(trips.counters.guard.trip, '2026-10-07');
+  const laterDay = Sync.merge({ counters: { guard: { day: 'e', words: [], lastSeen: 1 } } }, { counters: { guard: { day: 'd', words: [], lastSeen: 1, trip: '2026-10-07' } } });
+  assert.deepEqual(laterDay.counters.guard, { day: 'e', words: [], lastSeen: 1, trip: '2026-10-07' });
 });
 
 test('sleep, options and the developer switches stay on each device', () => {
