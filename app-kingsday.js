@@ -235,7 +235,7 @@ function kingsCheck() {
 /** Developer tool: pretends it is King's Day and plays the celebration now. @returns {string} */
 function devKingsDayNow() {
   celebDevGift = Date.now() + 40000;
-  if (deskPet()) return celebAsk({ kind: 'kingsday', icon: '👑', title: kingsGreeting(state.player.name), party: function () { devKingsDay = true; var ok = kingsParty(); setTimeout(function () { devKingsDay = false; }, 9000); if (!ok) devKingsDay = false; return ok; } }) ? 'Mini Fumu asks first: tap Celebrate on his card.' : 'Mini Fumu is already asking about a celebration.';
+  if (deskPet()) return celebAsk({ kind: 'kingsday', icon: '👑', title: kingsGreeting(state.player.name), dev: true, party: function () { devKingsDay = true; var ok = kingsParty(); setTimeout(function () { devKingsDay = false; }, 9000); if (!ok) devKingsDay = false; return ok; } }) ? 'Mini Fumu asks first: tap Celebrate on his card.' : 'Mini Fumu is already asking about a celebration.';
   devKingsDay = true;
   if (!kingsParty()) { devKingsDay = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devKingsDay = false; }, 9000);

@@ -237,18 +237,26 @@ function celebAskUp() { return !!celebCard; }
  */
 function celebFx(kind, ms, total, name) {
   var D = window.nibbleDesktop;
-  if (!deskPet() || !D || typeof D.celebrateFx !== 'function') return false;
+  if (!deskPet() || !D || typeof D.celebrateFx !== 'function' || (window.deskPref && !window.deskPref('celebScreen'))) return false;   // (the Celebrations tab in his settings can keep the effects in his small window)
   try { D.celebrateFx(kind, { name: name, ms: ms, total: total, lang: typeof Lang === 'object' && Lang.get() === 'nl' ? 'nl' : 'en', rect: { x: 0, y: 0, w: window.innerWidth, h: window.innerHeight } }); } catch (e) { return false; }
   return true;
 }
 /**
  * Mini Fumu does not celebrate by itself: an alert card asks first (the screen is about to be covered with effects). "Celebrate" starts it, "Not now" skips it for today, and so does leaving it for two minutes.
- * @param {{kind: string, icon: string, title: string, party: function(): boolean, release?: function(): void, done?: function(): void}} o The celebration's name, its emoji, the card's title, how to start it, how to end its start-up hold, and how to remember it was offered today.
+ * @param {{kind: string, dev?: boolean, icon: string, title: string, party: function(): boolean, release?: function(): void, done?: function(): void}} o The celebration's name, its emoji, the card's title, how to start it, how to end its start-up hold, and how to remember it was offered today.
  * @returns {boolean} Whether the card took over (always false in the app, which just celebrates).
  */
 function celebAsk(o) {
   if (!deskPet()) return false;
   if (celebCard) return true;
+  var pref = { birthday: 'celebBirthday', christmas: 'celebChristmas', halloween: 'celebHalloween', newyear: 'celebNewYear', easter: 'celebEaster', kingsday: 'celebKingsDay' }[o.kind];
+  if (!o.dev && pref && window.deskPref && !window.deskPref(pref)) {   // switched off in his settings (Celebrations): no card, no party, and not offered again today
+    if (o.done) o.done();
+    busy++; if (o.release) o.release(); busy--;
+    if (!birthdayHolding()) bdayToyAway(false);
+    if (!busy) settle();
+    return true;
+  }
   if (o.done) o.done();
   busy++;   // (he stays put until the answer; the start-up hold, if there is one, is let go after this so he is never free in between)
   if (o.release) o.release();
@@ -344,7 +352,7 @@ function birthdayCheck() {
 /** Developer tool: pretends it is the birthday and plays the celebration now. @returns {string} */
 function devBirthdayNow() {
   celebDevGift = Date.now() + 40000;
-  if (deskPet()) return celebAsk({ kind: 'birthday', icon: '🎂', title: bdayGreeting(state.player.name), party: function () { devBirthday = true; var ok = birthdayParty(); setTimeout(function () { devBirthday = false; }, 9000); if (!ok) devBirthday = false; return ok; } }) ? 'Mini Fumu asks first: tap Celebrate on his card.' : 'Mini Fumu is already asking about a celebration.';
+  if (deskPet()) return celebAsk({ kind: 'birthday', icon: '🎂', title: bdayGreeting(state.player.name), dev: true, party: function () { devBirthday = true; var ok = birthdayParty(); setTimeout(function () { devBirthday = false; }, 9000); if (!ok) devBirthday = false; return ok; } }) ? 'Mini Fumu asks first: tap Celebrate on his card.' : 'Mini Fumu is already asking about a celebration.';
   devBirthday = true;
   if (!birthdayParty()) { devBirthday = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devBirthday = false; }, 9000);

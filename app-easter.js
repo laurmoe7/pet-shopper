@@ -285,7 +285,7 @@ function easterCheck() {
 /** Developer tool: pretends it is Easter and plays the celebration now. @returns {string} */
 function devEasterNow() {
   celebDevGift = Date.now() + 40000;
-  if (deskPet()) return celebAsk({ kind: 'easter', icon: '🐣', title: easterGreeting(state.player.name), party: function () { devEaster = true; var ok = easterParty(); setTimeout(function () { devEaster = false; }, 9000); if (!ok) devEaster = false; return ok; } }) ? 'Mini Fumu asks first: tap Celebrate on his card.' : 'Mini Fumu is already asking about a celebration.';
+  if (deskPet()) return celebAsk({ kind: 'easter', icon: '🐣', title: easterGreeting(state.player.name), dev: true, party: function () { devEaster = true; var ok = easterParty(); setTimeout(function () { devEaster = false; }, 9000); if (!ok) devEaster = false; return ok; } }) ? 'Mini Fumu asks first: tap Celebrate on his card.' : 'Mini Fumu is already asking about a celebration.';
   devEaster = true;
   if (!easterParty()) { devEaster = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devEaster = false; }, 9000);

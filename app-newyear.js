@@ -328,7 +328,7 @@ function newyearCheck() {
 /** Developer tool: pretends it is New Year's Day and plays the celebration now. @returns {string} */
 function devNewYearNow() {
   celebDevGift = Date.now() + 40000;
-  if (deskPet()) return celebAsk({ kind: 'newyear', icon: '🎉', title: newyearGreeting(state.player.name), party: function () { devNewYear = true; var ok = newyearParty(); setTimeout(function () { devNewYear = false; }, 9000); if (!ok) devNewYear = false; return ok; } }) ? 'Mini Fumu asks first: tap Celebrate on his card.' : 'Mini Fumu is already asking about a celebration.';
+  if (deskPet()) return celebAsk({ kind: 'newyear', icon: '🎉', title: newyearGreeting(state.player.name), dev: true, party: function () { devNewYear = true; var ok = newyearParty(); setTimeout(function () { devNewYear = false; }, 9000); if (!ok) devNewYear = false; return ok; } }) ? 'Mini Fumu asks first: tap Celebrate on his card.' : 'Mini Fumu is already asking about a celebration.';
   devNewYear = true;
   if (!newyearParty()) { devNewYear = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devNewYear = false; }, 9000);

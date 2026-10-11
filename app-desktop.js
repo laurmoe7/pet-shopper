@@ -203,8 +203,10 @@
   })();
 
   // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------
-  var deskPrefs = { moveNormal: 'normal', moveFull: 'still', alertStyle: '', mute: false, remind: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare' };
+  var deskPrefs = { moveNormal: 'normal', moveFull: 'still', alertStyle: '', mute: false, remind: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', celebBirthday: true, celebChristmas: true, celebHalloween: true, celebNewYear: true, celebEaster: true, celebKingsDay: true, celebScreen: true };
   /** Awareness: 1 = more privacy (idle and time only), 2 = normal. Anything he says about what you are doing, or knows about your windows and programs, checks this first. */
+  /** Mini Fumu's settings, Celebrations tab: whether one switch is on (everything is on until she turns it off). @param {string} key */
+  window.deskPref = function (key) { return deskPrefs[key] !== false; };
   window.deskAware = function (level) { return (deskPrefs.awareness === 1 ? 1 : 2) >= level; };
   /** The small window's look choices from the settings window: no toy, no cushion (classes on <html>, CSS at the end of styles.css). */
   deskMuted = function () { return !!deskPrefs.mute && isPet(); };   // sounds off in the small window only
@@ -1352,6 +1354,12 @@
     suggest: function () { return devSuggest(); },
     giftday: function () { return devGiftCalendar(); },
     giftshut: function () { return devGiftReset(); },
+    celebBirthday: function () { return devBirthdayNow(); },
+    celebChristmas: function () { return devXmasNow(); },
+    celebHalloween: function () { return devHalloweenNow(); },
+    celebNewYear: function () { return devNewYearNow(); },
+    celebEaster: function () { return devEasterNow(); },
+    celebKingsDay: function () { return devKingsDayNow(); },
     tomorrow: function () { L.skipDays(state, 1); refreshAll(); return 'A day has passed.'; },
     sample: function () { state.items = state.items.concat(isTodo() ? sampleTodos() : L.parseState(null, newId).items); refreshAll(); return 'Sample items added.'; },
     clear: function () { state.items = []; refreshAll(); return 'List cleared.'; }

@@ -182,7 +182,7 @@ function xmasCheck() {
 /** Developer tool: pretends it is Christmas and plays the celebration now. @returns {string} */
 function devXmasNow() {
   celebDevGift = Date.now() + 40000;
-  if (deskPet()) return celebAsk({ kind: 'christmas', icon: '🎄', title: xmasGreeting(state.player.name), party: function () { devXmas = true; var ok = xmasParty(); setTimeout(function () { devXmas = false; }, 9000); if (!ok) devXmas = false; return ok; } }) ? 'Mini Fumu asks first: tap Celebrate on his card.' : 'Mini Fumu is already asking about a celebration.';
+  if (deskPet()) return celebAsk({ kind: 'christmas', icon: '🎄', title: xmasGreeting(state.player.name), dev: true, party: function () { devXmas = true; var ok = xmasParty(); setTimeout(function () { devXmas = false; }, 9000); if (!ok) devXmas = false; return ok; } }) ? 'Mini Fumu asks first: tap Celebrate on his card.' : 'Mini Fumu is already asking about a celebration.';
   devXmas = true;
   if (!xmasParty()) { devXmas = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devXmas = false; }, 9000);

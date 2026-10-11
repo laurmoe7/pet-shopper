@@ -1,12 +1,15 @@
 // The settings window's page: draws the choices from what main.js reports and sends changes back.
 'use strict';
 (function () {
-  var P = window.fumuPanel, root = document.getElementById('root'), S = null, capture = null, note = '', diagTimer = 0, devOpen = false, devNote = '', devGroups = { 'Time of day and scenes': true };
+  var P = window.fumuPanel, root = document.getElementById('root'), S = null, capture = null, note = '', diagTimer = 0, devOpen = false, devNote = '', devGroups = { 'Time of day and scenes': true }, curTab = 'look';
+  /** The tabs along the top, in order: the id each section is filed under, and its name. */
+  var TABS = [['look', 'Look'], ['behaviour', 'Behaviour'], ['celebrations', 'Celebrations'], ['privacy', 'Privacy'], ['window', 'Window'], ['dev', 'Developer']];
 
   /** His name, the one the player gave him (the shell passes it on). */
   function nm() { return (S && S.petName) || 'Fumu'; }
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
-  function section(title) { var s = el('section'); s.appendChild(el('h2', '', title)); root.appendChild(s); return s; }
+  /** A framed section of the page; it only shows while its tab (`tab`, one of TABS) is the open one. */
+  function section(title, tab) { var s = el('section'); s.hidden = tab !== curTab; s.appendChild(el('h2', '', title)); root.appendChild(s); return s; }
   /** A row with a switch. `pref` is the setting's name; `invert` shows the opposite (for "hide" choices written as "show"). */
   function toggle(sec, label, pref, hint, opts) {
     opts = opts || {};
@@ -23,10 +26,12 @@
   function render() {
     document.documentElement.dataset.look = S.prefs.alertStyle || 'auto';   // the window wears the chosen theme (panel.html)
     root.textContent = '';
+    var nav = document.getElementById('tabs'); nav.textContent = '';
+    TABS.forEach(function (t) { button(nav, t[1], function () { curTab = t[0]; window.scrollTo(0, 0); render(); }, curTab === t[0] ? 'on' : ''); });
     document.getElementById('ver').textContent = (S.packaged ? '' : 'running from source · ') + (S.channel === 'stable' ? 'stable channel' : 'dev channel');
     // friends use the stable channel: updating is a normal part of settings for them (for the dev channel it stays in the developer tools)
     if (S.channel === 'stable') {
-      var upd = section('Updates'), us = S.updateState || { state: 'idle' };
+      var upd = section('Updates', 'window'), us = S.updateState || { state: 'idle' };
       var said = us.state === 'checking' ? 'Checking for updates…' : us.state === 'downloading' ? 'Downloading an update' + (us.percent ? ' (' + us.percent + '%)' : '…') : us.state === 'ready' ? 'An update is ready. Restart Fumufumu to get it.' : us.state === 'none' ? 'Fumufumu is up to date.' : us.state === 'error' ? 'Could not check for updates (are you online?).' : 'Fumufumu updates itself in the background.';
       var urow = el('div', 'row'), utext = el('span', 'text', said);
       utext.appendChild(el('small', '', 'Updates install when you quit.'));
@@ -39,7 +44,7 @@
     }
 
     // how much he may notice (awareness level 1 or 2): the privacy choice comes first
-    var priv = section('Privacy: what he can notice');
+    var priv = section('What he can notice', 'privacy');
     var lv = S.privacy.levels, cur = S.prefs.awareness === 1 ? 1 : 2;
     var pickRow = el('div', 'row'); pickRow.appendChild(el('span', 'text', 'Awareness'));
     var pseg = el('span', 'seg');
@@ -71,7 +76,7 @@
       teach.insertBefore(tin, tgo); teach.insertBefore(teachText, tin); priv.appendChild(teach);
     }
 
-    var look = section('His look');
+    var look = section('His look', 'look');
     var sizeRow = el('div', 'row'); sizeRow.appendChild(el('span', 'text', 'Size'));
     var seg = el('span', 'seg');
     [['small', 'Small'], ['normal', 'Normal'], ['large', 'Large']].forEach(function (o) { var b = button(seg, o[1], function () { P.set('size', o[0]).then(take); }); if (S.prefs.size === o[0]) b.className = 'on'; });
@@ -88,7 +93,7 @@
     toggle(look, 'Toy flies around the screen', 'toyRoam');
     toggle(look, 'Show the cushion under him', 'hideCushion', 'His bed still shows at bedtime.', { invert: true });
 
-    var does = section('What he does on his own');
+    var does = section('What he does on his own', 'behaviour');
     // how much he talks on his own: his idle chatter, daydreams, asking for things. Reminders, greetings and answers to you are never held back.
     function talkRow(label, hint, pref) {
       var row = el('div', 'row'), text = el('span', 'text', label); text.appendChild(el('small', '', hint));
@@ -124,7 +129,28 @@
     }
     toggle(does, 'Reminds me of tasks', 'remind');
 
-    var win = section('His window');
+    // the special days he celebrates (the page asks first, then covers the screen; see celebrate.js): each can be switched off, and "Play" shows the card now
+    var cel = section('Special days', 'celebrations');
+    cel.appendChild(el('p', 'hint', nm() + ' asks first, once on the day.'));
+    function celRow(label, hint, pref, id) {
+      var row = el('label', 'row'), text = el('span', 'text', label);
+      if (hint) text.appendChild(el('small', '', hint));
+      var sw = el('span', 'sw'), input = el('input'); input.type = 'checkbox'; input.checked = S.prefs[pref] !== false;
+      input.addEventListener('change', function () { P.set(pref, input.checked).then(take); });
+      sw.append(input, el('i'));
+      var play = button(row, 'Play', function (e) { e.preventDefault(); P.dev('run', id); }); play.title = 'Play it now';
+      row.insertBefore(text, play); row.appendChild(sw); cel.appendChild(row);
+    }
+    celRow('Birthday', 'Your birthday, from Profile.', 'celebBirthday', 'celebBirthday');
+    celRow('Christmas', '25 December.', 'celebChristmas', 'celebChristmas');
+    celRow('Halloween', '31 October.', 'celebHalloween', 'celebHalloween');
+    celRow('New Year\'s Day', '1 January.', 'celebNewYear', 'celebNewYear');
+    celRow('Easter', 'Easter Sunday.', 'celebEaster', 'celebEaster');
+    celRow('King\'s Day', '27 April.', 'celebKingsDay', 'celebKingsDay');
+    var cfx = section('Effects', 'celebrations');
+    toggle(cfx, 'Cover the whole screen', 'celebScreen', 'Off keeps them in his small window.');
+
+    var win = section('His window', 'window');
     toggle(win, 'Always on top', 'onTop');
     toggle(win, 'Stay above full-screen apps', 'aboveFull', 'Not exclusive full-screen games.', { disabled: !S.prefs.onTop });
     toggle(win, 'Click-through', 'clickThrough', 'Ctrl+Alt+G.');
@@ -135,7 +161,7 @@
     button(pos, 'Put him back', act('resetPosition'));
     win.appendChild(pos);
 
-    var keys = section('Shortcuts');
+    var keys = section('Shortcuts', 'window');
     toggle(keys, 'Shortcuts on', 'hotkeys');
     S.keyList.forEach(function (k) {
       var row = el('div', 'row' + (S.prefs.hotkeys ? '' : ' off')), text = el('span', 'text', k.label.replace('{name}', nm()));
@@ -158,7 +184,7 @@
     });
     keys.appendChild(back);
 
-    var dev = section('Developer tools');
+    var dev = section('Developer tools', 'dev');
     var status = el('p', 'devnote', devNote); dev.appendChild(status);
     function say(msg) { devNote = msg || ''; status.textContent = devNote; }
     /** A button that calls one of the page's developer functions (see window.deskDev in app-desktop.js) and shows what it says. */

@@ -245,7 +245,7 @@ function halloweenCheck() {
 /** Developer tool: pretends it is Halloween and plays the celebration now. @returns {string} */
 function devHalloweenNow() {
   celebDevGift = Date.now() + 40000;
-  if (deskPet()) return celebAsk({ kind: 'halloween', icon: '🎃', title: halloweenGreeting(state.player.name), party: function () { devHalloween = true; var ok = halloweenParty(); setTimeout(function () { devHalloween = false; }, 9000); if (!ok) devHalloween = false; return ok; } }) ? 'Mini Fumu asks first: tap Celebrate on his card.' : 'Mini Fumu is already asking about a celebration.';
+  if (deskPet()) return celebAsk({ kind: 'halloween', icon: '🎃', title: halloweenGreeting(state.player.name), dev: true, party: function () { devHalloween = true; var ok = halloweenParty(); setTimeout(function () { devHalloween = false; }, 9000); if (!ok) devHalloween = false; return ok; } }) ? 'Mini Fumu asks first: tap Celebrate on his card.' : 'Mini Fumu is already asking about a celebration.';
   devHalloween = true;
   if (!halloweenParty()) { devHalloween = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devHalloween = false; }, 9000);

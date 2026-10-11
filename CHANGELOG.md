@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 630
+- Mini Fumu settings: tabs along the top and sorted sections
+- Mini Fumu settings: Special days tab, a switch and Play for each celebration
+- Switch for covering the whole screen with celebration effects
+
 ## Build 629
 - Shop opens on the Shop tab, with its two tabs staying at the top
 - Mini Fumu celebrations: a card asks first, then effects cover the whole screen
