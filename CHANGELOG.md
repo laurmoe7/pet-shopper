@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 580
+- The app serves its own fonts: nothing is fetched from Google, and they work offline from the first open
+- A theme's font is only downloaded when it is worn
+
 ## Build 579
 - Repeat opens load the app from the cache (one request instead of fifty)
 - A missing emoji no longer stops the app from updating

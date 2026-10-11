@@ -45,13 +45,13 @@ jobs:
         run: |
           mkdir _site
           cp *.html *.js *.css *.webmanifest *.svg *.png _site/
-          cp -r emoji _site/
+          cp -r emoji fonts _site/
           # the stable channel: the same files from the stable branch, under /stable/ (people with the stable installer load that page)
           if git ls-remote --exit-code --heads origin stable >/dev/null 2>&1; then
             git fetch origin stable
             mkdir _stable _site/stable
             git archive origin/stable | tar -x -C _stable
-            (cd _stable && cp *.html *.js *.css *.webmanifest *.svg *.png ../_site/stable/ && cp -r emoji ../_site/stable/)
+            (cd _stable && cp *.html *.js *.css *.webmanifest *.svg *.png ../_site/stable/ && cp -r emoji ../_site/stable/ && { [ -d fonts ] && cp -r fonts ../_site/stable/ || true; })
           fi
       - uses: actions/upload-pages-artifact@v3
         with:
