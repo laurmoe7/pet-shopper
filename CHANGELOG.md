@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 581
+- Mini Fumu: the solid-spot check does a little less work
+
 ## Build 580
 - The app serves its own fonts: nothing is fetched from Google, and they work offline from the first open
 - A theme's font is only downloaded when it is worn

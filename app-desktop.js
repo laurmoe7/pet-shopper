@@ -1146,7 +1146,7 @@
       var el = list[i];
       if (el.hidden || el.closest('[hidden]')) continue;
       var r = el.getBoundingClientRect();
-      if (r.width < 1 || r.height < 1 || getComputedStyle(el).display === 'none') continue;
+      if (r.width < 1 || r.height < 1) continue;   // (a display: none element has an empty rectangle; asking for its computed style cost a style flush thirty times a second)
       // sitting on a window his bottom edge overlaps that window (its buttons, its title bar): the lowest 15 px of him let clicks through
       var cut = el === pet && perched ? PERCH_CLICK_THROUGH : 0;
       out.push([Math.round(r.left), Math.round(r.top), Math.round(r.right), Math.round(r.bottom - Math.min(cut, r.height - 8))]);
