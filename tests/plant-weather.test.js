@@ -20,27 +20,46 @@ test('only a rounded position is sent, and a bad answer is not used', () => {
   assert.deepEqual(W.parsePlace({ results: [{ name: 'Utrecht', country: 'Netherlands', latitude: 52.0907, longitude: 5.1214 }] }), { lat: 52.1, lon: 5.1, place: 'Utrecht, Netherlands' });
   assert.equal(W.parsePlace({}), null);
 });
-test('the plant grows one stage on each day something is ticked off, and a new seed starts after the flower', () => {
+test('every task ticked off waters the plant, up to three a day, and three drinks grow a stage', () => {
   const p = L.petProfile({});
-  assert.deepEqual(p.plant, { days: 0, last: 0 });
+  assert.deepEqual(p.plant, { water: 0, last: 0 });
   assert.equal(L.plantInfo(p.plant, 100).stage, 0);
-  const first = L.waterPlant(p, 100);
-  assert.equal(first.watered, true); assert.equal(first.stage, 1);
-  assert.equal(L.waterPlant(p, 100).watered, false, 'once a day');
-  for (let d = 101; d <= 105; d++) L.waterPlant(p, d);
-  const info = L.plantInfo(p.plant, 105);
-  assert.equal(info.stage, 6); assert.equal(info.bloom, true); assert.equal(info.flowers, 0);
-  const next = L.waterPlant(p, 106);
-  assert.equal(next.picked, true); assert.equal(next.stage, 0);
-  assert.equal(L.plantInfo(p.plant, 106).flowers, 1);
+  assert.equal(L.waterPlant(p, 100).watered, true);
+  assert.equal(L.plantInfo(p.plant, 100).progress, 1, 'it is a little bigger after the first drink');
+  assert.equal(L.waterPlant(p, 100).watered, true);
+  const third = L.waterPlant(p, 100);
+  assert.equal(third.grew, true); assert.equal(third.stage, 1);
+  assert.equal(L.waterPlant(p, 100).watered, false, 'three a day');
+  assert.equal(p.plant.water, 3);
+  assert.equal(L.waterPlant(p, 101).watered, true, 'a new day, new drinks');
+});
+test('seven stages make a flower, which is picked at the next drink for a new seed', () => {
+  const p = L.petProfile({});
+  let day = 100, bloomed = 0, picked = 0;
+  for (let n = 0; n < 21 + 1; n++) { if (n % 3 === 0) day++; const r = L.waterPlant(p, day); if (r.bloomed) bloomed++; if (r.picked) picked++; }
+  assert.equal(bloomed, 1); assert.equal(picked, 1);
+  assert.equal(L.plantInfo(p.plant, day).flowers, 1);
+  assert.equal(L.plantInfo(p.plant, day).stage, 0);
 });
 test('the plant waits when days are missed and is thirsty after two', () => {
   const p = L.petProfile({});
   L.waterPlant(p, 200);
   assert.equal(L.plantInfo(p.plant, 201).thirsty, false);
   assert.equal(L.plantInfo(p.plant, 202).thirsty, true);
-  L.waterPlant(p, 210);
-  assert.equal(L.plantInfo(p.plant, 210).stage, 2, 'it did not die or go back');
+  for (let i = 0; i < 5; i++) L.waterPlant(p, 210);
+  assert.equal(L.plantInfo(p.plant, 210).stage, 1, 'it did not die or go back');
+});
+test('a plant saved by the first builds (counted in days) keeps its stage', () => {
+  const p = L.petProfile({ plant: { days: 4, last: 20737 } });
+  assert.equal(L.plantInfo(p.plant, 20737).stage, 4);
+  assert.equal(p.plant.water, 12);
+});
+test('ten flowers in turn, daisies, tulips, a sunflower and bluebells', () => {
+  const { PlantArt } = globalThis;
+  assert.ok(PlantArt.FLOWERS.length >= 8);
+  const kinds = new Set(PlantArt.FLOWERS.map((f) => f.kind));
+  for (const k of ['daisy', 'tulip', 'sunflower', 'bluebell']) assert.ok(kinds.has(k), k);
+  for (let f = 0; f < PlantArt.FLOWERS.length; f++) for (let s = 0; s <= 6; s++) assert.ok(PlantArt.svg(s, f, false, 1).length > 100);
 });
 test('the day number is the same all day', () => {
   assert.equal(L.dayNumber(new Date(2026, 5, 1, 0, 5)), L.dayNumber(new Date(2026, 5, 1, 23, 55)));

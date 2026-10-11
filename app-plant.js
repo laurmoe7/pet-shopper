@@ -1,7 +1,7 @@
-// The little plant (build 633): a plant in a pot with a face, in the room, on the to-do list only (build 635). The first task ticked off each day waters it and it grows one stage; after seven
-// watered days it flowers, Fumu shows it off, and the next watering picks the flower and plants a new seed (each flower a different colour). It never dies: it waits when a day
-// is missed (and droops a little after two). The days are counted in `pet.plant` (logic.js: plantInfo, waterPlant; it syncs). The picture is PlantArt in decor.js; the plant is
-// room furniture like the rest (drag it, or take it out of the room in the Room list and it stops growing).
+// The little plant (build 633): a plant in a pot with a face, in the room, on the to-do list only (build 635). Each task ticked off (up to three a day) gives it a drink and it grows a little
+// (it gets a bit bigger with each; three drinks make a new stage); after seven stages it flowers, Fumu shows it off, and the next drink picks the flower and plants a new seed (each flower a
+// different one: daisies, tulips, a sunflower, bluebells; PlantArt.FLOWERS). It never dies: it waits when days are missed (and droops a little after two). The waterings are counted in
+// `pet.plant` (logic.js: plantInfo, waterPlant; it syncs). The plant is room furniture (drag it); it is put away with the ring menu's Plant button or the Room list, which is kept on this device.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
@@ -9,11 +9,19 @@
 function plantApp() { return !document.documentElement.classList.contains('desktop-pet'); }
 /** @returns {{stage: number, flowers: number, thirsty: boolean, bloom: boolean}} How the plant is now. */
 function plantNow() { return L.plantInfo(state.pet.plant, L.dayNumber(giftDate())); }
+/** Whether the plant was put away on this device (the ring menu's Plant button or the Room list); kept here, not in the synced room, so another device's older room cannot bring it back or take it away. @returns {boolean} */
+function plantHidden() { try { return localStorage.getItem('nibble-plant-hidden') === '1'; } catch (e) { return false; } }
+function plantSetHidden(on) { try { localStorage.setItem('nibble-plant-hidden', on ? '1' : ''); } catch (e) { /* storage not available */ } }
+/** Puts the plant into the room when it is not hidden (a synced room that came from a device without a plant would otherwise lose it). Called by the room before it draws. */
+function plantEnsure() {
+  if (!plantApp() || state.pet.room.plant || plantHidden()) return;
+  var d = decorItem('plant'); state.pet.room.plant = { x: d.x, y: d.y };
+}
 /** Draws the plant's picture again, for the stage it has reached (the room calls this after it draws). */
 function plantRefresh() {
   var i = plantNow();
   [].forEach.call(document.querySelectorAll('.decor-plant'), function (el) {
-    el.replaceChildren(svgIcon(PlantArt.VIEW, PlantArt.svg(i.stage, i.flowers, i.thirsty)));
+    el.replaceChildren(svgIcon(PlantArt.VIEW, PlantArt.svg(i.stage, i.flowers, i.thirsty, i.progress)));
     el.setAttribute('aria-label', 'Little plant: ' + (i.bloom ? 'in flower' : 'growing'));
     el.classList.toggle('plant-bloom', i.bloom);
   });
@@ -39,11 +47,11 @@ function plantDrops(done) {
     if (done) done();
   }, 1250);
 }
-/** Waters the plant if today's drink is still due (called when a task is ticked off, in the app or from a reminder card in Mini Fumu). */
+/** Waters the plant: each task ticked off gives it a drink, up to three a day (called from `toggle`, in the app and from a reminder card in Mini Fumu; the plant counts even while it is hidden). */
 function plantWater() {
-  if (!isTodo() || !state.pet.room.plant) return;   // taken out of the room: it waits
+  if (!isTodo()) return;
   var r = L.waterPlant(state.pet, L.dayNumber(giftDate()));
-  if (!r.watered) return;
+  if (!r.watered) { plantFull(); return; }
   save();
   plantDrops(function () {
     plantRefresh();
@@ -51,6 +59,14 @@ function plantWater() {
     if (r.picked) showToast('🌷', T('You picked a flower! A new seed is in the pot.'), true, 4200);
     else if (r.bloomed) setTimeout(plantProud, 600);
   });
+}
+/** The plant has had its three drinks for today: Fumu says so once, so it does not look as if ticking did nothing (the app only, and only while the plant shows). */
+function plantFull() {
+  var el = document.querySelector('.decor-plant');
+  if (!plantApp() || !el || !el.getBoundingClientRect().width || busy) return;
+  var day = String(L.dayNumber(giftDate()));
+  try { if (localStorage.getItem('nibble-plant-full') === day) return; localStorage.setItem('nibble-plant-full', day); } catch (e) { return; }
+  say('my plant has had enough water for today ♡', 2800, true);
 }
 /** The flower is out: Fumu shows it off (waits a moment if he is busy with something else). */
 function plantProud(tries) {
@@ -81,30 +97,25 @@ roomEl.addEventListener('pointerup', function (e) {
   if (plantDown && Math.hypot(e.clientX - plantDown.x, e.clientY - plantDown.y) < 6) plantTap();
   plantDown = null;
 });
-// the first time the feature is there, the plant goes into the room (take it out in the Room list if it is not wanted)
-try {
-  if (plantApp() && !localStorage.getItem('nibble-plant-placed')) {
-    localStorage.setItem('nibble-plant-placed', '1');
-    if (!state.pet.room.plant) { var plantItem = decorItem('plant'); state.pet.room.plant = { x: plantItem.x, y: plantItem.y }; save(); renderRoom(); }
-  }
-} catch (e) { /* storage not available */ }
-plantRefresh();
-/** The ring menu's Plant button: puts the plant away or brings it back (the same as taking it out of the room in the Room list: while it is away it does not grow). */
+// the plant is in the room unless it was put away (the room asks plantEnsure before it draws; this draws the room that is already up)
+renderRoom();
+/** The ring menu's Plant button: puts the plant away or brings it back (the same as taking it out of the room in the Room list; it keeps growing while it is away). */
 function togglePlant() {
   var placed = L.toggleDecor(state.pet.room, decorItem('plant'));
+  plantSetHidden(!placed);
   save(); renderRoom();
   sound(placed ? 'place' : 'remove');
   say(placed ? 'my plant is back!' : 'plant put away for now', 1500, true);
 }
-/** Developer tool: waters the plant now, whatever the day (so every stage can be seen). @returns {string} */
+/** Developer tool: waters the plant three times now, whatever the day (so every stage can be seen). @returns {string} */
 function devPlantGrow() {
-  if (!state.pet.room.plant) { state.pet.room.plant = { x: 0.13, y: 0.8 }; renderRoom(); }
-  var p = state.pet.plant, today = L.dayNumber(giftDate());
-  p.days += 1; p.last = today;
+  plantSetHidden(false); plantEnsure(); renderRoom();
+  var p = state.pet.plant, was = plantNow().stage;
+  p.water += L.PLANT_WATERINGS; p.last = Math.max(p.last, L.dayNumber(giftDate()) * 10 + 1);
   save();
-  var stage = p.days % L.PLANT_STAGES;
-  plantDrops(function () { plantRefresh(); if (stage === L.PLANT_STAGES - 1) plantProud(); else if (stage === 0) showToast('🌷', T('You picked a flower! A new seed is in the pot.'), true, 4200); });
-  return 'Stage ' + stage + ' of ' + (L.PLANT_STAGES - 1) + ' (' + Math.floor(p.days / L.PLANT_STAGES) + ' flowers).';
+  var i = plantNow();
+  plantDrops(function () { plantRefresh(); if (i.stage === L.PLANT_STAGES - 1) plantProud(); else if (i.stage === 0 && was !== 0) showToast('🌷', T('You picked a flower! A new seed is in the pot.'), true, 4200); });
+  return 'Stage ' + i.stage + ' of ' + (L.PLANT_STAGES - 1) + ' (' + i.flowers + ' flowers).';
 }
 /** Developer tool: a new seed, with no flowers grown. @returns {string} */
-function devPlantReset() { state.pet.plant = { days: 0, last: 0 }; save(); plantRefresh(); return 'A new seed.'; }
+function devPlantReset() { state.pet.plant = { water: 0, last: 0 }; save(); plantRefresh(); return 'A new seed.'; }

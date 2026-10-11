@@ -210,7 +210,7 @@ test('counters keep the larger value and never go down', () => {
   a.pet.favourites = { milk: { label: 'Milk', emoji: '🥛', count: 3, day: '2026-10-01' } };
   b.pet.favourites = { milk: { label: 'Milk', emoji: '🥛', count: 3, day: '2026-10-05' } };
   a.pet.prizes = { star: 2 }; b.pet.prizes = { star: 1, bow: 1 };
-  a.pet.plant = { days: 4, last: 120 }; b.pet.plant = { days: 3, last: 121 };
+  a.pet.plant = { water: 4, last: 1200 }; b.pet.plant = { water: 3, last: 1211 };
   const shared = round(b, round(a, null, T + 1000), T + 2000);
   round(a, shared, T + 3000);
   for (const d of [a, b]) {
@@ -220,7 +220,7 @@ test('counters keep the larger value and never go down', () => {
     assert.equal(d.pet.achievements.veg.count, 1);
     assert.equal(d.pet.favourites.milk.day, '2026-10-05');
     assert.deepEqual(d.pet.prizes, { star: 2, bow: 1 });
-    assert.deepEqual(d.pet.plant, { days: 4, last: 121 }, 'the plant keeps the larger counts');
+    assert.deepEqual(d.pet.plant, { water: 4, last: 1211 }, 'the plant keeps the larger counts');
   }
 });
 

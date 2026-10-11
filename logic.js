@@ -191,8 +191,8 @@
       // daily gift boxes (bonuses.js): the boxes opened on each recent day and the prizes collected
       gifts: saved.gifts && typeof saved.gifts === 'object' ? saved.gifts : {},
       prizes: saved.prizes && typeof saved.prizes === 'object' ? saved.prizes : {},
-      // the little plant (app-plant.js): the days it was watered (a day anything was ticked off) and the last such day, as a day number
-      plant: { days: Math.max(0, Math.floor(+(saved.plant && saved.plant.days) || 0)), last: Math.max(0, Math.floor(+(saved.plant && saved.plant.last) || 0)) },
+      // the little plant (app-plant.js): how many times it was watered (a task ticked off, up to three a day) and `last` = the last day it was watered times ten plus how many times that day, so both only ever grow and two devices can take the larger
+      plant: parsePlant(saved.plant),
       favourites: saved.favourites && typeof saved.favourites === 'object' ? saved.favourites : {},
       // the night it was put to bed (nightOf): asleep until something is checked off or the morning
       dozing: typeof saved.dozing === 'string' ? saved.dozing : '',
@@ -276,29 +276,38 @@
    */
 
   // ---------- the little plant (build 633) ----------
-  /** How many watered days a flower takes: a seed, a sprout, three sizes of leaves, a bud and then the flower (stages 0 to 6). */
+  /** The stages of a plant: a seed, a sprout, three sizes of leaves, a bud and then the flower (0 to 6). */
   var PLANT_STAGES = 7;
+  /** Waterings for it to grow one stage, and the most that count in a day (so a flower takes about a week of ticking things off). */
+  var PLANT_WATERINGS = 3, PLANT_DAILY = 3;
   /** @param {Date} date @returns {number} The day as a whole number (the same for everyone on that calendar day), for counting days. */
   function dayNumber(date) { return Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000); }
-  /**
-   * @param {{days: number, last: number}} plant @param {number} today The day number now.
-   * @returns {{stage: number, flowers: number, thirsty: boolean, bloom: boolean}} How the plant looks: its stage (0 seed to 6 flower), the flowers grown so far, whether it has gone two days without water.
-   */
-  function plantInfo(plant, today) {
-    var days = Math.max(0, (plant && plant.days) | 0), last = (plant && plant.last) | 0, stage = days % PLANT_STAGES;
-    return { stage: stage, flowers: Math.floor(days / PLANT_STAGES), thirsty: stage < PLANT_STAGES - 1 && last > 0 && today - last >= 2, bloom: stage === PLANT_STAGES - 1 };
+  /** @param {Object} [saved] @returns {{water: number, last: number}} The plant as kept in the save (older saves counted days: each of those is three waterings). */
+  function parsePlant(saved) {
+    var water = Math.max(0, Math.floor(+(saved && saved.water) || 0)), old = Math.max(0, Math.floor(+(saved && saved.days) || 0));
+    var last = Math.max(0, Math.floor(+(saved && saved.last) || 0));
+    if (!water && old) { water = old * PLANT_WATERINGS; if (last && last < 100000) last = last * 10 + PLANT_DAILY; }   // (the first builds counted watered days and kept the day number as it was)
+    return { water: water, last: last };
   }
   /**
-   * Waters the plant: the first thing ticked off on a day counts, the rest of that day does not. It never dies and it waits when a day is missed.
+   * @param {{water: number, last: number}} plant @param {number} today The day number now.
+   * @returns {{stage: number, progress: number, flowers: number, thirsty: boolean, bloom: boolean}} How the plant looks: its stage (0 seed to 6 flower), the waterings towards the next stage (0 to 2), the flowers grown so far, whether it has gone two days without water, and whether it is in flower.
+   */
+  function plantInfo(plant, today) {
+    var water = Math.max(0, (plant && plant.water) | 0), last = Math.floor(((plant && plant.last) | 0) / 10), stage = Math.floor(water / PLANT_WATERINGS) % PLANT_STAGES;
+    return { stage: stage, progress: water % PLANT_WATERINGS, flowers: Math.floor(water / (PLANT_WATERINGS * PLANT_STAGES)), thirsty: stage < PLANT_STAGES - 1 && last > 0 && today - last >= 2, bloom: stage === PLANT_STAGES - 1 };
+  }
+  /**
+   * Waters the plant: each task ticked off gives it a drink, up to three a day. It never dies and it waits when days are missed.
    * @param {Object} profile The pet (pet.plant is changed). @param {number} today The day number now.
-   * @returns {{watered: boolean, stage: number, bloomed: boolean, picked: boolean}} Whether it was watered now, its stage after, whether it just came into flower, and whether the flower was just picked for a new seed.
+   * @returns {{watered: boolean, stage: number, grew: boolean, bloomed: boolean, picked: boolean}} Whether it got a drink now, its stage after, whether that was a new stage, whether it just came into flower, and whether the flower was just picked for a new seed.
    */
   function waterPlant(profile, today) {
-    var p = profile.plant || (profile.plant = { days: 0, last: 0 });
-    if (p.last >= today) return { watered: false, stage: plantInfo(p, today).stage, bloomed: false, picked: false };
-    p.days += 1; p.last = today;
-    var stage = p.days % PLANT_STAGES;
-    return { watered: true, stage: stage, bloomed: stage === PLANT_STAGES - 1, picked: stage === 0 };
+    var p = profile.plant || (profile.plant = { water: 0, last: 0 }), before = plantInfo(p, today).stage, day = Math.floor(p.last / 10), n = day === today ? p.last % 10 : 0;
+    if (n >= PLANT_DAILY) return { watered: false, stage: before, grew: false, bloomed: false, picked: false };
+    p.water += 1; p.last = today * 10 + n + 1;
+    var stage = plantInfo(p, today).stage;
+    return { watered: true, stage: stage, grew: stage !== before, bloomed: stage === PLANT_STAGES - 1 && before !== stage, picked: stage === 0 && before !== 0 };
   }
 
   /** The settings a new phone starts with: everything on. */
@@ -2338,6 +2347,8 @@
     recordTrip: recordTrip,
     recordTripStamp: recordTripStamp,
     PLANT_STAGES: PLANT_STAGES,
+    PLANT_WATERINGS: PLANT_WATERINGS,
+    parsePlant: parsePlant,
     dayNumber: dayNumber,
     plantInfo: plantInfo,
     waterPlant: waterPlant,

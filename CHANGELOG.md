@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 637
+- Little plant: every task ticked off waters it (three a day), it grows a bit each time
+- Little plant: tulips, a sunflower and bluebells join the daisies
+- Little plant stays in the room across devices
+
 ## Build 636
 - Stamp book: a Plants stamp for each flower grown
 

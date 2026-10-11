@@ -13,11 +13,20 @@
    * The little plant (build 633, app-plant.js): a pot with a face and a plant that grows through seven stages as it is watered, one for each day something is ticked off.
    * 0 a seed, 1 a sprout, 2 and 3 more leaves, 4 a bud, 5 the bud opening, 6 the flower. `flower` picks the flower's colours, `thirsty` makes it droop.
    */
-  var FLOWERS = [
-    { petal: '#ff9fb8', centre: '#ffd84a' }, { petal: '#ffe27a', centre: '#ff9f5a' }, { petal: '#b8a1ff', centre: '#ffe27a' },
-    { petal: '#ff8a8a', centre: '#5b4239' }, { petal: '#8fd3ff', centre: '#ffe27a' }, { petal: '#fffaf4', centre: '#ffd84a' }
+  var FLOWERS = [   // the flowers it grows, one after the other (each flower the plant finishes is the next in this list)
+    { kind: 'daisy', name: 'Pink daisy', petal: '#ff9fb8', centre: '#ffd84a' },
+    { kind: 'tulip', name: 'Red tulip', petal: '#ff6f7f', inner: '#ff9aa6' },
+    { kind: 'sunflower', name: 'Sunflower', petal: '#ffd23f', centre: '#8a5a3c' },
+    { kind: 'bluebell', name: 'Bluebell', petal: '#9db7ff', inner: '#c9d8ff' },
+    { kind: 'daisy', name: 'Lavender daisy', petal: '#b8a1ff', centre: '#ffe27a' },
+    { kind: 'tulip', name: 'Yellow tulip', petal: '#ffd75e', inner: '#ffe9a0' },
+    { kind: 'daisy', name: 'White daisy', petal: '#fffaf4', centre: '#ffd84a' },
+    { kind: 'tulip', name: 'Pink tulip', petal: '#ffa6c4', inner: '#ffc9dc' },
+    { kind: 'bluebell', name: 'Pink bluebell', petal: '#f2a1d6', inner: '#f9c9e8' },
+    { kind: 'daisy', name: 'Orange daisy', petal: '#ffb066', centre: '#6b4a38' }
   ];
-  function plantSvg(stage, flower, thirsty) {
+  /** @param {number} stage 0 to 6 @param {number} flower Which flower it is growing (a count of the ones finished) @param {boolean} thirsty @param {number} [progress] 0 to 2: waterings towards the next stage (it gets a little bigger with each) */
+  function plantSvg(stage, flower, thirsty, progress) {
     var fl = FLOWERS[((flower | 0) % FLOWERS.length + FLOWERS.length) % FLOWERS.length], G = '#8fd18a', GD = '#6fb56d';
     function leaf(x, y, ang, sz) { return '<path d="M0 0 Q' + (sz * 0.55) + ' ' + (-sz * 0.5) + ' ' + sz + ' 0 Q' + (sz * 0.55) + ' ' + (sz * 0.5) + ' 0 0Z" transform="translate(' + x + ' ' + y + ') rotate(' + ang + ')" fill="' + G + '" ' + INK.replace('stroke-width="2"', 'stroke-width="1.6"') + '/>'; }
     var top = '', sk = 'stroke="#5b4239" stroke-width="1.6" stroke-linejoin="round"';
@@ -28,13 +37,28 @@
       if (stage === 1) top += leaf(30, 33, -150, 7) + leaf(30, 33, -30, 7);
       if (stage >= 2) top += leaf(30, 36, thirsty ? -175 : -160, 9) + leaf(30, 36, thirsty ? -5 : -20, 9);
       if (stage >= 3) top += leaf(30, 28, thirsty ? -165 : -135, 10) + leaf(30, 28, thirsty ? -15 : -45, 10);
-      var ty = 40 - h;
+      var ty = 40 - h, cy = ty - 7;
       if (stage === 4) top += '<path d="M30 ' + (ty + 1) + ' C23 ' + (ty - 3) + ' 25 ' + (ty - 12) + ' 30 ' + (ty - 15) + ' C35 ' + (ty - 12) + ' 37 ' + (ty - 3) + ' 30 ' + (ty + 1) + 'Z" fill="' + G + '" ' + sk + '/><path d="M30 ' + (ty - 15) + ' C28 ' + (ty - 11) + ' 28.4 ' + (ty - 9) + ' 30 ' + (ty - 7) + '" fill="none" stroke="' + fl.petal + '" stroke-width="2.4" stroke-linecap="round"/>';
       if (stage === 5) top += '<path d="M30 ' + (ty + 1) + ' C24 ' + (ty - 1) + ' 23 ' + (ty - 8) + ' 25 ' + (ty - 13) + ' L30 ' + (ty - 8) + ' L35 ' + (ty - 13) + ' C37 ' + (ty - 8) + ' 36 ' + (ty - 1) + ' 30 ' + (ty + 1) + 'Z" fill="' + fl.petal + '" ' + sk + '/><path d="M30 ' + (ty + 1) + ' C27 ' + (ty - 3) + ' 27 ' + (ty - 7) + ' 30 ' + (ty - 8) + ' C33 ' + (ty - 7) + ' 33 ' + (ty - 3) + ' 30 ' + (ty + 1) + 'Z" fill="' + G + '" ' + sk + '/>';
       if (stage === 6) {
-        var cy = ty - 7, petals = '';
-        for (var k = 0; k < 6; k++) petals += '<ellipse cx="30" cy="' + (cy - 8) + '" rx="4.6" ry="6.4" transform="rotate(' + (k * 60) + ' 30 ' + cy + ')" fill="' + fl.petal + '" ' + sk + '/>';
-        top += petals + '<circle cx="30" cy="' + cy + '" r="4.6" fill="' + fl.centre + '" ' + sk + '/><circle cx="28.4" cy="' + (cy - 1.4) + '" r="1.1" fill="#fff" opacity=".8"/>';
+        var k, petals = '';
+        if (fl.kind === 'daisy') {
+          for (k = 0; k < 6; k++) petals += '<ellipse cx="30" cy="' + (cy - 8) + '" rx="4.6" ry="6.4" transform="rotate(' + (k * 60) + ' 30 ' + cy + ')" fill="' + fl.petal + '" ' + sk + '/>';
+          top += petals + '<circle cx="30" cy="' + cy + '" r="4.6" fill="' + fl.centre + '" ' + sk + '/><circle cx="28.4" cy="' + (cy - 1.4) + '" r="1.1" fill="#fff" opacity=".8"/>';
+        } else if (fl.kind === 'sunflower') {
+          for (k = 0; k < 12; k++) petals += '<ellipse cx="30" cy="' + (cy - 9.5) + '" rx="2.7" ry="6" transform="rotate(' + (k * 30) + ' 30 ' + cy + ')" fill="' + fl.petal + '" ' + sk.replace('1.6', '1.3') + '/>';
+          top += petals + '<circle cx="30" cy="' + cy + '" r="6.4" fill="' + fl.centre + '" ' + sk + '/><circle cx="27.6" cy="' + (cy - 1.8) + '" r=".9" fill="#c99663"/><circle cx="31.8" cy="' + (cy - 2.4) + '" r=".9" fill="#c99663"/><circle cx="30" cy="' + (cy + 1.8) + '" r=".9" fill="#c99663"/><circle cx="33" cy="' + (cy + 1) + '" r=".9" fill="#c99663"/><circle cx="27" cy="' + (cy + 1.6) + '" r=".9" fill="#c99663"/>';
+        } else if (fl.kind === 'tulip') {
+          var b = cy + 6;   // the cup: two side petals behind and a middle one in front, with a lighter inside
+          top += '<path d="M30 ' + b + ' C20 ' + (b - 1) + ' 19 ' + (b - 11) + ' 21 ' + (cy - 11) + ' L26 ' + (cy - 5) + ' L30 ' + (cy - 13) + ' Z" fill="' + fl.petal + '" ' + sk + '/>' +
+            '<path d="M30 ' + b + ' C40 ' + (b - 1) + ' 41 ' + (b - 11) + ' 39 ' + (cy - 11) + ' L34 ' + (cy - 5) + ' L30 ' + (cy - 13) + ' Z" fill="' + fl.petal + '" ' + sk + '/>' +
+            '<path d="M30 ' + b + ' C23.5 ' + (b - 1) + ' 23 ' + (cy - 3) + ' 26 ' + (cy - 9) + ' L30 ' + (cy - 4) + ' L34 ' + (cy - 9) + ' C37 ' + (cy - 3) + ' 36.5 ' + (b - 1) + ' 30 ' + b + 'Z" fill="' + fl.inner + '" ' + sk + '/>' +
+            '<path d="M25.5 ' + (cy - 1) + ' q-1 -4 1 -6" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>';
+        } else {   // bluebell: the stem bends over and little bells hang from it
+          var bell = function (x, y, sz) { return '<path d="M' + x + ' ' + y + ' q' + (-sz) + ' ' + (sz * 0.6) + ' ' + (-sz * 0.9) + ' ' + (sz * 1.5) + ' q' + (sz * 0.9) + ' ' + (sz * 0.5) + ' ' + (sz * 1.8) + ' 0 q' + (-sz * 0.1) + ' ' + (-sz * 0.9) + ' ' + (-sz * 0.9) + ' ' + (-sz * 1.5) + 'Z" fill="' + fl.petal + '" ' + sk.replace('1.6', '1.4') + '/><path d="M' + (x - sz * 0.7) + ' ' + (y + sz * 1.7) + ' h' + (sz * 1.4) + '" stroke="' + fl.inner + '" stroke-width="1.6" stroke-linecap="round"/>'; };
+          top += '<path d="M30 ' + ty + ' Q30 ' + (cy - 11) + ' 37 ' + (cy - 11) + '" stroke="#5b4239" stroke-width="4.4" stroke-linecap="round" fill="none"/><path d="M30 ' + ty + ' Q30 ' + (cy - 11) + ' 37 ' + (cy - 11) + '" stroke="' + GD + '" stroke-width="2.2" stroke-linecap="round" fill="none"/>' +
+            bell(38, cy - 9, 6.4) + bell(31.5, cy - 3, 5.8) + bell(24, ty - 1, 5.2);
+        }
       }
     }
     var pot = '<path d="M14 44 H46 L42.6 65 Q30 68.4 17.4 65 Z" fill="#e8a98a" ' + INK + '/>' +
@@ -43,7 +67,9 @@
       (thirsty ? '<path d="M27.4 60.4 Q30 58.6 32.6 60.4" fill="none" stroke="#5b4239" stroke-width="1.5" stroke-linecap="round"/>' : '<path d="M27.4 58.6 Q30 61.8 32.6 58.6" fill="none" stroke="#5b4239" stroke-width="1.5" stroke-linecap="round"/>') +
       '<ellipse cx="20" cy="58.6" rx="3" ry="1.8" fill="#ff9fb8" opacity=".7"/><ellipse cx="40" cy="58.6" rx="3" ry="1.8" fill="#ff9fb8" opacity=".7"/>';
     var soil = '<ellipse cx="30" cy="40.4" rx="16" ry="3" fill="#8a6a52" ' + sk + '/>';
-    return soil + '<g class="plant-top"' + (thirsty ? ' transform="rotate(7 30 40)"' : '') + '>' + top + '</g>' + pot;
+    var grow = stage < 6 && progress ? 1 + 0.045 * Math.min(2, progress | 0) : 1;   // each watering makes it a little bigger, until the next stage
+    var tf = (grow !== 1 ? 'translate(30 40) scale(' + grow + ') translate(-30 -40)' : '') + (thirsty ? ' rotate(7 30 40)' : '');
+    return soil + '<g class="plant-top"' + (tf ? ' transform="' + tf.trim() + '"' : '') + '>' + top + '</g>' + pot;
   }
   root.PlantArt = { svg: plantSvg, FLOWERS: FLOWERS, VIEW: '0 0 60 70' };
 
@@ -138,7 +164,7 @@
     },
     {
       // grows as things are ticked off (app-plant.js): the drawing here is only its picture in the Room list, the room shows the real stage
-      id: 'plant', label: 'Little plant', x: 0.13, y: 0.8, w: 54, h: 63, view: '0 0 60 70', svg: plantSvg(5, 0, false)
+      id: 'plant', label: 'Little plant', x: 0.13, y: 0.8, w: 54, h: 63, view: '0 0 60 70', svg: plantSvg(5, 0, false, 0)
     }
   ];
 })(typeof self !== 'undefined' ? self : globalThis);
