@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 596
+- Shopping suggestions off by default
+- Dutch: the Add symbol follows the theme (plus, strawberry in Sweet, flame in Bonfire)
+
 ## Build 595
 - Dutch: the + button keeps the size of the English Add
 

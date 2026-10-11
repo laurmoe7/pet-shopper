@@ -274,7 +274,7 @@
    */
 
   /** The settings a new phone starts with: everything on. */
-  var DEFAULT_SETTINGS = { sounds: true, vibration: true, daydreams: true, suggestions: true, fairPlayTips: true, goalToasts: true, cardboard: true, time24: true, aisles: true };
+  var DEFAULT_SETTINGS = { sounds: true, vibration: true, daydreams: true, suggestions: false, fairPlayTips: true, goalToasts: true, cardboard: true, time24: true, aisles: true };
 
   /**
    * Fills in any settings missing from what was saved.

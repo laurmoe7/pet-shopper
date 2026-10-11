@@ -4156,5 +4156,13 @@ html[data-scene$="clip"] .pet.freespirit .arm-l, html[data-list="todo"] .pet.fre
 .pet[data-arms="listen"] .arm-l { animation: sway-l 2.6s ease-in-out infinite; }
 @keyframes listen-lean { 0%, 100% { transform: translate(1px, -19px) rotate(-122deg); } 50% { transform: translate(1px, -20px) rotate(-127deg); } }
 
-/* Dutch: the Add button shows a + (app-dutch.js) but keeps the width of the English word, so the add bar looks the same in both languages */
-html[lang="nl"] .add-btn::before { content: "Add"; display: block; height: 0; visibility: hidden; overflow: hidden; }
+/* Dutch: the Add button shows a symbol (app-dutch.js) but keeps the width of the English word "Add", so the add bar looks the same in both languages.
+   The symbol follows the theme: a plain plus, a strawberry in Sweet and a flame in Bonfire (the plus stays underneath as the width). */
+html:root[lang="nl"] .add-btn::before { content: "Add"; display: block; height: 0; width: auto; visibility: hidden; overflow: hidden; }
+html:root[lang="nl"][data-skin="sweet"] .add-btn, html:root[lang="nl"][data-quest="bonfire"] .add-btn { position: relative; color: transparent; text-shadow: none; }
+html:root[lang="nl"][data-skin="sweet"] .add-btn::after, html:root[lang="nl"][data-quest="bonfire"] .add-btn::after {
+  position: absolute; inset: 0; left: 0; top: 0; width: auto; height: auto; transform: none; background: none; border-radius: 0; display: flex; align-items: center; justify-content: center; text-shadow: none; color: #fff; font-size: 1.05em;
+}
+html:root[lang="nl"][data-skin="sweet"] .add-btn::after { content: "🍓"; }
+html:root[lang="nl"][data-quest="bonfire"] .add-btn::after { content: "🔥"; }
+html:root[lang="nl"][data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .add-btn::before { display: block; }
