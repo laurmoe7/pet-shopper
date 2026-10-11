@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 584
+- Pet menu: Species, Skin and Persona are sub-tabs
+
 ## Build 583
 - Stamp book: two more stamps, Pets and Study
 

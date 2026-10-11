@@ -4127,3 +4127,15 @@ html[data-scene$="clip"] .pet.chorus .arm-l, html[data-list="todo"] .pet.chorus 
 .pet.freespirit:not(#x) :is(.foot-l, .shoe-l) { animation: freespirit-foot-l 8s ease-in-out; }
 html[data-scene$="clip"] .pet.freespirit .arm-l, html[data-list="todo"] .pet.freespirit .arm-l { animation: none; }
 @media (prefers-reduced-motion: reduce) { .pet.freespirit :is(.pet-svg, .arm-l, .arm-r), .pet.freespirit:not(#x) :is(.foot-l, .shoe-l, .foot-r, .shoe-r) { animation: none; } }
+
+/* ---- Pet tab sub-tabs (build 584, app-petsubs.js): Species, Skin, Persona one at a time. To drop: delete this block. ---- */
+.pet-subs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
+.pet-subs button { display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 0; padding: 7px 4px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--paper, #fff); color: var(--ink); font: inherit; font-weight: 800; font-size: .85rem; box-shadow: 0 2px 0 var(--shadow); cursor: pointer; }
+.pet-subs button img { width: 20px; height: 20px; flex: none; }
+.pet-subs button[aria-selected="true"] { background: var(--accent); color: #fff; border-color: transparent; transform: translateY(-1px); }
+.pet-subbed:not(.pet-filtering)[data-sub="species"] :is(.sub-skin, .sub-persona, .pet-subs-none),
+.pet-subbed:not(.pet-filtering)[data-sub="skin"] :is(.sub-species, .sub-persona),
+.pet-subbed:not(.pet-filtering)[data-sub="persona"] :is(.sub-species, .sub-skin, .pet-subs-none) { display: none; }
+.pet-subs-none { display: none; text-align: center; }
+.pet-subbed:not(.pet-filtering)[data-sub="skin"] #skinField[hidden] + .pet-subs-none { display: block; }
+.pet-subbed.pet-filtering .pet-subs { display: none; }   /* a search looks through all three */
