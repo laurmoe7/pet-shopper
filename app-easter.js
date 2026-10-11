@@ -243,7 +243,7 @@ function easterHatch() {
 
 /** Plays the celebration once (the app's or Mini Fumu's). @returns {boolean} Whether it started. */
 function easterParty() {
-  if (easterOn || bdayHold || partyOn || (typeof xmasHolding === 'function' && xmasHolding()) || (typeof halloweenHolding === 'function' && halloweenHolding()) || (typeof newyearHolding === 'function' && newyearHolding()) || (!devEaster && (busy - (easterHold ? 1 : 0) > 0 || baseState() === 'sleepy'))) return false;
+  if (easterOn || bdayHold || partyOn || (typeof xmasHolding === 'function' && xmasHolding()) || (typeof halloweenHolding === 'function' && halloweenHolding()) || (typeof newyearHolding === 'function' && newyearHolding()) || (!devEaster && (busy - celebrationHolds() > 0 || baseState() === 'sleepy'))) return false;
   easterOn = true;
   var small = document.documentElement.classList.contains('desktop-pet'), name = state.player.name;
   busy++;

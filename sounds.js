@@ -1,6 +1,6 @@
 /* Fumu's sounds, synthesised with the Web Audio API (no audio files).
  * Sounds.play(kind) where kind is one of:
- *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party, birthday (the Happy Birthday tune), christmas (Jingle Bells), halloween (a spooky-cute tune), newyear (a disco groove), easter (a bouncy spring tune), peep (a chick), blower and blowerbig (party blower toots),
+ *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party, birthday (the Happy Birthday tune), christmas (Jingle Bells), halloween (a spooky-cute tune), newyear (a disco groove), kingsday (a brass-band polka), easter (a bouncy spring tune), peep (a chick), blower and blowerbig (party blower toots),
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
  *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), bell, tink and smash (the night bell ringing, clinking and breaking), glass (a piece of window breaking off, the wrecking ball), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
@@ -434,6 +434,37 @@
     peep: function (t) {
       // a chick peeping: two quick high chirps
       tone(t, 0.09, 'sine', 2300, 3100, env(t, 0.004, 0.08, 0.14)); tone(t + 0.13, 0.1, 'sine', 2500, 3300, env(t + 0.13, 0.004, 0.09, 0.14));
+    },
+    kingsday: function (t) {
+      // a festive brass-band polka (an original one) for King's Day: a fanfare, then a skipping tune in C over a tuba and an accordion's off-beat chords, snare and cymbals, about 14.5 s (build 624)
+      var q = 0.36;   // one beat (two to a bar)
+      var C5 = 523, D5 = 587, E5 = 659, F5 = 698, G5 = 784, A5 = 880, C6 = 1047, G4 = 392;
+      var fan = [[C5, .5], [E5, .5], [G5, 1], [G5, .5], [E5, .5], [C6, 1]];
+      var A = [[C5, .5], [E5, .5], [G5, .5], [E5, .5],  [D5, .5], [F5, .5], [A5, .5], [F5, .5],  [E5, .5], [G5, .5], [C6, .5], [G5, .5],  [D5, 1], [G4, 1]];
+      var Bp = [[A5, .5], [G5, .5], [F5, .5], [E5, .5],  [D5, .5], [E5, .5], [F5, .5], [D5, .5],  [E5, .5], [C5, .5], [G4, .5], [C5, .5],  [C5, 2]];
+      var coda = [[C6, .5], [G5, .5], [E5, .5], [C5, .5], [C6, 2]];
+      var lead = fan.concat(A, Bp, A, Bp, coda), at = t;
+      lead.forEach(function (n) {
+        var d = Math.min(n[1] * q * 1.05, 0.7), g = env(at, 0.02, d, 0.2), fl = ctx.createBiquadFilter();   // brass: a saw wave with its top rounded off
+        fl.type = 'lowpass'; fl.frequency.value = 2600; fl.connect(g);
+        tone(at, d + 0.08, 'sawtooth', n[0], null, fl);
+        tone(at, d + 0.08, 'square', n[0] / 2, null, env(at, 0.02, d, 0.05));
+        at += n[1] * q;
+      });
+      var total = at - t;
+      var roots = [131, 175, 98, 131], chords = [[262, 330, 392], [262, 349, 440], [247, 294, 392], [262, 330, 392]];
+      for (var bar = 0; bar * 2 * q < total; bar++) {
+        var b0 = t + bar * 2 * q, ci = (bar + 0) % 4;
+        var g2 = env(b0, 0.01, 0.3, 0.26), f2 = ctx.createBiquadFilter(); f2.type = 'lowpass'; f2.frequency.value = 500; f2.connect(g2);
+        tone(b0, 0.32, 'sawtooth', roots[ci], null, f2);   // tuba on the one
+        chords[ci].forEach(function (hz) { tone(b0 + q, 0.2, 'sawtooth', hz, null, env(b0 + q, 0.01, 0.18, 0.05)); tone(b0 + q, 0.2, 'square', hz * 2, null, env(b0 + q, 0.01, 0.16, 0.02)); });   // accordion chords on the two
+        noise(b0 + q, 0.12, 'bandpass', 2400, 1, env(b0 + q, 0.003, 0.1, 0.22));   // snare on the two
+        noise(b0 + q * 1.5, 0.05, 'highpass', 6000, 1, env(b0 + q * 1.5, 0.002, 0.04, 0.06));
+      }
+      for (var r = 0; r < 8; r++) { var rt = t + r * 0.09; noise(rt, 0.06, 'bandpass', 2400, 1, env(rt, 0.002, 0.05, 0.05 + r * 0.02)); }   // a snare roll into the fanfare
+      noise(t + 4 * q, 0.5, 'highpass', 5000, 1, env(t + 4 * q, 0.004, 0.45, 0.14));   // cymbal as the tune starts
+      noise(t + total - 0.1, 0.9, 'highpass', 4500, 1, env(t + total - 0.1, 0.004, 0.85, 0.16));   // and a crash at the end
+      chime(t + total - 0.1, [1047, 1319, 1568, 2093], 0.08, 1.2);
     },
     newyear: function (t) {
       // a disco groove (original, about 15 s, 128 beats a minute): a kick on every beat, handclaps on two and four, open hats between, a funky octave-jumping bass, string stabs, a squelchy synth riff and a whoop up into it; ends on a big chord with a sparkle (build 619)

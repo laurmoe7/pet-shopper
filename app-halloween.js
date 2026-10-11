@@ -202,7 +202,7 @@ function halloweenTreat() {
 
 /** Plays the celebration once (the app's or Mini Fumu's). @returns {boolean} Whether it started. */
 function halloweenParty() {
-  if (halloweenOn || bdayHold || partyOn || (typeof xmasHolding === 'function' && xmasHolding()) || (!devHalloween && (busy - (halloweenHold ? 1 : 0) > 0 || baseState() === 'sleepy'))) return false;
+  if (halloweenOn || bdayHold || partyOn || (typeof xmasHolding === 'function' && xmasHolding()) || (!devHalloween && (busy - celebrationHolds() > 0 || baseState() === 'sleepy'))) return false;
   halloweenOn = true;
   var small = document.documentElement.classList.contains('desktop-pet'), name = state.player.name;
   busy++;

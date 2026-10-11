@@ -194,7 +194,7 @@ function newyearBlower() {
 
 /** Plays the celebration once (the app's or Mini Fumu's). @returns {boolean} Whether it started. */
 function newyearParty() {
-  if (newyearOn || bdayHold || partyOn || (typeof xmasHolding === 'function' && xmasHolding()) || (typeof halloweenHolding === 'function' && halloweenHolding()) || (!devNewYear && (busy - (newyearHold ? 1 : 0) > 0 || baseState() === 'sleepy'))) return false;
+  if (newyearOn || bdayHold || partyOn || (typeof xmasHolding === 'function' && xmasHolding()) || (typeof halloweenHolding === 'function' && halloweenHolding()) || (!devNewYear && (busy - celebrationHolds() > 0 || baseState() === 'sleepy'))) return false;
   newyearOn = true;
   var small = document.documentElement.classList.contains('desktop-pet'), name = state.player.name;
   busy++;

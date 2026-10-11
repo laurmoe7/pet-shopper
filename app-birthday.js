@@ -219,10 +219,14 @@ function releaseBdayHold() {
   busy--;
 }
 /** @returns {boolean} Whether alerts and reminders should wait: the birthday party is about to play or is playing. */
-function birthdayHolding() { return bdayHold || partyOn || (typeof xmasHolding === 'function' && xmasHolding()) || (typeof halloweenHolding === 'function' && halloweenHolding()) || (typeof newyearHolding === 'function' && newyearHolding()) || (typeof easterHolding === 'function' && easterHolding()); }   // (the Christmas celebration holds things back the same way)
+/** @returns {number} How many celebrations are holding him busy right now (each one that is waiting to start counts one: they must not block each other). */
+function celebrationHolds() {
+  return (bdayHold ? 1 : 0) + (typeof xmasHold !== 'undefined' && xmasHold ? 1 : 0) + (typeof halloweenHold !== 'undefined' && halloweenHold ? 1 : 0) + (typeof newyearHold !== 'undefined' && newyearHold ? 1 : 0) + (typeof easterHold !== 'undefined' && easterHold ? 1 : 0) + (typeof kingsHold !== 'undefined' && kingsHold ? 1 : 0);
+}
+function birthdayHolding() { return bdayHold || partyOn || (typeof xmasHolding === 'function' && xmasHolding()) || (typeof halloweenHolding === 'function' && halloweenHolding()) || (typeof newyearHolding === 'function' && newyearHolding()) || (typeof easterHolding === 'function' && easterHolding()) || (typeof kingsHolding === 'function' && kingsHolding()); }   // (the Christmas celebration holds things back the same way)
 var partyOn = false;   // (one party at a time: the developer tool pretends it is the birthday, and the check that runs every so often would start a second one)
 function birthdayParty() {
-  if (partyOn || (!devBirthday && (busy - (bdayHold ? 1 : 0) > 0 || baseState() === 'sleepy'))) return false;
+  if (partyOn || (!devBirthday && (busy - celebrationHolds() > 0 || baseState() === 'sleepy'))) return false;
   partyOn = true;
   var small = document.documentElement.classList.contains('desktop-pet'), name = state.player.name;
   busy++;

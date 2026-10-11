@@ -142,7 +142,7 @@ function xmasGift() {
 
 /** Plays the celebration once (the app's or Mini Fumu's). @returns {boolean} Whether it started. */
 function xmasParty() {
-  if (xmasOn || bdayHold || partyOn || (!devXmas && (busy - (xmasHold ? 1 : 0) > 0 || baseState() === 'sleepy'))) return false;
+  if (xmasOn || bdayHold || partyOn || (!devXmas && (busy - celebrationHolds() > 0 || baseState() === 'sleepy'))) return false;
   xmasOn = true;
   var small = document.documentElement.classList.contains('desktop-pet'), name = state.player.name;
   busy++;
