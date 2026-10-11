@@ -4234,3 +4234,7 @@ html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-bloc
 
 /* the toy is put away for the birthday party (bdayToyAway in app-birthday.js; build 612) */
 .stage.bday-toyaway .toy { display: none !important; }
+
+/* the little Christmas tree beside him in the Christmas celebration (xmasTree in app-xmas.js; build 615) */
+.xmas-tree { position: absolute; left: -58px; bottom: 6px; width: 52px; height: 64px; z-index: 1; pointer-events: none; transform-origin: 50% 100%; }
+.xmas-tree svg { display: block; overflow: visible; }
