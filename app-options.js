@@ -52,7 +52,7 @@ var OPTIONS = [
   { key: 'aisles', title: 'Sort by aisle', text: '' },
   { key: 'time24', title: '24-hour time', text: '' },
   { key: 'goalToasts', title: 'Goal progress display', text: '' },
-  { key: 'treatWishes', title: 'Snack requests', text: '' },
+  { key: 'suggestions', title: 'Item suggestions', text: '' },
   { key: 'fairPlayTips', title: 'Fair-play tips', text: 'The rules still apply when off.' }
 ];
 var themeRow = document.createElement('div');
