@@ -497,17 +497,18 @@ var PARTY_SQUISH = (function () {
   return { ms: 9000, steps: steps };
 })();
 /** Party dance: the birthday dance of 9 s (the `partydance` CSS in styles.css and PARTY_SQUISH above): bouncy hops full of squash and stretch, first on the spot, then from side to side, then a turn in the air, one big jump and a happy landing, with his arms up cheering the whole time. This sets the face and the notes. */
-function partyDance() {
+function partyDance(themed) {
+  var chars = function (l) { return themed ? l.map(function (c) { return { '🎉': '🎄', '🎈': '⭐', '♥': '❄' }[c] || c; }) : l; };   // (the Christmas celebration swaps the party things for Christmas ones)
   var arms = document.documentElement.matches('[data-scene$="clip"], [data-list="todo"]') ? 'rest' : 'cheer';   // (his left hand holds the clipboard on the to-do list)
   setFace({ eyes: 'happy', mouth: 'open', arms: arms, x: ['cheeks', 'sparkles'] });
   pulse('partydance', 9000);
   if (!reduceMotion) svgSquish(PARTY_SQUISH);
   function at(ms, fn) { setTimeout(function () { if (pet.classList.contains('partydance')) fn(); }, ms); }
-  at(750, function () { drift(['♪', '✦'], petTop(), 2); });
-  at(2250, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: arms, x: ['cheeks'] }); drift(['♫', '♥'], petTop(), 2); });
-  at(3750, function () { setFace({ eyes: 'happy', mouth: 'open', arms: arms, x: ['cheeks', 'hearts'] }); drift(['🎉', '♪'], petTop(), 3); });
-  at(6000, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: arms, x: ['cheeks', 'sparkles'] }); drift(['✦', '♫', '🎈'], petTop(), 3); });
-  at(7600, function () { drift(['🎉', '♥', '✦'], petTop(), 4); });
+  at(750, function () { drift(chars(['♪', '✦']), petTop(), 2); });
+  at(2250, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: arms, x: ['cheeks'] }); drift(chars(['♫', '♥']), petTop(), 2); });
+  at(3750, function () { setFace({ eyes: 'happy', mouth: 'open', arms: arms, x: ['cheeks', 'hearts'] }); drift(chars(['🎉', '♪']), petTop(), 3); });
+  at(6000, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: arms, x: ['cheeks', 'sparkles'] }); drift(chars(['✦', '♫', '🎈']), petTop(), 3); });
+  at(7600, function () { drift(chars(['🎉', '♥', '✦']), petTop(), 4); });
   at(8400, function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks', 'hearts'] }); });
   hum();
   return 9000;

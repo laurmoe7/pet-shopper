@@ -38,7 +38,8 @@
   var BOXES = {
     daily: { label: 'Daily box', colour: '#ffb3c7', ribbon: '#fff6ec', table: 'daily' },
     special: { label: 'Special box', colour: '#ffd36e', ribbon: '#ff8fb1', table: 'party' },
-    birthday: { label: 'Birthday box', colour: '#b69cff', ribbon: '#ffe6b8', table: 'party' }
+    birthday: { label: 'Birthday box', colour: '#b69cff', ribbon: '#ffe6b8', table: 'party' },
+    christmas: { label: 'Christmas box', colour: '#e8445a', ribbon: '#ffe08a', table: 'party' }
   };
 
   /** The special days. Add a line to add a day. */
@@ -52,6 +53,7 @@
     { id: 'halloween', label: 'Halloween', month: 10, day: 31 },
     { id: 'sinterklaas', label: 'Sinterklaas', month: 12, day: 5 },
     { id: 'xmas', label: 'Christmas', month: 12, day: 24, days: 3, boxes: 2 },
+    { id: 'xmasgift', label: "Fumu's Christmas gift", month: 12, day: 25, box: 'christmas', line: 'merry christmas! ♡' },   // (the box he hands you in the Christmas celebration, app-xmas.js)
     { id: 'nye', label: "New Year's Eve", month: 12, day: 31 },
     { id: 'birthday', label: 'Birthday!', birthday: true, box: 'birthday', boxes: 3, line: 'happy birthday!! ♡' }
   ];

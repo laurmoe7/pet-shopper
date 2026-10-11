@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 614
+- Christmas celebration on 25 December: Santa hat, party dance, snow, lights, Jingle Bells, a gift box and a real Christmas box in Profile
+
 ## Build 613
 - Birthday: he blows the candle out in the last second
 

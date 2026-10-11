@@ -1,6 +1,6 @@
 /* Fumu's sounds, synthesised with the Web Audio API (no audio files).
  * Sounds.play(kind) where kind is one of:
- *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party, birthday (the Happy Birthday tune),
+ *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party, birthday (the Happy Birthday tune), christmas (Jingle Bells),
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
  *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), bell, tink and smash (the night bell ringing, clinking and breaking), glass (a piece of window breaking off, the wrecking ball), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
@@ -322,6 +322,37 @@
         for (var k = 1; k <= 2; k++) chord[b].forEach(function (hz) { tone(bar + k * u, 0.3, 'sine', hz, null, env(bar + k * u, 0.01, 0.26, 0.04)); });
       }
       chime(t + u * 25 - 0.15, [1047, 1319, 1568, 2093], 0.1, 1.2);
+    },
+    christmas: function (t) {
+      // "Jingle Bells" (1857, in the public domain) on bells with a sleigh-bell rattle and an oom-pah bass, about 15 s: the Christmas celebration's length (build 614)
+      var u = 0.46;   // one beat
+      var E = 659, F = 698, G = 784, C = 523, D = 587, Cl = 1047;
+      var lead = [   // [pitch in Hz, beats]
+        [E, 1], [E, 1], [E, 2], [E, 1], [E, 1], [E, 2], [E, 1], [G, 1], [C, 1.5], [D, .5], [E, 4],
+        [F, 1], [F, 1], [F, 1.5], [F, .5], [F, 1], [E, 1], [E, 1], [E, .5], [E, .5], [E, 1], [D, 1], [D, 1], [E, 1], [D, 1], [G, 1], [Cl, 2]
+      ];
+      var at = t;
+      lead.forEach(function (n) {
+        var d = Math.min(n[1] * u * 1.05, 1.4);
+        tone(at, d + 0.1, 'triangle', n[0], null, env(at, 0.01, d, 0.22));
+        tone(at, d + 0.1, 'sine', n[0] * 2, null, env(at, 0.01, d * 0.6, 0.06));
+        at += n[1] * u;
+      });
+      var total = at - t;
+      // oom-pah: a low note on the beat, a soft chord on the off beat (C for the first half, F, then C and G)
+      var chords = [[131, [262, 330, 392]], [131, [262, 330, 392]], [131, [262, 330, 392]], [131, [262, 330, 392]], [87, [262, 349, 440]], [87, [262, 349, 440]], [131, [262, 330, 392]], [98, [247, 294, 392]]];
+      for (var bar = 0; bar < 8; bar++) for (var k = 0; k < 4; k++) {
+        var bt = t + (bar * 4 + k) * u;
+        if (bt - t > total) break;
+        if (k % 2 === 0) tone(bt, 0.3, 'triangle', chords[bar][0] * (k === 2 ? 1.5 : 1), null, env(bt, 0.01, 0.28, 0.2));
+        else chords[bar][1].forEach(function (hz) { tone(bt, 0.2, 'sine', hz, null, env(bt, 0.01, 0.16, 0.035)); });
+      }
+      // sleigh bells: a shimmer of high bright notes on every beat and a lighter one between
+      for (var j = 0; j < total / (u / 2); j++) {
+        var jt = t + j * (u / 2), loud = j % 2 === 0 ? 0.06 : 0.03;
+        [3520, 4186, 5274].forEach(function (hz, q) { tone(jt + q * 0.012, 0.09, 'sine', hz, null, env(jt + q * 0.012, 0.002, 0.08, loud)); });
+      }
+      chime(t + total - 0.1, [1047, 1319, 1568, 2093], 0.1, 1.2);
     },
     jiggle: function (t) {
       // a belly wobble: soft boings that get smaller and lower
