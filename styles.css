@@ -1320,6 +1320,8 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .pet[data-skin="calico"] { --pet-skin: #fffaf3; --pet-skin-shade: #f4e6d6; }
 .pet[data-skin="chihuahua"] { --pet-skin: #f1d3ae; --pet-skin-shade: #e0b98d; --pet-ear-in: #ffb8c6; --pet-mark: #d2a672; }
 .pet[data-skin="pomeranian"] { --pet-skin: #ee9b5c; --pet-skin-shade: #d8823f; --pet-ear-in: #f9cfa6; --pet-mark: #d8823f; }
+/* the black Pomeranian (build 626) is the Pomeranian drawn in black fur, with brown eyes */
+.pet[data-skin="blackpom"] { --pet-skin: #46404e; --pet-skin-shade: #373240; --pet-ear-in: #8f6f80; --pet-mark: #5a5366; }
 .pet[data-skin="golden"] { --pet-skin: #f6d08f; --pet-skin-shade: #e6b567; --pet-mark: #d79c47; }
 .pet[data-skin="chocolatemilk"] { --pet-skin: #bb8962; --pet-skin-shade: #9d6c48; --pet-mark: #f6e4cf; }
 .pet[data-skin="highland"] { --pet-skin: #d98a4c; --pet-skin-shade: #bf6c31; --pet-ear-in: #ffc4cf; }
@@ -1472,15 +1474,17 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .pet[data-skin="boar"] [data-sk~="boar"],
 .pet[data-skin="chihuahua"] [data-sk~="chihuahua"],
 .pet[data-skin="pomeranian"] [data-sk~="pomeranian"],
+.pet[data-skin="blackpom"] [data-sk~="blackpom"],
 .pet[data-skin="longhair"] [data-sk~="longhair"] { display: inline; }
 .pet[data-skin="kiwi"] [data-sk~="kiwi"], .pet[data-skin="dutch"] [data-sk~="dutch"], .pet[data-skin="fasthedgehog"] [data-sk~="fasthedgehog"],
 .pet[data-skin="dartfrog"] [data-sk~="dartfrog"], .pet[data-skin="toad"] [data-sk~="toad"] { display: inline; }
 /* a skin's own ears and horns replace the species' ones */
 .pet[data-skin="floppybunny"] [data-sp="bunny"],
 .pet[data-skin="chihuahua"] [data-sp="puppy"],
-.pet[data-skin="pomeranian"] [data-sp="puppy"] { display: none; }
+.pet[data-skin="pomeranian"] [data-sp="puppy"],
+.pet[data-skin="blackpom"] [data-sp="puppy"] { display: none; }
 .pet[data-skin="highland"] .horn, .pet[data-skin="highland"] .spot, .pet[data-skin="golden"] .spot { display: none; }
-.pet[data-skin="chihuahua"] .ear, .pet[data-skin="pomeranian"] .ear, .pet[data-skin="floppybunny"] .ear { fill: var(--pet-skin); }
+.pet[data-skin="chihuahua"] .ear, .pet[data-skin="pomeranian"] .ear, .pet[data-skin="blackpom"] .ear, .pet[data-skin="floppybunny"] .ear { fill: var(--pet-skin); }
 .pet[data-skin="calico"] .ear-l .ear { fill: #f3a95d; }
 .pet[data-skin="calico"] .ear-r .ear { fill: #5b566a; }
 /* the black cat's eyes show up as light on dark */
@@ -1512,6 +1516,10 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .fur-blend path { fill: var(--pet-skin); stroke: none; }
 .pom-muzzle { fill: #ffe0b4; }
 .pom-chest { fill: #ffe0b4; stroke: var(--pet-ink); stroke-width: 1.6; stroke-linejoin: round; }
+/* black Pomeranian: a softer grey-brown muzzle and chest, brown eyes with a light line for closed ones */
+.pet[data-skin="blackpom"] :is(.pom-muzzle, .pom-chest) { fill: #6d6478; }
+.pet[data-skin="blackpom"] .eyes-open .ink { fill: #8f5b34; stroke: #c99663; stroke-width: .8; }
+.pet[data-skin="blackpom"] g[data-eyes] path.line, .pet[data-skin="blackpom"] g[data-eyes].line path { stroke: #f1dcc8; }
 
 /* floppy bunny ears have no pink */
 .pet[data-skin="floppybunny"] .ear-in { display: none; }

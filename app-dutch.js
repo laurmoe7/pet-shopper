@@ -78,7 +78,7 @@ var Dutch = {
   // ---------- skins ----------
   'Original': 'Origineel', 'Penguin': 'Pinguïn', 'Parrot': 'Papegaai', 'Kiwi': 'Kiwi', 'Pigeon': 'Duif', 'Pigeon (old)': 'Duif (oud)', 'Chicken': 'Kip', 'Strawberry': 'Aardbei', 'Chocolate': 'Chocolade', 'Taro': 'Taro',
   'Black cat': 'Zwarte kat', 'Calico': 'Lapjeskat', 'Orange cat': 'Rode kat', 'Munchkin': 'Munchkin', 'Ragdoll': 'Ragdoll', 'Scottish fold': 'Scottish fold', 'Siamese': 'Siamees',
-  'Chihuahua': 'Chihuahua', 'Pomeranian': 'Pomeriaan', 'Golden retriever': 'Golden retriever', 'Pink shiba': 'Roze shiba', 'French bulldog': 'Franse bulldog', 'German shepherd': 'Duitse herder', 'Cairn terrier': 'Cairn terriër',
+  'Chihuahua': 'Chihuahua', 'Pomeranian': 'Pomeriaan', 'Black Pomeranian': 'Zwarte pomeriaan', 'Golden retriever': 'Golden retriever', 'Pink shiba': 'Roze shiba', 'French bulldog': 'Franse bulldog', 'German shepherd': 'Duitse herder', 'Cairn terrier': 'Cairn terriër',
   'Chocolate milk': 'Chocolademelk', 'Highland cattle': 'Schotse hooglander', 'Strawberry milk': 'Aardbeienmelk', 'Dirty piggy': 'Vies varkentje', 'Boar': 'Everzwijn', 'Potbelly pig': 'Hangbuikzwijn',
   'Floppy ears': 'Hangoren', 'Dutch': 'Hollander', 'Himalayan': 'Himalaya', 'Poison dart frog': 'Pijlgifkikker', 'Toad': 'Pad', 'Fast hedgehog': 'Snelle egel', 'Brandt\'s hedgehog': 'Brandts egel', 'Rainbow': 'Regenboog',
   'White hamster': 'Witte hamster', 'Long-haired': 'Langharig', 'Thrush': 'Lijster', 'Snow monkey': 'Sneeuwaap', 'Red dragon': 'Rode draak',
