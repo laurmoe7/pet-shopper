@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 583
+- Old School and Bonfire: the pet and skin tiles all stay the same size, long names wrap onto two lines inside the tile
+
 ## Build 582
 - Finishing a shopping trip earns a trip stamp: Trips in the Stamp Book (one a day, 3 items or more)
 - All bought: the trip stamp thumps onto the receipt before the party, and Fumu says which trip it was

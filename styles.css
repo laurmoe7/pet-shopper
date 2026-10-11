@@ -3530,6 +3530,10 @@ html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button)[aria-pressed="true"] { background: #5a2a1a; border: 1px solid #000; box-shadow: inset 0 0 0 2px var(--os-red); }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .picker .species-grid button .pet.mini { width: 94px; height: 86px; background: none; }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .picker .species-grid button { padding: 4px 2px 5px; }
+/* the tile's name always gets the same two lines of room and is clipped inside the tile, so a long name (Golden retriever, Poison dart frog)
+   can never make one tile taller or wider than the others (build 583) */
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .picker .species-grid button { aspect-ratio: auto; overflow: hidden; justify-content: flex-start; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .picker .species-grid button > span { flex: none; display: flex; align-items: center; justify-content: center; width: 100%; height: 2.2em; line-height: 1.1; overflow: hidden; text-align: center; text-wrap: balance; }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .picker-grid button { padding: 3px; }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .picker-grid button img { width: 100%; height: 100%; }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .dress-panel .hat-strip button { padding: 5px 2px 3px; gap: 2px; font-size: .68rem; line-height: 1.1; overflow: hidden; justify-content: center; }
@@ -3986,7 +3990,7 @@ html:root[data-skin="quest"][data-quest="bonfire"] .dress-tabs button img { filt
 html:root[data-skin="quest"][data-quest="bonfire"] .dress-tabs button[aria-selected="true"] img { filter: none; }
 html:root[data-skin="quest"][data-quest="bonfire"] .dress-panels { background: rgba(8, 7, 6, .55); border: 1px solid var(--bone-line); box-shadow: inset 0 0 0 1px #000, inset 0 0 24px rgba(0, 0, 0, .5); }
 html:root[data-skin="quest"][data-quest="bonfire"] :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button) { background: #0e0c0b; border: 1px solid var(--bone-line); }
-html:root[data-skin="quest"][data-quest="bonfire"] .picker .species-grid button { font-variant: small-caps; letter-spacing: .06em; font-size: 1.05em; }
+html:root[data-skin="quest"][data-quest="bonfire"] .picker .species-grid button { font-variant: small-caps; letter-spacing: .04em; font-size: .82rem; }   /* small enough that Pomeranian fits a tile */
 /* list tabs and the dock's names: small capitals like the rest */
 html:root[data-skin="quest"][data-quest="bonfire"] .list-tab { font-variant: small-caps; letter-spacing: .08em; font-size: 1.02em; }
 html:root[data-skin="quest"][data-quest="bonfire"] .list-tabs { border-color: var(--bone-line); }
