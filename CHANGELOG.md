@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 597
+- Dutch: long words wrap inside the speech bubble
+- Add button is a plus in both languages
+
 ## Build 596
 - Shopping suggestions off by default
 - Dutch: the Add symbol follows the theme (plus, strawberry in Sweet, flame in Bonfire)
