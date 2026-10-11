@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 586
+- Pet tab: the Species, Skin and Persona buttons stay put under the tabs
+
 ## Build 585
 - Pet tab: no search bar (hats, clothes and the rest keep it)
 

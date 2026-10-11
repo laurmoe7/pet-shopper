@@ -36,7 +36,7 @@ var PET_SUBTABS = true;
     b.append(img, label);
     row.append(b);
   });
-  panel.prepend(row);
+  dressTabs.after(row);   // outside the scrolling panel, right under the tab row, so it stays put while the tiles scroll
   panel.classList.add('pet-subbed');
 
   /** Shows one sub-tab. @param {string} sub 'species', 'skin' or 'persona'. */
