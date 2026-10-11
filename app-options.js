@@ -103,6 +103,10 @@ $('optionsBtn').addEventListener('click', function () {
   optionsList.querySelectorAll('input[data-key]').forEach(function (b) { b.checked = b.dataset.key === 'quiet' ? !state.quiet : state.settings[b.dataset.key]; });
   var n = Errors.fresh.length;   // errors since the app opened (Developer tools has them)
   $('buildLabel').textContent = 'Build ' + BUILD + (n ? ' \u00b7 ' + n + (n === 1 ? ' error' : ' errors') : '');
+  // from the dressing room (its own gear, or the page's): Options opens over it, like the closet, so Done lands back in the dressing room
+  // (openDialog would close every other sheet first, build 585)
+  if (optionsSheet.open) { optionsSheet.close(); return; }
+  if (dressSheet.open) { sound('open'); optionsSheet.show(); return; }
   openDialog(optionsSheet);
 });
 optionsSheet.addEventListener('click', function (e) { if (e.target === optionsSheet) optionsSheet.close(); });
@@ -205,6 +209,7 @@ $('devBtn').addEventListener('click', function () {
   devNoWait.checked = state.dev.noWait;
   devStatus.textContent = '';
   renderDevErrors();
+  if (dressSheet.open) { optionsSheet.close(); sound('open'); devSheet.show(); return; }   // over the dressing room, like Options itself
   openDialog(devSheet);
 });
 devSheet.addEventListener('click', function (e) { if (e.target === devSheet) devSheet.close(); });

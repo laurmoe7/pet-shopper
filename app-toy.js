@@ -12,10 +12,11 @@ function roomOnRight(px) {
   var raw = getComputedStyle(root).getPropertyValue('--vis-r'), vr = !raw || /vw/.test(raw) ? window.innerWidth : parseFloat(raw);
   return window.innerWidth / 2 + px + 20 <= vr;
 }
-/** @returns {number} Where the toy rests: beside him on the right, or on the left when the right is off the screen. */
+/** Where the toy rests, from the middle: at the cushion's right edge (the cushion is 158 px wide, the toy 32), clear of the small pets. */
+var TOY_REST = 64;
+/** @returns {number} Where the toy rests: at the cushion's edge on the right, or on the left when the right is off the screen. */
 function toyHome() {
-  var h = Math.round(58 * (parseFloat(getComputedStyle(stage).getPropertyValue('--pet-size')) || 1));
-  return roomOnRight(h) ? h : -h;
+  return roomOnRight(TOY_REST) ? TOY_REST : -TOY_REST;
 }
 /** @returns {boolean} Whether he is up at night and drowsy (not in his bed): he goes after the toy very slowly then. */
 function toyTired() { return typeof petScene === 'function' && petScene().indexOf('night-drowsy') === 0; }

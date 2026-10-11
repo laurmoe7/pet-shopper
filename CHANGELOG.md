@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 585
+- The toy rests at the cushion's edge, off the small pets
+- Options opens over the dressing room and Done takes you back into it
+
 ## Build 584
 - The mouse is as small as the hamster and has its big round eyes
 - Preview: the gear opens Options again (the page's error script was missing from the preview build)
