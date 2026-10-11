@@ -4040,7 +4040,7 @@ html:root[data-skin="sweet"] body { background: var(--sw-dots), linear-gradient(
 html:root[data-skin="sweet"] .picker { background: linear-gradient(180deg, #fff7fa, #ffedf3); border: 3px solid var(--sw-edge); border-bottom: 0; border-radius: 28px 28px 0 0; box-shadow: 0 -6px 18px rgba(235, 150, 175, .3), inset 0 0 0 3px #fff; }
 html:root[data-skin="sweet"] .picker h2 { border: 0; border-radius: 999px; background: linear-gradient(180deg, #ffd3e0, #ffb3cb); color: #7a2a4a; box-shadow: 0 2px 0 #f3a3bb, inset 0 1px 0 rgba(255, 255, 255, .8); padding: 4px 18px; font-weight: 700; }
 /* cards: white and puffy, a pink outline, a ring and a soft edge under them; no tape or stitching */
-html:root[data-skin="sweet"] :is(.add, .item, .goal, .fav, .options, .picker .closet-wear, .scene-bar, .dress-panels) {
+html:root[data-skin="sweet"] :is(.add, .item, .goal, .fav, .options, .picker .closet-wear, .dress-panels) {
   background: linear-gradient(180deg, #fffdfb, #fff4f6); border: 2px solid var(--sw-edge); border-radius: 22px; box-shadow: 0 0 0 3px #fff, 0 4px 0 3px var(--sw-edge), 0 8px 12px rgba(235, 150, 175, .22);
 }
 html:root[data-skin="sweet"] :is(.item, .add, .options)::before, html:root[data-skin="sweet"] :is(.item, .add)::after { display: none; }
@@ -4067,9 +4067,9 @@ html:root[data-skin="sweet"] :is(.picker .species-grid button, .picker .hat-stri
 html:root[data-skin="sweet"] .add-btn { background: var(--sw-gloss), linear-gradient(180deg, #ff9fbd, #ff6f9a); color: #fff; border: 2px solid #f06a94; border-radius: 999px; box-shadow: 0 3px 0 #e0608a; text-shadow: 0 1px 0 rgba(180, 40, 80, .4); }
 html:root[data-skin="sweet"] .name-edit { background: var(--sw-gloss), linear-gradient(180deg, #ffb3cb, #ff8fb0); color: #fff; border: 2px solid #f06a94; box-shadow: 0 2px 0 #e0608a; }
 html:root[data-skin="sweet"] :is(.name-show, .dress-search, .cal-month select, .cal-add input) { background: #fff; border: 2px solid var(--sw-edge); border-radius: 999px; color: var(--sw-ink); }
-html:root[data-skin="sweet"] .list-tabs { background: #fff; border: 2px solid var(--sw-edge); box-shadow: 0 3px 0 var(--sw-edge); }
-html:root[data-skin="sweet"] .list-tab { background: transparent; border-color: transparent; box-shadow: none; text-shadow: none; }
-html:root[data-skin="sweet"] .list-tab[aria-selected="true"] { background: var(--sw-gloss), linear-gradient(180deg, #ffb3cb, #ff8fb0); color: #fff; border-color: #f06a94; box-shadow: 0 2px 0 #e0608a; }
+html:root[data-skin="sweet"] .list-tabs { background: #fff; border: 1.5px solid var(--sw-edge); box-shadow: 0 3px 0 var(--sw-edge); }
+html:root[data-skin="sweet"] .list-tab { background: transparent; border: 0; box-shadow: none; text-shadow: none; }
+html:root[data-skin="sweet"] .list-tab[aria-selected="true"] { background: var(--sw-gloss), linear-gradient(180deg, #ffb3cb, #ff8fb0); color: #fff; border: 0; box-shadow: 0 2px 0 #e0608a; }
 /* the bottom bar: a frosted pink shelf, round pastel stickers with a shine */
 html:root[data-skin="sweet"] .dock { background: linear-gradient(180deg, #fff7fa, #ffe3ec); border-top: 3px solid var(--sw-edge); box-shadow: 0 -4px 14px rgba(235, 150, 175, .3), inset 0 2px 0 #fff; }
 html:root[data-skin="sweet"] .dock-icon { border: 2.5px solid #fff; background: var(--sw-gloss), var(--sticker, #ffd3dd); box-shadow: 0 0 0 2px var(--sw-edge), 0 3px 0 2px var(--sw-edge); }
@@ -4087,7 +4087,6 @@ html:root[data-skin="sweet"] .cal-sheet .cal-cell:is(.today, .sel) { background:
 html:root[data-skin="sweet"] body::after { content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .55; background:
   linear-gradient(35deg, transparent 46%, #ff8fb0 46% 54%, transparent 54%) 8% 12% / 14px 5px no-repeat, linear-gradient(-30deg, transparent 46%, #8fd8b5 46% 54%, transparent 54%) 90% 22% / 14px 5px no-repeat,
   linear-gradient(60deg, transparent 46%, #ffd36a 46% 54%, transparent 54%) 14% 62% / 14px 5px no-repeat, linear-gradient(-55deg, transparent 46%, #b79bff 46% 54%, transparent 54%) 93% 70% / 14px 5px no-repeat; }
-html:root[data-skin="sweet"] .scene-bar { background: transparent; border: 0; box-shadow: none; padding-left: 0; padding-right: 0; }
 html:root[data-skin="sweet"] :is(.field-label, .picker legend) { background: #ffe3ec; color: #c0728f; border-radius: 999px; padding: 2px 12px; }
 
 /* chorus dance (an idle dance, chorusDance in app-idle.js; build 569, redone in 571 from Lauren's description of a group number): 8 s. He puts his left paw (the one on the
@@ -4153,3 +4152,11 @@ html:root .add-btn::before { content: "Add"; display: block; height: 0; width: a
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .add-btn::before { display: block; }
 /* long words (Dutch) break and hyphenate inside the speech bubble instead of running out of it */
 .bubble { overflow-wrap: break-word; hyphens: auto; }
+
+/* the top bar (the Shopping / To-do swapper and the gear) and so Fumu's room are the same size in every theme: the themes may restyle them, not resize them */
+html:root:root .scene-bar { height: 38px; box-sizing: content-box; padding-top: 0; padding-bottom: 0; margin: 0; }
+html:root:root .list-tabs { box-sizing: border-box; height: 38px; margin: 0; padding: 3px; border-width: 1.5px; min-width: 200px; align-items: stretch; }
+html:root:root .list-tab { box-sizing: border-box; height: 30px; padding-top: 0; padding-bottom: 0; border-width: 0; flex: 1 1 auto; justify-content: center; }
+/* Old School and Bonfire draw a frame round the bar: it grows outwards over the room's edge instead of pushing the room down */
+html:root:root[data-skin="quest"][data-quest="osrs"] .scene-bar { margin-block: -5px; }
+html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-block: -4px; }

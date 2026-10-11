@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 600
+- Same room and top-bar size in every theme; Sweet loses the long bar
+
 ## Build 599
 - Emoji thief freezes and looks around once it is in his paw
 
