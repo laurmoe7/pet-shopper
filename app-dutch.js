@@ -21,7 +21,7 @@ var Dutch = {
   'Share': 'Delen', 'Save': 'Bewaren', 'Your photo': 'Jouw foto', '📷 Camera': '📷 Camera',
 
   // ---------- adding things ----------
-  'Add': 'Toevoegen', 'Add an item': 'Iets toevoegen', 'Add an item…': 'Voeg toe…', 'Add item': 'Item toevoegen', 'Add to list': 'Aan lijst toevoegen', 'Add by voice': 'Toevoegen met je stem',
+  'Add': '+', 'Add an item': 'Iets toevoegen', 'Add an item…': 'Voeg toe…', 'Add item': 'Item toevoegen', 'Add to list': 'Aan lijst toevoegen', 'Add by voice': 'Toevoegen met je stem',
   'Add from a recipe': 'Toevoegen uit een recept', 'Add to this day': 'Aan deze dag toevoegen', 'Add a plan or birthday…': 'Voeg een plan of verjaardag toe…',
   'Change emoji': 'Emoji veranderen', 'Pick an emoji for': 'Kies een emoji voor', 'Tap an item\'s emoji, or long-press the item, to pick a different one.': 'Tik op de emoji van een item, of houd het item ingedrukt, om een andere te kiezen.',
   'Amount': 'Aantal', 'like 2, or 500 g': 'zoals 2, of 500 g', 'Units': 'Eenheden', 'Metric': 'Metrisch', 'US': 'VS', 'Delete': 'Verwijderen', 'Delete item': 'Item verwijderen', 'Clear list': 'Lijst leegmaken', 'Clear': 'Wissen',

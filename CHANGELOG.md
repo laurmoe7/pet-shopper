@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 594
+- Dutch: the Add button is a + (the word was too long)
+
 ## Build 593
 - Wrecking ball back in the ring menu
 
