@@ -33,13 +33,64 @@ html.booting .app{visibility:hidden}
 @keyframes bootDot{0%,100%{transform:translateY(0);opacity:.5}40%{transform:translateY(-5px);opacity:1}}
 @media (prefers-color-scheme:dark){#boot .card{background:#2b2326;color:#f3dfe3;border-color:#5a4249}#boot .blob{background:#d9d3d0;border-color:#f3dfe3}}
 @media (prefers-reduced-motion:reduce){#boot *{animation-duration:3s!important}}
+/* when the app never starts (a script broke), the card says so and shows the error, so it can be reported */
+#boot.failed{pointer-events:auto}#boot.failed .blob,#boot.failed .shadow{animation:none}#boot.failed .blob{transform:scale(1.1,.88)}#boot.failed .blob:before,#boot.failed .blob:after{height:3px;top:21px;border-radius:2px}
+#boot .fail{display:none;font-size:12px;font-weight:700;opacity:.8;max-width:240px;text-align:center;white-space:pre-wrap;word-break:break-word;line-height:1.35}
+#boot.failed .fail{display:block}#boot.failed small{display:none}
+#boot .fail-btns{display:none;gap:8px;margin-top:4px}#boot.failed .fail-btns{display:flex}
+#boot .fail-btns button{font:inherit;font-size:13px;font-weight:800;color:inherit;background:none;border:2px solid currentColor;border-radius:999px;padding:6px 14px;cursor:pointer}
 /* in the Windows app the window is see-through: the page's own brown must not show behind the card while it loads */
 html.desk-boot.booting,html.desk-boot.booting body{background:transparent!important}
 </style>
-<script>document.documentElement.classList.add('booting');if(window.nibbleDesktop)document.documentElement.classList.add('desk-boot');setTimeout(function(){document.documentElement.classList.remove('booting')},10000)</script>
+<script>
+// Errors: the scripts share one scope, so one error at the top of a file quietly stops everything after it. Every uncaught error (and failed promise) is kept
+// with its build and time (the last 8, nibble-errors on the device) and shown in Options > Developer tools; when the app never starts, the loading card shows it.
+// This runs before any other script so the earliest errors are caught too.
+(function () {
+  var KEY = 'nibble-errors', MAX = 8, de = document.documentElement, fresh = [];
+  function all() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } }
+  function when(t) { var d = new Date(t); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2) + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+  function line(e) { return 'Build ' + e.b + ' \u00b7 ' + when(e.t) + ' \u00b7 ' + e.m + (e.w ? ' (' + e.w + ')' : ''); }
+  function record(msg, where) {
+    var e = { t: Date.now(), b: typeof BUILD === 'string' ? BUILD : '?', m: String(msg || 'error').slice(0, 300), w: where || '' };
+    fresh.push(e);
+    try { localStorage.setItem(KEY, JSON.stringify(all().concat(e).slice(-MAX))); } catch (x) { /* storage blocked */ }
+  }
+  window.Errors = {
+    list: all, fresh: fresh, line: line,
+    text: function () { return all().map(line).join('\n'); },
+    clear: function () { fresh.length = 0; try { localStorage.removeItem(KEY); } catch (e) { /* storage blocked */ } }
+  };
+  window.addEventListener('error', function (ev) {
+    if (!ev.message && ev.target && ev.target !== window) return;   // a picture or font that did not load is not a broken script
+    var file = (ev.filename || '').replace(/^.*\//, '');
+    record(ev.message, file ? file + (ev.lineno ? ':' + ev.lineno : '') : '');
+  });
+  window.addEventListener('unhandledrejection', function (ev) { var r = ev.reason; record(r && r.message || r, 'promise'); });
+  // the loading card (below) hides the page while the scripts build it; if nothing has taken it down after 10 s, the app did not start
+  de.classList.add('booting');
+  if (window.nibbleDesktop) de.classList.add('desk-boot');
+  setTimeout(function () {
+    de.classList.remove('booting');
+    var boot = document.getElementById('boot');
+    if (!boot || boot.classList.contains('out')) return;
+    boot.classList.add('failed'); boot.removeAttribute('aria-hidden');
+    var first = fresh[0], fail = boot.querySelector('.fail'), btns = boot.querySelector('.fail-btns');   // (the first error broke it; the others follow from it)
+    if (fail) fail.textContent = 'Fumu could not start.\n' + (first ? line(first) : 'Build ' + (typeof BUILD === 'string' ? BUILD : '?') + ' \u00b7 no error was caught');
+    if (!btns) return;
+    btns.children[0].onclick = function () {
+      var text = fresh.length ? fresh.map(line).join('\n') : fail.textContent;
+      var done = function () { btns.children[0].textContent = 'Copied'; };
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () { fail.textContent = text; });
+      else fail.textContent = text;
+    };
+    btns.children[1].onclick = function () { location.reload(); };
+  }, 10000);
+})();
+</script>
 </head>
 <body>
-<div id="boot" aria-hidden="true"><div class="card"><div class="blob"></div><div class="shadow"></div><div>Fumufumu</div><small>Loading <span class="dots"><i></i><i></i><i></i></span></small></div></div>
+<div id="boot" aria-hidden="true"><div class="card"><div class="blob"></div><div class="shadow"></div><div>Fumufumu</div><small>Loading <span class="dots"><i></i><i></i><i></i></span></small><p class="fail"></p><div class="fail-btns"><button type="button">Copy details</button><button type="button">Try again</button></div></div></div>
 <div class="app">
   <header class="scene" id="scene">
     <div class="scene-bar">
@@ -1260,6 +1311,11 @@ html.desk-boot.booting,html.desk-boot.booting body{background:transparent!import
     <button type="button" class="pill-btn" id="animBtn">Animation player</button>
     <button type="button" class="pill-btn" id="syncBtn">Sync log</button>
     <p class="dev-status" id="devStatus" aria-live="polite"></p>
+    <div class="dev-errors">
+      <h3>Recent errors</h3>
+      <p id="devErrorList"></p>
+      <div class="dev-errors-btns"><button type="button" class="pill-btn" id="devErrCopy">Copy</button><button type="button" class="pill-btn" id="devErrClear">Clear</button></div>
+    </div>
   </form>
 </dialog>
 

@@ -2,6 +2,12 @@
 
 What changed in Nibble, newest first. Build numbers match the one in Options.
 
+## Build 578
+- Developer tools: Recent errors (Copy, Clear)
+- Options: error count next to the build
+- Loading card says when Fumu could not start, with the error
+- A smoke test boots the page in Chromium before each deploy
+
 ## Build 577
 - Dressing room: still mini pets on the species and skin tiles, drawn when the room first opens (opens faster, saves battery)
 

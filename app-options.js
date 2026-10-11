@@ -94,6 +94,8 @@ optionsList.addEventListener('change', function (e) {
 });
 $('optionsBtn').addEventListener('click', function () {
   optionsList.querySelectorAll('input[data-key]').forEach(function (b) { b.checked = b.dataset.key === 'quiet' ? !state.quiet : state.settings[b.dataset.key]; });
+  var n = Errors.fresh.length;   // errors since the app opened (Developer tools has them)
+  $('buildLabel').textContent = 'Build ' + BUILD + (n ? ' \u00b7 ' + n + (n === 1 ? ' error' : ' errors') : '');
   openDialog(optionsSheet);
 });
 optionsSheet.addEventListener('click', function (e) { if (e.target === optionsSheet) optionsSheet.close(); });
@@ -178,10 +180,24 @@ devNoWait.addEventListener('change', function () {
   sound(devNoWait.checked ? 'on' : 'off');
   save();
 });
+/** Recent errors (caught by the script at the top of index.html, window.Errors): the last few, with their build and time, so one can be reported from the phone. */
+function renderDevErrors() {
+  var list = Errors.list();
+  $('devErrorList').textContent = list.length ? list.map(Errors.line).join('\n') : 'None.';
+  $('devErrCopy').hidden = $('devErrClear').hidden = !list.length;
+}
+$('devErrCopy').addEventListener('click', function () {
+  sound('tap');
+  var text = Errors.text();
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () { devStatus.textContent = 'Copied.'; }, function () { devStatus.textContent = 'Could not copy.'; });
+  else devStatus.textContent = 'Could not copy.';
+});
+$('devErrClear').addEventListener('click', function () { sound('tap'); Errors.clear(); renderDevErrors(); });
 $('devBtn').addEventListener('click', function () {
   optionsSheet.close();
   devNoWait.checked = state.dev.noWait;
   devStatus.textContent = '';
+  renderDevErrors();
   openDialog(devSheet);
 });
 devSheet.addEventListener('click', function (e) { if (e.target === devSheet) devSheet.close(); });

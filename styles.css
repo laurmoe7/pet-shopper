@@ -699,6 +699,10 @@ button { font: inherit; color: inherit; }
 .dev-actions button:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
 .dev-actions button.danger { color: var(--danger); border-color: var(--danger); }
 .dev-status { margin: 0; min-height: 1.2em; font-size: .82rem; color: var(--muted); font-weight: 700; }
+.dev-errors { margin-top: 12px; border-top: 1.5px dashed var(--line); padding-top: 8px; }
+.dev-errors h3 { margin: 0 0 4px; font-size: .85rem; }
+.dev-errors p { margin: 0 0 8px; font-size: .74rem; line-height: 1.4; color: var(--muted); font-weight: 700; white-space: pre-wrap; word-break: break-word; }
+.dev-errors-btns { display: flex; gap: 8px; }
 
 /* ---------- shopping cart ---------- */
 .cart { position: absolute; left: max(-4px, calc(50% - 150px)); bottom: 2px; width: 88px; height: 92px; z-index: 2; pointer-events: none; }
