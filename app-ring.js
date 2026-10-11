@@ -42,7 +42,8 @@
   /** Everything the ring can offer. `on` is for switches. */
   var ITEMS = {
     ball: { icon: '⚽', label: 'Play ball', run: function () { if (!busy && typeof playToy === 'function') playToy(); } },
-    toy: { look: function () { return { ball: { icon: '⚽', label: 'Toy: his ball' }, wrecker: { icon: '💥', label: 'Toy: wrecking ball' }, none: { icon: '🚫', label: 'Toy: none' } }[toyKind()]; }, run: function () { toggleToyKind(); } },   // (one button that goes round: his ball, the wrecking ball, no toy; it shows the one out now)
+    toy: { icon: '💥', label: 'Wrecking ball', on: function () { return toyKind() === 'wrecker'; }, run: function () { toggleToyKind('wrecker'); } },
+    notoy: { icon: '🚫', label: 'No toy', on: function () { return toyKind() === 'none'; }, run: function () { toggleToyKind('none'); } },   // (neither switch on: his own ball)
     snack: { icon: '🍪', label: 'Snack', run: ringSnack },
     dance: { icon: '🎉', label: 'Dance', run: ringDance },
     wave: { icon: '👋', label: 'Wave', run: ringWave },
@@ -53,11 +54,11 @@
   /** @returns {string[]} The buttons for the scene he is in now. */
   function items() {
     var scene = petScene();
-    if (!isDesk()) return scene === 'night-bed' ? [] : ['toy'];   // in the app it only has the toys (none picked: his own); in bed they are put away
+    if (!isDesk()) return scene === 'night-bed' ? [] : ['toy', 'notoy'];   // in the app it only has the toys (none picked: his own); in bed they are put away
     if (scene === 'night-bed') return ['night'];   // in bed: only the night light
     var play = toyKind() === 'none' ? [] : ['ball'];   // (nothing to play with when there is no toy)
-    if (scene.indexOf('night-drowsy') === 0) return play.concat(['toy', 'snack', 'dance', 'swap', 'lights']);
-    return play.concat(['toy', 'snack', 'dance', 'swap', 'wave']);
+    if (scene.indexOf('night-drowsy') === 0) return play.concat(['toy', 'notoy', 'snack', 'dance', 'swap', 'lights']);
+    return play.concat(['toy', 'notoy', 'snack', 'dance', 'swap', 'wave']);
   }
   function canShow(now, force) {
     // a double click on him or a style preview is asked for on purpose: only the mode is checked, so a stuck state (hidden window, a leftover
@@ -101,7 +102,6 @@
     if (!plan) plan = { gap: 24, start: -90 - 12 * (n - 1), stag: 0 };
     names.forEach(function (name, i) {
       var it = ITEMS[name], b = document.createElement('button');
-      if (it.look) it = Object.assign({}, it, it.look());
       b.type = 'button'; b.className = 'ring-btn'; b.setAttribute('role', 'menuitem'); b.title = it.label; b.setAttribute('aria-label', it.label);
       if (it.on) b.setAttribute('aria-pressed', it.on() ? 'true' : 'false');
       var ang = (plan.start + plan.gap * i) * Math.PI / 180, rad = plan.stag && i % 2 ? R2 : center.r;
