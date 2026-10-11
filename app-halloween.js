@@ -215,17 +215,20 @@ function halloweenParty() {
   if (small) say(halloweenGreeting(name) + ' ♡', 3200, true); else say('boo! happy halloween! ♡', 3000);   // (the app's banner already says it)
   pulse('hop', 500);
   var ms = halloweenDance(), total = ms + 5800, layer = bdayLayer(9000);
+  var fx = small && celebFx('halloween', ms, total, name);   // (Mini Fumu: the effects cover the whole screen, drawn by the overlay window)
   if (!small) halloweenDark(layer, total);   // (first, so everything else is drawn over it)
   if (!small) halloweenBanner(layer, name);   // (before the ghosts and bats, so they are drawn over the card)
-  halloweenDecor(layer, total);
-  halloweenLights(layer, total);
-  halloweenGhosts(layer, total);
-  halloweenBats(layer, total);
+  if (!fx) {
+    halloweenDecor(layer, total);
+    halloweenLights(layer, total);
+    halloweenGhosts(layer, total);
+    halloweenBats(layer, total);
+  }
   setTimeout(function () { drift(['🎃', '🦇', '👻'], petTop(), 4); }, 1500);
   setTimeout(function () { say('spooky~', 1800); }, 3600);
   setTimeout(function () { say('look, a ghost!', 2000); }, 6200);
   setTimeout(function () { layer.remove(); }, total + 800);
-  setTimeout(function () { var more = halloweenTreat(); setTimeout(function () { halloweenOn = false; busy--; bdayToyAway(false); if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the treat)
+  setTimeout(function () { var more = yearGift('halloween') ? halloweenTreat() : noGift('happy halloween! ♡'); setTimeout(function () { halloweenOn = false; busy--; bdayToyAway(false); if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the treat)
   return true;
 }
 /** Starts it once, on 31 October, when he is awake and not busy (the birthday celebration goes first when it is also the birthday). */
@@ -234,11 +237,15 @@ function halloweenCheck() {
   if (halloweenDoneToday() && !devHalloween) return;
   if (document.hidden || document.querySelector('dialog[open]')) return;
   if (bdayHold || partyOn || (typeof xmasHolding === 'function' && xmasHolding())) return;
+  var markDone = function () { try { localStorage.setItem('nibble-halloween-done', B.dayKey(giftDate())); } catch (e) { /* storage not available */ } };
+  if (celebAsk({ kind: 'halloween', icon: '🎃', title: halloweenGreeting(state.player.name), party: halloweenParty, release: releaseHalloweenHold, done: markDone })) return;
   if (!halloweenParty()) return;
-  try { localStorage.setItem('nibble-halloween-done', B.dayKey(giftDate())); } catch (e) { /* storage not available */ }
+  markDone();
 }
 /** Developer tool: pretends it is Halloween and plays the celebration now. @returns {string} */
 function devHalloweenNow() {
+  celebDevGift = Date.now() + 40000;
+  if (deskPet()) return celebAsk({ kind: 'halloween', icon: '🎃', title: halloweenGreeting(state.player.name), party: function () { devHalloween = true; var ok = halloweenParty(); setTimeout(function () { devHalloween = false; }, 9000); if (!ok) devHalloween = false; return ok; } }) ? 'Mini Fumu asks first: tap Celebrate on his card.' : 'Mini Fumu is already asking about a celebration.';
   devHalloween = true;
   if (!halloweenParty()) { devHalloween = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devHalloween = false; }, 9000);

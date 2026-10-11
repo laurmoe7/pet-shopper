@@ -101,5 +101,5 @@ $('scGrid').addEventListener('click', function (e) {
   scPicked = new Date(scYear, scMonth, +b.dataset.d);
   renderShopCal();
 });
-// the Shop opens on the calendar (its own button handler, in app-shop.js, draws the shop tab and opens the sheet)
-$('shopBtn').addEventListener('click', function () { var t = giftDate(); scYear = t.getFullYear(); scMonth = t.getMonth(); scPicked = null; showShopTab('cal'); });
+// the Shop opens on its shop tab, with the calendar one tap away (its own button handler, in app-shop.js, draws the shop tab and opens the sheet)
+$('shopBtn').addEventListener('click', function () { var t = giftDate(); scYear = t.getFullYear(); scMonth = t.getMonth(); scPicked = null; showShopTab('store'); $('shopPanels').scrollTop = 0; });

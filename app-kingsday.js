@@ -207,15 +207,18 @@ function kingsParty() {
   if (small) say(kingsGreeting(name) + ' ♡', 3200, true); else say("happy king's day! ♡", 3000);   // (the app's card already says it)
   pulse('hop', 500);
   var ms = kingsDance(), total = ms + 5800, layer = bdayLayer(9000);
+  var fx = small && celebFx('kingsday', ms, total, name);   // (Mini Fumu: the effects cover the whole screen, drawn by the overlay window)
   if (!small) kingsBanner(layer, name);   // (first, so everything else is drawn over the card)
-  kingsBunting(layer, total);
-  kingsBalloons(layer, total);
-  kingsConfetti(layer, total);
+  if (!fx) {
+    kingsBunting(layer, total);
+    kingsBalloons(layer, total);
+    kingsConfetti(layer, total);
+  }
   setTimeout(function () { drift(['👑', '🧡', '🎉'], petTop(), 4); }, 1500);
   setTimeout(function () { say('hup Holland hup!', 1800); }, 3600);
   setTimeout(function () { say('oranje boven!', 2000); }, 6000);
   setTimeout(function () { layer.remove(); }, total + 800);
-  setTimeout(function () { var more = kingsTreat(); setTimeout(function () { kingsOn = false; busy--; bdayToyAway(false); if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the tompouce)
+  setTimeout(function () { var more = yearGift('kingsday') ? kingsTreat() : noGift("happy king's day! ♡"); setTimeout(function () { kingsOn = false; busy--; bdayToyAway(false); if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the tompouce)
   return true;
 }
 /** Starts it once, on King's Day, when he is awake and not busy (the other celebrations go first when they are pending). */
@@ -224,11 +227,15 @@ function kingsCheck() {
   if (kingsDoneToday() && !devKingsDay) return;
   if (document.hidden || document.querySelector('dialog[open]')) return;
   if (kingsOthersBusy()) return;
+  var markDone = function () { try { localStorage.setItem('nibble-kingsday-done', B.dayKey(giftDate())); } catch (e) { /* storage not available */ } };
+  if (celebAsk({ kind: 'kingsday', icon: '👑', title: kingsGreeting(state.player.name), party: kingsParty, release: releaseKingsHold, done: markDone })) return;
   if (!kingsParty()) return;
-  try { localStorage.setItem('nibble-kingsday-done', B.dayKey(giftDate())); } catch (e) { /* storage not available */ }
+  markDone();
 }
 /** Developer tool: pretends it is King's Day and plays the celebration now. @returns {string} */
 function devKingsDayNow() {
+  celebDevGift = Date.now() + 40000;
+  if (deskPet()) return celebAsk({ kind: 'kingsday', icon: '👑', title: kingsGreeting(state.player.name), party: function () { devKingsDay = true; var ok = kingsParty(); setTimeout(function () { devKingsDay = false; }, 9000); if (!ok) devKingsDay = false; return ok; } }) ? 'Mini Fumu asks first: tap Celebrate on his card.' : 'Mini Fumu is already asking about a celebration.';
   devKingsDay = true;
   if (!kingsParty()) { devKingsDay = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devKingsDay = false; }, 9000);

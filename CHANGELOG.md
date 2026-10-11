@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 629
+- Shop opens on the Shop tab, with its two tabs staying at the top
+- Mini Fumu celebrations: a card asks first, then effects cover the whole screen
+- Special gift only once a year
+
 ## Build 628
 - Black skins (black cat, black Pomeranian) get a darker outline
 - Shop: a new Special days tab with a calendar of celebrations and extra gifts, and what is coming up

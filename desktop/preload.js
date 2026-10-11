@@ -55,6 +55,10 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   wreckFix: () => ipcRenderer.invoke('desk:wreckFix'),
   /** Stop at once and clear the overlay. */
   wreckAbort: () => ipcRenderer.send('desk:wreckAbort'),
+  /** A celebration the player said yes to starts: the shell opens an overlay over the whole screen with its effects (kind: birthday, christmas, halloween, newyear, easter, kingsday; o: {name, ms, total, lang, rect: Fumu's box in page pixels}). Resolves whether it did. */
+  celebrateFx: (kind, o) => ipcRenderer.invoke('desk:celebrateFx', String(kind).slice(0, 12), o && typeof o === 'object' ? { name: String(o.name || '').slice(0, 24), ms: +o.ms || 0, total: +o.total || 0, lang: o.lang === 'nl' ? 'nl' : 'en', rect: o.rect && typeof o.rect === 'object' ? { x: +o.rect.x || 0, y: +o.rect.y || 0, w: +o.rect.w || 0, h: +o.rect.h || 0 } : null } : {}),
+  /** Takes the celebration overlay away at once. */
+  celebrateStop: () => ipcRenderer.send('desk:celebrateStop'),
   setBody: (box) => ipcRenderer.send('desk:body', Array.isArray(box) ? box.slice(0, 4) : []),
   setRects: (rects) => ipcRenderer.send('desk:rects', Array.isArray(rects) ? rects.slice(0, 40) : []),
   /** A mouse button is held that went down on Fumu or the toy: stay solid until it is let go. */

@@ -1128,10 +1128,11 @@ html.desk-boot.booting,html.desk-boot.booting body{background:transparent!import
     <h2 id="shopTitle">Shop</h2>
     <!-- two tabs: the special-days calendar (app-shopcal.js; a temporary home for it, it will carry the login bonuses and such) and the shop itself -->
     <div class="dress-tabs shop-tabs" id="shopTabs" role="tablist" aria-label="Shop">
-      <button type="button" role="tab" data-tab="cal" aria-selected="true"><span>Special days</span></button>
-      <button type="button" role="tab" data-tab="store" aria-selected="false"><span>Shop</span></button>
+      <button type="button" role="tab" data-tab="store" aria-selected="true"><span>Shop</span></button>
+      <button type="button" role="tab" data-tab="cal" aria-selected="false"><span>Special days</span></button>
     </div>
-    <div class="shop-panel" id="shopCal" role="tabpanel">
+    <div class="shop-panels" id="shopPanels">
+    <div class="shop-panel" id="shopCal" role="tabpanel" hidden>
       <p class="stamp-sub">✦ celebrations and extra gifts ✦</p>
       <div class="sc-head"><button type="button" class="pill-btn sc-nav" id="scPrev" aria-label="Previous month">‹</button><b class="sc-month" id="scMonth"></b><button type="button" class="pill-btn sc-nav" id="scNext" aria-label="Next month">›</button></div>
       <div class="sc-grid" id="scGrid"></div>
@@ -1140,10 +1141,11 @@ html.desk-boot.booting,html.desk-boot.booting body{background:transparent!import
       <h3 class="shop-head" id="scUpTitle">Coming up</h3>
       <div class="sc-up" id="scUp"></div>
     </div>
-    <div class="shop-panel" id="shopStore" role="tabpanel" hidden>
+    <div class="shop-panel" id="shopStore" role="tabpanel">
       <p class="stamp-sub">✦ a preview, nothing is for sale yet ✦</p>
       <p class="mood-info shop-note" id="shopNote" aria-live="polite"></p>
       <div class="shop-list" id="shopList"></div>
+    </div>
     </div>
   </form>
 </dialog>

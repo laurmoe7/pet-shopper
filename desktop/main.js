@@ -758,7 +758,23 @@ function start() {
   ipcMain.on('desk:wreckHit', (_e, i, k, x, y) => { try { wreck.hit(+i, +k, +x, +y); } catch (e) { /* the overlay is gone */ } });
   ipcMain.handle('desk:wreckFix', async () => { try { await wreck.fix(); } catch (e) { wreck.stop(); } });
   ipcMain.on('desk:wreckAbort', () => wreck.stop());
-  app.on('before-quit', () => { wreck.stop(); if (toyWin && !toyWin.isDestroyed()) toyWin.destroy(); });
+  // a celebration (birthday, Christmas...) the player said yes to: an overlay over the whole screen with the app's effects (celebrate.js; the page draws them)
+  const celebrate = require('./celebrate').makeCelebrate({
+    BrowserWindow,
+    display: () => screen.getDisplayMatching(win.getBounds()),
+    pageUrl: () => APP_URL,
+    raise: () => { if (win) win.moveTop(); if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) toyWin.moveTop(); }
+  });
+  ipcMain.handle('desk:celebrateFx', (_e, kind, o) => {
+    if (!win || mode !== 'pet' || typeof kind !== 'string') return false;
+    try {
+      o = o && typeof o === 'object' ? o : {};
+      const wb = win.getBounds(), db = screen.getDisplayMatching(wb).bounds, r = o.rect && typeof o.rect === 'object' ? o.rect : {};
+      return celebrate.start(kind, { name: o.name, ms: o.ms, total: o.total, lang: o.lang, rect: { x: wb.x - db.x + (+r.x || 0), y: wb.y - db.y + (+r.y || 0), w: +r.w || 100, h: +r.h || 100 } });
+    } catch (e) { celebrate.stop(); return false; }
+  });
+  ipcMain.on('desk:celebrateStop', () => celebrate.stop());
+  app.on('before-quit', () => { wreck.stop(); celebrate.stop(); if (toyWin && !toyWin.isDestroyed()) toyWin.destroy(); });
   ipcMain.on('desk:installUpdate', () => { if (updateReady && autoUpdater) autoUpdater.quitAndInstall(); });
   setInterval(() => { if (updateReady && win && win.isVisible()) win.webContents.send('desk:updateReady'); }, 3 * 3600 * 1000);   // still waiting: a gentle reminder now and then
   // a reminder: bring Fumu back if he was hidden (without taking the keyboard from what you are doing)

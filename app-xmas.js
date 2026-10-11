@@ -155,14 +155,17 @@ function xmasParty() {
   if (small) say(xmasGreeting(name) + ' ♡', 3200, true); else say('ho ho ho! ♡', 3000);   // (the app's banner already says it)
   pulse('hop', 500);
   var ms = partyDance(true), total = ms + 5800, layer = bdayLayer(9000);
+  var fx = small && celebFx('christmas', ms, total, name);   // (Mini Fumu: the effects cover the whole screen, drawn by the overlay window)
   if (!small) xmasBanner(layer, name);   // (first, so the snow and lights are drawn over the card)
-  xmasLights(layer, total);   // (the lights hang along the very top edge, over the bar)
-  xmasSnow(layer, total);
+  if (!fx) {
+    xmasLights(layer, total);   // (the lights hang along the very top edge, over the bar)
+    xmasSnow(layer, total);
+  }
   setTimeout(function () { drift(['🎄', '⭐', '❄'], petTop(), 4); }, 1500);
   setTimeout(function () { say('jingle jingle~', 1800); }, 3600);
   setTimeout(function () { say('look, it is snowing!', 2000); }, 6200);
   setTimeout(function () { layer.remove(); }, total + 800);
-  setTimeout(function () { var more = xmasGift(); setTimeout(function () { xmasOn = false; busy--; bdayToyAway(false); if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the gift)
+  setTimeout(function () { var more = yearGift('christmas') ? xmasGift() : noGift('merry christmas! ♡'); setTimeout(function () { xmasOn = false; busy--; bdayToyAway(false); if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the gift)
   return true;
 }
 /** Starts it once, on 25 December, when he is awake and not busy (the birthday celebration goes first when it is also the birthday). */
@@ -171,11 +174,15 @@ function xmasCheck() {
   if (xmasDoneToday() && !devXmas) return;
   if (document.hidden || document.querySelector('dialog[open]')) return;
   if (bdayHold || partyOn) return;
+  var markDone = function () { try { localStorage.setItem('nibble-xmas-done', B.dayKey(giftDate())); } catch (e) { /* storage not available */ } };
+  if (celebAsk({ kind: 'christmas', icon: '🎄', title: xmasGreeting(state.player.name), party: xmasParty, release: releaseXmasHold, done: markDone })) return;
   if (!xmasParty()) return;
-  try { localStorage.setItem('nibble-xmas-done', B.dayKey(giftDate())); } catch (e) { /* storage not available */ }
+  markDone();
 }
 /** Developer tool: pretends it is Christmas and plays the celebration now. @returns {string} */
 function devXmasNow() {
+  celebDevGift = Date.now() + 40000;
+  if (deskPet()) return celebAsk({ kind: 'christmas', icon: '🎄', title: xmasGreeting(state.player.name), party: function () { devXmas = true; var ok = xmasParty(); setTimeout(function () { devXmas = false; }, 9000); if (!ok) devXmas = false; return ok; } }) ? 'Mini Fumu asks first: tap Celebrate on his card.' : 'Mini Fumu is already asking about a celebration.';
   devXmas = true;
   if (!xmasParty()) { devXmas = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devXmas = false; }, 9000);

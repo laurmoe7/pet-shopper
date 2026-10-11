@@ -256,16 +256,19 @@ function easterParty() {
   if (small) say(easterGreeting(name) + ' ♡', 3200, true); else say('happy easter! ♡', 3000);   // (the app's card already says it)
   pulse('hop', 500);
   var ms = bunnyDance(), total = ms + 5800, layer = bdayLayer(9000);
+  var fx = small && celebFx('easter', ms, total, name);   // (Mini Fumu: the effects cover the whole screen, drawn by the overlay window)
   if (!small) easterBanner(layer, name);   // (first, so everything else is drawn over the card)
-  easterBunting(layer, total);
-  easterPetals(layer, total);
-  easterButterflies(layer, total);
-  easterEggs(layer, total);
+  if (!fx) {
+    easterBunting(layer, total);
+    easterPetals(layer, total);
+    easterButterflies(layer, total);
+    easterEggs(layer, total);
+  }
   setTimeout(function () { drift(['🌸', '🌷', '🐰'], petTop(), 4); }, 1500);
   setTimeout(function () { say('hop hop hop~', 1800); }, 3600);
   setTimeout(function () { say('bunny hops!', 2000); }, 6000);
   setTimeout(function () { layer.remove(); }, total + 800);
-  setTimeout(function () { var more = easterHatch(); setTimeout(function () { easterOn = false; busy--; bdayToyAway(false); if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the egg)
+  setTimeout(function () { var more = yearGift('easter') ? easterHatch() : noGift('happy easter! ♡'); setTimeout(function () { easterOn = false; busy--; bdayToyAway(false); if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the egg)
   return true;
 }
 /** Starts it once, on Easter Sunday, when he is awake and not busy (the other celebrations go first when they are pending). */
@@ -274,11 +277,15 @@ function easterCheck() {
   if (easterDoneToday() && !devEaster) return;
   if (document.hidden || document.querySelector('dialog[open]')) return;
   if (bdayHold || partyOn || (typeof xmasHolding === 'function' && xmasHolding()) || (typeof halloweenHolding === 'function' && halloweenHolding()) || (typeof newyearHolding === 'function' && newyearHolding())) return;
+  var markDone = function () { try { localStorage.setItem('nibble-easter-done', B.dayKey(giftDate())); } catch (e) { /* storage not available */ } };
+  if (celebAsk({ kind: 'easter', icon: '🐣', title: easterGreeting(state.player.name), party: easterParty, release: releaseEasterHold, done: markDone })) return;
   if (!easterParty()) return;
-  try { localStorage.setItem('nibble-easter-done', B.dayKey(giftDate())); } catch (e) { /* storage not available */ }
+  markDone();
 }
 /** Developer tool: pretends it is Easter and plays the celebration now. @returns {string} */
 function devEasterNow() {
+  celebDevGift = Date.now() + 40000;
+  if (deskPet()) return celebAsk({ kind: 'easter', icon: '🐣', title: easterGreeting(state.player.name), party: function () { devEaster = true; var ok = easterParty(); setTimeout(function () { devEaster = false; }, 9000); if (!ok) devEaster = false; return ok; } }) ? 'Mini Fumu asks first: tap Celebrate on his card.' : 'Mini Fumu is already asking about a celebration.';
   devEaster = true;
   if (!easterParty()) { devEaster = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devEaster = false; }, 9000);

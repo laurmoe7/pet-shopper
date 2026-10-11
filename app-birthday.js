@@ -223,7 +223,90 @@ function releaseBdayHold() {
 function celebrationHolds() {
   return (bdayHold ? 1 : 0) + (typeof xmasHold !== 'undefined' && xmasHold ? 1 : 0) + (typeof halloweenHold !== 'undefined' && halloweenHold ? 1 : 0) + (typeof newyearHold !== 'undefined' && newyearHold ? 1 : 0) + (typeof easterHold !== 'undefined' && easterHold ? 1 : 0) + (typeof kingsHold !== 'undefined' && kingsHold ? 1 : 0);
 }
-function birthdayHolding() { return bdayHold || partyOn || (typeof xmasHolding === 'function' && xmasHolding()) || (typeof halloweenHolding === 'function' && halloweenHolding()) || (typeof newyearHolding === 'function' && newyearHolding()) || (typeof easterHolding === 'function' && easterHolding()) || (typeof kingsHolding === 'function' && kingsHolding()); }   // (the Christmas celebration holds things back the same way)
+function birthdayHolding() { return bdayHold || partyOn || celebAskUp() || (typeof xmasHolding === 'function' && xmasHolding()) || (typeof halloweenHolding === 'function' && halloweenHolding()) || (typeof newyearHolding === 'function' && newyearHolding()) || (typeof easterHolding === 'function' && easterHolding()) || (typeof kingsHolding === 'function' && kingsHolding()); }   // (the Christmas celebration holds things back the same way)
+/** @returns {boolean} Whether this is Mini Fumu, the small window on the desktop. */
+function deskPet() { return document.documentElement.classList.contains('desktop-pet'); }
+var celebCard = null, celebDevGift = 0;   // (the card asking whether to celebrate, and until when the developer tools may hand out a gift again)
+/** @returns {boolean} Whether the card asking about a celebration is up (alerts wait for it, like for the party itself). */
+function celebAskUp() { return !!celebCard; }
+/**
+ * Mini Fumu shows a celebration's effects over the whole screen: the shell opens an overlay window (desktop/celebrate.js) that draws them (celebrate.html). Old installers do not have it:
+ * then the effects stay in his own small window.
+ * @param {string} kind birthday, christmas, halloween, newyear, easter or kingsday @param {number} ms How long the dance takes @param {number} total The whole celebration, in ms @param {string} name The player's name
+ * @returns {boolean} Whether the overlay took over.
+ */
+function celebFx(kind, ms, total, name) {
+  var D = window.nibbleDesktop;
+  if (!deskPet() || !D || typeof D.celebrateFx !== 'function') return false;
+  try { D.celebrateFx(kind, { name: name, ms: ms, total: total, lang: typeof Lang === 'object' && Lang.get() === 'nl' ? 'nl' : 'en', rect: { x: 0, y: 0, w: window.innerWidth, h: window.innerHeight } }); } catch (e) { return false; }
+  return true;
+}
+/**
+ * Mini Fumu does not celebrate by itself: an alert card asks first (the screen is about to be covered with effects). "Celebrate" starts it, "Not now" skips it for today, and so does leaving it for two minutes.
+ * @param {{kind: string, icon: string, title: string, party: function(): boolean, release?: function(): void, done?: function(): void}} o The celebration's name, its emoji, the card's title, how to start it, how to end its start-up hold, and how to remember it was offered today.
+ * @returns {boolean} Whether the card took over (always false in the app, which just celebrates).
+ */
+function celebAsk(o) {
+  if (!deskPet()) return false;
+  if (celebCard) return true;
+  if (o.done) o.done();
+  busy++;   // (he stays put until the answer; the start-up hold, if there is one, is let go after this so he is never free in between)
+  if (o.release) o.release();
+  var card = document.createElement('div'), img = emojiImg(o.icon, ''), text = document.createElement('div'), t = document.createElement('b'), d = document.createElement('span'), acts = document.createElement('div'), timer = 0, closed = false;
+  celebCard = card;
+  card.className = 'inbox-card celebrate-card';
+  card.setAttribute('role', 'alert');
+  img.className = 'inbox-icon';
+  text.className = 'inbox-text';
+  t.textContent = o.title;
+  d.textContent = T('Celebrate together?');
+  text.append(t, d);
+  acts.className = 'inbox-actions';
+  function close(yes) {
+    if (closed) return;
+    closed = true; clearTimeout(timer);
+    card.remove(); celebCard = null; busy--;
+    if (yes) { var n = 0; (function go() { if (o.party()) return; if (++n < 12) setTimeout(go, 1500); else { bdayToyAway(false); if (!busy) settle(); } })(); return; }
+    say(pick(['ok, maybe next time~', 'no party then ♡']), 2000);
+    if (!birthdayHolding()) bdayToyAway(false);
+    if (!busy) settle();
+  }
+  function button(label, fn, cls) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.textContent = label; if (cls) b.className = cls;
+    b.addEventListener('click', function (e) { e.stopPropagation(); sound('tap'); fn(); });
+    acts.appendChild(b);
+    return b;
+  }
+  button(T('Celebrate'), function () { close(true); }, 'ia-done');
+  button(T('Not now'), function () { close(false); });
+  card.append(img, text, acts);
+  document.querySelector('.stage').appendChild(card);
+  if (typeof FACES === 'object') setFace(FACES.tada);
+  pulse('hop', 460);
+  sound('ring');
+  timer = setTimeout(function () { close(false); }, 120000);
+  return true;
+}
+/**
+ * The special gift of a celebration (the cake, the box, the treat, the egg) comes once a year, whether it is played in the app or in Mini Fumu (kept on this device; the real box in Profile is
+ * once a day by itself). The developer tools may hand it out again.
+ * @param {string} kind @returns {boolean} Whether the gift is handed over now.
+ */
+function yearGift(kind) {
+  var year = String(giftDate().getFullYear()), key = 'nibble-gift-' + kind;
+  try {
+    if (Date.now() >= celebDevGift && localStorage.getItem(key) === year) return false;
+    localStorage.setItem(key, year);
+  } catch (e) { /* storage not available */ }
+  return true;
+}
+/** The end of a celebration whose gift was already given this year: he just says it. @param {string} line @returns {number} How long it takes, in ms. */
+function noGift(line) {
+  setFace({ eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks', 'hearts'] });
+  say(line, 2400, true);
+  return 2800;
+}
 var partyOn = false;   // (one party at a time: the developer tool pretends it is the birthday, and the check that runs every so often would start a second one)
 function birthdayParty() {
   if (partyOn || (!devBirthday && (busy - celebrationHolds() > 0 || baseState() === 'sleepy'))) return false;
@@ -238,13 +321,13 @@ function birthdayParty() {
   setFace({ eyes: 'happy', mouth: 'open', arms: 'rest', x: ['cheeks', 'sparkles'] });
   if (small) say(bdayGreeting(name) + ' ♡', 3200, true); else say('yay, party time! ♡', 3000);   // (the app's banner already says it)
   pulse('hop', 500);
-  var ms;
-  if (small) { bdayDesk(); ms = partyDance(); setTimeout(function () { drift(['🎈', '♥', '✦'], petTop(), 4); }, 1500); }
+  var ms, fx = false;
+  if (small) { ms = partyDance(); fx = celebFx('birthday', ms, ms + 5800, name); if (!fx) bdayDesk(); setTimeout(function () { drift(['🎈', '♥', '✦'], petTop(), 4); }, 1500); }
   else { bdayApp(name); ms = partyDance(); setTimeout(function () { drift(['🎂', '🎉', '♥'], petTop(), 4); }, 1500); }
   var fw = bdayLayer(9500), fwMs = ms + 5500;   // (fireworks away from him, one every couple of seconds right through to the end of the cake)
-  bdayFireworks(fw, fwMs);
+  if (!fx) bdayFireworks(fw, fwMs);
   setTimeout(function () { fw.remove(); }, fwMs + 3500);
-  setTimeout(function () { var more = bdayCake(); setTimeout(function () { partyOn = false; busy--; bdayToyAway(false); if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the cake)
+  setTimeout(function () { var more = yearGift('birthday') ? bdayCake() : noGift('happy birthday! ♡'); setTimeout(function () { partyOn = false; busy--; bdayToyAway(false); if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the cake)
   return true;
 }
 /** Starts it once a day, on the birthday, when he is awake and not busy. */
@@ -253,11 +336,15 @@ function birthdayCheck() {
   var key = B.dayKey(giftDate());
   if (bdayDoneToday() && !devBirthday) return;
   if (document.hidden || document.querySelector('dialog[open]')) return;
+  var markDone = function () { try { localStorage.setItem('nibble-bday-done', key); } catch (e) { /* storage not available */ } };
+  if (celebAsk({ kind: 'birthday', icon: '🎂', title: bdayGreeting(state.player.name), party: birthdayParty, release: releaseBdayHold, done: markDone })) return;
   if (!birthdayParty()) return;
-  try { localStorage.setItem('nibble-bday-done', key); } catch (e) { /* storage not available */ }
+  markDone();
 }
 /** Developer tool: pretends it is the birthday and plays the celebration now. @returns {string} */
 function devBirthdayNow() {
+  celebDevGift = Date.now() + 40000;
+  if (deskPet()) return celebAsk({ kind: 'birthday', icon: '🎂', title: bdayGreeting(state.player.name), party: function () { devBirthday = true; var ok = birthdayParty(); setTimeout(function () { devBirthday = false; }, 9000); if (!ok) devBirthday = false; return ok; } }) ? 'Mini Fumu asks first: tap Celebrate on his card.' : 'Mini Fumu is already asking about a celebration.';
   devBirthday = true;
   if (!birthdayParty()) { devBirthday = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devBirthday = false; }, 9000);

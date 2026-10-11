@@ -303,12 +303,15 @@ function newyearParty() {
   if (small) say(newyearGreeting(name) + ' ♡', 3200, true); else say('party time! ♡', 3000);   // (the app's banner already says it)
   pulse('hop', 500);
   var ms = discoDance(), total = ms + 5800, layer = bdayLayer(9000);
+  var fx = small && celebFx('newyear', ms, total, name);   // (Mini Fumu: the effects cover the whole screen, drawn by the overlay window)
   if (!small && typeof halloweenDark === 'function') halloweenDark(layer, total, 'rgba(22,18,84,.5)');   // (a blue dusk round his lit room, so the light spots show)
   if (!small) newyearBanner(layer, name);   // (before the disco ball, so the light spots are drawn over the card)
-  newyearDiscoBall(layer, total);
+  if (!fx) {
+    newyearDiscoBall(layer, total);
+  }
   setTimeout(function () { drift(['✨', '🎉', '✦'], petTop(), 4); }, 1500);
   setTimeout(function () { layer.remove(); }, total + 800);
-  setTimeout(function () { newyearFireworks(5500); var more = newyearBlower(); setTimeout(function () { newyearOn = false; busy--; bdayToyAway(false); if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the blower and the fireworks)
+  setTimeout(function () { if (!fx) newyearFireworks(5500); var more = newyearBlower(); setTimeout(function () { newyearOn = false; busy--; bdayToyAway(false); if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the blower and the fireworks)
   return true;
 }
 /** Starts it once, on 1 January, when he is awake and not busy (the other celebrations go first when they are pending). */
@@ -317,11 +320,15 @@ function newyearCheck() {
   if (newyearDoneToday() && !devNewYear) return;
   if (document.hidden || document.querySelector('dialog[open]')) return;
   if (bdayHold || partyOn || (typeof xmasHolding === 'function' && xmasHolding()) || (typeof halloweenHolding === 'function' && halloweenHolding())) return;
+  var markDone = function () { try { localStorage.setItem('nibble-newyear-done', B.dayKey(giftDate())); } catch (e) { /* storage not available */ } };
+  if (celebAsk({ kind: 'newyear', icon: '🎉', title: newyearGreeting(state.player.name), party: newyearParty, release: releaseNewyearHold, done: markDone })) return;
   if (!newyearParty()) return;
-  try { localStorage.setItem('nibble-newyear-done', B.dayKey(giftDate())); } catch (e) { /* storage not available */ }
+  markDone();
 }
 /** Developer tool: pretends it is New Year's Day and plays the celebration now. @returns {string} */
 function devNewYearNow() {
+  celebDevGift = Date.now() + 40000;
+  if (deskPet()) return celebAsk({ kind: 'newyear', icon: '🎉', title: newyearGreeting(state.player.name), party: function () { devNewYear = true; var ok = newyearParty(); setTimeout(function () { devNewYear = false; }, 9000); if (!ok) devNewYear = false; return ok; } }) ? 'Mini Fumu asks first: tap Celebrate on his card.' : 'Mini Fumu is already asking about a celebration.';
   devNewYear = true;
   if (!newyearParty()) { devNewYear = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devNewYear = false; }, 9000);
