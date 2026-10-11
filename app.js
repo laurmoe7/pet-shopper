@@ -54,8 +54,9 @@ function stickerLook() {
   var cs = getComputedStyle(document.documentElement);
   return cs.getPropertyValue('--cb-edge-strong').trim() + '|' + cs.getPropertyValue('--shadow').trim();
 }
-/** The colours changed (light or dark): draw the list's stickers again. */
-function refreshStickers() { rows = {}; if (typeof render === 'function' && typeof state !== 'undefined') render(); }
+/** The colours changed (light or dark): draw the list's stickers again. Not while the page is still booting: the saved theme is applied
+ * as the scripts load, and the start-up render draws them in those colours (a render before the last scripts are in would fail). */
+function refreshStickers() { if (document.documentElement.classList.contains('booting')) return; rows = {}; if (typeof render === 'function' && typeof state !== 'undefined') render(); }
 if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () { setTimeout(refreshStickers, 50); });
 /**
  * Swaps a list emoji picture for its sticker version (it stays the plain picture until the sticker is drawn).
