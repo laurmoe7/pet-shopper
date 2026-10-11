@@ -134,11 +134,22 @@ function bellyJiggle() {
  * @param {number} ms How long to keep the class.
  */
 function pulse(cls, ms) {
+  if (cls === 'sit') return sitFor(ms);   // (sitting is the soles-out pose, .seated, since build 598)
   pet.classList.remove(cls);
   void pet.offsetWidth;
   pet.classList.add(cls);
   setTimeout(function () { pet.classList.remove(cls); }, ms);
   if (SQUISH[cls] && !reduceMotion) svgSquish(SQUISH[cls]);
+}
+
+var sitTimer = 0, sitOwn = false;
+/** Sits him down for a while, feet out in front (the one sit he has: the idle, petting and bedtime sits and the desktop's sit all use it). A sit that was already on (the desktop's long one, a nap) is left alone. @param {number} ms */
+function sitFor(ms) {
+  if (pet.classList.contains('seated') && !sitOwn) return;
+  clearTimeout(sitTimer);
+  sitOwn = true;
+  pet.classList.add('seated');
+  sitTimer = setTimeout(function () { sitOwn = false; if (!(typeof perched !== 'undefined' && perched)) pet.classList.remove('seated'); }, ms);
 }
 
 // ---------- squash and stretch, drawn inside the SVG ----------
@@ -157,6 +168,8 @@ var SQUISH = {
   hophop: { ms: 1500, steps: [[0, 1, 1, 0], [.06, .93, 1.08, 0], [.17, 1, 1, 0], [.31, .98, 1.02, 0], [.355, 1.1, .9, 0], [.41, .97, 1.03, 0],
     [.45, .94, 1.07, 0], [.5, 1, 1, 0], [.6, .98, 1.02, 0], [.645, 1.09, .91, 0], [.7, .97, 1.03, 0], [.73, .95, 1.06, 0], [.78, 1, 1, 0],
     [.86, .98, 1.02, 0], [.905, 1.08, .92, 0], [.96, .98, 1.02, 0], [1, 1, 1, 0]] },
+  // morning exercise, 10 s in five steps (times are percent of it and match the exercise keyframes in styles.css); the squishes are kept mild, the crouches are done by moving down
+  exercise: { ms: 10000, steps: [[0, 1, 1, 0], [0.015, 1.06, 0.94, 0], [0.03, 0.95, 1.07, 0], [0.055, 1.04, 0.97, 0], [0.075, 1.06, 0.94, 0], [0.09, 0.95, 1.07, 0], [0.115, 1.04, 0.97, 0], [0.135, 1.06, 0.94, 0], [0.15, 0.95, 1.07, 0], [0.175, 1.04, 0.97, 0], [0.195, 1.06, 0.94, 0], [0.21, 0.95, 1.07, 0], [0.235, 1.04, 0.97, 0], [0.24, 1, 1, 0], [0.2625, 0.96, 1.05, 0], [0.285, 1.07, 0.93, 0], [0.3075, 0.96, 1.05, 0], [0.33, 1.07, 0.93, 0], [0.3525, 0.96, 1.05, 0], [0.375, 1.07, 0.93, 0], [0.3975, 0.96, 1.05, 0], [0.42, 1.07, 0.93, 0], [0.44, 1, 1, 0], [0.46, 1.1, 0.9, 0], [0.62, 1.1, 0.9, 0], [0.64, 1.14, 0.86, 0], [0.6525, 1.07, 0.93, 0], [0.665, 1.14, 0.86, 0], [0.6775, 1.07, 0.93, 0], [0.69, 1.14, 0.86, 0], [0.7025, 1.07, 0.93, 0], [0.715, 1.14, 0.86, 0], [0.7275, 1.07, 0.93, 0], [0.74, 1.14, 0.86, 0], [0.7525, 1.07, 0.93, 0], [0.765, 1.14, 0.86, 0], [0.7775, 1.07, 0.93, 0], [0.79, 1.14, 0.86, 0], [0.8025, 1.07, 0.93, 0], [0.815, 1.14, 0.86, 0], [0.84, 1.1, 0.9, 0], [0.86, 0.9, 1.14, 0], [0.88, 1.06, 0.94, 0], [0.9, 0.94, 1.08, 0], [0.92, 1.05, 0.95, 0], [0.96, 0.94, 1.08, 0], [0.98, 1.06, 0.95, 0], [1, 1, 1, 0]] },
   // a soft settle now and then while it waits (see softSettle in app-idle.js), and a slow deep breath when sleepy
   settle: { ms: 1000, steps: [[0, 1, 1, 0], [.35, 1.04, .96, 0], [.7, .99, 1.01, 0], [1, 1, 1, 0]] },
   // a belly jiggle: quick wobbles side to side that die down (see bellyJiggle)
@@ -212,6 +225,7 @@ var chatterRate = 1;     // how much he talks on his own: 0 never, .35 rarely, 1
 var speechLockUntil = 0;   // while set, nothing else may talk over an important line (the update notice)
 function say(text, ms, own) {
   if (!text || idleQuiet || Date.now() < speechLockUntil) return;
+  if (!own && typeof T === 'function') text = T(text);   // (Dutch: before the tone is put on it)
   text = text.replace(/\bFumu\b/g, petName());   // lines are written with his first name; use the one you gave him
   bubble.hidden = true;
   void bubble.offsetWidth;
@@ -234,7 +248,7 @@ function say(text, ms, own) {
  * @param {Object<string, string>} [vars]
  * @returns {string}
  */
-function line(key, fallback, vars) { return L.voiceLine(personality(), key, fallback, vars); }
+function line(key, fallback, vars) { return L.voiceLine(personality(), key, typeof T === 'function' ? fallback.map(T) : fallback, vars); }   // (Dutch: his own lines come from app-nlvoices.js, the fallbacks are translated here)
 /** Says the personality's line for a moment; a two-part line comes in two bubbles. */
 function talk(key, fallback, ms, vars) {
   var parts = line(key, fallback, vars).split('\n');
@@ -262,11 +276,6 @@ function mouthPoint() {
 function sheetUnderMouth(dlg) {
   var dock = document.querySelector('.dock'), room = innerHeight - (dock ? dock.offsetHeight : 64) - (mouthPoint().y + 16);
   dlg.style.setProperty('--sheet-h', Math.max(240, Math.round(room)) + 'px');
-}
-/** @returns {{x: number, y: number}} A spot at the pet's side, where non-food gets tucked away. */
-function sidePoint() {
-  var r = petSvg.getBoundingClientRect();
-  return { x: r.left + r.width * 0.92, y: r.top + r.height * 0.7 };
 }
 /**
  * @param {DOMRect} rect

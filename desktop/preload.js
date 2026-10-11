@@ -29,18 +29,36 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   hide: () => ipcRenderer.send('desk:hide'),
   /** The tray menu's choices that matter to the page: {roam, remind, size, idle, perch, hideToy, hideCushion, bubbles, awareness, chatNormal, chatFull, standStill, standStillFull}. */
   getPrefs: () => ipcRenderer.invoke('desk:getPrefs'),
+  /** The app's Appearance was picked: the shell keeps it as the one theme for both windows (auto, light, dark, sweet, quest2, osrs, bonfire). */
+  setTheme: (t) => ipcRenderer.send('desk:setTheme', String(t).slice(0, 20)),
   onPrefs: (fn) => ipcRenderer.on('desk:prefs', (_e, p) => fn(p)),
   /** Walks the window dx px along (negative = left) over ms; resolves how far it really went. */
   where: () => ipcRenderer.invoke('desk:where'),
   onGrab: (fn) => ipcRenderer.on('desk:grab', (_e, on) => fn(!!on)),
   setDrowsy: (on) => ipcRenderer.send('desk:drowsy', !!on),
-  walk: (dx, ms) => ipcRenderer.invoke('desk:walk', +dx || 0, +ms || 3000),
+  walk: (dx, ms, free) => ipcRenderer.invoke('desk:walk', +dx || 0, +ms || 3000, !!free),
   /** Slides half out of the screen at the nearest free side; resolves 'left', 'right' or null. unpeek slides back. */
   peek: (ms) => ipcRenderer.invoke('desk:peek', +ms || 900),
   unpeek: (ms) => ipcRenderer.invoke('desk:unpeek', +ms || 700),
   /** The shortcut for swapping the shopping list and the to-do list was pressed. */
   onSwapList: (fn) => ipcRenderer.on('desk:swapList', () => fn()),
   /** Where the solid parts are, as [left, top, right, bottom] in page pixels: the shell checks the pointer against them itself. */
+  /** Resolves when the toy window has its picture up (until then the page keeps drawing the toy). */
+  toyReady: () => ipcRenderer.invoke('desk:toyReady'),
+  /** While the toy is held the shell moves its window to the mouse itself (true), until it is let go (false). */
+  toyFollow: (on) => ipcRenderer.send('desk:toyFollow', !!on),
+  /** The wrecking ball is thrown: the shell opens its overlay over the open windows and answers with their rectangles (screen pixels), or why not. */
+  wreckStart: () => ipcRenderer.invoke('desk:wreckStart'),
+  /** A piece (number k of window i's grid, from wreckStart) was hit by the ball at x, y (screen pixels). */
+  wreckHit: (i, k, x, y) => ipcRenderer.send('desk:wreckHit', +i, +k, +x, +y),
+  /** The windows are made whole again (resolves when the overlay is gone). */
+  wreckFix: () => ipcRenderer.invoke('desk:wreckFix'),
+  /** Stop at once and clear the overlay. */
+  wreckAbort: () => ipcRenderer.send('desk:wreckAbort'),
+  /** A celebration the player said yes to starts: the shell opens an overlay over the whole screen with its effects (kind: birthday, christmas, halloween, newyear, easter, kingsday; o: {name, ms, total, lang, rect: Fumu's box in page pixels}). Resolves whether it did. */
+  celebrateFx: (kind, o) => ipcRenderer.invoke('desk:celebrateFx', String(kind).slice(0, 12), o && typeof o === 'object' ? { name: String(o.name || '').slice(0, 24), ms: +o.ms || 0, total: +o.total || 0, lang: o.lang === 'nl' ? 'nl' : 'en', rect: o.rect && typeof o.rect === 'object' ? { x: +o.rect.x || 0, y: +o.rect.y || 0, w: +o.rect.w || 0, h: +o.rect.h || 0 } : null } : {}),
+  /** Takes the celebration overlay away at once. */
+  celebrateStop: () => ipcRenderer.send('desk:celebrateStop'),
   setBody: (box) => ipcRenderer.send('desk:body', Array.isArray(box) ? box.slice(0, 4) : []),
   setRects: (rects) => ipcRenderer.send('desk:rects', Array.isArray(rects) ? rects.slice(0, 40) : []),
   /** A mouse button is held that went down on Fumu or the toy: stay solid until it is let go. */
@@ -61,7 +79,7 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   onThrown: (fn) => ipcRenderer.on('desk:thrown', (_e, on, dir, bed, extra) => fn(!!on, +dir || 1, !!bed, extra || {})),
   onFlight: (fn) => ipcRenderer.on('desk:flight', (_e, vx, vy) => fn(+vx || 0, +vy || 0)),
   onBounce: (fn) => ipcRenderer.on('desk:bounce', (_e, hard, wall) => fn(+hard || 0, wall === 'l' || wall === 'r' || wall === 't' ? wall : '')),
-  onFall: (fn) => ipcRenderer.on('desk:fall', (_e, on) => fn(!!on)),
+  onFall: (fn) => ipcRenderer.on('desk:fall', (_e, on, dizzy) => fn(!!on, !!dizzy)),
   onRun: (fn) => ipcRenderer.on('desk:run', (_e, dir) => fn(+dir || 0)),
   /** The toy roaming the screen: where his window is and the screen's work area, or null when the switch is off. */
   toyField: () => ipcRenderer.invoke('desk:toyField'),

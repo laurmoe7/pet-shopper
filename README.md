@@ -28,12 +28,12 @@ The tests live in `tests/` and load the same scripts the browser uses.
 ## What's in it
 
 - **Shopping list.** Add items by typing or voice, tick them off, swipe to delete. Items get a food emoji and are grouped by shop aisle. Paste a recipe link or ingredients to add them in one go, in metric or US units.
-- **To-do list.** Tap the title to swap lists. Tasks have dates and repeats, and there is a calendar and a stamp book.
+- **To-do list.** The switch at the top swaps lists. Tasks have dates and repeats, and there is a calendar and a stamp book.
 - **Fumu.** A pet that eats what you tick off and reacts to it. Pick a species, skin and personality, name it, dress it up, decorate its room, pet it, and take photos of it.
 - **Goals and Top 10.** Goals and your most-bought items, with fair-play rules so they follow real shopping.
 - **Look and feel.** Cardboard and sticker style, light and dark, no ads. Works offline and installs to the home screen.
 
-Not in it yet: accounts, shared lists, payments. See `CHANGELOG.md` for what changed and when.
+Also in it: backup and sync between your own devices with a code (Options), notes sent between devices, and a Windows desktop companion (`desktop/`). Not in it yet: shared lists, payments. See `CHANGELOG.md` for what changed and when.
 
 ## Files
 

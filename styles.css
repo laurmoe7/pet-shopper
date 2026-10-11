@@ -119,7 +119,7 @@ button { font: inherit; color: inherit; }
 .app { max-width: 560px; margin: 0 auto; min-height: 100vh; }
 
 /* ---------- stage ---------- */
-.scene { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; padding: 10px 16px 0; }
+.scene { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; padding: 4px 16px 0; }
 .scene-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .brand { font-family: var(--font-display); font-weight: 500; font-size: 1.12rem; margin: 0; display: flex; align-items: center; white-space: nowrap; min-width: 0; overflow: hidden; }
 .brand .pet-name { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
@@ -172,6 +172,8 @@ button { font: inherit; color: inherit; }
    (clothes, props, faces) scales with it, and it is not a CSS scale on the drawing (see Lessons learned). The toy and the speech bubble keep clear of it. */
 .stage { --pet-size: 1; }
 .stage:has(#pet[data-skin="munchkin"]) { --pet-size: .8; }   /* the munchkin cat is a short-legged little one */
+.stage:has(#pet[data-species="hamster"]) { --pet-size: .8; }   /* the hamster is a small one, like the munchkin */
+.stage:has(#pet[data-species="dragon"]) { --pet-size: 1.1; }   /* the dragon is a tenth bigger (1.1 is the most any pet may be: a test checks) */
 #pet { width: calc(150px * var(--pet-size)); height: calc(140px * var(--pet-size)); }
 
 /* speech bubble */
@@ -366,6 +368,18 @@ button { font: inherit; color: inherit; }
 .pet[data-state="happy"] .squash { animation: jelly 1s ease-in-out infinite; }
 .pet[data-state="stuffed"] .squash { animation: breathe 3.2s ease-in-out infinite; }
 
+/* dizzy (spiral eyes) while standing in place: he staggers about a little, leaning and shuffling his feet, like a dizzy person. Not while he is thrown, carried, walking,
+   falling or lying down (they have their own motion), and the quick moves below (hop, wiggle, ...) still play over it */
+@keyframes dizzy-wobble {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  12% { transform: translate(-5px, 0) rotate(-6deg); } 26% { transform: translate(-2px, -1px) rotate(2deg); }
+  40% { transform: translate(4px, 0) rotate(6deg); } 55% { transform: translate(6px, 0) rotate(3deg); }
+  68% { transform: translate(2px, -1px) rotate(-4deg); } 82% { transform: translate(-4px, 0) rotate(-6deg); }
+}
+.pet[data-eyes="dizzy"]:where(:not(.thrown, .carried, .held, .walking, .running, .flying, .falling, .seated, .head-down, .righting, .hugging)) .pet-svg { animation: dizzy-wobble 2.6s ease-in-out infinite; transform-origin: 50% 94%; }
+.pet[data-eyes="dizzy"]:where(:not(.thrown, .carried, .held, .walking, .running, .flying, .falling, .seated, .head-down, .righting, .hugging)) :is(.foot-l, .shoe-l) { animation: step .65s ease-in-out infinite; }
+.pet[data-eyes="dizzy"]:where(:not(.thrown, .carried, .held, .walking, .running, .flying, .falling, .seated, .head-down, .righting, .hugging)) :is(.foot-r, .shoe-r) { animation: step .65s ease-in-out -.32s infinite; }
+@media (prefers-reduced-motion: reduce) { .pet[data-eyes="dizzy"] :is(.pet-svg, .foot-l, .shoe-l, .foot-r, .shoe-r) { animation: none; } }
 .pet.hop .pet-svg { animation: hop .5s linear; }
 
 /* idle moves, played now and then while the pet waits */
@@ -448,6 +462,9 @@ button { font: inherit; color: inherit; }
 .pet[data-arms="nom"] .arm-r { animation: nom-r .32s ease-in-out infinite alternate .16s; }
 .pet[data-arms="hold"] .arm-l { transform: translate(20px, -10px) rotate(-120deg); }
 .pet[data-arms="hold"] .arm-r { transform: translate(-20px, -10px) rotate(120deg); }
+/* both arms out in front, low, under something he carries (the toy on the run back): not up at his face like hold */
+.pet[data-arms="carry"] .arm-l { transform: translate(18px, 9px) rotate(-86deg); }
+.pet[data-arms="carry"] .arm-r { transform: translate(-18px, 9px) rotate(86deg); }
 .pet[data-arms="cover"] .arm-l { transform: translate(24px, -12px) rotate(-130deg); }
 .pet[data-arms="cover"] .arm-r { transform: translate(-24px, -12px) rotate(130deg); }
 .pet[data-arms="cheer"] .arm-l { animation: cheer-l .3s ease-in-out infinite alternate; }
@@ -503,7 +520,6 @@ button { font: inherit; color: inherit; }
 @keyframes name-nudge { 30% { transform: translateX(-3px); } 60% { transform: translateX(3px); } }
 .mood-info { margin: 2px 0 0; font-size: .9rem; color: var(--ink); min-height: 2.6em; }
 .mood-info b { font-weight: 800; }
-.name-hint { font-size: .78rem; color: var(--muted); font-weight: 700; }
 .field input:focus-visible { box-shadow: 0 0 0 4px var(--stage-top); }
 .species { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .species-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
@@ -515,6 +531,9 @@ button { font: inherit; color: inherit; }
 .species-grid button { gap: 2px; padding: 8px 4px 6px; font-size: .85rem; }
 .species-grid button:focus-visible, .hat-strip button:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
 .pet.mini { width: 72px; height: 66px; margin: 0; cursor: inherit; pointer-events: none; }
+/* the mini pets (species, skins, closet) are still pictures: the pet's own blinks, glints and sways would run in every one of them
+   (over twenty tiles, hundreds of animations: the open dressing room used most of a phone's processor) */
+.pet.mini, .pet.mini * { animation: none !important; }
 /* one scroll area per sheet: lists inside it grow instead of scrolling on their own,
    and the Done row stays pinned to the bottom */
 .pet-sheet .options, .pet-sheet .goal-list { overflow: visible; }
@@ -626,10 +645,10 @@ button { font: inherit; color: inherit; }
 .paw-toes { fill: var(--pet-skin-shade); stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
 .paw-line { fill: none; stroke: var(--pet-ink); stroke-width: 1.3; stroke-linecap: round; }
 .arm .paw-bean { fill: #ff9fb5; stroke: none; }
-/* the hands show toe lines; the pink beans only when the palms turn out (arms up, cheering, holding, covering, fanning) */
+/* the hands show toe lines; the pink beans only when the palms turn out (arms up, cheering, fanning), never when the hands are held to the face or cover the eyes (hold, cover, eyerub) */
 .paw-beans { display: none; }
-.pet:is([data-arms="reach"], [data-arms="cheer"], [data-arms="hold"], [data-arms="cover"], [data-arms="fan"], [data-arms="pat"]) .paw-beans { display: inline; }
-.pet:is([data-arms="reach"], [data-arms="cheer"], [data-arms="hold"], [data-arms="cover"], [data-arms="fan"], [data-arms="pat"]) .paw-toe-lines { display: none; }
+.pet:is([data-arms="reach"], [data-arms="cheer"], [data-arms="fan"], [data-arms="pat"]) .paw-beans { display: inline; }
+.pet:is([data-arms="reach"], [data-arms="cheer"], [data-arms="hold"], [data-arms="fan"], [data-arms="pat"]) .paw-toe-lines { display: none; }
 .hoof { fill: #6e5a52; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
 .pet[data-species="pig"] .hoof { fill: #c98896; }
 .hoof-split { fill: none; stroke: var(--pet-ink); stroke-width: 1.2; stroke-linecap: round; }
@@ -675,11 +694,22 @@ button { font: inherit; color: inherit; }
 .build-label { margin: 8px 0 0; font-size: .75rem; color: var(--muted); text-align: center; }
 .dev-link { font-size: .8rem; color: var(--muted); text-decoration-color: var(--line); }
 .dev-warning { margin: 0; font-size: .85rem; font-weight: 700; color: var(--ink); background: var(--butter); border: 1.5px dashed var(--outline); border-radius: 14px; padding: 8px 12px; }
-.dev-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.dev-actions { display: flex; flex-direction: column; gap: 8px; }
+.dev-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0 8px 10px; }
+/* the developer tools are folded into sections (build 625) */
+.dev-group { border: 1.5px solid var(--line); border-radius: 16px; background: var(--surface); overflow: hidden; }
+.dev-group > summary { list-style: none; cursor: pointer; padding: 10px 14px; font-weight: 800; font-size: .88rem; display: flex; align-items: center; justify-content: space-between; -webkit-user-select: none; user-select: none; }
+.dev-group > summary::-webkit-details-marker { display: none; }
+.dev-group > summary::after { content: "▾"; color: var(--muted); transition: transform .2s; }
+.dev-group:not([open]) > summary::after { transform: rotate(-90deg); }
 .dev-actions button { border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 14px; padding: 10px 8px; font-weight: 800; font-size: .82rem; cursor: pointer; text-align: center; line-height: 1.25; }
 .dev-actions button:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
 .dev-actions button.danger { color: var(--danger); border-color: var(--danger); }
 .dev-status { margin: 0; min-height: 1.2em; font-size: .82rem; color: var(--muted); font-weight: 700; }
+.dev-errors { margin-top: 12px; border-top: 1.5px dashed var(--line); padding-top: 8px; }
+.dev-errors h3 { margin: 0 0 4px; font-size: .85rem; }
+.dev-errors p { margin: 0 0 8px; font-size: .74rem; line-height: 1.4; color: var(--muted); font-weight: 700; white-space: pre-wrap; word-break: break-word; }
+.dev-errors-btns { display: flex; gap: 8px; }
 
 /* ---------- shopping cart ---------- */
 .cart { position: absolute; left: max(-4px, calc(50% - 150px)); bottom: 2px; width: 88px; height: 92px; z-index: 2; pointer-events: none; }
@@ -1006,17 +1036,17 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 
 /* ---------- goals and locks ---------- */
 .goal-toast {
-  /* sits on the cushion under the pet, clear of the buttons and the speech bubble */
-  position: absolute; left: 50%; bottom: 0; z-index: 3; transform: translateX(-50%);
-  display: flex; align-items: center; gap: 6px; width: max-content; max-width: 100%;
+  /* up in the top-left corner of the room, clear of Fumu and of the speech bubble (build 601) */
+  position: absolute; left: 0; top: 2px; z-index: 3;
+  display: flex; align-items: center; gap: 6px; width: max-content; max-width: calc(50% - 72px);
   font-weight: 800; font-size: .78rem; line-height: 1.2; color: var(--ink);
-  background: var(--surface); border: 1.5px solid var(--outline); border-radius: 999px;
+  background: var(--surface); border: 1.5px solid var(--outline); border-radius: 16px;
   padding: 4px 10px 4px 6px; box-shadow: 0 2px 0 var(--outline); pointer-events: none;
 }
 .goal-toast img { width: 22px; height: 22px; flex: none; }
 .goal-toast.win { background: var(--butter); }
 .goal-toast:not([hidden]) { animation: toast-in .35s cubic-bezier(.3, 1.4, .5, 1); }
-@keyframes toast-in { from { transform: translateX(-50%) translateY(-8px) scale(.8); opacity: 0; } }
+@keyframes toast-in { from { transform: translateY(-8px) scale(.8); opacity: 0; } }
 
 .species-grid button.locked, .hat-strip button.locked { background: var(--bg); border-style: dashed; color: var(--muted); }
 .species-grid button.locked .pet.mini, .hat-strip button.locked svg { filter: grayscale(1) brightness(.8); opacity: .45; }
@@ -1269,7 +1299,6 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .picker.fav-full .fav-list { flex: 1 1 auto; min-height: 0; gap: 5px; overflow-y: auto; }
 .picker.fav-full .fav { flex: 1 1 0; min-height: 26px; max-height: 52px; }
 .picker.fav-full .picker-foot { position: static; margin: auto 0 0; padding: 0; flex: none; }
-.fav-intro { margin: 0; color: var(--muted); font-size: .8rem; }
 
 /* the main pet buttons, always at the bottom of the screen */
 .dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; max-width: 560px; margin: 0 auto; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px)); }
@@ -1291,6 +1320,8 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .pet[data-skin="calico"] { --pet-skin: #fffaf3; --pet-skin-shade: #f4e6d6; }
 .pet[data-skin="chihuahua"] { --pet-skin: #f1d3ae; --pet-skin-shade: #e0b98d; --pet-ear-in: #ffb8c6; --pet-mark: #d2a672; }
 .pet[data-skin="pomeranian"] { --pet-skin: #ee9b5c; --pet-skin-shade: #d8823f; --pet-ear-in: #f9cfa6; --pet-mark: #d8823f; }
+/* the black Pomeranian (build 626) is the Pomeranian drawn in black fur, with brown eyes */
+.pet[data-skin="blackpom"] { --pet-skin: #46404e; --pet-skin-shade: #373240; --pet-ear-in: #8f6f80; --pet-mark: #5a5366; }
 .pet[data-skin="golden"] { --pet-skin: #f6d08f; --pet-skin-shade: #e6b567; --pet-mark: #d79c47; }
 .pet[data-skin="chocolatemilk"] { --pet-skin: #bb8962; --pet-skin-shade: #9d6c48; --pet-mark: #f6e4cf; }
 .pet[data-skin="highland"] { --pet-skin: #d98a4c; --pet-skin-shade: #bf6c31; --pet-ear-in: #ffc4cf; }
@@ -1300,6 +1331,16 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .pet[data-skin="snowmonkey"] { --pet-skin: #cfd3dc; --pet-skin-shade: #b7bcc8; --pet-ear-in: #ffc9c9; --monkey-face: #ff9f9f; }
 .pet[data-skin="snowmonkey"] [data-sp="monkey"] .ear { fill: #ff9f9f; }
 .pet[data-skin="snowmonkey"] .monkey-belly { fill: #eceef3; }
+/* red dragon: red scales, a warm cream belly and snout, golden-cream horns, orange-pink wings and dark red head tufts */
+.pet[data-skin="reddragon"] { --pet-skin: #ea5a52; --pet-skin-shade: #d1403f; --pet-ear-in: #ffe6b8; }
+.pet[data-skin="reddragon"] .dragon-wing { fill: #ffb48f; }
+.pet[data-skin="reddragon"] .wing-bone { stroke: #d1403f; }
+.pet[data-skin="reddragon"] .horn-fill { fill: #ffefc7; }
+.pet[data-skin="reddragon"] .horn-ring { stroke: #e3b672; }
+.pet[data-skin="reddragon"] .dragon-plate, .pet[data-skin="reddragon"] .dragon-muzzle { fill: #ffe0a3; }
+.pet[data-skin="reddragon"] .dragon-band { stroke: #efbd6c; }
+.pet[data-skin="reddragon"] .dragon-nostril { fill: #c9484a; }
+.pet[data-skin="reddragon"] .dragon-tuft { fill: #b8312f; }
 .pet[data-skin="whitehamster"] { --pet-skin: #fffaf6; --pet-skin-shade: #efe3da; --pet-ear-in: #ffc4cf; }
 .pet[data-skin="longhair"] { --pet-skin: #57525f; --pet-skin-shade: #403b49; --pet-ear-in: #e7a3b0; }
 .pet[data-skin="kiwi"] { --pet-skin: #b68f63; --pet-skin-shade: #dcaa5c; --pet-mark: #7a5a38; }
@@ -1387,9 +1428,15 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 /* Scottish fold: ears folded forward and big round eyes */
 .pet[data-skin="scottishfold"] .kitty-ears { display: none; }
 .pet[data-skin="scottishfold"] .fold-ears .ear-g { transform-origin: 50% 100%; }
-.ear-flap { fill: #bdbac9; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
 .ear-crease { fill: none; stroke: #9d99ab; stroke-width: 1.8; stroke-linecap: round; }
 .pet[data-skin="scottishfold"] .eyes-open .ink { rx: 5.6px; ry: 6.2px; }
+/* hamster: big round eyes with two glints (the second one is shown here for every hamster skin), */
+.pet[data-species="hamster"] .eyes-open .ink { rx: 6.9px; ry: 7.8px; }
+.pet[data-species="hamster"] .pupils .glint:not(.glint2).eye-l { cx: 55.6px; cy: 88.8px; r: 2.3px; }
+.pet[data-species="hamster"] .pupils .glint:not(.glint2).eye-r { cx: 99.6px; cy: 88.8px; r: 2.3px; }
+.pet[data-species="hamster"] .pupils .glint2 { display: inline; r: 1.3px; }
+.pet[data-species="hamster"] .pupils .glint2.eye-l { cx: 61.2px; cy: 95.4px; }
+.pet[data-species="hamster"] .pupils .glint2.eye-r { cx: 105.2px; cy: 95.4px; }
 /* chicken: white with a red comb and wattle */
 .pet[data-skin="chicken"] .tuft { display: none; }
 .chicken-comb path, .chicken-wattle { fill: #ef5d63; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
@@ -1427,15 +1474,17 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .pet[data-skin="boar"] [data-sk~="boar"],
 .pet[data-skin="chihuahua"] [data-sk~="chihuahua"],
 .pet[data-skin="pomeranian"] [data-sk~="pomeranian"],
+.pet[data-skin="blackpom"] [data-sk~="blackpom"],
 .pet[data-skin="longhair"] [data-sk~="longhair"] { display: inline; }
 .pet[data-skin="kiwi"] [data-sk~="kiwi"], .pet[data-skin="dutch"] [data-sk~="dutch"], .pet[data-skin="fasthedgehog"] [data-sk~="fasthedgehog"],
 .pet[data-skin="dartfrog"] [data-sk~="dartfrog"], .pet[data-skin="toad"] [data-sk~="toad"] { display: inline; }
 /* a skin's own ears and horns replace the species' ones */
 .pet[data-skin="floppybunny"] [data-sp="bunny"],
 .pet[data-skin="chihuahua"] [data-sp="puppy"],
-.pet[data-skin="pomeranian"] [data-sp="puppy"] { display: none; }
+.pet[data-skin="pomeranian"] [data-sp="puppy"],
+.pet[data-skin="blackpom"] [data-sp="puppy"] { display: none; }
 .pet[data-skin="highland"] .horn, .pet[data-skin="highland"] .spot, .pet[data-skin="golden"] .spot { display: none; }
-.pet[data-skin="chihuahua"] .ear, .pet[data-skin="pomeranian"] .ear, .pet[data-skin="floppybunny"] .ear { fill: var(--pet-skin); }
+.pet[data-skin="chihuahua"] .ear, .pet[data-skin="pomeranian"] .ear, .pet[data-skin="blackpom"] .ear, .pet[data-skin="floppybunny"] .ear { fill: var(--pet-skin); }
 .pet[data-skin="calico"] .ear-l .ear { fill: #f3a95d; }
 .pet[data-skin="calico"] .ear-r .ear { fill: #5b566a; }
 /* the black cat's eyes show up as light on dark */
@@ -1467,6 +1516,10 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .fur-blend path { fill: var(--pet-skin); stroke: none; }
 .pom-muzzle { fill: #ffe0b4; }
 .pom-chest { fill: #ffe0b4; stroke: var(--pet-ink); stroke-width: 1.6; stroke-linejoin: round; }
+/* black Pomeranian: a softer grey-brown muzzle and chest, brown eyes with a light line for closed ones */
+.pet[data-skin="blackpom"] :is(.pom-muzzle, .pom-chest) { fill: #6d6478; }
+.pet[data-skin="blackpom"] .eyes-open .ink { fill: #8f5b34; stroke: #c99663; stroke-width: .8; }
+.pet[data-skin="blackpom"] g[data-eyes] path.line, .pet[data-skin="blackpom"] g[data-eyes].line path { stroke: #f1dcc8; }
 
 /* floppy bunny ears have no pink */
 .pet[data-skin="floppybunny"] .ear-in { display: none; }
@@ -1573,6 +1626,14 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 /* which toy shows goes by the species: yarn for the cat, a tennis ball for the dog, a ball for the rest */
 .toy [data-toy="ball"], .stage:has(#pet[data-species="kitty"]) .toy [data-toy="yarn"], .stage:has(#pet[data-species="puppy"]) .toy [data-toy="tennis"] { display: inline; }
 .stage:has(#pet[data-species="kitty"]) .toy [data-toy="ball"], .stage:has(#pet[data-species="puppy"]) .toy [data-toy="ball"] { display: none; }
+/* the wrecking ball (app-wreck.js): a spiky black ball; when the ring menu's toy switch has picked it, it is the only toy that shows */
+.toy [data-toy="wrecker"] { display: none; }
+.stage.toy-wreck .toy [data-toy]:not([data-toy="wrecker"]) { display: none !important; }
+.stage.toy-wreck .toy [data-toy="wrecker"] { display: inline !important; }
+.stage.toy-none .toy { display: none !important; }   /* the ring menu's no-toy choice */
+.wreck-spike { fill: #1b1b22; stroke: #dfe2f2; stroke-width: 1.5; stroke-linejoin: round; paint-order: stroke; }   /* (a pale rim: a black ball is lost on a dark window) */
+.wreck-fill { fill: #34343f; stroke: #8b8fa6; stroke-width: 1; }
+.wreck-hi { fill: none; stroke: #b9bccb; stroke-width: 1.4; stroke-linecap: round; opacity: .8; }
 .toy-line { fill: none; stroke: var(--pet-ink); stroke-width: 1.8; }   /* the same dark brown as the pets' outlines */
 .toy-hi { fill: #fff; opacity: .75; }
 .ball-fill { fill: #ffb3c8; }
@@ -1583,7 +1644,7 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .yarn-tail { stroke: var(--pet-ink); stroke-width: 1.6; }
 .tennis-fill { fill: #dff27a; }
 .tennis-seam { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; }
-.stage.bedtime .toy, .stage.toy-off .toy { display: none; }
+.stage.bedtime .toy { display: none; }
 body:has(#roomSheet[open]) .toy { pointer-events: none; }
 /* the goodnight kiss (kissGoodnight in app-bedtime.js): a pink kiss mark pops onto its forehead */
 .kiss-mark { position: fixed; z-index: 40; width: 26px; height: 20px; pointer-events: none; }
@@ -1677,13 +1738,11 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
 @keyframes waddle { 0% { transform: translate(0px, 0px); } 8% { transform: translate(-1.5px, -2px); } 16% { transform: translate(-3px, 0px); } 33% { transform: translate(0px, -2px); } 50% { transform: translate(3px, 0px); } 66% { transform: translate(0px, -2px); } 83% { transform: translate(-3px, 0px); } 100% { transform: translate(0px, 0px); } }
 @keyframes hophop { 0% { transform: translate(0px, 0px); } 17% { transform: translate(0px, -14px); } 33% { transform: translate(0px, 0px); } 37% { transform: translate(0px, 2px); } 41% { transform: translate(0px, 0px); } 50% { transform: translate(0px, -12px); } 62% { transform: translate(0px, 0px); } 66% { transform: translate(0px, 2px); } 70% { transform: translate(0px, 0px); } 78% { transform: translate(0px, -9px); } 88% { transform: translate(0px, 0px); } 92% { transform: translate(0px, 1.5px); } 100% { transform: translate(0px, 0px); } }
 @keyframes scoot { 0% { transform: translate(0px, 0px); } 10% { transform: translate(-4px, -2px); } 20% { transform: translate(-16px, 0px); } 70% { transform: translate(-16px, 0px); } 85% { transform: translate(-6px, -2px); } 100% { transform: translate(0px, 0px); } }
-@keyframes sit { 0% { transform: translate(0px, 0px); } 25% { transform: translate(0px, 4px); } 75% { transform: translate(0px, 4px); } 100% { transform: translate(0px, 0px); } }
 @keyframes hopsmall { 0% { transform: translate(0px, 0px); } 40% { transform: translate(0px, -7px); } 75% { transform: translate(0px, 0px); } 85% { transform: translate(0px, 1.5px); } 100% { transform: translate(0px, 0px); } }
 @keyframes sh-stroll { 0% { transform: translateX(0px) scale(1); opacity: 1; } 4.5% { transform: translateX(-3px) scale(0.86); opacity: 0.8; } 9% { transform: translateX(-6px) scale(1); opacity: 1; } 13.5% { transform: translateX(-9px) scale(0.86); opacity: 0.8; } 18% { transform: translateX(-12px) scale(1); opacity: 1; } 22.5% { transform: translateX(-15px) scale(0.86); opacity: 0.8; } 27% { transform: translateX(-18px) scale(1); opacity: 1; } 31.5% { transform: translateX(-21px) scale(0.86); opacity: 0.8; } 36% { transform: translateX(-24px) scale(1); opacity: 1; } 46% { transform: translateX(-24px) scale(1); opacity: 1; } 48.25% { transform: translateX(-21px) scale(0.86); opacity: 0.8; } 50.5% { transform: translateX(-18px) scale(1); opacity: 1; } 52.75% { transform: translateX(-15px) scale(0.86); opacity: 0.8; } 55% { transform: translateX(-12px) scale(1); opacity: 1; } 57.25% { transform: translateX(-9px) scale(0.86); opacity: 0.8; } 59.5% { transform: translateX(-6px) scale(1); opacity: 1; } 61.75% { transform: translateX(-3px) scale(0.86); opacity: 0.8; } 64% { transform: translateX(0px) scale(1); opacity: 1; } 66.25% { transform: translateX(3px) scale(0.86); opacity: 0.8; } 68.5% { transform: translateX(6px) scale(1); opacity: 1; } 70.75% { transform: translateX(9px) scale(0.86); opacity: 0.8; } 73% { transform: translateX(12px) scale(1); opacity: 1; } 75.25% { transform: translateX(15px) scale(0.86); opacity: 0.8; } 77.5% { transform: translateX(18px) scale(1); opacity: 1; } 79.75% { transform: translateX(21px) scale(0.86); opacity: 0.8; } 82% { transform: translateX(24px) scale(1); opacity: 1; } 86% { transform: translateX(24px) scale(1); opacity: 1; } 87.75% { transform: translateX(21px) scale(0.86); opacity: 0.8; } 89.5% { transform: translateX(18px) scale(1); opacity: 1; } 91.25% { transform: translateX(15px) scale(0.86); opacity: 0.8; } 93% { transform: translateX(12px) scale(1); opacity: 1; } 94.75% { transform: translateX(9px) scale(0.86); opacity: 0.8; } 96.5% { transform: translateX(6px) scale(1); opacity: 1; } 98.25% { transform: translateX(3px) scale(0.86); opacity: 0.8; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
 @keyframes sh-waddle { 0% { transform: translateX(0px) scale(1); opacity: 1; } 8% { transform: translateX(-1.5px) scale(0.9); opacity: 0.85; } 16% { transform: translateX(-3px) scale(1); opacity: 1; } 33% { transform: translateX(0px) scale(0.9); opacity: 0.85; } 50% { transform: translateX(3px) scale(1); opacity: 1; } 66% { transform: translateX(0px) scale(0.9); opacity: 0.85; } 83% { transform: translateX(-3px) scale(1); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
 @keyframes sh-hophop { 0% { transform: translateX(0px) scale(1); opacity: 1; } 17% { transform: translateX(0px) scale(0.72); opacity: 0.5; } 33% { transform: translateX(0px) scale(1); opacity: 1; } 37% { transform: translateX(0px) scale(1.06); opacity: 1; } 41% { transform: translateX(0px) scale(1); opacity: 1; } 50% { transform: translateX(0px) scale(0.76); opacity: 0.55; } 62% { transform: translateX(0px) scale(1); opacity: 1; } 66% { transform: translateX(0px) scale(1.06); opacity: 1; } 70% { transform: translateX(0px) scale(1); opacity: 1; } 78% { transform: translateX(0px) scale(0.82); opacity: 0.65; } 88% { transform: translateX(0px) scale(1); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
 @keyframes sh-scoot { 0% { transform: translateX(0px) scale(1); opacity: 1; } 10% { transform: translateX(-4px) scale(0.9); opacity: 0.85; } 20% { transform: translateX(-16px) scale(1); opacity: 1; } 70% { transform: translateX(-16px) scale(1); opacity: 1; } 85% { transform: translateX(-6px) scale(0.9); opacity: 0.85; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
-@keyframes sh-sit { 0% { transform: translateX(0px) scale(1); opacity: 1; } 25% { transform: translateX(0px) scale(1.08); opacity: 1.1; } 75% { transform: translateX(0px) scale(1.08); opacity: 1.1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
 @keyframes sh-hopsmall { 0% { transform: translateX(0px) scale(1); opacity: 1; } 40% { transform: translateX(0px) scale(0.84); opacity: 0.65; } 75% { transform: translateX(0px) scale(1); opacity: 1; } 85% { transform: translateX(0px) scale(1.04); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
 @keyframes sh-bounce { 0% { transform: translateX(0px) scale(1); opacity: 1; } 14% { transform: translateX(0px) scale(0.8); opacity: 0.6; } 28% { transform: translateX(0px) scale(1); opacity: 1; } 32% { transform: translateX(0px) scale(1.05); opacity: 1; } 38% { transform: translateX(0px) scale(1); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
 @keyframes sh-hop { 0% { transform: translateX(0px) scale(1); opacity: 1; } 40% { transform: translateX(0px) scale(0.68); opacity: 0.5; } 82% { transform: translateX(0px) scale(1); opacity: 1; } 91% { transform: translateX(0px) scale(1.06); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
@@ -1695,13 +1754,11 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
 .pet.waddle .pet-svg { animation: waddle 1.8s ease-in-out; }
 .pet.hophop .pet-svg { animation: hophop 1.5s ease-in-out; }
 .pet.scoot .pet-svg { animation: scoot 1.4s ease-in-out; }
-.pet.sit .pet-svg { animation: sit 2.6s ease-in-out; }
 .pet.hopsmall .pet-svg { animation: hopsmall .45s ease-in-out; }
 #pet.stroll::before { animation: sh-stroll 3.6s ease-in-out; }
 #pet.waddle::before { animation: sh-waddle 1.8s ease-in-out; }
 #pet.hophop::before { animation: sh-hophop 1.5s ease-in-out; }
 #pet.scoot::before { animation: sh-scoot 1.4s ease-in-out; }
-#pet.sit::before { animation: sh-sit 2.6s ease-in-out; }
 #pet.hopsmall::before { animation: sh-hopsmall .45s ease-in-out; }
 #pet.hop::before { animation: sh-hop .5s cubic-bezier(.3, 1.4, .5, 1); }
 #pet.bob::before { animation: sh-bob .7s ease-in-out 2; }
@@ -1812,6 +1869,8 @@ html:root .check::before {
   border: 2.5px solid #fff; background: var(--tab, var(--stage-top));
   box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 2px 2px var(--shadow);
 }
+/* the empty tick circle is cream with a cocoa ring on every label (it used to take the tape's pastel colour, which clashed with the board) */
+html:root:not([data-skin="quest"]) .item:not(.done) .check::before { background: var(--cb-back); border-color: var(--cb-edge-strong); box-shadow: 0 1px 2px var(--shadow); }
 html:root .item.done .check::before { background-color: var(--accent); }
 /* food emoji as die-cut stickers: a cream-white edge like the bottom bar's stickers, a thin cocoa line just outside it, and a soft shadow */
 html:root .emoji-btn img:not(.sticker) { filter: drop-shadow(0 0 1.2px var(--cb-edge-strong)); }   /* until its sticker is drawn (or if it cannot be) */
@@ -1979,15 +2038,16 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 .pet:is([data-species="puppy"], [data-species="hedgehog"], [data-species="monkey"]) .nose-dark { display: inline; }
 .nose-dark { fill: #3d2b24; stroke: #2a1d18; }
 .cat-smile { display: none; }
-.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="mouse"], [data-species="monkey"], [data-species="dragon"])[data-mouth="smile"] path[data-mouth="smile"]:not(.cat-smile) { display: none; }
+.pet:is([data-species="bunny"], [data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="mouse"], [data-species="monkey"], [data-species="dragon"])[data-mouth="smile"] path[data-mouth="smile"]:not(.cat-smile):not(.lip-dragon) { display: none; }
 .pet:is([data-species="kitty"], [data-species="puppy"], [data-species="hamster"], [data-species="hedgehog"], [data-species="monkey"])[data-mouth="smile"] .smile-lip,
 .pet:is([data-species="bunny"], [data-species="mouse"])[data-mouth="smile"] .smile-bunny { display: inline; }
 .buck-teeth { fill: #fff; stroke: var(--pet-ink); stroke-width: 1; stroke-linejoin: round; }
 .lip-extra { display: none; }
 .pet:is([data-species="mochi"], [data-species="pig"], [data-species="cow"])[data-mouth="smile"] .lip-snout,
 .pet[data-species="frog"][data-mouth="smile"] .lip-frog,
-.pet[data-species="axolotl"][data-mouth="smile"] .lip-axo { display: inline; }
-.pet:not([data-species="mochi"]):not([data-species="pig"]):not([data-species="cow"]) .lip-snout, .pet:not([data-species="frog"]) .lip-frog, .pet:not([data-species="axolotl"]) .lip-axo { display: none; }
+.pet[data-species="axolotl"][data-mouth="smile"] .lip-axo,
+.pet[data-species="dragon"][data-mouth="smile"] .lip-dragon { display: inline; }
+.pet:not([data-species="mochi"]):not([data-species="pig"]):not([data-species="cow"]) .lip-snout, .pet:not([data-species="frog"]) .lip-frog, .pet:not([data-species="axolotl"]) .lip-axo, .pet:not([data-species="dragon"]) .lip-dragon { display: none; }
 .pet:not([data-species="bunny"]):not([data-species="mouse"]) .smile-bunny,
 .pet:not([data-species="kitty"]):not([data-species="puppy"]):not([data-species="hamster"]):not([data-species="hedgehog"]):not([data-species="monkey"]) .smile-lip { display: none; }
 /* every pet's eyes sit a little wider apart and lower than drawn (moved with translate so blinks still work) */
@@ -2013,6 +2073,9 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 /* walking about: one foot then the other */
 .pet:is(.stroll, .waddle, .shuffle, .scoot, .boogie, .walking) :is(.foot-l, .shoe-l) { animation: step .5s ease-in-out infinite; }
 .pet:is(.stroll, .waddle, .shuffle, .scoot, .boogie, .walking) :is(.foot-r, .shoe-r) { animation: step .5s ease-in-out -.25s infinite; }
+/* carrying the toy back (the carry arms): the feet run */
+.pet[data-arms="carry"] :is(.foot-l, .shoe-l) { animation: step .26s ease-in-out infinite; }
+.pet[data-arms="carry"] :is(.foot-r, .shoe-r) { animation: step .26s ease-in-out -.13s infinite; }
 .pet.plod.walking :is(.foot-l, .shoe-l) { animation-duration: 1.3s; }
 .pet.plod.walking :is(.foot-r, .shoe-r) { animation-duration: 1.3s; animation-delay: -.65s; }
 /* hops: both feet tuck up in the air */
@@ -2026,10 +2089,6 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 .pet[data-arms="fan"] :is(.foot-r, .shoe-r) { animation: stomp .24s ease-in-out -.12s infinite; }
 .pet[data-arms="clench"] :is(.foot-side, .shoe-l, .shoe-r) { animation: shiver .12s linear infinite; }
 /* sitting: the feet stick out a little to the sides */
-@keyframes sit-l { 0%, 100% { transform: translate(0, 0); } 25%, 75% { transform: translate(-2.4px, -.6px); } }
-@keyframes sit-r { 0%, 100% { transform: translate(0, 0); } 25%, 75% { transform: translate(2.4px, -.6px); } }
-.pet.sit :is(.foot-l, .shoe-l) { animation: sit-l 2.6s ease-in-out; }
-.pet.sit :is(.foot-r, .shoe-r) { animation: sit-r 2.6s ease-in-out; }
 @media (prefers-reduced-motion: reduce) { .foot-side, .shoe-l, .shoe-r { animation: none !important; } }
 /* sitting for a while (on a window edge on the desktop; app-desktop.js adds .seated): he sinks a little, his feet come out in front, tilted
    so the soles show: toe beans, split hooves, pigeon toes, frog toes. Every species has a pair. */
@@ -2082,7 +2141,6 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 .pet[data-state="sleepy"]:not(.hop) :is(.foot-r, .shoe-r) { animation: twitch 6.5s ease-in-out infinite; }
 .pet[data-state="sleepy"]:not(.hop) :is(.foot-l, .shoe-l) { animation: twitch 8s ease-in-out 2.4s infinite; }
 
-
 /* the to-do list (app-todo.js): no cart, receipt or bag, and a ticked task earns a check-mark stamp instead of being eaten */
 html[data-list="todo"] .cart, html[data-list="todo"] .receipt, html[data-list="todo"] .cart-bag { display: none !important; }
 .list-area.list-swap { animation: list-swap .38s ease-out; }
@@ -2092,6 +2150,14 @@ html[data-list="todo"] .cart, html[data-list="todo"] .receipt, html[data-list="t
 .task-stamp circle { fill: #9bdcb4; stroke: var(--prop-ink); stroke-width: 2.4; }
 .task-stamp .stamp-ring { fill: none; stroke: #fff; stroke-width: 1.3; stroke-dasharray: 2.4 3; opacity: .85; }
 .task-stamp path { fill: none; stroke: #fff; stroke-width: 4.6; stroke-linecap: round; stroke-linejoin: round; }
+/* the trip stamp (app-actions.js, celebrate): a rubber-stamp print in coral ink pressed onto the receipt when the last item is bought */
+.trip-stamp { position: fixed; left: 0; top: 0; z-index: 40; width: 64px; height: 64px; pointer-events: none; mix-blend-mode: multiply; --stamp-ink: #e4604f; }
+.trip-stamp svg { display: block; width: 100%; height: 100%; overflow: visible; font-family: var(--font-display); }
+.trip-stamp circle { fill: none; stroke: var(--stamp-ink); stroke-width: 3.2; }
+.trip-stamp .trip-ring { stroke-width: 1.4; stroke-dasharray: 2.2 2.6; opacity: .9; }
+.trip-stamp text { fill: var(--stamp-ink); font-size: 12.5px; font-weight: 900; letter-spacing: .1em; text-anchor: middle; }
+.trip-stamp .trip-small { font-size: 8.5px; letter-spacing: .06em; }
+html[data-theme="dark"] .trip-stamp { mix-blend-mode: normal; --stamp-ink: #ff8a78; }
 
 /* to-do dates and the clipboard (app-todo.js) */
 .qty-tag { flex: none; align-self: center; font-size: .72rem; font-weight: 800; line-height: 1; padding: 4px 8px; border-radius: 999px; background: var(--paper-pink, #ffe3ea); color: var(--muted); border: 1.5px solid var(--line); white-space: nowrap; }
@@ -2244,10 +2310,7 @@ html:root .item.late:not(.done) { animation: late-shake 3.6s ease-in-out infinit
 @media (prefers-reduced-motion: reduce) { html:root .item.late:not(.done) { animation: none; } }
 
 /* ---------- to-do mode: the calendar and stamp book replace Top 10 and Goals in the bottom bar ---------- */
-.dock .todo-only { display: none; }
-html[data-list="todo"] .dock .todo-only { display: flex; }
 /* the Shop is only a placeholder for now: greyed out */
-.dock #shopBtn:disabled { opacity: .45; filter: grayscale(1); cursor: default; }
 html:root .dock #calBtn { --tilt: 3deg; --sticker: #ffd9c2; --sticker-ink: #d9743f; }
 /* calendar */
 .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -2347,6 +2410,9 @@ html.typing .page-fade { display: none; }
   font: inherit; font-size: .62rem; font-weight: 800; cursor: pointer;
 }
 .closet-btn svg { width: 24px; height: 24px; display: block; }
+.dress-options-btn { top: 8px; bottom: auto; }
+.dress-options-btn svg { fill: currentColor; stroke: currentColor; stroke-width: 1; }
+.dress-options-btn svg circle { fill: var(--surface); stroke: none; }
 .closet-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--outline); }
 .closet-btn:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
 .picker.closet-sheet { z-index: 25; inset: auto 0 var(--dock-h, 64px) 0; }   /* above the dressing room (20) but under the bottom bar (30), so it slides under the bar when pulled down */
@@ -2418,7 +2484,6 @@ html.typing .page-fade { display: none; }
 /* profile (app-profile.js): the same fields as the pet's name; its dock sticker */
 html:root .dock #profileBtn { --tilt: 5deg; --sticker: #d9ccf5; --sticker-ink: #7d5fcf; }
 .profile-sheet .field input[type="date"] { font: inherit; }
-html:root .picker .field-label.profile-top { display: none; }
 .profile-links { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
 .profile-link { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-weight: 800; text-align: left; cursor: pointer; }
 .profile-link-icon { width: 24px; display: grid; place-items: center; font-size: 1.2rem; color: #7d5fcf; }
@@ -2428,7 +2493,6 @@ html:root .picker .field-label.profile-top { display: none; }
 .gift-placeholder { position: absolute; left: 50%; top: -6px; translate: -50% 0; rotate: -6deg; padding: 1px 9px 2px; border-radius: 999px; background: var(--accent); color: #fff; border: 1.5px solid #fff; box-shadow: 0 2px 0 var(--shadow); font-size: .72rem; font-weight: 800; letter-spacing: .02em; white-space: nowrap; animation: gift-placeholder 2.2s cubic-bezier(.3, 1.8, .5, 1) both; }
 @keyframes gift-placeholder { 0% { scale: .2; opacity: 0; translate: -50% 18px; } 35% { scale: 1.25; opacity: 1; translate: -50% -4px; } 55% { scale: 1; } 100% { scale: 1; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .gift-placeholder { animation: none; } }
-
 
 /* colours for the newer cards (Stamp Book, Calendar, Profile): paper and pastel tints that follow light and dark mode */
 :root { --paper: #fffaf0; --paper-edge: #f1e3cf; --paper-cell: #fff; --paper-pink: #fff1f4; --paper-today: #ffe3ec; --paper-sel: #ffc2d4;
@@ -2543,7 +2607,6 @@ html:root .picker .field-label.profile-top { display: none; }
 #goalsSheet .goal-bar { background: var(--paper-edge); height: 12px; }
 #goalsSheet .goal-bar span { background: linear-gradient(90deg, #ff9dba, #ff7fa6); }
 #goalsSheet .goal.done .goal-bar span { background: var(--mint); }
-.task-for { margin: 8px 0 4px; }
 
 /* calendar: sizes include the padding, so a day can never grow taller than its row (it overlapped on some screens) */
 .cal-sheet .cal-cell { box-sizing: border-box; height: 38px; min-height: 38px; max-height: 38px; padding: 0 0 4px; overflow: visible; }
@@ -2834,7 +2897,7 @@ html.desktop-pet .app { max-width: none; min-height: 0; height: 100vh; display: 
 html.desktop-pet .scene { position: static; padding: 0; background: none !important; }
 html.desktop-pet .scene::after { display: none; }
 html.desktop-pet .stage { width: 100vw; margin-bottom: 28px; transition: margin-bottom .2s ease-out; }
-html.desktop-pet .stage:has(.inbox-card, .quick-card) { margin-bottom: 0; }   /* (an alert card needs the room above him: it was cut off at the top of the window) */   /* (room under him: when he spins or tilts his lower part stays inside the window instead of being cut off at its bottom edge) */
+html.desktop-pet .stage:has(.inbox-card, .quick-card) { margin-bottom: calc(28px - var(--card-drop, 0px)); }   /* (he only drops as far as the card needs: app-desktop.js sets --card-drop to what would otherwise be cut off at the top of the window) */   /* (room under him: when he spins or tilts his lower part stays inside the window instead of being cut off at its bottom edge) */
 /* the stage keeps its own height at the bottom; the free room above is for the speech bubble */
 html.desktop-pet .stage .bubble { left: var(--vis-l, 0px) !important; right: calc(100vw - var(--vis-r, 100vw)) !important; top: auto !important; bottom: calc(100% - 24px); margin: 0 auto; max-width: calc(var(--vis-r, 100vw) - var(--vis-l, 0px) - 24px) !important; transform-origin: 50% 100% !important; }
 html.desktop-list #deskBar { display: flex; }
@@ -2874,10 +2937,9 @@ html.desktop-pet .dream-dot.d2 { left: -12px; top: 54px; }
 .inbox-actions .inbox-done { margin-left: auto; }
 .stage:has(.inbox-card) .bubble { display: none; }
 html.desktop-pet .stage:has(.look-preview) .bubble { display: block; z-index: 40; left: auto !important; right: 2px !important; bottom: 58px; top: auto !important; margin: 0; max-width: 30% !important; }   /* the style preview shows card, bubble and ring together: the bubble stands to the side so nothing covers it */
-html.desktop-pet .stage .inbox-card { top: auto; bottom: calc(100% + 1px); }   /* normal size: if he is at the side of the screen his window slides onto it while the card shows (app-desktop.js) */
+html.desktop-pet .stage .inbox-card { top: auto; bottom: calc(100% - 28px); }   /* (its lower part sits in the empty space above his head, so the whole card fits in the window without him moving) */   /* normal size: if he is at the side of the screen his window slides onto it while the card shows (app-desktop.js) */
 html.desktop-pet.card-narrow .stage .inbox-card { left: calc(var(--vis-l, 0px) + 8px); right: calc(100vw - var(--vis-r, 100vw) + 8px); }   /* (only when it cannot slide: then it is as wide as the part of the window that shows) */
-/* choices from the settings window: no toy, no cushion under him (the bed at night stays) */
-html.desktop-pet.desk-notoy .toy { display: none !important; }
+/* choice from the settings window: no cushion under him (the bed at night stays) */
 html.desktop-pet.desk-nocushion .stage:not(.bedtime) .cushion { display: none; }
 html.desktop-pet.desk-nobubbles:not(.grab-say) .bubble { display: none !important; }   /* (the grab key's answer still shows) */
 html.desktop-pet.desk-nosparkles .stage::before, html.desktop-pet.desk-nosparkles .stage::after { display: none; }
@@ -2967,7 +3029,7 @@ html:not([data-list="todo"]) #pet.wanding .arm-l { transform-box: view-box; tran
 
 /* thrown while asleep in bed (app-desktop.js onFlight): the bed turns to face where it is flying */
 html.desktop-pet .stage.bed-thrown { rotate: var(--bed-turn, 0deg); translate: 0 -38px; transform-origin: 50% 58%; transition: rotate .22s ease-out; }
-html.desktop-pet .stage.bed-settle { transition: rotate .6s cubic-bezier(.3, 1.3, .5, 1), translate .6s cubic-bezier(.3, 1.3, .5, 1); }   /* back in place after a throw in bed */
+html.desktop-pet .stage.bed-settle { transition: rotate .6s cubic-bezier(.3, 1.3, .5, 1), translate .25s linear; }   /* (the lift eases away over 250 ms while the shell moves the window up by the same amount, so the bed stays put on screen) */   /* back in place after a throw in bed */
 @media (prefers-reduced-motion: reduce) { html.desktop-pet .stage.bed-thrown, html.desktop-pet .stage.bed-settle { transition: none; } }
 
 /* night play (app-night.js): the teddy to pick up, the night light and its glow */
@@ -3008,7 +3070,6 @@ html.desktop-pet .stage.bed-settle { transition: rotate .6s cubic-bezier(.3, 1.3
 .bell.held .bell-img { filter: drop-shadow(0 6px 3px rgba(91, 66, 57, .25)); }
 .bell.pop { animation: pop .35s cubic-bezier(.3, 1.6, .5, 1); }
 .stage.bell-mode .toy { display: none; }
-
 
 /* resting, it is tucked into the bed beside him: the bed's front edge is over its lower half */
 .bell.nested { z-index: 1; }
@@ -3061,15 +3122,40 @@ html.desktop-pet .night-btn { display: none !important; }   /* in the small wind
 .pet:is(.spinhop, .flop) :is(.ear-l, .ear-r) { animation: ear-jiggle-l .7s ease-out .3s; }
 @media (prefers-reduced-motion: reduce) { .pet:is(.tilt, .flop, .spinhop, .shiver) .pet-svg { animation: none; } }
 
+/* morning exercise: a 10 s routine in five steps (morningExercise in app-idle.js; the squishes are SQUISH.exercise in app-pet.js, same times):
+   1 alternate right arm + left leg, left arm + right leg (0-2.4 s); 2 two steps left, two steps right, with the arms circling round each other (2.4-4.4);
+   3 crouched, alternately touching toes (4.4-6.4); 4 crouched, shaking his bottom (he cannot turn round, so he wiggles) (6.4-8.4); 5 arms high (8.4-10).
+   The body is one keyframe set; each arm and foot has its own animations listed with delays, so they stay in step. */
+@keyframes exercise { 0% { transform: translate(0px, 0px) rotate(0deg); } 1.5% { transform: translate(0px, 2px) rotate(0deg); } 3% { transform: translate(0px, -8px) rotate(5deg); } 5.5% { transform: translate(0px, 0px) rotate(0deg); } 7.5% { transform: translate(0px, 2px) rotate(0deg); } 9% { transform: translate(0px, -8px) rotate(-5deg); } 11.5% { transform: translate(0px, 0px) rotate(0deg); } 13.5% { transform: translate(0px, 2px) rotate(0deg); } 15% { transform: translate(0px, -8px) rotate(5deg); } 17.5% { transform: translate(0px, 0px) rotate(0deg); } 19.5% { transform: translate(0px, 2px) rotate(0deg); } 21% { transform: translate(0px, -8px) rotate(-5deg); } 23.5% { transform: translate(0px, 0px) rotate(0deg); } 24% { transform: translate(0px, 0px) rotate(0deg); } 26.25% { transform: translate(-7px, -9px) rotate(-4deg); } 28.5% { transform: translate(-14px, 0px) rotate(0deg); } 30.75% { transform: translate(-21px, -9px) rotate(-4deg); } 33% { transform: translate(-28px, 0px) rotate(0deg); } 35.25% { transform: translate(-21px, -9px) rotate(4deg); } 37.5% { transform: translate(-14px, 0px) rotate(0deg); } 39.75% { transform: translate(-7px, -9px) rotate(4deg); } 42% { transform: translate(0px, 0px) rotate(0deg); } 44% { transform: translate(0px, 0px) rotate(0deg); } 46% { transform: translate(0px, 0px) rotate(0deg); } 48% { transform: translate(0px, -12px) rotate(-14deg); } 50% { transform: translate(0px, 0px) rotate(0deg); } 52% { transform: translate(0px, -12px) rotate(14deg); } 54% { transform: translate(0px, 0px) rotate(0deg); } 56% { transform: translate(0px, -12px) rotate(-14deg); } 58% { transform: translate(0px, 0px) rotate(0deg); } 60% { transform: translate(0px, -12px) rotate(14deg); } 62% { transform: translate(0px, 0px) rotate(0deg); } 64% { transform: translate(-7px, -5px) rotate(6deg); } 65.25% { transform: translate(7px, -5px) rotate(-6deg); } 66.5% { transform: translate(-7px, -5px) rotate(6deg); } 67.75% { transform: translate(7px, -5px) rotate(-6deg); } 69% { transform: translate(-7px, -5px) rotate(6deg); } 70.25% { transform: translate(7px, -5px) rotate(-6deg); } 71.5% { transform: translate(-7px, -5px) rotate(6deg); } 72.75% { transform: translate(7px, -5px) rotate(-6deg); } 74% { transform: translate(-7px, -5px) rotate(6deg); } 75.25% { transform: translate(7px, -5px) rotate(-6deg); } 76.5% { transform: translate(-7px, -5px) rotate(6deg); } 77.75% { transform: translate(7px, -5px) rotate(-6deg); } 79% { transform: translate(-7px, -5px) rotate(6deg); } 80.25% { transform: translate(7px, -5px) rotate(-6deg); } 81.5% { transform: translate(-7px, -5px) rotate(6deg); } 83% { transform: translate(0px, 0px) rotate(0deg); } 84% { transform: translate(0px, 0px) rotate(0deg); } 86% { transform: translate(0px, -20px) rotate(0deg); } 88% { transform: translate(0px, 0px) rotate(0deg); } 90% { transform: translate(0px, -18px) rotate(0deg); } 92% { transform: translate(0px, 0px) rotate(0deg); } 96% { transform: translate(0px, -18px) rotate(0deg); } 98% { transform: translate(0px, 0px) rotate(0deg); } 100% { transform: translate(0px, 0px) rotate(0deg); } }
+@keyframes ex-alt-r { 0% { transform: rotate(-18deg); } 10% { transform: translate(-8px, -14px) rotate(-125deg); } 40% { transform: translate(-8px, -14px) rotate(-125deg); } 50% { transform: rotate(-18deg); } 100% { transform: rotate(-18deg); } }
+@keyframes ex-alt-l { 0% { transform: rotate(18deg); } 50% { transform: rotate(18deg); } 60% { transform: translate(8px, -14px) rotate(125deg); } 90% { transform: translate(8px, -14px) rotate(125deg); } 100% { transform: rotate(18deg); } }
+@keyframes ex-lift-l { 0% { transform: translate(0, 0); } 10% { transform: translate(2px, -9px); } 40% { transform: translate(2px, -9px); } 50% { transform: translate(0, 0); } 100% { transform: translate(0, 0); } }
+@keyframes ex-lift-r { 0% { transform: translate(0, 0); } 50% { transform: translate(0, 0); } 60% { transform: translate(-2px, -9px); } 90% { transform: translate(-2px, -9px); } 100% { transform: translate(0, 0); } }
+@keyframes ex-roll-l { 0% { transform: rotate(18deg); } 10% { transform: translate(16px, -4px) rotate(-100deg); } 15% { transform: translate(22px, -12px) rotate(-135deg); } 20% { transform: translate(26px, -4px) rotate(-120deg); } 25% { transform: translate(20px, 2px) rotate(-85deg); } 30% { transform: translate(16px, -4px) rotate(-100deg); } 35% { transform: translate(22px, -12px) rotate(-135deg); } 40% { transform: translate(26px, -4px) rotate(-120deg); } 45% { transform: translate(20px, 2px) rotate(-85deg); } 50% { transform: translate(16px, -4px) rotate(-100deg); } 55% { transform: translate(22px, -12px) rotate(-135deg); } 60% { transform: translate(26px, -4px) rotate(-120deg); } 65% { transform: translate(20px, 2px) rotate(-85deg); } 70% { transform: translate(16px, -4px) rotate(-100deg); } 75% { transform: translate(22px, -12px) rotate(-135deg); } 80% { transform: translate(26px, -4px) rotate(-120deg); } 85% { transform: translate(20px, 2px) rotate(-85deg); } 90% { transform: translate(16px, -4px) rotate(-100deg); } 100% { transform: rotate(18deg); } }
+@keyframes ex-roll-r { 0% { transform: rotate(-18deg); } 10% { transform: translate(-26px, -4px) rotate(120deg); } 15% { transform: translate(-20px, -12px) rotate(135deg); } 20% { transform: translate(-16px, -4px) rotate(100deg); } 25% { transform: translate(-22px, 2px) rotate(85deg); } 30% { transform: translate(-26px, -4px) rotate(120deg); } 35% { transform: translate(-20px, -12px) rotate(135deg); } 40% { transform: translate(-16px, -4px) rotate(100deg); } 45% { transform: translate(-22px, 2px) rotate(85deg); } 50% { transform: translate(-26px, -4px) rotate(120deg); } 55% { transform: translate(-20px, -12px) rotate(135deg); } 60% { transform: translate(-16px, -4px) rotate(100deg); } 65% { transform: translate(-22px, 2px) rotate(85deg); } 70% { transform: translate(-26px, -4px) rotate(120deg); } 75% { transform: translate(-20px, -12px) rotate(135deg); } 80% { transform: translate(-16px, -4px) rotate(100deg); } 85% { transform: translate(-22px, 2px) rotate(85deg); } 90% { transform: translate(-26px, -4px) rotate(120deg); } 100% { transform: rotate(-18deg); } }
+@keyframes ex-reach-l { 0% { transform: rotate(18deg); } 20% { transform: rotate(18deg); } 50% { transform: translate(28px, 22px) rotate(-8deg); } 80% { transform: rotate(18deg); } 100% { transform: rotate(18deg); } }
+@keyframes ex-reach-r { 0% { transform: rotate(-18deg); } 20% { transform: rotate(-18deg); } 50% { transform: translate(-28px, 22px) rotate(8deg); } 80% { transform: rotate(-18deg); } 100% { transform: rotate(-18deg); } }
+@keyframes ex-raise-l { 0% { transform: rotate(18deg); } 100% { transform: translate(6px, -24px) rotate(140deg); } }
+@keyframes ex-raise-r { 0% { transform: rotate(-18deg); } 100% { transform: translate(-6px, -24px) rotate(-140deg); } }
+@keyframes ex-wag { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-3px, 0); } 75% { transform: translate(3px, 0); } }
+.pet.exercise .pet-svg { animation: exercise 10s ease-in-out; transform-origin: 50% 94%; }
+.pet.exercise :is(.ear-l, .ear-r) { animation: ear-jiggle-l .5s ease-out 20; }
+.pet.exercise .arm-l { animation: ex-alt-l 1.2s ease-in-out 0s 2, ex-roll-l 2s linear 2.4s, ex-reach-l .8s ease-in-out 4.4s 2, ex-raise-l .25s ease-out 8.4s forwards, cheer-l .3s ease-in-out 8.65s infinite alternate; }
+/* (an animation takes one duration and one delay: the right arm's cheer starts .15 s later than the left, so its delay is 8.8 s) */
+.pet.exercise .arm-r { animation: ex-alt-r 1.2s ease-in-out 0s 2, ex-roll-r 2s linear 2.4s, ex-reach-r .8s ease-in-out 4.8s 2, ex-raise-r .25s ease-out 8.4s forwards, cheer-r .3s ease-in-out 8.8s infinite alternate; }
+/* the :not(#x) outranks the cheering and walking foot rules */
+.pet.exercise:not(#x) :is(.foot-l, .shoe-l) { animation: ex-lift-l 1.2s ease-in-out 0s 2, ex-wag .25s ease-in-out 6.4s 8; }
+.pet.exercise:not(#x) :is(.foot-r, .shoe-r) { animation: ex-lift-r 1.2s ease-in-out 0s 2, ex-wag .25s ease-in-out 6.4s 8; }
+@media (prefers-reduced-motion: reduce) { .pet.exercise :is(.pet-svg, .arm-l, .arm-r, .ear-l, .ear-r), .pet.exercise:not(#x) :is(.foot-l, .shoe-l, .foot-r, .shoe-r) { animation: none; } }
+
 /* alerts, made cuter (builds 364-368): a paper label with a bit of tape, a round sticker for the icon, soft pill buttons, a colour per kind.
-   Three styles, picked in the settings window (alertStyle, class on <html>): al-paper (warm cream), al-night (the same in deep plum), none = the plain old card. */
-html.al-paper { --al-bg: #fff8ea; --al-ink: #4a3128; --al-sub: #6b4d41; --al-edge: #5b4239; --al-chip: #fff; --al-shadow: rgba(40, 25, 20, .3); --al-mix: #fff; --al-tint: 1; }
-html.al-night { --al-bg: #3b2c47; --al-ink: #fdf0e0; --al-sub: #cdb9d6; --al-edge: #170f1d; --al-chip: #55405f; --al-shadow: rgba(0, 0, 0, .5); --al-mix: #2b1f33; --al-tint: 0; }
+   The look is the one theme shared by the app and Mini Fumu (alertStyle in the shell, nibble-theme on the phone; a class al-* on <html>, set by applyTheme): none = the plain card (Auto, Light, Dark), or sweet, quest, quest2, osrs, bonfire. */
+
 html[class*="al-"] .inbox-card, html[class*="al-"] .remind-card { --ac: #f3b6c8; grid-template-columns: 36px 1fr; gap: 1px 10px; padding: 7px 12px 6px; border-width: 2px; border-radius: 18px; overflow: visible;
   background: var(--al-bg); color: var(--al-ink); border-color: var(--al-edge); box-shadow: 0 3px 0 var(--al-edge), 0 8px 14px var(--al-shadow);
   outline: 1.5px dashed color-mix(in srgb, var(--ac) 80%, var(--al-edge)); outline-offset: -5px; }
 html[class*="al-"] .inbox-card { --ac2: color-mix(in srgb, var(--ac) 40%, #4d3560); }
-html.al-paper .inbox-card { --ac2: color-mix(in srgb, var(--ac) 30%, #fff); }
+
 html[class*="al-"] .remind-card { --ac: #f5d36b; }
 html[class*="al-"] .claude-card { --ac: #c9b3f0; }
 html[class*="al-"] .note-card { --ac: #a9dcc3; }
@@ -3081,17 +3167,15 @@ html[class*="al-"] .inbox-icon { width: 34px; height: 34px; padding: 4px; box-si
 html[class*="al-"] .remind-card .inbox-icon { animation: alarm-ring 2.8s ease-in-out .6s infinite; transform-origin: 50% 60%; }
 @keyframes alarm-ring { 0%, 70%, 100% { rotate: -6deg; } 74% { rotate: 10deg; } 78% { rotate: -14deg; } 82% { rotate: 10deg; } 86% { rotate: -10deg; } 90% { rotate: 4deg; } }
 html[class*="al-"] .inbox-text b { font-size: .98rem; }
-html.desktop-pet[class*="al-"] .stage .inbox-card { bottom: calc(100% - 10px); }   /* (a little lower: the top of the window must not cut the tape and the edge) */
+html.desktop-pet[class*="al-"] .stage .inbox-card { bottom: calc(100% - 24px); }   /* (a little lower: the top of the window must not cut the tape and the edge) */
 html[class*="al-"] .inbox-text span { opacity: .8; color: var(--al-sub); }
 html[class*="al-"] .inbox-actions { gap: 6px; margin-top: 3px; align-items: center; flex-wrap: nowrap; }
 html[class*="al-"] .inbox-actions button { padding: 2px 10px; white-space: nowrap; background: var(--ac2); color: var(--al-ink); border: 1.8px solid var(--al-edge); box-shadow: 0 2px 0 var(--al-edge); transition: translate .12s, filter .12s; }
 html[class*="al-"] .inbox-actions button:hover { translate: 0 -1px; filter: brightness(1.06); }
-html.al-paper .inbox-actions .ia-done { background: linear-gradient(180deg, #ffd0dd, #f8a9c0); }
-html.al-night .inbox-actions .ia-done { background: linear-gradient(180deg, #8a4d78, #6d3a5f); }
+
 html[class*="al-"] .inbox-actions .inbox-done { width: 26px; height: 26px; padding: 0; display: grid; place-items: center; border-radius: 50%; background: var(--al-chip); color: var(--al-ink); line-height: 1; }
 @media (prefers-reduced-motion: reduce) { html[class*="al-"] .inbox-card::after, html[class*="al-"] .remind-card .inbox-icon, .inbox-bell { animation: none; } }
 
-/* two more alert styles (build 371): Sweet (pastel pink and red, hearts) and Cool (navy, sharp corners, a stripe) */
 @keyframes alert-heart { 0%, 100% { scale: .85; } 40% { scale: 1.25; } 60% { scale: 1; } }
 /* Sweet (build 382): a soft pastel cake: vanilla sponge fading to pink, a scalloped icing top and a cherry */
 html.al-sweet { --al-bg: #fff3f4; --al-ink: #7a4a5a; --al-sub: #b98a98; --al-edge: #f0b4c6; --al-chip: #fffaf6; --al-shadow: rgba(235, 150, 175, .32); --al-mix: #fff; }
@@ -3110,16 +3194,6 @@ html.al-sweet .inbox-actions button { background: linear-gradient(180deg, #fff, 
 html.al-sweet .inbox-actions .ia-done { background: linear-gradient(180deg, #ffd3e0, #ffb3cb); color: #7a2a4a; text-shadow: none; }
 html.al-sweet .inbox-actions .inbox-done { color: #b35a78; }
 @media (prefers-reduced-motion: reduce) { html.al-sweet .inbox-card::after { animation: none; } }
-html.al-cool { --al-bg: #1c1d21; --al-ink: #f1f2f4; --al-sub: #9b9ea6; --al-edge: #050506; --al-chip: #33353b; --al-shadow: rgba(0, 0, 0, .6); --al-mix: #1c1d21; }
-html.al-cool .inbox-card { --ac: #e63946; --ac2: #2b2d33; border-radius: 9px; outline: none; border-width: 2.5px; border-color: #4a4d55; background: linear-gradient(105deg, #e63946 0 6px, transparent 6px), linear-gradient(180deg, #2a2c31, #17181b); padding-left: 18px; box-shadow: 0 3px 0 var(--al-edge), 0 8px 14px var(--al-shadow), inset 0 1px 0 rgba(255, 255, 255, .08); }
-html.al-cool .remind-card, html.al-cool .claude-card, html.al-cool .note-card, html.al-cool .link-card { --ac: #e63946; }
-html.al-cool .inbox-card::before { content: ""; top: 5px; left: auto; right: 34px; width: 44px; height: 5px; border-radius: 0; background: repeating-linear-gradient(115deg, #e63946 0 8px, transparent 8px 14px); rotate: 0deg; opacity: .95; box-shadow: none; }
-html.al-cool .inbox-card::after { content: "▲"; font-size: .55rem; top: 5px; right: 12px; animation: none; color: #e63946; text-shadow: none; }
-html.al-cool .inbox-icon { border-radius: 9px; rotate: 0deg; background: #3a3d44; box-shadow: 0 2px 0 var(--al-edge), inset 0 0 0 2px #e63946; }
-html.al-cool .inbox-text b { letter-spacing: .01em; }
-html.al-cool .inbox-actions button { border-radius: 6px; background: linear-gradient(180deg, #43464d, #31333a); color: var(--al-ink); border-color: #0b0b0d; }
-html.al-cool .inbox-actions .ia-done { background: linear-gradient(180deg, #f0505c, #c42232); color: #fff; text-shadow: 0 1px 0 rgba(0, 0, 0, .35); }
-html.al-cool .inbox-actions .inbox-done { border-radius: 6px; width: 26px; }
 @media (prefers-reduced-motion: reduce) { html.al-sweet .inbox-card::after { animation: none; } }
 
 /* Quest (build 374): the alert dressed like a fantasy-RPG dialog frame: dark panel, double gold border, gold serif title, red stone buttons, a quest "!" */
@@ -3141,11 +3215,9 @@ html.al-quest .inbox-actions .inbox-done { border-radius: 4px; width: 26px; }
 @media (prefers-reduced-motion: reduce) { html.al-quest .inbox-card::after { animation: none; } }
 /* the desktop app's speech bubbles follow the alert style (build 375): the small pet's own choice, and in the whole app light (Paper) or dark (Night) as its appearance says */
 html[class*="al-"] .stage .bubble { background: var(--al-bg); color: var(--al-ink); border: 2px solid var(--al-edge); box-shadow: 0 2px 0 var(--al-edge), 0 6px 10px var(--al-shadow); border-radius: 16px 16px 16px 5px; }
-html.al-paper .stage .bubble { outline: 1.5px dashed #f3b6c8; outline-offset: -4px; }
-html.al-night .stage .bubble { outline: 1.5px dashed #c9b3f0; outline-offset: -4px; }
+
 html.al-sweet .stage .bubble { border: 2px solid #f3b9ca; border-radius: 20px 20px 20px 6px; outline: none; padding-right: 20px; background: linear-gradient(180deg, #fffaf0, #ffe9f0); box-shadow: 0 3px 0 #f3b9ca, 0 6px 12px var(--al-shadow); }
 html.al-sweet .stage .bubble::after { content: ""; position: absolute; top: -6px; right: 12px; width: 11px; height: 11px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #fff 0 1.4px, #ff8aa5 2px, #e8456b); box-shadow: 0 1px 2px rgba(180, 40, 80, .3); }
-html.al-cool .stage .bubble { border-radius: 8px; border-color: #4a4d55; background: linear-gradient(105deg, #e63946 0 5px, transparent 5px), linear-gradient(180deg, #2a2c31, #17181b); padding-left: 16px; box-shadow: 0 2px 0 #050506, 0 6px 10px rgba(0, 0, 0, .55); }
 html.al-quest .stage .bubble { border: 2px solid #bdbdbd; border-radius: 9px; font-family: "Palatino Linotype", Palatino, Georgia, serif; font-weight: 700; color: #f4e8a6; text-shadow: 0 1px 1px #000, 0 0 4px rgba(0, 0, 0, .8); padding: 6px 13px; background: linear-gradient(180deg, #2f2f2f 0%, #1e1e1e 55%, #0b0b0b 85%, #0b0b0b 100%); opacity: .92; box-shadow: inset 0 0 0 1.5px #040404, 0 4px 10px rgba(0, 0, 0, .5); }   /* (bubble and pointer are one solid shape, see-through as a whole, so they share the same border and inner ring) */
 /* the pointer of a game chat bubble: a small curved fin drawn as one picture, so its outline is as thick as the bubble's and the bubble's border stops where it joins; aimBubble in app-desktop.js sets data-tail and --tail once, when the bubble appears */
 html.al-quest .stage .bubble::before { content: none; }
@@ -3159,11 +3231,9 @@ html.al-quest .stage .bubble[data-tail="left"]::after { top: calc(var(--tail, 14
 html[class*="al-"] .ring-btn { background: var(--al-bg); border: 2px solid var(--al-edge); box-shadow: 0 2px 0 var(--al-edge), 0 4px 8px var(--al-shadow); }
 html[class*="al-"] .ring-btn:hover { background: color-mix(in srgb, var(--al-bg) 80%, #fff); }
 html[class*="al-"] .ring-btn[aria-pressed="true"] { background: color-mix(in srgb, var(--al-bg) 55%, #ffd877); box-shadow: 0 0 10px 3px rgba(255, 205, 120, .6), 0 2px 0 var(--al-edge); }
-html.al-night .ring-btn:hover { background: #4d3a5a; }
+
 html.al-sweet .ring-btn { background: linear-gradient(180deg, #fffaf0, #ffe9f0); border: 2px solid #f3b9ca; box-shadow: 0 2px 0 #f3b9ca, 0 4px 8px var(--al-shadow); }
 html.al-sweet .ring-btn:hover { background: linear-gradient(180deg, #fff, #ffdbe6); }
-html.al-cool .ring-btn { border-radius: 9px; background: linear-gradient(180deg, #43464d, #26282d); border-color: #0b0b0d; box-shadow: 0 2px 0 #050506, inset 0 0 0 1.5px #e63946; }
-html.al-cool .ring-btn:hover { background: linear-gradient(180deg, #55585f, #33353b); }
 html.al-quest .ring-btn { border-radius: 4px; background: radial-gradient(ellipse at 50% 0, rgba(255, 215, 120, .15), transparent 70%), linear-gradient(180deg, #2a1d10, #140e08); border: 2px solid #c9a227; box-shadow: 0 0 0 1px #000, inset 0 0 0 1.5px #0a0704, 0 3px 6px rgba(0, 0, 0, .6); }
 html.al-quest .ring-btn:hover { background: linear-gradient(180deg, #4a3217, #24170b); }
 html.al-quest .ring-btn[aria-pressed="true"] { background: linear-gradient(180deg, #8a1f17, #4a0d09); }
@@ -3184,6 +3254,7 @@ html:root .dock-label { position: relative; z-index: 3; margin-top: -9px; font-s
 html:root .closet-btn { width: 40px; padding: 3px 0 2px; border-radius: 12px; font-size: .56rem; right: 8px; bottom: 6px; }
 .closet-btn svg { width: 18px; height: 18px; }
 html:root .shoot-btn { bottom: 50px; }
+html:root .dress-options-btn { top: 6px; bottom: auto; }
 /* ARROW BUBBLES (Quest, the curved fin) only; pointer bubbles (the other looks) are a separate style and must not share these rules. Quest bubble: the pointer is the only tail, so every corner is round (the older sharp corner is gone) */
 html:root.al-quest .stage .bubble:not(.in-sheet) { border-radius: 9px; }
 
@@ -3268,3 +3339,963 @@ html.desktop-pet.ring-open .stage .bubble.ring-moved { left: var(--rl, 4px) !imp
 
 /* the night light's button sits in the same corner as the food suggestion: the suggestion goes above it so its ✕ can be pressed */
 .stage:has(.night-btn:not([hidden])) .suggest { bottom: 46px; }
+
+/* the Shop (app-shop.js): a test page, nothing can be bought */
+.shop-list { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; min-height: 0; scrollbar-width: none; }
+.shop-head { margin: 6px 0 0; font-family: var(--font-display); font-size: 1rem; color: var(--ink); }
+.shop-card { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 18px; background: var(--paper); border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--shadow); }
+.shop-card > img { width: 44px; height: 44px; }
+.shop-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.shop-body b { color: var(--ink); }
+.shop-body span, .shop-perks { font-size: .8rem; font-weight: 700; color: var(--muted); }
+.shop-perks { margin: 0; padding-left: 16px; }
+.shop-premium { background: var(--stage-top); border-color: var(--outline); }
+.shop-buy { background: var(--surface); white-space: nowrap; }
+.shop-note { min-height: 1.2em; margin: 0; text-align: center; }
+
+/* the sneaky snack (app-steal.js): the emoji he took is gone from its row until he spits it back */
+.item.stolen .emoji-btn img { visibility: hidden; }
+
+/* ---------- Quest 2 (App settings > Appearance > Quest 2): the Quest look restyled as a game inventory (second attempt) ----------
+   Rides on top of Quest (data-quest="slots" on <html>, data-skin stays "quest"), so plain Quest is untouched and can still be picked.
+   A real stone texture (SVG noise, drawn once), thin metal frames (pale on the top and left, dark on the bottom and right), recessed dark slots with a
+   light hairline, charcoal metal buttons with gold lettering, round metal-ringed icon buttons. Every selector starts with Q2 so it only applies here. */
+html:root[data-skin="quest"][data-quest="slots"] {
+  --q2-fine: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .78  0 0 0 0 .7  0 0 0 0 .56  .9 0 0 0 -.3'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); --q2-blot: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='n' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.025 .035' numOctaves='3' seed='9' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .02  0 0 0 0 .015  0 0 0 0 .01  1.6 0 0 0 -.45'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  --q2-stone: #2a2622; --q2-stone-dark: #1a1816; --q2-slot: #0c0b0a;
+  --q2-metal: #b9a77c #4a3f2b #1c1712 #8f7e58;   /* a raised metal edge: bright on the top and left */
+  --q2-gold: #ffd100; --q2-hair: #6a5f4d;
+  --bg: #141210; --surface: #25211d; --surface-2: #181513; --cb-dock-a: #2a2622; --cb-dock-b: #151311; --outline: #6a5f4d; --line: #3a342c;
+}
+html:root[data-skin="quest"][data-quest="slots"] body {
+  background-color: #141210;
+  background-image: var(--q2-fine), var(--q2-blot), radial-gradient(ellipse at 50% 0, rgba(255, 215, 120, .07), transparent 60%);
+  background-size: 180px 180px, 360px 360px, auto; background-position: 0 0; background-attachment: scroll, scroll, fixed;
+}
+/* the sheets: a stone slab in a double frame (a dark groove, then a thin gold line) */
+html:root[data-skin="quest"][data-quest="slots"] .picker {
+  background-color: var(--q2-stone); background-image: var(--q2-fine), var(--q2-blot), linear-gradient(180deg, #2f2a25, #1d1a17);
+  background-size: 180px 180px, 360px 360px, auto;
+  border: 3px solid; border-color: var(--q2-metal); border-bottom: 0; border-radius: 9px 9px 0 0;
+  box-shadow: 0 0 0 1.5px #000, 0 -8px 24px rgba(0, 0, 0, .6), inset 0 0 0 2px #14110e, inset 0 0 0 3px #7d6630, inset 0 0 26px rgba(0, 0, 0, .5);
+}
+/* title plates: a metal title bar */
+html:root[data-skin="quest"][data-quest="slots"] .picker h2 {
+  border-radius: 4px; border: 1px solid #8f7e58; color: #f6e7b0; letter-spacing: .05em; text-shadow: 0 1px 0 #000, 0 0 8px rgba(0, 0, 0, .9);
+  background: linear-gradient(180deg, #3d372f, #1b1815); box-shadow: 0 0 0 1.5px #000, inset 0 1px 0 rgba(255, 235, 180, .28), inset 0 0 10px rgba(0, 0, 0, .6);
+}
+html:root[data-skin="quest"][data-quest="slots"] .item::before, html:root[data-skin="quest"][data-quest="slots"] .picker h2::before, html:root[data-skin="quest"][data-quest="slots"] .cal-sheet #calGrid::before, html:root[data-skin="quest"][data-quest="slots"] .cal-sheet #calGrid::after, html:root[data-skin="quest"][data-quest="slots"] .profile-sheet .field::before, html:root[data-skin="quest"][data-quest="slots"] .profile-link::before { display: none !important; }
+/* rows and cards: recessed slots (a dark pit with a light hairline round it) */
+html:root[data-skin="quest"][data-quest="slots"] :is(.add, .item, .goal, .fav, .options, .picker .closet-wear) {
+  border: 1px solid var(--q2-hair); border-radius: 4px;
+  background-color: var(--q2-slot); background-image: var(--q2-blot), linear-gradient(180deg, #151311, #0b0a09); background-size: 360px 360px, auto;
+  box-shadow: 0 0 0 1.5px #000, 0 3px 6px rgba(0, 0, 0, .5), inset 0 0 0 1px rgba(255, 255, 255, .05), inset 0 4px 12px rgba(0, 0, 0, .9);
+}
+html:root[data-skin="quest"][data-quest="slots"] .item-text { color: #efe2bd; text-shadow: 0 1px 0 #000; }
+/* the picture of a row sits in its own square slot, like an item in a bag */
+html:root[data-skin="quest"][data-quest="slots"] .item .emoji-btn {
+  width: 46px; height: 46px; padding: 3px; border: 1px solid var(--q2-hair); border-radius: 3px;
+  background: radial-gradient(circle at 50% 38%, #26211b, #0a0908); box-shadow: 0 0 0 1px #000, inset 0 0 0 1px rgba(255, 255, 255, .06), inset 0 3px 7px rgba(0, 0, 0, .9);
+}
+html:root[data-skin="quest"][data-quest="slots"] .check { border: 2px solid #8f7e58; background-color: #0a0908; box-shadow: 0 0 0 1px #000, inset 0 2px 4px rgba(0, 0, 0, .9); }
+html:root[data-skin="quest"][data-quest="slots"] .add input { background: transparent; color: #efe2bd; box-shadow: none; }
+html:root[data-skin="quest"][data-quest="slots"] .add input::placeholder { color: #8d8068; }
+/* buttons: charcoal metal with a bright top edge and gold lettering; picked ones get a gold rim and a warm glow; Add is the red one */
+html:root[data-skin="quest"][data-quest="slots"] :is(.pill-btn, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .dress-tabs button, .cal-add-btn, .recipe-btn, .mic-btn) {
+  border: 1px solid #8f7e58; border-radius: 3px; color: var(--q2-gold); text-shadow: 0 1px 0 #000;
+  background: linear-gradient(180deg, #403a32, #1f1c18); box-shadow: 0 0 0 1.5px #000, 0 3px 4px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 235, 180, .3), inset 0 -2px 4px rgba(0, 0, 0, .35);
+}
+html:root[data-skin="quest"][data-quest="slots"] :is(.pill-btn, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .dress-tabs button, .recipe-btn, .mic-btn):hover { background: linear-gradient(180deg, #4f483d, #28241f); }
+html:root[data-skin="quest"][data-quest="slots"] :is(.pill-btn, .picker-grid button, .dress-tabs button, .recipe-btn, .mic-btn):active { box-shadow: 0 0 0 1.5px #000, inset 0 2px 6px rgba(0, 0, 0, .85); background: linear-gradient(180deg, #1c1916, #2c2822); }
+html:root[data-skin="quest"][data-quest="slots"] :is(.pill-btn[aria-pressed="true"], .dress-tabs button[aria-selected="true"], .picker [aria-pressed="true"]:is(button)) {
+  background: linear-gradient(180deg, #4a2a18, #1d0f08); color: #fff0b0; border: 2px solid #ffd100;
+  box-shadow: 0 0 0 1.5px #000, 0 0 12px rgba(255, 200, 60, .5), inset 0 0 10px rgba(255, 190, 60, .18);
+}
+html:root[data-skin="quest"][data-quest="slots"] .add-btn {
+  border: 1px solid #d9b441; border-radius: 4px; color: #ffe27a; text-shadow: 0 1px 0 #000;
+  background: linear-gradient(180deg, #b3281a, #55100a); box-shadow: 0 0 0 1.5px #000, 0 3px 5px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(255, 220, 160, .35), inset 0 -3px 6px rgba(0, 0, 0, .35);
+}
+html:root[data-skin="quest"][data-quest="slots"] .dress-tabs button img { border-radius: 3px; border: 1px solid var(--q2-hair); background: radial-gradient(circle at 50% 30%, #26211b, #0a0908); box-shadow: inset 0 2px 5px rgba(0, 0, 0, .85); }
+/* the round buttons (dock, gear, avatar): a metal ring round a dark centre, like a game's bag icon */
+html:root[data-skin="quest"][data-quest="slots"] .dock-icon {
+  border: 3px solid; border-color: #d2b970 #7a6128 #4d3b15 #b39447; background: radial-gradient(circle at 50% 28%, #403527, #0e0c0a 75%); color: var(--q2-gold);
+  box-shadow: 0 0 0 1.5px #000, inset 0 0 0 1.5px #1a1409, inset 0 -3px 6px rgba(0, 0, 0, .55), 0 3px 4px rgba(0, 0, 0, .6);
+}
+html:root[data-skin="quest"][data-quest="slots"] .dock { background: linear-gradient(180deg, #34302b, #1b1815 40%, #131110); border-top: 3px solid #a89570; box-shadow: 0 -2px 0 #000, inset 0 2px 0 #55493a, inset 0 -2px 0 rgba(0, 0, 0, .5); }   /* (smooth metal: no texture on the bottom bar) */
+html:root[data-skin="quest"][data-quest="slots"] .dock-label { color: #ffd9a0; }
+/* the calendar: recessed day slots on a stone board */
+html:root[data-skin="quest"][data-quest="slots"] .cal-sheet #calGrid { background: #0c0b0a; border: 1px solid var(--q2-hair); border-radius: 4px; box-shadow: 0 0 0 1.5px #000, inset 0 4px 12px rgba(0, 0, 0, .85); }
+html:root[data-skin="quest"][data-quest="slots"] .cal-sheet .cal-cell { background: linear-gradient(180deg, #181513, #0e0d0b); border: 1px solid var(--q2-hair); border-radius: 3px; box-shadow: inset 0 2px 6px rgba(0, 0, 0, .85); }
+html:root[data-skin="quest"][data-quest="slots"] .cal-sheet .cal-cell:nth-child(7n), html:root[data-skin="quest"][data-quest="slots"] .cal-sheet .cal-cell:nth-child(7n-1) { background: linear-gradient(180deg, #221512, #110a08); }
+html:root[data-skin="quest"][data-quest="slots"] .cal-sheet .cal-cell.today, html:root[data-skin="quest"][data-quest="slots"] .cal-sheet .cal-cell.sel { background: linear-gradient(180deg, #4a2a18, #1d0f08); border: 2px solid #ffd100; box-shadow: 0 0 12px rgba(255, 200, 60, .45), inset 0 0 10px rgba(255, 190, 60, .15); }
+html:root[data-skin="quest"][data-quest="slots"] .cal-sheet .cal-list li { background: linear-gradient(180deg, #151311, #0b0a09); border: 1px solid var(--q2-hair); border-radius: 3px; box-shadow: inset 0 2px 6px rgba(0, 0, 0, .85); }
+html:root[data-skin="quest"][data-quest="slots"] :is(.cal-month select, .cal-add input) { background: #0b0a09; border: 1px solid var(--q2-hair); border-radius: 3px; box-shadow: 0 0 0 1px #000, inset 0 2px 5px rgba(0, 0, 0, .85); }
+html:root[data-skin="quest"][data-quest="slots"] :is(.profile-avatar, .profile-link-icon) { border: 3px solid #b39447 !important; background: radial-gradient(circle at 50% 28%, #403527, #0e0c0a 75%) !important; }
+
+/* Quest 2: the Pet menu's choices (species, hats, clothes and the like) are square inventory slots: a dark pit with a thin light edge, the picture in the middle */
+html:root[data-skin="quest"][data-quest="slots"] :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button) {
+  aspect-ratio: 1 / 1; border: 1px solid #6a5f4d; border-radius: 4px; color: #e9d9a8; text-shadow: 0 1px 0 #000;
+  background-color: #0c0b0a; background-image: radial-gradient(circle at 50% 40%, #272119, #0a0908 78%); background-size: auto;
+  box-shadow: 0 0 0 1.5px #000, inset 0 0 0 1px rgba(255, 255, 255, .06), inset 0 4px 12px rgba(0, 0, 0, .9);
+}
+html:root[data-skin="quest"][data-quest="slots"] :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button):hover { border-color: #b39447; background-image: radial-gradient(circle at 50% 40%, #33291c, #0d0b09 78%); }
+html:root[data-skin="quest"][data-quest="slots"] :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button)[aria-pressed="true"] {
+  border: 2px solid #ffd100; background-image: radial-gradient(circle at 50% 40%, #3d2c14, #120c07 78%);
+  box-shadow: 0 0 0 1.5px #000, 0 0 12px rgba(255, 200, 60, .5), inset 0 0 14px rgba(255, 190, 60, .2);
+}
+html:root[data-skin="quest"][data-quest="slots"] :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button).locked { border-style: dashed; border-color: #4a4338; }
+html:root[data-skin="quest"][data-quest="slots"] .picker .species-grid { gap: 7px; }
+/* Quest 2: hats and the like: smaller lettering and no cream plate behind the picture, so every one fits a square slot */
+html:root[data-skin="quest"][data-quest="slots"] .dress-panel .hat-strip button { padding: 5px 2px 3px; gap: 2px; font-size: .68rem; line-height: 1.1; overflow: hidden; justify-content: center; }
+html:root[data-skin="quest"][data-quest="slots"] .dress-panel .hat-strip button > svg { width: 100%; max-width: 78px; height: 56px; padding: 0; background: none; border-radius: 0; }
+
+/* Quest 2: the pictures fill more of their square (species, and the picker grids' icons) */
+html:root[data-skin="quest"][data-quest="slots"] .picker .species-grid button .pet.mini { width: 94px; height: 86px; background: none; }
+html:root[data-skin="quest"][data-quest="slots"] .picker .species-grid button { padding: 4px 2px 5px; }
+html:root[data-skin="quest"][data-quest="slots"] .picker-grid button { padding: 3px; }
+html:root[data-skin="quest"][data-quest="slots"] .picker-grid button img { width: 100%; height: 100%; }
+
+/* the sneaky snack (app-steal.js): the copy of him that walks to the emoji holds one paw out to take it */
+.pet.steal-r[data-arms="steal"] .arm-r { transform: rotate(-66deg); }
+.pet.steal-l[data-arms="steal"] .arm-l { transform: rotate(66deg); }
+.steal-ghost, .steal-ghost * { pointer-events: none !important; }
+
+/* ---------- Quest2 for Mini Fumu (alert style "Quest2"): stone and metal alert cards and ring buttons. It wears al-quest too, so the speech bubble stays Quest's ---------- */
+html.al-quest2 { --q2-fine: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .78  0 0 0 0 .7  0 0 0 0 .56  .9 0 0 0 -.3'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); --q2-blot: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='n' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.025 .035' numOctaves='3' seed='9' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .02  0 0 0 0 .015  0 0 0 0 .01  1.6 0 0 0 -.45'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); --al-bg: #1d1a17; --al-ink: #efe2bd; --al-sub: #b7a981; --al-edge: #0a0805; --al-chip: #3a352e; --al-shadow: rgba(0, 0, 0, .7); --al-mix: #1d1a17; }
+html.al-quest2 .inbox-card {
+  border: 3px solid; border-color: #b9a77c #4a3f2b #1c1712 #8f7e58; border-radius: 6px;
+  background: linear-gradient(180deg, #38332d, #24201c 45%, #1a1714);   /* (smooth metal, no texture) */
+  box-shadow: 0 0 0 1.5px #000, inset 0 0 0 2px #14110e, inset 0 0 0 3px #7d6630, inset 0 1px 0 3px rgba(255, 235, 180, .12), inset 0 0 14px rgba(0, 0, 0, .55), 0 8px 14px var(--al-shadow);
+}
+html.al-quest2 .inbox-card::before { display: none; }
+html.al-quest2 .inbox-text b { color: #f6e7b0; text-shadow: 0 1px 0 #000; }
+html.al-quest2 .inbox-text span { color: #bfb08a; }
+html.al-quest2 :is(.inbox-icon, .remind-card .inbox-icon) { border-radius: 3px; border: 1px solid #6a5f4d; background: radial-gradient(circle at 50% 38%, #26211b, #0a0908); box-shadow: 0 0 0 1px #000, inset 0 3px 7px rgba(0, 0, 0, .9); }
+html.al-quest2 .inbox-actions button {
+  border: 1px solid #8f7e58; border-radius: 3px; color: #ffd100; text-shadow: 0 1px 0 #000;
+  background: linear-gradient(180deg, #403a32, #1f1c18); box-shadow: 0 0 0 1.5px #000, inset 0 1px 0 rgba(255, 235, 180, .3), inset 0 -2px 4px rgba(0, 0, 0, .35);
+}
+html.al-quest2 .inbox-actions .ia-done { background: linear-gradient(180deg, #b3281a, #55100a); color: #ffe27a; border-color: #d9b441; }
+html.al-quest2 .ring-btn {
+  border: 3px solid; border-color: #d2b970 #7a6128 #4d3b15 #b39447; border-radius: 50%; background: radial-gradient(circle at 50% 28%, #403527, #0e0c0a 75%);
+  box-shadow: 0 0 0 1.5px #000, inset 0 0 0 1.5px #1a1409, inset 0 -3px 6px rgba(0, 0, 0, .55), 0 3px 4px rgba(0, 0, 0, .6);
+}
+html.al-quest2 .ring-btn:hover { background: radial-gradient(circle at 50% 28%, #54442f, #14100b 75%); }
+html.al-quest2 .ring-btn[aria-pressed="true"] { background: radial-gradient(circle at 50% 28%, #6b3a1a, #1d0f08 75%); box-shadow: 0 0 0 1.5px #000, 0 0 10px rgba(255, 200, 60, .55), inset 0 0 8px rgba(255, 190, 60, .25); }
+
+@keyframes cool-twinkle { 0%, 100% { opacity: .35; transform: rotate(0deg) scale(.85); } 50% { opacity: 1; transform: rotate(60deg) scale(1.15); } }
+
+/* ---------- Old School (App settings > Appearance > Old School; Mini Fumu alert style "Old School") ----------
+   Old School RuneScape's interface: flat brown stone panels with a thin black frame and square corners, bright yellow lettering with a hard black
+   shadow, orange titles, red selected tabs. It rides on Quest (data-skin="quest") plus data-quest="osrs"; every rule starts with that, so Quest and Quest2 are untouched.
+   The lettering is Pixelify Sans (Google Fonts), the nearest free font to the game's. His speech bubble is the game's overhead text: yellow, outlined, no box. */
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) {
+  --os-stone: #494034; --os-dark: #3e3529; --os-pit: #2b251c; --os-hi: #6b6150; --os-lo: #1d1810; --os-yellow: #ffff00; --os-orange: #ff981f; --os-red: #8b2a1d;
+  --os-font: "Pixelify Sans", "Press Start 2P", "Courier New", monospace;
+  --os-text: 1px 1px 0 #000;
+  --bg: #3a3226; --surface: #494034; --surface-2: #3e3529; --cb-dock-a: #494034; --cb-dock-b: #3e3529; --outline: #1d1810; --line: #2b251c;
+  --ink: #ffff00; --muted: #d9a441; --accent: #8b2a1d; --accent-ink: #ffff00; --mint: #2f4a1f; --butter: #5a4a1a; --shadow: rgba(0, 0, 0, .55);
+  --cb-edge: #1d1810; --cb-edge-strong: #000; --cb-done: rgba(43, 37, 28, .7);
+}
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]), html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(button, input, select, textarea) { font-family: var(--os-font); letter-spacing: .01em; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) body { background-color: #3a3226; background-image: repeating-conic-gradient(#40372b 0 25%, #3a3226 0 50%); background-size: 6px 6px; background-attachment: scroll; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .picker { background: var(--os-stone); border: 2px solid; border-color: var(--os-hi) var(--os-lo) var(--os-lo) var(--os-hi); border-bottom: 0; border-radius: 0; box-shadow: 0 0 0 1px #000, 0 -6px 18px rgba(0, 0, 0, .55), inset 0 0 0 2px #000, inset 0 0 0 3px #5b5140; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .picker h2 { border: 1px solid #000; border-radius: 0; background: var(--os-dark); color: var(--os-orange); text-shadow: var(--os-text); letter-spacing: 0; box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 var(--os-hi); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.item, .picker h2)::before { display: none; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.add, .item, .goal, .fav, .options, .picker .closet-wear) { border: 1px solid #000; border-radius: 0; background: var(--os-dark); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 var(--os-hi); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .item-text { color: var(--os-yellow); text-shadow: var(--os-text); font-weight: 400; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .item.done .item-text { color: #b58a24; text-decoration-color: #000; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.qty-tag, .due-tag) { color: var(--os-orange); text-shadow: var(--os-text); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .item .emoji-btn { width: 44px; height: 44px; padding: 3px; border: 1px solid #000; border-radius: 0; background: var(--os-pit); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 #5b5140; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .check { border: 1px solid #000; border-radius: 0; background: var(--os-pit); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 #5b5140; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .check::before { border-radius: 0; border: 0; box-shadow: none; background: transparent; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .item.done .check::before { background-color: #1f6b14; border-radius: 0; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .add input { background: transparent; color: var(--os-yellow); text-shadow: var(--os-text); box-shadow: none; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .add input::placeholder { color: #a8883c; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.pill-btn, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .dress-tabs button, .cal-add-btn, .recipe-btn, .mic-btn) {
+  border: 1px solid #000; border-radius: 0; color: var(--os-yellow); text-shadow: var(--os-text); background: var(--os-stone);
+  box-shadow: inset 1px 1px 0 var(--os-hi), inset -1px -1px 0 var(--os-lo);
+}
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.pill-btn, .picker-grid button, .dress-tabs button, .recipe-btn, .mic-btn):hover { background: #564c3d; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.pill-btn, .picker-grid button, .dress-tabs button, .recipe-btn, .mic-btn):active { background: var(--os-pit); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 var(--os-hi); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.pill-btn[aria-pressed="true"], .dress-tabs button[aria-selected="true"], .picker [aria-pressed="true"]:is(button)) { background: var(--os-red); color: #fff; border: 1px solid #000; box-shadow: inset 1px 1px 0 #b8432f, inset -1px -1px 0 #4a130b; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .add-btn { border: 1px solid #000; border-radius: 0; color: #fff; text-shadow: var(--os-text); background: #1f6b14; box-shadow: inset 1px 1px 0 #3f9a30, inset -1px -1px 0 #0f3a09; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .dress-tabs button img { border-radius: 0; border: 1px solid #000; background: var(--os-pit); box-shadow: none; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .dock { background: var(--os-stone); border-top: 2px solid #000; box-shadow: inset 0 2px 0 var(--os-hi), inset 0 -2px 0 var(--os-lo); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .dock-icon { border: 1px solid #000; border-radius: 0; background: var(--os-dark); color: var(--os-yellow); box-shadow: inset 1px 1px 0 var(--os-hi), inset -1px -1px 0 var(--os-lo); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .dock-icon:active { background: var(--os-red); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .dock-label { color: var(--os-yellow); text-shadow: var(--os-text); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .cal-sheet #calGrid { background: var(--os-pit); border: 1px solid #000; border-radius: 0; box-shadow: none; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .cal-sheet .cal-cell { background: var(--os-dark); border: 1px solid #000; border-radius: 0; box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 var(--os-hi); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .cal-sheet .cal-cell:nth-child(7n), html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .cal-sheet .cal-cell:nth-child(7n-1) { background: #43372a; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .cal-sheet .cal-cell:is(.today, .sel) { background: var(--os-red); border: 1px solid #000; box-shadow: inset 1px 1px 0 #b8432f, inset -1px -1px 0 #4a130b; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .cal-sheet .cal-list li { background: var(--os-dark); border: 1px solid #000; border-radius: 0; box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 var(--os-hi); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.cal-month select, .cal-add input) { background: var(--os-pit); border: 1px solid #000; border-radius: 0; box-shadow: none; color: var(--os-yellow); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.profile-avatar, .profile-link-icon) { border: 1px solid #000 !important; border-radius: 0 !important; background: var(--os-pit) !important; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button) { aspect-ratio: 1 / 1; background: var(--os-pit); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 #5b5140; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button):hover { background: #3a3226; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button)[aria-pressed="true"] { background: #5a2a1a; border: 1px solid #000; box-shadow: inset 0 0 0 2px var(--os-red); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .picker .species-grid button .pet.mini { width: 94px; height: 86px; background: none; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .picker .species-grid button { padding: 4px 2px 5px; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .picker-grid button { padding: 3px; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .picker-grid button img { width: 100%; height: 100%; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .dress-panel .hat-strip button { padding: 5px 2px 3px; gap: 2px; font-size: .68rem; line-height: 1.1; overflow: hidden; justify-content: center; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .dress-panel .hat-strip button > svg { width: 100%; max-width: 78px; height: 56px; padding: 0; background: none; border-radius: 0; }
+
+/* Old School for Mini Fumu (alert style "Old School"): the same stone cards and square buttons; his speech is the game's overhead text (yellow, black outline, no box, no fin) */
+html:is(.al-osrs, .al-bonfire) { --os-stone: #494034; --os-dark: #3e3529; --os-pit: #2b251c; --os-hi: #6b6150; --os-lo: #1d1810; --os-yellow: #ffff00; --os-orange: #ff981f; --os-red: #8b2a1d; --os-font: "Pixelify Sans", "Press Start 2P", "Courier New", monospace; }
+html:is(.al-osrs, .al-bonfire) .inbox-card, html:is(.al-osrs, .al-bonfire) .inbox-card * { font-family: var(--os-font); }
+html:is(.al-osrs, .al-bonfire) .inbox-card { border: 1px solid #000; border-radius: 0; outline: none; background: var(--os-stone); box-shadow: inset 0 0 0 1px var(--os-hi), inset 0 0 0 2px #000, inset 0 0 0 3px #5b5140, 0 6px 12px var(--al-shadow); }
+html:is(.al-osrs, .al-bonfire) .inbox-card::before, html:is(.al-osrs, .al-bonfire) .inbox-card::after { display: none; }
+html:is(.al-osrs, .al-bonfire) .inbox-text b { color: var(--os-orange); text-shadow: 1px 1px 0 #000; font-weight: 400; letter-spacing: 0; }
+html:is(.al-osrs, .al-bonfire) .inbox-text span { color: var(--os-yellow); text-shadow: 1px 1px 0 #000; }
+html:is(.al-osrs, .al-bonfire) .inbox-icon { border-radius: 0; rotate: 0deg; border: 1px solid #000; background: var(--os-pit); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 #5b5140; }
+html:is(.al-osrs, .al-bonfire) .inbox-actions button { border: 1px solid #000; border-radius: 0; background: var(--os-dark); color: var(--os-yellow); text-shadow: 1px 1px 0 #000; font-weight: 400; box-shadow: inset 1px 1px 0 var(--os-hi), inset -1px -1px 0 var(--os-lo); }
+html:is(.al-osrs, .al-bonfire) .inbox-actions button:hover { background: #564c3d; }
+html:is(.al-osrs, .al-bonfire) .inbox-actions .ia-done { background: #1f6b14; color: #fff; box-shadow: inset 1px 1px 0 #3f9a30, inset -1px -1px 0 #0f3a09; }
+html:is(.al-osrs, .al-bonfire) .ring-btn { border: 1px solid #000; border-radius: 0; background: var(--os-stone); box-shadow: inset 1px 1px 0 var(--os-hi), inset -1px -1px 0 var(--os-lo); }
+html:is(.al-osrs, .al-bonfire) .ring-btn:hover { background: #564c3d; }
+html:is(.al-osrs, .al-bonfire) .ring-btn[aria-pressed="true"] { background: var(--os-red); box-shadow: inset 1px 1px 0 #b8432f, inset -1px -1px 0 #4a130b; }
+html:is(.al-osrs, .al-bonfire) .stage .bubble:not(.in-sheet) {
+  background: none; border: 0; border-radius: 0; box-shadow: none; padding: 2px 4px; filter: none; max-width: min(260px, calc(50% - 62px * var(--pet-size, 1) - var(--walk-x, 0px))); text-align: center;
+  font-family: var(--os-font); font-size: 1.05rem; font-weight: 400; color: var(--os-yellow);
+  text-shadow: -1px 0 #000, 1px 0 #000, 0 -1px #000, 0 1px #000, 1px 1px 0 #000, -1px -1px 0 #000;
+}
+html:is(.al-osrs, .al-bonfire) .stage .bubble:not(.in-sheet)::before, html:is(.al-osrs, .al-bonfire) .stage .bubble:not(.in-sheet)::after { display: none; }
+
+/* Old School: leftovers (labels, rounded pills, tape, fonts everywhere) */
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) *:not(svg *):not(svg) { font-family: var(--os-font); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .field-label, html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .picker legend { color: var(--os-orange); text-shadow: var(--os-text); background: none; border: 0; box-shadow: none; transform: none; font-weight: 400; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .field-label::before, html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .field-label::after { display: none; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .items .aisle { color: var(--os-orange); text-shadow: var(--os-text); font-weight: 400; letter-spacing: 0; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .brand { color: var(--os-yellow); text-shadow: var(--os-text); font-weight: 400; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.name-show, .name-edit, .dress-search, .qty-tag, .due-tag, .badge, .dock-badge, .picker input, .picker select) { border-radius: 0; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .name-show { background: var(--os-dark); border: 1px solid #000; box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 var(--os-hi); color: var(--os-yellow); text-shadow: var(--os-text); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .name-edit { background: var(--os-red); color: #fff; border: 1px solid #000; text-shadow: var(--os-text); box-shadow: inset 1px 1px 0 #b8432f, inset -1px -1px 0 #4a130b; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .dress-search { background: var(--os-pit); border: 1px solid #000; color: var(--os-yellow); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 #5b5140; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.qty-tag, .due-tag) { background: var(--os-pit); border: 1px solid #000; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .gear-btn { border-radius: 0; background: var(--os-stone); border: 1px solid #000; box-shadow: inset 1px 1px 0 var(--os-hi), inset -1px -1px 0 var(--os-lo); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.gear-btn, .dock-icon)::before, html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.gear-btn, .dock-icon)::after { display: none; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .stage .bubble:not(.in-sheet) { background: none; border: 0; box-shadow: none; color: var(--os-yellow); text-shadow: -1px 0 #000, 1px 0 #000, 0 -1px #000, 0 1px #000; font-size: 1.05rem; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .stage .bubble:not(.in-sheet)::before, html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .stage .bubble:not(.in-sheet)::after { display: none; }
+
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.dock-icon, .gear-btn, .add-btn, .dock button) { rotate: 0deg; transform: none; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .dock-icon::before, html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .dock-icon::after, html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .add-btn::before, html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .add-btn::after, html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .dock-icon > i, html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .dock-icon .tape { display: none; }
+
+/* the Profile button's badge and icon wiggle every few seconds, in every theme, so a new gift or birthday is noticed */
+@keyframes badgeWiggle { 0%, 62%, 100% { rotate: 0deg; translate: 0 0; } 66% { rotate: -14deg; translate: 0 -2px; } 72% { rotate: 12deg; } 78% { rotate: -10deg; translate: 0 -1px; } 84% { rotate: 8deg; } 90% { rotate: -4deg; } 95% { rotate: 0deg; translate: 0 0; } }
+.dock button:has(.dock-badge:not([hidden])) .dock-icon, .dock-badge:not([hidden]) { animation: badgeWiggle 3.2s ease-in-out infinite; transform-origin: 50% 80%; }
+.dock-badge:not([hidden]) { animation-delay: .12s; transform-origin: 50% 50%; }
+@media (prefers-reduced-motion: reduce) { .dock button:has(.dock-badge:not([hidden])) .dock-icon, .dock-badge:not([hidden]) { animation: none; } }
+
+/* Old School: more polish and detail */
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) { --os-rivet: radial-gradient(circle at 50% 50%, #8a7d63 0 1.5px, #1d1810 2px, transparent 2.5px); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .picker { background-image: var(--os-rivet), var(--os-rivet), var(--os-rivet), var(--os-rivet), repeating-conic-gradient(#4d4437 0 25%, #494034 0 50%); background-size: 9px 9px, 9px 9px, 9px 9px, 9px 9px, 4px 4px; background-position: 6px 6px, calc(100% - 6px) 6px, 6px calc(100% - 6px), calc(100% - 6px) calc(100% - 6px), 0 0; background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .stage { border: 3px solid; border-color: var(--os-hi) var(--os-lo) var(--os-lo) var(--os-hi); border-radius: 0; box-shadow: 0 0 0 1px #000, inset 0 0 0 2px #000, inset 0 0 0 3px #5b5140; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .scene-bar { background: var(--os-dark); border: 1px solid #000; box-shadow: inset 1px 1px 0 var(--os-hi), inset -1px -1px 0 var(--os-lo); padding: 4px 8px; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .items .item:nth-child(even of .item) { background: #43392c; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .item:hover { background: #4a3f31; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .item.done { background: #332c22; border-style: solid; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .item.done .emoji-btn img { opacity: .55; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .item .emoji-btn:active, html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .check:active { background: var(--os-red); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .item.done .check::before { background-image: none; outline: 1px solid #000; outline-offset: -3px; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .items .aisle::after { border-top: 1px solid #1d1810; border-bottom: 1px solid #6b6150; height: 0; opacity: 1; background: none; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .pill-btn:focus-visible, html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .add-btn:focus-visible, html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .check:focus-visible { outline: 2px solid var(--os-yellow); outline-offset: 1px; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .add-btn:active { background: #164f0e; box-shadow: inset 1px 1px 0 #0f3a09, inset -1px -1px 0 #3f9a30; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .dock button[aria-current="page"] .dock-icon, html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .dock button.on .dock-icon { background: var(--os-red); box-shadow: inset 1px 1px 0 #b8432f, inset -1px -1px 0 #4a130b; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.dock-badge, .brand-due, .gift-count, .profile-gift-count) { background: var(--os-red); color: var(--os-yellow); border: 1px solid #000; text-shadow: 1px 1px 0 #000; box-shadow: inset 1px 1px 0 #b8432f, inset -1px -1px 0 #4a130b; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .options { padding: 4px; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .option { border-bottom: 1px solid #1d1810; box-shadow: 0 1px 0 var(--os-hi); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .option-title { color: var(--os-yellow); text-shadow: var(--os-text); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) input[type="checkbox"][role="switch"] { accent-color: #1f6b14; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) ::selection { background: var(--os-red); color: var(--os-yellow); }
+
+/* Quest and Quest2: an empty tick circle is a plain pale ring on a dark centre, so it does not look already ticked (ticked ones are filled red with the heart) */
+html:root[data-skin="quest"]:not([data-quest="osrs"], [data-quest="bonfire"]) .item:not(.done) .check::before { background: #120d07; border: 2.5px solid #efe2bd; box-shadow: 0 0 0 1.5px #000; }
+html:root[data-skin="quest"]:not([data-quest="osrs"], [data-quest="bonfire"]) .item:not(.done) .check:hover::before { border-color: #ffd100; }
+
+    
+  
+
+   
+
+    
+
+   
+
+ 
+
+   
+
+/* Old School: square switches (the track and the knob) */
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .option input { border-radius: 0; border: 1px solid #000; background: var(--os-pit); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 #5b5140; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .option input::after { border-radius: 0; border: 1px solid #000; background: var(--os-hi); box-shadow: inset 1px 1px 0 #8a7d63, inset -1px -1px 0 var(--os-lo); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .option input:checked { background: #1f6b14; }
+
+/* hand dance (an idle dance, handDance in app-idle.js): one 3.6 s round, played three times (10.8 s). In each round: he leans onto one foot, the other foot
+   tucked behind it to the side, and pushes one hand towards you, raised in front of his cheek (it grows and shows its palm, only then), eyes closed;
+   then he sways quickly from side to side (a step every 0.2 s, like the clip), one hand on his belly and the other held out, swapping every other step.
+   Every pose of an arm is written as translate + rotate, so the browser blends them smoothly (a pose with only a rotate blended oddly with the others),
+   and the hand comes down over 0.2 s straight into the first sway step */
+@keyframes handdance { 0% { transform: translate(0px, 0px) rotate(0deg); } 5.56% { transform: translate(0px, 0px) rotate(0deg); } 11.11% { transform: translate(4px, 0px) rotate(8deg); } 22.22% { transform: translate(4px, 0px) rotate(8deg); } 27.78% { transform: translate(5px, 0px) rotate(4deg); } 33.33% { transform: translate(-5px, 0px) rotate(-4deg); } 38.89% { transform: translate(5px, 0px) rotate(4deg); } 44.44% { transform: translate(-5px, 0px) rotate(-4deg); } 50% { transform: translate(5px, 0px) rotate(4deg); } 55.56% { transform: translate(-5px, 0px) rotate(-4deg); } 61.11% { transform: translate(5px, 0px) rotate(4deg); } 66.67% { transform: translate(-5px, 0px) rotate(-4deg); } 72.22% { transform: translate(5px, 0px) rotate(4deg); } 77.78% { transform: translate(-5px, 0px) rotate(-4deg); } 83.33% { transform: translate(5px, 0px) rotate(4deg); } 88.89% { transform: translate(-5px, 0px) rotate(-4deg); } 100% { transform: translate(0px, 0px) rotate(0deg); } }
+@keyframes bs-arm-l { 0% { transform: translate(0px, 0px) rotate(18deg); } 22.22% { transform: translate(0px, 0px) rotate(18deg); } 27.78% { transform: translate(14px, 11px) rotate(-82deg); } 33.33% { transform: translate(14px, 11px) rotate(-82deg); } 38.89% { transform: translate(4px, -2px) rotate(34deg); } 44.44% { transform: translate(4px, -2px) rotate(34deg); } 50% { transform: translate(14px, 11px) rotate(-82deg); } 55.56% { transform: translate(14px, 11px) rotate(-82deg); } 61.11% { transform: translate(4px, -2px) rotate(34deg); } 66.67% { transform: translate(4px, -2px) rotate(34deg); } 72.22% { transform: translate(14px, 11px) rotate(-82deg); } 77.78% { transform: translate(14px, 11px) rotate(-82deg); } 83.33% { transform: translate(4px, -2px) rotate(34deg); } 88.89% { transform: translate(4px, -2px) rotate(34deg); } 100% { transform: translate(0px, 0px) rotate(18deg); } }
+@keyframes bs-arm-r { 0% { transform: translate(0px, 0px) rotate(-18deg); } 5.56% { transform: translate(0px, 0px) rotate(-18deg); } 11.11% { transform: translate(-11px, 7px) rotate(-130deg); } 22.22% { transform: translate(-11px, 7px) rotate(-130deg); } 27.78% { transform: translate(-4px, -2px) rotate(-34deg); } 33.33% { transform: translate(-4px, -2px) rotate(-34deg); } 38.89% { transform: translate(-14px, 11px) rotate(82deg); } 44.44% { transform: translate(-14px, 11px) rotate(82deg); } 50% { transform: translate(-4px, -2px) rotate(-34deg); } 55.56% { transform: translate(-4px, -2px) rotate(-34deg); } 61.11% { transform: translate(-14px, 11px) rotate(82deg); } 66.67% { transform: translate(-14px, 11px) rotate(82deg); } 72.22% { transform: translate(-4px, -2px) rotate(-34deg); } 77.78% { transform: translate(-4px, -2px) rotate(-34deg); } 83.33% { transform: translate(-14px, 11px) rotate(82deg); } 88.89% { transform: translate(-14px, 11px) rotate(82deg); } 100% { transform: translate(0px, 0px) rotate(-18deg); } }
+@keyframes bs-grow-r { 0% { scale: 1; } 5.56% { scale: 1; } 11.11% { scale: 1.7; } 22.22% { scale: 1.7; } 27.78% { scale: 1; } 100% { scale: 1; } }
+@keyframes bs-foot-l { 0% { transform: translate(0, 0); } 5.56% { transform: translate(0, 0); } 11.11% { transform: translate(50px, -9px); } 22.22% { transform: translate(50px, -9px); } 27.78% { transform: translate(0, 0); } 33.33% { transform: translate(0, -2.6px); } 38.89% { transform: translate(0, 0); } 44.44% { transform: translate(0, -2.6px); } 50% { transform: translate(0, 0); } 55.56% { transform: translate(0, -2.6px); } 61.11% { transform: translate(0, 0); } 66.67% { transform: translate(0, -2.6px); } 72.22% { transform: translate(0, 0); } 77.78% { transform: translate(0, -2.6px); } 83.33% { transform: translate(0, 0); } 88.89% { transform: translate(0, -2.6px); } 100% { transform: translate(0, 0); } }
+@keyframes bs-foot-r { 0% { transform: translate(0, 0); } 27.78% { transform: translate(0, -2.6px); } 33.33% { transform: translate(0, 0); } 38.89% { transform: translate(0, -2.6px); } 44.44% { transform: translate(0, 0); } 50% { transform: translate(0, -2.6px); } 55.56% { transform: translate(0, 0); } 61.11% { transform: translate(0, -2.6px); } 66.67% { transform: translate(0, 0); } 72.22% { transform: translate(0, -2.6px); } 77.78% { transform: translate(0, 0); } 83.33% { transform: translate(0, -2.6px); } 88.89% { transform: translate(0, 0); } 100% { transform: translate(0, 0); } }
+.pet.handdance .pet-svg { animation: handdance 3.6s ease-in-out 3; transform-origin: 50% 94%; }
+.pet.handdance .arm-l { animation: bs-arm-l 3.6s ease-in-out 3; }
+.pet.handdance .arm-r { animation: bs-arm-r 3.6s ease-in-out 3, bs-grow-r 3.6s ease-in-out 3; }
+/* the raised hand shows its palm (toe beans) while it is pushed towards you; bs-out-r is set for that moment by handDance */
+.pet.bs-out-r .arm-r .paw-beans { display: inline; }
+.pet.bs-out-r .arm-r .paw-toe-lines { display: none; }
+.pet.handdance:not(#x) :is(.foot-l, .shoe-l) { animation: bs-foot-l 3.6s ease-in-out 3; }
+.pet.handdance:not(#x) :is(.foot-r, .shoe-r) { animation: bs-foot-r 3.6s ease-in-out 3; }
+.pet.handdance :is(.ear-l, .ear-r) { animation: ear-jiggle-l .4s ease-out 27; }
+@media (prefers-reduced-motion: reduce) { .pet.handdance :is(.pet-svg, .arm-l, .arm-r, .ear-l, .ear-r), .pet.handdance:not(#x) :is(.foot-l, .shoe-l, .foot-r, .shoe-r) { animation: none; } }
+
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .stage { border: 0; border-radius: 0; box-shadow: none; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .backdrop { border: 2px solid #000; border-radius: 16px; box-shadow: 0 0 0 3px #5b5140, 0 0 0 4px #000; }
+
+/* ---------- Bonfire (App settings > Appearance > Bonfire; Mini Fumu alert style "Bonfire") ----------
+   A dark fantasy-adventure menu look: near-black panels with a fine grain, thin muted-gold double lines, parchment lettering in a Garamond-style serif (EB Garamond,
+   Google Fonts), gold titles with a hairline underneath, quiet rows, and a glowing ember-orange for whatever is picked. It is Quest plus data-quest="bonfire" and
+   shares Old School's rules (they are written for both), then changes the palette and every look that differs. His speech is a small dark panel with a gold hairline. */
+html:root[data-skin="quest"][data-quest="bonfire"], html.al-bonfire {
+  --os-stone: #1c1916; --os-dark: #14110f; --os-pit: #0d0b0a; --os-hi: #6f6240; --os-lo: #050404; --os-yellow: #e6dcc0; --os-orange: #d8b062; --os-red: #b3541d;
+  --os-font: "EB Garamond", Garamond, "Times New Roman", serif;
+  --os-text: 0 1px 2px rgba(0, 0, 0, .9);
+  --bf-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .6  0 0 0 0 .52  0 0 0 0 .4  0 0 0 .55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='.3'/></svg>");
+  --bf-gold: #6f6240; --bf-line: #3a3220; --bf-ember: linear-gradient(#cf6a22, #8e3f12);
+}
+html:root[data-skin="quest"][data-quest="bonfire"] {
+  --bg: #0f0d0c; --surface: #1c1916; --surface-2: #14110f; --cb-dock-a: #14110f; --cb-dock-b: #0d0b0a; --outline: #3a3220; --line: #2a2519;
+  --ink: #e6dcc0; --muted: #a39673; --accent: #b3541d; --accent-ink: #fff1d6; --mint: #2a3a24; --butter: #4a3a18; --shadow: rgba(0, 0, 0, .7);
+  --cb-edge: #3a3220; --cb-edge-strong: #6f6240; --cb-done: rgba(13, 11, 10, .7);
+  --hl: #d9822b; --hl-soft: rgba(217, 130, 43, .2); --hl-glow: rgba(217, 130, 43, .45); --badge: #b3541d;
+}
+html:root[data-skin="quest"][data-quest="bonfire"] body { font-size: 18px; background-color: #0f0d0c; background-image: radial-gradient(ellipse at 50% 0, rgba(130, 85, 30, .2), transparent 62%), var(--bf-grain); background-size: auto, 160px 160px; }
+html:root[data-skin="quest"][data-quest="bonfire"] .picker { background: #181512 var(--bf-grain); background-size: 160px 160px; border: 1px solid #5b4f33; border-bottom: 0; border-radius: 4px 4px 0 0; box-shadow: 0 0 0 1px #000, 0 -8px 24px rgba(0, 0, 0, .7), inset 0 0 0 1px #050404, inset 0 0 0 2px var(--bf-line); }
+html:root[data-skin="quest"][data-quest="bonfire"] .picker h2 { border: 0; border-bottom: 1px solid #5b4f33; border-radius: 0; background: transparent; box-shadow: none; color: var(--os-orange); font-weight: 500; letter-spacing: .06em; text-shadow: none; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.add, .item, .goal, .fav, .options, .picker .closet-wear) { background: rgba(12, 10, 9, .6); border: 1px solid #2c2619; border-radius: 2px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .55); }
+html:root[data-skin="quest"][data-quest="bonfire"] .items .item:nth-child(even of .item) { background: rgba(26, 22, 18, .7); }
+html:root[data-skin="quest"][data-quest="bonfire"] .item:hover { background: rgba(38, 31, 22, .8); }
+html:root[data-skin="quest"][data-quest="bonfire"] .item.done { background: rgba(9, 8, 7, .6); }
+html:root[data-skin="quest"][data-quest="bonfire"] .item-text { color: var(--os-yellow); text-shadow: none; font-weight: 500; font-size: 1.06em; }
+html:root[data-skin="quest"][data-quest="bonfire"] .item.done .item-text { color: #857a5c; text-decoration-color: #5b4f33; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.qty-tag, .due-tag) { color: var(--os-orange); text-shadow: none; background: #0d0b0a; border: 1px solid #3a3220; border-radius: 2px; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.item .emoji-btn, .check) { background: #0d0b0a; border: 1px solid #4a3f28; border-radius: 2px; box-shadow: inset 0 0 0 1px #000; }
+html:root[data-skin="quest"][data-quest="bonfire"] .item:not(.done) .check::before { background: transparent; border: 1.5px solid #8f8059; box-shadow: none; }
+html:root[data-skin="quest"][data-quest="bonfire"] .item.done .check::before { background-color: #b3541d; border: 0; outline: 1px solid #e0a04a; outline-offset: -3px; }
+html:root[data-skin="quest"][data-quest="bonfire"] .item .emoji-btn:active, html:root[data-skin="quest"][data-quest="bonfire"] .check:active { background: #3a1f0d; }
+html:root[data-skin="quest"][data-quest="bonfire"] .add input { color: var(--os-yellow); text-shadow: none; }
+html:root[data-skin="quest"][data-quest="bonfire"] .add input::placeholder { color: #7f7455; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.pill-btn, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .dress-tabs button, .cal-add-btn, .recipe-btn, .mic-btn) {
+  border: 1px solid #5b4f33; border-radius: 2px; color: var(--os-yellow); text-shadow: none; background: linear-gradient(#211d19, #15120f); box-shadow: inset 0 0 0 1px #000;
+}
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.pill-btn, .picker-grid button, .dress-tabs button, .recipe-btn, .mic-btn):hover { background: #26201a; border-color: var(--os-orange); color: #fff3d0; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.pill-btn, .picker-grid button, .dress-tabs button, .recipe-btn, .mic-btn):active { background: #0d0b0a; box-shadow: inset 0 0 0 1px #000, inset 0 2px 6px rgba(0, 0, 0, .7); }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.pill-btn[aria-pressed="true"], .dress-tabs button[aria-selected="true"], .picker [aria-pressed="true"]:is(button)) { background: var(--bf-ember); color: #fff6e4; border: 1px solid #e9a04a; box-shadow: 0 0 12px rgba(217, 130, 43, .5), inset 0 0 0 1px rgba(0, 0, 0, .4); }
+html:root[data-skin="quest"][data-quest="bonfire"] .add-btn { border: 1px solid #d19340; border-radius: 2px; color: #fff1d6; text-shadow: 0 1px 2px #000; background: linear-gradient(#a8541b, #6f3010); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .45); }
+html:root[data-skin="quest"][data-quest="bonfire"] .add-btn:active { background: #5a280d; box-shadow: inset 0 2px 6px rgba(0, 0, 0, .7); }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-tabs button img { border: 1px solid #4a3f28; background: #0d0b0a; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button) { background: #100e0c; box-shadow: inset 0 0 0 1px #000; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button):hover { background: #1a1612; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button)[aria-pressed="true"] { background: #2a1a0e; border: 1px solid #e9a04a; box-shadow: inset 0 0 0 1px #d9822b, 0 0 12px rgba(217, 130, 43, .5); }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock { background: linear-gradient(#171412, #0c0a09); border-top: 1px solid #5b4f33; box-shadow: 0 -1px 0 #000, inset 0 1px 0 rgba(255, 235, 190, .07); }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock-icon { border: 1px solid #4a3f28; border-radius: 2px; background: #14110f; color: var(--os-yellow); box-shadow: inset 0 0 0 1px #000; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock-icon:active { background: #3a1f0d; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock button[aria-current="page"] .dock-icon, html:root[data-skin="quest"][data-quest="bonfire"] .dock button.on .dock-icon { background: var(--bf-ember); border-color: #e9a04a; box-shadow: 0 0 12px rgba(217, 130, 43, .5), inset 0 0 0 1px rgba(0, 0, 0, .4); }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock-label { color: #cbbf9f; text-shadow: none; font-weight: 500; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.dock-badge, .brand-due, .gift-count, .profile-gift-count) { background: #b3541d; color: #fff1d6; border: 1px solid #000; text-shadow: none; }
+html:root[data-skin="quest"][data-quest="bonfire"] .gear-btn { background: #14110f; border: 1px solid #5b4f33; border-radius: 2px; box-shadow: inset 0 0 0 1px #000; }
+html:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { background: rgba(10, 8, 7, .75); border: 1px solid var(--bf-line); border-radius: 2px; box-shadow: inset 0 0 0 1px #000; }
+html:root[data-skin="quest"][data-quest="bonfire"] .brand { color: #eadfc3; text-shadow: none; font-weight: 500; letter-spacing: .03em; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.field-label, .picker legend) { color: var(--os-orange); text-shadow: none; font-weight: 500; letter-spacing: .05em; }
+html:root[data-skin="quest"][data-quest="bonfire"] .items .aisle { color: #c9a557; text-shadow: none; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; font-size: .78em; }
+html:root[data-skin="quest"][data-quest="bonfire"] .items .aisle::after { border-top: 1px solid var(--bf-line); border-bottom: 0; }
+html:root[data-skin="quest"][data-quest="bonfire"] .name-show { background: #0d0b0a; border: 1px solid #4a3f28; box-shadow: inset 0 0 0 1px #000; color: var(--os-yellow); border-radius: 2px; }
+html:root[data-skin="quest"][data-quest="bonfire"] .name-edit { background: linear-gradient(#a8541b, #6f3010); color: #fff1d6; border: 1px solid #d19340; text-shadow: none; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .45); }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-search { background: #0d0b0a; border: 1px solid #4a3f28; box-shadow: inset 0 0 0 1px #000; color: var(--os-yellow); }
+html:root[data-skin="quest"][data-quest="bonfire"] .cal-sheet #calGrid { background: #0d0b0a; border: 1px solid var(--bf-line); }
+html:root[data-skin="quest"][data-quest="bonfire"] .cal-sheet .cal-cell { background: #14110f; border: 1px solid #2c2619; box-shadow: inset 0 0 0 1px #000; }
+html:root[data-skin="quest"][data-quest="bonfire"] .cal-sheet .cal-cell:nth-child(7n), html:root[data-skin="quest"][data-quest="bonfire"] .cal-sheet .cal-cell:nth-child(7n-1) { background: #1a1612; }
+html:root[data-skin="quest"][data-quest="bonfire"] .cal-sheet .cal-cell:is(.today, .sel) { background: var(--bf-ember); border: 1px solid #e9a04a; box-shadow: 0 0 10px rgba(217, 130, 43, .45), inset 0 0 0 1px rgba(0, 0, 0, .4); }
+html:root[data-skin="quest"][data-quest="bonfire"] .cal-sheet .cal-list li { background: #14110f; border: 1px solid #2c2619; box-shadow: inset 0 0 0 1px #000; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.cal-month select, .cal-add input) { background: #0d0b0a; border: 1px solid #4a3f28; color: var(--os-yellow); }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.profile-avatar, .profile-link-icon) { border: 1px solid #5b4f33 !important; background: #0d0b0a !important; }
+html:root[data-skin="quest"][data-quest="bonfire"] .option { border-bottom: 1px solid #2a2519; box-shadow: none; }
+html:root[data-skin="quest"][data-quest="bonfire"] .option-title { color: var(--os-yellow); text-shadow: none; font-weight: 500; }
+html:root[data-skin="quest"][data-quest="bonfire"] input[type="checkbox"][role="switch"] { accent-color: #b3541d; }
+html:root[data-skin="quest"][data-quest="bonfire"] ::selection { background: #b3541d; color: #fff1d6; }
+html:root[data-skin="quest"][data-quest="bonfire"] .stage { border: 0; box-shadow: none; }
+html:root[data-skin="quest"][data-quest="bonfire"] .backdrop { border: 1px solid var(--bf-gold); border-radius: 6px; box-shadow: 0 0 0 3px #0a0908, 0 0 0 4px #3f3624; }
+/* his speech: a small dark panel with a gold hairline (the app, and Mini Fumu's bubble) */
+html:root[data-skin="quest"][data-quest="bonfire"] .stage .bubble:not(.in-sheet), html.al-bonfire .stage .bubble:not(.in-sheet) {
+  background: rgba(10, 8, 7, .93) var(--bf-grain); border: 1px solid var(--bf-gold); border-radius: 3px; box-shadow: 0 0 0 1px #000, 0 4px 14px rgba(0, 0, 0, .6);
+  padding: 5px 11px; color: #eadfc3; text-shadow: none; text-align: left; font-family: var(--os-font); font-size: 1.08rem; font-weight: 500;
+}
+/* Mini Fumu's cards and ring */
+html.al-bonfire .inbox-card { border: 1px solid #5b4f33; border-radius: 3px; background: #181512 var(--bf-grain); box-shadow: 0 0 0 1px #000, inset 0 0 0 1px #050404, inset 0 0 0 2px var(--bf-line), 0 8px 18px rgba(0, 0, 0, .6); }
+html.al-bonfire .inbox-text b { color: var(--os-orange); text-shadow: none; font-weight: 600; letter-spacing: .03em; }
+html.al-bonfire .inbox-text span { color: var(--os-yellow); text-shadow: none; }
+html.al-bonfire .inbox-icon { border: 1px solid #4a3f28; border-radius: 2px; background: #0d0b0a; box-shadow: inset 0 0 0 1px #000; }
+html.al-bonfire .inbox-actions button { border: 1px solid #5b4f33; border-radius: 2px; background: linear-gradient(#211d19, #15120f); color: var(--os-yellow); text-shadow: none; font-weight: 500; box-shadow: inset 0 0 0 1px #000; }
+html.al-bonfire .inbox-actions button:hover { background: #26201a; border-color: var(--os-orange); }
+html.al-bonfire .inbox-actions .ia-done { background: linear-gradient(#a8541b, #6f3010); border-color: #d19340; color: #fff1d6; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .45); }
+html.al-bonfire .ring-btn { border: 1px solid #5b4f33; border-radius: 2px; background: #181512; box-shadow: inset 0 0 0 1px #000; }
+html.al-bonfire .ring-btn:hover { background: #26201a; border-color: var(--os-orange); }
+html.al-bonfire .ring-btn[aria-pressed="true"] { background: var(--bf-ember); border-color: #e9a04a; box-shadow: 0 0 12px rgba(217, 130, 43, .5), inset 0 0 0 1px rgba(0, 0, 0, .4); }
+
+/* Bonfire: leftovers (the dressing-room stage, the Profile cards and their tape, switches, rounded corners) */
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.brand, .dock, .dock button, .dress-panels, .mood-info, .profile-card, .profile-sheet .field, .profile-link) { border-radius: 3px; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.profile-card, .profile-sheet .field, .profile-link) { background: rgba(12, 10, 9, .6); border: 1px solid #2c2619; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .55); }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.profile-sheet .field, .profile-link)::before { display: none !important; }
+html:root[data-skin="quest"][data-quest="bonfire"] .profile-sheet .field input { border-radius: 2px; border: 1px solid #4a3f28; background: #0d0b0a; color: var(--os-yellow); box-shadow: inset 0 0 0 1px #000; }
+html:root[data-skin="quest"][data-quest="bonfire"] .profile-link-go { color: var(--os-orange); }
+html:root[data-skin="quest"][data-quest="bonfire"] .option input { border: 1px solid #5b4f33; border-radius: 2px; background: #0d0b0a; box-shadow: inset 0 0 0 1px #000; }
+html:root[data-skin="quest"][data-quest="bonfire"] .option input::after { border: 1px solid #000; border-radius: 2px; background: #8f8059; box-shadow: none; }
+html:root[data-skin="quest"][data-quest="bonfire"] .option input:checked { background: #b3541d; border-color: #e9a04a; }
+/* the dressing-room stage: a dark chamber with deep red curtains, an ember glow and a stone podium */
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-stage { background: #1a1411; border: 1px solid #5b4f33; box-shadow: inset 0 0 0 1px #000; }
+html:root[data-skin="quest"][data-quest="bonfire"] .picker.dress-full .dress-stage { border-radius: 0 0 4px 4px; }
+html:root[data-skin="quest"][data-quest="bonfire"] #dfBack stop:nth-child(1) { stop-color: #120d0a; }
+html:root[data-skin="quest"][data-quest="bonfire"] #dfBack stop:nth-child(2) { stop-color: #2a1a10; }
+html:root[data-skin="quest"][data-quest="bonfire"] #dfBack stop:nth-child(3) { stop-color: #3b2514; }
+html:root[data-skin="quest"][data-quest="bonfire"] #dfCurtain stop:nth-child(odd) { stop-color: #3f160d; }
+html:root[data-skin="quest"][data-quest="bonfire"] #dfCurtain stop:nth-child(even) { stop-color: #6b2d18; }
+html:root[data-skin="quest"][data-quest="bonfire"] #dfBeam stop, html:root[data-skin="quest"][data-quest="bonfire"] #dfGlow stop { stop-color: #ffb86a; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-fx path[stroke="#a63c5d"] { stroke: #1f0a05; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-fx path[fill="#f2698f"] { fill: #2c1109; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-fx path[fill="#f59ab5"] { fill: #3a342c; stroke: #14110d; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-fx ellipse[fill="#ffd3df"] { fill: #5a5144; stroke: #14110d; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-fx ellipse[stroke="#fff"] { stroke: #d8b062; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-fx .df-bulbs circle { fill: #ffc16a; stroke: #8a5a1a; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-fx .sp { fill: #ffb05a; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-fx .ht { fill: #c8641f; }
+html:root[data-skin="quest"][data-quest="bonfire"] .profile-link { background: rgba(12, 10, 9, .6) !important; }
+
+/* ---------- Bonfire: details and polish ----------
+   corner brackets on panels, a small flame and a fading gold rule on titles, embers drifting up over the room, a soft pulsing glow on what is picked, a vignette
+   on the room picture, and richer hover, focus and button states */
+html:root[data-skin="quest"][data-quest="bonfire"], html.al-bonfire {
+  --bf-flame: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 1.5c.9 4.2-3.6 6.2-3.6 11a5.6 5.6 0 0 0 11.2 0c0-2.6-1.2-4.1-2.6-6.2-.3 2.2-1.2 3.4-2.4 3.8.9-3.6-.4-6.6-2.6-8.6z' fill='%23d9822b'/><path d='M12.2 12.2c.4 2.2-2 3.2-2 5.2a2 2 0 0 0 4 0c0-2.2-1.8-3.2-2-5.2z' fill='%23ffd88a'/></svg>");
+  --bf-corner: #8f7e4e;
+}
+@keyframes bf-glow { 0%, 100% { box-shadow: 0 0 10px rgba(217, 130, 43, .42), inset 0 0 0 1px rgba(0, 0, 0, .4); } 50% { box-shadow: 0 0 18px rgba(255, 160, 60, .62), inset 0 0 0 1px rgba(0, 0, 0, .4); } }
+@keyframes bf-ember { 0% { transform: translateY(0) scale(1); opacity: 0; } 15% { opacity: .95; } 100% { transform: translateY(-46px) translateX(8px) scale(.4); opacity: 0; } }
+/* panels: gold corner brackets */
+html:root[data-skin="quest"][data-quest="bonfire"] .picker {
+  background:
+    linear-gradient(var(--bf-corner), var(--bf-corner)) left 8px top 8px / 16px 1px no-repeat, linear-gradient(var(--bf-corner), var(--bf-corner)) left 8px top 8px / 1px 16px no-repeat,
+    linear-gradient(var(--bf-corner), var(--bf-corner)) right 8px top 8px / 16px 1px no-repeat, linear-gradient(var(--bf-corner), var(--bf-corner)) right 8px top 8px / 1px 16px no-repeat,
+    linear-gradient(var(--bf-corner), var(--bf-corner)) left 8px bottom 8px / 16px 1px no-repeat, linear-gradient(var(--bf-corner), var(--bf-corner)) left 8px bottom 8px / 1px 16px no-repeat,
+    linear-gradient(var(--bf-corner), var(--bf-corner)) right 8px bottom 8px / 16px 1px no-repeat, linear-gradient(var(--bf-corner), var(--bf-corner)) right 8px bottom 8px / 1px 16px no-repeat,
+    radial-gradient(ellipse at 50% 0, rgba(150, 95, 35, .13), transparent 55%), var(--bf-grain), #181512;
+  background-size: 16px 1px, 1px 16px, 16px 1px, 1px 16px, 16px 1px, 1px 16px, 16px 1px, 1px 16px, auto, 160px 160px, auto;
+}
+/* titles: a flame, spaced small capitals, and a rule that fades out */
+html:root[data-skin="quest"][data-quest="bonfire"] .picker h2 { font-variant: small-caps; letter-spacing: .09em; border-bottom: 1px solid; border-image: linear-gradient(90deg, #a08d58, #5b4f33 55%, transparent) 1; padding-bottom: 6px; }
+html:root[data-skin="quest"][data-quest="bonfire"] .picker h2::before { display: inline-block !important; content: ""; width: 17px; height: 17px; margin-right: 8px; vertical-align: -3px; background: var(--bf-flame) center / contain no-repeat; filter: drop-shadow(0 0 4px rgba(224, 138, 46, .65)); }
+html:root[data-skin="quest"][data-quest="bonfire"] .items .aisle::after { height: 1px; border: 0; background: linear-gradient(90deg, #5b4f33, transparent); opacity: 1; }
+/* rows: an ember edge and a faint glow on hover, a glow when the add bar is used */
+html:root[data-skin="quest"][data-quest="bonfire"] .item:hover { box-shadow: inset 3px 0 0 #d9822b, inset 0 0 0 1px rgba(0, 0, 0, .55), 0 0 16px rgba(217, 130, 43, .12); }
+html:root[data-skin="quest"][data-quest="bonfire"] .add:focus-within { border-color: #d9822b; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .55), 0 0 14px rgba(217, 130, 43, .32); }
+html:root[data-skin="quest"][data-quest="bonfire"] .item.done .check::before { box-shadow: 0 0 8px rgba(217, 130, 43, .55); }
+/* buttons: a faint top highlight; Add glows a little */
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.pill-btn, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .dress-tabs button, .cal-add-btn, .recipe-btn, .mic-btn, .gear-btn) { box-shadow: inset 0 0 0 1px #000, inset 0 1px 0 1px rgba(255, 235, 190, .07); }
+html:root[data-skin="quest"][data-quest="bonfire"] .add-btn { box-shadow: inset 0 1px 0 rgba(255, 225, 170, .35), inset 0 0 0 1px rgba(0, 0, 0, .45), 0 0 10px rgba(217, 130, 43, .25); }
+html:root[data-skin="quest"][data-quest="bonfire"] .add-btn:hover { background: linear-gradient(#bd6120, #7c3612); }
+/* what is picked glows and breathes like a flame */
+@media (prefers-reduced-motion: no-preference) {
+  html:root[data-skin="quest"][data-quest="bonfire"] :is(.pill-btn[aria-pressed="true"], .dress-tabs button[aria-selected="true"], .dock button[aria-current="page"] .dock-icon, .dock button.on .dock-icon, .cal-sheet .cal-cell:is(.today, .sel)) { animation: bf-glow 3.4s ease-in-out infinite; }
+  /* embers drift up over the room (the two little sparkles above the pet) */
+  html:root[data-skin="quest"][data-quest="bonfire"] .stage::before, html:root[data-skin="quest"][data-quest="bonfire"] .stage::after { clip-path: none; border-radius: 50%; width: 4px; height: 4px; background: #ffb05a; box-shadow: 0 0 7px 2px rgba(255, 150, 60, .65); opacity: 0; animation: bf-ember 5.4s ease-out infinite; }
+  html:root[data-skin="quest"][data-quest="bonfire"] .stage::before { left: 26%; top: 120px; }
+  html:root[data-skin="quest"][data-quest="bonfire"] .stage::after { right: 24%; top: 128px; width: 3px; height: 3px; background: #ffd27a; animation-delay: 2.6s; animation-duration: 6.2s; }
+}
+/* the room picture: a soft dark vignette inside its frame, and a hairline of gold light on the frame's top edge */
+html:root[data-skin="quest"][data-quest="bonfire"] .backdrop::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; box-shadow: inset 0 0 34px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(255, 220, 150, .16); }
+/* the dock and the page: a faint ember light along the dock's top edge, and a darker vignette at the page's foot */
+html:root[data-skin="quest"][data-quest="bonfire"] .dock { box-shadow: 0 -1px 0 #000, 0 -3px 14px rgba(217, 130, 43, .1), inset 0 1px 0 rgba(255, 235, 190, .08); }
+html:root[data-skin="quest"][data-quest="bonfire"] body { background-image: radial-gradient(ellipse at 50% 0, rgba(130, 85, 30, .22), transparent 60%), radial-gradient(ellipse at 50% 108%, rgba(0, 0, 0, .55), transparent 55%), var(--bf-grain); background-size: auto, auto, 160px 160px; }
+/* his speech: a second fine line inside the panel */
+html:root[data-skin="quest"][data-quest="bonfire"] .stage .bubble:not(.in-sheet), html.al-bonfire .stage .bubble:not(.in-sheet) { box-shadow: 0 0 0 1px #000, inset 0 0 0 1px #000, inset 0 0 0 2px var(--bf-line), 0 4px 14px rgba(0, 0, 0, .6); }
+/* Mini Fumu's cards: the same corner brackets and a gold light along the top */
+html.al-bonfire .inbox-card {
+  background:
+    linear-gradient(var(--bf-corner), var(--bf-corner)) left 6px top 6px / 12px 1px no-repeat, linear-gradient(var(--bf-corner), var(--bf-corner)) left 6px top 6px / 1px 12px no-repeat,
+    linear-gradient(var(--bf-corner), var(--bf-corner)) right 6px top 6px / 12px 1px no-repeat, linear-gradient(var(--bf-corner), var(--bf-corner)) right 6px top 6px / 1px 12px no-repeat,
+    linear-gradient(var(--bf-corner), var(--bf-corner)) left 6px bottom 6px / 12px 1px no-repeat, linear-gradient(var(--bf-corner), var(--bf-corner)) left 6px bottom 6px / 1px 12px no-repeat,
+    linear-gradient(var(--bf-corner), var(--bf-corner)) right 6px bottom 6px / 12px 1px no-repeat, linear-gradient(var(--bf-corner), var(--bf-corner)) right 6px bottom 6px / 1px 12px no-repeat,
+    var(--bf-grain), #181512;
+  background-size: 12px 1px, 1px 12px, 12px 1px, 1px 12px, 12px 1px, 1px 12px, 12px 1px, 1px 12px, 160px 160px, auto;
+}
+html.al-bonfire .inbox-text b::before { content: ""; display: inline-block; width: 15px; height: 15px; margin-right: 6px; vertical-align: -2px; background: var(--bf-flame) center / contain no-repeat; filter: drop-shadow(0 0 3px rgba(224, 138, 46, .6)); }
+html:root[data-skin="quest"][data-quest="bonfire"] .picker h2::before { position: static !important; inset: auto !important; rotate: 0deg !important; transform: none !important; translate: none !important; width: 17px !important; height: 17px !important; top: auto !important; left: auto !important; }
+html:root[data-skin="quest"][data-quest="bonfire"] #calInput { border-radius: 2px; background: #0d0b0a; border: 1px solid #4a3f28; color: var(--os-yellow); box-shadow: inset 0 0 0 1px #000; }
+html:root[data-skin="quest"][data-quest="bonfire"] #calInput:focus { border-color: #d9822b; box-shadow: inset 0 0 0 1px #000, 0 0 12px rgba(217, 130, 43, .3); }
+
+/* ---------- Bonfire: the alert card's close button, and more details ---------- */
+/* the close button is a small gold-framed square in the card's top-right corner (it used to be a round button at the bottom) */
+html.al-bonfire .inbox-actions .inbox-done { position: absolute; top: 9px; right: 11px; width: 22px; height: 22px; margin: 0; padding: 0; display: grid; place-items: center; border: 1px solid #5b4f33; border-radius: 2px; background: #0d0b0a; color: #a39673; font-size: .82rem; line-height: 1; box-shadow: inset 0 0 0 1px #000, inset 0 1px 0 1px rgba(255, 235, 190, .06); }
+html.al-bonfire .inbox-actions .inbox-done:hover { border-color: #d9822b; color: #ffd9a0; box-shadow: inset 0 0 0 1px #000, 0 0 10px rgba(217, 130, 43, .45); filter: none; translate: none; }
+html.al-bonfire .inbox-actions .inbox-done:active { background: #3a1f0d; }
+html.al-bonfire .inbox-actions:has(> .inbox-done:only-child) { margin: 0; height: 0; min-height: 0; }
+html.al-bonfire .inbox-text { padding-right: 30px; }
+/* the card: a gold rule under its title, a bell frame with a soft glow, and a flame that flickers */
+html.al-bonfire .inbox-text b { display: block; padding-bottom: 3px; border-bottom: 1px solid; border-image: linear-gradient(90deg, #8f7e4e, #4a3f28 70%, transparent) 1; margin-bottom: 3px; }
+html.al-bonfire .inbox-icon { border-color: #6f6240; box-shadow: inset 0 0 0 1px #000, 0 0 10px rgba(217, 130, 43, .18); }
+@keyframes bf-flame { 0%, 100% { transform: scale(1, 1); opacity: 1; } 35% { transform: scale(.94, 1.1) translateY(-.6px); } 70% { transform: scale(1.03, .96); opacity: .92; } }
+@media (prefers-reduced-motion: no-preference) {
+  html:root[data-skin="quest"][data-quest="bonfire"] .picker h2::before, html.al-bonfire .inbox-text b::before { transform-origin: 50% 90%; animation: bf-flame 1.9s ease-in-out infinite; }
+}
+/* done items get a gold tick; keyboard focus gets an ember ring */
+html:root[data-skin="quest"][data-quest="bonfire"] .item.done .check::before { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='%23ffe3b0' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/></svg>"); background-size: 74%; background-position: center; background-repeat: no-repeat; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(button, input, select, .check, .emoji-btn):focus-visible { outline: 2px solid #d9822b; outline-offset: 2px; box-shadow: 0 0 12px rgba(217, 130, 43, .4); }
+/* the title bar: a gold hairline that fades out underneath, the dock names in small capitals */
+html:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { border-bottom: 1px solid; border-image: linear-gradient(90deg, #8f7e4e, #3a3220 60%, transparent) 1; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock-label { font-variant: small-caps; letter-spacing: .06em; font-size: .88em; }
+html:root[data-skin="quest"][data-quest="bonfire"] .option-title { letter-spacing: .02em; }
+html:root[data-skin="quest"][data-quest="bonfire"] .option:hover { background: linear-gradient(90deg, rgba(217, 130, 43, .08), transparent 60%); }
+
+/* Bonfire cards: no corner brackets (they ran into the icon and the close button); the icon sits on a small round bronze pedestal, like an inventory slot */
+html.al-bonfire .inbox-card { background: var(--bf-grain), #181512; background-size: 160px 160px, auto; }
+html.al-bonfire .inbox-icon { position: relative; width: 46px; height: 48px; display: grid; place-items: center; padding-bottom: 9px; border: 0; border-radius: 0; background: radial-gradient(circle at 50% 52%, rgba(217, 130, 43, .2), transparent 66%); box-shadow: none; }
+html.al-bonfire .inbox-icon > :is(img, .inbox-bell) { position: relative; z-index: 1; width: 28px; height: 28px; margin-top: -4px; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .65)); }
+html.al-bonfire .inbox-icon::after { content: ""; position: absolute; left: 50%; bottom: 3px; width: 38px; height: 11px; translate: -50% 0; border-radius: 50%; background: radial-gradient(ellipse at 50% 30%, #e2bd72 0, #a98446 45%, #5a4522 100%); box-shadow: 0 3px 0 #2a2010, 0 0 0 1px #0a0806, 0 5px 8px rgba(0, 0, 0, .65); }
+html.al-bonfire .inbox-icon::before { content: ""; position: absolute; left: 50%; bottom: 8px; width: 22px; height: 4px; translate: -50% 0; border-radius: 50%; background: rgba(0, 0, 0, .45); filter: blur(1px); z-index: 0; }
+/* the same pedestal for the other card icons (they are a plain picture, so the pedestal is drawn in its background) */
+html.al-bonfire img.inbox-icon {
+  box-sizing: border-box; width: 46px; height: 48px; padding: 4px 8px 15px; object-fit: contain; border: 0; border-radius: 0; box-shadow: none;
+  background:
+    radial-gradient(ellipse 19px 5.5px at 50% calc(100% - 8px), #e2bd72 0, #a98446 48%, #5a4522 90%, transparent 100%) no-repeat,
+    radial-gradient(ellipse 20px 6px at 50% calc(100% - 5px), #2a2010 0 88%, transparent 100%) no-repeat,
+    radial-gradient(circle at 50% 52%, rgba(217, 130, 43, .2), transparent 66%);
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .6));
+}
+
+/* Bonfire: the reminder card's icon rings by shaking sideways (a tilt would slant its pedestal), and the update card's empty first slot gets a package on a pedestal */
+@keyframes bf-alarm { 0%, 60%, 100% { translate: 0 0; } 66% { translate: -2px 0; } 72% { translate: 2px 0; } 78% { translate: -2px 0; } 84% { translate: 2px 0; } 90% { translate: -1px 0; } }
+html.al-bonfire .remind-card .inbox-icon { rotate: 0deg; transform: none; animation: bf-alarm 2.8s ease-in-out .6s infinite; transform-origin: 50% 50%; }
+@media (prefers-reduced-motion: reduce) { html.al-bonfire .remind-card .inbox-icon { animation: none; } }
+html.al-bonfire .update-card > span:first-child {
+  display: block; width: 46px; height: 48px; margin: 0;
+  background:
+    url("emoji/1F4E6.svg") 50% 4px / 28px 28px no-repeat,
+    radial-gradient(ellipse 19px 5.5px at 50% calc(100% - 8px), #e2bd72 0, #a98446 48%, #5a4522 90%, transparent 100%) no-repeat,
+    radial-gradient(ellipse 20px 6px at 50% calc(100% - 5px), #2a2010 0 88%, transparent 100%) no-repeat,
+    radial-gradient(circle at 50% 52%, rgba(217, 130, 43, .2), transparent 66%);
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .6));
+}
+
+/* ---------- Bonfire: the bottom bar's buttons, more detail ---------- */
+/* each button is an inventory slot: gold corner brackets, a faint ember glow behind the picture, a hairline divider between buttons */
+html:root[data-skin="quest"][data-quest="bonfire"] .dock .dock-icon {
+  --bk: #8f7e4e;
+  background:
+    linear-gradient(var(--bk), var(--bk)) left 3px top 3px / 6px 1px no-repeat, linear-gradient(var(--bk), var(--bk)) left 3px top 3px / 1px 6px no-repeat,
+    linear-gradient(var(--bk), var(--bk)) right 3px top 3px / 6px 1px no-repeat, linear-gradient(var(--bk), var(--bk)) right 3px top 3px / 1px 6px no-repeat,
+    linear-gradient(var(--bk), var(--bk)) left 3px bottom 3px / 6px 1px no-repeat, linear-gradient(var(--bk), var(--bk)) left 3px bottom 3px / 1px 6px no-repeat,
+    linear-gradient(var(--bk), var(--bk)) right 3px bottom 3px / 6px 1px no-repeat, linear-gradient(var(--bk), var(--bk)) right 3px bottom 3px / 1px 6px no-repeat,
+    radial-gradient(circle at 50% 58%, rgba(217, 130, 43, .2), transparent 68%), var(--bf-grain), #14110f;
+  background-size: 6px 1px, 1px 6px, 6px 1px, 1px 6px, 6px 1px, 1px 6px, 6px 1px, 1px 6px, auto, 160px 160px, auto;
+  box-shadow: inset 0 0 0 1px #000, inset 0 -6px 8px -4px rgba(0, 0, 0, .55);
+  transition: border-color .2s, box-shadow .2s, color .2s;
+}
+html:root[data-skin="quest"][data-quest="bonfire"] .dock .dock-icon :is(svg, img) { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .8)) drop-shadow(0 0 4px rgba(217, 130, 43, .3)); }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock button:not(:first-child) {
+  background-image: linear-gradient(transparent, #4a3f28 22%, #4a3f28 78%, transparent); background-size: 1px 100%; background-position: left center; background-repeat: no-repeat;
+}
+html:root[data-skin="quest"][data-quest="bonfire"] .dock button:hover .dock-icon { border-color: #8f7e4e; box-shadow: inset 0 0 0 1px #000, 0 0 10px rgba(217, 130, 43, .25); }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock button:hover .dock-label { color: #e8dcc0; }
+/* the page you are on: lit brackets, an ember slot, a gold name with a small diamond under it */
+html:root[data-skin="quest"][data-quest="bonfire"] .dock :is(button[aria-current="page"], button.on) .dock-icon, html:root[data-skin="quest"][data-quest="bonfire"]:has(#dressSheet[open]) .dock #dressBtn .dock-icon, html:root[data-skin="quest"][data-quest="bonfire"]:has(#roomSheet[open]) .dock #roomBtn .dock-icon, html:root[data-skin="quest"][data-quest="bonfire"]:has(#shopSheet[open]) .dock #shopBtn .dock-icon, html:root[data-skin="quest"][data-quest="bonfire"]:has(#calSheet[open]) .dock #calBtn .dock-icon, html:root[data-skin="quest"][data-quest="bonfire"]:has(#profileSheet[open]) .dock #profileBtn .dock-icon {
+  --bk: #ffd9a0;
+  background-color: #8e3f12; background-image:
+    linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)),
+    linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)),
+    radial-gradient(circle at 50% 40%, rgba(255, 190, 100, .45), transparent 70%), linear-gradient(#cf6a22, #8e3f12);
+}
+html:root[data-skin="quest"][data-quest="bonfire"] .dock :is(button[aria-current="page"], button.on) .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#dressSheet[open]) .dock #dressBtn .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#roomSheet[open]) .dock #roomBtn .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#shopSheet[open]) .dock #shopBtn .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#calSheet[open]) .dock #calBtn .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#profileSheet[open]) .dock #profileBtn .dock-label { color: #ffd9a0; text-shadow: 0 0 8px rgba(217, 130, 43, .65); }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock :is(button[aria-current="page"], button.on) .dock-label::after, html:root[data-skin="quest"][data-quest="bonfire"]:has(#dressSheet[open]) .dock #dressBtn .dock-label::after, html:root[data-skin="quest"][data-quest="bonfire"]:has(#roomSheet[open]) .dock #roomBtn .dock-label::after, html:root[data-skin="quest"][data-quest="bonfire"]:has(#shopSheet[open]) .dock #shopBtn .dock-label::after, html:root[data-skin="quest"][data-quest="bonfire"]:has(#calSheet[open]) .dock #calBtn .dock-label::after, html:root[data-skin="quest"][data-quest="bonfire"]:has(#profileSheet[open]) .dock #profileBtn .dock-label::after {
+  content: ""; position: absolute; left: 50%; bottom: -7px; width: 5px; height: 5px; margin-left: -2.5px; rotate: 45deg; background: #e9a04a; box-shadow: 0 0 6px 1px rgba(217, 130, 43, .7);
+}
+html:root[data-skin="quest"][data-quest="bonfire"] .dock button:active .dock-icon { background-color: #3a1f0d; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock .dock-badge { border-radius: 2px; box-shadow: 0 0 0 1px #000, 0 0 8px rgba(217, 130, 43, .55); }
+
+/* ---------- the shopping / to-do tabs under the title ---------- */
+.list-tabs { display: flex; gap: 4px; width: max-content; max-width: 100%; margin: 6px 0 0; padding: 3px; border: 1.5px solid var(--outline, var(--line)); border-radius: 999px; background: color-mix(in srgb, var(--surface) 70%, transparent); }
+.list-tab { display: inline-flex; align-items: center; gap: 5px; padding: 5px 14px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: inherit; font-size: .86rem; font-weight: 800; cursor: pointer; touch-action: manipulation; }
+.list-tab[aria-selected="true"] { background: var(--hl, var(--accent)); color: #fff; box-shadow: 0 2px 0 rgba(0, 0, 0, .18); }
+.list-tab:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
+.tab-due { min-width: 17px; height: 17px; padding: 0 5px; box-sizing: border-box; border-radius: 9px; background: var(--badge); color: #fff; font-size: .68rem; line-height: 17px; text-align: center; }
+.tab-due[hidden] { display: none; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .list-tabs { border-radius: 0; border: 1px solid #000; background: var(--os-dark); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .list-tab { border-radius: 0; color: var(--os-yellow); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .list-tab[aria-selected="true"] { background: var(--os-red); }
+html:root[data-skin="quest"][data-quest="bonfire"] .list-tabs { border-radius: 2px; border-color: #4a3f28; background: #0d0b0a; box-shadow: inset 0 0 0 1px #000; }
+html:root[data-skin="quest"][data-quest="bonfire"] .list-tab { border-radius: 1px; color: #cbbf9f; font-weight: 500; }
+html:root[data-skin="quest"][data-quest="bonfire"] .list-tab[aria-selected="true"] { background: var(--bf-ember); color: #fff6e4; box-shadow: 0 0 10px rgba(217, 130, 43, .45), inset 0 0 0 1px rgba(0, 0, 0, .4); }
+
+html.desktop-pet .list-tabs { display: none; }
+
+/* ---------- Bonfire, toward the Dark Souls menu ----------
+   Cold bone-grey lettering and frames (the gold stays for titles), near-black glass panels with a double hairline, and what is picked is a pale bone frame
+   with a soft white glow on a dark slot (the game's cursor), not an orange fill. Ember stays as a small accent (flame, diamond, badges). */
+html:root[data-skin="quest"][data-quest="bonfire"] {
+  --os-yellow: #d9d3bf; --os-orange: #c9b27a; --bone: #cfc8b0; --bone-dim: #7d776a; --bone-line: #4d493f;
+  --soul-pick: radial-gradient(ellipse at 50% 0, rgba(235, 228, 205, .16), transparent 75%), linear-gradient(#26221d, #14110e);
+  --soul-glow: 0 0 10px rgba(225, 218, 190, .28), inset 0 0 0 1px #000, inset 0 0 0 2px rgba(207, 200, 176, .35);
+  --ink: #d9d3bf; --muted: #8f897a; --cb-edge-strong: #6a6556;
+}
+/* panels: a thin bone line, a dark gap, a fainter inner line, a soft shadow around */
+html:root[data-skin="quest"][data-quest="bonfire"] .picker { border-color: #6a6556; background-color: rgba(14, 12, 11, .97); box-shadow: 0 0 0 1px #000, 0 -8px 28px rgba(0, 0, 0, .75), inset 0 0 0 1px #050404, inset 0 0 0 2px #3a372f; }
+html:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { border-color: var(--bone-line); box-shadow: inset 0 0 0 1px #000, inset 0 0 0 2px #26231e; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock { border-top-color: #6a6556; box-shadow: 0 -1px 0 #000, 0 -3px 14px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(235, 228, 205, .08), inset 0 2px 0 #050404, inset 0 3px 0 #2e2b25; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.add, .item, .goal, .fav, .options, .picker .closet-wear, .name-show, .dress-search, .scene-bar) { border-color: var(--bone-line); }
+/* titles: pale, spaced, with a bone hairline that fades out */
+html:root[data-skin="quest"][data-quest="bonfire"] .picker h2 { color: #e6e0cc; letter-spacing: .12em; border-bottom: 1px solid; border-image: linear-gradient(90deg, #8f897a, #3a372f 65%, transparent) 1; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.field-label, .picker legend) { color: #b7ae90; letter-spacing: .14em; font-variant: small-caps; font-size: 1.02em; }
+html:root[data-skin="quest"][data-quest="bonfire"] .items .aisle { color: #a89f84; }
+/* buttons: dark glass with a bone line, pale lettering; hover lights the frame */
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.pill-btn, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .dress-tabs button, .cal-add-btn, .recipe-btn, .mic-btn, .gear-btn, .name-edit, .add-btn, .list-tab) {
+  border-color: #5d5849; background: linear-gradient(#1d1a16, #100e0c); color: var(--os-yellow); text-shadow: none; box-shadow: inset 0 0 0 1px #000, inset 0 1px 0 rgba(235, 228, 205, .06);
+}
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.pill-btn, .picker-grid button, .picker .hat-strip button, .picker .species-grid button, .dress-tabs button, .cal-add-btn, .recipe-btn, .mic-btn, .gear-btn, .name-edit, .add-btn, .list-tab):hover { border-color: var(--bone); color: #f0eada; background: linear-gradient(#26221d, #14110e); box-shadow: inset 0 0 0 1px #000, 0 0 8px rgba(225, 218, 190, .18); }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.name-edit, .add-btn) { letter-spacing: .08em; font-variant: small-caps; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.name-edit, .add-btn):active { background: #0a0908; box-shadow: inset 0 2px 6px rgba(0, 0, 0, .8); }
+/* picked: the bone frame and a soft glow, no orange fill */
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.pill-btn[aria-pressed="true"], .dress-tabs button[aria-selected="true"], .picker [aria-pressed="true"]:is(button), .list-tab[aria-selected="true"], .cal-sheet .cal-cell:is(.today, .sel)) {
+  background: var(--soul-pick); border-color: var(--bone); color: #fbf6e6; box-shadow: var(--soul-glow);
+}
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button)[aria-pressed="true"] {
+  background: var(--soul-pick); border: 1px solid var(--bone); box-shadow: var(--soul-glow);
+}
+html:root[data-skin="quest"][data-quest="bonfire"] .dock :is(button[aria-current="page"], button.on) .dock-icon, html:root[data-skin="quest"][data-quest="bonfire"]:is(:has(#dressSheet[open]) #dressBtn, :has(#roomSheet[open]) #roomBtn, :has(#shopSheet[open]) #shopBtn, :has(#calSheet[open]) #calBtn, :has(#profileSheet[open]) #profileBtn) .dock-icon {
+  background-color: #1a1713; border-color: var(--bone); --bk: #f0eada;
+  background-image: linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), radial-gradient(circle at 50% 35%, rgba(235, 228, 205, .22), transparent 72%), linear-gradient(#26221d, #14110e);
+  box-shadow: var(--soul-glow);
+}
+/* the check mark on the picked card: a small pale seal instead of the orange dot */
+html:root[data-skin="quest"][data-quest="bonfire"] .picker [aria-pressed="true"] :is(.sel-badge, .check-badge, .picked, .tick) { background: #1a1713; color: #f0eada; box-shadow: 0 0 0 1px var(--bone); }
+/* rows: the menu cursor, a pale band that fades out to the right with a hairline under it */
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.option:hover, .item:hover, .cal-sheet .cal-list li:hover) { background: linear-gradient(90deg, rgba(225, 218, 190, .1), transparent 75%), rgba(20, 17, 14, .8); }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.item .emoji-btn, .check, .dress-tabs button img) { border-color: #5d5849; }
+html:root[data-skin="quest"][data-quest="bonfire"] .item.done .check::before { background-color: #2a2620; outline-color: var(--bone); }
+html:root[data-skin="quest"][data-quest="bonfire"] .item-text, html:root[data-skin="quest"][data-quest="bonfire"] .option-title { color: #ddd7c3; }
+html:root[data-skin="quest"][data-quest="bonfire"] .hint, html:root[data-skin="quest"][data-quest="bonfire"] .option-text, html:root[data-skin="quest"][data-quest="bonfire"] .list-hint { font-style: italic; color: #8f897a; }
+/* the pet menu: the stage is a dark vignette, the tabs are equipment slots joined by a hairline, the panel under them is a recessed inventory */
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-stage { border: 1px solid #6a6556; box-shadow: inset 0 0 40px rgba(0, 0, 0, .7), inset 0 0 0 1px #000, 0 1px 0 #000; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-tabs { padding-bottom: 6px; border-bottom: 1px solid; border-image: linear-gradient(90deg, transparent, #6a6556 20%, #6a6556 80%, transparent) 1; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-tabs button { font-variant: small-caps; letter-spacing: .06em; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-tabs button img { filter: grayscale(.35) brightness(.95); }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-tabs button[aria-selected="true"] img { filter: none; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-panels { background: rgba(8, 7, 6, .55); border: 1px solid var(--bone-line); box-shadow: inset 0 0 0 1px #000, inset 0 0 24px rgba(0, 0, 0, .5); }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.picker .species-grid button, .picker .hat-strip button, .picker-grid button) { background: #0e0c0b; border: 1px solid var(--bone-line); }
+html:root[data-skin="quest"][data-quest="bonfire"] .picker .species-grid button { font-variant: small-caps; letter-spacing: .06em; font-size: 1.05em; }
+/* list tabs and the dock's names: small capitals like the rest */
+html:root[data-skin="quest"][data-quest="bonfire"] .list-tab { font-variant: small-caps; letter-spacing: .08em; font-size: 1.02em; }
+html:root[data-skin="quest"][data-quest="bonfire"] .list-tabs { border-color: var(--bone-line); }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock :is(button[aria-current="page"], button.on) .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:is(:has(#dressSheet[open]) #dressBtn, :has(#roomSheet[open]) #roomBtn, :has(#shopSheet[open]) #shopBtn, :has(#calSheet[open]) #calBtn, :has(#profileSheet[open]) #profileBtn) .dock-label { color: #f0eada; text-shadow: 0 0 8px rgba(225, 218, 190, .5); }
+/* the dock's divider and brackets go bone-coloured too; the tilted Profile sticker stands straight */
+html:root[data-skin="quest"][data-quest="bonfire"] .dock .dock-icon { --bk: #7d776a; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock button:not(:first-child) { background-image: linear-gradient(transparent, #4d493f 22%, #4d493f 78%, transparent); }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock #profileBtn .dock-icon { rotate: 0deg; transform: none; }
+
+/* fixes: opaque panels (the list showed through), the current dock button in bone, the picked seal, Profile standing straight */
+html:root[data-skin="quest"][data-quest="bonfire"] .picker { background-color: #14110f; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-panels { background: #0b0a09 var(--bf-grain); background-size: 160px 160px; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.dress-panel .species-grid button, .dress-panel .hat-strip button)[aria-pressed="true"]::after { background: #1a1713; color: #f0eada; box-shadow: 0 0 0 1px var(--bone); border-radius: 2px; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock :is(button[aria-current="page"], button.on) .dock-icon, html:root[data-skin="quest"][data-quest="bonfire"]:has(#dressSheet[open]) .dock #dressBtn .dock-icon, html:root[data-skin="quest"][data-quest="bonfire"]:has(#roomSheet[open]) .dock #roomBtn .dock-icon, html:root[data-skin="quest"][data-quest="bonfire"]:has(#shopSheet[open]) .dock #shopBtn .dock-icon, html:root[data-skin="quest"][data-quest="bonfire"]:has(#calSheet[open]) .dock #calBtn .dock-icon, html:root[data-skin="quest"][data-quest="bonfire"]:has(#profileSheet[open]) .dock #profileBtn .dock-icon {
+  background-color: #1a1713; border-color: var(--bone); --bk: #f0eada;
+  background-image: linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), linear-gradient(var(--bk), var(--bk)), radial-gradient(circle at 50% 35%, rgba(235, 228, 205, .22), transparent 72%), linear-gradient(#26221d, #14110e);
+  box-shadow: var(--soul-glow);
+}
+html:root[data-skin="quest"][data-quest="bonfire"] .dock :is(button[aria-current="page"], button.on) .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#dressSheet[open]) .dock #dressBtn .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#roomSheet[open]) .dock #roomBtn .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#shopSheet[open]) .dock #shopBtn .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#calSheet[open]) .dock #calBtn .dock-label, html:root[data-skin="quest"][data-quest="bonfire"]:has(#profileSheet[open]) .dock #profileBtn .dock-label { color: #f0eada; text-shadow: 0 0 8px rgba(225, 218, 190, .5); }
+html:root[data-skin="quest"][data-quest="bonfire"] .dock #profileBtn .dock-icon { rotate: 0deg !important; transform: none !important; }
+html:root[data-skin="quest"][data-quest="bonfire"] .dress-fx { filter: saturate(.5) brightness(.75) contrast(1.05); }
+
+/* the tabs take the place of the title words (the title stays in the page for the code that uses it) */
+html:not(.desktop-pet) .brand { display: none; }
+html:not(.desktop-pet) .list-tabs { margin: 0; }
+html:not(.desktop-pet) .scene-bar { justify-content: space-between; }
+html:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { background: transparent; border: 0; box-shadow: none; padding-left: 0; padding-right: 0; }
+
+/* rows and cards: cream paper, one thin outline, a coloured edge down the left only */
+
+/* buttons: flat pastel fill, thin outline, a small flat shadow */
+
+/* picked: just the crayon colour filling in, one outline */
+
+/* panels and fields */
+
+/* titles and labels: no wavy underlines, a small dot-dash rule instead */
+
+/* the room: a thinner frame, no heavy shadow */
+
+     
+
+
+/* ---------- Sweet (App settings > Appearance > Sweet; also the alert look of the small window: al-sweet) ----------
+   Candy and strawberry milk: a pink page with white polka dots, puffy white cards with a pink outline, a thick soft edge underneath and a white ring round it, glossy pill
+   buttons with a shine, pastel sticker icons, sprinkles. A light look with its own skin (data-skin="sweet", data-theme="light"). To drop it, delete this block and the
+   `sweet` entry in THEMES (app-options.js, desktop/main.js, desktop/panel-ui.js). */
+html:root[data-skin="sweet"] {
+  --sw-pink: #ff8fb0; --sw-pink-d: #f06a94; --sw-edge: #f3b9ca; --sw-ink: #7a4a5a; --sw-mint: #bfeed7; --sw-butter: #ffe9a8; --sw-lav: #dccbff; --sw-sky: #bfe3ff;
+  --bg: #ffe6ee; --surface: #fffaf6; --surface-2: #ffeef2; --ink: #7a4a5a; --muted: #b98a98; --line: #f3b9ca; --outline: #eaa3b8;
+  --accent: #ff8fb0; --accent-ink: #fff; --mint: #bfeed7; --butter: #ffe9a8; --stage-top: #ffe6ee; --shadow: rgba(235, 150, 175, .3);
+  --hl: #ff7fa6; --hl-soft: rgba(255, 127, 166, .18); --hl-glow: rgba(255, 127, 166, .4); --badge: #ff6f9a;
+  --cb-edge: #f3b9ca; --cb-edge-strong: #eaa3b8; --cb-done: rgba(255, 250, 246, .7); --cb-dock-a: #fff3f6; --cb-dock-b: #ffe3ec;
+  --sw-puff: 0 0 0 3px #fff, 0 4px 0 3px var(--sw-edge), 0 8px 14px var(--shadow);
+  --sw-gloss: linear-gradient(180deg, rgba(255, 255, 255, .75) 0, rgba(255, 255, 255, 0) 55%);
+  --sw-dots: radial-gradient(circle, rgba(255, 255, 255, .85) 2.2px, transparent 2.8px) 0 0 / 26px 26px, radial-gradient(circle, rgba(255, 255, 255, .5) 1.6px, transparent 2.2px) 13px 13px / 26px 26px;
+}
+html:root[data-skin="sweet"] body { background: var(--sw-dots), linear-gradient(180deg, #ffd9e6 0, #ffe9f0 38%, #fff1e6 100%); background-attachment: fixed; }
+html:root[data-skin="sweet"] .picker { background: linear-gradient(180deg, #fff7fa, #ffedf3); border: 3px solid var(--sw-edge); border-bottom: 0; border-radius: 28px 28px 0 0; box-shadow: 0 -6px 18px rgba(235, 150, 175, .3), inset 0 0 0 3px #fff; }
+html:root[data-skin="sweet"] .picker h2 { border: 0; border-radius: 999px; background: linear-gradient(180deg, #ffd3e0, #ffb3cb); color: #7a2a4a; box-shadow: 0 2px 0 #f3a3bb, inset 0 1px 0 rgba(255, 255, 255, .8); padding: 4px 18px; font-weight: 700; }
+/* cards: white and puffy, a pink outline, a ring and a soft edge under them; no tape or stitching */
+html:root[data-skin="sweet"] :is(.add, .item, .goal, .fav, .options, .picker .closet-wear, .dress-panels) {
+  background: linear-gradient(180deg, #fffdfb, #fff4f6); border: 2px solid var(--sw-edge); border-radius: 22px; box-shadow: 0 0 0 3px #fff, 0 4px 0 3px var(--sw-edge), 0 8px 12px rgba(235, 150, 175, .22);
+}
+html:root[data-skin="sweet"] :is(.item, .add, .options)::before, html:root[data-skin="sweet"] :is(.item, .add)::after { display: none; }
+html:root[data-skin="sweet"] .items .item { margin-bottom: 14px; }
+html:root[data-skin="sweet"] .items .item:nth-child(3n+2) { background: linear-gradient(180deg, #fffdf6, #fff6df); }
+html:root[data-skin="sweet"] .items .item:nth-child(3n) { background: linear-gradient(180deg, #fbfffd, #effbf4); }
+html:root[data-skin="sweet"] .item.done { background: #fff6f8; opacity: .8; }
+html:root[data-skin="sweet"] .item-text { color: var(--sw-ink); font-weight: 600; }
+html:root[data-skin="sweet"] .item.done .item-text { color: #cfa9b6; text-decoration-color: #f59ab5; }
+html:root[data-skin="sweet"] .check::before { border: 2.5px solid #f3a3bb; background: #fff; box-shadow: inset 0 2px 0 rgba(235, 150, 175, .25); }
+html:root[data-skin="sweet"] .item.done .check::before { background-color: var(--sw-pink); border-color: var(--sw-pink-d); }
+html:root[data-skin="sweet"] :is(.qty-tag, .due-tag) { background: #ffe3ec; color: #b35a78; border: 0; border-radius: 999px; box-shadow: inset 0 0 0 1.5px #f7c0d0; }
+/* buttons: glossy pastel pills with a soft edge under them */
+html:root[data-skin="sweet"] :is(.pill-btn, .recipe-btn, .mic-btn, .cal-add-btn, .gear-btn, .dress-tabs button, .picker-grid button, .list-tab, .closet-btn) {
+  background: var(--sw-gloss), linear-gradient(180deg, #fffaf6, #ffeaf0); color: #b35a78; border: 2px solid var(--sw-edge); border-radius: 999px; box-shadow: 0 3px 0 var(--sw-edge); text-shadow: none;
+}
+html:root[data-skin="sweet"] .dress-tabs button { border-radius: 20px; }
+html:root[data-skin="sweet"] :is(.pill-btn, .recipe-btn, .mic-btn, .dress-tabs button, .list-tab, .closet-btn):active { translate: 0 2px; box-shadow: 0 1px 0 var(--sw-edge); }
+html:root[data-skin="sweet"] :is(.pill-btn[aria-pressed="true"], .dress-tabs button[aria-selected="true"], .list-tab[aria-selected="true"], .picker [aria-pressed="true"]:is(button)) {
+  background: var(--sw-gloss), linear-gradient(180deg, #ffb3cb, #ff8fb0); color: #fff; border-color: #f06a94; box-shadow: 0 3px 0 #e0608a; text-shadow: 0 1px 0 rgba(180, 40, 80, .35);
+}
+html:root[data-skin="sweet"] :is(.picker .species-grid button, .picker .hat-strip button)[aria-pressed="true"] { background: linear-gradient(180deg, #fff, #ffe3ec); color: var(--sw-ink); border: 2.5px solid #ff7fa6; box-shadow: 0 0 0 3px #fff, 0 0 0 5px #ffb3cb; text-shadow: none; }
+html:root[data-skin="sweet"] :is(.picker .species-grid button, .picker .hat-strip button) { border-radius: 22px; background: linear-gradient(180deg, #fffdfb, #fff4f6); color: var(--sw-ink); }
+html:root[data-skin="sweet"] .add-btn { background: var(--sw-gloss), linear-gradient(180deg, #ff9fbd, #ff6f9a); color: #fff; border: 2px solid #f06a94; border-radius: 999px; box-shadow: 0 3px 0 #e0608a; text-shadow: 0 1px 0 rgba(180, 40, 80, .4); }
+html:root[data-skin="sweet"] .name-edit { background: var(--sw-gloss), linear-gradient(180deg, #ffb3cb, #ff8fb0); color: #fff; border: 2px solid #f06a94; box-shadow: 0 2px 0 #e0608a; }
+html:root[data-skin="sweet"] :is(.name-show, .dress-search, .cal-month select, .cal-add input) { background: #fff; border: 2px solid var(--sw-edge); border-radius: 999px; color: var(--sw-ink); }
+html:root[data-skin="sweet"] .list-tabs { background: #fff; border: 1.5px solid var(--sw-edge); box-shadow: 0 3px 0 var(--sw-edge); }
+html:root[data-skin="sweet"] .list-tab { background: transparent; border: 0; box-shadow: none; text-shadow: none; }
+html:root[data-skin="sweet"] .list-tab[aria-selected="true"] { background: var(--sw-gloss), linear-gradient(180deg, #ffb3cb, #ff8fb0); color: #fff; border: 0; box-shadow: 0 2px 0 #e0608a; }
+/* the bottom bar: a frosted pink shelf, round pastel stickers with a shine */
+html:root[data-skin="sweet"] .dock { background: linear-gradient(180deg, #fff7fa, #ffe3ec); border-top: 3px solid var(--sw-edge); box-shadow: 0 -4px 14px rgba(235, 150, 175, .3), inset 0 2px 0 #fff; }
+html:root[data-skin="sweet"] .dock-icon { border: 2.5px solid #fff; background: var(--sw-gloss), var(--sticker, #ffd3dd); box-shadow: 0 0 0 2px var(--sw-edge), 0 3px 0 2px var(--sw-edge); }
+html:root[data-skin="sweet"] .dock-label { color: #b35a78; }
+html:root[data-skin="sweet"] :is(.dock-badge, .brand-due, .gift-count, .profile-gift-count, .tab-due) { background: #ff6f9a; color: #fff; box-shadow: 0 0 0 2px #fff; }
+html:root[data-skin="sweet"] .items .aisle { color: #c0728f; font-weight: 700; letter-spacing: .05em; }
+html:root[data-skin="sweet"] .items .aisle::after { border-top: 3px dotted #f6bfd0; border-bottom: 0; }
+html:root[data-skin="sweet"] .field-label, html:root[data-skin="sweet"] .picker legend { color: #c0728f; font-weight: 700; }
+html:root[data-skin="sweet"] .backdrop { border: 3px solid #fff; border-radius: 22px; box-shadow: 0 0 0 3px var(--sw-edge), 0 8px 14px rgba(235, 150, 175, .28); }
+html:root[data-skin="sweet"] .stage { border: 0; box-shadow: none; }
+html:root[data-skin="sweet"] .dress-stage { border: 3px solid #fff; box-shadow: 0 0 0 3px var(--sw-edge); }
+html:root[data-skin="sweet"] .cal-sheet .cal-cell { background: #fffdfb; border: 2px solid #f9d3df; border-radius: 14px; }
+html:root[data-skin="sweet"] .cal-sheet .cal-cell:is(.today, .sel) { background: linear-gradient(180deg, #ffb3cb, #ff8fb0); border-color: #f06a94; color: #fff; }
+/* a few sprinkles falling over the page (the dots are the page's own) */
+html:root[data-skin="sweet"] body::after { content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .55; background:
+  linear-gradient(35deg, transparent 46%, #ff8fb0 46% 54%, transparent 54%) 8% 12% / 14px 5px no-repeat, linear-gradient(-30deg, transparent 46%, #8fd8b5 46% 54%, transparent 54%) 90% 22% / 14px 5px no-repeat,
+  linear-gradient(60deg, transparent 46%, #ffd36a 46% 54%, transparent 54%) 14% 62% / 14px 5px no-repeat, linear-gradient(-55deg, transparent 46%, #b79bff 46% 54%, transparent 54%) 93% 70% / 14px 5px no-repeat; }
+html:root[data-skin="sweet"] :is(.field-label, .picker legend) { background: #ffe3ec; color: #c0728f; border-radius: 999px; padding: 2px 12px; }
+
+/* chorus dance (an idle dance, chorusDance in app-idle.js; build 569, redone in 571 from Lauren's description of a group number): 8 s. He puts his left paw (the one on the
+   left of the screen) up under his chin, squishing and leaning as if he turned to the right, then the same on the right side; then he stands on his right leg (the left foot tucked
+   behind it) and shakes his bottom, paws up; then he lowers the left paw and brings the right paw up to his eye. The clipboard hand (to-do list) stays where it is. */
+@keyframes chorus { 0% { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); } 3% { transform: translate(3px, 0px) rotate(2deg) scale(0.92, 1); } 5% { transform: translate(5px, 2px) rotate(4deg) scale(0.88, 0.93); } 8% { transform: translate(5px, 0px) rotate(4deg) scale(0.88, 1.04); } 10.5% { transform: translate(5px, 2px) rotate(4deg) scale(0.88, 0.93); } 12.5% { transform: translate(5px, 0px) rotate(4deg) scale(0.88, 1.03); } 15% { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); } 18% { transform: translate(-3px, 0px) rotate(-2deg) scale(0.92, 1); } 20% { transform: translate(-5px, 2px) rotate(-4deg) scale(0.88, 0.93); } 23% { transform: translate(-5px, 0px) rotate(-4deg) scale(0.88, 1.04); } 25.5% { transform: translate(-5px, 2px) rotate(-4deg) scale(0.88, 0.93); } 27.5% { transform: translate(-5px, 0px) rotate(-4deg) scale(0.88, 1.03); } 30% { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); } 32% { transform: translate(3px, 0px) rotate(2deg) scale(1, 1); } 34.5% { transform: translate(-1px, 0px) rotate(-5deg) scale(1, 1); } 37% { transform: translate(7px, -1px) rotate(5deg) scale(1, 1); } 39.5% { transform: translate(-1px, 0px) rotate(-5deg) scale(1, 1); } 42% { transform: translate(7px, -1px) rotate(5deg) scale(1, 1); } 44.5% { transform: translate(-1px, 0px) rotate(-5deg) scale(1, 1); } 47% { transform: translate(7px, -1px) rotate(5deg) scale(1, 1); } 49.5% { transform: translate(-1px, 0px) rotate(-5deg) scale(1, 1); } 52% { transform: translate(7px, -1px) rotate(5deg) scale(1, 1); } 54.5% { transform: translate(-1px, 0px) rotate(-5deg) scale(1, 1); } 57% { transform: translate(7px, -1px) rotate(5deg) scale(1, 1); } 59.5% { transform: translate(-1px, 0px) rotate(-5deg) scale(1, 1); } 62% { transform: translate(3px, 0px) rotate(2deg) scale(1, 1); } 65% { transform: translate(2px, 1px) rotate(0deg) scale(1.02, 0.96); } 68% { transform: translate(1px, 0px) rotate(-2deg) scale(1, 1); } 72% { transform: translate(2px, 1px) rotate(0deg) scale(1.02, 0.96); } 75% { transform: translate(3px, 0px) rotate(2deg) scale(1, 1); } 79% { transform: translate(2px, 1px) rotate(0deg) scale(1.02, 0.96); } 82% { transform: translate(1px, 0px) rotate(-2deg) scale(1, 1); } 86% { transform: translate(2px, 1px) rotate(0deg) scale(1.02, 0.96); } 90% { transform: translate(3px, 0px) rotate(2deg) scale(1, 1); } 100% { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); } }
+@keyframes chorus-arm-l { 0% { transform: translate(0px, 0px) rotate(18deg) scale(1, 1); } 5% { transform: translate(18px, 9px) rotate(-125deg) scale(1, 1); } 12% { transform: translate(18px, 9px) rotate(-125deg) scale(1, 1); } 15% { transform: translate(0px, 0px) rotate(18deg) scale(1, 1); } 30% { transform: translate(0px, 0px) rotate(18deg) scale(1, 1); } 34% { transform: translate(18px, 9px) rotate(-125deg) scale(1, 1); } 58% { transform: translate(18px, 9px) rotate(-125deg) scale(1, 1); } 64% { transform: translate(0px, 0px) rotate(18deg) scale(1, 1); } 100% { transform: translate(0px, 0px) rotate(18deg) scale(1, 1); } }
+@keyframes chorus-arm-r { 0% { transform: translate(0px, 0px) rotate(-18deg) scale(1, 1); } 15% { transform: translate(0px, 0px) rotate(-18deg) scale(1, 1); } 19% { transform: translate(-18px, 9px) rotate(125deg) scale(1, 1); } 27% { transform: translate(-18px, 9px) rotate(125deg) scale(1, 1); } 30% { transform: translate(0px, 0px) rotate(-18deg) scale(1, 1); } 34% { transform: translate(-18px, 9px) rotate(125deg) scale(1, 1); } 58% { transform: translate(-18px, 9px) rotate(125deg) scale(1, 1); } 63% { transform: translate(-11px, -9px) rotate(135deg) scale(1, 1); } 70% { transform: translate(-11px, -9px) rotate(135deg) scale(1, 1); } 73% { transform: translate(-9px, -11px) rotate(138deg) scale(1, 1); } 76% { transform: translate(-11px, -9px) rotate(135deg) scale(1, 1); } 79% { transform: translate(-9px, -11px) rotate(138deg) scale(1, 1); } 82% { transform: translate(-11px, -9px) rotate(135deg) scale(1, 1); } 88% { transform: translate(-11px, -9px) rotate(135deg) scale(1, 1); } 95% { transform: translate(0px, 0px) rotate(-18deg) scale(1, 1); } 100% { transform: translate(0px, 0px) rotate(-18deg) scale(1, 1); } }
+@keyframes chorus-foot-l { 0% { transform: translate(0, 0); } 29% { transform: translate(0, 0); } 32% { transform: translate(50px, -9px); } 90% { transform: translate(50px, -9px); } 95% { transform: translate(0, 0); } 100% { transform: translate(0, 0); } }
+.pet.chorus .pet-svg { animation: chorus 8s ease-in-out; transform-origin: 50% 94%; }
+.pet.chorus .arm-l { animation: chorus-arm-l 8s ease-in-out; }
+.pet.chorus .arm-r { animation: chorus-arm-r 8s ease-in-out; }
+.pet.chorus:not(#x) :is(.foot-l, .shoe-l) { animation: chorus-foot-l 8s ease-in-out; }
+html[data-scene$="clip"] .pet.chorus .arm-l, html[data-list="todo"] .pet.chorus .arm-l { animation: none; }
+@media (prefers-reduced-motion: reduce) { .pet.chorus :is(.pet-svg, .arm-l, .arm-r), .pet.chorus:not(#x) :is(.foot-l, .shoe-l) { animation: none; } }
+
+/* ---- Pet tab sub-tabs (build 584, app-petsubs.js): Species, Skin, Persona one at a time. To drop: delete this block. ---- */
+.pet-subs { display: none; grid-template-columns: repeat(3, 1fr); gap: 6px; flex: none; margin: -4px 0 -2px; }   /* only on the Pet tab; pulled up under the tab row */
+#dressSheet:has(#dressTabs [data-tab="pet"][aria-selected="true"]) .pet-subs { display: grid; }
+.pet-subs button { display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 0; padding: 7px 4px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--paper, #fff); color: var(--ink); font: inherit; font-weight: 800; font-size: .85rem; box-shadow: 0 2px 0 var(--shadow); cursor: pointer; }
+.pet-subs button img { width: 20px; height: 20px; flex: none; }
+.pet-subs button[aria-selected="true"] { background: var(--accent); color: #fff; border-color: transparent; transform: translateY(-1px); }
+.pet-subbed:not(.pet-filtering)[data-sub="species"] :is(.sub-skin, .sub-persona, .pet-subs-none),
+.pet-subbed:not(.pet-filtering)[data-sub="skin"] :is(.sub-species, .sub-persona),
+.pet-subbed:not(.pet-filtering)[data-sub="persona"] :is(.sub-species, .sub-skin, .pet-subs-none) { display: none; }
+.pet-subs-none { display: none; text-align: center; }
+.pet-subbed:not(.pet-filtering)[data-sub="skin"] #skinField[hidden] + .pet-subs-none { display: block; }
+/* no search bar on the Pet tab (it has the sub-tabs now); the other tabs keep it */
+#dressSheet:has(.pet-subbed):has(#dressTabs [data-tab="pet"][aria-selected="true"]) #dressSearch { display: none; }
+/* a slimmer name field on the Pet tab (build 587) */
+.dress-panel[data-tab="pet"] > .field:first-child :is(.name-show, input) { min-height: 30px; padding-top: 2px; padding-bottom: 2px; font-size: .95rem; }
+.dress-panel[data-tab="pet"] > .field:first-child .name-edit { min-height: 24px; padding: 1px 10px; font-size: .8rem; }
+.dress-panel[data-tab="pet"] > .field:first-child + .species { margin-top: 12px; }
+
+/* the language flags at the top of Options (app-lang.js) */
+.lang-btns { gap: 10px; }
+.lang-flag { display: inline-flex; align-items: center; justify-content: center; padding: 3px 8px; }
+.lang-flag img { width: 32px; height: 32px; display: block; }
+
+/* listening (app-voice.js): his right hand cupped up beside his head, where an ear would be, while the mic is on (build 592) */
+.pet[data-arms="listen"] .arm-r { transform: translate(1px, -19px) rotate(-122deg); animation: listen-lean 1.8s ease-in-out infinite; }
+.pet[data-arms="listen"] .arm-l { animation: sway-l 2.6s ease-in-out infinite; }
+@keyframes listen-lean { 0%, 100% { transform: translate(1px, -19px) rotate(-122deg); } 50% { transform: translate(1px, -20px) rotate(-127deg); } }
+
+/* The Add button is a plus in both languages (index.html); its size is the width of the word "Add" it used to hold, kept so the add bar did not change (its theme colours colour the plus) */
+html:root .add-btn::before { content: "Add"; display: block; height: 0; width: auto; visibility: hidden; overflow: hidden; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .add-btn::before { display: block; }
+/* long words (Dutch) break and hyphenate inside the speech bubble instead of running out of it */
+.bubble { overflow-wrap: break-word; hyphens: auto; }
+
+/* the top bar (the Shopping / To-do swapper and the gear) and so Fumu's room are the same size in every theme: the themes may restyle them, not resize them */
+html:root:root .scene-bar { height: 38px; box-sizing: content-box; padding-top: 0; padding-bottom: 0; margin: 0; }
+html:root:root .list-tabs { box-sizing: border-box; height: 38px; margin: 0; padding: 3px; border-width: 1.5px; min-width: 200px; align-items: stretch; }
+html:root:root .list-tab { box-sizing: border-box; height: 30px; padding-top: 0; padding-bottom: 0; border-width: 0; flex: 1 1 auto; justify-content: center; }
+/* Old School and Bonfire draw a frame round the bar: it grows outwards over the room's edge instead of pushing the room down */
+html:root:root[data-skin="quest"][data-quest="osrs"] .scene-bar { margin-block: -5px; }
+html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-block: -4px; }
+
+/* the birthday cake he hands you at the end of the party (bdayCake in app-birthday.js; build 605): in front of his tummy, the flame flickers softly */
+.bday-cake { position: absolute; left: 50%; bottom: 0; width: 64px; height: 60px; margin-left: -32px; z-index: 6; pointer-events: none; }
+.bday-cake svg { display: block; overflow: visible; }
+.bday-cake .flame { transform-box: fill-box; transform-origin: 50% 100%; animation: cake-flame .9s ease-in-out infinite alternate; }
+@keyframes cake-flame { from { transform: scale(1, 1) rotate(-4deg); } to { transform: scale(.9, 1.15) rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) { .bday-cake .flame { animation: none; } }
+
+/* party dance (the birthday dance, partyDance in app-idle.js; build 607): 9 s, twelve beats of about 0.75 s, each a crouch, a stretch up, a squash down;
+   the squash and stretch itself is drawn by svgSquish (the `partydance` steps in app-idle.js), this is the hopping, swaying and the turn round it. Beats 1 to 4 hop on the spot,
+   5 to 8 hop from side to side, 9 and 10 turn round in the air, 11 is one big jump and 12 a happy little landing. Keep the two in step. */
+@keyframes partydance {
+  0% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  1.25% { transform: translate(0px, 3px) rotate(0deg) scaleX(1); }
+  2.917% { transform: translate(0px, -8px) rotate(0deg) scaleX(1); }
+  4.583% { transform: translate(0px, -16px) rotate(0deg) scaleX(1); }
+  6.667% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  8.333% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  8.333% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  9.583% { transform: translate(0px, 3px) rotate(0deg) scaleX(1); }
+  11.25% { transform: translate(0px, -8px) rotate(0deg) scaleX(1); }
+  12.917% { transform: translate(0px, -16px) rotate(0deg) scaleX(1); }
+  15% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  16.667% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  16.667% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  17.917% { transform: translate(0px, 3px) rotate(0deg) scaleX(1); }
+  19.583% { transform: translate(0px, -8px) rotate(0deg) scaleX(1); }
+  21.25% { transform: translate(0px, -16px) rotate(0deg) scaleX(1); }
+  23.333% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  25% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  25% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  26.25% { transform: translate(0px, 3px) rotate(0deg) scaleX(1); }
+  27.917% { transform: translate(0px, -8px) rotate(0deg) scaleX(1); }
+  29.583% { transform: translate(0px, -16px) rotate(0deg) scaleX(1); }
+  31.667% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  33.333% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  33.333% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  34.583% { transform: translate(0px, 3px) rotate(0deg) scaleX(1); }
+  36.25% { transform: translate(1.2px, -8px) rotate(2.8deg) scaleX(1); }
+  37.917% { transform: translate(4px, -16px) rotate(7deg) scaleX(1); }
+  40% { transform: translate(8px, 0px) rotate(2.1deg) scaleX(1); }
+  41.667% { transform: translate(8px, 0px) rotate(0deg) scaleX(1); }
+  41.667% { transform: translate(8px, 0px) rotate(0deg) scaleX(1); }
+  42.917% { transform: translate(8px, 3px) rotate(0deg) scaleX(1); }
+  44.583% { transform: translate(5.6px, -8px) rotate(-2.8deg) scaleX(1); }
+  46.25% { transform: translate(0px, -16px) rotate(-7deg) scaleX(1); }
+  48.333% { transform: translate(-8px, 0px) rotate(-2.1deg) scaleX(1); }
+  50% { transform: translate(-8px, 0px) rotate(0deg) scaleX(1); }
+  50% { transform: translate(-8px, 0px) rotate(0deg) scaleX(1); }
+  51.25% { transform: translate(-8px, 3px) rotate(0deg) scaleX(1); }
+  52.917% { transform: translate(-5.6px, -8px) rotate(2.8deg) scaleX(1); }
+  54.583% { transform: translate(0px, -16px) rotate(7deg) scaleX(1); }
+  56.667% { transform: translate(8px, 0px) rotate(2.1deg) scaleX(1); }
+  58.333% { transform: translate(8px, 0px) rotate(0deg) scaleX(1); }
+  58.333% { transform: translate(8px, 0px) rotate(0deg) scaleX(1); }
+  59.583% { transform: translate(8px, 3px) rotate(0deg) scaleX(1); }
+  61.25% { transform: translate(6.8px, -8px) rotate(-2.8deg) scaleX(1); }
+  62.917% { transform: translate(4px, -16px) rotate(-7deg) scaleX(1); }
+  65% { transform: translate(0px, 0px) rotate(-2.1deg) scaleX(1); }
+  66.667% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  66.667% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  67.917% { transform: translate(0px, 3px) rotate(0deg) scaleX(1); }
+  69.583% { transform: translate(0px, -9px) rotate(0deg) scaleX(1); }
+  71.25% { transform: translate(0px, -18px) rotate(0deg) scaleX(-1); }
+  73.333% { transform: translate(0px, 0px) rotate(0deg) scaleX(-1); }
+  75% { transform: translate(0px, 0px) rotate(0deg) scaleX(-1); }
+  75% { transform: translate(0px, 0px) rotate(0deg) scaleX(-1); }
+  76.25% { transform: translate(0px, 3px) rotate(0deg) scaleX(-1); }
+  77.917% { transform: translate(0px, -9px) rotate(0deg) scaleX(-1); }
+  79.583% { transform: translate(0px, -18px) rotate(0deg) scaleX(1); }
+  81.667% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  83.333% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  83.333% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  84.583% { transform: translate(0px, 6px) rotate(0deg) scaleX(1); }
+  86.25% { transform: translate(0px, -17px) rotate(0deg) scaleX(1); }
+  87.917% { transform: translate(0px, -34px) rotate(0deg) scaleX(1); }
+  90% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  91.667% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  91.667% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  92.917% { transform: translate(0px, 3px) rotate(0deg) scaleX(1); }
+  94.583% { transform: translate(0px, -6px) rotate(0deg) scaleX(1); }
+  96.25% { transform: translate(0px, -12px) rotate(0deg) scaleX(1); }
+  98.333% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  100% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+}
+.pet.partydance .pet-svg { animation: partydance 9s ease-in-out; transform-origin: 50% 94%; }
+@media (prefers-reduced-motion: reduce) { .pet.partydance .pet-svg { animation: none; } }
+
+/* the toy is put away for the birthday party (bdayToyAway in app-birthday.js; build 612) */
+.stage.bday-toyaway .toy { display: none !important; }
+
+
+/* the disco arm pose (the New Year's Day dance, discoDance in app-newyear.js; build 619): one arm points up and across, the other down, and they swap every beat and a half, like the famous pose */
+.pet[data-arms="disco"] .arm-r { animation: disco-r 1.5s ease-in-out infinite; }
+.pet[data-arms="disco"] .arm-l { animation: disco-l 1.5s ease-in-out infinite; }
+@keyframes disco-r { 0%, 35% { transform: translate(-8px, -26px) rotate(-150deg); } 50%, 85% { transform: translate(0, 0) rotate(-24deg); } 100% { transform: translate(-8px, -26px) rotate(-150deg); } }
+@keyframes disco-l { 0%, 35% { transform: translate(0, 0) rotate(24deg); } 50%, 85% { transform: translate(8px, -26px) rotate(150deg); } 100% { transform: translate(0, 0) rotate(24deg); } }
+@media (prefers-reduced-motion: reduce) { .pet[data-arms="disco"] :is(.arm-l, .arm-r) { animation: none; } }
+
+/* the royal wave arm pose (the King's Day dance, kingsDance in app-kingsday.js; build 624): his right arm is raised and waves slowly, the left one stays at his side */
+.pet[data-arms="royal"] .arm-r { animation: royal-r 1.5s ease-in-out infinite; }
+@keyframes royal-r { 0%, 100% { transform: translate(-6px, -24px) rotate(-118deg); } 50% { transform: translate(-6px, -24px) rotate(-152deg); } }
+@media (prefers-reduced-motion: reduce) { .pet[data-arms="royal"] .arm-r { animation: none; } }
+
+/* the Shop's special-days calendar (app-shopcal.js; build 628) */
+.picker.pet-sheet.shop-sheet .picker-inner { display: flex; flex-direction: column; overflow: hidden; gap: 10px; }
+.shop-sheet .picker-inner > * + * { margin-top: 0; }
+.shop-tabs { margin: 0; display: flex; gap: 8px; flex: none; }
+.shop-panels { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 2px 2px 22px; margin: 0 -2px; scrollbar-width: none; }
+.shop-panels::-webkit-scrollbar { display: none; }
+.shop-panels > .shop-panel > * + * { margin-top: 12px; }
+.shop-panels .shop-list { overflow: visible; }
+.dress-tabs.shop-tabs button { flex: 1 1 0; width: auto; min-width: 0; flex-direction: row; justify-content: center; white-space: nowrap; padding: 8px 10px; }
+.shop-panel[hidden] { display: none; }
+.sc-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sc-month { font-family: var(--font-display); font-weight: 500; font-size: 1.05rem; text-transform: capitalize; }
+.sc-nav { width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 1.2rem; line-height: 1; }
+.sc-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.sc-wd { text-align: center; font-size: .72rem; font-weight: 800; color: var(--muted); padding-bottom: 2px; }
+.sc-day { aspect-ratio: 1 / 1; min-height: 38px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface-2); color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 2px 0; cursor: pointer; font: inherit; -webkit-tap-highlight-color: transparent; }
+.sc-day.special { background: var(--surface); border-color: var(--hl); }
+.sc-day.today { box-shadow: 0 0 0 2px var(--hl); font-weight: 800; }
+.sc-day.picked { background: var(--hl-soft); }
+.sc-num { font-size: .85rem; line-height: 1; font-weight: 700; }
+.sc-dots { display: flex; gap: 3px; min-height: 8px; }
+.sc-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; }
+.sc-dot.sc-party { background: #ff6f9c; }
+.sc-dot.sc-gift { background: #ffc83a; box-shadow: 0 0 0 1px rgba(91, 66, 57, .35); }
+.sc-legend { display: flex; gap: 14px; justify-content: center; font-size: .75rem; font-weight: 700; color: var(--muted); }
+.sc-legend > span { display: inline-flex; align-items: center; gap: 5px; }
+.sc-detail { display: flex; flex-direction: column; gap: 2px; font-size: .88rem; padding: 8px 12px; border: 1.5px dashed var(--outline); border-radius: 14px; background: var(--surface); }
+.sc-detail b { font-weight: 800; }
+.sc-up { display: flex; flex-direction: column; gap: 6px; }
+.sc-row { display: flex; flex-direction: column; gap: 1px; padding: 8px 12px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--surface-2); font-size: .85rem; }
+.sc-row span { color: var(--muted); font-weight: 700; font-size: .78rem; }
+.sc-row .sc-tags { color: var(--ink); }
+
+/* the black skins (the black cat and the black Pomeranian) have a darker outline, so they stand out from the dark fur (build 628) */
+.pet:is([data-skin="blackcat"], [data-skin="blackpom"]) :is(.skin, .ear, .tuft path, .fur path, .arm ellipse:not(.arm-hi), .foot) { stroke: #1d1722; }
+.pet[data-skin="blackpom"] .pom-chest { stroke: #1d1722; }

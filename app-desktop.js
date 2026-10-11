@@ -32,7 +32,8 @@
   function showMode(mode) {
     root.classList.toggle('desktop-pet', mode !== 'list');
     root.classList.toggle('desktop-list', mode === 'list');
-    if (typeof applyLook === 'function') applyLook();   // (the alert style depends on which window this is)
+    if (typeof applyTheme === 'function') applyTheme(currentTheme);   // (the app's skin shows in the whole app only; the small window wears just the cards' look)
+    if (typeof applyLook === 'function') applyLook();
     var sel = window.getSelection && window.getSelection(); if (sel) sel.removeAllRanges();   // nothing stays highlighted across a switch
     if (mode !== 'list') for (var i = 0, open = document.querySelectorAll('dialog[open]'); i < open.length; i++) open[i].close();
     if (typeof fadeSoon === 'function') fadeSoon();
@@ -176,12 +177,12 @@
   pet.addEventListener('click', function (e) { if (Date.now() < noClickUntil) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
 
   // quick ways between the small Fumu and the whole app: a middle click on him, a double click on the bar, or the shell's shortcuts
-  pet.addEventListener('auxclick', function (e) {   // (a middle click on him swaps the two: small Fumu to the whole app, and back)
+  document.addEventListener('auxclick', function (e) {   // (a middle click anywhere in the window swaps the two: small Fumu to the whole app, and back)
     if (e.button !== 1) return;
     if (isPet()) { e.preventDefault(); D.setMode('list'); }
     else if (root.classList.contains('desktop-list')) { e.preventDefault(); D.setMode('pet'); }
   });
-  pet.addEventListener('mousedown', function (e) { if (e.button === 1) e.preventDefault(); });   // no autoscroll circle
+  document.addEventListener('mousedown', function (e) { if (e.button === 1) e.preventDefault(); });   // no autoscroll circle
   bar.addEventListener('dblclick', function (e) { if (e.target === bar || e.target.className === 'desk-title') D.setMode('pet'); });
   if (D.onSwapList) D.onSwapList(function () { if (typeof switchList === 'function') switchList(); });   // the shortcut for shopping / to-do
 
@@ -202,8 +203,10 @@
   })();
 
   // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------
-  var deskPrefs = { moveNormal: 'normal', moveFull: 'still', alertStyle: 'paper', mute: false, remind: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare' };
+  var deskPrefs = { moveNormal: 'normal', moveFull: 'still', alertStyle: '', mute: false, remind: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', celebBirthday: true, celebChristmas: true, celebHalloween: true, celebNewYear: true, celebEaster: true, celebKingsDay: true, celebScreen: true };
   /** Awareness: 1 = more privacy (idle and time only), 2 = normal. Anything he says about what you are doing, or knows about your windows and programs, checks this first. */
+  /** Mini Fumu's settings, Celebrations tab: whether one switch is on (everything is on until she turns it off). @param {string} key */
+  window.deskPref = function (key) { return deskPrefs[key] !== false; };
   window.deskAware = function (level) { return (deskPrefs.awareness === 1 ? 1 : 2) >= level; };
   /** The small window's look choices from the settings window: no toy, no cushion (classes on <html>, CSS at the end of styles.css). */
   deskMuted = function () { return !!deskPrefs.mute && isPet(); };   // sounds off in the small window only
@@ -213,19 +216,17 @@
     return t === 'dark' || (t !== 'light' && !!window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
   }
   function applyLook() {
-    root.classList.toggle('desk-notoy', !!deskPrefs.hideToy);
+    // the old "Show his toy" setting is gone (the ring menu's Toy button has a no-toy choice): once, an old choice of no toy carries over
+    try { if (deskPrefs.hideToy && !localStorage.getItem('nibble-toy-migrated')) { localStorage.setItem('nibble-toy-migrated', '1'); localStorage.setItem('nibble-toy-kind', 'none'); if (typeof applyToyKind === 'function') applyToyKind(); } } catch (e) { /* storage blocked */ }
     root.classList.toggle('desk-nocushion', !!deskPrefs.hideCushion);
     root.classList.toggle('desk-backdrop', deskPrefs.backdrop === true);
     root.classList.toggle('desk-nosparkles', deskPrefs.sparkles === false);
     root.classList.toggle('desk-noclouds', deskPrefs.clouds === false);
-    // the look of alert cards and speech bubbles: the small pet uses the style chosen in the settings window; the whole app always has the
-    // Classic look, which follows its own Light or Dark appearance
-    var style = root.classList.contains('desktop-pet') ? (deskPrefs.alertStyle || 'paper') : (root.dataset.skin === 'quest' ? 'quest' : 'classic');   // (the whole app: Classic, or Quest when that is its appearance)
-    var want = style === 'classic' ? '' : ({ night: 'al-night', sweet: 'al-sweet', cool: 'al-cool', quest: 'al-quest' }[style] || 'al-paper');
-    var have = ['al-paper', 'al-night', 'al-sweet', 'al-cool', 'al-quest'].filter(function (c) { return root.classList.contains(c); });
-    if (have.length !== (want ? 1 : 0) || (want && have[0] !== want)) {   // (only touched when it is wrong, so this is cheap to call often)
-      root.classList.remove('al-paper', 'al-night', 'al-sweet', 'al-cool', 'al-quest');
-      if (want) root.classList.add(want);
+    // the look (cards, speech bubbles, ring, and the whole app's skin) is the one theme shared by both windows: the shell keeps it (alertStyle) and applyTheme wears it
+    if (deskPrefs.alertStyle && typeof applyTheme === 'function' && (OLD_THEMES[deskPrefs.alertStyle] || deskPrefs.alertStyle) !== currentTheme) {
+      applyTheme(deskPrefs.alertStyle);
+      try { localStorage.setItem('nibble-theme', currentTheme); } catch (e) { /* storage blocked */ }
+      if (typeof syncThemeButtons === 'function') syncThemeButtons();
     }
     root.classList.toggle('desk-nobubbles', deskPrefs.bubbles === false);   // speech bubbles in the small window only; cards (reminders, links) are separate
     lastSolidReset();
@@ -249,7 +250,7 @@
   var aimQueued = 0;
   function aimBubble() {
     aimQueued = 0;
-    if (bubble.hidden || !root.classList.contains('desktop-pet')) return;
+    if (bubble.hidden || !root.classList.contains('al-quest')) return;   // (the same window shows the small pet and the whole app in turn, so this runs in both: a pointer worked out for the small window must not stay on the app's bubble)
     var r = bubble.getBoundingClientRect(), p = pet.getBoundingClientRect(), w = bubble.offsetWidth, h = bubble.offsetHeight;
     if (!w || !p.width) return;
     // (the bubble pops in with a scale: its centre and bottom stay put, so its real edges come from its own size)
@@ -327,12 +328,23 @@
   // While he is carried or thrown the toy is drawn by a window of its own (the shell moves it where this page says), so it can bounce
   // off the edges of the screen and not only off the sides of his little window. It stops being that when he catches it or it lands.
   var fieldToken = 0, fieldZoom = 1;
+  // a mouse reports its position far more often than the screen draws: the flying toy's window is told only the latest spot, once per frame (a flood of messages made it stutter)
+  var toyAtRaf = 0, toyAtLast = null;
+  function sendToyAt(x, y, spin) {
+    if (!isFinite(x) || !isFinite(y)) return;
+    toyAtLast = [x, y, spin];
+    if (toyAtRaf) return;
+    toyAtRaf = requestAnimationFrame(function () { toyAtRaf = 0; if (toyAtLast) D.toyAt(toyAtLast[0], toyAtLast[1], toyAtLast[2]); });
+  }
   /** @returns {Promise<string>} The toy as a small PNG data URL (its colours are read from the page's CSS, so a window with no styles can draw it). */
+  var toyPngKey = '', toyPng = '';   // (drawn once per toy: picking it up must not wait for the picture to be made)
   function toyPicture() {
     return new Promise(function (resolve) {
       var g = null, list = toyBall.querySelectorAll('[data-toy]');
       for (var i = 0; i < list.length; i++) if (getComputedStyle(list[i]).display !== 'none') { g = list[i]; break; }
       if (!g) { resolve(''); return; }
+      var key = (g.getAttribute('data-toy') || '') + '|' + pet.dataset.species + '|' + pet.dataset.skin;
+      if (toyPng && key === toyPngKey) { resolve(toyPng); return; }
       var copy = g.cloneNode(true), src = g.querySelectorAll('*'), dst = copy.querySelectorAll('*');
       for (var j = 0; j < src.length; j++) {
         var cs = getComputedStyle(src[j]);
@@ -342,7 +354,7 @@
       var xml = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26" width="104" height="104">' + new XMLSerializer().serializeToString(copy) + '</svg>';
       var img = new Image();
       img.onload = function () {
-        try { var c = document.createElement('canvas'); c.width = c.height = 104; c.getContext('2d').drawImage(img, 0, 0, 104, 104); resolve(c.toDataURL('image/png')); } catch (e) { resolve(''); }
+        try { var c = document.createElement('canvas'); c.width = c.height = 104; c.getContext('2d').drawImage(img, 0, 0, 104, 104); toyPng = c.toDataURL('image/png'); toyPngKey = key; resolve(toyPng); } catch (e) { resolve(''); }
       };
       img.onerror = function () { resolve(''); };
       img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
@@ -358,14 +370,18 @@
     return Promise.all([D.toyField(), svgPicture(svg, w, h)]).then(function (r) {
       var f = r[0], png = r[1];
       if (!f || !png) return null;
+      D.toyShow(png, Math.round(48 * (f.zoom || 1)));
+      return (D.toyReady ? D.toyReady() : Promise.resolve()).then(function () { return r; });
+    }).then(function (r) {
+      if (!r) return null;
+      var f = r[0], png = r[1];
       var z = f.zoom || 1, st = stage.getBoundingClientRect(), mid = st.left + st.width / 2, fl = st.bottom - 3 - h / 2;
-      D.toyShow(png, Math.round(48 * z));
       return {
         zoom: z, ax: 0,
         lim: { minX: (f.area.x - f.wx) / z - mid + w / 2 + 2, maxX: (f.area.x + f.area.width - f.wx) / z - mid - w / 2 - 2, maxY: fl - (f.area.y - f.wy) / z - h / 2 - 8 },
         localX: function () { return (this.ax - f.wx) / z - mid; },
-        show: function (x, y, spin) { var px = f.wx + (mid + x) * z, py = f.wy + (fl - y) * z; this.ax = px; this.ay = py; D.toyAt(px, py, spin); },
-        hide: function () { D.toyHide(); },
+        show: function (x, y, spin) { var px = f.wx + (mid + x) * z, py = f.wy + (fl - y) * z; this.ax = px; this.ay = py; sendToyAt(px, py, spin); },
+        hide: function () { cancelAnimationFrame(toyAtRaf); toyAtRaf = 0; D.toyHide(); },
         /** Draws a short burst where it last was (pieces flying apart): build(t) gives the 144 x 144 drawing at t 0..1, shown as n frames ms apart. */
         burst: function (build, n, ms) {
           var self = this, at = [self.ax, self.ay], shots = [];
@@ -403,26 +419,44 @@
     });
   }
   /** Called when the toy is picked up: if the switch is on, from now on it can go anywhere on the screen. */
+  /** Makes the toy's picture and loads it into the toy window ahead of time, so picking the toy up shows it at once. */
+  window.deskToyWarm = function () {
+    if (!isPet() || deskPrefs.toyRoam !== true || !D.toyField || !D.toyShow) return;
+    Promise.all([D.toyField(), toyPicture()]).then(function (r) { if (r[0] && r[1]) D.toyShow(r[1], Math.round(32 * (r[0].zoom || 1))); });
+  };
+  setTimeout(window.deskToyWarm, 4000);
   window.deskToyField = function () {
-    if (deskPrefs.toyRoam !== true || deskPrefs.hideToy || !isPet() || !D.toyField || !D.toyShow || toyField) return;
+    if (deskPrefs.toyRoam !== true || toyKind() === 'none' || !isPet() || !D.toyField || !D.toyShow || toyField) return;
     var token = ++fieldToken;
     if (homeX === null && D.where) D.where().then(function (x) { if (homeX === null && x !== null) homeX = x; });
     Promise.all([D.toyField(), toyPicture()]).then(function (r) {
       var f = r[0], png = r[1];
-      if (!f || !png || token !== fieldToken || !playing || toyField) return;
+      if (!f || !png) return null;
+      D.toyShow(png, Math.round(32 * (f.zoom || 1)));   // (loads the picture; the page keeps drawing the toy until the window has it)
+      return (D.toyReady ? D.toyReady() : Promise.resolve()).then(function () { return r; });
+    }).then(function (r) {
+      if (!r) return;
+      var f = r[0], png = r[1];
+      if (token !== fieldToken || !playing || toyField || !held) return;   // (let go meanwhile: the throw has begun in the page, it stays there)
       var z = f.zoom || 1, st = stage.getBoundingClientRect(), mid = st.left + st.width / 2, fl = st.bottom - 19;
       fieldZoom = z; knownWx = f.wx;
       var spot = function (x, y) { return [f.wx + (mid + x) * z, f.wy + (fl - y) * z]; };
       toyField = {
         zoom: z,
-        lim: { minX: (f.area.x - f.wx) / z - mid + 18, maxX: (f.area.x + f.area.width - f.wx) / z - mid - 18, maxY: fl - (f.area.y - f.wy) / z - 20 },
+        lim: { minX: (f.area.x - f.wx) / z - mid + 18, maxX: (f.area.x + f.area.width - f.wx) / z - mid - 18, maxY: fl - (f.area.y - f.wy) / z - 20, minY: fl - (f.area.y + f.area.height - 16 * z - f.wy) / z },   // (minY: the toy's floor is the top of the taskbar, not the floor he stands on: px above his floor, so mostly below it)
         ax: 0,   // where the toy is on the screen (px), so that wherever his window has got to, its place in the window can be worked out again
         localX: function () { return (this.ax - f.wx) / z - mid; },
-        show: function (x, y, spin) { toyEl.style.visibility = 'hidden'; var p = spot(x, y); this.ax = p[0]; D.toyAt(p[0], p[1], spin); },
-        hide: function () { D.toyHide(); },
+        follow: false,   // true while it is held: the shell moves the window to the mouse itself (no messages from here)
+        /** A screen point as the toy's own terms (px from the middle of the stage, px above the floor). */
+        toPage: function (sx, sy) { return { x: (sx - f.wx) / z - mid, y: fl - (sy - f.wy) / z }; },
+        ay: 0,
+        show: function (x, y, spin) { var p = spot(x, y); this.ax = p[0]; this.ay = p[1]; if (!this.follow) sendToyAt(p[0], p[1], spin); if (!this.shown) { this.shown = true; setTimeout(function () { if (toyField) toyEl.style.visibility = 'hidden'; }, 90); } },
+        /** Let go: from here the page moves the window again (the throw). */
+        release: function () { if (this.follow) { this.follow = false; if (D.toyFollow) D.toyFollow(false); } },   // (the page's own toy goes only once the window's one is up: no blink)
+        hide: function () { cancelAnimationFrame(toyAtRaf); toyAtRaf = 0; if (D.toyFollow) D.toyFollow(false); D.toyHide(); },
         shift: function (p) { f.wx += p * z; this.lim.minX -= p; this.lim.maxX -= p; }   // his window moved p page px to the right
       };
-      D.toyShow(png, Math.round(32 * z));
+      if (D.toyFollow) { toyField.follow = true; D.toyFollow(true); }
       toyField.show(toyX, held ? held.y : 0, 0);
     });
   };
@@ -431,12 +465,15 @@
   var runBusy = null;   // the window run that is going on now (a new run would cut it short and lose the distance it had covered)
   var fieldMoved = 0;   // how far (screen px) his window ran after the toy, so he can run back
   /** Runs his window along the floor by dx page px over ms; keeps the toy's screen-wide field in step. @returns {Promise<number>} Page px really moved. */
+  var runSeq = 0;
   var knownWx = null;   // where the page thinks his window is (screen px): the toy's screen-wide field is measured from it
   function runWindow(dx, ms) {
-    var z = fieldZoom || 1;
+    var z = fieldZoom || 1, myRun = ++runSeq;
     pet.classList.add('walking'); lookToward(dx);
+    // the legs keep going while runs follow each other (the toy chase starts a new one every half second): `walking` is only taken off when no newer run has begun
+    function stopWalking() { setTimeout(function () { if (myRun === runSeq) { pet.classList.remove('walking'); stopLook(); } }, 220); }
     return (runBusy = D.walk(dx * z, ms)).then(function (went) {
-      pet.classList.remove('walking'); stopLook();
+      stopWalking();
       went = went || 0;
       // a run that was cut short by the next one answers nothing, but the window did move: ask where it really is
       return (knownWx !== null && D.where ? D.where() : Promise.resolve(null)).then(function (x) {
@@ -445,7 +482,7 @@
         if (toyField && toyField.shift) toyField.shift(went / z);
         return went / z;
       });
-    }, function () { pet.classList.remove('walking'); stopLook(); return 0; });
+    }, function () { stopWalking(); return 0; });
   }
   window.deskToyChase = function (dx) { var slow = typeof toyTired === 'function' && toyTired() ? 5 : 1; return runWindow(dx, Math.min(3500 * slow, (500 + Math.abs(dx) * 5) * slow)); };
   window.deskToyFollow = function (dx) { return runWindow(dx, typeof toyTired === 'function' && toyTired() ? 2200 : 450); };
@@ -461,12 +498,13 @@
       // the exact spot he started from (the shell's own count of his moves misses a run that was cut short)
       return home !== null && D.where ? D.where().then(function (x) { return x === null ? -moved : home - x; }) : -moved;
     }).then(function (back) {
-      roaming = true;
+      roaming = true; runSeq++;   // (a run from the chase that is about to take `walking` off must not do it during the run back)
       pet.classList.add('walking');
       function go(dx, tries) {
         if (Math.abs(dx) < 4) return Promise.resolve();
         lookToward(dx);
-        return D.walk(dx, Math.min(3500, 600 + Math.abs(dx) * 2)).then(function () {}, function () {}).then(function () {
+        return D.walk(dx, Math.min(2200, 450 + Math.abs(dx) * 0.9), true).then(function () {}, function () {}).then(function () {
+          // (true: exactly back, even to a spot half off the side of the screen)
           // look again where he ended up, and go the rest of the way (once) if he fell short
           if (tries > 0 && home !== null && D.where) return D.where().then(function (x) { return x === null ? 0 : go(home - x, tries - 1); });
         });
@@ -476,6 +514,19 @@
   };
 
   // thrown (the shell flies his window about): he spins round and is dizzy, and every hit on an edge or the floor goes "boing"
+  /** After a throw he is dizzy for `ms`: the face is put back every so often because the run back and the idle moves would otherwise change it. */
+  var dizzyTimer = 0;
+  function dizzyHold(ms) {
+    clearInterval(dizzyTimer);
+    var until = Date.now() + ms;
+    function face() { if (!carried && !busy) setFace({ eyes: 'dizzy', mouth: 'o', arms: 'idle', x: ['sweat'] }); }
+    face();
+    dizzyTimer = setInterval(function () {
+      if (pet.classList.contains('thrown') || carried) { clearInterval(dizzyTimer); dizzyTimer = 0; return; }   // thrown again, or picked up: that has its own face
+      if (Date.now() >= until) { clearInterval(dizzyTimer); dizzyTimer = 0; if (!busy) settle(); return; }
+      face();
+    }, 350);
+  }
   /** The spin ends in mid-turn: he eases round to upright from wherever the turn stopped instead of snapping. */
   function glideUpright() {
     var svg = pet.querySelector('.pet-svg');
@@ -504,8 +555,8 @@
         say(pick(['Ow! I\'m okay', 'Ow! …I\'m okay!', 'Ouch! I\'m okay~']), 2200, true);
         setFace({ eyes: 'dizzy', mouth: 'o', arms: 'idle', x: ['sweat'] });
         if (extra.head) setTimeout(function () { pet.classList.remove('head-down'); pet.classList.add('righting'); setTimeout(function () { pet.classList.remove('righting'); }, 450); }, 1100);
-        setTimeout(function () { if (!pet.classList.contains('thrown') && !carried && !busy) settle(); }, extra.head ? 1700 : 1000);
-      } else if (!bed) setTimeout(function () { if (!pet.classList.contains('thrown') && !carried && !busy) settle(); }, 900);
+        if (extra.head) setTimeout(function () { if (!pet.classList.contains('thrown') && !carried && !busy) settle(); }, 1700); else dizzyHold(3000);
+      } else if (!bed) dizzyHold(3500);   // (the dizzy face stays for a while after he lands, whatever else touches his face)
     }
     if (!on) stage.style.removeProperty('--bed-turn');
     if (!on && stage.classList.contains('bed-thrown')) {   // the bed settles back into place softly instead of snapping
@@ -540,7 +591,7 @@
   };
   function pageBounce(hard, wall) {
     if (headDown) { headDown = false; pet.classList.remove('thrown'); pet.classList.add('head-down'); }   // he stops spinning on his head
-    if (stage.classList.contains('bed-thrown')) { if (typeof sound === 'function') { sound('bounce'); sound('bedbell'); } return; }   // in his bed: the bounce and the faint bell in the bed
+    if (stage.classList.contains('bed-thrown') || (typeof inBed === 'function' && inBed())) { if (typeof sound === 'function') { sound('bounce'); sound('bedbell'); } return; }   // (the springy hops of the bed back to its place too)   // in his bed: the bounce and the faint bell in the bed
     if (typeof sound === 'function') sound('bounce');
     if (wall && !carried) { window.wallHit(wall, hard); return; }
     if (typeof pulse === 'function' && !carried) pulse(hard > .5 ? 'hop' : 'hopsmall', 400);
@@ -588,8 +639,23 @@
   // ---------- an alert card keeps its normal size: if he is at the side of the screen, his window slides onto it while the card shows ----------
   var cardShift = 0, cardBusy = false, cardBackTimer = 0, cardShiftAt = 0;
   function cardZoom() { return window.outerWidth && window.innerWidth ? window.outerWidth / window.innerWidth : 1; }
+  var cardDrop = 0;
+  /** He drops only as far as a card needs room above him (a short card needs none, a tall one more): the rest of the time he stays where he is. */
+  function cardRoom(card) {
+    var need = 0;
+    if (card) {
+      // measured from the layout, not from the card's own rectangle: the card pops in from a small size, which would make it look shorter than it is
+      var sr = stage.getBoundingClientRect(), top = sr.bottom - (parseFloat(getComputedStyle(card).bottom) || 0) - card.offsetHeight;
+      need = Math.max(0, Math.min(28, Math.ceil(2 - top + cardDrop)));   // (top already includes the drop he has now)
+    }
+    if (need === cardDrop) return;
+    cardDrop = need;
+    if (need) root.style.setProperty('--card-drop', need + 'px'); else root.style.removeProperty('--card-drop');
+  }
   function cardCheck() {
-    if (!isPet() || !D.walk) return;
+    if (!isPet()) return;
+    cardRoom(document.querySelector('.stage .inbox-card'));
+    if (!D.walk) return;
     var card = document.querySelector('.stage .inbox-card');
     if (!card) {
       if (cardShift && !cardBackTimer && !cardBusy) cardBackTimer = setTimeout(function () {   // a moment after the last card is gone he slides back
@@ -597,7 +663,7 @@
         if (document.querySelector('.stage .inbox-card') || !cardShift) return;
         var back = -cardShift; cardShift = 0;
         root.classList.remove('card-narrow');
-        D.walk(back, 400).then(function () {}, function () {});
+        D.walk(back, 400, true).then(function () {}, function () {});   // (true: exactly back, even to a spot half off the screen)
       }, 700);
       return;
     }
@@ -667,6 +733,7 @@
    */
   window.deskRemind = function (items) {
     if (deskPrefs.remind === false) return false;
+    if (typeof birthdayHolding === 'function' && birthdayHolding()) { setTimeout(function () { window.deskRemind(items); }, 2500); return true; }   // (the birthday party plays first)
     if (D.reveal) D.reveal();   // he may be hidden: bring him back, without taking the keyboard
     if (!isPet()) return false; // the big window shows the usual bubble
     if (peeking) endPeek();
@@ -877,9 +944,8 @@
   // the shell sends nothing and none of this happens.
   var program = { kind: 'none', name: '', fullscreen: false }, gameSince = 0, lastRemark = 0, kindRemark = {}, programTimer = 0;
   var QUIET_KINDS = { game: 1, call: 1, fullscreen: 1 };
-  var grabbed = false;   // the grab-the-mouse key (Ctrl+Alt+G) was pressed for this program: he is solid again
   /** Whether the shell lets the mouse pass through him now (a game or full-screen program, unless he catches the mouse there or the key swapped it). */
-  window.deskPassThrough = function () { return deskAware(2) && !deskPrefs.catchGames && !grabbed && (!!program.fullscreen || program.kind === 'game'); };
+  window.deskPassThrough = function () { return !!deskPrefs.clickThrough; };   // (only when the player turned click-through on)
   /** Whether a game, a call or something full-screen is in front: no napping then (he is quiet). */
   function quietNow() { return deskAware(2) && !!QUIET_KINDS[program.kind]; }
   /** Whether a game or something full-screen is in front: the "full-screen" choices in the settings apply instead of the usual ones. */
@@ -995,7 +1061,6 @@
   }
   if (D.onProgram) D.onProgram(function (p) {
     var was = program;
-    grabbed = false;   // (the shell does the same when the program changes)
     program = p || { kind: 'none', name: '', fullscreen: false };
     applyChatter();   // a game or full-screen program switches him to the other chatter choice
     clearTimeout(programTimer);
@@ -1085,7 +1150,7 @@
       var el = list[i];
       if (el.hidden || el.closest('[hidden]')) continue;
       var r = el.getBoundingClientRect();
-      if (r.width < 1 || r.height < 1 || getComputedStyle(el).display === 'none') continue;
+      if (r.width < 1 || r.height < 1) continue;   // (a display: none element has an empty rectangle; asking for its computed style cost a style flush thirty times a second)
       // sitting on a window his bottom edge overlaps that window (its buttons, its title bar): the lowest 15 px of him let clicks through
       var cut = el === pet && perched ? PERCH_CLICK_THROUGH : 0;
       out.push([Math.round(r.left), Math.round(r.top), Math.round(r.right), Math.round(r.bottom - Math.min(cut, r.height - 8))]);
@@ -1096,14 +1161,17 @@
     }
     return out;
   }
-  // where his body is in the window (left, top, right, the bottom of his cushion): the shell lets HIM touch the screen edges and the taskbar
+  // where his body is in the window (left, top, right, the bottom of his cushion): the shell lets HIM touch the screen edges and the top of the taskbar
   var lastBody = '';
   if (D.setBody) setInterval(function () {
     if (!isPet() || document.hidden || pet.classList.contains('thrown') || pet.classList.contains('falling')) return;
     var r = pet.getBoundingClientRect();
     if (r.width < 1) return;
     var cx = (r.left + r.right) / 2, hw = stage.classList.contains('bedtime') ? 125 : 82;   // (the cushion, or his bed, is wider than he is)
-    var box = [Math.round(Math.min(r.left, cx - hw)), Math.round(r.top), Math.round(Math.max(r.right, cx + hw)), Math.round(r.bottom + 12)], key = box.join();
+    var left = Math.min(r.left, cx - hw), right = Math.max(r.right, cx + hw), top = r.top;
+    var wings = pet.querySelectorAll('.dragon-wing');   // (the dragon's wings stick out past the pet's box: they are part of him at the screen's edge)
+    for (var i = 0; i < wings.length; i++) { var wr = wings[i].getBoundingClientRect(); if (wr.width > 0) { left = Math.min(left, wr.left); right = Math.max(right, wr.right); top = Math.min(top, wr.top); } }
+    var box = [Math.max(0, Math.round(left)), Math.max(0, Math.round(top)), Math.round(right), Math.round(r.bottom + 12)], key = box.join();
     if (key !== lastBody) { lastBody = key; D.setBody(box); }
   }, 500);
   if (D.setRects) setInterval(function () {
@@ -1143,8 +1211,10 @@
   // ---------- sitting on other windows (a switch in the tray menu; Windows only) ----------
   // The shell finds the edges and moves the window; here he hops, looks pleased and gets down when it is bedtime.
   // on a window he sits: soles out in front (the .seated look in styles.css; walking along the edge stands him up for a moment)
+  var leftPerchAt = 0;   // when he last came off a window edge: a fall that begins right after is a knock-off, and he is dizzy from the first moment (even with an older shell that does not say so)
   if (D.onPerched) D.onPerched(function (yes) {
     perched = yes;
+    if (!yes) leftPerchAt = Date.now();
     pet.classList.toggle('seated', yes);
     if (yes && !busy) { pulse('hopsmall', 450); drift(['♪'], petTop(), 1); }
     // he held his toy for the hop up: sitting, it lies next to him
@@ -1176,11 +1246,15 @@
   var tripHold = false;
   function tripStart() { tripHold = true; if (typeof toyCarry === 'function' && !carried) toyCarry(true); }
   function tripEnd() { tripHold = false; if (!perched && !carried && typeof toyCarry === 'function') toyCarry(false); }
-  if (D.onFall) D.onFall(function (on) { pet.classList.toggle('falling', on); if (on) setFace({ eyes: 'sparkle', mouth: 'o', arms: 'idle', x: [] }); else if (!busy) settle(); });
+  var fallDizzy = false;   // knocked off a window: dizzy eyes from the moment he drops, and they are not wiped when he lands
+  if (D.onFall) D.onFall(function (on, dizzy) {
+    pet.classList.toggle('falling', on);
+    if (on) { dizzy = dizzy || Date.now() - leftPerchAt < 700; fallDizzy = !!dizzy; setFace(dizzy ? { eyes: 'dizzy', mouth: 'o', arms: 'idle', x: ['sweat'] } : { eyes: 'sparkle', mouth: 'o', arms: 'idle', x: [] }); }
+    else { if (!busy && !fallDizzy) settle(); fallDizzy = false; }
+  });
   var runOwn = false;
-  // the shortcut that makes him catch the mouse in a full-screen game (or lets go again)
+  // the click-through key (Ctrl+Alt+G): on = he is solid again, off = clicks pass through him
   if (D.onGrab) D.onGrab(function (on) {
-    grabbed = !!on;
     // he always answers the key: even with speech bubbles off, in the middle of something quiet, or while another line holds the bubble
     var line = on ? pick(['you can click me now!', 'here I am~', 'grab me!']) : pick(['back to the game!', 'I\'ll stay out of the way', 'shh, play on~']);
     var quiet = idleQuiet; idleQuiet = false; speechLockUntil = 0;
@@ -1280,6 +1354,12 @@
     suggest: function () { return devSuggest(); },
     giftday: function () { return devGiftCalendar(); },
     giftshut: function () { return devGiftReset(); },
+    celebBirthday: function () { return devBirthdayNow(); },
+    celebChristmas: function () { return devXmasNow(); },
+    celebHalloween: function () { return devHalloweenNow(); },
+    celebNewYear: function () { return devNewYearNow(); },
+    celebEaster: function () { return devEasterNow(); },
+    celebKingsDay: function () { return devKingsDayNow(); },
     tomorrow: function () { L.skipDays(state, 1); refreshAll(); return 'A day has passed.'; },
     sample: function () { state.items = state.items.concat(isTodo() ? sampleTodos() : L.parseState(null, newId).items); refreshAll(); return 'Sample items added.'; },
     clear: function () { state.items = []; refreshAll(); return 'List cleared.'; }

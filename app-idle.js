@@ -104,7 +104,9 @@ function lookAround() {
 // property), never scaled or turned. --walk-x lives on the stage so the speech bubble and daydream follow.
 var stage = pet.parentNode, walkX = 0, walkTimer, walking = false, walkWide = false;
 /** @returns {number} How far the pet may walk from the middle, in px; further while playing with the toy (walkWide). */
-function walkRange() { return Math.max(0, walkWide ? Math.min(130, stage.clientWidth / 2 - 76) : Math.min(70, stage.clientWidth / 2 - 100)); }
+/** @returns {number} How far his drawing reaches from the middle of his box (the dragon's wings stick out past it): he must not walk so far that the window's edge cuts it. */
+function petReach() { return pet.offsetWidth / 2 + (pet.dataset.species === 'dragon' ? 8.5 * pet.offsetWidth / 160 : 0); }
+function walkRange() { var r = petReach(); return Math.max(0, walkWide ? Math.min(130, stage.clientWidth / 2 - (r + 1)) : Math.min(70, stage.clientWidth / 2 - (r + 25))); }
 /**
  * @returns {{min: number, max: number}} Where the pet may stand: it can tuck a little behind the receipt and
  * the bag but not hide behind them.
@@ -179,7 +181,7 @@ function walkPath(spots, pause) {
 // ---------- a daytime nap ----------
 // Eyes closed, a few z's and a slow breath for a while (the desktop companion does this now and then). A touch, or
 // something to eat, ends it; on its own it ends with a stretch and a yawn.
-var napping = false, napTimer = 0, napSeated = false;
+var napping = false, napTimer = 0, napSeated = false, napTest = false;   // (napTest: the animation player runs it, and it marks the pet busy while it plays)
 /** He sits down for a nap (soles out in front, like sitting on a window) and gets up again after it, unless something else had him sitting. */
 function napSit(on) {
   if (on && !pet.classList.contains('seated')) { pet.classList.add('seated'); napSeated = true; }
@@ -189,10 +191,12 @@ function napSit(on) {
 function asleepFace() { return napping || pet.classList.contains('x-zzz'); }
 /**
  * @param {number} [ms=22000] How long it sleeps.
+ * @param {boolean} [test] From the animation player: not stopped by its own busy mark.
  * @returns {number} How long the nap lasts in ms (0 when it can't nap now).
  */
-function napNow(ms) {
-  if (napping || busy || dreaming || document.hidden || baseState() === 'sleepy') return 0;
+function napNow(ms, test) {
+  napTest = !!test;
+  if (napping || (busy && !test) || dreaming || document.hidden || baseState() === 'sleepy') return 0;
   ms = ms || 22000;
   napping = true;
   napSit(true);
@@ -201,7 +205,7 @@ function napNow(ms) {
   var t0 = Date.now();
   (function tick() {
     if (!napping) return;
-    if (busy) { napping = false; napSit(false); return; }   // something to eat: the eating takes over the face
+    if (busy && !napTest) { napping = false; napSit(false); return; }   // something to eat: the eating takes over the face
     if (Date.now() - t0 > ms) { wakeFromNap(false); return; }
     snore();
     napTimer = setTimeout(tick, 2600);
@@ -278,6 +282,8 @@ var IDLE_MOVES = [
   // little dances
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }); pulse('shuffle', 1500); hum(); } },
   { moods: ['curious', 'happy'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'reach', x: ['sparkles', 'cheeks'] }); pulse('boogie', 1500); hum(); } },
+  { moods: ['curious', 'happy'], run: function () { return handDance(); } },
+  { moods: ['curious', 'happy'], run: function () { return chorusDance(); } },
   { moods: ['sleepy', 'stuffed'], run: function () { pulse('wiggle', 900); } },
   { moods: ['stuffed'], run: function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'pat', x: ['cheeks'] }); } },
   // daytime things to do
@@ -389,6 +395,190 @@ function softSettle() {
 // Everything here only slides or fades the pet (no squashing or tilting, which left a seam on her phone),
 // and every hop has a landing and a shadow, so it looks like it moves on the floor, not in the air.
 var livelyTimer;
+/** Morning exercise: a 10 s routine in five steps. 1: right arm + left leg, then left arm + right leg; 2: two steps left, two steps right, with the arms circling;
+ * 3: squished down, touching toes; 4: squished down, shaking his bottom; 5: arms high. The body, arms and feet are the `exercise` CSS
+ * (styles.css) and SQUISH.exercise; this sets the face and the lines for each step. */
+var exerciseTimers = [], exerciseDone = null, exerciseBusy = false;
+function morningExercise(onDone) {
+  stopExercise();
+  exerciseDone = onDone || null;
+  busy++; exerciseBusy = true;   // nothing else (idle moves, chatter, reminders) happens during the dance, nor for a second after it
+  var lines = [[0, 'one, two, one, two!'], [2500, 'left, left~'], [3400, 'right, right~'], [4500, 'touch your toes!'], [6500, 'wiggle wiggle~'], [8500, 'yaaay!']];
+  function later(fn, ms) { exerciseTimers.push(setTimeout(fn, ms)); }
+  setFace({ eyes: 'happy', mouth: 'open', arms: 'rest', x: ['cheeks'] });
+  pulse('exercise', 10000);
+  lines.forEach(function (l) { later(function () { say(l[1], 1700, true); }, l[0]); });
+  later(function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: 'rest', x: ['cheeks', 'sparkles'] }); }, 8400);
+  later(function () { exerciseTimers = []; settle(); finishExercise(1000); }, 10000);
+  return 10000;
+}
+/** Stops the morning exercise where he is (any tap or key does this): the squish ends and he goes back to his resting face. */
+function stopExercise() {
+  if (!exerciseTimers.length) return;
+  exerciseTimers.forEach(clearTimeout); exerciseTimers = [];
+  pet.classList.remove('exercise');
+  squishRun++; squishing = false; drawBody(1, 1, 0);
+  settle();
+  finishExercise(1000);
+}
+/** A second after the dance ends (or is stopped) he is free again: the hold on `busy` is let go and what was waiting for the dance (the usual start-up talk) runs, once. */
+function finishExercise(delay) {
+  var cb = exerciseDone, held = exerciseBusy;
+  exerciseDone = null; exerciseBusy = false;
+  setTimeout(function () {
+    if (held) { busy--; if (!busy) settle(); }
+    if (cb) cb();
+  }, delay);
+}
+document.addEventListener('pointerdown', stopExercise, true);
+document.addEventListener('keydown', stopExercise, true);
+/** @returns {boolean} Whether he would do the morning exercise now: before noon, awake in the day, on the shopping list, not out of bed or walking. */
+function morningOk() {
+  var now = petNow();
+  if (reduceMotion || isTodo() || L.isNight(now) || now.getHours() >= 12) return false;
+  return baseState() !== 'sleepy' && !(typeof inBed === 'function' && inBed()) && !pet.classList.contains('walking');
+}
+/** Opening the app (or Mini Fumu) before noon: he does the morning exercise once, then `onDone` runs (a tap stops it early).
+ * @returns {boolean} False when he does not do it (nothing runs). */
+function morningStart(onDone) {
+  if (busy || document.hidden || !morningOk()) return false;
+  morningExercise(onDone);
+  return true;
+}
+
+/** Hand dance: an idle dance, one 3.6 s round played three times (10.8 s). In each round he stands on one foot (the other tucked behind it) and pushes one hand
+ * towards you in front of his cheek with his eyes closed, then sways side to side with a hand on his belly. The body, arms and feet are the `handdance`
+ * CSS (styles.css); this sets the face and shows the palm (toe beans) while the hand is pushed out. */
+function handDance() {
+  setFace({ eyes: 'open', mouth: 'smile', arms: 'rest', x: ['cheeks'] });
+  pulse('handdance', 10800);
+  for (var k = 0; k < 3; k++) (function (t0) {
+    function at(ms, fn) { setTimeout(function () { if (pet.classList.contains('handdance')) fn(); }, t0 + ms); }
+    at(330, function () { setFace({ eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); });   // eyes closed only while the hand is pushed out
+    at(380, function () { pet.classList.add('bs-out-r'); });
+    at(950, function () { pet.classList.remove('bs-out-r'); setFace({ eyes: 'open', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); });
+  })(k * 3600);
+  setTimeout(function () { pet.classList.remove('bs-out-r'); }, 10800);
+  hum();
+  return 10800;
+}
+
+/** Chorus dance: an idle dance of 8 s (the `chorus` CSS, styles.css): the left paw up under his chin, squishing as if he turned right, then the right paw and left; then he stands on his
+ * right leg and shakes his bottom with his paws up; then the left paw comes down and the right paw goes up to his eye. This sets the face and the glance of his eyes, with notes and sparkles. */
+function chorusDance() {
+  setFace({ eyes: 'open', mouth: 'smile', arms: 'rest', x: ['cheeks'] });
+  pulse('chorus', 8000);
+  function at(ms, fn) { setTimeout(function () { if (pet.classList.contains('chorus')) fn(); }, ms); }
+  at(350, function () { pet.style.setProperty('--look-x', '3.2px'); });                 // turning right: his eyes go that way
+  at(1200, function () { pet.style.setProperty('--look-x', '-3.2px'); });                // and left
+  at(2350, function () {
+    pet.style.removeProperty('--look-x');
+    setFace({ eyes: 'happy', mouth: 'open', arms: 'rest', x: ['cheeks', 'sparkles'] });  // on one leg, shaking
+    drift(['♪', '✦', '♫'], petTop(), 3);
+  });
+  at(3800, function () { drift(['♪', '♫'], petTop(), 2); });
+  at(4800, function () { setFace({ eyes: 'open', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); });   // paw to the eye
+  at(5600, function () { setFace({ eyes: 'squint', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); drift(['✦'], petTop(), 2); });
+  at(7300, function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks'] }); drift(['♥', '✦'], petTop(), 2); });
+  setTimeout(function () { pet.style.removeProperty('--look-x'); }, 8000);
+  hum();
+  return 8000;
+}
+
+/** The squash and stretch of the party dance: twelve beats of 750 ms, each a crouch, a stretch up, a squash on landing (the hops themselves are the `partydance` CSS in styles.css; keep them in step). Beat 11 is the big jump. */
+var PARTY_SQUISH = (function () {
+  var steps = [], beats = 12;
+  for (var b = 0; b < beats; b++) {
+    var t = b / beats, w = 1 / beats, big = b === 10, soft = b === 11;
+    var cr = big ? [1.26, .74] : [1.15, .85], up = big ? [.82, 1.3] : [.88, 1.19], ld = big ? [1.26, .76] : soft ? [1.1, .9] : [1.18, .82];
+    steps.push([t, 1, 1, 0], [t + w * .15, cr[0], cr[1], 0], [t + w * .35, up[0], up[1], -4], [t + w * .55, .95, 1.07, -3], [t + w * .8, ld[0], ld[1], 0], [t + w * .93, .97, 1.03, 0]);
+  }
+  steps.push([1, 1, 1, 0]);
+  return { ms: 9000, steps: steps };
+})();
+/** Party dance: the birthday dance of 9 s (the `partydance` CSS in styles.css and PARTY_SQUISH above): bouncy hops full of squash and stretch, first on the spot, then from side to side, then a turn in the air, one big jump and a happy landing, with his arms up cheering the whole time. This sets the face and the notes. */
+function partyDance(themed) {
+  var swaps = themed === 'halloween' ? { '🎉': '🎃', '🎈': '👻', '♥': '🦇', '♪': '🕸', '♫': '🦇' } : { '🎉': '🎄', '🎈': '⭐', '♥': '❄' };
+  var chars = function (l) { return themed ? l.map(function (c) { return swaps[c] || c; }) : l; };   // (the Christmas and Halloween celebrations swap the party things for their own)
+  var arms = document.documentElement.matches('[data-scene$="clip"], [data-list="todo"]') ? 'rest' : 'cheer';   // (his left hand holds the clipboard on the to-do list)
+  setFace({ eyes: 'happy', mouth: 'open', arms: arms, x: ['cheeks', 'sparkles'] });
+  pulse('partydance', 9000);
+  if (!reduceMotion) svgSquish(PARTY_SQUISH);
+  function at(ms, fn) { setTimeout(function () { if (pet.classList.contains('partydance')) fn(); }, ms); }
+  at(750, function () { drift(chars(['♪', '✦']), petTop(), 2); });
+  at(2250, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: arms, x: ['cheeks'] }); drift(chars(['♫', '♥']), petTop(), 2); });
+  at(3750, function () { setFace({ eyes: 'happy', mouth: 'open', arms: arms, x: ['cheeks', 'hearts'] }); drift(chars(['🎉', '♪']), petTop(), 3); });
+  at(6000, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: arms, x: ['cheeks', 'sparkles'] }); drift(chars(['✦', '♫', '🎈']), petTop(), 3); });
+  at(7600, function () { drift(chars(['🎉', '♥', '✦']), petTop(), 4); });
+  at(8400, function () { setFace({ eyes: 'happy', mouth: 'smile', arms: 'rest', x: ['cheeks', 'hearts'] }); });
+  hum();
+  return 9000;
+}
+
+/** The Halloween dance: one table of twelve beats (0.75 s each) that makes both the hops, sways and spins (CSS keyframes, built below) and the squash and stretch (HALLOWEEN_SQUISH): a stiff zombie shuffle, two bat hops, a floaty ghost wobble, claws swaying, a spin in the air, a crouch, and one big jump scare. (build 617) */
+var HALLOWEEN_BEATS = [
+  { x: -10, ay: -4, r: -7, cy: 2, up: [.95, 1.06], ld: [1.1, .92] },                 // 1-2: the zombie shuffle: stiff steps with a lean
+  { x: 10, ay: -4, r: 7, cy: 2, up: [.95, 1.06], ld: [1.1, .92] },
+  { x: 0, ay: -20, r: 0, cy: 4, up: [.86, 1.22], ld: [1.2, .8] },                    // 3-4: bat hops, big
+  { x: 0, ay: -20, r: 0, cy: 4, up: [.86, 1.22], ld: [1.2, .8] },
+  { x: -8, ay: -16, ey: -7, r: -5, cy: 0, up: [.94, 1.1], ld: [1.04, .97] },         // 5-6: floating like a ghost
+  { x: 8, ay: -16, ey: -7, r: 5, cy: 0, up: [.94, 1.1], ld: [1.04, .97] },
+  { x: 11, ay: -8, ey: 0, r: 9, cy: 3, up: [.92, 1.1], ld: [1.12, .9] },             // 7-8: claws, hopping from side to side
+  { x: -11, ay: -8, r: -9, cy: 3, up: [.92, 1.1], ld: [1.12, .9] },
+  { x: 0, ay: -20, r: 0, cy: 3, flip: 1, up: [.9, 1.16], ld: [1.16, .86] },          // 9-10: spinning in the air
+  { x: 0, ay: -20, r: 0, cy: 3, flip: 1, up: [.9, 1.16], ld: [1.16, .86] },
+  { x: 0, ay: 5, r: 0, cy: 7, up: [1.12, .88], ld: [1.26, .74], still: 1 },          // 11: crouching right down...
+  { x: 0, ay: -40, r: 0, cy: 3, up: [.8, 1.32], ld: [1.28, .74] }                    // 12: BOO! one huge jump
+];
+/** @returns {string} The CSS for a dance made from a table of beats (like HALLOWEEN_BEATS above: each beat is a hop or sway, `x` is where it lands, `ay` the top of the hop, `r` the lean, `cy` how far he crouches first, `ey` the height he ends at, `flip` for a turn in the air, `still` for a crouch, `up` and `ld` the squash and stretch). The class is `.pet.<name>`, 9 s long. */
+function danceCss(name, beats) {
+  var B = 100 / beats.length, f = function (n) { return +n.toFixed(3); }, out = '@keyframes ' + name + ' {\n', x = 0, y = 0, s = 1;
+  function stop(p, X, Y, R, S) { out += '  ' + f(p) + '% { transform: translate(' + f(X) + 'px, ' + f(Y) + 'px) rotate(' + f(R) + 'deg) scaleX(' + S + '); }\n'; }
+  beats.forEach(function (b, i) {
+    var p = i * B, s1 = b.flip ? -s : s, ey = b.ey || 0;
+    stop(p, x, y, 0, s);
+    stop(p + B * .15, x, y + b.cy, 0, s);
+    if (b.still) { stop(p + B * .8, x, y + b.cy, 0, s); stop(p + B, x, ey, 0, s); }
+    else {
+      stop(p + B * .35, x + (b.x - x) * .3, y + (b.ay - y) * .5, b.r * .4, s);
+      stop(p + B * .55, x + (b.x - x) * .5, b.ay, b.r, s1);
+      stop(p + B * .8, b.x, ey, b.r * .3, s1);
+      stop(p + B, b.x, ey, 0, s1);
+    }
+    x = b.still ? x : b.x; y = ey; s = s1;
+  });
+  return out + '}\n.pet.' + name + ' .pet-svg { animation: ' + name + ' 9s ease-in-out; transform-origin: 50% 94%; }\n@media (prefers-reduced-motion: reduce) { .pet.' + name + ' .pet-svg { animation: none; } }\n';
+}
+/** @returns {{ms: number, steps: number[][]}} The squash and stretch for a table of beats (see danceCss), for svgSquish. */
+function danceSquish(beats) {
+  var steps = [], n = beats.length;
+  beats.forEach(function (b, i) {
+    var t = i / n, w = 1 / n, cr = [1 + (1 - b.up[0]) * 1.2, 1 - (b.up[1] - 1) * 1.1];
+    if (b.still) steps.push([t, 1, 1, 0], [t + w * .35, b.ld[0], b.ld[1], 0], [t + w * .8, b.ld[0], b.ld[1], 0], [t + w * .95, 1, 1, 0]);
+    else steps.push([t, 1, 1, 0], [t + w * .15, cr[0], cr[1], 0], [t + w * .35, b.up[0], b.up[1], -4], [t + w * .55, .96, 1.05, -3], [t + w * .8, b.ld[0], b.ld[1], 0], [t + w * .93, .98, 1.02, 0]);
+  });
+  steps.push([1, 1, 1, 0]);
+  return { ms: 9000, steps: steps };
+}
+var HALLOWEEN_SQUISH = danceSquish(HALLOWEEN_BEATS);
+(function () { var st = document.createElement('style'); st.id = 'halloween-dance-css'; st.textContent = danceCss('halloweendance', HALLOWEEN_BEATS); document.head.appendChild(st); })();
+/** Halloween dance (build 617): 9 s, a monster mash: zombie shuffle, bat hops, a floating ghost wobble, claws, a spin and a jump scare, with his arms to match and a bat or ghost drifting off now and then. */
+function halloweenDance() {
+  var clip = document.documentElement.matches('[data-scene$="clip"], [data-list="todo"]'), arms = function (a) { return clip ? 'rest' : a; };   // (his left hand holds the clipboard on the to-do list)
+  setFace({ eyes: 'squint', mouth: 'wavy', arms: arms('carry'), x: ['cheeks'] });   // the zombie shuffle: arms out in front
+  pulse('halloweendance', 9000);
+  if (!reduceMotion) svgSquish(HALLOWEEN_SQUISH);
+  function at(ms, fn) { setTimeout(function () { if (pet.classList.contains('halloweendance')) fn(); }, ms); }
+  at(1500, function () { setFace({ eyes: 'happy', mouth: 'open', arms: arms('cheer'), x: ['cheeks', 'sparkles'] }); drift(['🦇', '✦'], petTop(), 2); });   // the bat hops: flapping arms
+  at(3000, function () { setFace({ eyes: 'closed', mouth: 'o', arms: arms('cheer'), x: ['cheeks'] }); drift(['👻', '✦'], petTop(), 2); });   // the ghost wobble
+  at(4500, function () { setFace({ eyes: 'sparkle', mouth: 'open', arms: arms('hold'), x: ['cheeks', 'sparkles'] }); drift(['🎃', '🦇'], petTop(), 3); });   // claws
+  at(6000, function () { setFace({ eyes: 'happy', mouth: 'open', arms: arms('cheer'), x: ['cheeks'] }); drift(['🦇', '✦', '👻'], petTop(), 3); });   // the spin
+  at(7500, function () { setFace({ eyes: 'squint', mouth: 'smile', arms: arms('cover'), x: ['cheeks'] }); });   // crouching...
+  at(8250, function () { setFace({ eyes: 'open', mouth: 'open', arms: arms('cheer'), x: ['cheeks', 'sparkles'] }); drift(['🎃', '🦇', '👻', '✦'], petTop(), 4); });   // BOO!
+  hum();
+  return 9000;
+}
+
 /** @returns {{x: number, y: number}} A point just above the pet's head. */
 function petTop() {
   var r = pet.getBoundingClientRect();

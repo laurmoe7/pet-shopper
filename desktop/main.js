@@ -27,7 +27,7 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, displaced = false, perch = null, perchTimer = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { alertStyle: 'paper', x: null, y: null, onTop: true, aboveFull: false, catchGames: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, mute: false, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
+  let prefs = { alertStyle: 'auto', x: null, y: null, onTop: true, aboveFull: false, clickThrough: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, mute: false, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, celebBirthday: true, celebChristmas: true, celebHalloween: true, celebNewYear: true, celebEaster: true, celebKingsDay: true, celebScreen: true, myGames: {}, keys: null };
   const DEFAULTS = Object.assign({}, prefs);
   try { prefs = Object.assign(prefs, JSON.parse(fs.readFileSync(prefsFile(), 'utf8'))); } catch (e) { /* first run */ }
   prefs.keys = keys.clean(prefs.keys);
@@ -35,7 +35,11 @@ function start() {
   prefs.petName = typeof prefs.petName === 'string' && prefs.petName.trim() ? prefs.petName.trim().slice(0, 16) : 'Fumu';
   if (prefs.chat === false) { prefs.chatNormal = 'off'; prefs.chatFull = 'off'; }   // the old on/off switch for his comments
   delete prefs.chat;
-  if (!['paper', 'night', 'sweet', 'cool', 'quest', 'classic'].includes(prefs.alertStyle)) prefs.alertStyle = 'paper';
+  // the one theme shared by the whole app, Mini Fumu and this settings window (id alertStyle, kept under that name): auto, light, dark, sweet, quest2, osrs, bonfire
+  const THEMES = ['auto', 'light', 'dark', 'sweet', 'quest2', 'osrs', 'bonfire'];
+  const OLD_THEMES = { quest: 'quest2', paper: 'light', night: 'dark', cool: 'light', scribble: 'light', classic: 'dark' };   // the paper, night, cool, scribble and classic looks are gone
+  prefs.alertStyle = OLD_THEMES[prefs.alertStyle] || prefs.alertStyle;
+  if (!THEMES.includes(prefs.alertStyle)) prefs.alertStyle = 'auto';
   prefs.chatNormal = privacy.cleanChat(prefs.chatNormal, 'normal'); prefs.chatFull = privacy.cleanChat(prefs.chatFull, 'normal');
   prefs.talkNormal = privacy.cleanChat(prefs.talkNormal, 'normal'); prefs.talkFull = privacy.cleanChat(prefs.talkFull, 'rare');
   // the old switches (wander, nap, stand still) became two movement choices
@@ -60,7 +64,7 @@ function start() {
     if (prefs.onTop && prefs.aboveFull) win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true });
     else win.setVisibleOnAllWorkspaces(false);
   };
-  const publicPrefs = () => ({ alertStyle: prefs.alertStyle, catchGames: prefs.catchGames, moveNormal: prefs.moveNormal, moveFull: prefs.moveFull, mute: prefs.mute, remind: prefs.remind, size: prefs.size, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion, bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles, backdrop: prefs.backdrop, toyRoam: prefs.toyRoam });
+  const publicPrefs = () => ({ alertStyle: prefs.alertStyle, clickThrough: prefs.clickThrough, moveNormal: prefs.moveNormal, moveFull: prefs.moveFull, mute: prefs.mute, remind: prefs.remind, size: prefs.size, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion, bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles, backdrop: prefs.backdrop, toyRoam: prefs.toyRoam, celebBirthday: prefs.celebBirthday, celebChristmas: prefs.celebChristmas, celebHalloween: prefs.celebHalloween, celebNewYear: prefs.celebNewYear, celebEaster: prefs.celebEaster, celebKingsDay: prefs.celebKingsDay, celebScreen: prefs.celebScreen });
   const sendPrefs = () => { if (win) win.webContents.send('desk:prefs', publicPrefs()); panel.push(); };
   // moves the window smoothly (walking, peeking round the screen edge); anything that takes hold of it stops the move
   let tween = null;
@@ -75,6 +79,28 @@ function start() {
         const t = Math.min(1, (Date.now() - t0) / Math.max(1, ms));
         win.setBounds(lift ? place.arcAt(from, to, t, lift) : place.tweenAt(from, to, t));
         if (t >= 1) { clearInterval(timer); tween = null; resolve(true); }
+      }, 8);
+      tween = { timer, done: resolve };
+    });
+  }
+  /** The bed springs back to `to`: it hops across in a few bounces that get smaller, and rocks a little past the spot before settling on it. */
+  function springBack(to, ms) {
+    stopTween();
+    return new Promise((resolve) => {
+      if (!win || mode !== 'pet') { resolve(false); return; }
+      const from = win.getBounds(), t0 = Date.now(), dist = Math.hypot(to.x - from.x, to.y - from.y);
+      const H = Math.max(40, Math.min(150, dist * 0.22)), HOPS = dist > 500 ? 4 : 3;
+      let lastHop = 0;
+      const c = Math.min(1.7, 450 / Math.max(1, Math.abs(to.x - from.x)));   // (how far it rocks past: about 10% of a short way, never more than about 25 px of a long one)
+      const timer = setInterval(() => {
+        if (!win) { stopTween(); return; }
+        const t = Math.min(1, (Date.now() - t0) / Math.max(1, ms));
+        const u = t - 1, sx = t >= 1 ? 1 : 1 + (c + 1) * u * u * u + c * u * u;   // travels steadily and rocks a little past the spot at the end, then back
+        const base = t, hop = Math.abs(Math.sin(Math.PI * HOPS * t)) * Math.pow(1 - t, 1.4) * H;   // each hop lower than the one before
+        win.setBounds({ x: Math.round(from.x + (to.x - from.x) * sx), y: Math.round(from.y + (to.y - from.y) * base - (t >= 1 ? 0 : hop)), width: from.width, height: from.height });
+        const k = Math.floor(HOPS * t);   // another landing: a soft bounce sound
+        if (k > lastHop && t < 0.97) { lastHop = k; win.webContents.send('desk:bounce', Math.max(.25, .7 * (1 - t)), ''); }
+        if (t >= 1) { clearInterval(timer); tween = null; win.webContents.send('desk:bounce', .2, ''); resolve(true); }
       }, 8);
       tween = { timer, done: resolve };
     });
@@ -137,7 +163,7 @@ function start() {
   }
 
   // where his visible body is inside the window (the page measures it, in page pixels: left, top, right, and the bottom of his cushion), so he
-  // meets the edges of the screen and the taskbar with HIM, not with the empty space round him
+  // meets the edges of the screen and the top of the taskbar with HIM, not with the empty space round him
   let bodyBox = null;
   ipcMain.on('desk:body', (_e, box) => {
     if (Array.isArray(box) && box.length === 4 && box.every((n) => typeof n === 'number' && isFinite(n) && n >= 0 && n < 4000) && box[2] > box[0] && box[3] > box[1]) bodyBox = box;
@@ -148,17 +174,9 @@ function start() {
     if (!bodyBox) return { l: -Math.round(b.width * 0.14), t: -Math.round(b.height * 0.3), r: -Math.round(b.width * 0.14), b: b.height + place.MARGIN / 2 };   // (not told yet: the old guess)
     return { l: bodyBox[0] * z, t: bodyBox[1] * z, r: bodyBox[2] * z, b: bodyBox[3] * z + 3 };
   }
-  /** @returns {number} The lowest top edge the window may have on a screen: his cushion rests on the very bottom of the screen. He may stand on the
-   *  taskbar: his window is kept above it (raiseOverTaskbar), but never below the screen. `display` is a Display. */
-  function lowestY(display, b) { const a = display.bounds; return Math.round(a.y + a.height - bodyIn(b).b); }
-  // the taskbar is an always-on-top window too, and it jumps above other top windows whenever it is touched: while he is down there, put him back on top
-  let raiseAt = 0;
-  function raiseOverTaskbar() {
-    if (!win || mode !== 'pet' || !prefs.onTop || !win.isVisible()) return;
-    const b = win.getBounds(), d = screen.getDisplayMatching(b), wa = d.workArea;
-    if (b.y + b.height - 6 > wa.y + wa.height && Date.now() - raiseAt > 250) { raiseAt = Date.now(); win.moveTop(); }
-  }
-  setInterval(raiseOverTaskbar, 300);
+  /** @returns {number} The lowest top edge the window may have on a screen: his cushion rests on the taskbar, TASKBAR_SINK px below the top of it (never below the screen). `display` is a Display. */
+  const TASKBAR_SINK = 15;
+  function lowestY(display, b) { const a = display.workArea, d = display.bounds; return Math.round(Math.min(a.y + a.height + TASKBAR_SINK, d.y + d.height) - bodyIn(b).b); }
 
   /** He is let go while moving fast: he flies on, bounces off the edges of the screens and the floor, then runs back to where he was picked up. */
   let lastThrow = null;   // where the last throw started, landed and ended (shown in the diagnostics, to track down a wrong run-back)
@@ -168,13 +186,22 @@ function start() {
     if (!win || mode !== 'pet') return;
     const all = areas(), b0 = win.getBounds();
     const box = { x: Math.min(...all.map((a) => a.x)), y: Math.min(...all.map((a) => a.y)), r: Math.max(...all.map((a) => a.x + a.width)), b: Math.max(...all.map((a) => a.y + a.height)) };
+    const bedLift = inBed ? Math.round(38 * zoom()) : 0;
     const bi = bodyIn(b0);   // the window has clear space round him: it is his body that touches the edge, not the window
+    // while he spins (a turn every half second, see .thrown in styles.css) the corners of his box swing out past his sides, and past the screen
+    // edge those parts are not drawn: the wall is moved in by how far they reach at this moment of the turn
+    const spinW = (bi.r - bi.l) / 2, spinH = Math.max(40, (bi.b - bi.t - 15 * zoom()) / 2);
+    function spinReach(now) {
+      if (inBed || opts.noSpin || !bodyBox) return { x: 0, y: 0 };
+      const a = ((now - t0) / 500) * 2 * Math.PI, c = Math.abs(Math.cos(a)), s = Math.abs(Math.sin(a));
+      return { x: Math.max(0, c * spinW + s * spinH - spinW) + 3, y: Math.max(0, s * spinW + c * spinH - spinH) + 3 };
+    }
     if (inBed) { vx *= 0.42; vy *= 0.42; }   // asleep in his bed he is heavy: he does not go nearly as far
     const G = inBed ? 4600 : 2400, WALL = inBed ? 0.45 : 0.8, FLOOR = inBed ? 0.3 : 0.62;
     let floorHits = 0, x = b0.x, y = b0.y, lastHit = 0, spinDir = vx >= 0 ? 1 : -1;
     const t0 = Date.now();
     let last = t0;
-    if (!inBed) win.webContents.send('desk:fall', true);   // arms flap while he flies (asleep in bed he does not)
+    if (!inBed) win.webContents.send('desk:fall', true, !!opts.ouch);   // arms flap while he flies (asleep in bed he does not); knocked off a window he is dizzy from the first moment
     if (!opts.noSpin) win.webContents.send('desk:thrown', true, spinDir, inBed, { head: !!opts.head });   // and he spins round (in bed, the bed turns to face where it is going)
     let lastFlight = 0;
     const ok = await new Promise((resolve) => {
@@ -183,12 +210,15 @@ function start() {
         const now = Date.now(), dt = Math.min(0.034, (now - last) / 1000);
         last = now;
         vy += G * dt; x += vx * dt; y += vy * dt;
+        const sr = spinReach(now);
         let hit = 0, wall = '';   // how hard he hit an edge this step (px/s), and which wall it was (l, r, t) for the squish
         // (in his bed he is far too heavy to bounce off a wall or the ceiling: he just stops against it)
-        if (x < box.x - bi.l) { x = box.x - bi.l; if (inBed) vx = 0; else { hit = Math.abs(vx); wall = 'l'; vx = Math.abs(vx) * WALL; } }
-        if (x > box.r - bi.r) { x = box.r - bi.r; if (inBed) vx = 0; else { hit = Math.abs(vx); wall = 'r'; vx = -Math.abs(vx) * WALL; } }
-        if (y < box.y - bi.t) { y = box.y - bi.t; if (inBed) vy = 0; else { hit = Math.max(hit, Math.abs(vy)); wall = wall || 't'; vy = Math.abs(vy) * WALL; } }
-        const floorY = lowestY(screen.getDisplayNearestPoint({ x: Math.round(x + b0.width / 2), y: Math.round(y + b0.height) }), b0);
+        if (x < box.x - bi.l + sr.x) { x = box.x - bi.l + sr.x; if (inBed) vx = 0; else { hit = Math.abs(vx); wall = 'l'; vx = Math.abs(vx) * WALL; } }
+        if (x > box.r - bi.r - sr.x) { x = box.r - bi.r - sr.x; if (inBed) vx = 0; else { hit = Math.abs(vx); wall = 'r'; vx = -Math.abs(vx) * WALL; } }
+        if (y < box.y - bi.t + sr.y) { y = box.y - bi.t + sr.y; if (inBed) vy = 0; else { hit = Math.max(hit, Math.abs(vy)); wall = wall || 't'; vy = Math.abs(vy) * WALL; } }
+        const fd = screen.getDisplayNearestPoint({ x: Math.round(x + b0.width / 2), y: Math.round(y + b0.height) });
+        // (while he spins, the corners of his box swing below his cushion: they must not go below the bottom of the screen, where they are not drawn)
+        const floorY = Math.min(lowestY(fd, b0), Math.round(fd.bounds.y + fd.bounds.height - bi.b - sr.y)) + bedLift;   // (the bed is drawn 38 px higher while it flies: its bottom meets the floor)
         let rest = false;
         if (y >= floorY) { y = floorY; if (Math.abs(vy) > (inBed ? 90 : 260) && !(opts.maxBounces && floorHits >= opts.maxBounces)) { floorHits++; hit = Math.max(hit, Math.abs(vy)); vy = -vy * FLOOR; } else { vy = 0; rest = true; } vx *= 0.85; }
         if (hit > (inBed ? 80 : 220) && now - lastHit > (inBed ? 60 : 90)) { lastHit = now; win.webContents.send('desk:bounce', Math.min(1, hit / 2500), wall); }
@@ -200,12 +230,38 @@ function start() {
       tween = { timer, done: resolve };
     });
     if (win) { if (!inBed) win.webContents.send('desk:fall', false); if (!opts.noSpin || opts.ouch) win.webContents.send('desk:thrown', false, 0, inBed, { ouch: !!opts.ouch, head: !!opts.head }); }
+    // the bed was drawn bedLift px higher while it flew: the page eases that lift away over 250 ms (.bed-settle in styles.css) while the window moves up by the same amount at the same pace, so the bed stays exactly where it is on screen (a single jump of the two showed as a flicker)
+    if (ok && win && inBed && bedLift) {
+      const bb = win.getBounds(), tl = Date.now();
+      await new Promise((res) => {
+        const tm = setInterval(() => {
+          if (!win) { clearInterval(tm); res(); return; }
+          const k = Math.min(1, (Date.now() - tl) / 250);
+          win.setBounds({ x: bb.x, y: Math.round(bb.y - bedLift * k), width: bb.width, height: bb.height });
+          if (k >= 1) { clearInterval(tm); res(); }
+        }, 8);
+      });
+    }
     if (!ok || !win) return;
-    if (inBed) { restHere(); return; }   // in his bed he stays where he landed (he has bounced about on the floor already)
+    if (inBed) {   // in his bed: after bouncing about on the floor the whole bed springs back to where it was (no running: he is asleep)
+      const cur0 = win.getBounds(), disp0 = screen.getDisplayMatching(home).bounds;
+      const back0 = { x: place.keepPartlyOn(home.x, home.width, disp0), y: Math.max(disp0.y, Math.min(Math.round(home.y), lowestY(screen.getDisplayMatching(home), home))), width: home.width, height: home.height };
+      lastThrow = { home, back: back0, landed: cur0, area: here(), inBed: true };
+      await new Promise((r) => setTimeout(r, 450));   // (it lies where it landed for a moment first)
+      if (!win || mode !== 'pet') return;
+      if (Math.abs(back0.x - cur0.x) > 3 || Math.abs(back0.y - cur0.y) > 3) {
+        const done0 = await springBack(back0, Math.max(1100, Math.min(2400, Math.hypot(back0.x - cur0.x, back0.y - cur0.y) * 1.6)));
+        if (!done0) return;
+      }
+      restHere();
+      if (lastThrow) lastThrow.end = win.getBounds();
+      return;
+    }
+    if (opts.head) { await new Promise((r) => setTimeout(r, 1650)); if (!win || mode !== 'pet') return; }   // (he lies on his head for a moment, then rights himself (page: pageThrown); only then does he run back, on his feet)
     // back to exactly where he was picked up: that may be half off the side of the screen (peeking in), so it is not squeezed back inside the
     // screen; only a spot that is mostly off the screen, or below it, is pulled in
     const cur = win.getBounds(), disp = screen.getDisplayMatching(home).bounds;
-    const back = { x: Math.max(Math.round(disp.x - home.width * 0.6), Math.min(Math.round(home.x), Math.round(disp.x + disp.width - home.width * 0.4))), y: Math.max(disp.y, Math.min(Math.round(home.y), lowestY(screen.getDisplayMatching(home), home))), width: home.width, height: home.height };
+    const back = { x: place.keepPartlyOn(home.x, home.width, disp), y: Math.max(disp.y, Math.min(Math.round(home.y), lowestY(screen.getDisplayMatching(home), home))), width: home.width, height: home.height };
     lastThrow = { home, back, landed: cur, area: here() };
     if (Math.abs(back.x - cur.x) > 20 || Math.abs(back.y - cur.y) > 20) {
       win.webContents.send('desk:run', back.x > cur.x ? 1 : -1);
@@ -223,7 +279,7 @@ function start() {
   function applyMode(next) {
     if (!win || next === mode) { if (win) { win.webContents.send('desk:mode', mode); if (mode === 'list') { win.show(); win.moveTop(); win.focus(); } } return; }
     if (next === 'list') {
-      hideToy();
+      hideToy(); try { wreck.stop(); } catch (e) { /* not made yet */ }
       petBounds = win.getBounds();
       if (perch) { petBounds = place.floorBounds(petBounds, here()); leavePerch(); }
       mode = 'list';
@@ -251,7 +307,9 @@ function start() {
   }
   // Windows is meant to forward the pointer to the page while clicks pass through, but that can stop working after the window
   // changes size. So the shell also watches the pointer itself and tells the page where it is; the page decides if it is on Fumu.
-  let cursorTimer = null, wasInside = false, rects = null, holdSolid = false, solidState = null, sweepOn = false, sweepAt = '';
+  let cursorTimer = null, wasInside = false, rects = null, holdSolid = false, solidState = null, sweepOn = false, sweepAt = '', lastAssert = 0, programDisplay = null;
+  /** @returns {boolean} Whether clicks pass through him: only when the player turned click-through on (the switch or Ctrl+Alt+G); nothing else ever turns it on. */
+  function gamingNow() { return !!(prefs.clickThrough && win); }
   const HIT_PAD = 6;   // a few pixels of slack round the solid parts, so the window is already catching clicks when the pointer arrives
   function watchCursor() {
     if (!THROUGH || cursorTimer) return;
@@ -264,9 +322,10 @@ function start() {
       if (rects) {
         const z = zoom(), x = (p.x - b.x) / z, y = (p.y - b.y) / z;
         // in a full-screen program or a game the window lets every click and move through, so the game keeps the mouse (its camera, say)
-        const gaming = !prefs.catchGames && !gameGrab && programNow && (programNow.fullscreen || programNow.kind === 'game');
+        const gaming = gamingNow();
         const want = !gaming && (holdSolid || (inside && place.hitTest(rects, x, y, HIT_PAD)));
-        if (want !== solidState) { solidState = want; solidNow = want; win.setIgnoreMouseEvents(!want, { forward: true }); }
+        // (said again about once a second even when nothing changed: Windows can quietly drop the setting, and then he would stay see-through)
+        if (want !== solidState || Date.now() - lastAssert > 1000) { lastAssert = Date.now(); solidState = want; solidNow = want; win.setIgnoreMouseEvents(!want, { forward: true }); }
         // an alert is up while the mouse passes through: tell the page where the pointer is, so sweeping over it works whatever Windows forwards
         if (gaming && sweepOn && inside) { const at = Math.round(x) + ',' + Math.round(y); if (at !== sweepAt) { sweepAt = at; win.webContents.send('desk:sweep', x, y); } }
         return;
@@ -280,7 +339,7 @@ function start() {
   function hideFumu() { if (win) win.hide(); refreshMenus(); }
 
   // one place that changes a setting, for the right-click menu and the settings window alike
-  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'remind', 'perch', 'hideToy', 'hideCushion', 'startWithWindows', 'bubbles', 'clouds', 'sparkles', 'backdrop', 'mute', 'toyRoam', 'catchGames'];
+  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'remind', 'perch', 'hideToy', 'hideCushion', 'startWithWindows', 'bubbles', 'clouds', 'sparkles', 'backdrop', 'mute', 'toyRoam', 'clickThrough', 'celebBirthday', 'celebChristmas', 'celebHalloween', 'celebNewYear', 'celebEaster', 'celebKingsDay', 'celebScreen'];
   function setPref(key, value) {
     if (key === 'awareness') {   // 1 = more privacy, 2 = normal; at 1 he stops sitting on windows (he can no longer see them)
       prefs.awareness = privacy.clean(+value); savePrefs();
@@ -293,7 +352,7 @@ function start() {
       prefs[key] = privacy.cleanChat(value, prefs[key]); savePrefs(); sendPrefs();
       return;
     }
-    if (key === 'alertStyle') { if (['paper', 'night', 'sweet', 'cool', 'quest', 'classic'].includes(value)) { prefs.alertStyle = value; savePrefs(); sendPrefs(); } return; }
+    if (key === 'alertStyle') { if (THEMES.includes(value)) { prefs.alertStyle = value; savePrefs(); sendPrefs(); } return; }
     if (key === 'moveNormal' || key === 'moveFull') { prefs[key] = privacy.cleanMove(value, prefs[key]); savePrefs(); sendPrefs(); return; }
     if (key === 'size') { if (['small', 'normal', 'large'].includes(value)) setSize(value); return; }
     if (!BOOLS.includes(key)) return;
@@ -303,6 +362,7 @@ function start() {
       prefs[key] = value; savePrefs();
       if (key === 'onTop' || key === 'aboveFull') applyTop();
       if (key === 'hotkeys') setupKeys();
+      if (key === 'clickThrough') solidState = null;
       if (key === 'perch' && !value) fall();
       if (key === 'perch' && value && win && mode === 'pet' && privacy.allows(prefs.awareness, 'perch')) setTimeout(() => { if (win && prefs.perch) win.webContents.send('desk:do', 'perch'); }, 700);   // try right away, so you can see it working
     }
@@ -382,8 +442,7 @@ function start() {
   }
   ipcMain.on('desk:typing', (_e, yes) => { if (win && yes) win.focus(); });
   // in a full-screen game he lets the mouse through; this key makes him catch it for a while (to move him or clear an alert), and again lets go
-  let gameGrab = false;
-  function grabMouse() { if (!win) return; gameGrab = !gameGrab; solidState = null; win.webContents.send('desk:grab', gameGrab); }
+  function grabMouse() { if (!win) return; setPref('clickThrough', !prefs.clickThrough); solidState = null; win.webContents.send('desk:grab', !prefs.clickThrough); }
   const HANDLERS = { swapSize: toggleFull, swapList, quickAdd, grab: grabMouse };
   const HOVER_HANDLERS = { options: () => panel.toggle(), sendCopied };   // held only while the pointer is over him
   function setupKeys() {
@@ -491,7 +550,8 @@ function start() {
     });
     win.webContents.on('dom-ready', applyZoom);
     win.on('closed', () => { win = null; });
-    win.loadURL(APP_URL);
+    // the loading card shows at once (it is a local file), then the page loads over it: the page wears the same card until the app is built
+    win.loadFile(path.join(__dirname, 'loading.html')).catch(() => {}).then(() => { if (win) { if (!shown) { shown = true; win.showInactive(); } win.loadURL(APP_URL); } });
     win.webContents.on('did-finish-load', () => {
       if (updateReady) win.webContents.send('desk:updateReady');
       visibleSent = '';   // a fresh page knows nothing yet: tell it which part of the window shows
@@ -548,22 +608,28 @@ function start() {
         if (await glide(place.perchBounds(b, seg), 200)) { sitOn(seg, rect); perchOrigin = dragHome ? place.within(dragHome, here()) : null; return; }   // (when he gets off he goes back to where he was picked up)
       }
     }
-    // let go below the bottom of the screen: he is set back on the screen (he may stand on the taskbar: the window stays above it)
+    // let go below the floor (the top of the taskbar): he is set back on it
     // (only down: he may still be parked half off the side of the screen, peeking in)
     const area = here(), lowest = lowestY(screen.getDisplayMatching(b), b), fixed = { x: b.x, y: Math.min(b.y, lowest), width: b.width, height: b.height };
     if (fixed.y !== b.y && !(await glide(fixed, 180))) return;
     restHere();
   });
   ipcMain.handle('desk:getPrefs', () => publicPrefs());
+  ipcMain.on('desk:setTheme', (_e, t) => setPref('alertStyle', typeof t === 'string' ? t : ''));   // the app's Appearance: the same theme for both windows and the settings window
   // where the window is now (the page notes his spot before the toy takes him away, to come back to it exactly)
   let drowsy = false;   // up at night and tired (the page tells us): he walks back slowly
   ipcMain.on('desk:drowsy', (_e, on) => { drowsy = !!on; });
   ipcMain.handle('desk:where', () => (win && !win.isDestroyed() ? win.getBounds().x : null));
   // Fumu walks along where he sits: the page plays the walking, the window glides
-  ipcMain.handle('desk:walk', async (_e, dx, ms) => {
+  ipcMain.handle('desk:walk', async (_e, dx, ms, free) => {
     if (!win || mode !== 'pet' || dragFrom || peekRest) return 0;
     const from = win.getBounds(), want = Math.max(-900, Math.min(900, +dx || 0));
     let to = place.walkEnd(from, here(), want);
+    to = { x: to.x, y: from.y, width: from.width, height: from.height };   // (sideways only)
+    if (free && !perch) {   // back to a spot that may be half off the side of the screen (after an alert slid him onto it): not squeezed inside
+      const disp = screen.getDisplayMatching(from).bounds;
+      to = { x: place.keepPartlyOn(from.x + want, from.width, disp), y: from.y, width: from.width, height: from.height };
+    }
     if (perch) {   // along the edge he sits on, not past its ends
       const seg = perchesNow().find((s) => s.id === perch.id && from.x + from.width / 2 >= s.x1 - 30 && from.x + from.width / 2 <= s.x2 + 30);
       if (!seg) { knockOff(); return 0; }
@@ -612,7 +678,7 @@ function start() {
   // ---------- the toy flying about the whole screen (a switch in the settings window) ----------
   // His own window is small, so while a thrown toy is in the air it is drawn by a second little transparent window that the page moves
   // along with the toy (the page does the bouncing, the shell only places the picture). Clicks always go through it.
-  let toyWin = null, toyImg = '', toyPx = 0, toySpinAt = 0, toyTopAt = 0;
+  let toyWin = null, toyImg = '', toyPx = 0, toySpinAt = 0, toyTopAt = 0, toyDeg = null, toyReady = Promise.resolve();
   function toyWindow(px) {
     if (!toyWin || toyWin.isDestroyed()) {
       toyWin = new BrowserWindow({ width: px, height: px, frame: false, transparent: true, resizable: false, skipTaskbar: true, focusable: false, hasShadow: false, show: false, alwaysOnTop: true, webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false } });
@@ -622,7 +688,9 @@ function start() {
     }
     return toyWin;
   }
-  function hideToy() { if (toyWin && !toyWin.isDestroyed()) toyWin.hide(); }
+  // (it is parked far off the screen rather than hidden: a hidden transparent window needs a moment to appear again, and the toy blinked out when it was picked up)
+  function hideToy() { try { if (typeof stopToyFollow === 'function') stopToyFollow(); if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) { const b = toyWin.getBounds(); toyWin.setBounds({ x: -10000, y: -10000, width: b.width, height: b.height }); } } catch (e) { /* gone */ } }
+  setTimeout(() => { if (prefs.toyRoam && win && mode === 'pet') toyWindow(56); }, 3000);   // (made ahead of time: picking the toy up must not wait for a new window)
   // where his window is and how big the screen is (what the page needs to let the toy fly over all of it)
   ipcMain.handle('desk:toyField', () => {
     if (!win || mode !== 'pet' || !prefs.toyRoam) return null;
@@ -635,20 +703,78 @@ function start() {
     const w = toyWindow(px + 24);
     if (dataUrl !== toyImg || px !== toyPx) {
       toyImg = dataUrl; toyPx = px;
+      toyReady = new Promise((res) => { w.webContents.once('did-finish-load', () => setTimeout(res, 60)); setTimeout(res, 700); });   // (the picture is up: until then the page keeps drawing the toy itself)
       w.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent('<!doctype html><body style="margin:0;background:transparent;overflow:hidden;display:grid;place-items:center;height:100vh"><img id="t" src="' + dataUrl + '" style="width:' + px + 'px;height:' + px + 'px;display:block"></body>'));
     }
+  });
+  ipcMain.handle('desk:toyReady', () => toyReady);
+  // while the toy is held, THIS process moves its window to the mouse (every 8 ms, straight from the cursor position): nothing waits for the page, so it follows without stutter
+  let toyFollowT = null;
+  function stopToyFollow() { if (toyFollowT) { clearInterval(toyFollowT); toyFollowT = null; } }
+  ipcMain.on('desk:toyFollow', (_e, on) => {
+    stopToyFollow();
+    if (!on || !toyWin || toyWin.isDestroyed() || !toyPx) return;
+    const s = toyPx + 24, t0 = Date.now();
+    let lx = null, ly = null, top = 0;
+    const step = () => {
+      if (!toyWin || toyWin.isDestroyed() || Date.now() - t0 > 20000) { stopToyFollow(); return; }
+      try {
+        const p = screen.getCursorScreenPoint(), nx = Math.round(p.x - s / 2), ny = Math.round(p.y - s / 2);
+        if (!isFinite(nx) || !isFinite(ny)) return;
+        if (nx !== lx || ny !== ly) { if (lx === null) toyWin.setBounds({ x: nx, y: ny, width: s, height: s }); else toyWin.setPosition(nx, ny); lx = nx; ly = ny; }
+        if (!toyWin.isVisible()) toyWin.showInactive();
+        const now = Date.now();
+        if (now - top > 300) { top = now; toyWin.moveTop(); }
+      } catch (e) { stopToyFollow(); }
+    };
+    step();
+    toyFollowT = setInterval(step, 8);
   });
   ipcMain.on('desk:toyAt', (_e, x, y, deg) => {
     if (!toyWin || toyWin.isDestroyed() || !toyPx) return;
     const s = toyPx + 24;
-    toyWin.setBounds({ x: Math.round(+x - s / 2), y: Math.round(+y - s / 2), width: s, height: s });
+    const nx = Math.round(+x - s / 2), ny = Math.round(+y - s / 2);
+    if (!isFinite(nx) || !isFinite(ny) || Math.abs(nx) > 100000 || Math.abs(ny) > 100000) return;   // (a bad number from the page must never be an error in the main process)
+    try {
+      const cur = toyWin.getBounds();
+      if (cur.width === s && cur.height === s) { if (cur.x !== nx || cur.y !== ny) toyWin.setPosition(nx, ny); } else toyWin.setBounds({ x: nx, y: ny, width: s, height: s });
+    } catch (e) { return; }   // (moving only: resizing it every time is slower)
     if (!toyWin.isVisible()) toyWin.showInactive();
     const now = Date.now();
-    if (now - toyTopAt > 150) { toyTopAt = now; toyWin.moveTop(); }   // (his window comes to the front when clicked; with the room background it would hide the toy)
-    if (now - toySpinAt > 30) { toySpinAt = now; toyWin.webContents.executeJavaScript('document.getElementById("t")&&(document.getElementById("t").style.transform="rotate(' + Math.round(+deg || 0) + 'deg)")').catch(() => {}); }
+    if (now - toyTopAt > 300) { toyTopAt = now; toyWin.moveTop(); }   // (his window comes to the front when clicked; with the room background it would hide the toy)
+    const dg = Math.round(+deg || 0);
+    if (dg !== toyDeg && now - toySpinAt > 30) { toySpinAt = now; toyDeg = dg; toyWin.webContents.executeJavaScript('document.getElementById("t")&&(document.getElementById("t").style.transform="rotate(' + Math.round(+deg || 0) + 'deg)")').catch(() => {}); }
   });
   ipcMain.on('desk:toyHide', () => hideToy());
-  app.on('before-quit', () => { if (toyWin && !toyWin.isDestroyed()) toyWin.destroy(); });
+  // the wrecking ball: an overlay that draws the open windows breaking (wreck.js); the page throws the toy and says what it hit
+  const wreck = require('./wreck').makeWreck({
+    BrowserWindow,
+    allowed: () => windows.available() && privacy.allows(prefs.awareness, 'wreck') && prefs.toyRoam,
+    display: () => screen.getDisplayMatching(win.getBounds()),
+    frames,
+    raise: () => { if (win) win.moveTop(); if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) toyWin.moveTop(); }
+  });
+  ipcMain.handle('desk:wreckStart', async () => { if (!win || mode !== 'pet') return { ok: false, reason: 'mode' }; try { return await wreck.start(); } catch (e) { wreck.stop(); return { ok: false, reason: 'error' }; } });
+  ipcMain.on('desk:wreckHit', (_e, i, k, x, y) => { try { wreck.hit(+i, +k, +x, +y); } catch (e) { /* the overlay is gone */ } });
+  ipcMain.handle('desk:wreckFix', async () => { try { await wreck.fix(); } catch (e) { wreck.stop(); } });
+  ipcMain.on('desk:wreckAbort', () => wreck.stop());
+  // a celebration (birthday, Christmas...) the player said yes to: an overlay over the whole screen with the app's effects (celebrate.js; the page draws them)
+  const celebrate = require('./celebrate').makeCelebrate({
+    BrowserWindow,
+    display: () => screen.getDisplayMatching(win.getBounds()),
+    pageUrl: () => APP_URL,
+    raise: () => { if (win) win.moveTop(); if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) toyWin.moveTop(); }
+  });
+  ipcMain.handle('desk:celebrateFx', (_e, kind, o) => {
+    if (!win || mode !== 'pet' || typeof kind !== 'string') return false;
+    try {
+      o = o && typeof o === 'object' ? o : {};
+      const wb = win.getBounds(), db = screen.getDisplayMatching(wb).bounds, r = o.rect && typeof o.rect === 'object' ? o.rect : {};
+      return celebrate.start(kind, { name: o.name, ms: o.ms, total: o.total, lang: o.lang, rect: { x: wb.x - db.x + (+r.x || 0), y: wb.y - db.y + (+r.y || 0), w: +r.w || 100, h: +r.h || 100 } });
+    } catch (e) { celebrate.stop(); return false; }
+  });
+  ipcMain.on('desk:celebrateStop', () => celebrate.stop());
+  app.on('before-quit', () => { wreck.stop(); celebrate.stop(); if (toyWin && !toyWin.isDestroyed()) toyWin.destroy(); });
   ipcMain.on('desk:installUpdate', () => { if (updateReady && autoUpdater) autoUpdater.quitAndInstall(); });
   setInterval(() => { if (updateReady && win && win.isVisible()) win.webContents.send('desk:updateReady'); }, 3 * 3600 * 1000);   // still waiting: a gentle reminder now and then
   // a reminder: bring Fumu back if he was hidden (without taking the keyboard from what you are doing)
@@ -701,10 +827,12 @@ function start() {
       const r = screen.screenToDipRect(null, f.rect), d = screen.getDisplayMatching(r).bounds;
       const full = Math.abs(r.x - d.x) <= 2 && Math.abs(r.y - d.y) <= 2 && r.width >= d.width - 2 && r.height >= d.height - 2;
       const now = programs.describe(f.exe, full, prefs.myGames);
+      const progDisp = screen.getDisplayMatching(r).id;
+      now.here = screen.getDisplayMatching(win.getBounds()).id === progDisp;   // (is it on the same screen as he is: only then does it cover him)
       if (now.kind === 'other' || now.kind === 'fullscreen') lastUnknown = f.exe;
       const key = JSON.stringify(now);
       if (key === programMaybe) programCount++; else { programMaybe = key; programCount = 1; }
-      if (programCount >= 2 && key !== programSent) { gameGrab = false; programSent = key; programNow = now; win.webContents.send('desk:program', now); log('program', now.kind, now.name); }
+      if (programCount >= 2 && key !== programSent) { programSent = key; programNow = now; programDisplay = progDisp; win.webContents.send('desk:program', now); log('program', now.kind, now.name); }
     }, 2500);
   }
   // the player teaches him a game he does not know: the last program he could not name gets that name
@@ -731,7 +859,7 @@ function start() {
       version: app.getVersion(), channel: CHANNEL.name, electron: process.versions.electron, packaged: app.isPackaged, page: APP_URL,
       mode, bounds: b, lastThrow, zoom: zoom(), screens: screen.getAllDisplays().map((d) => d.workArea.width + 'x' + d.workArea.height + ' @' + d.scaleFactor),
       onPerch: perch ? perch.id : null, awareness: prefs.awareness, program: programNow, lastUnknownProgram: lastUnknown, taughtGames: Object.keys(prefs.myGames).length, windowsSeen: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch') ? windows.list().length : null, perchesNow: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch') ? perchesNow().length : null,
-      idleSeconds: powerMonitor.getSystemIdleTime(), idle, displaced, pointerOverFumu: solidNow,
+      idleSeconds: powerMonitor.getSystemIdleTime(), idle, displaced, pointerOverFumu: solidNow, clickThrough: gamingNow(),
       shortcutsHeld: Object.assign({}, registered, hoverKeyOn), settingsFolder: app.getPath('userData')
     };
   }

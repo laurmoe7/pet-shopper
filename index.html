@@ -11,17 +11,94 @@
 <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
 <link rel="apple-touch-icon" href="icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@500&family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap">
+<link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="styles.css">
+<style id="bootCss">
+/* the loading card: shown from the first paint until the app has started, so the half-built page never shows */
+html.booting .app{visibility:hidden}
+#boot{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;pointer-events:none;transition:opacity .35s ease}
+#boot.out{opacity:0}
+#boot .card{display:flex;flex-direction:column;align-items:center;gap:10px;padding:22px 30px;border-radius:26px;background:#fdf1f3;color:#7a4b4b;border:2px solid #f3c6cf;box-shadow:0 8px 28px rgba(122,75,75,.18);font:800 18px/1.1 "M PLUS Rounded 1c","Kiwi Maru",system-ui,sans-serif}
+#boot .blob{width:54px;height:46px;border-radius:50% 50% 46% 46%;background:#f4f1ee;border:2.5px solid #7a4b4b;position:relative;animation:bootHop 1s ease-in-out infinite;transform-origin:50% 100%}
+#boot .blob:before,#boot .blob:after{content:"";position:absolute;top:18px;width:6px;height:8px;border-radius:50%;background:#7a4b4b;left:15px}
+#boot .blob:after{left:auto;right:15px}
+#boot .shadow{width:40px;height:7px;border-radius:50%;background:rgba(122,75,75,.18);margin-top:-6px;animation:bootShadow 1s ease-in-out infinite}
+#boot .dots i{display:inline-block;width:7px;height:7px;margin:0 2px;border-radius:50%;background:#e7819a;animation:bootDot 1s ease-in-out infinite}
+#boot .dots i:nth-child(2){animation-delay:.15s}#boot .dots i:nth-child(3){animation-delay:.3s}
+#boot small{font-size:13px;font-weight:700;opacity:.75;display:flex;align-items:center;gap:6px}
+@keyframes bootHop{0%,100%{transform:translateY(0) scale(1.1,.88)}45%{transform:translateY(-16px) scale(.92,1.1)}}
+@keyframes bootShadow{0%,100%{transform:scale(1);opacity:1}45%{transform:scale(.6);opacity:.5}}
+@keyframes bootDot{0%,100%{transform:translateY(0);opacity:.5}40%{transform:translateY(-5px);opacity:1}}
+@media (prefers-color-scheme:dark){#boot .card{background:#2b2326;color:#f3dfe3;border-color:#5a4249}#boot .blob{background:#d9d3d0;border-color:#f3dfe3}}
+@media (prefers-reduced-motion:reduce){#boot *{animation-duration:3s!important}}
+/* when the app never starts (a script broke), the card says so and shows the error, so it can be reported */
+#boot.failed{pointer-events:auto}#boot.failed .blob,#boot.failed .shadow{animation:none}#boot.failed .blob{transform:scale(1.1,.88)}#boot.failed .blob:before,#boot.failed .blob:after{height:3px;top:21px;border-radius:2px}
+#boot .fail{display:none;font-size:12px;font-weight:700;opacity:.8;max-width:240px;text-align:center;white-space:pre-wrap;word-break:break-word;line-height:1.35}
+#boot.failed .fail{display:block}#boot.failed small{display:none}
+#boot .fail-btns{display:none;gap:8px;margin-top:4px}#boot.failed .fail-btns{display:flex}
+#boot .fail-btns button{font:inherit;font-size:13px;font-weight:800;color:inherit;background:none;border:2px solid currentColor;border-radius:999px;padding:6px 14px;cursor:pointer}
+/* in the Windows app the window is see-through: the page's own brown must not show behind the card while it loads */
+html.desk-boot.booting,html.desk-boot.booting body{background:transparent!important}
+</style>
+<script>
+// Errors: the scripts share one scope, so one error at the top of a file quietly stops everything after it. Every uncaught error (and failed promise) is kept
+// with its build and time (the last 8, nibble-errors on the device) and shown in Options > Developer tools; when the app never starts, the loading card shows it.
+// This runs before any other script so the earliest errors are caught too.
+(function () {
+  var KEY = 'nibble-errors', MAX = 8, de = document.documentElement, fresh = [];
+  function all() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } }
+  function when(t) { var d = new Date(t); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2) + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+  function line(e) { return 'Build ' + e.b + ' \u00b7 ' + when(e.t) + ' \u00b7 ' + e.m + (e.w ? ' (' + e.w + ')' : ''); }
+  function record(msg, where) {
+    var e = { t: Date.now(), b: typeof BUILD === 'string' ? BUILD : '?', m: String(msg || 'error').slice(0, 300), w: where || '' };
+    fresh.push(e);
+    try { localStorage.setItem(KEY, JSON.stringify(all().concat(e).slice(-MAX))); } catch (x) { /* storage blocked */ }
+  }
+  window.Errors = {
+    list: all, fresh: fresh, line: line,
+    text: function () { return all().map(line).join('\n'); },
+    clear: function () { fresh.length = 0; try { localStorage.removeItem(KEY); } catch (e) { /* storage blocked */ } }
+  };
+  window.addEventListener('error', function (ev) {
+    if (!ev.message && ev.target && ev.target !== window) return;   // a picture or font that did not load is not a broken script
+    var file = (ev.filename || '').replace(/^.*\//, '');
+    record(ev.message, file ? file + (ev.lineno ? ':' + ev.lineno : '') : '');
+  });
+  window.addEventListener('unhandledrejection', function (ev) { var r = ev.reason; record(r && r.message || r, 'promise'); });
+  // the loading card (below) hides the page while the scripts build it; if nothing has taken it down after 10 s, the app did not start
+  de.classList.add('booting');
+  if (window.nibbleDesktop) de.classList.add('desk-boot');
+  setTimeout(function () {
+    de.classList.remove('booting');
+    var boot = document.getElementById('boot');
+    if (!boot || boot.classList.contains('out')) return;
+    boot.classList.add('failed'); boot.removeAttribute('aria-hidden');
+    var first = fresh[0], fail = boot.querySelector('.fail'), btns = boot.querySelector('.fail-btns');   // (the first error broke it; the others follow from it)
+    if (fail) fail.textContent = 'Fumu could not start.\n' + (first ? line(first) : 'Build ' + (typeof BUILD === 'string' ? BUILD : '?') + ' \u00b7 no error was caught');
+    if (!btns) return;
+    btns.children[0].onclick = function () {
+      var text = fresh.length ? fresh.map(line).join('\n') : fail.textContent;
+      var done = function () { btns.children[0].textContent = 'Copied'; };
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () { fail.textContent = text; });
+      else fail.textContent = text;
+    };
+    btns.children[1].onclick = function () { location.reload(); };
+  }, 10000);
+})();
+</script>
 </head>
 <body>
+<div id="boot" aria-hidden="true"><div class="card"><div class="blob"></div><div class="shadow"></div><div>Fumufumu</div><small>Loading <span class="dots"><i></i><i></i><i></i></span></small><p class="fail"></p><div class="fail-btns"><button type="button">Copy details</button><button type="button">Try again</button></div></div></div>
 <div class="app">
   <header class="scene" id="scene">
     <div class="scene-bar">
       <!-- tap the title to swap between the shopping list and the to-do list (app-todo.js) -->
       <h1 class="brand" id="brand" role="button" tabindex="0" aria-label="Switch between the shopping list and the to-do list"><span class="pet-name" id="brandName">Fumu</span><span class="brand-sub" id="brandSub">'s <span class="brand-kind" id="brandKind">shopping list</span></span><svg class="brand-swap" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h9.5M9.5 3 12.5 6 9.5 9M13 11H3.5M6.5 8 3.5 11l3 3"/></svg><span class="brand-due" id="brandDue" hidden></span></h1>
+      <!-- two tabs replace the title text and make the shopping / to-do switch easy to spot (app-todo.js) -->
+      <div class="list-tabs" id="listTabs" role="tablist" aria-label="Lists">
+        <button type="button" role="tab" class="list-tab" id="tabShop" data-list="shop" aria-selected="true"><span aria-hidden="true">🛒</span> Shopping</button>
+        <button type="button" role="tab" class="list-tab" id="tabTodo" data-list="todo" aria-selected="false"><span aria-hidden="true">✓</span> To-do<span class="tab-due" id="tabDue" hidden></span></button>
+      </div>
       <div class="scene-tools">
         <button class="pill-btn gear-btn" id="optionsBtn" type="button" aria-label="Options"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 2.6h3.4l.5 2.6c.6.2 1.2.5 1.7.9l2.5-.9 1.7 2.9-2 1.7c.1.6.1 1.3 0 1.9l2 1.7-1.7 2.9-2.5-.9c-.5.4-1.1.7-1.7.9l-.5 2.6h-3.4l-.5-2.6c-.6-.2-1.2-.5-1.7-.9l-2.5.9-1.7-2.9 2-1.7c-.1-.6-.1-1.3 0-1.9l-2-1.7 1.7-2.9 2.5.9c.5-.4 1.1-.7 1.7-.9z"/><circle cx="12" cy="11.6" r="3"/></svg></button>
       </div>
@@ -154,8 +231,8 @@
                 </g>
               </g>
               <g data-sp="dragon">
-                <g class="ear-g ear-l"><path class="dragon-wing" d="M26 86 Q10 70 -2 60 Q4 76 -8 86 Q6 88 2 102 Q16 98 26 98 Z"/><path class="wing-bone" clip-path="url(#dragonWingL)" d="M26 90 L-2 60 M14 84 L-8 86 M14 92 L2 102"/><path class="wing-edge" d="M26 86 Q10 70 -2 60 Q4 76 -8 86 Q6 88 2 102 Q16 98 26 98 Z"/></g>
-                <g class="ear-g ear-r"><path class="dragon-wing" d="M134 86 Q150 70 162 60 Q156 76 168 86 Q154 88 158 102 Q144 98 134 98 Z"/><path class="wing-bone" clip-path="url(#dragonWingR)" d="M134 90 L162 60 M146 84 L168 86 M146 92 L158 102"/><path class="wing-edge" d="M134 86 Q150 70 162 60 Q156 76 168 86 Q154 88 158 102 Q144 98 134 98 Z"/></g>
+                <g class="ear-g ear-l"><path class="dragon-wing" d="M26 86 Q10 70 -2 60 Q4 76 -8 86 Q6 88 2 102 Q16 98 26 98 Z"/><path class="wing-bone" clip-path="url(#dragonWingL)" d="M26 90 L-2 60 M26 90 L-8 86 M26 90 L2 102"/><path class="wing-edge" d="M26 86 Q10 70 -2 60 Q4 76 -8 86 Q6 88 2 102 Q16 98 26 98 Z"/></g>
+                <g class="ear-g ear-r"><path class="dragon-wing" d="M134 86 Q150 70 162 60 Q156 76 168 86 Q154 88 158 102 Q144 98 134 98 Z"/><path class="wing-bone" clip-path="url(#dragonWingR)" d="M134 90 L162 60 M134 90 L168 86 M134 90 L158 102"/><path class="wing-edge" d="M134 86 Q150 70 162 60 Q156 76 168 86 Q154 88 158 102 Q144 98 134 98 Z"/></g>
                 <g class="dragon-horn"><path class="horn-fill" d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/><path class="horn-ring" clip-path="url(#dragonHornL)" d="M43 24 Q50 24 56 30 M40 36 Q48 36 56 42"/><path class="horn-edge" d="M52 56 Q36 36 42 6 Q48 4 56 14 Q66 28 70 48 Z"/></g>
                 <g class="dragon-horn"><path class="horn-fill" d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/><path class="horn-ring" clip-path="url(#dragonHornR)" d="M117 24 Q110 24 104 30 M120 36 Q112 36 104 42"/><path class="horn-edge" d="M108 56 Q124 36 118 6 Q112 4 104 14 Q94 28 90 48 Z"/></g>
               </g>
@@ -202,8 +279,8 @@
                 </g>
               </g>
 
-              <g data-sk="pomeranian longhair ragdoll" class="fur"><path d="M30.3 129.8 C20.9 147.2 1.2 129.5 17.7 118.7 L22.7 115.4 L33.2 124.5 Z"/><path d="M17.7 118.7 C2.2 128.9 -5.6 102.9 13.0 102.6 L19.0 102.5 L22.7 115.4 Z"/><path d="M13.0 102.6 C-8.9 103.0 -6.3 80.4 15.0 85.8 L20.8 87.3 L19.0 102.5 Z"/><path d="M143.7 81.3 C160.9 75.7 164.9 96.8 146.9 97.9 L140.9 98.3 L138.0 83.1 Z"/><path d="M146.9 97.9 C168.0 96.7 164.0 123.0 144.5 114.6 L139.0 112.2 L140.9 98.3 Z"/><path d="M144.5 114.6 C162.9 122.5 145.0 143.9 133.7 127.4 L130.3 122.4 L139.0 112.2 Z"/></g>
-              <g data-sk="pomeranian">
+              <g data-sk="pomeranian blackpom longhair ragdoll" class="fur"><path d="M30.3 129.8 C20.9 147.2 1.2 129.5 17.7 118.7 L22.7 115.4 L33.2 124.5 Z"/><path d="M17.7 118.7 C2.2 128.9 -5.6 102.9 13.0 102.6 L19.0 102.5 L22.7 115.4 Z"/><path d="M13.0 102.6 C-8.9 103.0 -6.3 80.4 15.0 85.8 L20.8 87.3 L19.0 102.5 Z"/><path d="M143.7 81.3 C160.9 75.7 164.9 96.8 146.9 97.9 L140.9 98.3 L138.0 83.1 Z"/><path d="M146.9 97.9 C168.0 96.7 164.0 123.0 144.5 114.6 L139.0 112.2 L140.9 98.3 Z"/><path d="M144.5 114.6 C162.9 122.5 145.0 143.9 133.7 127.4 L130.3 122.4 L139.0 112.2 Z"/></g>
+              <g data-sk="pomeranian blackpom">
                 <g class="ear-g ear-l">
                   <path class="ear" d="M46 60 C38 48 38 30 49 25 C60 22 70 34 74 48 Z"/>
                   <path class="ear-in" d="M51 50 C46 42 47 33 52 31 C58 30 63 38 65 46 Z"/>
@@ -272,7 +349,7 @@
               <path data-sp="mochi" class="skin skin-twist" d="M80 139 C41 139 13 129 13 102 C13 71.77 33.53 41.54 72.90 38.29 C74 31 80 27 86 30 C82 32 81 35 84.20 38.10 C125.46 40.07 147 71.03 147 102 C147 129 119 139 80 139 Z"/>
               <path class="shine" d="M40 66 C46 56 54 51 62 48"/>
               <!-- fur that melts into the body edge: the same shapes again, filled, covering the outline where the fur joins -->
-              <g data-sk="pomeranian longhair ragdoll" class="fur-blend"><path d="M30.3 129.8 C20.9 147.2 1.2 129.5 17.7 118.7 L22.7 115.4 L33.2 124.5 Z"/><path d="M17.7 118.7 C2.2 128.9 -5.6 102.9 13.0 102.6 L19.0 102.5 L22.7 115.4 Z"/><path d="M13.0 102.6 C-8.9 103.0 -6.3 80.4 15.0 85.8 L20.8 87.3 L19.0 102.5 Z"/><path d="M143.7 81.3 C160.9 75.7 164.9 96.8 146.9 97.9 L140.9 98.3 L138.0 83.1 Z"/><path d="M146.9 97.9 C168.0 96.7 164.0 123.0 144.5 114.6 L139.0 112.2 L140.9 98.3 Z"/><path d="M144.5 114.6 C162.9 122.5 145.0 143.9 133.7 127.4 L130.3 122.4 L139.0 112.2 Z"/></g>
+              <g data-sk="pomeranian blackpom longhair ragdoll" class="fur-blend"><path d="M30.3 129.8 C20.9 147.2 1.2 129.5 17.7 118.7 L22.7 115.4 L33.2 124.5 Z"/><path d="M17.7 118.7 C2.2 128.9 -5.6 102.9 13.0 102.6 L19.0 102.5 L22.7 115.4 Z"/><path d="M13.0 102.6 C-8.9 103.0 -6.3 80.4 15.0 85.8 L20.8 87.3 L19.0 102.5 Z"/><path d="M143.7 81.3 C160.9 75.7 164.9 96.8 146.9 97.9 L140.9 98.3 L138.0 83.1 Z"/><path d="M146.9 97.9 C168.0 96.7 164.0 123.0 144.5 114.6 L139.0 112.2 L140.9 98.3 Z"/><path d="M144.5 114.6 C162.9 122.5 145.0 143.9 133.7 127.4 L130.3 122.4 L139.0 112.2 Z"/></g>
               <g data-sp="frog" class="frog-spots">
                 <ellipse cx="74" cy="56" rx="4.6" ry="3.2" transform="rotate(-12 74 56)"/>
                 <ellipse cx="90" cy="52" rx="3.6" ry="2.6" transform="rotate(10 90 52)"/>
@@ -319,7 +396,7 @@
                 <path d="M14.5 103 C14 72 36 40 77 40 C76 54 77 64 75 76 C73 87 69 95 65 101 C59 110 51 113 43 113 C28 113 15 111 14.5 103 Z"/>
                 <path d="M145.5 103 C146 72 124 40 83 40 C84 54 83 64 85 76 C87 87 91 95 95 101 C101 110 109 113 117 113 C132 113 145 111 145.5 103 Z"/>
               </g>
-              <g data-sk="pomeranian" class="pom-face">
+              <g data-sk="pomeranian blackpom" class="pom-face">
                 <ellipse class="pom-muzzle" cx="80" cy="103" rx="30" ry="17"/>
                 <path class="pom-chest" transform="translate(80 128) scale(.9 .82) translate(-80 -128)" d="M44 122 C40 118 44 112 50 114 C52 108 60 108 64 112 C68 107 76 107 80 111 C84 107 92 107 96 112 C100 108 108 108 110 114 C116 112 120 118 116 122 C112 130 96 134 80 134 C64 134 48 130 44 122 Z"/>
               </g>
@@ -513,10 +590,11 @@
               <path data-sp="mouse" class="whiskers" d="M30 100 L10 94 M30 106 L8 108 M130 100 L150 94 M130 106 L152 108"/>
               <ellipse class="hog-muzzle" cx="80" cy="101.4" rx="12.6" ry="9.4"/>
               <path data-mouth="smile" class="line" d="M75 103 Q80 108 85 103"/>
-              <!-- a little lower lip under the smile for the mochi, pig and cow, the frog and the axolotl -->
+              <!-- a little lower lip under the smile for the mochi, pig and cow, the frog, the axolotl and the dragon -->
               <path data-mouth="smile" class="line lip-extra lip-snout" d="M78.2 110.4 Q80 111.6 81.8 110.4"/>
               <path data-mouth="smile" class="line lip-extra lip-frog" d="M75.4 112 Q80 115.4 84.6 112"/>
               <path data-mouth="smile" class="line lip-extra lip-axo" d="M76.2 109.8 Q80 112.6 83.8 109.8"/>
+              <path data-mouth="smile" class="line lip-extra lip-dragon" d="M77.4 112.4 Q80 114 82.6 112.4"/>
               <!-- the :3 mouth: with a little lip, or for the bunny a bit lower with buck teeth -->
               <path data-mouth="smile" class="line cat-smile smile-lip" d="M80 100.6 V102.6 M74.2 101.8 Q76.8 105.6 80 102.6 Q83.2 105.6 85.8 101.8 M78.2 108.2 Q80 109.5 81.8 108.2"/>
               <g data-mouth="smile" class="cat-smile smile-bunny"><path class="line" d="M80 101 V104.6 M73.6 103.2 Q76.6 107.4 80 104.6 Q83.4 107.4 86.4 103.2"/><path class="buck-teeth" d="M76.6 105.2 H83.4 V108.8 Q83.4 110.2 82 110.2 H78 Q76.6 110.2 76.6 108.8 Z M80 105.2 V110.2"/></g>
@@ -694,11 +772,12 @@
       </svg></div>
       <!-- the frog's tongue, stretched from its mouth to the toy when it catches it (tongueGrab in app-toy.js) -->
       <span class="frog-tongue" id="frogTongue" aria-hidden="true" hidden></span>
-      <!-- a toy on the floor (app-toy.js): tap it and the pet chases it. Which one shows depends on the species. -->
+      <!-- a toy on the floor (app-toy.js): tap it and the pet chases it. Which one shows depends on the species, or the wrecking ball when the ring menu's toy switch picked it. -->
       <button class="toy" id="toy" type="button" aria-label="Throw the toy"><span class="toy-ball"><svg viewBox="0 0 26 26" aria-hidden="true">
         <g class="toy-kind" data-toy="ball"><circle class="ball-fill" cx="13" cy="13" r="11"/><path class="ball-band" d="M3.4 8.6 Q13 12.6 22.6 8.6 L23.8 13.8 Q13 18.4 2.2 13.8 Z"/><path class="ball-star" d="M13 10.8 l.9 1.9 2 .3 -1.5 1.4 .4 2 -1.8 -1 -1.8 1 .4 -2 -1.5 -1.4 2 -.3 z"/><circle class="toy-line" cx="13" cy="13" r="11"/><ellipse class="toy-hi" cx="8.6" cy="6.8" rx="2.6" ry="1.6" transform="rotate(-30 8.6 6.8)"/></g>
         <g class="toy-kind" data-toy="yarn"><path class="yarn-tail" d="M21 19 Q25 23 22 25.4"/><circle class="yarn-fill" cx="13" cy="13" r="11"/><path class="yarn-lines" d="M5 7 Q13 11 15.6 23.6 M9.4 3.4 Q17 9 21 20.6 M2.6 13.6 Q11 13.4 13.4 24 M15 2.2 Q20 6 23.6 14"/><circle class="toy-line" cx="13" cy="13" r="11"/><ellipse class="toy-hi" cx="8.6" cy="6.8" rx="2.4" ry="1.4" transform="rotate(-30 8.6 6.8)"/></g>
         <g class="toy-kind" data-toy="tennis"><circle class="tennis-fill" cx="13" cy="13" r="11"/><path class="tennis-seam" d="M4.6 5.8 Q10.8 13 4.4 20.4 M21.4 5.6 Q15.2 13 21.6 20.2"/><circle class="toy-line" cx="13" cy="13" r="11"/><ellipse class="toy-hi" cx="8.6" cy="6.8" rx="2.4" ry="1.4" transform="rotate(-30 8.6 6.8)"/></g>
+        <g class="toy-kind" data-toy="wrecker"><path class="wreck-spike" d="M13.0 0.4 L15.1 5.1 L19.3 2.1 L18.8 7.2 L23.9 6.7 L20.9 10.9 L25.6 13.0 L20.9 15.1 L23.9 19.3 L18.8 18.8 L19.3 23.9 L15.1 20.9 L13.0 25.6 L10.9 20.9 L6.7 23.9 L7.2 18.8 L2.1 19.3 L5.1 15.1 L0.4 13.0 L5.1 10.9 L2.1 6.7 L7.2 7.2 L6.7 2.1 L10.9 5.1 Z"/><circle class="wreck-fill" cx="13" cy="13" r="8.2"/><path class="wreck-hi" d="M8.4 10.2 Q9.6 7.8 12.4 7.2"/></g>
       </svg></span></button>
       <!-- the pet's little shopping cart: it holds what is still to buy and empties as the pet eats -->
       <div class="cart" id="cart" aria-hidden="true" hidden><div class="cart-roll">
@@ -739,7 +818,7 @@
       <button type="button" class="recipe-btn" id="recipeBtn" aria-label="Add from a recipe">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h9.5L19 7v13.5H6z"/><path d="M15 3.5V7.5h4M9 12h7M9 15.5h7"/></svg>
       </button>
-      <button type="submit" class="add-btn" aria-label="Add item">Add</button>
+      <button type="submit" class="add-btn" aria-label="Add item">✚</button>
     </form>
     </div>
 
@@ -764,7 +843,7 @@
   <nav class="dock" aria-label="Pet">
     <button type="button" id="dressBtn" aria-label="Pet and dress-up"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><g transform="translate(1.5 11.5) rotate(-14 5 5)"><g><path d="M5 5.2c-1.6 0-3 1.7-3 3.1 0 1.2.9 1.7 1.8 1.7.5 0 .8-.2 1.2-.2s.7.2 1.2.2c.9 0 1.8-.5 1.8-1.7 0-1.4-1.4-3.1-3-3.1z"/><ellipse cx="1.6" cy="4.3" rx=".95" ry="1.25"/><ellipse cx="3.7" cy="2.3" rx="1" ry="1.35"/><ellipse cx="6.3" cy="2.3" rx="1" ry="1.35"/><ellipse cx="8.4" cy="4.3" rx=".95" ry="1.25"/></g></g><g transform="translate(12.5 2) rotate(14 5 5)"><g><path d="M5 5.2c-1.6 0-3 1.7-3 3.1 0 1.2.9 1.7 1.8 1.7.5 0 .8-.2 1.2-.2s.7.2 1.2.2c.9 0 1.8-.5 1.8-1.7 0-1.4-1.4-3.1-3-3.1z"/><ellipse cx="1.6" cy="4.3" rx=".95" ry="1.25"/><ellipse cx="3.7" cy="2.3" rx="1" ry="1.35"/><ellipse cx="6.3" cy="2.3" rx="1" ry="1.35"/><ellipse cx="8.4" cy="4.3" rx=".95" ry="1.25"/></g></g></svg></span><span class="dock-label">Pet</span></button>
     <button type="button" id="roomBtn" aria-label="Room"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8 1.8 12h3v8.4h14.4V12h3z" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><rect x="9.6" y="13.6" width="4.8" height="6.8" rx="1" fill="#fff" opacity=".85"/></svg></span><span class="dock-label">Room</span></button>
-    <button type="button" id="shopBtn" class="shop-only" disabled aria-label="Shop: coming soon"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8.4h14l-1 11.6a1.6 1.6 0 0 1-1.6 1.4H7.6A1.6 1.6 0 0 1 6 20z" fill="currentColor"/><path d="M8.8 10.4V7.2a3.2 3.2 0 0 1 6.4 0v3.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="dock-label">Shop</span></button>
+    <button type="button" id="shopBtn" class="shop-only" aria-label="Shop"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8.4h14l-1 11.6a1.6 1.6 0 0 1-1.6 1.4H7.6A1.6 1.6 0 0 1 6 20z" fill="currentColor"/><path d="M8.8 10.4V7.2a3.2 3.2 0 0 1 6.4 0v3.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="dock-label">Shop</span></button>
     <button type="button" id="calBtn" aria-label="Calendar: birthdays and plans"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3.4" fill="currentColor"/><rect x="3" y="5" width="18" height="5.2" rx="2.6" fill="currentColor" stroke="currentColor" stroke-width="1"/><path d="M8 2.8v4M16 2.8v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><g fill="#fff" opacity=".9"><circle cx="8" cy="14" r="1.3"/><circle cx="12" cy="14" r="1.3"/><circle cx="16" cy="14" r="1.3"/><circle cx="8" cy="18" r="1.3"/><circle cx="12" cy="18" r="1.3"/></g></svg></span><span class="dock-label">Calendar</span></button>
           <button type="button" id="profileBtn" aria-label="Profile: your name and birthday"><span class="dock-icon" aria-hidden="true"><svg class="dock-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4.6" fill="currentColor"/><path d="M3.6 21c0-4.6 3.8-7.4 8.4-7.4s8.4 2.8 8.4 7.4z" fill="currentColor"/></svg></span><span class="dock-label">Profile</span><span class="dock-badge" id="profileBadge" hidden aria-hidden="true"></span></button>
   </nav>
@@ -824,7 +903,7 @@
         <use class="ht h2" href="#dfHeart" x="284" y="152" fill="#ff7d9f"/>
         <use class="ht h3" href="#dfHeart" x="204" y="100" fill="#ffb3c6"/>
       </g>
-    </svg><div class="dress-preview" id="dressPreview"></div><div class="dress-flash" id="dressFlash" aria-hidden="true"></div><div class="dress-bubble" id="dressBubble" aria-live="polite" hidden></div><button type="button" class="closet-btn shoot-btn" id="shootBtn" aria-label="Photoshoot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.2h3l1.5-2.2h7L17 8.2h3a1.6 1.6 0 0 1 1.6 1.6v8.4a1.6 1.6 0 0 1-1.6 1.6H4a1.6 1.6 0 0 1-1.6-1.6V9.8A1.6 1.6 0 0 1 4 8.2z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="12" cy="13.6" r="3.6" fill="none" stroke="currentColor" stroke-width="1.9"/></svg><span>Photo</span></button><button type="button" class="closet-btn" id="closetBtn" aria-label="Closet: saved outfits"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.4a2.3 2.3 0 1 1 2.3 2.3c-1 0-2.3.8-2.3 2v1M12 11.7l8.6 6.1a1.2 1.2 0 0 1-.7 2.2H4.1a1.2 1.2 0 0 1-.7-2.2z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Closet</span></button></div>
+    </svg><div class="dress-preview" id="dressPreview"></div><div class="dress-flash" id="dressFlash" aria-hidden="true"></div><div class="dress-bubble" id="dressBubble" aria-live="polite" hidden></div><button type="button" class="closet-btn dress-options-btn" id="dressOptionsBtn" aria-label="Options"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 2.6h3.4l.5 2.6c.6.2 1.2.5 1.7.9l2.5-.9 1.7 2.9-2 1.7c.1.6.1 1.3 0 1.9l2 1.7-1.7 2.9-2.5-.9c-.5.4-1.1.7-1.7.9l-.5 2.6h-3.4l-.5-2.6c-.6-.2-1.2-.5-1.7-.9l-2.5.9-1.7-2.9 2-1.7c-.1-.6-.1-1.3 0-1.9l-2-1.7 1.7-2.9 2.5.9c.5-.4 1.1-.7 1.7-.9z"/><circle cx="12" cy="11.6" r="3"/></svg></button><button type="button" class="closet-btn shoot-btn" id="shootBtn" aria-label="Photoshoot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.2h3l1.5-2.2h7L17 8.2h3a1.6 1.6 0 0 1 1.6 1.6v8.4a1.6 1.6 0 0 1-1.6 1.6H4a1.6 1.6 0 0 1-1.6-1.6V9.8A1.6 1.6 0 0 1 4 8.2z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="12" cy="13.6" r="3.6" fill="none" stroke="currentColor" stroke-width="1.9"/></svg><span>Photo</span></button><button type="button" class="closet-btn" id="closetBtn" aria-label="Closet: saved outfits"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.4a2.3 2.3 0 1 1 2.3 2.3c-1 0-2.3.8-2.3 2v1M12 11.7l8.6 6.1a1.2 1.2 0 0 1-.7 2.2H4.1a1.2 1.2 0 0 1-.7-2.2z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Closet</span></button></div>
     <div class="dress-tabs" id="dressTabs" role="tablist" aria-label="Pet and outfits">
       <button type="button" role="tab" data-tab="pet" aria-selected="true"><img src="emoji/1F43E.svg" alt="" width="22" height="22"><span>Pet</span></button>
       <button type="button" role="tab" data-tab="hat" aria-selected="false"><img src="emoji/1F3A9.svg" alt="" width="22" height="22"><span>Hats</span></button>
@@ -1043,6 +1122,34 @@
   </form>
 </dialog>
 
+<!-- the Shop: a made-up test page, nothing can be bought (app-shop.js) -->
+<dialog class="picker pet-sheet shop-sheet" id="shopSheet" aria-labelledby="shopTitle">
+  <form method="dialog" class="picker-inner">
+    <h2 id="shopTitle">Shop</h2>
+    <!-- two tabs: the special-days calendar (app-shopcal.js; a temporary home for it, it will carry the login bonuses and such) and the shop itself -->
+    <div class="dress-tabs shop-tabs" id="shopTabs" role="tablist" aria-label="Shop">
+      <button type="button" role="tab" data-tab="store" aria-selected="true"><span>Shop</span></button>
+      <button type="button" role="tab" data-tab="cal" aria-selected="false"><span>Special days</span></button>
+    </div>
+    <div class="shop-panels" id="shopPanels">
+    <div class="shop-panel" id="shopCal" role="tabpanel" hidden>
+      <p class="stamp-sub">✦ celebrations and extra gifts ✦</p>
+      <div class="sc-head"><button type="button" class="pill-btn sc-nav" id="scPrev" aria-label="Previous month">‹</button><b class="sc-month" id="scMonth"></b><button type="button" class="pill-btn sc-nav" id="scNext" aria-label="Next month">›</button></div>
+      <div class="sc-grid" id="scGrid"></div>
+      <div class="sc-legend"><span><i class="sc-dot sc-party"></i><span id="scLegParty">celebration</span></span><span><i class="sc-dot sc-gift"></i><span id="scLegGift">extra gifts</span></span></div>
+      <div class="sc-detail" id="scDetail" aria-live="polite"></div>
+      <h3 class="shop-head" id="scUpTitle">Coming up</h3>
+      <div class="sc-up" id="scUp"></div>
+    </div>
+    <div class="shop-panel" id="shopStore" role="tabpanel">
+      <p class="stamp-sub">✦ a preview, nothing is for sale yet ✦</p>
+      <p class="mood-info shop-note" id="shopNote" aria-live="polite"></p>
+      <div class="shop-list" id="shopList"></div>
+    </div>
+    </div>
+  </form>
+</dialog>
+
 <dialog class="picker pet-sheet" id="goalsSheet" aria-labelledby="goalsTitle">
   <form method="dialog" class="picker-inner">
     <h2 id="goalsTitle">Goals</h2>
@@ -1081,7 +1188,7 @@
         <div class="cal-extra">
           <label title="Time"><span aria-hidden="true">🕘</span> <input type="time" id="calTime" aria-label="Time (optional)"></label>
           <label title="Repeat"><span aria-hidden="true">↻</span> <select id="calRepeat" aria-label="Repeat"></select></label>
-          <button type="button" class="add-btn cal-add-btn" id="calAddBtn">Add</button>
+          <button type="button" class="add-btn cal-add-btn" id="calAddBtn">✚</button>
         </div>
       </div>
     </div>
@@ -1115,7 +1222,7 @@
     <div class="profile-links">
       <button type="button" class="profile-link" id="favBtn"><span class="profile-link-icon" aria-hidden="true">♛</span><span class="profile-link-text"><b>Top 10</b><small>what you buy most</small></span><span class="profile-link-go" aria-hidden="true">›</span></button>
       <button type="button" class="profile-link" id="goalsBtn"><span class="profile-link-icon" aria-hidden="true">★</span><span class="profile-link-text"><b>Goals</b><small>unlock new pets and hats</small></span><span class="profile-link-go" aria-hidden="true">›</span></button>
-      <button type="button" class="profile-link" id="stampBtn"><span class="profile-link-icon" aria-hidden="true"><svg class="profile-link-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c-1.2 0-2.2.8-2.2 2 0 1.6 1.2 2.2 1.2 3.8H8.6c-1.7 0-3 1.3-3 3v1.4h12.8v-1.4c0-1.7-1.3-3-3-3H13c0-1.6 1.2-2.2 1.2-3.8 0-1.2-1-2-2.2-2z" fill="currentColor"/><rect x="4" y="13.4" width="16" height="3.2" rx="1.4" fill="currentColor"/><path d="M5.4 20.2h13.2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M9.6 19.2l1.6 1.6 3.4-3.6" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0"/></svg></span><span class="profile-link-text"><b>Stamp Book</b><small>your task stickers</small></span><span class="profile-link-go" aria-hidden="true">›</span></button>
+      <button type="button" class="profile-link" id="stampBtn"><span class="profile-link-icon" aria-hidden="true"><svg class="profile-link-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c-1.2 0-2.2.8-2.2 2 0 1.6 1.2 2.2 1.2 3.8H8.6c-1.7 0-3 1.3-3 3v1.4h12.8v-1.4c0-1.7-1.3-3-3-3H13c0-1.6 1.2-2.2 1.2-3.8 0-1.2-1-2-2.2-2z" fill="currentColor"/><rect x="4" y="13.4" width="16" height="3.2" rx="1.4" fill="currentColor"/><path d="M5.4 20.2h13.2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M9.6 19.2l1.6 1.6 3.4-3.6" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0"/></svg></span><span class="profile-link-text"><b>Stamp Book</b><small>your trips and tasks</small></span><span class="profile-link-go" aria-hidden="true">›</span></button>
     </div>
   </form>
 </dialog>
@@ -1220,6 +1327,11 @@
     <button type="button" class="pill-btn" id="animBtn">Animation player</button>
     <button type="button" class="pill-btn" id="syncBtn">Sync log</button>
     <p class="dev-status" id="devStatus" aria-live="polite"></p>
+    <div class="dev-errors">
+      <h3>Recent errors</h3>
+      <p id="devErrorList"></p>
+      <div class="dev-errors-btns"><button type="button" class="pill-btn" id="devErrCopy">Copy</button><button type="button" class="pill-btn" id="devErrClear">Clear</button></div>
+    </div>
   </form>
 </dialog>
 
@@ -1241,6 +1353,7 @@
 <script src="app-actions.js"></script>
 <script src="app-petsheet.js"></script>
 <script src="app-dress.js"></script>
+<script src="app-petsubs.js"></script>
 <script src="app-closet.js"></script>
 <script src="app-shoot.js"></script>
 <script src="app-photo.js"></script>
@@ -1256,6 +1369,8 @@
 <script src="app-treats.js"></script>
 <script src="app-gift.js"></script>
 <script src="app-profile.js"></script>
+<script src="app-shop.js"></script>
+<script src="app-shopcal.js"></script>
 <script src="app-options.js"></script>
 <script src="app-sync.js"></script>
 <script src="app-account.js"></script>
@@ -1268,11 +1383,22 @@
 <script src="app-backdrop.js"></script>
 <script src="app-idle.js"></script>
 <script src="app-toy.js"></script>
+<script src="app-wreck.js"></script>
+<script src="app-steal.js"></script>
 <script src="app-bedtime.js"></script>
 <script src="app-night.js"></script>
 <script src="app-ring.js"></script>
 <script src="app-fade.js"></script>
 <script src="app-select.js"></script>
+<script src="app-birthday.js"></script>
+<script src="app-xmas.js"></script>
+<script src="app-halloween.js"></script>
+<script src="app-newyear.js"></script>
+<script src="app-easter.js"></script>
+<script src="app-kingsday.js"></script>
+<script src="app-dutch.js"></script>
+<script src="app-nlvoices.js"></script>
+<script src="app-lang.js"></script>
 <script src="app-start.js"></script>
 </body>
 </html>

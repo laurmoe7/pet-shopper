@@ -81,6 +81,15 @@ function walkEnd(b, area, dx) {
 }
 
 /**
+ * Where a window may stand on a screen: it may be partly off the sides (he peeks in), but at most 60% off the left and 40% off the right.
+ * @param {number} x The wanted left edge. @param {number} width The window's width. @param {{x:number,width:number}} disp The screen's full rectangle.
+ * @returns {number} The left edge, held to that.
+ */
+function keepPartlyOn(x, width, disp) {
+  return Math.max(Math.round(disp.x - width * 0.6), Math.min(Math.round(x), Math.round(disp.x + disp.width - width * 0.4)));
+}
+
+/**
  * Where Fumu hides to peek round the edge of the screen: the nearest side with no other screen next to it, so he
  * never shows up on the wrong monitor. Half of his window goes past the edge.
  * @param {Object} b  The window.
@@ -172,8 +181,8 @@ function perchBounds(b, seg) {
   var half = PERCH_BODY / 2, cx = Math.max(seg.x1 + half, Math.min(b.x + b.width / 2, seg.x2 - half));
   return { x: Math.round(cx - b.width / 2), y: Math.round(seg.y - b.height + perchSink(b)), width: b.width, height: b.height };
 }
-/** How far the bottom of his window reaches below the top of the window he sits on, so his soles just clip into it (21 px in a 250 px window). */
-function perchSink(b) { return Math.round(21 * b.height / 250); }
+/** How far the bottom of his window reaches below the top of the window he sits on, so his soles just clip into it (49 px in a 250 px window: 21 for the soles, 28 for the room under him that the page keeps, see `.stage` in styles.css). */
+function perchSink(b) { return Math.round(49 * b.height / 250); }
 
 /** The perch Fumu's window is standing on or just above or below (within `tol` px), if any. */
 function perchUnder(b, segs, tol) {
@@ -207,4 +216,4 @@ function hitTest(rects, x, y, pad) {
 
 module.exports = {
   hitTest: hitTest,  afterScreensChange: afterScreensChange, idleStep: idleStep, perches: perches, perchBounds: perchBounds, perchUnder: perchUnder, perchesNear: perchesNear, floorBounds: floorBounds, arcAt: arcAt, PERCH_BODY: PERCH_BODY,
-  SIZES: SIZES, sizeFactor: sizeFactor, resizeKeepingBottom: resizeKeepingBottom, within: within, nudge: nudge, corner: corner, walkEnd: walkEnd, peekSpot: peekSpot, tweenAt: tweenAt, MARGIN: MARGIN, visibleFraction: visibleFraction, defaultBounds: defaultBounds, startBounds: startBounds, listBounds: listBounds, dragBounds: dragBounds };
+  SIZES: SIZES, sizeFactor: sizeFactor, resizeKeepingBottom: resizeKeepingBottom, within: within, nudge: nudge, corner: corner, walkEnd: walkEnd, keepPartlyOn: keepPartlyOn, peekSpot: peekSpot, tweenAt: tweenAt, MARGIN: MARGIN, visibleFraction: visibleFraction, defaultBounds: defaultBounds, startBounds: startBounds, listBounds: listBounds, dragBounds: dragBounds };

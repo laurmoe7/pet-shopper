@@ -8,7 +8,7 @@
  *   { easter: 0 }                                days from Easter Sunday (Good Friday is -2, Easter Monday 1)
  *   { nth: [11, 4, 4] }                          the 4th Thursday of November: [month, weekday 0=Sunday..6, which one; -1 is the last]
  *   { birthday: true }                           the player's birthday (state.player.birthday, "MM-DD")
- * and may set: boxes (how many extra boxes, default 1), box (a key of BOXES, default 'special'), line (what Fumu says).
+ * and may set: party (the name of the celebration Fumu plays that day, shown in the Shop's calendar), boxes (how many extra boxes, default 1), box (a key of BOXES, default 'special'), line (what Fumu says).
  * The prizes are placeholders for now: they are only counted in pet.prizes. Replace them (and give `kind` and more fields) when real ones exist.
  */
 (function (root) {
@@ -38,22 +38,30 @@
   var BOXES = {
     daily: { label: 'Daily box', colour: '#ffb3c7', ribbon: '#fff6ec', table: 'daily' },
     special: { label: 'Special box', colour: '#ffd36e', ribbon: '#ff8fb1', table: 'party' },
-    birthday: { label: 'Birthday box', colour: '#b69cff', ribbon: '#ffe6b8', table: 'party' }
+    birthday: { label: 'Birthday box', colour: '#b69cff', ribbon: '#ffe6b8', table: 'party' },
+    christmas: { label: 'Christmas box', colour: '#e8445a', ribbon: '#ffe08a', table: 'party' },
+    halloween: { label: 'Halloween box', colour: '#ff9a3c', ribbon: '#8e5bff', table: 'party' },
+    easter: { label: 'Easter box', colour: '#ffb3d9', ribbon: '#9be3c3', table: 'party' },
+    kingsday: { label: "King's Day box", colour: '#ff8a1f', ribbon: '#fffaf0', table: 'party' }
   };
 
   /** The special days. Add a line to add a day. */
   var DAYS = [
-    { id: 'newyear', label: "New Year's Day", month: 1, day: 1 },
+    { id: 'newyear', label: "New Year's Day", month: 1, day: 1, party: "New Year's Day celebration" },
     { id: 'valentine', label: "Valentine's Day", month: 2, day: 14 },
     { id: 'goodfriday', label: 'Good Friday', easter: -2, boxes: 1 },
-    { id: 'easter', label: 'Easter', easter: 0, boxes: 2 },
+    { id: 'easter', label: 'Easter', easter: 0, boxes: 2, party: 'Easter celebration' },
+    { id: 'eastergift', label: "Fumu's Easter egg", easter: 0, box: 'easter', line: 'happy easter! ♡' },   // (the box he hands you in the Easter celebration, app-easter.js)
     { id: 'easter2', label: 'Easter Monday', easter: 1 },
-    { id: 'kingsday', label: "King's Day", month: 4, day: 27 },
-    { id: 'halloween', label: 'Halloween', month: 10, day: 31 },
+    { id: 'kingsday', label: "King's Day", month: 4, day: 27, notSunday: true, party: "King's Day celebration" },   // (27 April, or the 26th when the 27th is a Sunday)
+    { id: 'kingsdaygift', label: "Fumu's King's Day treat", month: 4, day: 27, notSunday: true, box: 'kingsday', line: "happy king's day! ♡" },   // (the box he hands you in the King's Day celebration, app-kingsday.js)
+    { id: 'halloween', label: 'Halloween', month: 10, day: 31, party: 'Halloween celebration' },
+    { id: 'halloweengift', label: "Fumu's Halloween treat", month: 10, day: 31, box: 'halloween', line: 'happy halloween! ♡' },   // (the box he hands you in the Halloween celebration, app-halloween.js)
     { id: 'sinterklaas', label: 'Sinterklaas', month: 12, day: 5 },
     { id: 'xmas', label: 'Christmas', month: 12, day: 24, days: 3, boxes: 2 },
+    { id: 'xmasgift', label: "Fumu's Christmas gift", month: 12, day: 25, box: 'christmas', line: 'merry christmas! ♡', party: 'Christmas celebration' },   // (the box he hands you in the Christmas celebration, app-xmas.js)
     { id: 'nye', label: "New Year's Eve", month: 12, day: 31 },
-    { id: 'birthday', label: 'Birthday!', birthday: true, box: 'birthday', boxes: 3, line: 'happy birthday!! ♡' }
+    { id: 'birthday', label: 'Birthday!', birthday: true, box: 'birthday', boxes: 3, line: 'happy birthday!! ♡', party: 'Birthday celebration' }
   ];
 
   /** @returns {string} The day as YYYY-MM-DD, by the local clock. */
@@ -74,7 +82,7 @@
       var m = day.nth[0] - 1, wd = day.nth[1], n = day.nth[2];
       if (n > 0) start = new Date(y, m, 1 + ((wd - new Date(y, m, 1).getDay() + 7) % 7) + (n - 1) * 7);
       else { var last = new Date(y, m + 1, 0); start = new Date(y, m, last.getDate() - ((last.getDay() - wd + 7) % 7)); }
-    } else start = new Date(y, day.month - 1, day.day);
+    } else { start = new Date(y, day.month - 1, day.day); if (day.notSunday && start.getDay() === 0) start.setDate(start.getDate() - 1); }
     var span = day.days || 1;
     for (var i = 0; i < span; i++) {
       var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);

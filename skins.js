@@ -26,6 +26,7 @@
     { id: 'siamese', base: 'kitty', label: 'Siamese' },
     { id: 'chihuahua', base: 'puppy', label: 'Chihuahua' },
     { id: 'pomeranian', base: 'puppy', label: 'Pomeranian' },
+    { id: 'blackpom', base: 'puppy', label: 'Black Pomeranian' },
     { id: 'golden', base: 'puppy', label: 'Golden retriever' },
     { id: 'shiba', base: 'puppy', label: 'Pink shiba' },
     { id: 'frenchie', base: 'puppy', label: 'French bulldog' },
@@ -48,6 +49,7 @@
     { id: 'whitehamster', base: 'hamster', label: 'White hamster' },
     { id: 'longhair', base: 'hamster', label: 'Long-haired' },
     { id: 'thrush', base: 'birdie', label: 'Thrush' },
-    { id: 'snowmonkey', base: 'monkey', label: 'Snow monkey' }
+    { id: 'snowmonkey', base: 'monkey', label: 'Snow monkey' },
+    { id: 'reddragon', base: 'dragon', label: 'Red dragon' }
   ];
 })(typeof self !== 'undefined' ? self : globalThis);

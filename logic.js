@@ -198,7 +198,9 @@
       guard: {
         day: (saved.guard && saved.guard.day) || '',
         words: (saved.guard && Array.isArray(saved.guard.words)) ? saved.guard.words : [],
-        lastSeen: (saved.guard && saved.guard.lastSeen) || 0
+        lastSeen: (saved.guard && saved.guard.lastSeen) || 0,
+        // the day of the last trip stamp (the stamp book's Trips): one a day
+        trip: (saved.guard && typeof saved.guard.trip === 'string') ? saved.guard.trip : ''
       }
     };
   }
@@ -262,7 +264,7 @@
    * @property {boolean} sounds       Eating sounds and squeaks.
    * @property {boolean} vibration    A little buzz on taps (phones that support it).
    * @property {boolean} daydreams    Thought clouds about the list.
-   * @property {boolean} suggestions  The pet now and then asks for something to add.
+   * @property {boolean} suggestions  The pet now and then suggests something to add to the shopping list (a switch in Options since build 591).
    * @property {boolean} fairPlayTips Messages about the fair-play rules, like
    *   "items count after 15 min". The rules still apply when this is off.
    * @property {boolean} goalToasts   The progress label under the pet after a bite.
@@ -272,7 +274,7 @@
    */
 
   /** The settings a new phone starts with: everything on. */
-  var DEFAULT_SETTINGS = { sounds: true, vibration: true, daydreams: true, suggestions: true, fairPlayTips: true, goalToasts: true, cardboard: true, time24: true, aisles: true };
+  var DEFAULT_SETTINGS = { sounds: true, vibration: true, daydreams: true, suggestions: false, fairPlayTips: true, goalToasts: true, cardboard: true, time24: true, aisles: true };
 
   /**
    * Fills in any settings missing from what was saved.
@@ -284,8 +286,8 @@
     Object.keys(DEFAULT_SETTINGS).forEach(function (k) {
       out[k] = saved && typeof saved[k] === 'boolean' ? saved[k] : DEFAULT_SETTINGS[k];
     });
-    // sounds, daydreams and suggestions are always on now (there is no switch for them; quiet mode mutes sound)
-    out.sounds = out.daydreams = out.suggestions = true;
+    // sounds and daydreams are always on now (there is no switch for them; quiet mode mutes sound)
+    out.sounds = out.daydreams = true;
     return out;
   }
 
@@ -803,6 +805,27 @@
     var real = items.filter(function (i) { return isFresh(i, now); }).length;
     if (real < TRIP_MIN_ITEMS) return result('small-trip');
     return record(profile, dayKey(now), matching);
+  }
+
+  /**
+   * Gives a stamp for a finished shopping trip (the stamp book's Trips, kept as `stamps.trip`). The same
+   * fair-play rules as the trip goals (enough items that sat on the list for a while, the clock in order),
+   * and one a day, so ticking a list on and off cannot fill the book.
+   * @param {PetProfile} profile  Changed in place.
+   * @param {Item[]} items  The finished list.
+   * @param {Date} now
+   * @returns {{stamped: boolean, count: number, blocked: ?string}} count is the trips stamped so far;
+   *   blocked is 'small-trip', 'clock', 'today' (already stamped today) or null.
+   */
+  function recordTripStamp(profile, items, now) {
+    var count = (profile.stamps && profile.stamps.trip) || 0;
+    if (!clockOk(profile, now)) return { stamped: false, count: count, blocked: 'clock' };
+    var real = items.filter(function (i) { return isFresh(i, now); }).length;
+    if (real < TRIP_MIN_ITEMS) return { stamped: false, count: count, blocked: 'small-trip' };
+    var today = dayKey(now);
+    if (profile.guard.trip === today) return { stamped: false, count: count, blocked: 'today' };
+    profile.guard.trip = today;
+    return { stamped: true, count: addStamp(profile, 'trip', 1), blocked: null };
   }
 
   /**
@@ -2285,6 +2308,7 @@
     countsFor: countsFor,
     recordEaten: recordEaten,
     recordTrip: recordTrip,
+    recordTripStamp: recordTripStamp,
     refundEaten: refundEaten,
     recordFavourite: recordFavourite,
     refundFavourite: refundFavourite,

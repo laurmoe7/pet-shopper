@@ -72,10 +72,15 @@ function identify(exe, mine) {
  * @param {Object} [mine]  Games the player taught him: file name (lower case) -> name.
  * @returns {{kind: string, name: string, fullscreen: boolean}}
  */
+/** Windows' own screens that cover a whole monitor without being a game or a video: the desktop itself (clicking the wallpaper), Start, Search, Task View, Alt-Tab,
+ *  the lock screen, the screenshot overlay. They must never count as "full-screen" (that would make him see-through for the mouse). */
+var SHELL_EXES = ['explorer.exe', 'searchhost.exe', 'searchapp.exe', 'startmenuexperiencehost.exe', 'shellexperiencehost.exe', 'applicationframehost.exe', 'textinputhost.exe',
+  'lockapp.exe', 'logonui.exe', 'screenclippinghost.exe', 'snippingtool.exe', 'systemsettings.exe', 'dwm.exe', 'taskmgr.exe', 'widgets.exe', 'sihost.exe'];
 function describe(exe, fullscreen, mine) {
+  if (fullscreen && typeof exe === 'string' && SHELL_EXES.indexOf(exe.toLowerCase()) !== -1) fullscreen = false;
   var known = identify(exe, mine);
   if (known) return { kind: known.kind, name: known.name, fullscreen: !!fullscreen };
   return { kind: exe ? (fullscreen ? 'fullscreen' : 'other') : 'none', name: '', fullscreen: !!fullscreen };
 }
 
-module.exports = { GAMES: GAMES, APPS: APPS, identify: identify, describe: describe };
+module.exports = { GAMES: GAMES, APPS: APPS, SHELL_EXES: SHELL_EXES, identify: identify, describe: describe };

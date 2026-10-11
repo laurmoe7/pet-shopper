@@ -4,15 +4,43 @@
 
 // ---------- options ----------
 $('buildLabel').textContent = 'Build ' + BUILD;
-/* Appearance (light or dark): Auto follows the phone. Kept on this device only (not in the pet's saved data). */
-var THEMES = [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Classic'], ['quest', 'Quest']];
+/* Appearance: one theme for the whole app and Mini Fumu (they always match). Auto follows the phone's light or dark. On the phone it is kept on the device only (not
+   in the pet's saved data); in the Windows app the shell keeps it (its alertStyle pref, so the settings window and both windows agree). */
+var THEMES = [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark'], ['sweet', 'Sweet'], ['quest2', 'Quest'], ['osrs', 'Old School'], ['bonfire', 'Bonfire']];
+/** Older saved names: the paper, night, cool, scribble and classic looks are gone (quest was replaced by quest2, build 544). */
+var OLD_THEMES = { quest: 'quest2', paper: 'light', night: 'dark', cool: 'light', scribble: 'light', classic: 'dark' };
+var currentTheme = 'auto';
 function applyTheme(t) {
-  var de = document.documentElement;
-  // Quest is a dark look with its own skin on top (data-skin), so everything that reads "dark" keeps working
-  if (t === 'quest') { de.dataset.theme = 'dark'; de.dataset.skin = 'quest'; }
-  else { delete de.dataset.skin; if (t === 'light' || t === 'dark') de.dataset.theme = t; else delete de.dataset.theme; }
-  de.classList.toggle('al-quest', t === 'quest' && !de.classList.contains('desktop-pet'));   // its bubbles and alerts use the Quest look too
+  var de = document.documentElement, pet = de.classList.contains('desktop-pet');
+  t = OLD_THEMES[t] || t;
+  if (!THEMES.some(function (x) { return x[0] === t; })) t = 'auto';
+  currentTheme = t;
+  // Quest (id quest2) is the base Quest rules with a second layer on top (data-quest="slots"); Old School is Quest plus data-quest="osrs"; Bonfire is Quest plus data-quest="bonfire" and shares
+  // Old School's rules. Sweet is a light skin of its own (data-skin="sweet"). Those skins restyle the whole app; the small window (Mini Fumu) only wears their al-* classes (cards, bubble, ring)
+  var skinned = t === 'quest2' || t === 'osrs' || t === 'bonfire';
+  if (pet || !(skinned || t === 'sweet')) { delete de.dataset.skin; delete de.dataset.quest; }
+  if (!pet && skinned) { de.dataset.skin = 'quest'; de.dataset.quest = t === 'quest2' ? 'slots' : t; }
+  if (!pet && t === 'sweet') de.dataset.skin = 'sweet';
+  if (skinned && !pet) de.dataset.theme = 'dark';
+  else if (t === 'sweet' && !pet) de.dataset.theme = 'light';
+  else if (t === 'light' || t === 'dark') de.dataset.theme = t;
+  else delete de.dataset.theme;
+  var want = { sweet: ['al-sweet'], quest2: ['al-quest', 'al-quest2'], osrs: ['al-osrs'], bonfire: ['al-bonfire'] }[t] || [];
+  ['al-sweet', 'al-quest', 'al-quest2', 'al-osrs', 'al-bonfire'].forEach(function (c) { de.classList.toggle(c, want.indexOf(c) !== -1); });
   setTimeout(function () { if (typeof refreshStickers === 'function') refreshStickers(); }, 50);   // the list's stickers are drawn in the new colours
+  setTimeout(themeColor, 0);
+}
+/** The phone's status bar (the theme-color meta) takes the page's own background, so it is not pink in Dark or Bonfire. */
+function themeColor() {
+  var meta = document.querySelector('meta[name="theme-color"]'), bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+  if (meta && bg) meta.content = bg;
+}
+if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', themeColor);   // Auto follows the phone
+/** The player picked a theme (the app's Appearance): the Windows shell keeps it for both windows and the settings window, the phone keeps it here. */
+function chooseTheme(t) {
+  applyTheme(t);
+  try { localStorage.setItem('nibble-theme', currentTheme); } catch (e) { /* storage not available */ }
+  if (window.nibbleDesktop && window.nibbleDesktop.setTheme) window.nibbleDesktop.setTheme(currentTheme);
 }
 var savedTheme = 'auto';
 try { savedTheme = localStorage.getItem('nibble-theme') || 'auto'; } catch (e) { /* storage not available */ }
@@ -24,6 +52,7 @@ var OPTIONS = [
   { key: 'aisles', title: 'Sort by aisle', text: '' },
   { key: 'time24', title: '24-hour time', text: '' },
   { key: 'goalToasts', title: 'Goal progress display', text: '' },
+  { key: 'suggestions', title: 'Shopping suggestions', text: '' },
   { key: 'fairPlayTips', title: 'Fair-play tips', text: 'The rules still apply when off.' }
 ];
 var themeRow = document.createElement('div');
@@ -34,16 +63,18 @@ themeBtns.className = 'theme-btns';
 THEMES.forEach(function (t) {
   var b = document.createElement('button');
   b.type = 'button'; b.className = 'pill-btn'; b.dataset.theme = t[0]; b.textContent = t[1];
-  b.setAttribute('aria-pressed', String(t[0] === savedTheme));
+  
   b.addEventListener('click', function () {
-    applyTheme(t[0]);
-    try { localStorage.setItem('nibble-theme', t[0]); } catch (e) { /* storage not available */ }
-    themeBtns.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    chooseTheme(t[0]);
+    syncThemeButtons();
     sound('pick');
   });
   themeBtns.appendChild(b);
 });
 themeRow.appendChild(themeBtns);
+/** Marks the picked theme (it can change from the shell, when it is picked in Mini Fumu's settings). */
+function syncThemeButtons() { themeBtns.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x.dataset.theme === currentTheme)); }); }
+syncThemeButtons();
 optionsList.appendChild(themeRow);
 OPTIONS.forEach(function (o) {
   var label = document.createElement('label');
@@ -71,6 +102,8 @@ optionsList.addEventListener('change', function (e) {
 });
 $('optionsBtn').addEventListener('click', function () {
   optionsList.querySelectorAll('input[data-key]').forEach(function (b) { b.checked = b.dataset.key === 'quiet' ? !state.quiet : state.settings[b.dataset.key]; });
+  var n = Errors.fresh.length;   // errors since the app opened (Developer tools has them)
+  $('buildLabel').textContent = 'Build ' + BUILD + (n ? ' \u00b7 ' + n + (n === 1 ? ' error' : ' errors') : '');
   openDialog(optionsSheet);
 });
 optionsSheet.addEventListener('click', function (e) { if (e.target === optionsSheet) optionsSheet.close(); });
@@ -116,9 +149,19 @@ var DEV_ACTIONS = [
     if (typeof window.deskRemind === 'function' && window.deskRemind([item])) return 'Reminder card shown.';
     say('A test reminder: time for your task!', 3000); return 'Said as a bubble (the card is for the desktop app).';
   } },
+  { label: 'Test a goal notification', run: function () { devSheet.close(); return devToasts('goal'); } },
+  { label: 'Test an unlocked notification', run: function () { devSheet.close(); return devToasts('unlock'); } },
+  { label: 'Test a trip stamp notification', run: function () { devSheet.close(); return devToasts('trip'); } },
   { label: 'Make Fumu ask for a snack', run: function () { return devWish(); } },
+  { label: 'Make Fumu steal an emoji', run: function () { return devSteal(); } },
   { label: 'Pretend it is the next special day (gifts)', run: function () { return devGiftCalendar(); } },
   { label: 'Shut today\'s gift boxes again', run: function () { return devGiftReset(); } },
+  { label: 'Play the birthday celebration', run: function () { devSheet.close(); return devBirthdayNow(); } },
+  { label: 'Play the Christmas celebration', run: function () { devSheet.close(); return devXmasNow(); } },
+  { label: 'Play the Halloween celebration', run: function () { devSheet.close(); return devHalloweenNow(); } },
+  { label: 'Play the New Year\'s Day celebration', run: function () { devSheet.close(); return devNewYearNow(); } },
+  { label: 'Play the Easter celebration', run: function () { devSheet.close(); return devEasterNow(); } },
+  { label: 'Play the King\'s Day celebration', run: function () { devSheet.close(); return devKingsDayNow(); } },
   { label: 'Make Fumu suggest an item', run: function () { return devSuggest(); } },
   { label: 'Fill with sample items', run: function () {
     if (isTodo()) { state.items = L.sortByDue(state.items.concat(sampleTodos()), todayKey()); return 'Sample to-dos added.'; }
@@ -132,19 +175,47 @@ var DEV_ACTIONS = [
     return 'Resetting…';
   } }
 ];
-DEV_ACTIONS.forEach(function (a, i) {
-  var b = document.createElement('button');
-  b.type = 'button';
-  b.dataset.i = i;
-  b.textContent = a.label;
-  if (a.danger) b.className = 'danger';
-  $('devActions').appendChild(b);
-});
+/** The developer tools are grouped into folding sections (build 625) so the list is not one long wall of buttons; the celebrations get short names. */
+var DEV_GROUPS = [
+  ['Time and progress', ['Day / night: real clock → day → night', 'Unlock everything', 'Lock everything again', 'Skip to tomorrow']],
+  ['Alerts and notifications', ['Test a Claude alert', 'Test a note alert', 'Test a link alert', 'Test a task reminder', 'Test a goal notification', 'Test an unlocked notification', 'Test a trip stamp notification']],
+  ['Celebrations', ['Play the birthday celebration', 'Play the Christmas celebration', 'Play the Halloween celebration', 'Play the New Year\'s Day celebration', 'Play the Easter celebration', 'Play the King\'s Day celebration']],
+  ['Fumu does something', ['Make Fumu ask for a snack', 'Make Fumu steal an emoji', 'Make Fumu suggest an item']],
+  ['Gifts', ['Pretend it is the next special day (gifts)', 'Shut today\'s gift boxes again']],
+  ['List and saved data', ['Fill with sample items', 'Clear the list', 'Reset names: yours, your birthday and Fumu\'s', 'Reset all saved data']]
+];
+var DEV_SHORT = { 'Play the birthday celebration': 'Birthday', 'Play the Christmas celebration': 'Christmas', 'Play the Halloween celebration': 'Halloween', 'Play the New Year\'s Day celebration': 'New Year\'s Day', 'Play the Easter celebration': 'Easter', 'Play the King\'s Day celebration': 'King\'s Day' };
+var devButtons = [];
+(function () {
+  var shown = {}, host = $('devActions');
+  function make(i) {
+    var a = DEV_ACTIONS[i], b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.i = i;
+    b.textContent = typeof a.label === 'function' ? a.label() : (DEV_SHORT[a.label] || a.label);
+    if (a.danger) b.className = 'danger';
+    devButtons[i] = b;
+    shown[i] = 1;
+    return b;
+  }
+  DEV_GROUPS.concat([['Other', []]]).forEach(function (g, gi) {
+    var idx = [];
+    DEV_ACTIONS.forEach(function (a, i) { var name = typeof a.label === 'function' ? null : a.label; if (gi < DEV_GROUPS.length ? g[1].indexOf(name) !== -1 : !shown[i]) idx.push(i); });
+    if (!idx.length) return;
+    var d = document.createElement('details'), s = document.createElement('summary'), grid = document.createElement('div');
+    d.className = 'dev-group'; s.textContent = g[0]; grid.className = 'dev-grid';
+    idx.forEach(function (i) { grid.appendChild(make(i)); });
+    d.append(s, grid);
+    host.appendChild(d);
+  });
+  DEV_ACTIONS.forEach(function (a, i) { if (typeof a.label === 'function' && !devButtons[i]) { /* a label that shows a state belongs to Other: made above when not matched */ } });
+})();
 $('devActions').addEventListener('click', function (e) {
   var b = e.target.closest('button');
   if (!b) return;
   sound('tap');
   devStatus.textContent = DEV_ACTIONS[b.dataset.i].run();
+  DEV_ACTIONS.forEach(function (a, i) { if (typeof a.label === 'function' && devButtons[i]) devButtons[i].textContent = a.label(); });   // (labels that show a state)
   refreshAll();
 });
 devNoWait.addEventListener('change', function () {
@@ -152,10 +223,26 @@ devNoWait.addEventListener('change', function () {
   sound(devNoWait.checked ? 'on' : 'off');
   save();
 });
+/** Recent errors (caught by the script at the top of index.html, window.Errors): the last few, with their build and time, so one can be reported from the phone. */
+function renderDevErrors() {
+  var list = Errors.list();
+  $('devErrorList').textContent = list.length ? list.map(Errors.line).join('\n') : 'None.';
+  $('devErrCopy').hidden = $('devErrClear').hidden = !list.length;
+}
+$('devErrCopy').addEventListener('click', function () {
+  sound('tap');
+  var text = Errors.text();
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () { devStatus.textContent = 'Copied.'; }, function () { devStatus.textContent = 'Could not copy.'; });
+  else devStatus.textContent = 'Could not copy.';
+});
+$('devErrClear').addEventListener('click', function () { sound('tap'); Errors.clear(); renderDevErrors(); });
 $('devBtn').addEventListener('click', function () {
   optionsSheet.close();
   devNoWait.checked = state.dev.noWait;
   devStatus.textContent = '';
+  renderDevErrors();
   openDialog(devSheet);
 });
 devSheet.addEventListener('click', function (e) { if (e.target === devSheet) devSheet.close(); });
+// the Pet page's gear (top right of its stage) opens the same Options
+$('dressOptionsBtn').addEventListener('click', function () { $('optionsBtn').click(); });

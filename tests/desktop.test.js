@@ -58,6 +58,7 @@ test('the desktop package lists the files it needs and the page script is wired 
   const html = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
   assert.ok(html.includes('src="app-desktop.js"'));
   assert.ok(html.indexOf('app-desktop.js') < html.indexOf('app-start.js'));
+  assert.ok(pkg.build.files.includes('loading.html'));   // (the loading card the window shows before the page arrives)
 });
 
 test('size names turn into zoom factors and unknown names are normal size', () => {
@@ -173,14 +174,14 @@ test('a window with no room above it (maximized) is not a perch, and edges are c
 test('he stands on an edge like on the taskbar, with his middle kept over it', () => {
   const b = { x: 0, y: 0, width: 320, height: 250 }, seg = { id: 'a', x1: 500, x2: 900, y: 600 };
   const on = P.perchBounds(b, seg);
-  assert.equal(on.y, 600 - 250 + 21);   // the soles clip a little into the window
+  assert.equal(on.y, 600 - 250 + 49);   // the soles clip a little into the window
   assert.equal(on.x + 160 >= 500 + 80 && on.x + 160 <= 900 - 80, true);
   assert.equal(P.perchBounds({ x: 3000, y: 0, width: 320, height: 250 }, seg).x + 160, 900 - 80);
 });
 
 test('a drop close to an edge snaps to it, a drop far above does not', () => {
   const segs = [{ id: 'a', x1: 500, x2: 900, y: 600 }];
-  const close = { x: 540, y: 600 - 250 + 21 - 25, width: 320, height: 250 };
+  const close = { x: 540, y: 600 - 250 + 49 - 25, width: 320, height: 250 };
   assert.equal(P.perchUnder(close, segs, 40).id, 'a');
   assert.equal(P.perchUnder(Object.assign({}, close, { y: close.y - 200 }), segs, 40), null);
   assert.equal(P.perchUnder(Object.assign({}, close, { x: 2000 }), segs, 40), null);
@@ -326,6 +327,10 @@ test('programs: listed games and apps are named, everything else is just "someth
   assert.deepEqual(G.describe(null, false), { kind: 'none', name: '', fullscreen: false });
   // a game she taught him, on top of the list (names cut to 40 characters)
   assert.deepEqual(G.describe('mygame.exe', false, { 'mygame.exe': 'My Game' }), { kind: 'game', name: 'My Game', fullscreen: false });
+  // Windows' own screens (the desktop wallpaper, Start, Alt-Tab, the screenshot overlay) fill a monitor but are not full-screen programs: they must not make him see-through for the mouse
+  assert.equal(G.describe('explorer.exe', true).fullscreen, false);
+  assert.equal(G.describe('StartMenuExperienceHost.exe', true).fullscreen, false);
+  assert.equal(G.describe('mystery.exe', true).fullscreen, true);
   Object.keys(G.GAMES).concat(Object.keys(G.APPS)).forEach((k) => assert.equal(k, k.toLowerCase()));
 });
 
@@ -388,4 +393,11 @@ test('copied text is read from the clipboard as a string even when Electron answ
   const m = fs.readFileSync(path.join(__dirname, '..', 'desktop', 'main.js'), 'utf8');
   assert.match(m, /Promise\.resolve\(clipboard\.readText\(\)\)/);
   assert.doesNotMatch(m, /String\(clipboard\.readText/);
+});
+
+test('a window may stand partly off the sides of a screen, no more than 60% off the left or 40% off the right', () => {
+  const disp = { x: 0, width: 1000 };
+  assert.equal(P.keepPartlyOn(500, 320, disp), 500);
+  assert.equal(P.keepPartlyOn(-900, 320, disp), -192);
+  assert.equal(P.keepPartlyOn(5000, 320, disp), 872);
 });

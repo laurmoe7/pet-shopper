@@ -6,6 +6,8 @@
     "test": "node --test",
     "preview": "node tools/build-preview.js",
     "preview:bump": "node tools/build-preview.js --bump",
-    "build:worker": "node tools/build-worker.js"
+    "build:worker": "node tools/build-worker.js",
+    "bump": "node tools/bump.js",
+    "bigpush": "node tools/bigpush.js"
   }
 }

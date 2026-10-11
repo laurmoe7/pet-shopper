@@ -1,6 +1,665 @@
 # Changelog
 
-What changed in Nibble, newest first. Build numbers match the one in Options.
+What changed in Fumufumu, newest first. Build numbers match the one in Options.
+
+## Build 631
+- Mini Fumu celebrations: no greeting card on the screen
+- Mini Fumu New Year: disco lights fill the whole screen
+- Mini Fumu New Year: blower confetti flies outside his room
+
+## Build 630
+- Mini Fumu settings: tabs along the top and sorted sections
+- Mini Fumu settings: Special days tab, a switch and Play for each celebration
+- Switch for covering the whole screen with celebration effects
+
+## Build 629
+- Shop opens on the Shop tab, with its two tabs staying at the top
+- Mini Fumu celebrations: a card asks first, then effects cover the whole screen
+- Special gift only once a year
+
+## Build 628
+- Black skins (black cat, black Pomeranian) get a darker outline
+- Shop: a new Special days tab with a calendar of celebrations and extra gifts, and what is coming up
+
+## Build 627
+- New Year's Day: gold and silver fireworks at the end (willow, crossette, palm, glitter and a finale volley), different from the birthday ones
+
+## Build 626
+- New skin: Black Pomeranian, with brown eyes
+
+## Build 625
+- Developer tools folded into sections with short names for the celebrations
+- King's Day: the windmill is gone and the tompouce has its layers right (pastry, cream, pastry, orange icing)
+
+## Build 624
+- King's Day celebration (27 April): crown, royal dance with a waving arm, orange and Dutch-flag bunting, balloons, confetti, a windmill, a brass-band polka, a tompouce with a flag and a real King's Day box in Profile
+- Celebrations pending on the same day no longer hold each other up
+
+## Build 623
+- Easter: bunny band centred on his head, egg emojis removed from the effects
+
+## Build 622
+- Celebration effects (ghosts, bats, snow, confetti, fireworks...) now go over the cards
+- Easter celebration on Easter Sunday: bunny ears, a bouncy bunny dance, flags, petals, butterflies, hopping eggs, a spring tune, an egg that hatches a chick and a real Easter egg in Profile
+
+## Build 621
+- Celebration banners slide up from the bottom, above the bottom bar, so they never cover him
+
+## Build 620
+- New Year's Day: the party blower is held in his mouth (beak, snout, whatever he is) and toots louder, with a longer big toot
+
+## Build 619
+- New Year's Day celebration on 1 January: gold party hat, disco ball with light spots, a disco dance with the pointing pose, disco music, and a party blower with confetti
+
+## Build 618
+- No toe beans when hands are held to the face or cover the eyes
+- Christmas lights blink like the Halloween ones, in Christmas colours
+
+## Build 617
+- Halloween: the screen goes dark except round his room, ghosts give off light, spooky flickering lantern and ghost lights, and a new monster mash dance
+
+## Build 616
+- Halloween celebration on 31 October: witch hat, party dance, bats, ghosts, spider webs, mist, pumpkin lights, spooky music, a trick-or-treat bucket and a real Halloween box in Profile
+- Christmas: the tree, gingerbread men and candy canes are gone again
+
+## Build 615
+- Christmas: a little tree pops up beside him, gingerbread men and candy canes fall with the snow, and he chats along
+
+## Build 614
+- Christmas celebration on 25 December: Santa hat, party dance, snow, lights, Jingle Bells, a gift box and a real Christmas box in Profile
+
+## Build 613
+- Birthday: he blows the candle out in the last second
+
+## Build 612
+- Birthday: the toy is put away for the party and pops back in after
+
+## Build 611
+- Fireworks redone: rockets, glowing streaks, rings, hearts and glitter, one every couple of seconds through the whole celebration
+
+## Build 610
+- Birthday tune: the Happy Birthday song, playing until the cake goes
+
+## Build 609
+- Birthday jingle plays during the celebration
+
+## Build 608
+- Birthday: Happy Birthday Name!, and it plays first when the app is opened that day, holding back alerts and other animations until it is over
+
+## Build 607
+- New birthday dance: bouncy party dance with lots of squash and stretch
+
+## Build 606
+- Birthday: party hat no longer lost when his outfit is drawn again
+- A couple more fireworks at the end
+
+## Build 605
+- Birthday: he hands you a cake at the end
+- Half as many fireworks
+
+## Build 604
+- Wrecking ball switch removed from Options (it stays in the ring menu)
+
+## Build 603
+- Free spirited dance removed
+- Birthday: chorus dance, fireworks, and the party hat stays on his head
+
+## Build 602
+- Developer tools: test goal, unlocked and trip stamp notifications
+
+## Build 601
+- Top bar a little higher
+- Goal and trip toasts moved to the top-left corner of the room, off Fumu
+
+## Build 600
+- Same room and top-bar size in every theme; Sweet loses the long bar
+
+## Build 599
+- Emoji thief freezes and looks around once it is in his paw
+
+## Build 598
+- One sit: feet out in front, everywhere he sat before
+- Middle click swaps Mini Fumu and the app from anywhere in the window
+
+## Build 597
+- Dutch: long words wrap inside the speech bubble
+- Add button is a plus in both languages
+
+## Build 596
+- Shopping suggestions off by default
+- Dutch: the Add symbol follows the theme (plus, strawberry in Sweet, flame in Bonfire)
+
+## Build 595
+- Dutch: the + button keeps the size of the English Add
+
+## Build 594
+- Dutch: the Add button is a + (the word was too long)
+
+## Build 593
+- Wrecking ball back in the ring menu
+
+## Build 592
+- Mic: Fumu puts a hand up to his ear while he listens
+
+## Build 591
+- Dutch language: pick it with the flags at the top of Options (first part of the app is translated)
+- Ring menu: the wrecking ball is gone from it (still in Options)
+
+## Build 590
+- Options: Shopping suggestions switch (turns off his shopping-list suggestions)
+
+## Build 589
+- App ring menu: feed him a snack
+
+## Build 588
+- Ring menu: a No toy switch next to the wrecking ball; the Show his toy setting is gone
+- Stamp book: Pets and Study are gone again (back in Care and Work)
+
+## Build 587
+- Pet tab: slimmer name field
+
+## Build 586
+- Pet tab: the Species, Skin and Persona buttons stay put under the tabs
+
+## Build 585
+- Pet tab: no search bar (hats, clothes and the rest keep it)
+
+## Build 584
+- Pet menu: Species, Skin and Persona are sub-tabs
+
+## Build 583
+- Stamp book: two more stamps, Pets and Study
+
+## Build 582
+- Finishing a shopping trip earns a trip stamp: Trips in the Stamp Book (one a day, 3 items or more)
+- All bought: the trip stamp thumps onto the receipt before the party, and Fumu says which trip it was
+- Animation player: trip stamp, trip done
+
+## Build 581
+- Mini Fumu: the solid-spot check does a little less work
+
+## Build 580
+- The app serves its own fonts: nothing is fetched from Google, and they work offline from the first open
+- A theme's font is only downloaded when it is worn
+
+## Build 579
+- Repeat opens load the app from the cache (one request instead of fifty)
+- A missing emoji no longer stops the app from updating
+- The phone's status bar follows the theme
+- README and changelog wording
+
+## Build 578
+- Developer tools: Recent errors (Copy, Clear)
+- Options: error count next to the build
+- Loading card says when Fumu could not start, with the error
+- A smoke test boots the page in Chromium before each deploy
+
+## Build 577
+- Dressing room: still mini pets on the species and skin tiles, drawn when the room first opens (opens faster, saves battery)
+
+## Build 576
+- Birthday celebration: the app rains confetti with a banner, Mini Fumu sends up balloons
+- Developer tools: play the birthday celebration
+- The app's wrecking ball flies 3 seconds shorter
+
+## Build 575
+- Free spirited dance: one slower leg cross, feet closer and touching
+
+## Build 574
+- Free spirited dance redone: arm pumps, paws shaking together, crossed legs
+
+## Build 573
+- Chorus dance: more squish and bounce, paw beside the right eye
+
+## Build 572
+- New idle dance: the free spirited dance (loose sway, bottom shake, big side leans)
+
+## Build 571
+- Chorus dance redone: paw under chin and turn left and right, one-leg bottom shake, paw to the eye
+
+## Build 570
+- Mini Fumu's Dark is the classic dark look again (the plum Night colours are gone)
+
+## Build 569
+- New idle dance: the chorus dance (sway, shimmy, arms up)
+
+## Build 568
+- Dragon: wing bones reach the body (no gap)
+
+## Build 567
+- Classic is now Dark; Auto follows the phone's light or dark
+
+## Build 566
+- One theme shared by the app and Mini Fumu; Light, Dark and new Sweet; Paper, Cool and Scribbling removed
+
+## Build 565
+- Scribbling: calmer (soft pastels, thin outlines, flat fills, straight rows, dotted notebook page)
+
+## Build 564
+- Shopping / To-do tabs replace the title text
+
+## Build 563
+- Bonfire: closer to the Dark Souls menu (bone frames, pale picked slots, double-line panels, small capitals)
+
+## Build 562
+- Shopping / To-do tabs under the title
+
+## Build 561
+- Bonfire: bottom bar buttons get slot corners, ember glow, dividers and a lit current page
+
+## Build 560
+- Options gear in the Pet menu, top right
+
+## Build 559
+- The light comes on when Fumu is fed or something is ticked off at night
+
+## Build 558
+- Fumu gets out of bed when anything is ticked off, on either list
+
+## Build 557
+- Loading card: the update check happens before the app shows, so it no longer loads twice
+
+## Build 556
+- Bonfire: pedestal on the reminder and update card icons
+
+## Build 555
+- Bonfire cards: icon on a bronze pedestal, no overlapping corner lines
+
+## Build 554
+- Bonfire: square gold close button on cards, flickering flame, gold tick, ember focus rings
+
+## Build 553
+- Bonfire: flame beside titles, square plan field
+
+## Build 552
+- Bonfire: more detail (corner brackets, flame titles, drifting embers, glowing picks, vignettes)
+
+## Build 551
+- Bonfire: Profile cards darker
+
+## Build 550
+- Bonfire: dark dressing-room stage, Profile cards, ember switches
+
+## Build 549
+- New look: Bonfire (App settings > Appearance, and a Mini Fumu alert style)
+
+## Build 548
+- Dizzy face while standing: he wobbles about a little
+
+## Build 547
+- Mini Fumu: loading card stays until fully loaded, no brown behind it
+
+## Build 546
+- New dragon skin: Red dragon
+
+## Build 545
+- Quest2 replaces the original Quest and is now called Quest
+
+## Build 544
+- Hand dance: smoother hand coming down
+
+## Build 543
+- Hand dance: quicker sway and push, like the video
+
+## Build 542
+- Morning exercise: nothing interrupts it, and he waits a second after it before talking
+
+## Build 541
+- Hand dance: eyes closed only while the hand is pushed out
+
+## Build 540
+- Morning exercise: no sinking into the floor on the toe touches and the shake
+
+## Build 539
+- Hand dance: three rounds, the hand grows only when pushed to the cheek, one-foot stand
+
+## Build 538
+- Old School: speech text stays inside the room
+
+## Build 537
+- Old School and Scribbling: room picture has the same rounded shape as the other looks
+
+## Build 536
+- Old School: rounded room frame that the picture fits
+- Scribbling: room picture fits the crayon frame
+
+## Build 535
+- Belly sway renamed hand dance
+
+## Build 534
+- Belly sway: the held-out hand grows toward you and shows its toe beans
+
+## Build 533
+- New idle dance: belly sway
+
+## Build 532
+- Morning exercise: hands reach to the toes, bigger bottom shake, says one two
+
+## Build 531
+- Before noon he dances first, then says hello and mentions what is due
+
+## Build 530
+- Morning exercise plays when you open the app or Mini Fumu before noon; a tap or key stops it
+
+## Build 529
+- Morning exercise: right arm now lifts, steps right after left, gentler squish, arms reach down to toes
+
+## Build 528
+- Morning exercise redone: arm and leg lifts, steps left with arm circles, toe touches, bottom shake, arms high
+
+## Build 527
+- Morning exercise: bigger squishes and moves
+
+## Build 526
+- New dance: morning exercise (animation player)
+
+## Build 525
+- Old School: square switches
+
+## Build 524
+- Scribbling: no button grain, crayon-stroke fills, doodles, marker underlines
+- Cool settings window: soft blue
+
+## Build 523
+- App wrecking ball: no flashing or starbursts, 3 seconds shorter
+- Cheeky remark every time he eats a stolen emoji
+
+## Build 522
+- Cool (Mini Fumu) redone as a light frosted-ice look
+- New Scribbling theme: colourful crayon (app and Mini Fumu)
+
+## Build 521
+- Loading card shows from the moment Mini Fumu starts, before the page arrives
+
+## Build 520
+- Quest and Quest2: empty tick circles are a plain pale ring
+
+## Build 519
+- Crumbs of a stolen emoji come out of his real mouth or beak, on every pet
+
+## Build 518
+- Old School: more detail (rivets, framed stage, striped rows)
+- Profile badge and icon wiggle to get noticed
+
+## Build 517
+- Wrecking ball in the app aims at things, breaks bigger chunks, flashes on big hits
+
+## Build 516
+- New Old School theme (app) and alert style (Mini Fumu)
+
+## Build 515
+- Wrecking ball in the app flies all over and sometimes breaks several pieces
+
+## Build 514
+- Swipe away Fumu's suggested food
+
+## Build 513
+- Wrecking ball can bounce into a window and break things inside
+
+## Build 512
+- Crumbs fly while he eats a stolen emoji
+- Tick circles match the board colours
+
+## Build 511
+- Loading card while the app starts
+
+## Build 510
+- Click-through only when you turn it on
+- Mini Fumu settings: Click-through switch (Ctrl+Alt+G)
+
+## Build 509
+- Fumu no longer turns see-through to the mouse by mistake (the desktop, Start, Alt-Tab, a game on another screen)
+
+## Build 508
+- Mini Fumu settings: the alert style choices no longer run over their name; Cool alert style redone as icy neon glass
+
+## Build 507
+- Wrecking ball over your desktop: after hitting a window it flies off in a random direction
+
+## Build 506
+- Quest2 alert cards: smooth metal, no stone noise
+
+## Build 505
+- Wrecking ball: the border of a thing breaks first, cracks no longer stack, the ball cannot get stuck; over your desktop it bounces off every window it meets
+
+## Build 504
+- Quest2 is its own appearance (Quest stays as it was); Mini Fumu gets a Quest2 alert style, speech bubble kept as Quest's
+
+## Build 503
+- Fumu walks down over the page to take the emoji with his paw, runs back and eats it
+
+## Build 502
+- Quest 2: the pictures in the Pet menu squares are bigger
+
+## Build 501
+- Quest 2: smooth bottom bar (no texture); Pet menu choices are square inventory slots
+
+## Build 500
+- Quest 2, second attempt: real stone texture, thin metal frames, dark slots, charcoal metal buttons
+
+## Build 499
+- New appearance: Quest 2 (stone panels, bronze frames, inventory-slot rows); Quest stays as it was
+
+## Build 498
+- Emoji snack: quick until you catch him each day, then rare until tomorrow
+
+## Build 497
+- Fumu steals emojis quicker and more often (first one about 20 seconds after opening)
+
+## Build 496
+- Animation player: steal an emoji works again
+
+## Build 495
+- Wrecking ball in the app: bounces off things and chips a few pieces each hit, like Breakout
+
+## Build 494
+- Taking his teddy and giving it back no longer leaves him stuck reaching
+
+## Build 493
+- Dizzy eyes stay through the whole fall off a window, also with an older installer
+
+## Build 492
+- Broken marks come in several looks (web, bullet hole, long crack, mosaic, dent, chip); in the app they sit on the things that break and fall with the pieces
+- The wand makes a magic sound when it fixes the wreckage
+
+## Build 491
+- Fumu sneaks an emoji off the shopping list and eats it; poke him and he spits it back
+- Dev tool: Make Fumu steal an emoji
+- App: double tap on Fumu opens a ring with the toys
+
+## Build 490
+- The night bell is in the app too: shake it to wake him, throw it and it breaks
+
+## Build 489
+- Knocked off a window: dizzy eyes from the first moment of the fall
+
+## Build 488
+- Fumu stands 15 px lower on the taskbar; spinning throws keep every part of him on screen
+
+## Build 487
+- Wrecking ball in the app: shatters piece by piece (picture, words, bar), also breaks the lamp and the gear
+
+## Build 486
+- Toys bounce down to the top of the taskbar (all toys, wrecking ball too)
+
+## Build 485
+- Fumu stays behind the clock and tray menus (no more stepping aside)
+- Fumu no longer sits over the taskbar: he stands on top of it
+
+## Build 484
+- Wrecking ball in the app: it knocks the list, add bar and buttons off the page, then the wand fixes them
+- Options: Wrecking ball switch
+
+## Build 483
+- Wrecking ball: windows crack like glass instead of breaking into pieces
+
+## Build 482
+- Wrecking ball: no screen capture (it stalled the PC), pale rim so the ball shows on dark windows, lighter overlay
+
+## Build 481
+- Wrecking ball: smaller screen picture (less stall at the throw)
+
+## Build 480
+- Wrecking ball: no lag at the throw, bounces like a real ball, broken spots look like a broken TV, no white outline on pieces
+
+## Build 479
+- Wrecking ball: broken pieces vanish and fall with what was on them
+- Wand no longer cut off after the wrecking ball
+
+## Build 478
+- Fumu runs back to his spot after the clock or tray menu, even if the mouse stays in that corner.
+
+## Build 477
+- The wrecking ball breaks windows piece by piece: each piece it touches breaks off with a glass noise (needs the new installer).
+
+## Build 476
+- New toy: the wrecking ball. Pick it with the toy switch in the ring menu (it replaced Pat).
+- Throw it and it breaks your open windows for 10 seconds while Fumu chases it, then his wand fixes them (needs the new installer).
+- He also stays aside while a menu is open above the clock or tray.
+
+## Build 475
+- Fumu steps aside while you hover the clock or tray, so its note is not hidden behind him.
+
+## Build 474
+- Removed a few unused styles and one unused function.
+
+## Build 473
+- Tools for me: bump, screenshots, video sheets and big push scripts; one script list less.
+
+## Build 472
+- The Quest theme uses the normal font size again.
+
+## Build 471
+- The arrow on a speech bubble attaches properly in the app too.
+
+## Build 470
+- He sits right on top of a window again (he floated 28 px above it).
+- After falling on his head he stands up first, then runs back (needs the new installer).
+
+## Build 469
+- New way to hold the ball: the app moves it to the mouse itself, so it follows smoothly (needs the new installer).
+
+## Build 468
+- Fixed an error window that could pop up while the ball was moved (needs the new installer).
+
+## Build 467
+- The ball stays visible while it is picked up: the page draws it until the screen-wide window really has its picture (needs the new installer).
+- Fewer messages to the ball's window while dragging.
+
+## Build 466
+- Reminder and alert cards are no longer cut off at the start: the room for them is worked out at once.
+
+## Build 465
+- Alert cards no longer push Fumu down: the card sits a little lower, and he only drops if a tall card really needs the room.
+
+## Build 464
+- The ball chase lasts 5 seconds at most, then he jumps and gets it.
+- He jumps now and then while chasing the ball.
+
+## Build 463
+- The ball moves smoothly while you drag it (needs the new installer).
+- His feet run while he carries the ball.
+
+## Build 462
+- Picking up the ball no longer blinks out, and shows up at once (needs the new installer).
+
+## Build 461
+- After a ball catch he returns to his exact old spot (he also comes back to the middle of his window, not only the window).
+
+## Build 460
+- During a ball chase his legs keep walking while the window runs after the ball (no more sliding).
+
+## Build 459
+- The dragon no longer walks so far that the window edge cuts his wings.
+
+## Build 458
+- Dragon has a lower lip line under his smile.
+
+## Build 457
+- Dragon is 10% bigger (was 20%); no pet can be bigger than that.
+
+## Build 456
+- New carry pose: he holds the ball low in front of him on the run back, no longer with paws over his eyes.
+
+## Build 455
+- The dragon's wings count as part of him at the edge of the screen, so they are no longer cut off.
+
+## Build 454
+- Hamster and dragon sizes now really apply (hamster 20% smaller like the munchkin, dragon 20% bigger).
+
+## Build 453
+- After catching the ball he carries it back with his arms round it, and the run back is faster.
+
+## Build 452
+- Picking up the ball is quicker: its picture and window are made ahead of time (needs the new installer for the window part).
+
+## Build 451
+- Hamster: eyes 50% bigger with a second highlight, and 20% smaller overall.
+- Dragon: 20% bigger.
+
+## Build 450
+- When a ball chase drags on, the ball drifts in and drops to him, and he jumps up and grabs it (no more flying across the screen).
+
+## Build 449
+- Fumu's catch is a proper jump: the ball swings into his hands at the top and comes down with him.
+
+## Build 448
+- After a ball chase Fumu runs back to the exact spot he started from.
+
+## Build 447
+- The nap now plays from the animation player.
+
+## Build 446
+- The bell no longer flickers when you hold it over the taskbar (needs the new installer).
+
+## Build 445
+- After an alert Fumu slides back sideways only; he no longer ends up higher than he started (needs the new installer).
+
+## Build 444
+- The Shop is always on for the test; the Developer tools switch is gone.
+- Premium lists phone-and-computer syncing and household syncing; the cancel line is gone.
+
+## Build 443
+- Tapping the greyed Shop button says how to switch it on; the Developer tools switch shows whether it is on or off.
+
+## Build 442
+- Alert cards no longer make Fumu move up and down: the card sits a little lower instead.
+
+## Build 441
+- No flicker or freeze when the bed lands after a throw.
+
+## Build 440
+- Quest appearance: bigger text so it is easier to read.
+
+## Build 439
+- A test Shop with a premium card and cosmetic packs (nothing can be bought). Switch it on in Developer tools.
+
+## Build 438
+- No sinking when the bed lands after being thrown.
+
+## Build 437
+- The bed springs back to its place in a few bounces instead of sliding.
+
+## Build 436
+- Thrown in his bed, the bed returns to where it was after it lands.
+
+## Build 435
+- No toe beans when he covers his face with his hands (you see the backs of his hands).
+
+## Build 434
+- The dizzy face after a throw lasts about 3.5 seconds.
+- After an alert slid him onto the screen he goes back exactly to where he was, even half off the screen.
+
+## Build 433
+- He can sit over the taskbar again (the window stays above it).
+- While spinning he no longer gets cut off at the screen edge: the walls move in as his spin swings out.
+- The dizzy face stays for 1.5 seconds after he lands from a throw.
+
+## Build 432
+- (Taskbar change tried and taken back in 433.)
+
+## Build 431
+- Claude alerts: the wand celebration plays right after the card appears.
 
 ## Build 430
 - He sits down while he naps.

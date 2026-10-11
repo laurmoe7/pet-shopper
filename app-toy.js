@@ -111,6 +111,11 @@ function mouthHeight() { return Math.round(pet.offsetHeight * 0.285 - 9); }
  */
 function playToy() {
   if (playing) return;
+  if (typeof toyKind === 'function' && toyKind() === 'wrecker') {   // (the wrecking ball is only thrown: grab it)
+    if (!busy) say(pick(['grab it and throw it!', 'throw me… I mean it!']), 1500);
+    if (!reduceMotion) toyBall.animate([{ transform: 'rotate(0)' }, { transform: 'rotate(-20deg)' }, { transform: 'rotate(14deg)' }, { transform: 'rotate(0)' }], { duration: 450 });
+    return;
+  }
   if (busy || baseState() === 'sleepy') {
     // something else is going on: the toy just wobbles
     if (!reduceMotion) toyBall.animate([{ transform: 'rotate(0)' }, { transform: 'rotate(-20deg)' }, { transform: 'rotate(14deg)' }, { transform: 'rotate(0)' }], { duration: 450 });
@@ -196,8 +201,10 @@ function batAbout(side) {
 }
 /** With the toy in his mouth or arms (h px up) he carries it back to where he stood when it was thrown (the desktop app; the window runs). */
 function carryBack(h) {
-  toyHold(h, walkX, 150);
-  if (typeof deskToyReturn !== 'function') return Promise.resolve();
+  if (typeof deskToyReturn !== 'function') { toyHold(h, walkX, 150); return Promise.resolve(); }
+  // his window runs back to where it stood, so he has to come back to the middle of it too, or he ends up that far from his old spot (the toy goes with him)
+  var wms = walkTo(0, toyPace(5));
+  toyHold(h, 0, wms || 150);
   pet.classList.add('running');
   return deskToyReturn().then(function () { pet.classList.remove('running'); });
 }
@@ -221,6 +228,7 @@ function fetchBack() {
 /** Hugs the toy for a moment, then lets it roll off a little. */
 function hugToy() {
   sound('squeak');
+  setFace({ eyes: 'happy', mouth: 'smile', arms: 'carry', x: ['cheeks'] });   // (arms under it while he carries it back, not up in the air as for the catch)
   toyHold(14, walkX);
   return carryBack(14).then(hugIt);
 }
@@ -253,11 +261,11 @@ function endField(y) {
   toyEl.style.translate = Math.round(toyX) + 'px 0';
   toyBall.style.transform = y > 0 ? 'translateY(' + (-y).toFixed(1) + 'px)' : '';
 }
-/** @returns {{minX: number, maxX: number, maxY: number}} Where the toy can go: px from the middle, px above the floor. */
+/** @returns {{minX: number, maxX: number, maxY: number, minY: number}} Where the toy can go: px from the middle, px above his floor (minY: the lowest, 0 in the page; over the screen it is the top of the taskbar). */
 function toyLimits() {
   if (toyField) return toyField.lim;
   var w = stage.clientWidth;
-  return { minX: -w / 2 + 18, maxX: w / 2 - 18, maxY: stage.clientHeight - 3 - 32 - 8 };
+  return { minX: -w / 2 + 18, maxX: w / 2 - 18, maxY: stage.clientHeight - 3 - 32 - 8, minY: 0 };
 }
 /** Puts the toy at x (px from the middle), y (px above the floor), turned by spin degrees. */
 function placeToy(x, y, spin) {
@@ -305,7 +313,7 @@ toyEl.addEventListener('pointermove', function (e) {
     stopOverHead(held);
     setFace({ eyes: 'sparkle', mouth: 'open', arms: 'reach', x: ['cheeks'] });
   }
-  held.y = Math.max(0, Math.min(lim.maxY, st.bottom - 19 - e.clientY));
+  held.y = Math.max(lim.minY || 0, Math.min(lim.maxY, st.bottom - 19 - e.clientY));
   placeToy(Math.max(lim.minX, Math.min(lim.maxX, e.clientX - (st.left + st.width / 2))), held.y, 0);
   held.pts.push({ x: e.clientX, y: e.clientY, t: e.timeStamp });
   if (held.pts.length > 5) held.pts.shift();
@@ -321,6 +329,7 @@ function letGoToy() {
   stopOverHead(h);
   held = null;
   if (!h.moved) return; // a tap: the click tosses it
+  if (toyField && toyField.release) toyField.release();   // (the shell stops following the mouse; the throw moves the window from the page)
   skipClick = true;
   var a = h.pts[0], z = h.pts[h.pts.length - 1], dt = Math.max(16, z.t - a.t) / 1000;
   var vx = (z.x - a.x) / dt, vy = -(z.y - a.y) / dt, speed = Math.hypot(vx, vy);
@@ -328,6 +337,8 @@ function letGoToy() {
   var boost = toyField ? 2.2 : 1, cap = 1500 * boost;
   vx *= boost; vy *= boost; speed *= boost;
   if (speed > cap) { vx *= cap / speed; vy *= cap / speed; }
+  if (typeof wreckWanted === 'function' && wreckWanted()) { wreckFling(vx, vy, h.y); return; }   // (the wrecking ball: app-wreck.js)
+  if (typeof pageWreckWanted === 'function' && pageWreckWanted()) { pageWreck(vx, vy, z.x, z.y); return; }   // (the same ball in the page itself)
   fling(vx, vy, h.y);
 }
 toyEl.addEventListener('pointerup', letGoToy);
@@ -352,43 +363,47 @@ function fling(vx, vy, y) {
   setFace({ eyes: 'sparkle', mouth: 'o', arms: 'reach', x: [] });
   eyesDo('wide');
   pet.classList.add('running');
-  var lim = toyLimits(), x = toyX, spin = 0, start = performance.now(), last = start, chaseAt = 0;
+  var lim = toyLimits(), flo = lim.minY || 0, x = toyX, spin = 0, start = performance.now(), last = start, chaseAt = 0;   // (flo: the floor it bounces on)
   var catchAt = playStyle() === 'fetch' ? mouthHeight() : 14, frog = playStyle() === 'tongue';
   // over the whole screen it flies longer: lighter gravity, livelier bounces, and he waits a while before he may catch it
-  var followAt = 0, wide = !!toyField, gravity = wide ? 950 : 1500, wallK = wide ? 0.92 : 0.75, floorK = wide ? 0.74 : 0.6, grace = wide ? 3000 : 250, maxMs = wide ? 12000 : 7000;
+  var followAt = 0, wide = !!toyField, gravity = wide ? 950 : 1500, wallK = wide ? 0.92 : 0.75, floorK = wide ? 0.74 : 0.6, grace = wide ? 1500 : 250, maxMs = 7000, CHASE_MS = 5000, jumpAt = performance.now() + 700;
   cancelAnimationFrame(flight);
   if (reduceMotion) { placeToy(x, 0, 0); landed(); return; }
   // if the chase drags on he jumps at the toy and gets it
-  var leapAfter = toyTired() ? Infinity : wide ? 6500 : 3200;   // (drowsy, he does not manage the jump)
+  var leapAfter = toyTired() ? Infinity : wide ? 3000 : 2500;   // (the toy starts to drift in to him; the chase never lasts more than CHASE_MS)   // (drowsy, he does not manage the jump)
   function leap() {
     var px0 = parseFloat(getComputedStyle(pet).translate) || 0, fx = x, fy = y, t0 = performance.now(), svg = pet.querySelector('.pet-svg');
-    // he springs up off the floor as the toy swings in to him in an arc, and catches it at the top
-    if (svg && svg.animate) svg.animate([{ translate: '0 0' }, { translate: '0 -6px', offset: .15 }, { translate: '0 -38px', offset: .7 }, { translate: '0 0' }], { duration: 760, easing: 'ease-out' });
+    // he springs up off the floor, the toy swings in to his hands in an arc, and he grabs it at the top of the jump (the ball then rides down with him)
+    var JUMP = 850, UP = 38;
+    if (svg && svg.animate) svg.animate([{ translate: '0 0' }, { translate: '0 -6px', offset: .15 }, { translate: '0 -' + UP + 'px', offset: .7 }, { translate: '0 0' }], { duration: JUMP, easing: 'ease-out' });
     pulse('hop', 500);
     (function fly(n) {
-      var u = Math.min(1, (n - t0) / 600), e = u * u * (3 - 2 * u);
-      placeToy(fx + (px0 - fx) * e, fy + (catchAt + 14 - fy) * e + 34 * 4 * u * (1 - u), spin + u * 200);
+      var u = Math.min(1, (n - t0) / JUMP), k = Math.min(1, u / .7), e = k * k * (3 - 2 * k);
+      var hands = catchAt + 14 + (u < .7 ? UP * Math.min(1, u / .7) : UP * (1 - (u - .7) / .3));   // (where his hands are: up with the jump, then back down)
+      placeToy(fx + (px0 - fx) * e, fy + (hands - fy) * e + (u < .7 ? 34 * 4 * k * (1 - k) : 0), spin + u * 240);
       if (u < 1) flight = requestAnimationFrame(fly); else if (frog) caught(px0, catchAt); else caught();
     })(t0);
   }
   function step(now) {
     var dt = Math.min(0.033, (now - last) / 1000);
     last = now;
-    vy -= gravity * dt;
+    var tired = now - start > leapAfter;   // the chase drags on: the toy drifts in towards him and drops, so he can jump up and grab it where he stands
+    if (tired) { var pxNow = parseFloat(getComputedStyle(pet).translate) || 0; vx += (pxNow - x) * 2.5 * dt; vx *= 1 - 1.2 * dt; }
+    vy -= gravity * (tired ? 1.7 : 1) * dt;
     x += vx * dt;
     y += vy * dt;
     // bounce off the sides, the top and the floor of the room
     if (x < lim.minX) { x = lim.minX; vx = -vx * wallK; sound('bounce'); }
     if (x > lim.maxX) { x = lim.maxX; vx = -vx * wallK; sound('bounce'); }
     if (y > lim.maxY) { y = lim.maxY; vy = -Math.abs(vy) * 0.6; }
-    if (y < 0) {
-      y = 0;
+    if (y < flo) {
+      y = flo;
       if (vy < -140) sound('bounce');
       vy = -vy * floorK;
       if (vy < 70) vy = 0;
       vx *= 0.88;
     }
-    if (y === 0 && vy === 0) vx *= Math.pow(0.3, dt); // rolling to a stop
+    if (y === flo && vy === 0) vx *= Math.pow(0.3, dt); // rolling to a stop
     spin += vx * dt * 2.4;
     placeToy(x, y, spin);
     // the pet runs to where the toy is heading
@@ -401,13 +416,20 @@ function fling(vx, vy, y) {
     pet.style.setProperty('--look-x', (x > walkX ? 3.2 : -3.2) + 'px');
     var px = parseFloat(getComputedStyle(pet).translate) || 0;
     // (only when it is close: a toy far across the screen would otherwise swing over to him in one jump)
-    if (now - start > leapAfter && Math.abs(x - px) < 240) { leap(); return; }
+    if (now - start > leapAfter + 1500 && Math.abs(x - px) < 240 && y < 160) { leap(); return; }
+    if (now - start > CHASE_MS && !toyTired()) { leap(); return; }   // five seconds is enough: he jumps and gets it wherever it is
+    // now and then he jumps up for it, so he is not just sliding along the floor
+    if (now > jumpAt) {
+      jumpAt = now + 900 + Math.random() * 800;
+      var jsvg = pet.querySelector('.pet-svg');
+      if (jsvg && jsvg.animate && !reduceMotion) jsvg.animate([{ translate: '0 0' }, { translate: '0 -22px', offset: .5 }, { translate: '0 0' }], { duration: 440, easing: 'ease-out' });
+    }   // (a last resort: a short swing, never from the top of the screen)
     // caught: coming down at the right height, right in front of the pet
     // a frog snatches it out of the air with its tongue once it is within reach
     if (frog && now - start > grace && y > 6 && Math.hypot(x - px, y - mouthHeight()) < 115) { caught(x, y); return; }
     // a cat does not catch it out of the air: it waits for it to land, then hunts it on the floor (landed > getIt > batAbout)
-    if (playStyle() !== 'bat' && now - start > grace && vy <= 0 && y < catchAt + 18 && y > catchAt - 24 && Math.abs(x - px) < 30) { caught(); return; }
-    if ((y === 0 && vy === 0 && Math.abs(vx) < 14) || now - start > maxMs) { landed(); return; }
+    if (playStyle() !== 'bat' && now - start > grace && vy <= 0 && y < catchAt + (tired ? 44 : 18) && y > catchAt - 24 && Math.abs(x - px) < (tired ? 45 : 30)) { caught(); return; }   // (tired: he jumps up for it)
+    if ((y === flo && vy === 0 && Math.abs(vx) < 14) || now - start > maxMs) { landed(); return; }
     flight = requestAnimationFrame(step);
   }
   flight = requestAnimationFrame(step);

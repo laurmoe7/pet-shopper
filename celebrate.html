@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Celebration</title>
+<!-- The celebration overlay (build 629): Mini Fumu's window opens this over the whole screen, click-through and transparent, when the player says yes to a
+     celebration card. It runs the app's own effect functions (the same files the app uses) on a layer the size of the screen, around where Fumu stands.
+     Nothing here is the app: a small stand-in below gives those files the few things they ask for, and the date is made-up so their own start-up code stays quiet. -->
+<style>
+html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; pointer-events: none; }
+@keyframes bf-ember { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: .9; } 100% { transform: translateY(-40px); opacity: 0; } }
+</style>
+</head>
+<body>
+<script>
+'use strict';
+// ---- the stand-in for the app ----
+var P = new URLSearchParams(location.search);
+var CELEB = { kind: P.get('kind') || '', name: (P.get('name') || '').slice(0, 24), ms: +P.get('ms') || 9000, total: +P.get('total') || 15000, lang: P.get('lang') === 'nl' ? 'nl' : 'en',
+  x: +P.get('x') || 0, y: +P.get('y') || 0, w: +P.get('w') || 320, h: +P.get('h') || 250 };
+var reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+var Lang = { get: function () { return CELEB.lang; } };
+var state = { player: { name: CELEB.name, birthday: '' }, pet: {}, settings: {} };
+var busy = 0;
+function giftDate() { return new Date(2001, 6, 1); }   // (never a special day: the celebration files' own start-up code finds nothing to do)
+function sound() {}   // (the page in his window plays the music; this window is silent)
+function danceSquish() { return []; }
+function danceCss() { return ''; }
+function T(s) { return s; }
+function petTop() { return { x: 0, y: 0 }; }
+var fakeRect = { left: CELEB.x, top: CELEB.y, width: CELEB.w, height: CELEB.h, right: CELEB.x + CELEB.w, bottom: CELEB.y + CELEB.h, x: CELEB.x, y: CELEB.y };
+var pet = { getBoundingClientRect: function () { return fakeRect; }, querySelector: function () { return null; }, querySelectorAll: function () { return []; }, classList: { contains: function () { return false; } }, dataset: {} };
+var stage = pet;
+</script>
+<script src="bonuses.js"></script>
+<script>var B = Bonuses; function baseState() { return 'happy'; }</script>
+<script src="app-birthday.js"></script>
+<script src="app-xmas.js"></script>
+<script src="app-halloween.js"></script>
+<script src="app-newyear.js"></script>
+<script src="app-easter.js"></script>
+<script src="app-kingsday.js"></script>
+<script src="celebrate-fx.js"></script>
+</body>
+</html>
