@@ -4139,3 +4139,5 @@ html[data-scene$="clip"] .pet.freespirit .arm-l, html[data-list="todo"] .pet.fre
 .pet-subs-none { display: none; text-align: center; }
 .pet-subbed:not(.pet-filtering)[data-sub="skin"] #skinField[hidden] + .pet-subs-none { display: block; }
 .pet-subbed.pet-filtering .pet-subs { display: none; }   /* a search looks through all three */
+/* no search bar on the Pet tab (it has the sub-tabs now); the other tabs keep it */
+#dressSheet:has(.pet-subbed):has(#dressTabs [data-tab="pet"][aria-selected="true"]) #dressSearch { display: none; }
