@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 595
+- Dutch: the + button keeps the size of the English Add
+
 ## Build 594
 - Dutch: the Add button is a + (the word was too long)
 

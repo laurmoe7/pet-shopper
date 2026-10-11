@@ -4155,3 +4155,6 @@ html[data-scene$="clip"] .pet.freespirit .arm-l, html[data-list="todo"] .pet.fre
 .pet[data-arms="listen"] .arm-r { transform: translate(1px, -19px) rotate(-122deg); animation: listen-lean 1.8s ease-in-out infinite; }
 .pet[data-arms="listen"] .arm-l { animation: sway-l 2.6s ease-in-out infinite; }
 @keyframes listen-lean { 0%, 100% { transform: translate(1px, -19px) rotate(-122deg); } 50% { transform: translate(1px, -20px) rotate(-127deg); } }
+
+/* Dutch: the Add button shows a + (app-dutch.js) but keeps the width of the English word, so the add bar looks the same in both languages */
+html[lang="nl"] .add-btn::before { content: "Add"; display: block; height: 0; visibility: hidden; overflow: hidden; }
