@@ -103,7 +103,9 @@ test('the build number shown in Options matches the service worker cache, so a s
   const app = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
   assert.equal(sw.match(/CACHE = 'nibble-v(\d+)'/)[1], app.match(/var BUILD = '(\d+)'/)[1]);
   assert.match(html, /id="buildLabel"/);
-  assert.match(sw, /fetch\(e\.request, \{ cache: 'no-cache' \}\)/, 'the app files come from the network first');
+  // the app's files come from this build's cache (build 579); a new build is found by the update check the page makes while its loading card is up
+  assert.match(sw, /caches\.match\(e\.request, \{ ignoreSearch: true \}\)\.then\(function \(hit\) \{\s*return hit \|\| fetch\(e\.request\)/, 'the app files come from the cache first');
+  assert.match(fs.readFileSync(path.join(__dirname, '..', 'app-start.js'), 'utf8'), /reg\.update\(\)/, 'the page looks for a newer build on every open');
 });
 
 test('plain ellipses sit under the head and the penguin skin belly, so a GPU hairline crack inside a big path shows skin, not the background', () => {
