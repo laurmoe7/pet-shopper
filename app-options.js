@@ -28,7 +28,14 @@ function applyTheme(t) {
   var want = { sweet: ['al-sweet'], quest2: ['al-quest', 'al-quest2'], osrs: ['al-osrs'], bonfire: ['al-bonfire'] }[t] || [];
   ['al-sweet', 'al-quest', 'al-quest2', 'al-osrs', 'al-bonfire'].forEach(function (c) { de.classList.toggle(c, want.indexOf(c) !== -1); });
   setTimeout(function () { if (typeof refreshStickers === 'function') refreshStickers(); }, 50);   // the list's stickers are drawn in the new colours
+  setTimeout(themeColor, 0);
 }
+/** The phone's status bar (the theme-color meta) takes the page's own background, so it is not pink in Dark or Bonfire. */
+function themeColor() {
+  var meta = document.querySelector('meta[name="theme-color"]'), bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+  if (meta && bg) meta.content = bg;
+}
+if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', themeColor);   // Auto follows the phone
 /** The player picked a theme (the app's Appearance): the Windows shell keeps it for both windows and the settings window, the phone keeps it here. */
 function chooseTheme(t) {
   applyTheme(t);

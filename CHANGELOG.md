@@ -1,6 +1,12 @@
 # Changelog
 
-What changed in Nibble, newest first. Build numbers match the one in Options.
+What changed in Fumufumu, newest first. Build numbers match the one in Options.
+
+## Build 579
+- Repeat opens load the app from the cache (one request instead of fifty)
+- A missing emoji no longer stops the app from updating
+- The phone's status bar follows the theme
+- README and changelog wording
 
 ## Build 578
 - Developer tools: Recent errors (Copy, Clear)
