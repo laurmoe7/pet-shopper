@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 593
+- Wrecking ball back in the ring menu
+
 ## Build 592
 - Mic: Fumu puts a hand up to his ear while he listens
 
