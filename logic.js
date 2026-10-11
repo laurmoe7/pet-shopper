@@ -268,13 +268,14 @@
    * @property {boolean} fairPlayTips Messages about the fair-play rules, like
    *   "items count after 15 min". The rules still apply when this is off.
    * @property {boolean} goalToasts   The progress label under the pet after a bite.
+   * @property {boolean} treatWishes  The pet now and then asks for a snack in a thought cloud (the app; the small desktop window never does).
    * @property {boolean} cardboard    The cardboard-and-stickers look (off = the classic pink look).
    * @property {boolean} time24      Times on tasks as 14:30 (off: 2:30 PM).
    * @property {boolean} aisles      The shopping list is shown grouped by shop aisle.
    */
 
   /** The settings a new phone starts with: everything on. */
-  var DEFAULT_SETTINGS = { sounds: true, vibration: true, daydreams: true, suggestions: true, fairPlayTips: true, goalToasts: true, cardboard: true, time24: true, aisles: true };
+  var DEFAULT_SETTINGS = { sounds: true, vibration: true, daydreams: true, suggestions: true, fairPlayTips: true, goalToasts: true, treatWishes: true, cardboard: true, time24: true, aisles: true };
 
   /**
    * Fills in any settings missing from what was saved.

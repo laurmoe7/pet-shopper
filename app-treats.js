@@ -21,7 +21,7 @@ function scheduleWish(ms) {
 /** @returns {boolean} Whether it is a good moment to ask: awake, not busy, nothing open, not bedtime. */
 function mayWish() {
   // the small desktop window stays uncluttered: no "tap to feed me" clouds there (the big list window still has them)
-  return !document.documentElement.classList.contains('desktop-pet') && !busy && !document.hidden && !wishWord && suggestEl.hidden && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') && !stage.classList.contains('night-lamp') &&
+  return state.settings.treatWishes !== false && !document.documentElement.classList.contains('desktop-pet') && !busy && !document.hidden && !wishWord && suggestEl.hidden && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') && !stage.classList.contains('night-lamp') &&
     !document.querySelector('dialog[open]:not(#roomSheet)');
 }
 /** @returns {number} How many times the cloud was tapped to feed him (device only; players from before it was counted start from the number of asks). */

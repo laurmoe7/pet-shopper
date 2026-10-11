@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 590
+- Options: Snack requests switch (turns off his thought-cloud asks)
+
 ## Build 589
 - App ring menu: feed him a snack
 
