@@ -4299,3 +4299,5 @@ html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-bloc
 /* the black skins (the black cat and the black Pomeranian) have a darker outline, so they stand out from the dark fur (build 628) */
 .pet:is([data-skin="blackcat"], [data-skin="blackpom"]) :is(.skin, .ear, .tuft path, .fur path, .arm ellipse:not(.arm-hi), .foot) { stroke: #1d1722; }
 .pet[data-skin="blackpom"] .pom-chest { stroke: #1d1722; }
+/* and the outline of their open eyes (build 632) */
+.pet:is([data-skin="blackcat"], [data-skin="blackpom"]) .eyes-open .ink { stroke: #1d1722; }

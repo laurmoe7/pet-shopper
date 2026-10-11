@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 632
+- Darker eye outline on the black cat and black Pomeranian
+
 ## Build 631
 - Mini Fumu celebrations: no greeting card on the screen
 - Mini Fumu New Year: disco lights fill the whole screen
