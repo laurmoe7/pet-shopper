@@ -39,7 +39,8 @@
     daily: { label: 'Daily box', colour: '#ffb3c7', ribbon: '#fff6ec', table: 'daily' },
     special: { label: 'Special box', colour: '#ffd36e', ribbon: '#ff8fb1', table: 'party' },
     birthday: { label: 'Birthday box', colour: '#b69cff', ribbon: '#ffe6b8', table: 'party' },
-    christmas: { label: 'Christmas box', colour: '#e8445a', ribbon: '#ffe08a', table: 'party' }
+    christmas: { label: 'Christmas box', colour: '#e8445a', ribbon: '#ffe08a', table: 'party' },
+    halloween: { label: 'Halloween box', colour: '#ff9a3c', ribbon: '#8e5bff', table: 'party' }
   };
 
   /** The special days. Add a line to add a day. */
@@ -51,6 +52,7 @@
     { id: 'easter2', label: 'Easter Monday', easter: 1 },
     { id: 'kingsday', label: "King's Day", month: 4, day: 27 },
     { id: 'halloween', label: 'Halloween', month: 10, day: 31 },
+    { id: 'halloweengift', label: "Fumu's Halloween treat", month: 10, day: 31, box: 'halloween', line: 'happy halloween! ♡' },   // (the box he hands you in the Halloween celebration, app-halloween.js)
     { id: 'sinterklaas', label: 'Sinterklaas', month: 12, day: 5 },
     { id: 'xmas', label: 'Christmas', month: 12, day: 24, days: 3, boxes: 2 },
     { id: 'xmasgift', label: "Fumu's Christmas gift", month: 12, day: 25, box: 'christmas', line: 'merry christmas! ♡' },   // (the box he hands you in the Christmas celebration, app-xmas.js)

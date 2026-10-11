@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 616
+- Halloween celebration on 31 October: witch hat, party dance, bats, ghosts, spider webs, mist, pumpkin lights, spooky music, a trick-or-treat bucket and a real Halloween box in Profile
+- Christmas: the tree, gingerbread men and candy canes are gone again
+
 ## Build 615
 - Christmas: a little tree pops up beside him, gingerbread men and candy canes fall with the snow, and he chats along
 

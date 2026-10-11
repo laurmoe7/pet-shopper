@@ -1,6 +1,6 @@
 /* Fumu's sounds, synthesised with the Web Audio API (no audio files).
  * Sounds.play(kind) where kind is one of:
- *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party, birthday (the Happy Birthday tune), christmas (Jingle Bells),
+ *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party, birthday (the Happy Birthday tune), christmas (Jingle Bells), halloween (a spooky-cute tune),
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
  *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), bell, tink and smash (the night bell ringing, clinking and breaking), glass (a piece of window breaking off, the wrecking ball), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
@@ -353,6 +353,39 @@
         [3520, 4186, 5274].forEach(function (hz, q) { tone(jt + q * 0.012, 0.09, 'sine', hz, null, env(jt + q * 0.012, 0.002, 0.08, loud)); });
       }
       chime(t + total - 0.1, [1047, 1319, 1568, 2093], 0.1, 1.2);
+    },
+    halloween: function (t) {
+      // spooky but cute (an original tune): a wobbly theremin voice creeping through A minor in waltz time over a plucked bass, with a church-bell toll, a ghostly "woo" and a few bat squeaks, about 15 s (build 616)
+      var u = 0.41;   // one beat
+      var A4 = 440, Gs4 = 415, B4 = 494, C5 = 523, Ds5 = 622, E5 = 659, D5 = 587, F5 = 698, A5 = 880;
+      var lead = [
+        [A4, 1.5], [Gs4, .5], [A4, 1],  [C5, 1.5], [B4, .5], [C5, 1],  [E5, 1.5], [Ds5, .5], [E5, 1],  [A5, 2], [E5, 1],
+        [F5, 1.5], [E5, .5], [D5, 1],  [C5, 1.5], [B4, .5], [A4, 1],  [Gs4, 1.5], [A4, .5], [B4, 1],  [E5, 3],
+        [A4, 1.5], [Gs4, .5], [A4, 1],  [C5, 1.5], [B4, .5], [C5, 1],  [E5, 1], [F5, 1], [E5, 1],  [A4, 3]
+      ];
+      var at = t;
+      lead.forEach(function (n) {
+        var d = Math.min(n[1] * u * 1.02, 1.3), o = tone(at, d + 0.12, 'sine', n[0], null, env(at, 0.05, d, 0.2));
+        var lfo = ctx.createOscillator(), depth = ctx.createGain();   // the wobble that makes it sound like a theremin
+        lfo.frequency.value = 5.5; depth.gain.value = n[0] * pitch * 0.012;
+        lfo.connect(depth); depth.connect(o.frequency); lfo.start(at); lfo.stop(at + d + 0.14);
+        tone(at, d + 0.1, 'triangle', n[0] / 2, null, env(at, 0.05, d * 0.8, 0.05));
+        at += n[1] * u;
+      });
+      var total = at - t;
+      // a plucked bass on the first beat of each bar and soft chords on the other two (Am Am Am Am Dm Am E E Am Am Dm Am)
+      var bass = [110, 110, 110, 110, 147, 110, 165, 165, 110, 110, 147, 110];
+      var chord = [[220, 262, 330], [220, 262, 330], [220, 262, 330], [220, 262, 330], [294, 349, 440], [220, 262, 330], [330, 415, 494], [330, 415, 494], [220, 262, 330], [220, 262, 330], [294, 349, 440], [220, 262, 330]];
+      for (var bar = 0; bar < 12; bar++) {
+        var b0 = t + bar * 3 * u;
+        tone(b0, 0.28, 'triangle', bass[bar], null, env(b0, 0.006, 0.26, 0.26));
+        for (var k = 1; k <= 2; k++) chord[bar].forEach(function (hz) { tone(b0 + k * u, 0.16, 'sine', hz, null, env(b0 + k * u, 0.006, 0.14, 0.04)); });
+      }
+      chime(t + 12 * u, [1760], 0.1, 0.8, 'sine'); chime(t + 24 * u, [1760, 1319], 0.12, 0.8, 'sine');   // a church bell toll at the start of the middle and last lines
+      var wt = t + 22 * u, wo = tone(wt, 1.1, 'sine', 740, 330, env(wt, 0.2, 0.9, 0.12));   // a ghostly "woo"
+      var wl = ctx.createOscillator(), wd = ctx.createGain(); wl.frequency.value = 6; wd.gain.value = 18 * pitch; wl.connect(wd); wd.connect(wo.frequency); wl.start(wt); wl.stop(wt + 1.15);
+      [4.2, 7.5, 9.6, 13.1].forEach(function (when) { var bt = t + when; tone(bt, 0.07, 'sine', 3200, 5200, env(bt, 0.004, 0.06, 0.06)); tone(bt + 0.1, 0.06, 'sine', 3600, 5600, env(bt + 0.1, 0.004, 0.05, 0.05)); });   // bat squeaks
+      chime(t + total - 0.2, [440, 523, 659, 880], 0.12, 1.1, 'sine');
     },
     jiggle: function (t) {
       // a belly wobble: soft boings that get smaller and lower

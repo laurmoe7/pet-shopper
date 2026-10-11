@@ -46,9 +46,10 @@ function xmasHat(ms) {
   setTimeout(function () { if (hat.parentNode) hat.remove(); }, ms);
 }
 
-/** A string of coloured lights draped across the top that glow one after another; it drops in and, when the party is over, lifts away. @param {Element} layer @param {number} ms */
-function xmasLights(layer, ms) {
-  var w = window.innerWidth, step = 34, n = Math.max(4, Math.round(w / step)), sx = w / n, cols = ['#ff3d5a', '#ffd23f', '#2fbf71', '#3fa7ff'];
+/** A string of coloured lights draped across the top that glow one after another; it drops in and, when the party is over, lifts away. @param {Element} layer @param {number} ms @param {string[]} [cols] The bulb colours (the Halloween celebration brings its own). */
+function xmasLights(layer, ms, cols) {
+  var w = window.innerWidth, step = 34, n = Math.max(4, Math.round(w / step)), sx = w / n;
+  cols = cols || ['#ff3d5a', '#ffd23f', '#2fbf71', '#3fa7ff'];
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('width', w); svg.setAttribute('height', 46); svg.setAttribute('viewBox', '0 0 ' + w + ' 46');
   svg.style.cssText = 'position:absolute;left:0;top:0;overflow:visible';
@@ -57,7 +58,7 @@ function xmasLights(layer, ms) {
     var x0 = i * sx, x1 = x0 + sx;
     d += ' Q' + (x0 + sx / 2) + ' 17 ' + x1 + ' 1';
     var bx = x0 + sx / 2, by = 8;   // (on the dip of the wire)
-    bulbs += '<g class="xmas-bulb"><rect x="' + (bx - 2) + '" y="' + (by - 1) + '" width="4" height="3.5" fill="#4d3c43"/><ellipse cx="' + bx + '" cy="' + (by + 5.5) + '" rx="3.6" ry="5" fill="' + cols[i % 4] + '" stroke="#5b4239" stroke-width="1.4"/>' +
+    bulbs += '<g class="xmas-bulb"><rect x="' + (bx - 2) + '" y="' + (by - 1) + '" width="4" height="3.5" fill="#4d3c43"/><ellipse cx="' + bx + '" cy="' + (by + 5.5) + '" rx="3.6" ry="5" fill="' + cols[i % cols.length] + '" stroke="#5b4239" stroke-width="1.4"/>' +
       '<ellipse cx="' + (bx - 1.2) + '" cy="' + (by + 4) + '" rx="1" ry="1.6" fill="#fff" opacity=".7"/></g>';
   }
   svg.innerHTML = '<path d="' + d + '" fill="none" stroke="#4d3c43" stroke-width="1.8"/>' + bulbs;
@@ -86,49 +87,6 @@ function xmasSnow(layer, ms) {
       { transform: 'translate(' + (x + sway * 0.3) + 'px,' + (h + 20) + 'px) rotate(' + (big ? 300 : 0) + 'deg)', opacity: 0.8 }
     ], { duration: dur, delay: Math.random() * Math.max(500, ms - 4000), easing: 'linear', fill: 'both' }).onfinish = el.remove.bind(el);
   }
-}
-
-var XMAS_TREATS = [   // little gingerbread men and candy canes that fall slowly with the snow
-  '<svg viewBox="0 0 20 24" width="20" height="24"><path d="M10 1.5a4 4 0 1 1 0 8a4 4 0 1 1 0 -8zM6 10h8l4 1.5l-1.2 3.3l-2.8 -1v3.8l2.2 5.2l-3.4 1.2l-2.8 -4.2l-2.8 4.2l-3.4 -1.2l2.2 -5.2v-3.8l-2.8 1l-1.2 -3.3z" fill="#c98a45" stroke="#5b4239" stroke-width="1.5" stroke-linejoin="round"/><circle cx="8.6" cy="5" r=".9" fill="#5b4239"/><circle cx="11.4" cy="5" r=".9" fill="#5b4239"/><path d="M8.6 7 Q10 8 11.4 7" fill="none" stroke="#fff6ec" stroke-width="1" stroke-linecap="round"/><circle cx="10" cy="13" r="1" fill="#e8445a"/><circle cx="10" cy="16.4" r="1" fill="#2fbf71"/></svg>',
-  '<svg viewBox="0 0 20 24" width="18" height="22"><path d="M6 22V9a4.2 4.2 0 0 1 8.4 0" fill="none" stroke="#5b4239" stroke-width="5.4" stroke-linecap="round"/><path d="M6 22V9a4.2 4.2 0 0 1 8.4 0" fill="none" stroke="#fffaf0" stroke-width="3.2" stroke-linecap="round"/><path d="M6 22V9a4.2 4.2 0 0 1 8.4 0" fill="none" stroke="#e8445a" stroke-width="3.2" stroke-dasharray="2.2 3.4"/></svg>'
-];
-/** Gingerbread men and candy canes tumbling gently down with the snow. @param {Element} layer @param {number} ms */
-function xmasTreats(layer, ms) {
-  if (reduceMotion) return;
-  var w = window.innerWidth, h = window.innerHeight;
-  for (var i = 0; i < 9; i++) {
-    var el = document.createElement('span'), x = 10 + Math.random() * (w - 40), sway = (Math.random() - 0.5) * 80, dur = 8500 + Math.random() * 3000;
-    el.innerHTML = XMAS_TREATS[i % 2];
-    el.style.cssText = 'position:absolute;left:0;top:0;line-height:0';
-    layer.appendChild(el);
-    el.animate([
-      { transform: 'translate(' + x + 'px,-30px) rotate(-20deg)', opacity: 0 },
-      { transform: 'translate(' + (x + sway * 0.4) + 'px,' + h * 0.08 + 'px) rotate(15deg)', opacity: 1, offset: 0.06 },
-      { transform: 'translate(' + (x + sway) + 'px,' + h * 0.5 + 'px) rotate(-18deg)', opacity: 1, offset: 0.5 },
-      { transform: 'translate(' + (x + sway * 0.2) + 'px,' + (h + 30) + 'px) rotate(22deg)', opacity: 1 }
-    ], { duration: dur, delay: 800 + Math.random() * Math.max(500, ms - 8000), easing: 'ease-in-out', fill: 'both' }).onfinish = el.remove.bind(el);
-  }
-}
-
-/** A little decorated Christmas tree that pops up beside him (on his left, away from the speech bubble), with a twinkling star and baubles; it goes with him if he walks. @param {number} ms How long it stays. */
-function xmasTree(ms) {
-  var tree = document.createElement('span');
-  tree.className = 'xmas-tree';
-  tree.setAttribute('aria-hidden', 'true');
-  tree.innerHTML = '<svg viewBox="0 0 52 64" width="52" height="64"><rect x="22" y="52" width="8" height="9" rx="1.5" fill="#b8794a" stroke="#5b4239" stroke-width="2"/>' +
-    '<path d="M26 22 L10 46 H42 Z" fill="#2fbf71" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/><path d="M26 10 L13 32 H39 Z" fill="#3fcf81" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/><path d="M26 38 L7 56 H45 Z" fill="#27a862" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
-    '<path d="M26 5 l2.4 5 5.4.6 -4 3.7 1.1 5.3 -4.9 -2.7 -4.9 2.7 1.1 -5.3 -4 -3.7 5.4 -.6z" class="xmas-star" fill="#ffd36b" stroke="#5b4239" stroke-width="1.6" stroke-linejoin="round" transform="translate(0 -3)"/>' +
-    '<circle class="xmas-bauble" cx="22" cy="28" r="2.6" fill="#ff3d5a" stroke="#5b4239" stroke-width="1.2"/><circle class="xmas-bauble" cx="31" cy="35" r="2.6" fill="#ffd23f" stroke="#5b4239" stroke-width="1.2"/>' +
-    '<circle class="xmas-bauble" cx="19" cy="46" r="2.6" fill="#3fa7ff" stroke="#5b4239" stroke-width="1.2"/><circle class="xmas-bauble" cx="30" cy="50" r="2.6" fill="#ff3d5a" stroke="#5b4239" stroke-width="1.2"/><circle class="xmas-bauble" cx="37" cy="52" r="2.2" fill="#ffd23f" stroke="#5b4239" stroke-width="1.2"/></svg>';
-  pet.appendChild(tree);
-  if (reduceMotion) { setTimeout(function () { tree.remove(); }, ms); return; }
-  tree.animate([{ transform: 'scale(0)', opacity: 0 }, { transform: 'scale(1.18)', opacity: 1, offset: 0.55 }, { transform: 'scale(.93)', offset: 0.78 }, { transform: 'scale(1)', opacity: 1 }], { duration: 700, easing: 'ease-out', fill: 'both' });
-  [].forEach.call(tree.querySelectorAll('.xmas-bauble, .xmas-star'), function (b, k) { b.animate([{ opacity: 1 }, { opacity: .45 }, { opacity: 1 }], { duration: 1400, delay: k * 230, iterations: Infinity, easing: 'ease-in-out' }); });
-  sound('sparkle');
-  setTimeout(function () {
-    if (!tree.parentNode) return;
-    tree.animate([{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(0)', opacity: 0 }], { duration: 450, easing: 'ease-in', fill: 'both' }).onfinish = function () { tree.remove(); };
-  }, ms);
 }
 
 /** The app: a banner drops in from the top (a red and green one). @param {Element} layer @param {string} name */
@@ -197,10 +155,8 @@ function xmasParty() {
   var ms = partyDance(true), total = ms + 5800, layer = bdayLayer(9000);
   xmasLights(layer, total);   // (the lights hang along the very top edge, over the bar)
   xmasSnow(layer, total);
-  xmasTreats(layer, total);
   if (!small) xmasBanner(layer, name);
   setTimeout(function () { drift(['🎄', '⭐', '❄'], petTop(), 4); }, 1500);
-  setTimeout(function () { xmasTree(total - 2400); }, 1100);   // (a little tree pops up beside him and stays until the gift)
   setTimeout(function () { say('jingle jingle~', 1800); }, 3600);
   setTimeout(function () { say('look, it is snowing!', 2000); }, 6200);
   setTimeout(function () { layer.remove(); }, total + 800);

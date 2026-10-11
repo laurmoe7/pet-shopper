@@ -498,7 +498,8 @@ var PARTY_SQUISH = (function () {
 })();
 /** Party dance: the birthday dance of 9 s (the `partydance` CSS in styles.css and PARTY_SQUISH above): bouncy hops full of squash and stretch, first on the spot, then from side to side, then a turn in the air, one big jump and a happy landing, with his arms up cheering the whole time. This sets the face and the notes. */
 function partyDance(themed) {
-  var chars = function (l) { return themed ? l.map(function (c) { return { '🎉': '🎄', '🎈': '⭐', '♥': '❄' }[c] || c; }) : l; };   // (the Christmas celebration swaps the party things for Christmas ones)
+  var swaps = themed === 'halloween' ? { '🎉': '🎃', '🎈': '👻', '♥': '🦇', '♪': '🕸', '♫': '🦇' } : { '🎉': '🎄', '🎈': '⭐', '♥': '❄' };
+  var chars = function (l) { return themed ? l.map(function (c) { return swaps[c] || c; }) : l; };   // (the Christmas and Halloween celebrations swap the party things for their own)
   var arms = document.documentElement.matches('[data-scene$="clip"], [data-list="todo"]') ? 'rest' : 'cheer';   // (his left hand holds the clipboard on the to-do list)
   setFace({ eyes: 'happy', mouth: 'open', arms: arms, x: ['cheeks', 'sparkles'] });
   pulse('partydance', 9000);

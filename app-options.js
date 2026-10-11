@@ -158,6 +158,7 @@ var DEV_ACTIONS = [
   { label: 'Shut today\'s gift boxes again', run: function () { return devGiftReset(); } },
   { label: 'Play the birthday celebration', run: function () { devSheet.close(); return devBirthdayNow(); } },
   { label: 'Play the Christmas celebration', run: function () { devSheet.close(); return devXmasNow(); } },
+  { label: 'Play the Halloween celebration', run: function () { devSheet.close(); return devHalloweenNow(); } },
   { label: 'Make Fumu suggest an item', run: function () { return devSuggest(); } },
   { label: 'Fill with sample items', run: function () {
     if (isTodo()) { state.items = L.sortByDue(state.items.concat(sampleTodos()), todayKey()); return 'Sample to-dos added.'; }
