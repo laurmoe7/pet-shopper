@@ -34,7 +34,7 @@ var Dutch = {
   'Skip the 15-minute wait': 'De wachttijd van 15 minuten overslaan',
 
   // ---------- recipes ----------
-  'New recipe': 'Nieuw recept', 'Let\'s cook': 'Laten we koken', 'Find ingredients': 'Ingrediënten zoeken', 'Paste a recipe link…': 'Plak een receptlink…', 'or type one ingredient per line': 'of typ één ingrediënt per regel',
+  'New recipe': 'Nieuw recept', 'Let\'s cook': 'Laten we koken', 'Find ingredients': 'Ingrediënten zoeken', 'Paste a recipe link…': 'Plak een receptlink…', 'Paste a recipe link…\nor type one ingredient per line': 'Plak een receptlink…\nof typ één ingrediënt per regel', 'or type one ingredient per line': 'of typ één ingrediënt per regel',
   'As written': 'Zoals geschreven', 'will find the ingredients ✦': 'zoekt de ingrediënten ✦', 'What is it?': 'Wat is het?', '🎂 Birthday': '🎂 Verjaardag', '📌 Plan': '📌 Plan',
   'Links need a small helper online (see worker/README.md). Pasted ingredients work without it.': 'Links hebben een klein hulpprogramma online nodig (zie worker/README.md). Geplakte ingrediënten werken zonder.',
   'Recipe helper address': 'Adres van de receptenhulp', 'Paste a link or type a note.': 'Plak een link of typ een notitie.', 'https://… or a note': 'https://… of een notitie',
@@ -220,3 +220,186 @@ Object.assign(Dutch, {
   'to-do list': 'takenlijst', 'touch your toes!': 'raak je tenen aan!', 'wiggle wiggle~': 'wiebel wiebel~', 'yaaay!': 'jaaa!', '★ {x}': '★ {x}', '{x} skin': '{x}-uiterlijk', 'Wrecking ball': 'Sloopkogel'
 });
 Object.assign(Dutch, { 'Check off {x}': 'Vink {x} af', 'Change emoji for {x}': 'Emoji van {x} veranderen' });
+
+// ---------- batch: eating, idle talk, the to-do list's cheers ----------
+Object.assign(Dutch, {
+  // eating and the shopping trip
+  '*happy belly pat*': '*tevreden buikje aaien*', 'ah, {item}, my favourite to see': 'ah, {item}, mijn lievelingetje', 'all done! so proud!': 'allemaal klaar! zo trots!', 'all done… *yawn*… so proud!': 'allemaal klaar… *gaap*… zo trots!',
+  'best late trip ever…': 'beste late winkelronde ooit…', 'best trip ever!': 'beste winkelronde ooit!', 'did you really buy that?': 'heb je dat echt gekocht?', 'for me…': 'voor mij…', 'full and sleepy ♡': 'vol en slaperig ♡',
+  'full belly, full book ✧': 'volle buik, vol boek ✧', 'hmm, that was quick…': 'hmm, dat ging snel…', 'list empty… sleepy now ♡': 'lijstje leeg… nu slaperig ♡', 'mm… later…': 'mm… straks…', 'not yet? ok': 'nog niet? oké',
+  'ooh, mystery!': 'ooh, mysterie!', 'oops, sorry': 'oeps, sorry', 'snack…': 'snack…', 'so full! thank you!': 'zo vol! dankjewel!', 'so full… *yawn*… thank you!': 'zo vol… *gaap*… dankjewel!', 'spit! my bad': 'ptoe! mijn fout',
+  'stamped! best trip ever!': 'gestempeld! beste winkelronde ooit!', 'stamped… so full… zzz': 'gestempeld… zo vol… zzz', 'straight from the list?': 'rechtstreeks van het lijstje?', 'to-do list: empty!': 'takenlijst: leeg!', 'to-do… zzz': 'taken… zzz',
+  'tomorrow…': 'morgen…', 'trip {n}, stamped! ♡': 'winkelronde {n}, gestempeld! ♡', 'trip {n}… *yawn*… stamped ♡': 'winkelronde {n}… *gaap*… gestempeld ♡', 'we do love {item}': 'we houden echt van {item}', 'what a day! ♡': 'wat een dag! ♡',
+  'you did it all! ✧': 'je hebt alles gedaan! ✧', '{item}, a regular!': '{item}, een vaste klant!', 'what\'s next?': 'wat is de volgende?', 'In a week': 'Over een week', 'No date': 'Geen datum', 'Today': 'Vandaag', 'Tomorrow': 'Morgen',
+  // waiting around
+  '*rub rub*': '*wrijf wrijf*', 'a butterfly!': 'een vlinder!', 'ahh, sunshine': 'ahh, zonnetje', 'can\'t wait!': 'ik kan niet wachten!', 'don\'t forget: {x}': 'vergeet niet: {x}', 'eyes are heavy…': 'mijn ogen zijn zwaar…', 'good shopping!': 'veel plezier met winkelen!',
+  'hmm, what to buy…': 'hmm, wat moeten we kopen…', 'hmmm…': 'hmmm…', 'huh! I\'m awake!': 'huh! ik ben wakker!', 'just a little longer…': 'nog heel even…', 'keep… eyes… open…': 'ogen… open… houden…', 'let me think…': 'laat me even denken…',
+  'look how much we got!': 'kijk hoeveel we hebben!', 'my favourite!': 'mijn favoriet!', 'one, two! one, two!': 'één, twee! één, twee!', 'ooh, {x}!': 'ooh, {x}!', 'ooh?!': 'ooh?!', 'pop pop!': 'pop pop!', 'psst… {x}, today!': 'psst… {x}, vandaag!',
+  'shopping time?': 'tijd voor boodschappen?', 'should we {x}?': 'zullen we {x}?', 'so excited!': 'zo opgewonden!', 'so pretty…': 'zo mooi…', 'so sleepy…': 'zo slaperig…', 'squint squint': 'knijp knijp', 'stretchy stretch!': 'rek en strek!',
+  'such a long receipt!': 'wat een lang bonnetje!', 'sunny day ♡': 'zonnige dag ♡', 'suspicious…': 'verdacht…', 'thinking…': 'aan het denken…', 'tick tick?': 'tik tik?', 'to-do time?': 'tijd voor taken?', 'w-what? shopping!': 'w-wat? boodschappen!',
+  'w-what? tasks!': 'w-wat? taken!', 'warm and cozy…': 'warm en knus…', 'wasn\'t sleeping!': 'ik sliep niet!', 'we should {x}!': 'we moeten {x}!', 'what was that?': 'wat was dat?', 'workout time!': 'tijd om te sporten!', '{x}… soon!': '{x}… straks!',
+  // food faces
+  'HOT HOT HOT': 'HEET HEET HEET', 'I can see sounds!': 'ik kan geluiden zien!', 'MORE?': 'MEER?', 'a surprise?!': 'een verrassing?!', 'amai~ (sweet!)': 'amai~ (zoet!)', 'brrr! brain freeze!': 'brrr! ijskoud hoofd!',
+  'chocolate makes us sick… for you!': 'chocolade maakt ons ziek… voor jou!', 'creamy ♡': 'romig ♡', 'crunch crunch!': 'knap knap!', 'fire! fire!': 'brand! brand!', 'for the grown-ups!': 'voor de grote mensen!', 'fresh & healthy': 'vers en gezond',
+  'fruity ♡': 'fruitig ♡', 'fuwa fuwa ♡': 'fuwa fuwa ♡', 'gokun gokun': 'slok slok', 'good for me!': 'goed voor mij!', 'hii~ spicy!': 'hiii~ pittig!', 'hiyaa~ cold!': 'hiyaa~ koud!', 'hmm… for later': 'hmm… voor later',
+  'into the bag, sadly~': 'de tas in, helaas~', 'into the bag~': 'de tas in~', 'is this… for ME?!': 'is dit… voor MIJ?!', 'kari kari!': 'knars knars!', 'kira kira!': 'glinster glinster!', 'midnight snack ♡': 'middernachtelijke snack ♡',
+  'mmm, bready': 'mmm, broodachtig', 'mm… so good…': 'mm… zo lekker…', 'mogu mogu': 'knabbel knabbel', 'my face!!': 'mijn gezicht!!', 'mystery snack!': 'mysteriesnack!', 'no chocolate for pets!': 'geen chocolade voor huisdieren!',
+  'nom… *yawn*': 'nom… *gaap*', 'not for me!': 'niet voor mij!', 'one more?': 'nog eentje?', 'ooh, yum': 'ooh, lekker', 'saving it for later!': 'bewaar ik voor later!', 'sleepy yum~': 'slaperig lekker~', 'smells good, but no!': 'ruikt lekker, maar nee!',
+  'so cold!': 'zo koud!', 'so crispy!': 'zo krokant!', 'so juicy!': 'zo sappig!', 'so smooth': 'zo zacht', 'so sour!!': 'zo zuur!!', 'sour sour sour!': 'zuur zuur zuur!', 'strong snack!': 'sterke snack!', 'that\'s not food': 'dat is geen eten',
+  'tiny snack!': 'klein snackje!', 'treat time ♡': 'tijd voor een traktatie ♡', 'treats?! for me?!': 'traktaties?! voor mij?!', 'tuck it away': 'opbergen', 'veggies ♡': 'groentjes ♡', 'warm & chewy': 'warm en taai', 'water?!': 'water?!', 'wide awake!!': 'klaarwakker!!',
+  'yum yum!': 'njam njam!', 'yummy… *yawn*': 'lekker… *gaap*',
+  // the to-do list
+  '+ date/time': '+ datum/tijd', 'Book dentist': 'Tandarts boeken', 'Buy Oma a birthday gift': 'Cadeau voor oma kopen', 'Call mum': 'Mama bellen', 'Do laundry': 'Was doen', 'Go for a run': 'Gaan hardlopen', 'Pay rent': 'Huur betalen',
+  'Reply to emails': 'E-mails beantwoorden', 'Water the plants': 'Planten water geven', 'It cannot end before it starts.': 'Het kan niet eindigen voordat het begint.', 'Picking a repeat sets the date to today.': 'Een herhaling kiezen zet de datum op vandaag.',
+  'That is too soon: it would only happen once. Pick a later day.': 'Dat is te snel: het zou maar één keer gebeuren. Kies een latere dag.', 'That repeat is longer than the time you chose, so it would only happen once. "For how long" went back to Forever.': 'Die herhaling is langer dan de tijd die je koos, dus het zou maar één keer gebeuren. "Hoe lang" staat weer op Altijd.',
+  'Until a day I pick…': 'Tot een dag die ik kies…', 'Certain days of the week…': 'Bepaalde dagen van de week…', 'Forever': 'Altijd', '1 week': '1 week', '2 weeks': '2 weken', '1 month': '1 maand', '2 months': '2 maanden', '3 months': '3 maanden', '6 months': '6 maanden',
+  'on the days you pick': 'op de dagen die je kiest', 'yesterday': 'gisteren', 'today': 'vandaag', 'tomorrow': 'morgen', '{n}d late': '{n}d te laat', 'Overdue': 'Te laat',
+  'see you {x}!': 'tot {x}!', 'back {x}!': 'terug {x}!', 'again {x}!': 'weer {x}!', 'noted, {x}!': 'genoteerd, {x}!', 'I will tell you at {x}!': 'ik zeg het je om {x}!', 'ding at {x}!': 'ding om {x}!', 'Comes back {x}, when you tick it off.': 'Komt terug {x}, als je het afvinkt.',
+  '“{x}” is for {y}. Tick it off anyway?': '“{x}” is voor {y}. Toch afvinken?', '{x} (too short)': '{x} (te kort)', 'Trip #{n} stamped!': 'Winkelronde #{n} gestempeld!',
+  'adulting level up!': 'volwassen level omhoog!', 'adulting time!': 'tijd om volwassen te zijn!', 'adventure ahead!': 'avontuur in het verschiet!', 'aha! all in order!': 'aha! alles in orde!', 'all sparkly!': 'helemaal glanzend!', 'all taken out!': 'allemaal buiten gezet!',
+  'aww, how nice ♡': 'aww, wat fijn ♡', 'aww, lovely!': 'aww, lief!', 'back on the list!': 'weer op het lijstje!', 'back to the shops!': 'terug naar de winkel!', 'better late than never!': 'beter laat dan nooit!', 'big brain!': 'grote hersenen!',
+  'bon voyage!': 'goede reis!', 'brave face for bills!': 'dapper gezicht voor rekeningen!', 'busy, busy!': 'druk, druk!', 'bye bye trash!': 'dag dag afval!', 'checked off!': 'afgevinkt!', 'chef Fumu!': 'chef Fumu!', 'chef time!': 'kokstijd!',
+  'chores… we can do it!': 'klusjes… dat kunnen we!', 'clean socks!': 'schone sokken!', 'detective Fumu!': 'detective Fumu!', 'ding ding! {x}!': 'ding ding! {x}!', 'ding! ready!': 'ding! klaar!', 'don\'t forget to call!': 'vergeet niet te bellen!',
+  'don\'t forget {x}!': 'vergeet {x} niet!', 'done today! ✧': 'vandaag klaar! ✧', 'done! ✓': 'klaar! ✓', 'done… *yawn*': 'klaar… *gaap*', 'early bird!': 'vroege vogel!', 'email: done!': 'e-mail: klaar!', 'errand done!': 'karwei klaar!', 'errand noted!': 'karwei genoteerd!',
+  'feel the burn!': 'voel de spieren!', 'finally! phew~': 'eindelijk! pfoe~', 'fluffy bed!': 'pluizig bed!', 'folded neat!': 'netjes opgevouwen!', 'found it!': 'gevonden!', 'fresh and fluffy!': 'fris en pluizig!', 'fresh and tidy!': 'fris en netjes!',
+  'friends are nice!': 'vrienden zijn fijn!', 'fun time!': 'tijd voor plezier!', 'fun! finally!': 'plezier! eindelijk!', 'good caretaker!': 'goede verzorger!', 'good job… sleepy~': 'goed gedaan… slaperig~', 'grow, grow!': 'groei, groei!', 'health first ♡': 'gezondheid voorop ♡',
+  'healthy you!': 'gezond jij!', 'hello? bye!': 'hallo? doei!', 'hey, it\'s early!': 'hé, het is nog vroeg!', 'hmm hmm hmm…': 'hmm hmm hmm…', 'hmm… let me look…': 'hmm… laat me kijken…', 'huff… puff… yay!': 'hijg… puf… yes!', 'inbox tamed!': 'inbox getemd!',
+  'inspecting the list…': 'het lijstje inspecteren…', 'it\'s time: {x}!': 'het is tijd: {x}!', 'just in time!': 'precies op tijd!', 'late, but done!': 'laat, maar klaar!', 'let\'s get moving!': 'laten we in beweging komen!', 'let\'s get things done!': 'laten we dingen gedaan krijgen!',
+  'looks good!': 'ziet er goed uit!', 'mmm, cooked!': 'mmm, gekookt!', 'money sorted!': 'geld geregeld!', 'nice break ♡': 'fijne pauze ♡', 'nice one!': 'mooi zo!', 'no cavities!': 'geen gaatjes!', 'no more dishes!': 'geen afwas meer!', 'off the list!': 'van het lijstje!',
+  'off we go, soon!': 'straks gaan we!', 'oh, not done yet?': 'oh, nog niet klaar?', 'ok, later then!': 'oké, dan straks!', 'on the list!': 'op het lijstje!', 'one less trip!': 'één rit minder!', 'one less… *yawn*': 'eentje minder… *gaap*', 'ooh, snacks!': 'ooh, snacks!',
+  'ooh, tasks!': 'ooh, taken!', 'open wide… done!': 'mond open… klaar!', 'pack the snacks!': 'pak de snacks in!', 'paid! no more worry': 'betaald! geen zorgen meer', 'party time!': 'feesttijd!', 'people time!': 'tijd voor mensen!', 'phew, the call!': 'pfoe, dat telefoontje!',
+  'psst… not yet!': 'psst… nog niet!', 'psst… {x}?': 'psst… {x}?', 'ready for sleep!': 'klaar om te slapen!', 'ready to go!': 'klaar om te gaan!', 'right on the day!': 'precies op de dag!', 'ring ring! I\'ll remind you': 'ring ring! ik herinner je eraan', 'ring ring… done!': 'ring ring… klaar!',
+  'scribble scribble': 'krabbel krabbel', 'sent! whoosh!': 'verstuurd! woesj!', 'shine shine!': 'glans glans!', 'shopping time!': 'winkeltijd!', 'smells good already!': 'ruikt nu al lekker!', 'smells so good!': 'ruikt zo lekker!', 'snack run!': 'snackronde!',
+  'so cosy!': 'zo knus!', 'so fit!': 'zo fit!', 'so green ♡': 'zo groen ♡', 'so kind!': 'zo aardig!', 'so many sniffs!': 'zo veel snuffels!', 'so much to do!': 'zo veel te doen!', 'so organised!': 'zo georganiseerd!', 'so productive!': 'zo productief!',
+  'so responsible!': 'zo verantwoordelijk!', 'so thoughtful ♡': 'zo attent ♡', 'sparkly teeth! ✧': 'glinsterende tanden! ✧', 'sparkly! ✧': 'glinsterend! ✧', 'squeaky clean!': 'piepschoon!', 'squeaky plates!': 'kraakheldere borden!', 'stretchy and strong!': 'rekbaar en sterk!',
+  'sweaty time!': 'zweettijd!', 'sweaty! so strong!': 'bezweet! zo sterk!', 'tail wags!': 'kwispelstaart!', 'take care of you!': 'zorg goed voor jezelf!', 'taking good care!': 'goed voor jezelf zorgen!', 'talked it out!': 'het uitgepraat!', 'the plants say thanks!': 'de planten zeggen dank!',
+  'they need you!': 'ze hebben je nodig!', 'they say thanks ♡': 'ze zeggen dank ♡', 'they will love it!': 'ze gaan het geweldig vinden!', 'tick tick tick!': 'tik tik tik!', 'tick tick!': 'tik tik!', 'ticked… zzz': 'afgevinkt… zzz', 'tidy tidy! I\'ll help': 'ruim ruim! ik help',
+  'tidy tidy~': 'ruim ruim~', 'to-do time!': 'taken-tijd!', 'too soon?': 'te vroeg?', 'treat yourself!': 'trakteer jezelf!', 'way ahead of time!': 'ruim op tijd!', 'we can do this!': 'dit kunnen we!', 'we\'ve got this!': 'dit hebben we!', 'well looked after!': 'goed verzorgd!',
+  'what do we have here…': 'wat hebben we hier…', 'woof! good walk!': 'woef! goede wandeling!', 'work done! ✧': 'werk klaar! ✧', 'work work!': 'werk werk!', 'yay, people!': 'yes, mensen!', 'yes, relax!': 'ja, ontspan!', 'you did it!': 'je hebt het gedaan!', 'you got this!': 'je kunt dit!',
+  'Sun': 'zo', 'Mon': 'ma', 'Tue': 'di', 'Wed': 'wo', 'Thu': 'do', 'Fri': 'vr', 'Sat': 'za', 'Jan': 'jan', 'Feb': 'feb', 'Mar': 'mrt', 'Apr': 'apr', 'Jun': 'jun', 'Jul': 'jul', 'Aug': 'aug', 'Sep': 'sep', 'Oct': 'okt', 'Nov': 'nov', 'Dec': 'dec'
+});
+// short dates on tasks: "Mon 14:30", "12 Oct", "12 Oct 14:30"
+(function () {
+  var WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], WDN = ['zo', 'ma', 'di', 'wo', 'do', 'vr', 'za'];
+  var MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], MON = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
+  WD.forEach(function (w, i) { Dutch[w + ' {t}'] = WDN[i] + ' {t}'; });
+  MO.forEach(function (m, i) { Dutch['{d} ' + m] = '{d} ' + MON[i]; Dutch['{d} ' + m + ' {t}'] = '{d} ' + MON[i] + ' {t}'; });
+  Dutch['today {t}'] = 'vandaag {t}'; Dutch['tomorrow {t}'] = 'morgen {t}';
+})();
+
+// ---------- batch: backup and sync, sending, bedtime, the small desktop window ----------
+Object.assign(Dutch, {
+  'Backup is on · {x}': 'Back-up staat aan · {x}', 'Checking the code…': 'De code controleren…', 'Code copied.': 'Code gekopieerd.', 'Could not copy. Select the code and copy it by hand.': 'Kopiëren lukte niet. Selecteer de code en kopieer hem zelf.',
+  'Could not reach the server, so nothing was deleted.': 'De server was niet bereikbaar, dus er is niets verwijderd.', 'Could not reach the server. Check your connection.': 'De server was niet bereikbaar. Controleer je verbinding.', 'Hide my code': 'Verberg mijn code',
+  'Link copied. Open it on the other device. Anyone with the link can see your list and pet.': 'Link gekopieerd. Open hem op het andere apparaat. Iedereen met de link kan je lijstje en huisdier zien.', 'Making your code…': 'Je code maken…', 'Needs attention': 'Heeft aandacht nodig',
+  'Server address saved.': 'Serveradres bewaard.', 'Starting…': 'Starten…', 'That does not look like a code: it has 25 letters and numbers.': 'Dat lijkt niet op een code: een code heeft 25 letters en cijfers.', 'The server does not know that code. Check it and try again.': 'De server kent die code niet. Controleer hem en probeer het opnieuw.',
+  'The server does not know this code. Syncing is paused.': 'De server kent deze code niet. Synchroniseren is gepauzeerd.', 'The server said no ({n}). Try again later.': 'De server zei nee ({n}). Probeer het later opnieuw.', 'The server said no ({n}).': 'De server zei nee ({n}).',
+  'Signed out on this device. Your list and {name} stay here, and the backup stays on the server.': 'Uitgelogd op dit apparaat. Je lijstje en {name} blijven hier, en de back-up blijft op de server.',
+  'This removes your backup from the server for good. Your list and {name} stay on this device.': 'Dit verwijdert je back-up voorgoed van de server. Je lijstje en {name} blijven op dit apparaat.',
+  'Tap again to delete it': 'Tik nog eens om te verwijderen', 'Too many new backups from this connection. Try again in an hour, or join with the code you already have.': 'Te veel nieuwe back-ups vanaf deze verbinding. Probeer het over een uur opnieuw, of doe mee met de code die je al hebt.',
+  'Your backup is deleted.': 'Je back-up is verwijderd.', 'code not accepted': 'code niet geaccepteerd', 'connected, not synced yet': 'verbonden, nog niet gesynchroniseerd', 'no connection': 'geen verbinding', 'not set up': 'niet ingesteld', 'nothing new': 'niets nieuws',
+  'server problem ({n})': 'serverprobleem ({n})', 'syncing…': 'synchroniseren…', 'Offline': 'Offline', 'On': 'Aan', '{x} (last synced {t})': '{x} (laatst gesynchroniseerd {t})',
+  // sending
+  'An alert is already showing: close it first.': 'Er staat al een melding: sluit die eerst.', 'Claude replied': 'Claude heeft gereageerd', 'Copied ✓': 'Gekopieerd ✓', 'Copy a link or some text first, then try again.': 'Kopieer eerst een link of tekst en probeer het dan opnieuw.',
+  'It arrives in a few seconds.': 'Het komt over een paar seconden aan.', 'Sending…': 'Versturen…', 'That is too long to send.': 'Dat is te lang om te versturen.', 'The server does not know this code. Check Backup & sync.': 'De server kent deze code niet. Controleer Back-up en synchronisatie.',
+  'The server is not ready for this yet: it needs the new inbox table (see worker/sync/README.md).': 'De server is hier nog niet klaar voor: hij heeft de nieuwe inbox-tabel nodig (zie worker/sync/README.md).',
+  'Turn on Backup & sync first, here and on your other device.': 'Zet eerst Back-up en synchronisatie aan, hier en op je andere apparaat.', 'Turn on Backup & sync first, on both devices.': 'Zet eerst Back-up en synchronisatie aan, op beide apparaten.',
+  'Type or paste something to send.': 'Typ of plak iets om te versturen.', 'a link': 'een link', 'a note': 'een notitie', 'a link for you!': 'een link voor jou!', 'a note for you!': 'een notitie voor jou!', 'Got a {x}': 'Een {x} ontvangen', 'Sent a {x}': 'Een {x} verstuurd',
+  'Sent a {x} to the other device': 'Een {x} naar het andere apparaat gestuurd', 'Got a {x} from your other device': 'Een {x} van je andere apparaat ontvangen',
+  // bedtime
+  '*grumble grumble*': '*mop mop*', '*yaaawn* morning!': '*gaaap* goedemorgen!', '*yawn* food?': '*gaap* eten?', '*yawn* lights off?': '*gaap* licht uit?', '*yawn* nice work!': '*gaap* goed gedaan!', 'I was sleeping…': 'ik lag te slapen…',
+  'all done for today…': 'alles klaar voor vandaag…', 'blankie…?': 'dekentje…?', 'clipboard away…': 'klembord weg…', 'cold toes…': 'koude tenen…', 'cuddle time…': 'knuffeltijd…', 'g\'night ♡': 'welterusten ♡', 'g\'night… love you…': 'welterusten… hou van je…',
+  'good morning!': 'goedemorgen!', 'hehe… zzz ♡': 'hehe… zzz ♡', 'hey… too bright…': 'hé… te helder…', 'huh? a snack?!': 'huh? een snack?!', 'lamp off please…': 'lamp uit alsjeblieft…', 'mm? you did it! ♡': 'mm? je hebt het gedaan! ♡',
+  'mm… night night ♡': 'mm… nachtje nachtje ♡', 'my teddy ♡': 'mijn knuffel ♡', 'night night ♡': 'nachtje nachtje ♡', 'night night…': 'nachtje nachtje…', 'oh! something done? yay!': 'oh! is er iets klaar? yes!', 'sleepy…': 'slaperig…', 'sleepy… zzz': 'slaperig… zzz',
+  'slept so well!': 'zo goed geslapen!', 'snug as a bug': 'zo knus als een muisje', 'so cozy…': 'zo knus…', 'so sleepy… bedtime?': 'zo slaperig… bedtijd?', 'sweet dreams~': 'slaap lekker~', 'sweet dreams… zzz': 'slaap lekker… zzz', 'teddy…': 'knuffel…',
+  'tomorrow… more notes': 'morgen… meer notities', 'too bright…': 'te helder…', 'tuck me in…?': 'stop je me in…?',
+  // the wrecking ball
+  'NOT MY LIST!': 'NIET MIJN LIJSTJE!', 'NOT THE WINDOW!': 'NIET HET RAAM!', 'I can\'t see your windows… (privacy)': 'ik kan je vensters niet zien… (privacy)',
+  // the small desktop window
+  'A day has passed.': 'Er is een dag voorbij.', 'A new version is downloaded.': 'Een nieuwe versie is gedownload.', 'A test reminder': 'Een testherinnering', 'Add a task…': 'Voeg een taak toe…', 'Add to the shopping list…': 'Aan het boodschappenlijstje toevoegen…',
+  'Added ✓ next one…': 'Toegevoegd ✓ de volgende…', 'Day, time and repeat': 'Dag, tijd en herhaling', 'Done ✓': 'Klaar ✓', 'He hops on or off a window.': 'Hij springt op of van een venster.', 'He lands on his head.': 'Hij landt op zijn hoofd.', 'He naps.': 'Hij doet een dutje.',
+  'He peeks.': 'Hij gluurt.', 'He wanders.': 'Hij dwaalt rond.', 'In 10 min': 'Over 10 min', 'Like this?': 'Zo?', 'List cleared.': 'Lijst leeggemaakt.', 'Night light {x}': 'Nachtlampje {x}', 'No repeat': 'Geen herhaling', 'Not now.': 'Nu niet.',
+  'Not while he is in bed.': 'Niet terwijl hij in bed ligt.', 'Real clock.': 'Echte klok.', 'Restart now': 'Nu herstarten', 'Ring menu open.': 'Ringmenu open.', 'Sample items added.': 'Voorbeelditems toegevoegd.', 'Sit / stand.': 'Zitten / staan.',
+  'Task alert.': 'Taakmelding.', 'The bell is only out while he is in bed.': 'De bel is er alleen als hij in bed ligt.', 'Update card.': 'Updatekaart.', 'Update ready': 'Update klaar',
+  'I am watching quietly ♡': 'ik kijk rustig mee ♡', 'I believe in you ♡': 'ik geloof in je ♡', 'I missed you ♡': 'ik heb je gemist ♡', 'I will guard your snacks~': 'ik bewaak je snacks~', 'Like this?': 'Zo?',
+  'asking Claude again?': 'weer aan Claude vragen?', 'be nice to the tank ♡': 'wees aardig voor de tank ♡', 'bring snacks to the dungeon!': 'neem snacks mee naar de dungeon!', 'browsing, hm?': 'aan het surfen, hm?', 'can I be a battle pet?': 'mag ik een vechthuisdier zijn?',
+  'can I watch too?': 'mag ik ook kijken?', 'careful careful…': 'voorzichtig voorzichtig…', 'chatting with friends?': 'chatten met vrienden?', 'documents… zzz': 'documenten… zzz', 'don\'t die!': 'ga niet dood!', 'don\'t stand in the fire!': 'ga niet in het vuur staan!',
+  'draw me next!': 'teken mij de volgende keer!', 'drink some water~': 'drink wat water~', 'editing! fancy~': 'aan het bewerken! chique~', 'emails, ugh': 'e-mails, bah', 'focus focus~': 'focus focus~', 'for the Horde! …or the Alliance~': 'voor de Horde! …of de Alliantie~',
+  'fumu fumu~ (that means hi, Claude)': 'fumu fumu~ (dat betekent hoi, Claude)', 'go get \'em in {name}!': 'ga ze pakken in {name}!', 'going gaming?': 'ga je gamen?', 'good game~': 'goed gespeeld~', 'good teamwork!': 'goed teamwerk!', 'hard at work!': 'hard aan het werk!',
+  'hello again ♡': 'hallo weer ♡', 'how was Azeroth?': 'hoe was Azeroth?', 'how was {name}?': 'hoe was {name}?', 'is that a rare spawn?!': 'is dat een zeldzame spawn?!', 'looking something up?': 'iets aan het opzoeken?', 'loot loot loot ✦': 'buit buit buit ✦',
+  'make it cute!': 'maak het schattig!', 'may all your rolls be high~': 'moge al je worpen hoog zijn~', 'movie time?': 'filmtijd?', 'nice music~ ♪': 'mooie muziek~ ♪', 'no window with room above it to sit on': 'geen venster met ruimte erboven om op te zitten',
+  'off to Azeroth! I\'ll keep watch ♡': 'op naar Azeroth! ik hou de wacht ♡', 'one more quest… promise?': 'nog één quest… beloofd?', 'one more round?': 'nog een rondje?', 'ooh, Claude! say hi from me~': 'ooh, Claude! zeg hoi van mij~',
+  'ooh, are you drawing?': 'ooh, ben je aan het tekenen?', 'ooh, nice move!': 'ooh, mooie zet!', 'ooh, what was that?': 'ooh, wat was dat?', 'ooh, {name}! have fun~': 'ooh, {name}! veel plezier~', 'Azeroth awaits! have fun~': 'Azeroth wacht! veel plezier~',
+  'Claude knows lots of things~': 'Claude weet veel dingen~', 'pretty colours~': 'mooie kleuren~', 'say hi from me!': 'zeg hoi van mij!', 'sit up straight!': 'zit rechtop!', 'snack break soon?': 'snackpauze straks?', 'so many emails…': 'zo veel e-mails…', 'so many tiny words…': 'zo veel kleine woordjes…',
+  'so much internet~': 'zo veel internet~', 'stretch your hands a bit~': 'rek je handen even uit~', 'switch on "Sits on my windows" in the settings': 'zet "Zit op mijn vensters" aan in de instellingen', 'tap tap tap~': 'tik tik tik~', 'tell Claude I\'m the cute one': 'zeg tegen Claude dat ik de schattige ben',
+  'the mounts are so cute~': 'de rijdieren zijn zo schattig~', 'there you are~': 'daar ben je~', 'thinking together? hmm hm': 'samen nadenken? hmm hm', 'welcome back from {name}!': 'welkom terug van {name}!', 'welcome back!': 'welkom terug!', 'welcome back, finally!': 'eindelijk welkom terug!',
+  'welcome back, hero~': 'welkom terug, held~', 'what are we playing?': 'wat gaan we spelen?', 'what\'s playing?': 'wat wordt er gespeeld?', 'working hard!': 'hard aan het werk!', 'wow, you are so good at {name}!': 'wow, je bent zo goed in {name}!',
+  'you are doing great ♡': 'je doet het geweldig ♡', 'you can do it!': 'je kunt het!', 'you were gone so long!': 'je was zo lang weg!', '{name}! I\'ll be quiet ♡': '{name}! ik ben stil ♡', 'awareness is on More privacy, so I cannot see your windows': 'de bewustzijnsstand is Meer privacy, dus ik kan je vensters niet zien',
+  'a launcher': 'een launcher', 'Some other game': 'Een ander spel', 'every day': 'elke dag', 'every 3 days': 'elke 3 dagen', 'every week': 'elke week', 'every month': 'elke maand', 'every year': 'elk jaar', 'weekdays': 'doordeweeks', 'weekends': 'in het weekend',
+  '{a} until {b}': '{a} tot {b}', 'on {x}': 'op {x}'
+});
+
+// ---------- batch: treats, gifts, goals, closet, recipes, toy, petting and the rest of what he says ----------
+Object.assign(Dutch, {
+  'a carrot': 'een wortel', 'a cookie': 'een koekje', 'a strawberry': 'een aardbei', 'an apple': 'een appel', 'some bread': 'wat brood', 'some broccoli': 'wat broccoli', 'some cheese': 'wat kaas', 'some fish': 'wat vis', 'some peanuts': 'wat pinda\'s',
+  '{name} would like {x}. Tap to feed it.': '{name} wil graag {x}. Tik om te voeren.', 'He is already asking for {x}. Tap the cloud above his head.': 'Hij vraagt al om {x}. Tik op de wolk boven zijn hoofd.',
+  'All {n} treats are used for today. "Skip to tomorrow" gives fresh ones.': 'Alle {n} traktaties zijn op voor vandaag. "Naar morgen" geeft nieuwe.', 'Fumu is asking for {x}. Close this sheet and tap the cloud.': 'Fumu vraagt om {x}. Sluit dit scherm en tik op de wolk.',
+  'psst… tap the cloud, I want {x}!': 'psst… tik op de wolk, ik wil {x}!', 'ooh… {x}?': 'ooh… {x}?', 'thank you… *yawn*': 'dankjewel… *gaap*', 'thanks… so sweet ♡': 'bedankt… zo lief ♡', 'that was perfect ♡': 'dat was perfect ♡', 'you\'re the best!': 'je bent de beste!', 'yummy, thank you!': 'lekker, dankjewel!',
+  // gifts
+  'Coming up: {x} tomorrow': 'Straks: {x} morgen', 'Coming up: {x} in {n} days': 'Straks: {x} over {n} dagen', 'Back to the real day.': 'Terug naar de echte dag.', 'Come back every day for a new box.': 'Kom elke dag terug voor een nieuw doosje.', 'Today\'s boxes are shut again.': 'De doosjes van vandaag zijn weer dicht.',
+  'Pretending it is {x}. Tap again for the next special day.': 'Doen alsof het {x} is. Tik nog eens voor de volgende speciale dag.',
+  // goals
+  '{x} · done for today': '{x} · vandaag klaar', '{x}: {n} of {m} today, more tomorrow': '{x}: {n} van {m} vandaag, morgen meer', 'Already counted that today': 'Dat telde vandaag al mee', 'Clock went back, goals paused': 'De klok ging terug, doelen gepauzeerd',
+  'Too quick! Items count after 15 min': 'Te snel! Items tellen na 15 min mee', 'new friend: {x}!': 'nieuw vriendje: {x}!', 'new hat: {x}!': 'nieuwe hoed: {x}!', 'new skin: {x}!': 'nieuw uiterlijk: {x}!', 'I feel… {x}!': 'ik voel me… {x}!',
+  // closet and dress-up
+  'I love it!': 'ik vind het geweldig!', 'New name': 'Nieuwe naam', 'Put something on first!': 'Trek eerst iets aan!', 'Sure?': 'Zeker?', 'Already in the closet as "{x}".': 'Zit al in de kast als "{x}".', 'The closet is full ({n}). Remove one to make room.': 'De kast is vol ({n}). Haal er een weg om ruimte te maken.',
+  'Saved "{x}"!': '"{x}" bewaard!', 'Wearing "{x}".': 'Draagt "{x}".', 'I\'m {name}!': 'ik ben {name}!', 'cute pajamas?': 'schattige pyjama?', 'kawaii?': 'kawaii?', 'mm… fancy…': 'mm… chique…', 'pretty… and sleepy': 'mooi… en slaperig', 'pretty… zzz': 'mooi… zzz',
+  'so fancy!': 'zo chic!', 'so fancy… *yawn*': 'zo chic… *gaap*', 'ta-da… *yawn*': 'ta-da… *gaap*', 'Cream studio': 'Crème studio', 'Lilac studio': 'Lila studio', 'Mint studio': 'Munt studio',
+  'The camera is off. Allow it in the browser’s settings for this page to try again.': 'De camera staat uit. Sta hem toe in de browserinstellingen voor deze pagina om het opnieuw te proberen.', 'This phone or browser has no camera for Fumu to use.': 'Deze telefoon of browser heeft geen camera die Fumu kan gebruiken.',
+  'Waking the camera…': 'De camera wakker maken…', 'I couldn’t make the picture on this phone. A screenshot still works.': 'Ik kon de foto op deze telefoon niet maken. Een schermafbeelding werkt nog wel.',
+  // adding, tidying, eating
+  'all done ♡': 'allemaal klaar ♡', 'all tidy!': 'helemaal netjes!', 'bedtime…': 'bedtijd…', 'bye bye~': 'dag dag~', 'changed your mind?': 'bedacht je je?', 'fresh start!': 'nieuwe start!', 'let\'s do it!': 'laten we het doen!', 'nothing left to do!': 'niets meer te doen!',
+  'okay, off the list': 'oké, van het lijstje', 'poof, gone!': 'poef, weg!', 'shopping?': 'boodschappen?', 'so full…': 'zo vol…', 'so proud of us!': 'zo trots op ons!', 'task? what task?': 'taak? welke taak?', 'what a feast!': 'wat een feest!', 'zzz… snack?': 'zzz… snack?',
+  '{x} is on your list': '{x} staat op je lijstje', 'Add {x} to your list': '{x} aan je lijstje toevoegen', 'Fumu is suggesting {x}. Close this sheet to see it.': 'Fumu stelt {x} voor. Sluit dit scherm om het te zien.', 'Nothing left to suggest: every favourite is already on the list.': 'Niets meer om voor te stellen: elke favoriet staat al op het lijstje.',
+  'Suggestions are only for the shopping list. Tap the title to switch.': 'Suggesties zijn er alleen voor het boodschappenlijstje. Tik op de titel om te wisselen.', 'aww, fine': 'aww, goed', 'ok, maybe next time': 'oké, misschien de volgende keer',
+  'hehe, tickles': 'hehe, kietelt', 'hehe, tickles!': 'hehe, het kietelt!', 'melting…': 'ik smelt…', 'mmm, nice': 'mmm, lekker', 'more pets?': 'nog meer aaien?', 'right there ♡': 'precies daar ♡', 'so nice…': 'zo fijn…', 'that tickles!': 'dat kietelt!',
+  'I\'ll remember your birthday! ♡': 'ik onthoud je verjaardag! ♡', 'I love it here!': 'ik vind het hier geweldig!', 'home sweet home!': 'oost west, thuis best!', 'so cozy!': 'zo knus!',
+  'He is busy or asleep: try again in a moment.': 'Hij is bezig of slaapt: probeer het zo nog eens.', 'happy birthday': 'gefeliciteerd', 'yay, party time! ♡': 'yes, feestje! ♡', '🎂 Happy birthday': '🎂 Gefeliciteerd', 'happy birthday!! ♡': 'gefeliciteerd!! ♡',
+  'Mini Fumu\'s birthday: balloons and the chorus dance.': 'Mini Fumu\'s verjaardag: ballonnen en de koordans.', 'The app\'s birthday: confetti, a banner and the free spirited dance.': 'De verjaardag in de app: confetti, een banner en de vrije dans.',
+  'Nothing was planned.': 'Er was niets gepland.', 'Tap to edit': 'Tik om aan te passen', 'Whose birthday?': 'Wiens verjaardag?', '{x}\'s birthday': 'verjaardag van {x}',
+  // recipes
+  '{x} (already on your list)': '{x} (staat al op je lijstje)', '{x} (optional)': '{x} (optioneel)', '{x} (you probably have it)': '{x} (heb je waarschijnlijk al)', 'Add {n} thing to the list': '{n} ding aan het lijstje toevoegen', 'Add {n} things to the list': '{n} dingen aan het lijstje toevoegen',
+  'I couldn\'t find a recipe on that page. Try pasting the ingredients instead.': 'Ik kon op die pagina geen recept vinden. Probeer de ingrediënten te plakken.', 'I couldn\'t find ingredients in that.': 'Ik kon daarin geen ingrediënten vinden.', 'I couldn\'t read that page. Try pasting the ingredients instead.': 'Ik kon die pagina niet lezen. Probeer de ingrediënten te plakken.',
+  'Links need the recipe helper: add its address below. Or paste the ingredients.': 'Links hebben de receptenhulp nodig: vul hieronder het adres in. Of plak de ingrediënten.', 'Nothing ticked': 'Niets aangevinkt', 'Paste a recipe link or the ingredients first.': 'Plak eerst een receptlink of de ingrediënten.',
+  'Reading the recipe…': 'Het recept lezen…', 'Saved the helper address.': 'Adres van de hulp bewaard.', 'so many yummy things!': 'zo veel lekkere dingen!',
+  // ring menu, rooms, shop
+  'Lights off': 'Licht uit', 'No toy': 'Geen speeltje', 'Play ball': 'Balspelen', 'Swap list': 'Lijst wisselen', 'Snack': 'Snack', 'Dance': 'Dansen', 'Wave': 'Zwaaien', '*yawn* bed time…': '*gaap* bedtijd…', 'lights off… so sleepy…': 'licht uit… zo slaperig…', 'to bed we go…': 'naar bed…',
+  '*yawn* bed time again…': '*gaap* weer bedtijd…', 'mm… back to bed…': 'mm… terug naar bed…', 'oh… so sleepy… night night': 'oh… zo slaperig… nachtje nachtje', '…bed…': '…bed…', '…zzz…': '…zzz…',
+  '{x}: not for sale yet. This page is only a preview.': '{x}: nog niet te koop. Deze pagina is alleen een voorproefje.',
+  // stamp book
+  '✦ {n} stamp so far ✦': '✦ {n} stempel tot nu toe ✦', '✦ {n} stamps so far ✦': '✦ {n} stempels tot nu toe ✦', '{n} trip together!': '{n} winkelronde samen!', '{n} trips together!': '{n} winkelrondes samen!', '{n} of those, wow!': '{n} daarvan, wow!',
+  // start
+  'thinking about {item}…': 'ik denk aan {item}…', 'psst, more {item}?': 'psst, meer {item}?', 'hi! {item} soon?': 'hoi! straks {item}?', 'oh, hi!': 'oh, hoi!', 'hi, {x}!': 'hoi, {x}!', 'welcome back, {x}!': 'welkom terug, {x}!',
+  // the microphone
+  'I can\'t hear you… allow the microphone?': 'ik kan je niet horen… microfoon toestaan?', 'I didn\'t hear anything': 'ik heb niets gehoord', 'Listening…': 'Aan het luisteren…', 'hm, I couldn\'t listen just now': 'hm, ik kon net niet luisteren', 'tap the mic to talk to me': 'tik op de microfoon om met me te praten',
+  'I\'m ready!': 'ik ben klaar!', 'I got it!': 'ik heb hem!', 'again! again!': 'nog eens! nog eens!', 'caught it!': 'gevangen!', 'fetched it!': 'opgehaald!', 'gonna get it!': 'ik pak hem!', 'gotcha! ribbit!': 'gotcha! kwaak!', 'hehe, gotcha!': 'hehe, gotcha!', 'hunting mode…': 'jachtmodus…',
+  'mine mine mine!': 'mijn mijn mijn!', 'mine! ♡': 'van mij! ♡', 'nice throw!': 'mooie worp!', 'ooh! ball!': 'ooh! bal!', 'ooh! ooh!': 'ooh! ooh!', 'over here!': 'hierheen!', 'pounce time!': 'springtijd!', 'throw it again!': 'gooi hem nog eens!', 'throw it! throw it!': 'gooi hem! gooi hem!',
+  'thwip! got it!': 'tjoep! gepakt!', 'wait for me!': 'wacht op mij!', 'wiggle wiggle…': 'wiebel wiebel…',
+  'Close this sheet and watch the list. Poke him afterwards.': 'Sluit dit scherm en kijk naar het lijstje. Porrel hem daarna.', 'He already has one. Poke him to get it back.': 'Hij heeft er al een. Porrel hem om hem terug te krijgen.', 'He only steals from the shopping list. Switch to it first.': 'Hij steelt alleen van het boodschappenlijstje. Wissel eerst daarheen.',
+  'Only in the app, not the small window.': 'Alleen in de app, niet in het kleine venster.', 'psst…': 'psst…',
+  'baking spray': 'bakspray', 'cooking spray': 'kookspray', 'ice cubes': 'ijsblokjes', 'non-stick spray': 'anti-aanbakspray', 'nonstick spray': 'anti-aanbakspray', 'oil spray': 'olie-spray', 'check the to-do list ♡': 'kijk op de takenlijst ♡'
+});
+
+// ---------- his daydreams about what is on the list (logic.js) ----------
+Object.assign(Dutch, {
+  'a sweet one!! can I try?': 'een zoete!! mag ik proeven?', 'bacon!! I smell it already': 'spek!! ik ruik het nu al', 'baking day! yay!': 'bakdag! yay!', 'breakfast!! yay': 'ontbijt!! yay', 'carbs!! my favourite': 'koolhydraten!! mijn favoriet',
+  'cheesy!! yes please': 'kaas!! ja graag', 'chicken night? yum!': 'kipavond? lekker!', 'chocolate?? lucky you!': 'chocolade?? geluksvogel!', 'cosy and warm…': 'knus en warm…', 'fresh and crunchy!': 'vers en knapperig!',
+  'fresh bread… I can smell it': 'vers brood… ik ruik het', 'mmm, buttery…': 'mmm, boterig…', 'ooh, a big warm pot!': 'ooh, een grote warme pan!', 'ooh, a bit spicy!': 'ooh, een beetje pittig!', 'ooh, a yummy morning': 'ooh, een lekkere ochtend',
+  'ooh, cheese!': 'ooh, kaas!', 'ooh, chicken!': 'ooh, kip!', 'ooh, comfy food!': 'ooh, troostvoer!', 'ooh, fishy!': 'ooh, vis!', 'ooh, spicy and yummy': 'ooh, pittig en lekker', 'ooh, treat time!': 'ooh, traktatietijd!',
+  'so healthy! good job': 'zo gezond! goed gedaan', 'so many things! big cooking day': 'zo veel dingen! grote kookdag', 'so much cheese… I love it': 'zo veel kaas… ik hou ervan', 'splashy and yummy': 'spetterend en lekker', 'taco time!': 'tacotijd!',
+  'Bananas': 'Bananen', 'Bread': 'Brood', 'Cheese': 'Kaas', 'Rice': 'Rijst', 'Curry': 'Curry', 'Strawberries': 'Aardbeien', 'Cookies': 'Koekjes', 'Ice cream': 'IJs', 'Pudding': 'Pudding', 'Donuts': 'Donuts', 'Chocolate': 'Chocolade',
+  'Broccoli': 'Broccoli', 'Avocado': 'Avocado', 'Carrots': 'Wortels', 'Melon': 'Meloen', 'Tomatoes': 'Tomaten', 'Eggs': 'Eieren', 'Salmon': 'Zalm', 'Pasta': 'Pasta', 'Tea': 'Thee', 'Bubble tea': 'Bubble tea', 'Orange juice': 'Sinaasappelsap',
+  'Coffee': 'Koffie', 'Smoothie': 'Smoothie', 'Champagne': 'Champagne', 'Mango': 'Mango', 'Cupcakes': 'Cupcakes', 'Dark chocolate': 'Pure chocolade', 'Sparkling water': 'Bruisend water', 'Blueberries': 'Blauwe bessen', 'Walnuts': 'Walnoten',
+  'Green tea': 'Groene thee', 'Almonds': 'Amandelen', 'Soup': 'Soep', 'Milk': 'Melk', 'Apples': 'Appels', 'Oranges': 'Sinaasappels', 'Lollipops': 'Lollies', 'Gummy bears': 'Winegums', 'Hot sauce': 'Hete saus', 'Soda': 'Fris',
+  'Chilli sauce': 'Chilisaus', 'Noodles': 'Noedels', 'Nachos': 'Nacho\'s'
+});

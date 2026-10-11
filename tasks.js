@@ -82,6 +82,33 @@
     // when nothing matches
     ['📌', 'other', 'remember, remind, reminder, important, urgent, pin']
   ];
+  // Dutch words for the same emoji (build 591). A word also finds longer forms ("opruim" finds "opruimen"), so stems work; very short ones must be a whole word.
+  var NL = [
+    ['🧹', 'schoonmaak, opruim, stofzuig, stofzuigen, afstoff, dweil, huishoud, klusjes, poets, aanvegen, rommel'], ['🧺', 'was doen, wassen, wasmachine, strijk, kleren opvouw, droger, wasgoed, ophangen'], ['🍽️', 'afwas, vaatwasser, afwassen, vaatwasser inruimen, vaatwasser uitruimen, tafel dekken, tafel afruimen'],
+    ['🗑️', 'afval, vuilnis, vuilnisbak, kliko, container buiten, plastic buiten, glas wegbrengen, papier buiten, prullenbak'], ['🛏️', 'bed opmaken, bed verschonen, lakens, beddengoed, dekbed'], ['🧽', 'schrobben, dweilen, badkamer, toilet schoonmaken, keuken schoonmaken, auto wassen, wc schoonmaken'], ['🪟', 'ramen, ramen lappen, ramen zemen, zemen'],
+    ['📞', 'bel, bellen, telefoon, terugbel, opbellen, skypen, facetimen'], ['📧', 'e-mail, email, mail, inbox, mailtje'], ['💬', 'app, appen, appje, whatsapp, bericht, sms, antwoord, reageren, stuur, sturen'], ['📮', 'post, brief, kaart sturen, ansichtkaart, postzegel, postbus, pakket versturen'],
+    ['🦷', 'tandarts, tanden, poetsen, floss, mondhygiënist, gebit, tand'], ['🩺', 'dokter, huisarts, afspraak, controle, fysio, therapie, therapeut, specialist, ziekenhuis, check-up, uitslag'], ['💊', 'medicijn, pillen, pil, vitamines, recept, apotheek, tabletten, medicatie'], ['💉', 'vaccinatie, prik, griepprik, bloedprik, injectie, bloedonderzoek'],
+    ['💇', 'kapper, haar, knippen, kapsalon, nagels, manicure, pedicure, wenkbrauwen, barbier'], ['👓', 'opticien, bril, brillen, oogtest, lenzen, oogarts'], ['🧴', 'huidverzorging, zonnebrand, crème, douchen, bad, scheren'],
+    ['💸', 'betaal, betalen, rekening, huur, factuur, belasting, boete, terugbetal, tikkie, afbetal, abonnement opzeggen, hypotheek betalen'], ['🏦', 'bank, overmaken, sparen, spaargeld, hypotheek, lening, budget, pinpas, rekening openen'], ['🧾', 'bonnetje, bonnetjes, onkosten, declar, declaratie, kassabon, boekhouding'],
+    ['📄', 'formulier, papierwerk, document, documenten, ondertekenen, contract, aanvraag, aanvragen, verleng, paspoort, identiteitskaart, rijbewijs, visum, belastingaangifte, aangifte, toeslagen, digid'], ['🛡️', 'verzekering, polis, zorgverzekering, autoverzekering, inboedel'],
+    ['📦', 'pakket, pakketje, bezorg, retour, ophalen, postkantoor, postnl, dhl, bestelling, bestellen, afhaalpunt, afhalen'], ['🚗', 'auto, apk, garage, parkeren, rijden, wegbrengen, wegbrengen, autowas, banden, carwash'], ['⛽', 'tanken, benzine, diesel, laadpaal, opladen auto'],
+    ['🔧', 'repareer, repareren, maak, maken, loodgieter, klusjesman, monteren, installeren, lekkage, ophangen, schilderen, klus'], ['💡', 'lamp, lampen, gloeilamp, batterij, batterijen, zekering, elektricien, lampje vervangen'], ['🔑', 'sleutels, sleutel, slot, slotenmaker, verhuurder, verhuizen, verhuizing'],
+    ['🏃', 'hardlopen, rennen, joggen, wandelen, wandeling, hike, stappen, sporten, trainen, loop'], ['🏋️', 'sportschool, gym, workout, gewichten, fitness, krachttraining, crossfit, training'], ['🧘', 'yoga, rekken, mediteren, meditatie, pilates, ademhaling, ontspannen, ontspanning'], ['🚴', 'fietsen, fietstocht, fiets, wielrennen, spinning'], ['🏊', 'zwemmen, zwembad, baantjes, zwemles'],
+    ['💻', 'werk, werken, rapport, laptop, code, coderen, presentatie, slides, deadline, project, baas, klant, spreadsheet, offerte, vergadering voorbereiden'], ['📚', 'studeren, leren, huiswerk, tentamen, examen, essay, opdracht, cursus, les, college, scriptie, leren voor, studie, oefenen'],
+    ['📝', 'schrijf, schrijven, notities, notitie, plan, plannen, concept, dagboek, reflectie, nakijken, feedback'], ['📅', 'vergadering, overleg, afspraak maken, boeken, reserveren, reservering, agenda, verzetten, inplannen, plannen, meeting'], ['🖨️', 'printen, scannen, kopiëren, fotokopie, uitprinten'],
+    ['🎂', 'verjaardag, jarig, jubileum, taart voor'], ['🎁', 'cadeau, cadeautje, kado, inpakken, bruiloftscadeau, sinterklaascadeau, kerstcadeau, surprise, cadeau kopen'], ['🎉', 'feest, feestje, vieren, borrel, uitnodigen, uitnodigingen, bruiloft, housewarming, receptie'],
+    ['👋', 'bezoek, afspreken, vriend, vrienden, vriendin, bijpraten, familie, mama, papa, oma, opa, brunch, diner met, date, koffie met, lunchen met, borrelen, ouders, zus, broer'], ['🎬', 'film, films, kijken, serie, series, netflix, bioscoop, documentaire, aflevering, bingewatchen'], ['🎮', 'game, gamen, spelletje, spelen, spel, levelen'],
+    ['📖', 'lezen, boek, hoofdstuk, roman, luisterboek, uitlezen, leesclub'], ['🎨', 'tekenen, schilderen, kunst, knutselen, schetsen, breien, haken, naaien, diy, kleuren'], ['🎸', 'gitaar, piano, muziek, oefenen, zingen, lied, instrument, drums, viool, blokfluit'], ['📷', 'foto, foto\'s, fotograferen, camera, album, fotoalbum, back-up foto\'s'],
+    ['✈️', 'vlucht, vliegen, vliegveld, luchthaven, schiphol, vliegtuig, inchecken, vliegtickets'], ['🧳', 'inpakken, koffer, bagage, reis, reizen, vakantie, weekendje weg, rugzak, tas inpakken'], ['🏨', 'hotel, hostel, airbnb, accommodatie, overnachten, verblijf, camping, bungalow, b&b'], ['🎫', 'kaartje, kaartjes, tickets, ticket, trein, bus, concert, festival, evenement, ov-chipkaart, reisplanner, ns'],
+    ['🗺️', 'kaart, route, routebeschrijving, reisplan, verkennen, bezienswaardigheden, stedentrip, plattegrond'], ['🐕', 'hond, hondje, uitlaten, puppy, dierenarts, trimmen, hondentrimmer, poep, hondenschool, de hond'], ['🐈', 'kat, katje, kattenbak, kitten, de kat voeren, katten'],
+    ['🌱', 'plant, planten, planten water, water geven, tuin, tuinieren, maaien, gazon, onkruid, bloemen, verpotten, zaden, snoeien, plantjes, bloembak'], ['🐠', 'vis voeren, aquarium, vissen, visvoer, vijver'], ['👶', 'baby, kind, kinderen, kleuter, school, kinderopvang, crèche, oppassen, babysit, peuter, basisschool, verjaardagsfeestje kind, ouderavond'],
+    ['🍳', 'koken, kook, bakken, ontbijt, lunch, avondeten, diner, voorbereiden, ontdooien, marineren, mealprep, meal prep, eten maken, stamppot'], ['🛒', 'boodschappen, supermarkt, albert heijn, jumbo, lidl, aldi, eten halen, markt, groenteboer, slager, bakker'],
+    ['📌', 'onthouden, herinner, herinnering, belangrijk, dringend, niet vergeten, vergeet niet']
+  ];
+  NL.forEach(function (r) {
+    var base = TASKS.filter(function (t) { return t[0] === r[0]; })[0];
+    if (base) TASKS.push([r[0], base[1], r[1]]);
+  });
   // emoji only the picker offers, with the kind they count as
   var EXTRA = [
     ['⭐', 'other'], ['✅', 'other'], ['❤️', 'social'], ['🔔', 'other'], ['🧠', 'work'], ['🏠', 'chore'], ['🔥', 'other'], ['🌙', 'other'],

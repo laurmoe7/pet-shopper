@@ -214,6 +214,7 @@ var chatterRate = 1;     // how much he talks on his own: 0 never, .35 rarely, 1
 var speechLockUntil = 0;   // while set, nothing else may talk over an important line (the update notice)
 function say(text, ms, own) {
   if (!text || idleQuiet || Date.now() < speechLockUntil) return;
+  if (!own && typeof T === 'function') text = T(text);   // (Dutch: before the tone is put on it)
   text = text.replace(/\bFumu\b/g, petName());   // lines are written with his first name; use the one you gave him
   bubble.hidden = true;
   void bubble.offsetWidth;
@@ -236,7 +237,7 @@ function say(text, ms, own) {
  * @param {Object<string, string>} [vars]
  * @returns {string}
  */
-function line(key, fallback, vars) { return L.voiceLine(personality(), key, fallback, vars); }
+function line(key, fallback, vars) { return L.voiceLine(personality(), key, typeof T === 'function' ? fallback.map(T) : fallback, vars); }   // (Dutch: his own lines come from app-nlvoices.js, the fallbacks are translated here)
 /** Says the personality's line for a moment; a two-part line comes in two bubbles. */
 function talk(key, fallback, ms, vars) {
   var parts = line(key, fallback, vars).split('\n');

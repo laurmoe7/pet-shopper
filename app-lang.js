@@ -1,4 +1,4 @@
-// Language (build 591): English or Dutch, switched with the two flags in Options (kept on the device in nibble-lang).
+// Language (build 591): English or Dutch, switched with the two flags in Options (kept on the device in nibble-lang; until one is picked it follows the phone's language).
 // How it works: the page's English stays in the code and in the HTML; when Dutch is picked, every piece of text that has an entry in the Dutch word list
 // (app-dutch.js: `Dutch`, English text -> Dutch text, with {name} style holes for the changing parts) is swapped as it appears on the page, and swapped back
 // when English is picked again. A text with no entry stays English, so nothing breaks while the list grows. What is typed or chosen by the player (items,
@@ -10,7 +10,10 @@ var LANG_KEY = 'nibble-lang';
 var Lang = (function () {
   var LANGS = [['en', '🇺🇸', 'English'], ['nl', '🇳🇱', 'Nederlands']];
   var cur = 'en';
-  try { cur = localStorage.getItem(LANG_KEY) === 'nl' ? 'nl' : 'en'; } catch (e) { /* storage not available */ }
+  try {
+    var saved = localStorage.getItem(LANG_KEY);   // (nothing saved yet: Dutch when the phone's language is Dutch, else English; a pick in Options is saved from then on)
+    cur = saved ? (saved === 'nl' ? 'nl' : 'en') : (/^nl\b/i.test(navigator.language || '') ? 'nl' : 'en');
+  } catch (e) { /* storage not available */ }
   var words = null, holes = [], observer = null;
   var ATTRS = ['placeholder', 'aria-label', 'title', 'alt'];
   var SKIP = 'script, style, textarea, input, .item-text, .pet-name, .qty-tag, [data-notr]';
@@ -57,7 +60,7 @@ var Lang = (function () {
     if (now === null) return;
     var m = attrOf.get(el) || {}, mark = m[a];
     if (mark && now === mark.nl) return;
-    if (inSkip(el) && el.tagName !== 'INPUT') return;
+    if (inSkip(el) && el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA') return;
     var out = tr(now.trim());
     if (out === now.trim()) { if (mark) { delete m[a]; } return; }
     m[a] = { en: now, nl: out };
@@ -134,6 +137,23 @@ var Lang = (function () {
   function syncButtons() { btns.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lang === cur)); }); }
   syncButtons();
   if (cur === 'nl') wear();
+
+  // his personality in Dutch: its own lines, suggestions and tone from app-nlvoices.js laid over the English one
+  var personas = {};
+  function personaOf(p) {
+    var v = p && cur === 'nl' && typeof NlVoices === 'object' && NlVoices[p.id];
+    if (!v) return p;
+    if (personas[p.id]) return personas[p.id];
+    var out = Object.assign({}, p), voice = Object.assign({}, p.voice, v.voice);
+    if (v.lines) out.lines = v.lines;
+    if (v.suggests) out.suggests = v.suggests;
+    if (v.style) voice.style = Object.assign({}, p.voice && p.voice.style, v.style);
+    out.voice = voice;
+    personas[p.id] = out;
+    return out;
+  }
+  var englishPersonality = personality;
+  personality = function () { return personaOf(englishPersonality()); };
 
   return {
     /** @returns {string} 'en' or 'nl'. */ get: function () { return cur; },

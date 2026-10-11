@@ -215,7 +215,7 @@ var dressBubble = $('dressBubble'), dressBubbleTimer, lastOoh = 0;
  * @param {number} ms
  */
 function dressSay(text, ms, own) {
-  dressBubble.textContent = own ? text : L.styleLine(personality(), text);
+  dressBubble.textContent = own ? text : L.styleLine(personality(), typeof T === 'function' ? T(text) : text);
   dressBubble.hidden = false;
   // restart the pop animation
   dressBubble.style.animation = 'none'; void dressBubble.offsetWidth; dressBubble.style.animation = '';
