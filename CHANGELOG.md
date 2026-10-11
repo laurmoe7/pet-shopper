@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 620
+- New Year's Day: the party blower is held in his mouth (beak, snout, whatever he is) and toots louder, with a longer big toot
+
 ## Build 619
 - New Year's Day celebration on 1 January: gold party hat, disco ball with light spots, a disco dance with the pointing pose, disco music, and a party blower with confetti
 

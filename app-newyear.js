@@ -153,22 +153,33 @@ function newyearBlower() {
   pet.appendChild(blower);
   var tube = blower.querySelector('.ny-tube');
   if (tube && !reduceMotion) tube.style.transform = 'scaleX(.22)';
-  setFace({ eyes: 'happy', mouth: 'smile', arms: clip ? 'rest' : 'hold', x: ['cheeks'] });
+  setFace({ eyes: 'happy', mouth: 'o', arms: clip ? 'rest' : 'hold', x: ['cheeks'] });   // (mouth open round: the blower is held in it)
+  toMouth();
   sound('sparkle');
   say('happy new year!', 2400);
   if (!reduceMotion) { blower.animate([{ transform: 'scale(0)', opacity: 0 }, { transform: 'scale(1.2)', opacity: 1, offset: 0.6 }, { transform: 'scale(1)', opacity: 1 }], { duration: 450, easing: 'ease-out', fill: 'both' }); pulse('hopsmall', 450); }
+  /** Moves the blower so its mouthpiece is in his mouth, whatever he is: the beak on a bird, the little round mouth on the others (found from the drawing as it is drawn now, so every species and skin works). */
+  function toMouth() {
+    var pr = pet.getBoundingClientRect(), found = null, list = pet.classList.contains('beaked') ? pet.querySelectorAll('[class*="beak"]') : pet.querySelectorAll('[data-mouth="o"]');
+    [].forEach.call(list, function (el) { var r = el.getBoundingClientRect(); if (!found && r.width > 0 && r.height > 0) found = r; });
+    if (!found) return;   // (not drawn: keep where it is)
+    blower.style.left = (found.left + found.width / 2 - pr.left - 4) + 'px';
+    blower.style.top = (found.top + found.height / 2 - pr.top - 13) + 'px';
+    blower.style.marginLeft = '0';
+  }
   /** One toot: the paper tube unrolls with a squeak and rolls back up; `big` ones last longer and shoot out confetti. */
   function toot(big) {
     if (!blower.parentNode) return;
     setFace({ eyes: 'closed', mouth: 'o', arms: clip ? 'rest' : 'hold', x: ['cheeks', 'sparkles'] });
-    sound('blower');
+    toMouth();
+    sound(big ? 'blowerbig' : 'blower');
     if (tube && !reduceMotion) {
       var d = big ? 900 : 480;
       tube.animate([{ transform: 'scaleX(.22)' }, { transform: 'scaleX(1)', offset: 0.28 }, { transform: 'scaleX(1)', offset: big ? 0.8 : 0.6 }, { transform: 'scaleX(.22)' }], { duration: d, easing: 'ease-out' });
       setTimeout(function () { var r = tube.getBoundingClientRect(); newyearPuff({ x: r.right - 2, y: r.top + r.height / 2 }, big ? 46 : 16); }, d * 0.26);
     }
     if (big) { var r0 = pet.getBoundingClientRect(); drift(['🎉', '✦', '🥳', '✦'], { x: r0.left + r0.width / 2, y: r0.top }, 4); }
-    setTimeout(function () { if (blower.parentNode) setFace({ eyes: 'happy', mouth: 'smile', arms: clip ? 'rest' : 'hold', x: ['cheeks', 'hearts'] }); }, big ? 1000 : 560);
+    setTimeout(function () { if (blower.parentNode) { setFace({ eyes: 'happy', mouth: 'o', arms: clip ? 'rest' : 'hold', x: ['cheeks', 'hearts'] }); toMouth(); } }, big ? 1000 : 560);
   }
   setTimeout(function () { toot(false); }, 800);
   setTimeout(function () { toot(false); }, 1700);

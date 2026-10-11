@@ -1,6 +1,6 @@
 /* Fumu's sounds, synthesised with the Web Audio API (no audio files).
  * Sounds.play(kind) where kind is one of:
- *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party, birthday (the Happy Birthday tune), christmas (Jingle Bells), halloween (a spooky-cute tune), newyear (a disco groove), blower (a party blower toot),
+ *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party, birthday (the Happy Birthday tune), christmas (Jingle Bells), halloween (a spooky-cute tune), newyear (a disco groove), blower and blowerbig (party blower toots),
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
  *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), bell, tink and smash (the night bell ringing, clinking and breaking), glass (a piece of window breaking off, the wrecking ball), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
@@ -388,10 +388,21 @@
       chime(t + total - 0.2, [440, 523, 659, 880], 0.12, 1.1, 'sine');
     },
     blower: function (t) {
-      // a party blower: a squeaky paper horn that toots as it unrolls
-      tone(t, 0.22, 'square', 620, 940, env(t, 0.01, 0.2, 0.09));
-      tone(t, 0.22, 'sawtooth', 624, 944, env(t, 0.01, 0.2, 0.05));
-      noise(t, 0.2, 'bandpass', 2200, 1.4, env(t, 0.01, 0.18, 0.1));
+      // a party blower: a honking paper horn, a rising "pweee" with a flutter, and the rattle of the paper unrolling
+      var o = tone(t, 0.5, 'square', 520, 880, env(t, 0.015, 0.46, 0.16));
+      tone(t, 0.5, 'sawtooth', 524, 888, env(t, 0.015, 0.46, 0.09));
+      tone(t, 0.5, 'sine', 1040, 1760, env(t, 0.02, 0.4, 0.05));
+      var lfo = ctx.createOscillator(), depth = ctx.createGain(); lfo.frequency.value = 22; depth.gain.value = 26 * pitch; lfo.connect(depth); depth.connect(o.frequency); lfo.start(t); lfo.stop(t + 0.52);
+      noise(t, 0.46, 'bandpass', 2600, 1.3, env(t, 0.01, 0.42, 0.14));
+    },
+    blowerbig: function (t) {
+      // the big toot: longer, higher, with a fall at the end like a real one running out of breath
+      var o = tone(t, 0.95, 'square', 480, 1000, env(t, 0.02, 0.9, 0.17));
+      o.frequency.setValueAtTime(1000 * pitch, t + 0.7); o.frequency.exponentialRampToValueAtTime(620 * pitch, t + 0.95);
+      tone(t, 0.95, 'sawtooth', 484, 1008, env(t, 0.02, 0.9, 0.1));
+      tone(t, 0.95, 'sine', 960, 2000, env(t, 0.02, 0.8, 0.05));
+      var lfo = ctx.createOscillator(), depth = ctx.createGain(); lfo.frequency.value = 24; depth.gain.value = 30 * pitch; lfo.connect(depth); depth.connect(o.frequency); lfo.start(t); lfo.stop(t + 0.97);
+      noise(t, 0.9, 'bandpass', 2800, 1.3, env(t, 0.01, 0.85, 0.15));
     },
     newyear: function (t) {
       // a disco groove (original, about 15 s, 128 beats a minute): a kick on every beat, handclaps on two and four, open hats between, a funky octave-jumping bass, string stabs, a squelchy synth riff and a whoop up into it; ends on a big chord with a sparkle (build 619)
