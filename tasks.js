@@ -2,7 +2,7 @@
  * Each row: [emoji, kind, "keyword, keyword, ..."]. The longest keyword found in a task wins, so "dentist" beats
  * "appointment". A keyword also matches longer forms of the word ("clean" finds "cleaning"); short ones (three
  * letters or fewer) must match a whole word. Loaded as a classic script after foods.js, by the page and the tests.
- * Kinds: chore, call, health, money, errand, fitness, work, social, fun, travel, care, cook, other.
+ * Kinds: chore, call, health, money, errand, fitness, work, social, fun, travel, care, pets, study, cook, other.
  */
 (function (root) {
   var TASKS = [
@@ -48,7 +48,7 @@
     ['🏊', 'fitness', 'swim, swimming, pool'],
     // work and study
     ['💻', 'work', 'work, report, laptop, code, coding, presentation, slides, deadline, project, boss, client, spreadsheet'],
-    ['📚', 'work', 'study, homework, exam, revise, revision, essay, assignment, course, class, lecture, learn, read up'],
+    ['📚', 'study', 'study, homework, exam, revise, revision, essay, assignment, course, class, lecture, learn, read up'],
     ['📝', 'work', 'write, notes, note, plan, list, draft, journal, diary, review'],
     ['📅', 'work', 'meeting, schedule, book, booking, reserve, reservation, calendar, plan week, agenda, reschedule'],
     ['🖨️', 'work', 'print, scan, copy, photocopy'],
@@ -71,10 +71,11 @@
     ['🎫', 'travel', 'ticket, tickets, train, bus, concert, festival, event'],
     ['🗺️', 'travel', 'map, route, directions, itinerary, explore, sightseeing'],
     // looking after things
-    ['🐕', 'care', 'dog, walk the dog, puppy, vet, groomer, groom, poop'],
-    ['🐈', 'care', 'cat, litter, kitten, feed the cat'],
+    ['🐕', 'pets', 'dog, walk the dog, puppy, vet, groomer, groom, poop'],
+    ['🐈', 'pets', 'cat, litter, kitten, feed the cat'],
+    ['🐾', 'pets', 'pet, pets, paws, fur, treats for the dog'],
     ['🌱', 'care', 'plant, plants, water the plants, garden, gardening, mow, lawn, weed, flowers, repot, seeds'],
-    ['🐠', 'care', 'fish, aquarium, feed fish, tank'],
+    ['🐠', 'pets', 'fish, aquarium, feed fish, tank'],
     ['👶', 'care', 'baby, kid, kids, child, school, daycare, nursery, babysit'],
     // cooking
     ['🍳', 'cook', 'cook, cooking, meal prep, bake, baking, breakfast, lunch, dinner, supper, prepare, defrost, marinate'],
@@ -85,7 +86,7 @@
   // emoji only the picker offers, with the kind they count as
   var EXTRA = [
     ['⭐', 'other'], ['✅', 'other'], ['❤️', 'social'], ['🔔', 'other'], ['🧠', 'work'], ['🏠', 'chore'], ['🔥', 'other'], ['🌙', 'other'],
-    ['☎️', 'call'], ['📱', 'call'], ['🎓', 'work'], ['🏥', 'health'], ['🛍️', 'errand'], ['🧸', 'care'], ['🎒', 'travel'], ['🍰', 'cook'], ['⏰', 'other'], ['🧼', 'chore']
+    ['☎️', 'call'], ['📱', 'call'], ['🎓', 'study'], ['🏥', 'health'], ['🛍️', 'errand'], ['🧸', 'care'], ['🎒', 'travel'], ['🍰', 'cook'], ['⏰', 'other'], ['🧼', 'chore']
   ];
   var FALLBACK = { emoji: '📌', cat: 'other' };
 
@@ -120,6 +121,6 @@
     match: match,
     categoryOf: function (emoji) { return kindOf[emoji] || 'other'; },
     all: ALL,
-    kinds: ['chore', 'call', 'health', 'money', 'errand', 'fitness', 'work', 'social', 'fun', 'travel', 'care', 'cook', 'other']
+    kinds: ['chore', 'call', 'health', 'money', 'errand', 'fitness', 'work', 'social', 'fun', 'travel', 'care', 'pets', 'study', 'cook', 'other']
   };
 })(typeof self !== 'undefined' ? self : globalThis);
