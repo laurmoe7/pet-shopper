@@ -48,6 +48,7 @@ function animCatalogue() {
   ['l', 'r', 't'].forEach(function (w) {
     add('Specials', 'hit the ' + ({ l: 'left wall', r: 'right wall', t: 'ceiling' })[w], function () { if (window.wallHit) window.wallHit(w, .6); else say('only in the small pet window', 1800); return 800; });
   });
+  add('Specials', 'toy pops back in (after the birthday party)', function () { bdayToyAway(false); return 1000; });
   add('Specials', 'trip stamp (thumps onto the receipt)', function () { sound('stamp'); tripStampAt(tripStampSpot()); return 2600; });
   add('Specials', 'trip done (stamp and party)', function () { celebrate({ stamped: true, count: ((state.pet.stamps || {}).trip || 0) + 1 }); return 3200; });
   add('Specials', 'belly jiggle', function () { bellyJiggle(); return 1300; });

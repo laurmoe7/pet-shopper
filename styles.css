@@ -4231,3 +4231,6 @@ html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-bloc
 }
 .pet.partydance .pet-svg { animation: partydance 9s ease-in-out; transform-origin: 50% 94%; }
 @media (prefers-reduced-motion: reduce) { .pet.partydance .pet-svg { animation: none; } }
+
+/* the toy is put away for the birthday party (bdayToyAway in app-birthday.js; build 612) */
+.stage.bday-toyaway .toy { display: none !important; }

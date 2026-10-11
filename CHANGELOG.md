@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 612
+- Birthday: the toy is put away for the party and pops back in after
+
 ## Build 611
 - Fireworks redone: rockets, glowing streaks, rings, hearts and glitter, one every couple of seconds through the whole celebration
 

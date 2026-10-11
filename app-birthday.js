@@ -174,6 +174,20 @@ function bdayCake() {
   return 5800;
 }
 /** Plays the celebration once (the app's or Mini Fumu's). @returns {boolean} Whether it started. */
+/** The toy goes away for the party (hidden from the moment the app opens on the birthday) and, once it is over, pops back in: it spins and bounces up out of nothing with a little sparkle (build 612). */
+function bdayToyAway(away) {
+  stage.classList.toggle('bday-toyaway', away);
+  if (away || typeof toyEl === 'undefined' || !toyEl || getComputedStyle(toyEl).display === 'none') return;
+  if (!reduceMotion) toyEl.animate([
+    { scale: '0', rotate: '-240deg', opacity: 0 },
+    { scale: '1.4', rotate: '14deg', opacity: 1, offset: 0.55 },
+    { scale: '.85', rotate: '-6deg', offset: 0.78 },
+    { scale: '1', rotate: '0deg', opacity: 1 }
+  ], { duration: 750, easing: 'ease-out' });
+  sound('bounce');
+  var r = toyEl.getBoundingClientRect();
+  drift(['✦', '♪', '✦'], { x: r.left + r.width / 2, y: r.top }, 3);
+}
 var bdayHold = false, bdayHoldTimer = 0;   // on the birthday, from the moment the app opens until the party starts, he is held "busy" so nothing else (a wish, a steal, an idle move) begins first
 /** @returns {boolean} Whether today's party has already played (or started). */
 function bdayDoneToday() {
@@ -196,6 +210,7 @@ function birthdayParty() {
   partyOn = true;
   var small = document.documentElement.classList.contains('desktop-pet'), name = state.player.name;
   busy++;
+  bdayToyAway(true);
   releaseBdayHold();   // (the party's count replaces the hold's, so he is never free in between)
   if (pet.dataset.state === 'sleepy') pet.dataset.state = 'happy';   // (the developer tool wakes him)
   sound('birthday');   // (the jingle: about 9 s, the length of the party dance)
@@ -209,7 +224,7 @@ function birthdayParty() {
   var fw = bdayLayer(8000), fwMs = ms + 5500;   // (fireworks away from him, one every couple of seconds right through to the end of the cake)
   bdayFireworks(fw, fwMs);
   setTimeout(function () { fw.remove(); }, fwMs + 3500);
-  setTimeout(function () { var more = bdayCake(); setTimeout(function () { partyOn = false; busy--; if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the cake)
+  setTimeout(function () { var more = bdayCake(); setTimeout(function () { partyOn = false; busy--; bdayToyAway(false); if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the cake)
   return true;
 }
 /** Starts it once a day, on the birthday, when he is awake and not busy. */
@@ -229,6 +244,6 @@ function devBirthdayNow() {
   return document.documentElement.classList.contains('desktop-pet') ? 'Mini Fumu\'s birthday: balloons, fireworks, the party dance and a cake.' : 'The app\'s birthday: confetti, a banner, fireworks, the party dance and a cake.';
 }
 // the first time the app is opened on the birthday the party comes first: a moment after it opens (the hold keeps everything else back until then, for at most 45 s)
-if (isBirthday() && !bdayDoneToday()) { bdayHold = true; busy++; bdayHoldTimer = setTimeout(function () { releaseBdayHold(); if (!busy) settle(); }, 45000); }
+if (isBirthday() && !bdayDoneToday()) { bdayHold = true; busy++; bdayToyAway(true); bdayHoldTimer = setTimeout(function () { if (!bdayHold) return; releaseBdayHold(); if (!partyOn) bdayToyAway(false); if (!busy) settle(); }, 45000); }
 var bdayTry = setInterval(function () { if (!bdayHold) { clearInterval(bdayTry); return; } birthdayCheck(); }, 1000);   // (he may still be busy with the opening: try again every second)
 setInterval(birthdayCheck, 60000);   // (also when he was asleep or busy at first)
