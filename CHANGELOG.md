@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 628
+- Black skins (black cat, black Pomeranian) get a darker outline
+- Shop: a new Special days tab with a calendar of celebrations and extra gifts, and what is coming up
+
 ## Build 627
 - New Year's Day: gold and silver fireworks at the end (willow, crossette, palm, glitter and a finale volley), different from the birthday ones
 
