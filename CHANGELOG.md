@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 636
+- Stamp book: a Plants stamp for each flower grown
+
 ## Build 635
 - The little plant is for the to-do list only
 - Ticking a reminder done in Mini Fumu waters the plant
