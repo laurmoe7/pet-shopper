@@ -64,7 +64,7 @@ function listenNow(auto) {
   micBtn.setAttribute('aria-pressed', 'true');
   addInput.placeholder = 'Listening…';
   sound('pick');
-  if (baseState() !== 'sleepy') setFace({ eyes: 'open', mouth: 'o', arms: 'idle', x: ['question'] });
+  if (baseState() !== 'sleepy') setFace({ eyes: 'open', mouth: 'o', arms: 'listen', x: [] });   // (a hand up to his ear)
   try {
     listening = Voice.listen(speechLang(), function (text, final) {
       heard = text;

@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 592
+- Mic: Fumu puts a hand up to his ear while he listens
+
 ## Build 591
 - Dutch language: pick it with the flags at the top of Options (first part of the app is translated)
 - Ring menu: the wrecking ball is gone from it (still in Options)
