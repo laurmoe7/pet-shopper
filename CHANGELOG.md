@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 627
+- New Year's Day: gold and silver fireworks at the end (willow, crossette, palm, glitter and a finale volley), different from the birthday ones
+
 ## Build 626
 - New skin: Black Pomeranian, with brown eyes
 

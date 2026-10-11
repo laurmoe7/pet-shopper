@@ -192,6 +192,102 @@ function newyearBlower() {
   return 5800;
 }
 
+/**
+ * The New Year's fireworks for the end of the celebration (build 627), unlike the birthday ones (rockets, glowing streaks, rings and hearts in party colours): these are gold and silver. A golden "willow"
+ * bursts with long trails that droop and fall, a "crossette" whose sparks split in two at the end of their flight, and a silver and ice-blue "palm" of glittering stars; every burst leaves a
+ * crackle of tiny gold glitter twinkling in the air, and the last one is a volley of three at once. They go off away from him, over the cards. @param {number} ms How long to keep launching them.
+ */
+function newyearFireworks(ms) {
+  if (reduceMotion) return;
+  var layer = bdayLayer(9500), w = window.innerWidth, h = window.innerHeight, reach = Math.max(54, Math.min(w, h) * 0.3), n = 0;
+  var GOLD = ['#ffc83a', '#ffe27a', '#fff3b8'], SILVER = ['#fffaf0', '#cfe6ff', '#8fd3ff'];
+  function spot() {
+    var r = pet.getBoundingClientRect(), best = null, bestD = -1;
+    for (var i = 0; i < 14; i++) {
+      var x = w * (0.12 + Math.random() * 0.76), y = h * (0.1 + Math.random() * 0.5), dx = Math.max(r.left - x, 0, x - r.right), dy = Math.max(r.top - y, 0, y - r.bottom), d = Math.hypot(dx, dy);
+      if (d >= reach * 0.9) return [x, y];
+      if (d > bestD) { bestD = d; best = [x, y]; }
+    }
+    return best;
+  }
+  function el(css) { var e = document.createElement('i'); e.style.cssText = 'position:absolute;' + css; layer.appendChild(e); return e; }
+  function glow(cx, cy, col) {
+    var g = el('left:' + (cx - reach * 0.55) + 'px;top:' + (cy - reach * 0.55) + 'px;width:' + reach * 1.1 + 'px;height:' + reach * 1.1 + 'px;border-radius:50%;background:radial-gradient(circle,' + col + '77 0%,' + col + '22 45%,transparent 70%)');
+    g.animate([{ opacity: 0, transform: 'scale(.4)' }, { opacity: 1, transform: 'scale(1)', offset: 0.3 }, { opacity: 0, transform: 'scale(1.15)' }], { duration: 1700, easing: 'ease-out', fill: 'both' }).onfinish = function () { g.remove(); };
+  }
+  function glitter(cx, cy, k) {   // a crackle of tiny gold glitter that twinkles on and off in the air and drifts down
+    for (var i = 0; i < k; i++) {
+      var a = Math.random() * Math.PI * 2, d = reach * (0.25 + Math.random() * 0.85), x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d;
+      var g = el('left:' + (x - 2) + 'px;top:' + (y - 2) + 'px;width:4px;height:4px;border-radius:50%;background:#ffe27a;box-shadow:0 0 0 1px #fffaf0,0 0 6px 1px #ffc83a');
+      var fall = reach * (0.3 + Math.random() * 0.5), tw = [];
+      for (var q = 0; q < 6; q++) tw.push({ opacity: q % 2 ? 0.15 : 1, transform: 'translateY(' + (fall * q / 5) + 'px) scale(' + (q % 2 ? .6 : 1.1) + ')' });
+      g.animate(tw, { duration: 1500 + Math.random() * 1200, delay: 500 + Math.random() * 500, easing: 'linear', fill: 'both' }).onfinish = function () { this.effect.target.remove(); };
+    }
+  }
+  function willow(cx, cy) {   // gold trails that burst out and then droop and fall like a weeping willow
+    glow(cx, cy, '#ffc83a');
+    for (var i = 0; i < 30; i++) {
+      var a = (i / 30) * Math.PI * 2 + (i % 2) * 0.05, d = reach * (0.75 + (i % 3) * 0.12), dx = Math.cos(a) * d, dy = Math.sin(a) * d, ang = a * 180 / Math.PI;
+      var t = el('left:' + (cx - 14) + 'px;top:' + (cy - 1.2) + 'px;width:28px;height:2.4px;border-radius:2px;background:linear-gradient(90deg,transparent,' + GOLD[i % 3] + ');box-shadow:0 0 5px ' + GOLD[0]);
+      t.animate([
+        { transform: 'translate(0,0) rotate(' + ang + 'deg) scaleX(.2)', opacity: 1 },
+        { transform: 'translate(' + dx * 0.8 + 'px,' + dy * 0.8 + 'px) rotate(' + ang + 'deg) scaleX(1.2)', opacity: 1, offset: 0.3 },
+        { transform: 'translate(' + dx * 1.05 + 'px,' + (dy * 1.05 + reach * 0.5) + 'px) rotate(90deg) scaleX(1.5)', opacity: 0.85, offset: 0.65 },
+        { transform: 'translate(' + dx * 1.1 + 'px,' + (dy * 1.1 + reach * 1.2) + 'px) rotate(90deg) scaleX(.6)', opacity: 0 }
+      ], { duration: 2500, easing: 'cubic-bezier(.2,.6,.4,1)', fill: 'both' }).onfinish = function () { this.effect.target.remove(); };
+    }
+    glitter(cx, cy, 22);
+  }
+  function crossette(cx, cy) {   // eight sparks fly out, and each splits into three small ones at the end of its flight
+    glow(cx, cy, '#fff3b8');
+    for (var i = 0; i < 8; i++) {
+      var a = (i / 8) * Math.PI * 2 + 0.2, d = reach * 0.85, dx = Math.cos(a) * d, dy = Math.sin(a) * d;
+      var s = el('left:' + (cx - 4) + 'px;top:' + (cy - 4) + 'px;width:8px;height:8px;border-radius:50%;background:#fffaf0;box-shadow:0 0 0 2px #ffc83a,0 0 10px 3px #ffc83a');
+      s.animate([{ transform: 'translate(0,0) scale(1.2)', opacity: 1 }, { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(1)', opacity: 1, offset: 0.9 }, { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(0)', opacity: 0 }], { duration: 750, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'both' }).onfinish = function () { this.effect.target.remove(); };
+      (function (px, py, base) {
+        setTimeout(function () {
+          if (!layer.parentNode) return;
+          for (var k = 0; k < 3; k++) {
+            var b = base + (k - 1) * 0.7, bd = reach * 0.34, bx = Math.cos(b) * bd, by = Math.sin(b) * bd;
+            var c = el('left:' + (px - 3) + 'px;top:' + (py - 3) + 'px;width:6px;height:6px;border-radius:50%;background:' + SILVER[k % 3] + ';box-shadow:0 0 8px 2px ' + GOLD[k % 3]);
+            c.animate([{ transform: 'translate(0,0)', opacity: 1 }, { transform: 'translate(' + bx + 'px,' + (by + reach * 0.2) + 'px)', opacity: 1, offset: 0.5 }, { transform: 'translate(' + bx * 1.1 + 'px,' + (by + reach * 0.55) + 'px)', opacity: 0 }], { duration: 1300, easing: 'ease-out', fill: 'both' }).onfinish = function () { this.effect.target.remove(); };
+          }
+        }, 700);
+      })(cx + dx, cy + dy, a);
+    }
+    glitter(cx, cy, 14);
+  }
+  function palm(cx, cy) {   // seven long arms of silver and ice-blue stars that arch out and droop
+    glow(cx, cy, '#8fd3ff');
+    for (var i = 0; i < 7; i++) {
+      var a = (i / 7) * Math.PI * 2 + 0.3;
+      for (var j = 1; j <= 6; j++) {
+        var d = reach * (0.14 * j + 0.1), dx = Math.cos(a) * d, dy = Math.sin(a) * d + j * j * 1.8, size = 7 - j * 0.6;
+        var s = el('left:' + (cx - size / 2) + 'px;top:' + (cy - size / 2) + 'px;width:' + size + 'px;height:' + size + 'px;border-radius:50%;background:' + SILVER[j % 3] + ';box-shadow:0 0 0 1px #fff,0 0 8px 2px ' + SILVER[(j + 1) % 3]);
+        s.animate([{ transform: 'translate(0,0)', opacity: 0 }, { transform: 'translate(' + dx + 'px,' + dy + 'px)', opacity: 1, offset: 0.35 }, { transform: 'translate(' + dx * 1.02 + 'px,' + (dy + reach * 0.5) + 'px)', opacity: 0 }], { duration: 1900, delay: j * 40, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'both' }).onfinish = function () { this.effect.target.remove(); };
+      }
+    }
+    glitter(cx, cy, 14);
+  }
+  function launch(kind, at) {   // a gold spark climbs with a thin trail, then the burst
+    var cx = at ? at[0] : 0, cy = at ? at[1] : 0;
+    if (!at) { var sp = spot(); cx = sp[0]; cy = sp[1]; }
+    var rocket = el('left:' + (cx - 1.5) + 'px;top:0;width:3px;height:30px;border-radius:2px;background:linear-gradient(0deg,transparent,#ffe27a);box-shadow:0 0 6px #ffc83a');
+    rocket.animate([{ transform: 'translateY(' + (h + 10) + 'px)', opacity: 0.9 }, { transform: 'translateY(' + cy + 'px)', opacity: 1, offset: 0.93 }, { transform: 'translateY(' + cy + 'px)', opacity: 0 }], { duration: 500 + (h - cy) * 0.3, easing: 'cubic-bezier(.3,.6,.5,1)', fill: 'both' }).onfinish = function () {
+      rocket.remove();
+      if (!layer.parentNode) return;
+      sound('sparkle');
+      (kind === 0 ? willow : kind === 1 ? crossette : palm)(cx, cy);
+    };
+  }
+  var times = [0, 1000, 2000, 2800], kinds = [0, 1, 2, 0];
+  times.forEach(function (t, i) { if (t < ms - 600) setTimeout(function () { launch(kinds[i]); }, t); });
+  setTimeout(function () {   // the finale: a volley of three at once, side by side
+    [[0.2, 0], [0.5, 2], [0.8, 1]].forEach(function (v, i) { setTimeout(function () { launch(v[1], [w * v[0], h * (0.16 + (i === 1 ? 0 : 0.1))]); }, i * 120); });
+  }, Math.min(3600, ms - 1900));
+  setTimeout(function () { layer.remove(); }, ms + 3800);
+}
+
 /** Plays the celebration once (the app's or Mini Fumu's). @returns {boolean} Whether it started. */
 function newyearParty() {
   if (newyearOn || bdayHold || partyOn || (typeof xmasHolding === 'function' && xmasHolding()) || (typeof halloweenHolding === 'function' && halloweenHolding()) || (!devNewYear && (busy - celebrationHolds() > 0 || baseState() === 'sleepy'))) return false;
@@ -212,7 +308,7 @@ function newyearParty() {
   newyearDiscoBall(layer, total);
   setTimeout(function () { drift(['✨', '🎉', '✦'], petTop(), 4); }, 1500);
   setTimeout(function () { layer.remove(); }, total + 800);
-  setTimeout(function () { var more = newyearBlower(); setTimeout(function () { newyearOn = false; busy--; bdayToyAway(false); if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the blower)
+  setTimeout(function () { newyearFireworks(5500); var more = newyearBlower(); setTimeout(function () { newyearOn = false; busy--; bdayToyAway(false); if (!busy) settle(); }, more); }, ms + 300);   // (the dance, then the blower and the fireworks)
   return true;
 }
 /** Starts it once, on 1 January, when he is awake and not busy (the other celebrations go first when they are pending). */
