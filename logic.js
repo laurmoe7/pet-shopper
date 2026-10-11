@@ -191,6 +191,8 @@
       // daily gift boxes (bonuses.js): the boxes opened on each recent day and the prizes collected
       gifts: saved.gifts && typeof saved.gifts === 'object' ? saved.gifts : {},
       prizes: saved.prizes && typeof saved.prizes === 'object' ? saved.prizes : {},
+      // the little plant (app-plant.js): the days it was watered (a day anything was ticked off) and the last such day, as a day number
+      plant: { days: Math.max(0, Math.floor(+(saved.plant && saved.plant.days) || 0)), last: Math.max(0, Math.floor(+(saved.plant && saved.plant.last) || 0)) },
       favourites: saved.favourites && typeof saved.favourites === 'object' ? saved.favourites : {},
       // the night it was put to bed (nightOf): asleep until something is checked off or the morning
       dozing: typeof saved.dozing === 'string' ? saved.dozing : '',
@@ -272,6 +274,32 @@
    * @property {boolean} time24      Times on tasks as 14:30 (off: 2:30 PM).
    * @property {boolean} aisles      The shopping list is shown grouped by shop aisle.
    */
+
+  // ---------- the little plant (build 633) ----------
+  /** How many watered days a flower takes: a seed, a sprout, three sizes of leaves, a bud and then the flower (stages 0 to 6). */
+  var PLANT_STAGES = 7;
+  /** @param {Date} date @returns {number} The day as a whole number (the same for everyone on that calendar day), for counting days. */
+  function dayNumber(date) { return Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000); }
+  /**
+   * @param {{days: number, last: number}} plant @param {number} today The day number now.
+   * @returns {{stage: number, flowers: number, thirsty: boolean, bloom: boolean}} How the plant looks: its stage (0 seed to 6 flower), the flowers grown so far, whether it has gone two days without water.
+   */
+  function plantInfo(plant, today) {
+    var days = Math.max(0, (plant && plant.days) | 0), last = (plant && plant.last) | 0, stage = days % PLANT_STAGES;
+    return { stage: stage, flowers: Math.floor(days / PLANT_STAGES), thirsty: stage < PLANT_STAGES - 1 && last > 0 && today - last >= 2, bloom: stage === PLANT_STAGES - 1 };
+  }
+  /**
+   * Waters the plant: the first thing ticked off on a day counts, the rest of that day does not. It never dies and it waits when a day is missed.
+   * @param {Object} profile The pet (pet.plant is changed). @param {number} today The day number now.
+   * @returns {{watered: boolean, stage: number, bloomed: boolean, picked: boolean}} Whether it was watered now, its stage after, whether it just came into flower, and whether the flower was just picked for a new seed.
+   */
+  function waterPlant(profile, today) {
+    var p = profile.plant || (profile.plant = { days: 0, last: 0 });
+    if (p.last >= today) return { watered: false, stage: plantInfo(p, today).stage, bloomed: false, picked: false };
+    p.days += 1; p.last = today;
+    var stage = p.days % PLANT_STAGES;
+    return { watered: true, stage: stage, bloomed: stage === PLANT_STAGES - 1, picked: stage === 0 };
+  }
 
   /** The settings a new phone starts with: everything on. */
   var DEFAULT_SETTINGS = { sounds: true, vibration: true, daydreams: true, suggestions: false, fairPlayTips: true, goalToasts: true, cardboard: true, time24: true, aisles: true };
@@ -2309,6 +2337,10 @@
     recordEaten: recordEaten,
     recordTrip: recordTrip,
     recordTripStamp: recordTripStamp,
+    PLANT_STAGES: PLANT_STAGES,
+    dayNumber: dayNumber,
+    plantInfo: plantInfo,
+    waterPlant: waterPlant,
     refundEaten: refundEaten,
     recordFavourite: recordFavourite,
     refundFavourite: refundFavourite,

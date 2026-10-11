@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 633
+- Weather: Fumu reacts to rain, storms, snow, cold and heat (turn it on in Options)
+- Little plant in the room: grows when you tick things off, then flowers
+
 ## Build 632
 - Darker eye outline on the black cat and black Pomeranian
 

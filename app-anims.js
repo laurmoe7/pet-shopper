@@ -26,6 +26,10 @@ function animCatalogue() {
   add('Body moves', 'hand dance', handDance);
   add('Body moves', 'chorus dance', chorusDance);
   add('Body moves', 'party dance (the birthday one)', partyDance);
+  ['rain', 'storm', 'snow', 'cold', 'hot'].forEach(function (k) { add('Weather', 'weather: ' + k + (k === 'rain' || k === 'storm' ? ' (umbrella)' : k === 'hot' ? ' (fan and sun)' : ' (scarf)'), function () { return wxPlay(k); }); });
+  add('Weather', 'weather: back to the real one', function () { return wxPlay('real'); });
+  add('Plant', 'plant: water it (the next stage)', function () { devPlantGrow(); return 4000; });
+  add('Plant', 'plant: start over with a seed', function () { devPlantReset(); return 1500; });
   add('Body moves', 'monster mash (the Halloween dance)', halloweenDance);
   add('Body moves', 'disco dance (the New Year\'s Day one)', discoDance);
   add('Body moves', 'bunny dance (the Easter one)', bunnyDance);

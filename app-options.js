@@ -76,6 +76,50 @@ themeRow.appendChild(themeBtns);
 function syncThemeButtons() { themeBtns.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x.dataset.theme === currentTheme)); }); }
 syncThemeButtons();
 optionsList.appendChild(themeRow);
+// the weather (weather.js, app-weather.js): a switch, and a place to look it up for (a typed city or this device's position); kept on this device
+var wxRow = document.createElement('label'), wxPlaceBox = document.createElement('div');
+wxRow.className = 'option';
+wxRow.innerHTML = '<span class="option-title">Weather</span><input type="checkbox" role="switch" id="wxOn"><span class="option-text">He reacts to it. Only an area is sent to open-meteo.com.</span>';
+wxPlaceBox.className = 'option-weather';
+wxPlaceBox.innerHTML = '<div class="wx-place"><input type="text" id="wxPlace" maxlength="60" placeholder="City" aria-label="City for the weather" autocomplete="off"><button type="button" class="pill-btn" id="wxFind">Find</button><button type="button" class="pill-btn" id="wxHere">My location</button></div><p class="option-text" id="wxStatus" aria-live="polite"></p>';
+optionsList.append(wxRow, wxPlaceBox);
+/** Says what the weather setting is doing now (the place and the weather last seen). */
+function wxStatus(note) {
+  var c = wxConf(), l = wxLast(), el = $('wxStatus');
+  if (!el) return;
+  el.textContent = note || (!c.want ? '' : !c.on ? T('Pick a place below.') : (c.place || T('Your location')) + (l ? ': ' + T(Weather.KINDS[l.kind].label) + ', ' + l.temp + '°' : ''));
+}
+/** Fills the weather row when Options opens. */
+function wxFill() { var c = wxConf(); $('wxOn').checked = c.want; if (c.place && document.activeElement !== $('wxPlace')) $('wxPlace').value = c.place === 'My location' ? '' : c.place; wxStatus(); }
+$('wxOn').addEventListener('change', function () {
+  var c = wxConf(); c.want = $('wxOn').checked; wxSave(c);
+  if (!state.quiet) sound(c.want ? 'on' : 'off');
+  wxStatus(); wxFetch(true);
+});
+/** Looks a typed place up and starts using it. */
+function wxFindPlace() {
+  var name = $('wxPlace').value.trim();
+  if (!name) { wxStatus(T('Type a city first.')); return; }
+  wxStatus(T('Looking…'));
+  fetch(Weather.searchUrl(name)).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+    var p = Weather.parsePlace(j);
+    if (!p) { wxStatus(T('No place found.')); return; }
+    wxSave({ want: true, lat: p.lat, lon: p.lon, place: p.place });
+    $('wxOn').checked = true; $('wxPlace').value = p.place;
+    wxStatus(); wxFetch(true);
+  }).catch(function () { wxStatus(T('Could not look it up (are you online?).')); });
+}
+$('wxFind').addEventListener('click', wxFindPlace);
+$('wxPlace').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); wxFindPlace(); } });
+$('wxHere').addEventListener('click', function () {
+  if (!navigator.geolocation) { wxStatus(T('This device cannot tell where it is.')); return; }
+  wxStatus(T('Looking…'));
+  navigator.geolocation.getCurrentPosition(function (pos) {
+    wxSave({ want: true, lat: Weather.round(pos.coords.latitude), lon: Weather.round(pos.coords.longitude), place: 'My location' });
+    $('wxOn').checked = true; $('wxPlace').value = '';
+    wxStatus(); wxFetch(true);
+  }, function () { wxStatus(T('Could not get the location.')); }, { timeout: 10000, maximumAge: 600000 });
+});
 OPTIONS.forEach(function (o) {
   var label = document.createElement('label');
   label.className = 'option';
@@ -101,6 +145,7 @@ optionsList.addEventListener('change', function (e) {
   if (!state.quiet) sound(e.target.checked ? 'on' : 'off');   // (switching sounds on plays the click; switching them off is silent)
 });
 $('optionsBtn').addEventListener('click', function () {
+  wxFill();
   optionsList.querySelectorAll('input[data-key]').forEach(function (b) { b.checked = b.dataset.key === 'quiet' ? !state.quiet : state.settings[b.dataset.key]; });
   var n = Errors.fresh.length;   // errors since the app opened (Developer tools has them)
   $('buildLabel').textContent = 'Build ' + BUILD + (n ? ' \u00b7 ' + n + (n === 1 ? ' error' : ' errors') : '');
@@ -128,6 +173,9 @@ var DEV_ACTIONS = [
     if (!busy) settle();
     return { auto: 'Using the real clock (asleep 10 pm to 7 am when nothing is left to buy).', day: 'Pretending it is daytime.', night: 'Pretending it is night: with nothing left to buy, the pet sleeps.' }[devClock];
   } },
+  { label: 'Weather: pretend each kind in turn (rain, storm, snow, cold, hot, real)', run: function () { devSheet.close(); return devWeatherNext(); } },
+  { label: 'Little plant: water it now (grows a stage)', run: function () { devSheet.close(); return devPlantGrow(); } },
+  { label: 'Little plant: start over with a seed', run: function () { return devPlantReset(); } },
   { label: 'Unlock everything', run: function () { L.unlockAll(state.pet, Achievements, Personalities); return 'All goals finished and personalities earned.'; } },
   { label: 'Lock everything again', run: function () { L.lockAll(state.pet, Achievements, FreeUnlocks); return 'Progress wiped. Locked items are locked again.'; } },
   { label: 'Skip to tomorrow', run: function () { L.skipDays(state, 1); return 'A day has passed: daily limits are fresh.'; } },

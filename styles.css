@@ -4301,3 +4301,38 @@ html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-bloc
 .pet[data-skin="blackpom"] .pom-chest { stroke: #1d1722; }
 /* and the outline of their open eyes (build 632) */
 .pet:is([data-skin="blackcat"], [data-skin="blackpom"]) .eyes-open .ink { stroke: #1d1722; }
+
+/* weather (app-weather.js; build 633): falling drops and flakes over the stage, a sun, an umbrella and a fan drawn in his picture */
+.wx-fx { position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
+.wx-fx i { position: absolute; top: -12%; display: block; }
+.wx-rain i, .wx-storm i { width: 2px; height: 12px; border-radius: 2px; background: linear-gradient(#d4eeff, #6fbff0); opacity: .85; animation: wx-fall .9s linear infinite; }
+.wx-storm { background: linear-gradient(rgba(70, 80, 125, .2), rgba(70, 80, 125, .04)); }
+.wx-storm i { height: 17px; transform: rotate(14deg); animation-name: wx-fall-slant; }
+@keyframes wx-fall { from { translate: 0 0; } to { translate: 0 200px; } }
+@keyframes wx-fall-slant { from { translate: 0 0; } to { translate: -28px 200px; } }
+.wx-snow i { width: var(--s, 5px); height: var(--s, 5px); border-radius: 50%; background: #fff; box-shadow: 0 0 0 1.2px #bcd8ee; animation: wx-snow 4s linear infinite; }
+@keyframes wx-snow { 0% { translate: 0 0; } 33% { translate: 9px 66px; } 66% { translate: -7px 132px; } 100% { translate: 4px 200px; } }
+.wx-hot .wx-sun { position: absolute; left: 5%; top: 4%; width: 46px; height: 46px; overflow: visible; animation: wx-sun 3s ease-in-out infinite; }
+.wx-hot .wx-rays { transform-box: fill-box; transform-origin: 50% 50%; animation: wx-spin 16s linear infinite; }
+@keyframes wx-sun { 0%, 100% { translate: 0 0; } 50% { translate: 0 3px; } }
+@keyframes wx-spin { to { rotate: 360deg; } }
+.wx-cold i { width: 6px; height: 6px; background: #d4ecff; rotate: 45deg; opacity: 0; animation: wx-twinkle 2.6s ease-in-out infinite; }
+@keyframes wx-twinkle { 0%, 100% { opacity: 0; scale: .4; } 50% { opacity: .9; scale: 1; } }
+.wx-bob { animation: wx-bob 2.6s ease-in-out infinite; }
+@keyframes wx-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2px; } }
+.wx-wave { animation: wx-wave .8s ease-in-out infinite alternate; }
+@keyframes wx-wave { from { rotate: -16deg; } to { rotate: 14deg; } }
+.wx-sweat { animation: wx-sweat 2.8s ease-in infinite; }
+@keyframes wx-sweat { 0%, 55% { translate: 0 0; opacity: 1; } 100% { translate: 0 12px; opacity: 0; } }
+.stage.bedtime .wx-fx, .stage.bedtime .wx-acc { display: none; }
+@media (prefers-reduced-motion: reduce) { .wx-fx i, .wx-fx .wx-sun, .wx-fx .wx-rays, .wx-bob, .wx-wave, .wx-sweat { animation: none; } .wx-fx i { top: 20%; } }
+.option-weather { padding: 0 4px 10px; border-bottom: 1.5px dashed var(--line); }
+.option:has(#wxOn) { border-bottom: 0; padding-bottom: 4px; }
+.wx-place { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
+.wx-place input { flex: 1; min-width: 0; font: inherit; font-size: .9rem; padding: 6px 12px; border: 1.5px solid var(--outline); border-radius: 14px; background: var(--surface); color: var(--ink); }
+.wx-place .pill-btn { flex: none; padding: 6px 12px; font-size: .85rem; }
+.option-weather .option-text { margin: 6px 0 0; }
+/* the little plant (app-plant.js): a tap makes it wiggle, and a flower gets a soft glow */
+.decor-plant { cursor: pointer; }
+.decor-plant.plant-bloom svg { filter: drop-shadow(0 0 5px rgba(255, 214, 120, .85)); }
+.decor-plant svg { transform-origin: 50% 90%; overflow: visible; }

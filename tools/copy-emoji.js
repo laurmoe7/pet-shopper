@@ -34,7 +34,7 @@ const SEND_ICONS = ['🔗', '📝', '💌'];
 const RING_ICONS = ['💥', '🚫'];
 // and the language flags in Options (app-lang.js)
 const LANG_ICONS = ['🇳🇱', '🇺🇸'];
-const CELEBRATION_ICONS = ['🎃', '🐣', '👑', '🎄'];   // (the Halloween, Easter and King's Day box notifications, and the card Mini Fumu shows before a celebration)
+const CELEBRATION_ICONS = ['🎃', '🐣', '👑', '🎄', '🌷'];   // (the Halloween, Easter and King's Day box notifications, and the card Mini Fumu shows before a celebration)
 const used = global.Foods.all.concat(global.Tasks.all, global.Personalities.map((p) => p.icon), TAB_ICONS, SEND_ICONS, RING_ICONS, LANG_ICONS, CELEBRATION_ICONS);
 for (const e of used) {
   const file = path.basename(global.Foods.emojiFile(e));

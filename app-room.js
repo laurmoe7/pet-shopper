@@ -28,6 +28,7 @@ function renderRoom() {
   }));
   tickClocks();
   runClocks();
+  if (typeof plantRefresh === 'function') plantRefresh();   // (the little plant draws the stage it has reached, app-plant.js)
   decorStrip.querySelectorAll('button').forEach(function (b) {
     b.setAttribute('aria-pressed', state.pet.room[b.dataset.decor] ? 'true' : 'false');
   });

@@ -299,6 +299,7 @@ function toggle(id) {
   var wasAsleep = item.done && baseState() === 'sleepy' && L.isNight(petNow());
   var todoMode = state.mode === 'todo';   // to-dos don't count for goals, tastes or the Top 10
   if (item.done) {
+    if (typeof plantWater === 'function') plantWater();   // the little plant gets its drink for the day (app-plant.js)
     if (L.isNight(petNow())) {   // checking anything off (either list) gets him out of bed for a while, and the light comes on
       setBellAwake(true);
       var bed = bedtime();

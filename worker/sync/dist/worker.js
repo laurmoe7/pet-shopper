@@ -45,7 +45,7 @@
   };
   var FIELD_NAMES = Object.keys(FIELDS);
   /** The pet's counters, each merged by its own rule (see `mergeCounter`). */
-  var COUNTERS = ['achievements', 'tastes', 'stamps', 'favourites', 'gifts', 'prizes', 'treats', 'guard'];
+  var COUNTERS = ['achievements', 'tastes', 'stamps', 'favourites', 'gifts', 'prizes', 'plant', 'treats', 'guard'];
 
   // ---------- small helpers ----------
 
@@ -242,7 +242,7 @@
   /** The merge rule for one counter. */
   function mergeCounter(name, a, b) {
     if (name === 'achievements' || name === 'favourites') return mergeProgress(a, b);
-    if (name === 'tastes' || name === 'stamps' || name === 'prizes') return maxMap(a, b);
+    if (name === 'tastes' || name === 'stamps' || name === 'prizes' || name === 'plant') return maxMap(a, b);
     if (name === 'gifts') {   // day -> boxes opened that day
       var out = {};
       [a, b].forEach(function (m) { if (isObj(m)) Object.keys(m).forEach(function (d) { out[d] = unionSorted(out[d], m[d]); }); });
