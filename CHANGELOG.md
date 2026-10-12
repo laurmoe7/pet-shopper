@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 639
+- Mini Fumu settings: a note on what each swipe does
+
 ## Build 638
 - Claude's alerts go to the PC first: the phone no longer takes them off the server (switch in Options to show them there too)
 

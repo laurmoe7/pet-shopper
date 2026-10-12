@@ -129,6 +129,13 @@
     }
     toggle(does, 'Reminds me of tasks', 'remind');
 
+    // a reminder of how to swipe an alert card (sweepAt in app-desktop.js, the drag code in app-send.js)
+    var swipes = section('Swiping alerts', 'behaviour');
+    [['Left', 'Done (reminder) or copy (note, link).'], ['Up or down', 'In 10 min (reminder).'], ['Right', 'Put away.']].forEach(function (s) {
+      var row = el('div', 'row note'), text = el('span', 'text', s[0]); text.appendChild(el('small', '', s[1]));
+      row.appendChild(text); swipes.appendChild(row);
+    });
+
     // the special days he celebrates (the page asks first, then covers the screen; see celebrate.js): each can be switched off, and "Play" shows the card now
     var cel = section('Special days', 'celebrations');
     cel.appendChild(el('p', 'hint', nm() + ' asks first, once on the day.'));
