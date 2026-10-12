@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 651
+- Remarks about what you are doing no longer depend on his own chatter (turning chatter off keeps them)
+
 ## Build 650
 - Heat waves fainter
 

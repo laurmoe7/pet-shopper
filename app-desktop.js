@@ -1032,7 +1032,8 @@
     })();
     return first;
   }
-  function remark(text, name) { say(text.replace(/\{name\}/g, name || 'it'), 4200, true); var m = pick(['hopsmall', 'hopsmall', 'tilt', 'shiver']); pulse(m, m === 'tilt' ? 1800 : m === 'shiver' ? 700 : 450); }
+  /** A remark about what you are doing. It is its own setting, apart from his chatter: a silent (muted) idle moment never swallows it. */
+  function remark(text, name) { idleQuiet = false; say(text.replace(/\{name\}/g, name || 'it'), 4200, true); var m = pick(['hopsmall', 'hopsmall', 'tilt', 'shiver']); pulse(m, m === 'tilt' ? 1800 : m === 'shiver' ? 700 : 450); }
   /** Whether a 0..1 chance (already scaled by how often he is allowed to talk) comes up. */
   function chance(p) { return Math.random() < Math.min(1, p); }
   var duringTimer = 0;
