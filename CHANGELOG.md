@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 642
+- Rain leaf held upright over his head, like a leaf umbrella
+
 ## Build 641
 - Fix: error on start (refreshBedtime is not defined)
 

@@ -22,11 +22,11 @@ function wxDraw(kind) {
   var NS = 'http://www.w3.org/2000/svg', armR = pet.querySelector('.arm-r');
   function group(parent, after, cls, html) { var g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'wx-acc ' + cls); g.innerHTML = html; if (after && after.nextSibling) parent.insertBefore(g, after.nextSibling); else parent.appendChild(g); return g; }
   var ink = 'stroke="#5b4239" stroke-width="2" stroke-linejoin="round"';
-  if ((kind === 'rain' || kind === 'storm') && armR) {   // a giant leaf in the spare right hand, held up over his head (drawn along the arm, like the wand; styles.css shows it only while that hand is free)
+  if ((kind === 'rain' || kind === 'storm') && armR) {   // a giant leaf in the spare right hand, held upright in front like a leaf umbrella (the stem stays straight up while the paw is at his side; styles.css shows it only while that hand is free)
     var lf = kind === 'storm' ? ['#5fae78', '#8fd3a4'] : ['#7ccf8a', '#b5eebf'];
-    group(armR, null, 'wx-leaf', '<g class="wx-bob"><g transform="translate(133 124) scale(1.3) translate(-133 -124)"><path d="M133 124 V184" fill="none" stroke="#5b4239" stroke-width="4.4" stroke-linecap="round"/><path d="M133 124 V184" fill="none" stroke="#7fb36b" stroke-width="2.2" stroke-linecap="round"/>' +
-      '<path d="M133 176 C100 190 98 232 133 252 C168 232 166 190 133 176 Z" fill="' + lf[0] + '" ' + ink + '/>' +
-      '<path d="M133 180 V248 M133 198 L117 188 M133 198 L149 188 M133 216 L113 204 M133 216 L153 204 M133 233 L120 224 M133 233 L146 224" fill="none" stroke="' + lf[1] + '" stroke-width="2" stroke-linecap="round" opacity=".9"/></g></g>');
+    group(armR, null, 'wx-leaf', '<g transform="rotate(-10 133 110.2)"><g class="wx-bob"><path d="M133 128 Q134 74 116 22" fill="none" stroke="#5b4239" stroke-width="4.4" stroke-linecap="round"/><path d="M133 128 Q134 74 116 22" fill="none" stroke="#7fb36b" stroke-width="2.2" stroke-linecap="round"/>' +
+      '<g transform="translate(104 8) rotate(-6) scale(1.5)"><path d="M-50 6 C-50 -20 -12 -32 50 -12 C46 14 4 26 -50 6 Z" fill="' + lf[0] + '" ' + ink + '/>' +
+      '<path d="M-47 6 Q0 -4 47 -11 M-30 3 L-34 -10 M-12 0 L-16 -16 M6 -4 L3 -20 M24 -8 L22 -22 M-26 4 L-28 14 M-6 2 L-8 16 M14 -3 L12 10" fill="none" stroke="' + lf[1] + '" stroke-width="2" stroke-linecap="round" opacity=".9"/></g></g></g>');
   }
 }
 /** Falling drops or flakes over the stage, drawn in plain CSS shapes. @param {string} kind */

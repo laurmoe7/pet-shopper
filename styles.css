@@ -4321,7 +4321,7 @@ html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-bloc
 /* the leaf: held up in the spare right hand (not while it holds a pencil, glass or wand, or the desk pose) */
 .arm .wx-leaf { display: none; }
 #pet[data-arms="idle"]:not(.desk, .tucked, [data-prop], [data-state="sleepy"]) .arm-r .wx-leaf { display: inline; }
-#pet[data-arms="idle"]:not(.desk, .tucked, [data-prop], [data-state="sleepy"]):has(.wx-leaf) .arm-r { transform-box: view-box; transform-origin: 133px 110.2px; transform: rotate(150deg); animation: none; }
+#pet[data-arms="idle"]:not(.desk, .tucked, [data-prop], [data-state="sleepy"]):has(.wx-leaf) .arm-r { transform-box: view-box; transform-origin: 133px 110.2px; transform: rotate(10deg); animation: none; }
 .stage.bedtime .wx-fx, .stage.bedtime .wx-acc { display: none; }
 @media (prefers-reduced-motion: reduce) { .wx-fx i, .wx-bob, .wx-bolt { animation: none; } .wx-fx i { top: 20%; } }
 .option-weather { padding: 0 4px 10px; border-bottom: 1.5px dashed var(--line); }
