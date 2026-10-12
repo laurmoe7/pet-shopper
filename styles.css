@@ -4319,14 +4319,21 @@ html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-bloc
 .wx-splash { transform-box: fill-box; transform-origin: 50% 100%; opacity: 0; animation: wx-splash 1.1s ease-out infinite; }
 @keyframes wx-splash { 0% { opacity: 0; scale: .2; } 12% { opacity: 1; scale: .7; } 55% { opacity: .9; scale: 1.1; } 100% { opacity: 0; scale: 1.3; } }
 .wx-rain, .wx-storm { z-index: 0; }   /* the rain falls behind him and his leaf, so the drops land on them instead of going through */
+.wx-heat { position: absolute; bottom: 10%; width: 112%; height: 16px; opacity: 0; animation: wx-heat 6.3s ease-in-out infinite; }
+@keyframes wx-heat { 0% { translate: 0 0; opacity: 0; } 20% { opacity: .3; } 80% { opacity: .22; } 100% { translate: 8px -110px; opacity: 0; } }
+.wx-hot { background: linear-gradient(transparent 55%, rgba(255, 170, 90, .08)); }
+/* the fan: held in the spare right hand and waved by the arm */
+#pet[data-arms="idle"]:not(.desk, .tucked, [data-prop], [data-state="sleepy"]) .arm-r .wx-fan { display: inline; }
+#pet[data-arms="idle"]:not(.desk, .tucked, [data-prop], [data-state="sleepy"]):has(.wx-fan) .arm-r { transform-box: view-box; transform-origin: 133px 110.2px; transform: rotate(136deg); animation: wx-fanning .42s ease-in-out infinite alternate; }
+@keyframes wx-fanning { from { transform: rotate(120deg); } to { transform: rotate(152deg); } }
 .wx-bolt { position: absolute; top: 2%; width: 26px; height: 52px; opacity: 0; filter: drop-shadow(0 0 5px rgba(255, 230, 107, .8)); animation: wx-bolt 6s ease-in-out infinite; }
 @keyframes wx-bolt { 0%, 8%, 100% { opacity: 0; } 2% { opacity: .95; } 4% { opacity: .3; } 6% { opacity: .85; } }
 /* the leaf: held up in the spare right hand (not while it holds a pencil, glass or wand, or the desk pose) */
-.arm .wx-leaf { display: none; }
+.arm .wx-leaf, .arm .wx-fan { display: none; }
 #pet[data-arms="idle"]:not(.desk, .tucked, [data-prop], [data-state="sleepy"]) .arm-r .wx-leaf { display: inline; }
 #pet[data-arms="idle"]:not(.desk, .tucked, [data-prop], [data-state="sleepy"]):has(.wx-leaf) .arm-r { transform-box: view-box; transform-origin: 133px 110.2px; transform: rotate(10deg); animation: none; }
 .stage.bedtime .wx-fx, .stage.bedtime .wx-acc { display: none; }
-@media (prefers-reduced-motion: reduce) { .wx-fx i, .wx-bob, .wx-bolt, .wx-splash { animation: none; } .wx-fx i { top: 20%; } }
+@media (prefers-reduced-motion: reduce) { .wx-fx i, .wx-bob, .wx-bolt, .wx-splash, .wx-heat { animation: none; } #pet:has(.wx-fan) .arm-r { animation: none !important; } .wx-fx i { top: 20%; } }
 .option-weather { padding: 0 4px 10px; border-bottom: 1.5px dashed var(--line); }
 .option:has(#wxOn) { border-bottom: 0; padding-bottom: 4px; }
 .wx-place { display: flex; gap: 8px; align-items: center; margin-top: 4px; }

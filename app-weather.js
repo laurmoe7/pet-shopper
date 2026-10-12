@@ -1,6 +1,6 @@
 // Weather (build 633): Fumu reacts to the weather outside. It is off until the player turns it on in Options and gives a place (a typed city, or this device's position, rounded
 // to about 10 km: that and nothing else is sent, to open-meteo.com). Then: rain and storms bring a giant leaf held over his head in his spare hand and falling drops (storms also thunderbolts), snow and cold bring a
-// shiver now and then and a puff of breath (no scarf), hot weather nothing for now. He says one line about it a day. What each kind
+// shiver now and then and a puff of breath (no scarf), hot weather a paper fan in his spare hand (he waves it) and slow heat waves. He says one line about it a day. What each kind
 // is, and how the answer is read, is weather.js. The setting lives on this device only (`nibble-weather`); Mini Fumu and the whole app share it through the same storage.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
@@ -70,6 +70,13 @@ function wxDraw(kind) {
       '<g transform="translate(104 8) rotate(-12) scale(1.5)">' + wxLeaf(lf[0], lf[1], lf[2], kind === 'storm') + '</g></g></g>');
     leafG.addEventListener('animationiteration', function (e) { var t = e.target; if (t && t.classList && t.classList.contains('wx-splash')) t.parentNode.setAttribute('transform', wxSplashSpot()); });   // each drop lands somewhere new
   }
+  if (kind === 'hot' && armR) {   // a paper fan in the spare right hand: the handle is in his paw and the arm waves it (styles.css, wx-fanning)
+    var ribs = '', r;
+    for (r = 0; r < 7; r++) { var an = (-62 + r * 20.7) * Math.PI / 180; ribs += 'M133 143 L' + (133 + Math.sin(an) * 22).toFixed(1) + ' ' + (143 + Math.cos(an) * 22).toFixed(1); }
+    group(armR, null, 'wx-fan', '<path d="M133 121 V144" fill="none" stroke="#5b4239" stroke-width="4.6" stroke-linecap="round"/><path d="M133 121 V144" fill="none" stroke="#c9a27a" stroke-width="2.4" stroke-linecap="round"/>' +
+      '<path d="M133 143 L110.6 153.4 Q133 176 155.4 153.4 Z" fill="#ffb3c9" ' + ink + '/><path d="' + ribs + '" fill="none" stroke="#fff6ec" stroke-width="1.4" stroke-linecap="round" opacity=".85"/>' +
+      '<path d="M114 156 Q133 172 152 156" fill="none" stroke="#ff8fb0" stroke-width="2" stroke-linecap="round" opacity=".7"/>');
+  }
 }
 /** Falling drops or flakes over the stage, drawn in plain CSS shapes. @param {string} kind */
 function wxParticles(kind) {
@@ -90,6 +97,14 @@ function wxParticles(kind) {
       b.style.cssText = 'left:' + (6 + i * 34 + Math.random() * 14).toFixed(0) + '%;animation-delay:' + (i * 1.7 + Math.random()).toFixed(2) + 's;animation-duration:' + (5 + i * 1.3).toFixed(1) + 's';
       b.innerHTML = '<path d="M15 2 L4 26 H12 L8 46 L21 18 H13 Z" fill="#ffe66b" stroke="#fff6c2" stroke-width="1.6" stroke-linejoin="round"/>';
       el.appendChild(b);
+    }
+  } else if (kind === 'hot') {   // slow, faint heat waves rising from the floor
+    for (i = 0; i < 3; i++) {
+      var hw = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      hw.setAttribute('viewBox', '0 0 100 14'); hw.setAttribute('preserveAspectRatio', 'none'); hw.setAttribute('class', 'wx-heat');
+      hw.style.cssText = 'left:' + (-6 + i * 4) + '%;animation-delay:-' + (i * 2.1).toFixed(1) + 's';
+      hw.innerHTML = '<path d="M0 7 Q8.3 0 16.7 7 T33.3 7 T50 7 T66.7 7 T83.3 7 T100 7 T116 7" fill="none" stroke="#ff9a5c" stroke-width="1.6" stroke-linecap="round"/>';
+      el.appendChild(hw);
     }
   } else if (kind === 'cold') {
     for (i = 0; i < 7; i++) { var c = document.createElement('i'); c.style.cssText = 'left:' + (8 + i * 13) + '%;top:' + (12 + (i * 37) % 60) + '%;animation-delay:-' + (i * 0.5).toFixed(1) + 's'; el.appendChild(c); }
@@ -112,7 +127,7 @@ function wxSet(kind, quiet) {
   wxDraw(kind);
   wxParticles(kind);
   if (kind === 'cold' || kind === 'snow') wxTimers.push(setInterval(function () { if (!busy && !document.hidden && baseState() !== 'sleepy' && !stage.classList.contains('bedtime')) { pulse('shiver', 700); if (typeof drift === 'function' && Math.random() < 0.5) drift(['💨'], mouthPoint(), 1); } }, 22000));
-  if (quiet || kind === 'clear' || kind === 'hot') return;
+  if (quiet || kind === 'clear') return;
   var day = B.dayKey(giftDate()), said = '';
   try { said = localStorage.getItem('nibble-wx-said') || ''; } catch (e) { /* storage not available */ }
   if (said === day + kind) return;

@@ -12,7 +12,7 @@
     storm: { label: 'Storm', lines: ['whoa, thunder!', 'stay cozy, okay?', 'the sky is grumpy today'] },
     snow: { label: 'Snow', lines: ['it is snowing!', 'brrr, so pretty', 'snowflakes!'] },
     cold: { label: 'Cold', lines: ['brrr, it is chilly', 'bundle up, okay?', 'so cold today!'] },
-    hot: { label: 'Hot', lines: [] }
+    hot: { label: 'Hot', lines: ['so warm~', 'phew, hot today!', 'fan fan fan', 'ice cream weather?'] }
   };
   var ORDER = ['clear', 'rain', 'storm', 'snow', 'cold', 'hot'];
 

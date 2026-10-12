@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 648
+- Hot weather: Fumu fans himself with a paper fan in his spare hand, and faint heat waves rise
+
 ## Build 647
 - Shop calendar tab renamed Gift days
 
