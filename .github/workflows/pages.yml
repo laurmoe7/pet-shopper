@@ -43,6 +43,8 @@ jobs:
           fetch-depth: 0
       - name: Collect the app files
         run: |
+          # a file kind with no files in it (no .svg at the top now) must not stop the copy
+          shopt -s nullglob
           mkdir _site
           cp *.html *.js *.css *.webmanifest *.svg *.png _site/
           cp -r emoji fonts _site/
