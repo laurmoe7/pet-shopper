@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 638
+- Claude's alerts go to the PC first: the phone no longer takes them off the server (switch in Options to show them there too)
+
 ## Build 637
 - Little plant: every task ticked off waters it (three a day), it grows a bit each time
 - Little plant: tulips, a sunflower and bluebells join the daisies

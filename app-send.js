@@ -60,6 +60,15 @@ function receivingHere() {
   try { return localStorage.getItem(RECEIVE_KEY) !== '0'; } catch (e) { return true; }
 }
 
+/**
+ * Whether this device shows Claude's alerts ("Claude replied", "Claude needs you"). They are for the PC: every device that is looking takes a message off the server the moment it
+ * sees it, so when the phone showed them too it often got there first and the PC never heard (build 638). The desktop app always shows them; the phone only when switched on.
+ */
+function claudeHere() {
+  if (deskShell) return true;
+  try { return localStorage.getItem('nibble.claude') === '1'; } catch (e) { return false; }
+}
+
 // the Options row, under Backup & sync
 (function () {
   var row = document.createElement('div');
@@ -83,7 +92,17 @@ function receivingHere() {
     try { localStorage.setItem(RECEIVE_KEY, sendReceive.checked ? '1' : '0'); } catch (e) { /* storage blocked */ }
     if (sendReceive.checked) setTimeout(inboxPoll, 300);
   });
-  $('optionsBtn').addEventListener('click', function () { sendReceive.checked = receivingHere(); });
+  var cx = document.createElement('label'), claudeSw = document.createElement('input');
+  cx.className = 'option';
+  cx.innerHTML = '<span class="option-title">Show Claude\'s alerts here</span><span class="option-text">They go to your PC first.</span>';
+  claudeSw.type = 'checkbox'; claudeSw.setAttribute('role', 'switch');
+  cx.insertBefore(claudeSw, cx.lastChild);
+  optionsList.insertBefore(cx, optionsList.children[3] || null);
+  claudeSw.addEventListener('change', function () {
+    try { localStorage.setItem('nibble.claude', claudeSw.checked ? '1' : '0'); } catch (e) { /* storage blocked */ }
+    if (claudeSw.checked) setTimeout(inboxPoll, 300);
+  });
+  $('optionsBtn').addEventListener('click', function () { sendReceive.checked = receivingHere(); claudeSw.checked = claudeHere(); });
 })();
 
 // shared from another app (the share menu, once Fumufumu is installed on the phone): the link is ready to send
@@ -379,6 +398,7 @@ function inboxPoll() {
     list = list && list.filter(function (m) { return m.from !== inboxDevice(); });
     // never show the same message twice (it can still be on the server a moment after it was acked), and only one Claude alert at a time
     if (list) list = list.filter(function (m) {
+      if (m.from === 'claude' && !claudeHere()) return false;   // (left on the server for the PC: this device must not take it)
       var seen = shownIds[m.id], soon = m.from === 'claude' && Date.now() - lastClaudeAt < 20000;
       if (seen || soon) { shownIds[m.id] = 1; if (!m.test) accountApi('/v1/inbox/ack', 'POST', account.code, { ids: [m.id] }); return false; }
       if (m.from === 'claude') lastClaudeAt = Date.now();
