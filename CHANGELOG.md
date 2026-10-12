@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 645
+- Rain splashes on top of the leaf; rain falls behind him and the leaf
+
 ## Build 644
 - Rain leaf: stem curves into the leaf's base, cleaner veins
 
