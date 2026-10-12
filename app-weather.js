@@ -98,12 +98,17 @@ function wxParticles(kind) {
       b.innerHTML = '<path d="M15 2 L4 26 H12 L8 46 L21 18 H13 Z" fill="#ffe66b" stroke="#fff6c2" stroke-width="1.6" stroke-linejoin="round"/>';
       el.appendChild(b);
     }
-  } else if (kind === 'hot') {   // slow, faint heat waves rising from the floor
-    for (i = 0; i < 3; i++) {
+  } else if (kind === 'hot') {   // short, faint heat wisps rising from the floor, each at its own place and pace (and somewhere new every time it starts again)
+    var spot = function (h) { h.style.left = (2 + Math.random() * 68).toFixed(0) + '%'; h.style.bottom = (4 + Math.random() * 30).toFixed(0) + '%'; };
+    for (i = 0; i < 7; i++) {
       var hw = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      hw.setAttribute('viewBox', '0 0 100 14'); hw.setAttribute('preserveAspectRatio', 'none'); hw.setAttribute('class', 'wx-heat');
-      hw.style.cssText = 'left:' + (-6 + i * 4) + '%;animation-delay:-' + (i * 2.1).toFixed(1) + 's';
-      hw.innerHTML = '<path d="M0 7 Q8.3 0 16.7 7 T33.3 7 T50 7 T66.7 7 T83.3 7 T100 7 T116 7" fill="none" stroke="#ff9a5c" stroke-width="1.6" stroke-linecap="round"/>';
+      hw.setAttribute('viewBox', '0 0 30 14'); hw.setAttribute('preserveAspectRatio', 'none'); hw.setAttribute('class', 'wx-heat');
+      hw.style.width = (16 + Math.random() * 14).toFixed(0) + '%';
+      hw.style.animationDelay = '-' + (Math.random() * 5).toFixed(1) + 's';
+      hw.style.animationDuration = (4.2 + Math.random() * 2.6).toFixed(1) + 's';
+      spot(hw);
+      hw.addEventListener('animationiteration', function (e) { spot(e.currentTarget); });
+      hw.innerHTML = '<path d="M0 7 Q3.75 0 7.5 7 T15 7 T22.5 7 T30 7" fill="none" stroke="#ff9a5c" stroke-width="1.6" stroke-linecap="round"/>';
       el.appendChild(hw);
     }
   } else if (kind === 'cold') {

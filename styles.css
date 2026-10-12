@@ -4319,8 +4319,9 @@ html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-bloc
 .wx-splash { transform-box: fill-box; transform-origin: 50% 100%; opacity: 0; animation: wx-splash 1.1s ease-out infinite; }
 @keyframes wx-splash { 0% { opacity: 0; scale: .2; } 12% { opacity: 1; scale: .7; } 55% { opacity: .9; scale: 1.1; } 100% { opacity: 0; scale: 1.3; } }
 .wx-rain, .wx-storm { z-index: 0; }   /* the rain falls behind him and his leaf, so the drops land on them instead of going through */
-.wx-heat { position: absolute; bottom: 10%; width: 112%; height: 16px; opacity: 0; animation: wx-heat 6.3s ease-in-out infinite; }
-@keyframes wx-heat { 0% { translate: 0 0; opacity: 0; } 20% { opacity: .3; } 80% { opacity: .22; } 100% { translate: 8px -110px; opacity: 0; } }
+/* (each wisp is placed by app-weather.js) */
+.wx-heat { position: absolute; height: 14px; opacity: 0; animation: wx-heat 5.5s ease-in-out infinite; }
+@keyframes wx-heat { 0% { translate: 0 0; opacity: 0; } 25% { opacity: .38; } 75% { opacity: .22; } 100% { translate: 6px -70px; opacity: 0; } }
 .wx-hot { background: linear-gradient(transparent 55%, rgba(255, 170, 90, .08)); }
 /* the fan: held in the spare right hand and waved by the arm */
 #pet[data-arms="idle"]:not(.desk, .tucked, [data-prop], [data-state="sleepy"]) .arm-r .wx-fan { display: inline; }
