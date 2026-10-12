@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 647
+- Shop calendar tab renamed Gift days
+
 ## Build 646
 - Rain on the leaf: fewer drops, landing at random spots
 - Open-settings key in the whole app opens the app's Options
