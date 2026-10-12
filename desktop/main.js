@@ -444,7 +444,9 @@ function start() {
   // in a full-screen game he lets the mouse through; this key makes him catch it for a while (to move him or clear an alert), and again lets go
   function grabMouse() { if (!win) return; setPref('clickThrough', !prefs.clickThrough); solidState = null; win.webContents.send('desk:grab', !prefs.clickThrough); }
   const HANDLERS = { swapSize: toggleFull, swapList, quickAdd, grab: grabMouse };
-  const HOVER_HANDLERS = { options: () => { if (mode === 'list' && win) win.webContents.send('desk:options'); else panel.toggle(); }, sendCopied };   // (in the whole app the key opens the app's own Options, not Mini Fumu's settings)   // held only while the pointer is over him
+  // the Open settings key: in the whole app it opens the app's own Options, in the small window Mini Fumu's settings
+  function optionsKey() { if (mode === 'list' && win) win.webContents.send('desk:options'); else panel.toggle(); }
+  const HOVER_HANDLERS = { options: optionsKey, sendCopied };   // held only while the pointer is over him
   function setupKeys() {
     Object.keys(registered).forEach((k) => { if (registered[k]) globalShortcut.unregister(registered[k]); delete registered[k]; });
     Object.keys(hoverKeyOn).forEach((id) => { globalShortcut.unregister(hoverKeyOn[id]); delete hoverKeyOn[id]; });
