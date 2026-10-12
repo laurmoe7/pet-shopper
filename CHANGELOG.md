@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 641
+- Fix: error on start (refreshBedtime is not defined)
+
 ## Build 640
 - Rain and storm: Fumu holds a giant leaf over his head (when a hand is free)
 - Thunderstorm: thunderbolts

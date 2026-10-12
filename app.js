@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '640';
+var BUILD = '641';
 
 var STORE_KEY = 'nibble.v1';
 var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -305,7 +305,7 @@ function render() {
   freshIds = {};
   if (!busy) settle();
   walkHome();
-  refreshBedtime();
+  if (typeof refreshBedtime === 'function') refreshBedtime();   // (a redraw can come before app-bedtime.js has loaded; it draws the bedtime itself when it loads)
 }
 
 var cartEl = $('cart'), cartLoad = $('cartLoad'), cartBag = $('cartBag'), bagLoad = $('bagLoad'), cartCount = -1, bagCount = -1;
