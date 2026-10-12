@@ -26,7 +26,7 @@ function animCatalogue() {
   add('Body moves', 'hand dance', handDance);
   add('Body moves', 'chorus dance', chorusDance);
   add('Body moves', 'party dance (the birthday one)', partyDance);
-  ['rain', 'storm', 'snow', 'cold', 'hot'].forEach(function (k) { add('Weather', 'weather: ' + k + (k === 'rain' || k === 'storm' ? ' (umbrella)' : k === 'hot' ? ' (fan and sun)' : ' (scarf)'), function () { return wxPlay(k); }); });
+  ['rain', 'storm', 'snow', 'cold', 'hot'].forEach(function (k) { add('Weather', 'weather: ' + k + (k === 'rain' ? ' (leaf)' : k === 'storm' ? ' (leaf, thunderbolts)' : k === 'hot' ? ' (nothing for now)' : ''), function () { return wxPlay(k); }); });
   add('Weather', 'weather: back to the real one', function () { return wxPlay('real'); });
   add('Plant', 'plant: water it (the next stage)', function () { devPlantGrow(); return 4000; });
   add('Plant', 'plant: start over with a seed', function () { devPlantReset(); return 1500; });

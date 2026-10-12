@@ -4302,7 +4302,7 @@ html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-bloc
 /* and the outline of their open eyes (build 632) */
 .pet:is([data-skin="blackcat"], [data-skin="blackpom"]) .eyes-open .ink { stroke: #1d1722; }
 
-/* weather (app-weather.js; build 633): falling drops and flakes over the stage, a sun, an umbrella and a fan drawn in his picture */
+/* weather (app-weather.js; build 633): falling drops and flakes over the stage, thunderbolts, and a leaf held in his hand */
 .wx-fx { position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
 .wx-fx i { position: absolute; top: -12%; display: block; }
 .wx-rain i, .wx-storm i { width: 2px; height: 12px; border-radius: 2px; background: linear-gradient(#d4eeff, #6fbff0); opacity: .85; animation: wx-fall .9s linear infinite; }
@@ -4312,20 +4312,18 @@ html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-bloc
 @keyframes wx-fall-slant { from { translate: 0 0; } to { translate: -28px 200px; } }
 .wx-snow i { width: var(--s, 5px); height: var(--s, 5px); border-radius: 50%; background: #fff; box-shadow: 0 0 0 1.2px #bcd8ee; animation: wx-snow 4s linear infinite; }
 @keyframes wx-snow { 0% { translate: 0 0; } 33% { translate: 9px 66px; } 66% { translate: -7px 132px; } 100% { translate: 4px 200px; } }
-.wx-hot .wx-sun { position: absolute; left: 5%; top: 4%; width: 46px; height: 46px; overflow: visible; animation: wx-sun 3s ease-in-out infinite; }
-.wx-hot .wx-rays { transform-box: fill-box; transform-origin: 50% 50%; animation: wx-spin 16s linear infinite; }
-@keyframes wx-sun { 0%, 100% { translate: 0 0; } 50% { translate: 0 3px; } }
-@keyframes wx-spin { to { rotate: 360deg; } }
 .wx-cold i { width: 6px; height: 6px; background: #d4ecff; rotate: 45deg; opacity: 0; animation: wx-twinkle 2.6s ease-in-out infinite; }
 @keyframes wx-twinkle { 0%, 100% { opacity: 0; scale: .4; } 50% { opacity: .9; scale: 1; } }
 .wx-bob { animation: wx-bob 2.6s ease-in-out infinite; }
 @keyframes wx-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2px; } }
-.wx-wave { animation: wx-wave .8s ease-in-out infinite alternate; }
-@keyframes wx-wave { from { rotate: -16deg; } to { rotate: 14deg; } }
-.wx-sweat { animation: wx-sweat 2.8s ease-in infinite; }
-@keyframes wx-sweat { 0%, 55% { translate: 0 0; opacity: 1; } 100% { translate: 0 12px; opacity: 0; } }
+.wx-bolt { position: absolute; top: 2%; width: 26px; height: 52px; opacity: 0; filter: drop-shadow(0 0 5px rgba(255, 230, 107, .8)); animation: wx-bolt 6s ease-in-out infinite; }
+@keyframes wx-bolt { 0%, 8%, 100% { opacity: 0; } 2% { opacity: .95; } 4% { opacity: .3; } 6% { opacity: .85; } }
+/* the leaf: held up in the spare right hand (not while it holds a pencil, glass or wand, or the desk pose) */
+.arm .wx-leaf { display: none; }
+#pet[data-arms="idle"]:not(.desk, .tucked, [data-prop], [data-state="sleepy"]) .arm-r .wx-leaf { display: inline; }
+#pet[data-arms="idle"]:not(.desk, .tucked, [data-prop], [data-state="sleepy"]):has(.wx-leaf) .arm-r { transform-box: view-box; transform-origin: 133px 110.2px; transform: rotate(150deg); animation: none; }
 .stage.bedtime .wx-fx, .stage.bedtime .wx-acc { display: none; }
-@media (prefers-reduced-motion: reduce) { .wx-fx i, .wx-fx .wx-sun, .wx-fx .wx-rays, .wx-bob, .wx-wave, .wx-sweat { animation: none; } .wx-fx i { top: 20%; } }
+@media (prefers-reduced-motion: reduce) { .wx-fx i, .wx-bob, .wx-bolt { animation: none; } .wx-fx i { top: 20%; } }
 .option-weather { padding: 0 4px 10px; border-bottom: 1.5px dashed var(--line); }
 .option:has(#wxOn) { border-bottom: 0; padding-bottom: 4px; }
 .wx-place { display: flex; gap: 8px; align-items: center; margin-top: 4px; }

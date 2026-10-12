@@ -8,11 +8,11 @@
   /** The kinds of weather he reacts to, with what he says (his own line, picked at random) and the Dutch is in app-dutch.js. */
   var KINDS = {
     clear: { label: 'Clear', lines: [] },
-    rain: { label: 'Rain', lines: ['it is raining~', 'pitter patter!', 'good thing I have my umbrella', 'puddles!'] },
+    rain: { label: 'Rain', lines: ['it is raining~', 'pitter patter!', 'good thing I have my leaf', 'puddles!'] },
     storm: { label: 'Storm', lines: ['whoa, thunder!', 'stay cozy, okay?', 'the sky is grumpy today'] },
     snow: { label: 'Snow', lines: ['it is snowing!', 'brrr, so pretty', 'snowflakes!'] },
-    cold: { label: 'Cold', lines: ['brrr, it is chilly', 'my scarf keeps me toasty', 'so cold today!'] },
-    hot: { label: 'Hot', lines: ['so warm~', 'phew, hot today!', 'fan fan fan', 'ice cream weather?'] }
+    cold: { label: 'Cold', lines: ['brrr, it is chilly', 'bundle up, okay?', 'so cold today!'] },
+    hot: { label: 'Hot', lines: [] }
   };
   var ORDER = ['clear', 'rain', 'storm', 'snow', 'cold', 'hot'];
 

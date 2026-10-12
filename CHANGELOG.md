@@ -2,6 +2,12 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 640
+- Rain and storm: Fumu holds a giant leaf over his head (when a hand is free)
+- Thunderstorm: thunderbolts
+- No scarf in snow or cold
+- Hot weather: nothing for now
+
 ## Build 639
 - Mini Fumu settings: a note on what each swipe does
 

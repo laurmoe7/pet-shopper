@@ -2,7 +2,7 @@
 // (one request instead of fifty on every open; a new build is a new cache, found by the update check the page makes while
 // its loading card is up, app-start.js, and the page reloads once it has taken over); emoji and fonts are cache-first too.
 importScripts('foods.js', 'tasks.js');
-var CACHE = 'nibble-v639';
+var CACHE = 'nibble-v640';
 var SHELL = ['./', 'index.html', 'fonts.css', 'styles.css', 'app.js', 'app-pet.js', 'app-actions.js', 'app-petsheet.js', 'app-dress.js', 'app-petsubs.js', 'app-closet.js', 'app-shoot.js', 'app-photo.js', 'app-room.js', 'app-goals.js', 'app-events.js', 'app-todo.js', 'app-calendar.js', 'app-stamps.js', 'app-personality.js', 'app-favourites.js', 'app-petting.js', 'app-treats.js', 'app-gift.js', 'app-plant.js', 'app-profile.js', 'app-options.js', 'app-shop.js', 'app-shopcal.js', 'app-sync.js', 'app-account.js', 'app-send.js', 'send.js', 'app-desktop.js', 'app-anims.js', 'app-voice.js', 'app-recipe.js', 'backdrops.js', 'app-backdrop.js', 'app-idle.js', 'app-toy.js', 'app-wreck.js', 'app-steal.js', 'app-bedtime.js', 'app-night.js', 'app-ring.js', 'app-fade.js', 'app-select.js', 'app-birthday.js', 'app-xmas.js', 'app-halloween.js', 'app-newyear.js', 'app-easter.js', 'app-kingsday.js', 'app-weather.js', 'celebrate.html', 'celebrate-fx.js', 'app-dutch.js', 'app-nlvoices.js', 'app-lang.js', 'app-start.js', 'foods.js', 'tasks.js', 'logic.js', 'sync.js', 'achievements.js', 'sounds.js', 'wardrobe.js', 'decor.js', 'bonuses.js', 'weather.js', 'recipe.js', 'personalities.js', 'skins.js', 'manifest.webmanifest', 'icon-32.png', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'];
 
 // Emoji and fonts live in their own cache that is kept between builds, so an update only downloads

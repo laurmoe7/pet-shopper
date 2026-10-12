@@ -1,6 +1,6 @@
 // Weather (build 633): Fumu reacts to the weather outside. It is off until the player turns it on in Options and gives a place (a typed city, or this device's position, rounded
-// to about 10 km: that and nothing else is sent, to open-meteo.com). Then: rain and storms bring an umbrella over his head and falling drops, snow brings snowflakes and a
-// scarf, cold weather a scarf, a shiver now and then and a puff of breath, hot weather a paper fan, a sweat drop and a sun. He says one line about it a day. What each kind
+// to about 10 km: that and nothing else is sent, to open-meteo.com). Then: rain and storms bring a giant leaf held over his head in his spare hand and falling drops (storms also thunderbolts), snow and cold bring a
+// shiver now and then and a puff of breath (no scarf), hot weather nothing for now. He says one line about it a day. What each kind
 // is, and how the answer is read, is weather.js. The setting lives on this device only (`nibble-weather`); Mini Fumu and the whole app share it through the same storage.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
@@ -19,26 +19,17 @@ function wxLast() { try { return JSON.parse(localStorage.getItem(WX_LAST) || 'nu
 function wxDraw(kind) {
   var oldAcc = pet.querySelectorAll('.wx-acc'); [].forEach.call(oldAcc, function (g) { g.remove(); });
   if (!kind || kind === 'clear') return;
-  var NS = 'http://www.w3.org/2000/svg', hatSlot = pet.querySelector('.outfit-hat'), hatLayer = hatSlot && hatSlot.parentNode, over = pet.querySelector('.outfit-neck-over');
+  var NS = 'http://www.w3.org/2000/svg', armR = pet.querySelector('.arm-r');
   function group(parent, after, cls, html) { var g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'wx-acc ' + cls); g.innerHTML = html; if (after && after.nextSibling) parent.insertBefore(g, after.nextSibling); else parent.appendChild(g); return g; }
   var ink = 'stroke="#5b4239" stroke-width="2" stroke-linejoin="round"';
-  if ((kind === 'rain' || kind === 'storm') && hatLayer) {
-    var dark = kind === 'storm';
-    group(hatLayer, null, 'wx-umbrella', '<g class="wx-bob"><path d="M80 17 V36 q0 4 -4 4" fill="none" stroke="#5b4239" stroke-width="3" stroke-linecap="round"/><path d="M80 17 V36 q0 4 -4 4" fill="none" stroke="#c9a27a" stroke-width="1.4" stroke-linecap="round"/>' +
-      '<path d="M48 18 Q50 -6 80 -7 Q110 -6 112 18 Q104 12 96 18 Q88 12 80 18 Q72 12 64 18 Q56 12 48 18 Z" fill="' + (dark ? '#8f9bc2' : '#8fd3ff') + '" ' + ink + '/>' +
-      '<path d="M80 -7 Q68 2 64 18 M80 -7 Q92 2 96 18" fill="none" stroke="#fffaf4" stroke-width="2.2" stroke-linecap="round" opacity=".85"/><path d="M60 3 Q66 -2 72 -4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/><circle cx="80" cy="-8" r="2.2" fill="#ffd36b" stroke="#5b4239" stroke-width="1.4"/></g>');
-  }
-  if ((kind === 'cold' || kind === 'snow') && over && !/scarf/.test((state.pet.outfit && state.pet.outfit.neck) || '')) {
-    var item = Wardrobe.filter(function (w) { return w.id === 'scarf'; })[0];   // (the winter scarf from the dressing room)
-    if (item) group(over.parentNode, over, 'wx-scarf', item.svg);
-  }
-  if (kind === 'hot' && over) {
-    group(over.parentNode, over, 'wx-fan', '<g transform="translate(126 112) scale(1.4) translate(-126 -112)"><g class="wx-wave" style="transform-box:fill-box;transform-origin:50% 100%"><path d="M126 112 L136 86" stroke="#5b4239" stroke-width="4" stroke-linecap="round"/><path d="M126 112 L136 86" stroke="#c9a27a" stroke-width="2" stroke-linecap="round"/>' +
-      '<path d="M114 88 Q135 68 156 88 Q135 96 114 88 Z" fill="#ffb3c9" ' + ink + '/><path d="M135 70 V92 M124 74 L128 91 M146 74 L142 91" stroke="#fff6ec" stroke-width="1.6" stroke-linecap="round" opacity=".9"/></g></g>' +
-      '<g class="wx-sweat"><path d="M114 46 q-4 7 0 9 q4 -2 0 -9z" fill="#8fd3ff" stroke="#5b4239" stroke-width="1.2" stroke-linejoin="round"/></g>');
+  if ((kind === 'rain' || kind === 'storm') && armR) {   // a giant leaf in the spare right hand, held up over his head (drawn along the arm, like the wand; styles.css shows it only while that hand is free)
+    var lf = kind === 'storm' ? ['#5fae78', '#8fd3a4'] : ['#7ccf8a', '#b5eebf'];
+    group(armR, null, 'wx-leaf', '<g class="wx-bob"><g transform="translate(133 124) scale(1.3) translate(-133 -124)"><path d="M133 124 V184" fill="none" stroke="#5b4239" stroke-width="4.4" stroke-linecap="round"/><path d="M133 124 V184" fill="none" stroke="#7fb36b" stroke-width="2.2" stroke-linecap="round"/>' +
+      '<path d="M133 176 C100 190 98 232 133 252 C168 232 166 190 133 176 Z" fill="' + lf[0] + '" ' + ink + '/>' +
+      '<path d="M133 180 V248 M133 198 L117 188 M133 198 L149 188 M133 216 L113 204 M133 216 L153 204 M133 233 L120 224 M133 233 L146 224" fill="none" stroke="' + lf[1] + '" stroke-width="2" stroke-linecap="round" opacity=".9"/></g></g>');
   }
 }
-/** Falling drops or flakes over the stage, or a sun, drawn in plain CSS shapes. @param {string} kind */
+/** Falling drops or flakes over the stage, drawn in plain CSS shapes. @param {string} kind */
 function wxParticles(kind) {
   if (wxFx) { wxFx.remove(); wxFx = null; }
   if (!kind || kind === 'clear') return;
@@ -51,8 +42,13 @@ function wxParticles(kind) {
       p.style.cssText = 'left:' + (Math.random() * 100).toFixed(1) + '%;animation-delay:-' + (Math.random() * 3).toFixed(2) + 's;animation-duration:' + ((kind === 'snow' ? 3.2 : kind === 'storm' ? 0.6 : 0.9) + Math.random() * (kind === 'snow' ? 2.2 : 0.4)).toFixed(2) + 's' + (kind === 'snow' ? ';--s:' + (3 + Math.random() * 4).toFixed(1) + 'px' : '');
       el.appendChild(p);
     }
-  } else if (kind === 'hot') {
-    el.innerHTML = '<svg viewBox="0 0 60 60" class="wx-sun"><g class="wx-rays" stroke="#ffb43a" stroke-width="3" stroke-linecap="round">' + [0, 45, 90, 135, 180, 225, 270, 315].map(function (a) { return '<path d="M30 6 V13" transform="rotate(' + a + ' 30 30)"/>'; }).join('') + '</g><circle cx="30" cy="30" r="12" fill="#ffe27a" stroke="#5b4239" stroke-width="2"/><path d="M25 28 q1.6 -1.6 3.2 0 M33 28 q1.6 -1.6 3.2 0 M27 34 q3 2.6 6 0" fill="none" stroke="#5b4239" stroke-width="1.4" stroke-linecap="round"/></svg>';
+    if (kind === 'storm') for (i = 0; i < 3; i++) {   // thunderbolts: a bolt fades in and out now and then (soft, never a full-screen flash)
+      var b = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      b.setAttribute('viewBox', '0 0 24 48'); b.setAttribute('class', 'wx-bolt');
+      b.style.cssText = 'left:' + (6 + i * 34 + Math.random() * 14).toFixed(0) + '%;animation-delay:' + (i * 1.7 + Math.random()).toFixed(2) + 's;animation-duration:' + (5 + i * 1.3).toFixed(1) + 's';
+      b.innerHTML = '<path d="M15 2 L4 26 H12 L8 46 L21 18 H13 Z" fill="#ffe66b" stroke="#fff6c2" stroke-width="1.6" stroke-linejoin="round"/>';
+      el.appendChild(b);
+    }
   } else if (kind === 'cold') {
     for (i = 0; i < 7; i++) { var c = document.createElement('i'); c.style.cssText = 'left:' + (8 + i * 13) + '%;top:' + (12 + (i * 37) % 60) + '%;animation-delay:-' + (i * 0.5).toFixed(1) + 's'; el.appendChild(c); }
   }
@@ -74,7 +70,7 @@ function wxSet(kind, quiet) {
   wxDraw(kind);
   wxParticles(kind);
   if (kind === 'cold' || kind === 'snow') wxTimers.push(setInterval(function () { if (!busy && !document.hidden && baseState() !== 'sleepy' && !stage.classList.contains('bedtime')) { pulse('shiver', 700); if (typeof drift === 'function' && Math.random() < 0.5) drift(['💨'], mouthPoint(), 1); } }, 22000));
-  if (quiet || kind === 'clear') return;
+  if (quiet || kind === 'clear' || kind === 'hot') return;
   var day = B.dayKey(giftDate()), said = '';
   try { said = localStorage.getItem('nibble-wx-said') || ''; } catch (e) { /* storage not available */ }
   if (said === day + kind) return;
