@@ -34,6 +34,7 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   onPrefs: (fn) => ipcRenderer.on('desk:prefs', (_e, p) => fn(p)),
   /** Walks the window dx px along (negative = left) over ms; resolves how far it really went. */
   where: () => ipcRenderer.invoke('desk:where'),
+  onOptions: (fn) => ipcRenderer.on('desk:options', () => fn()),
   onGrab: (fn) => ipcRenderer.on('desk:grab', (_e, on) => fn(!!on)),
   setDrowsy: (on) => ipcRenderer.send('desk:drowsy', !!on),
   walk: (dx, ms, free) => ipcRenderer.invoke('desk:walk', +dx || 0, +ms || 3000, !!free),

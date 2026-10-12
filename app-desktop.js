@@ -935,6 +935,7 @@
   }
   if (D.onQuickAdd) D.onQuickAdd(openQuick);
   // the copied text goes to the other device at once (small Fumu or the whole app; the shell only lets the key through while the pointer is over him)
+  if (D.onOptions) D.onOptions(function () { var b = $('optionsBtn'); if (b && document.documentElement.classList.contains('desktop-list')) b.click(); });   // the Open settings key in the whole app: the app's own Options (it closes them again, like the gear)
   if (D.onSendCopied) D.onSendCopied(function (text) { if (typeof sendToOther === 'function') sendToOther(text); });
 
   // ---------- which program is in front (awareness level 2) ----------

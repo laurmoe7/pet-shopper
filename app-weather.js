@@ -15,6 +15,13 @@ function wxSave(c) { try { localStorage.setItem(WX_KEY, JSON.stringify({ on: !!c
 /** @returns {?{kind: string, temp: number, feels: number, at: number}} The last weather that was fetched. */
 function wxLast() { try { return JSON.parse(localStorage.getItem(WX_LAST) || 'null'); } catch (e) { return null; } }
 
+/** @returns {number} Half the width of the rain leaf at x along it (-54 the base, 54 the tip). */
+function wxLeafW(x) { var u = x / 54; return u <= -1 || u >= 1 ? 0 : 20 * Math.pow(1 - u, 0.9) * Math.pow(1 + u, 0.5); }
+/** @returns {string} The place on the leaf where a drop lands now (a random spot over the whole leaf, not near the edge), as a transform. */
+function wxSplashSpot() {
+  var x = -40 + Math.random() * 80, y = (Math.random() * 2 - 1) * wxLeafW(x) * 0.7;
+  return 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') rotate(12) scale(.7)';
+}
 /**
  * The rain leaf, drawn flat along the x axis (base at the left, pointed tip at the right, about 108 x 48). The outline, the shaded lower half, the veins and the drops are all
  * worked out from one width function `w(x)`, so every vein ends inside the leaf and nothing clips through its edge.
@@ -22,8 +29,7 @@ function wxLast() { try { return JSON.parse(localStorage.getItem(WX_LAST) || 'nu
  * @returns {string} SVG markup
  */
 function wxLeaf(fill, light, dark, storm) {
-  var K = 20;
-  function w(x) { var u = x / 54; return u <= -1 || u >= 1 ? 0 : K * Math.pow(1 - u, 0.9) * Math.pow(1 + u, 0.5); }
+  var w = wxLeafW;
   function f(n) { return (Math.round(n * 10) / 10); }
   var up = [], dn = [], x;
   for (var t = 0; t <= 24; t++) { x = -54 + 108 * (1 - Math.cos(t * Math.PI / 24)) / 2; up.push(f(x) + ' ' + f(-w(x))); dn.unshift(f(x) + ' ' + f(w(x))); }
@@ -37,13 +43,12 @@ function wxLeaf(fill, light, dark, storm) {
       veins += 'M' + f(x0) + ' 0 Q' + f(cx) + ' ' + f(cy) + ' ' + f(ex) + ' ' + f(ey);
     });
   });
-  var splash = '';   // raindrops hitting the top of the leaf: a little crown of droplets pops up at a few spots (standing up straight, whatever the tilt of the leaf)
-  (storm ? [-34, -22, -10, 2, 14, 26, 38] : [-30, -14, 4, 22, 36]).forEach(function (x0, n) {
-    var y0 = -w(x0) * 0.5;
-    splash += '<g transform="translate(' + f(x0) + ' ' + f(y0) + ') rotate(12) scale(.7)"><g class="wx-splash" style="animation-delay:-' + ((n * 0.37) % 1.1).toFixed(2) + 's;animation-duration:' + (storm ? 0.7 : 1.1) + 's">' +
+  var splash = '', n;   // raindrops hitting the leaf: a little crown of droplets pops up, standing up straight whatever the tilt of the leaf; wxSplashMove puts each one somewhere new every time
+  for (n = 0; n < (storm ? 4 : 2); n++) {
+    splash += '<g class="wx-spot" transform="' + wxSplashSpot() + '"><g class="wx-splash" style="animation-delay:-' + (Math.random() * 1.6).toFixed(2) + 's;animation-duration:' + ((storm ? 0.8 : 1.4) + Math.random() * 0.9).toFixed(2) + 's">' +
       '<path d="M-2 0 Q-5 -4 -8 -4 M2 0 Q5 -4 8 -4 M0 -1 V-7" fill="none" stroke="#e8f7ff" stroke-width="1.6" stroke-linecap="round"/>' +
       '<circle cx="-8.5" cy="-5.4" r="1.4" fill="#e8f7ff"/><circle cx="8.5" cy="-5.4" r="1.4" fill="#e8f7ff"/><circle cx="0" cy="-8.6" r="1.5" fill="#e8f7ff"/></g></g>';
-  });
+  }
   return '<path d="' + outline + '" fill="' + fill + '" stroke="#5b4239" stroke-width="1.4" stroke-linejoin="round"/>' +
     '<path d="' + shade + '" fill="' + dark + '" opacity=".38"/>' +
     '<path d="' + veins + '" fill="none" stroke="' + light + '" stroke-width="1.3" stroke-linecap="round"/>' +
@@ -61,8 +66,9 @@ function wxDraw(kind) {
   var ink = 'stroke="#5b4239" stroke-width="2" stroke-linejoin="round"';
   if ((kind === 'rain' || kind === 'storm') && armR) {   // a giant leaf in the spare right hand, held upright in front like a leaf umbrella (the stem stays straight up while the paw is at his side; styles.css shows it only while that hand is free)
     var lf = kind === 'storm' ? ['#5fae78', '#8fd3a4', '#4b9564'] : ['#7ccf8a', '#b5eebf', '#62b574'];
-    group(armR, null, 'wx-leaf', '<g transform="rotate(-10 133 110.2)"><g class="wx-bob"><path d="M133 128 C135 92 118 62 87 27" fill="none" stroke="#5b4239" stroke-width="4.4" stroke-linecap="round"/><path d="M133 128 C135 92 118 62 87 27" fill="none" stroke="#7fb36b" stroke-width="2.2" stroke-linecap="round"/>' +
+    var leafG = group(armR, null, 'wx-leaf', '<g transform="rotate(-10 133 110.2)"><g class="wx-bob"><path d="M133 128 C135 92 118 62 87 27" fill="none" stroke="#5b4239" stroke-width="4.4" stroke-linecap="round"/><path d="M133 128 C135 92 118 62 87 27" fill="none" stroke="#7fb36b" stroke-width="2.2" stroke-linecap="round"/>' +
       '<g transform="translate(104 8) rotate(-12) scale(1.5)">' + wxLeaf(lf[0], lf[1], lf[2], kind === 'storm') + '</g></g></g>');
+    leafG.addEventListener('animationiteration', function (e) { var t = e.target; if (t && t.classList && t.classList.contains('wx-splash')) t.parentNode.setAttribute('transform', wxSplashSpot()); });   // each drop lands somewhere new
   }
 }
 /** Falling drops or flakes over the stage, drawn in plain CSS shapes. @param {string} kind */

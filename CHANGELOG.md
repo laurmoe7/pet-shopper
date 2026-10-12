@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 646
+- Rain on the leaf: fewer drops, landing at random spots
+- Open-settings key in the whole app opens the app's Options
+
 ## Build 645
 - Rain splashes on top of the leaf; rain falls behind him and the leaf
 
