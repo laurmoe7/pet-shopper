@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 643
+- Rain leaf: veins, shading and drops, all inside the leaf
+
 ## Build 642
 - Rain leaf held upright over his head, like a leaf umbrella
 

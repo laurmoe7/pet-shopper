@@ -15,6 +15,40 @@ function wxSave(c) { try { localStorage.setItem(WX_KEY, JSON.stringify({ on: !!c
 /** @returns {?{kind: string, temp: number, feels: number, at: number}} The last weather that was fetched. */
 function wxLast() { try { return JSON.parse(localStorage.getItem(WX_LAST) || 'null'); } catch (e) { return null; } }
 
+/**
+ * The rain leaf, drawn flat along the x axis (base at the left, pointed tip at the right, about 108 x 48). The outline, the shaded lower half, the veins and the drops are all
+ * worked out from one width function `w(x)`, so every vein ends inside the leaf and nothing clips through its edge.
+ * @param {string} fill @param {string} light vein and shine colour @param {string} dark shade for the lower half
+ * @returns {string} SVG markup
+ */
+function wxLeaf(fill, light, dark) {
+  var K = 20;
+  function w(x) { var u = x / 54; return u <= -1 || u >= 1 ? 0 : K * Math.pow(1 - u, 0.9) * Math.pow(1 + u, 0.5); }
+  function f(n) { return (Math.round(n * 10) / 10); }
+  var up = [], dn = [], x;
+  for (var t = 0; t <= 24; t++) { x = -54 + 108 * (1 - Math.cos(t * Math.PI / 24)) / 2; up.push(f(x) + ' ' + f(-w(x))); dn.unshift(f(x) + ' ' + f(w(x))); }
+  var outline = 'M' + up.join(' L') + ' L54 0 L' + dn.join(' L') + ' Z';
+  var shade = 'M-54 0 L' + dn.slice().reverse().join(' L') + ' L54 0 Z';   // (the lower half, a little darker)
+  var veins = '', twigs = '', xs = [-38, -24, -10, 4, 18, 32], i, s2;
+  xs.forEach(function (x0) {
+    [-1, 1].forEach(function (sd) {
+      var ex = x0 + 17, ey = sd * w(ex) * 0.74, cx = x0 + 9, cy = sd * w(cx) * 0.3;
+      if (ex > 47) return;
+      veins += 'M' + f(x0) + ' 0 Q' + f(cx) + ' ' + f(cy) + ' ' + f(ex) + ' ' + f(ey);
+      var mx = (x0 + 2 * cx + ex) / 4, my = (2 * cy + ey) / 4, tx = mx + 6, ty = my + sd * 4.5;
+      if (Math.abs(ty) < w(tx) * 0.8) twigs += 'M' + f(mx) + ' ' + f(my) + ' L' + f(tx) + ' ' + f(ty);
+    });
+  });
+  return '<path d="' + outline + '" fill="' + fill + '" stroke="#5b4239" stroke-width="1.4" stroke-linejoin="round"/>' +
+    '<path d="' + shade + '" fill="' + dark + '" opacity=".38"/>' +
+    '<path d="M-47 -1.5 Q-30 -9 -8 -12 Q14 -13 36 -6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".5"/>' +
+    '<path d="' + veins + '" fill="none" stroke="' + light + '" stroke-width="1.3" stroke-linecap="round"/>' +
+    '<path d="' + twigs + '" fill="none" stroke="' + light + '" stroke-width=".8" stroke-linecap="round" opacity=".8"/>' +
+    '<path d="M-48 0 L47 0" stroke="' + light + '" stroke-width="2.2" stroke-linecap="round"/>' +
+    '<path d="M-16.4 -9 a2.4 1.8 0 1 0 4.8 0 a2.4 1.8 0 1 0 -4.8 0z" fill="#d9f1ff" stroke="#6fbff0" stroke-width=".8"/><circle cx="-14.8" cy="-9.6" r=".7" fill="#fff"/>' +
+    '<path d="M19.8 6.5 a2.2 1.6 0 1 0 4.4 0 a2.2 1.6 0 1 0 -4.4 0z" fill="#d9f1ff" stroke="#6fbff0" stroke-width=".8"/><circle cx="21.3" cy="6" r=".6" fill="#fff"/>' +
+    '<path d="M54 1.5 q-2.6 4.6 0 6.4 q2.6 -1.8 0 -6.4z" fill="#bfe6ff" stroke="#6fbff0" stroke-width=".9" stroke-linejoin="round"/>';   // (a drop hanging off the tip)
+}
 /** The accessories drawn in his picture (they sit beside the worn things, so dressing him does not wipe them). */
 function wxDraw(kind) {
   var oldAcc = pet.querySelectorAll('.wx-acc'); [].forEach.call(oldAcc, function (g) { g.remove(); });
@@ -23,10 +57,9 @@ function wxDraw(kind) {
   function group(parent, after, cls, html) { var g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'wx-acc ' + cls); g.innerHTML = html; if (after && after.nextSibling) parent.insertBefore(g, after.nextSibling); else parent.appendChild(g); return g; }
   var ink = 'stroke="#5b4239" stroke-width="2" stroke-linejoin="round"';
   if ((kind === 'rain' || kind === 'storm') && armR) {   // a giant leaf in the spare right hand, held upright in front like a leaf umbrella (the stem stays straight up while the paw is at his side; styles.css shows it only while that hand is free)
-    var lf = kind === 'storm' ? ['#5fae78', '#8fd3a4'] : ['#7ccf8a', '#b5eebf'];
+    var lf = kind === 'storm' ? ['#5fae78', '#8fd3a4', '#4b9564'] : ['#7ccf8a', '#b5eebf', '#62b574'];
     group(armR, null, 'wx-leaf', '<g transform="rotate(-10 133 110.2)"><g class="wx-bob"><path d="M133 128 Q134 74 116 22" fill="none" stroke="#5b4239" stroke-width="4.4" stroke-linecap="round"/><path d="M133 128 Q134 74 116 22" fill="none" stroke="#7fb36b" stroke-width="2.2" stroke-linecap="round"/>' +
-      '<g transform="translate(104 8) rotate(-6) scale(1.5)"><path d="M-50 6 C-50 -20 -12 -32 50 -12 C46 14 4 26 -50 6 Z" fill="' + lf[0] + '" ' + ink + '/>' +
-      '<path d="M-47 6 Q0 -4 47 -11 M-30 3 L-34 -10 M-12 0 L-16 -16 M6 -4 L3 -20 M24 -8 L22 -22 M-26 4 L-28 14 M-6 2 L-8 16 M14 -3 L12 10" fill="none" stroke="' + lf[1] + '" stroke-width="2" stroke-linecap="round" opacity=".9"/></g></g></g>');
+      '<g transform="translate(104 8) rotate(-12) scale(1.5)">' + wxLeaf(lf[0], lf[1], lf[2]) + '</g></g></g>');
   }
 }
 /** Falling drops or flakes over the stage, drawn in plain CSS shapes. @param {string} kind */
