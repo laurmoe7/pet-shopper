@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 644
+- Rain leaf: stem curves into the leaf's base, cleaner veins
+
 ## Build 643
 - Rain leaf: veins, shading and drops, all inside the leaf
 
