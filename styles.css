@@ -4321,7 +4321,7 @@ html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-bloc
 .wx-rain, .wx-storm { z-index: 0; }   /* the rain falls behind him and his leaf, so the drops land on them instead of going through */
 /* (each wisp is placed by app-weather.js) */
 .wx-heat { position: absolute; height: 14px; opacity: 0; animation: wx-heat 5.5s ease-in-out infinite; }
-@keyframes wx-heat { 0% { translate: 0 0; opacity: 0; } 25% { opacity: .38; } 75% { opacity: .22; } 100% { translate: 6px -70px; opacity: 0; } }
+@keyframes wx-heat { 0% { translate: 0 0; opacity: 0; } 25% { opacity: .22; } 75% { opacity: .12; } 100% { translate: 6px -70px; opacity: 0; } }
 .wx-hot { background: linear-gradient(transparent 55%, rgba(255, 170, 90, .08)); }
 /* the fan: held in the spare right hand and waved by the arm */
 #pet[data-arms="idle"]:not(.desk, .tucked, [data-prop], [data-state="sleepy"]) .arm-r .wx-fan { display: inline; }

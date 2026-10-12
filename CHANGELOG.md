@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 650
+- Heat waves fainter
+
 ## Build 649
 - Heat waves broken into short wisps at random places
 
