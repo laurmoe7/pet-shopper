@@ -25,10 +25,10 @@
     var en = { clear: 'clear', rain: 'rainy', storm: 'stormy', snow: 'snowy', cold: 'chilly', hot: 'hot' }, du = { clear: 'helder', rain: 'regenachtig', storm: 'stormachtig', snow: 'sneeuwachtig', cold: 'koud', hot: 'heet' };
     return nl ? 'het is ' + t + ', ' + (du[w.kind] || 'helder') + '~' : 'it is ' + t + ' and ' + (en[w.kind] || 'clear') + '~';
   }
-  /** The weather report: he looks outside and tells you (only offered while the weather option is off, so he does not already show it). Needs a place, set in Options. */
+  /** The weather report: he looks outside and tells you (only offered while the weather option is on). With no place picked yet he says to pick one. */
   function ringWeather() {
     var nl = typeof Lang === 'object' && Lang.get() === 'nl', c = typeof wxConf === 'function' ? wxConf() : null;
-    if (!c || c.lat === null || c.lon === null) { say(nl ? 'zet eerst een plaats in de opties~' : 'pick a place in Options > Weather first~', 3200, true); return; }
+    if (!c || c.lat === null || c.lon === null) { say(nl ? 'zet eerst een plaats in de opties~' : 'I need a place first: pick one in Options > Weather~', 3200, true); return; }
     var last = typeof wxLast === 'function' ? wxLast() : null;
     if (last && Date.now() - last.at < 10 * 60000) { say(ringWeatherWords(last), 3600, true); pulse('hopsmall', 450); return; }
     if (!navigator.onLine) { say(nl ? 'ik kan nu niet kijken~' : 'I cannot look outside right now~', 2400, true); return; }
@@ -61,7 +61,7 @@
     if (!isDesk()) return scene === 'night-bed' ? [] : ['toy', 'notoy'].concat(isTodo() ? ['plant'] : [], ['snack']);   // in the app: the toys (none picked: his own) and a snack; in bed they are put away
     if (scene === 'night-bed') return ['night'];   // in bed: only the night light
     var play = toyKind() === 'none' ? [] : ['ball'];   // (nothing to play with when there is no toy)
-    var wx = typeof wxConf === 'function' && !wxConf().want ? ['weather'] : [];   // (with the weather option on he already shows it: the report is for when it is off)
+    var wx = typeof wxConf === 'function' && wxConf().want ? ['weather'] : [];   // (the report is offered while the weather option is on; with no place picked yet he says so when it is pressed)
     if (scene.indexOf('night-drowsy') === 0) return play.concat(['toy', 'notoy', 'snack'], wx, ['swap', 'lights']);
     return play.concat(['toy', 'notoy', 'snack'], wx, ['swap']);
   }

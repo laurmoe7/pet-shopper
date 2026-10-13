@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 666
+- Weather report button shows while the weather option is on; with no place picked he says so
+
 ## Build 665
 - Radial menu: weather report button (only while the weather option is off); dance and wave buttons removed
 
