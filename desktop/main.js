@@ -6,6 +6,7 @@ const { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, shell, ses
 const path = require('path');
 const fs = require('fs');
 const place = require('./place.js');
+const weatherPlace = require('./weather-place.js');
 const windows = require('./windows.js');
 const keys = require('./keys.js');
 const privacy = require('./privacy.js');
@@ -27,9 +28,19 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, displaced = false, perch = null, perchTimer = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { alertStyle: 'auto', x: null, y: null, onTop: true, aboveFull: false, clickThrough: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, mute: false, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, myGames: {}, keys: null };
+  let prefs = { alertStyle: 'auto', x: null, y: null, onTop: true, aboveFull: false, clickThrough: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, deskMode: 'room', toyRoam: true, mute: false, volume: 100, ambient: true, swipeLeft: 'done', swipeRight: 'away', swipeUp: 'snooze', swipeDown: 'snooze', moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, celebBirthday: true, celebChristmas: true, celebHalloween: true, celebNewYear: true, celebEaster: true, celebKingsDay: true, celebScreen: true, myGames: {}, keys: null };
+  prefs.weather = null;   // the weather setting ({on, lat, lon, place}); null until the player or the page sets it (the page then hands over what Options already had)
   const DEFAULTS = Object.assign({}, prefs);
-  try { prefs = Object.assign(prefs, JSON.parse(fs.readFileSync(prefsFile(), 'utf8'))); } catch (e) { /* first run */ }
+  const SWIPE_ACTIONS = ['done', 'snooze', 'away', 'none'];   // what a swipe on an alert card can do (Done or copy, in 10 minutes, put away, nothing)
+  let savedPrefs = {};
+  try { savedPrefs = JSON.parse(fs.readFileSync(prefsFile(), 'utf8')) || {}; prefs = Object.assign(prefs, savedPrefs); } catch (e) { /* first run */ }
+  // room mode (his room shows, he stays in it) or wander mode (no room or cushion, he walks about the desktop): new installs start in his room; an older save keeps what it had (a room background: room mode)
+  // the sound switch became a volume slider: an old mute is a volume of zero
+  if (typeof savedPrefs.volume !== 'number') prefs.volume = savedPrefs.mute ? 0 : 100;
+  prefs.volume = Math.max(0, Math.min(100, Math.round(+prefs.volume) || 0));
+  prefs.weather = weatherPlace.clean(prefs.weather);
+  ['Left', 'Right', 'Up', 'Down'].forEach((d) => { if (!SWIPE_ACTIONS.includes(prefs['swipe' + d])) prefs['swipe' + d] = DEFAULTS['swipe' + d]; });   // (what each swipe direction does on an alert card)
+  if (prefs.deskMode !== 'room' && prefs.deskMode !== 'wander') prefs.deskMode = Object.keys(savedPrefs).length && !savedPrefs.backdrop ? 'wander' : 'room';
   prefs.keys = keys.clean(prefs.keys);
   prefs.awareness = privacy.clean(prefs.awareness);
   prefs.petName = typeof prefs.petName === 'string' && prefs.petName.trim() ? prefs.petName.trim().slice(0, 16) : 'Fumu';
@@ -64,7 +75,9 @@ function start() {
     if (prefs.onTop && prefs.aboveFull) win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true });
     else win.setVisibleOnAllWorkspaces(false);
   };
-  const publicPrefs = () => ({ alertStyle: prefs.alertStyle, clickThrough: prefs.clickThrough, moveNormal: prefs.moveNormal, moveFull: prefs.moveFull, mute: prefs.mute, remind: prefs.remind, size: prefs.size, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion, bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles, backdrop: prefs.backdrop, toyRoam: prefs.toyRoam });
+  const wanderMode = () => prefs.deskMode === 'wander';
+  const toyRoamOn = () => wanderMode() && prefs.toyRoam;   // (the toy only leaves his room in wander mode)
+  const publicPrefs = () => ({ deskMode: prefs.deskMode, alertStyle: prefs.alertStyle, clickThrough: prefs.clickThrough, moveNormal: prefs.moveNormal, moveFull: prefs.moveFull, remind: prefs.remind, size: prefs.size, perch: wanderMode() && prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, hideToy: prefs.hideToy, hideCushion: wanderMode() || prefs.hideCushion, volume: prefs.volume, ambient: prefs.ambient, swipeLeft: prefs.swipeLeft, swipeRight: prefs.swipeRight, swipeUp: prefs.swipeUp, swipeDown: prefs.swipeDown, bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles, backdrop: !wanderMode(), toyRoam: toyRoamOn(), celebBirthday: prefs.celebBirthday, celebChristmas: prefs.celebChristmas, celebHalloween: prefs.celebHalloween, celebNewYear: prefs.celebNewYear, celebEaster: prefs.celebEaster, celebKingsDay: prefs.celebKingsDay, celebScreen: prefs.celebScreen, weather: prefs.weather });
   const sendPrefs = () => { if (win) win.webContents.send('desk:prefs', publicPrefs()); panel.push(); };
   // moves the window smoothly (walking, peeking round the screen edge); anything that takes hold of it stops the move
   let tween = null;
@@ -339,7 +352,7 @@ function start() {
   function hideFumu() { if (win) win.hide(); refreshMenus(); }
 
   // one place that changes a setting, for the right-click menu and the settings window alike
-  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'remind', 'perch', 'hideToy', 'hideCushion', 'startWithWindows', 'bubbles', 'clouds', 'sparkles', 'backdrop', 'mute', 'toyRoam', 'clickThrough'];
+  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'remind', 'perch', 'hideToy', 'hideCushion', 'ambient', 'startWithWindows', 'bubbles', 'clouds', 'sparkles', 'toyRoam', 'clickThrough', 'celebBirthday', 'celebChristmas', 'celebHalloween', 'celebNewYear', 'celebEaster', 'celebKingsDay', 'celebScreen'];
   function setPref(key, value) {
     if (key === 'awareness') {   // 1 = more privacy, 2 = normal; at 1 he stops sitting on windows (he can no longer see them)
       prefs.awareness = privacy.clean(+value); savePrefs();
@@ -353,6 +366,16 @@ function start() {
       return;
     }
     if (key === 'alertStyle') { if (THEMES.includes(value)) { prefs.alertStyle = value; savePrefs(); sendPrefs(); } return; }
+    if (/^swipe(Left|Right|Up|Down)$/.test(key)) { if (SWIPE_ACTIONS.includes(value)) { prefs[key] = value; savePrefs(); sendPrefs(); } return; }
+    if (key === 'weather') { const w = weatherPlace.clean(value); if (w) { prefs.weather = w; savePrefs(); sendPrefs(); } return; }   // (the weather in Mini Fumu's settings and the app's Options are the one setting)
+    if (key === 'volume') { prefs.volume = Math.max(0, Math.min(100, Math.round(+value) || 0)); savePrefs(); sendPrefs(); return; }   // (0 is silent)
+    if (key === 'deskMode') {   // room mode or wander mode: back in his room, he stops sitting on windows and the toy comes home
+      if (value !== 'room' && value !== 'wander') return;
+      prefs.deskMode = value; savePrefs();
+      if (value === 'room') { fall(); hideToy(); }
+      sendPrefs(); refreshMenus();
+      return;
+    }
     if (key === 'moveNormal' || key === 'moveFull') { prefs[key] = privacy.cleanMove(value, prefs[key]); savePrefs(); sendPrefs(); return; }
     if (key === 'size') { if (['small', 'normal', 'large'].includes(value)) setSize(value); return; }
     if (!BOOLS.includes(key)) return;
@@ -444,7 +467,9 @@ function start() {
   // in a full-screen game he lets the mouse through; this key makes him catch it for a while (to move him or clear an alert), and again lets go
   function grabMouse() { if (!win) return; setPref('clickThrough', !prefs.clickThrough); solidState = null; win.webContents.send('desk:grab', !prefs.clickThrough); }
   const HANDLERS = { swapSize: toggleFull, swapList, quickAdd, grab: grabMouse };
-  const HOVER_HANDLERS = { options: () => panel.toggle(), sendCopied };   // held only while the pointer is over him
+  // the Open settings key: in the whole app it opens the app's own Options, in the small window Mini Fumu's settings
+  function optionsKey() { if (mode === 'list' && win) win.webContents.send('desk:options'); else panel.toggle(); }
+  const HOVER_HANDLERS = { options: optionsKey, sendCopied };   // held only while the pointer is over him
   function setupKeys() {
     Object.keys(registered).forEach((k) => { if (registered[k]) globalShortcut.unregister(registered[k]); delete registered[k]; });
     Object.keys(hoverKeyOn).forEach((id) => { globalShortcut.unregister(hoverKeyOn[id]); delete hoverKeyOn[id]; });
@@ -601,7 +626,7 @@ function start() {
       if (Math.hypot(vx, vy) > 1400) { throwWindow(Math.max(-3500, Math.min(3500, vx)), Math.max(-3500, Math.min(3500, vy)), dragHome || b, !!inBed); return; }
     }
     // let go close above another window's edge and he sits on it
-    if (prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch')) {
+    if (wanderMode() && prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch')) {
       const all = frames(), seg = place.perchUnder(b, place.perches(all, areas(), petSize().height * 0.6), 40);
       if (seg) {
         const rect = all.find((f) => f.id === seg.id);
@@ -615,6 +640,7 @@ function start() {
     restHere();
   });
   ipcMain.handle('desk:getPrefs', () => publicPrefs());
+  ipcMain.on('desk:setWeather', (_e, w) => { const c = weatherPlace.clean(w); if (c && JSON.stringify(c) !== JSON.stringify(prefs.weather)) setPref('weather', c); });   // the app's Options > Weather
   ipcMain.on('desk:setTheme', (_e, t) => setPref('alertStyle', typeof t === 'string' ? t : ''));   // the app's Appearance: the same theme for both windows and the settings window
   // where the window is now (the page notes his spot before the toy takes him away, to come back to it exactly)
   let drowsy = false;   // up at night and tired (the page tells us): he walks back slowly
@@ -662,7 +688,7 @@ function start() {
     if (!win || mode !== 'pet' || dragFrom || peekRest) return null;
     if (want === 'down') { if (!perch) return null; await fall(); return false; }
     if (!privacy.allows(prefs.awareness, 'perch')) return 'private';
-    if (!prefs.perch || !windows.available()) return 'off';
+    if (!wanderMode() || !prefs.perch || !windows.available()) return 'off';
     const all = frames(), b = win.getBounds();
     const near = place.perchesNear(b, place.perches(all, areas(), petSize().height * 0.6), areas(), 1100, perch && perch.id);
     if (!near.length) return 'none';
@@ -690,15 +716,15 @@ function start() {
   }
   // (it is parked far off the screen rather than hidden: a hidden transparent window needs a moment to appear again, and the toy blinked out when it was picked up)
   function hideToy() { try { if (typeof stopToyFollow === 'function') stopToyFollow(); if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) { const b = toyWin.getBounds(); toyWin.setBounds({ x: -10000, y: -10000, width: b.width, height: b.height }); } } catch (e) { /* gone */ } }
-  setTimeout(() => { if (prefs.toyRoam && win && mode === 'pet') toyWindow(56); }, 3000);   // (made ahead of time: picking the toy up must not wait for a new window)
+  setTimeout(() => { if (toyRoamOn() && win && mode === 'pet') toyWindow(56); }, 3000);   // (made ahead of time: picking the toy up must not wait for a new window)
   // where his window is and how big the screen is (what the page needs to let the toy fly over all of it)
   ipcMain.handle('desk:toyField', () => {
-    if (!win || mode !== 'pet' || !prefs.toyRoam) return null;
+    if (!win || mode !== 'pet' || !toyRoamOn()) return null;
     const b = win.getBounds();
     return { wx: b.x, wy: b.y, zoom: zoom(), area: screen.getDisplayMatching(b).workArea };
   });
   ipcMain.on('desk:toyShow', (_e, dataUrl, px) => {
-    if (!win || mode !== 'pet' || !prefs.toyRoam || typeof dataUrl !== 'string' || dataUrl.length > 80000 || !/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(dataUrl)) return;
+    if (!win || mode !== 'pet' || !toyRoamOn() || typeof dataUrl !== 'string' || dataUrl.length > 80000 || !/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(dataUrl)) return;
     px = Math.max(16, Math.min(220, Math.round(+px || 32)));
     const w = toyWindow(px + 24);
     if (dataUrl !== toyImg || px !== toyPx) {
@@ -749,7 +775,7 @@ function start() {
   // the wrecking ball: an overlay that draws the open windows breaking (wreck.js); the page throws the toy and says what it hit
   const wreck = require('./wreck').makeWreck({
     BrowserWindow,
-    allowed: () => windows.available() && privacy.allows(prefs.awareness, 'wreck') && prefs.toyRoam,
+    allowed: () => windows.available() && privacy.allows(prefs.awareness, 'wreck') && toyRoamOn(),
     display: () => screen.getDisplayMatching(win.getBounds()),
     frames,
     raise: () => { if (win) win.moveTop(); if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) toyWin.moveTop(); }
@@ -758,7 +784,23 @@ function start() {
   ipcMain.on('desk:wreckHit', (_e, i, k, x, y) => { try { wreck.hit(+i, +k, +x, +y); } catch (e) { /* the overlay is gone */ } });
   ipcMain.handle('desk:wreckFix', async () => { try { await wreck.fix(); } catch (e) { wreck.stop(); } });
   ipcMain.on('desk:wreckAbort', () => wreck.stop());
-  app.on('before-quit', () => { wreck.stop(); if (toyWin && !toyWin.isDestroyed()) toyWin.destroy(); });
+  // a celebration (birthday, Christmas...) the player said yes to: an overlay over the whole screen with the app's effects (celebrate.js; the page draws them)
+  const celebrate = require('./celebrate').makeCelebrate({
+    BrowserWindow,
+    display: () => screen.getDisplayMatching(win.getBounds()),
+    pageUrl: () => APP_URL,
+    raise: () => { if (win) win.moveTop(); if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) toyWin.moveTop(); }
+  });
+  ipcMain.handle('desk:celebrateFx', (_e, kind, o) => {
+    if (!win || mode !== 'pet' || typeof kind !== 'string') return false;
+    try {
+      o = o && typeof o === 'object' ? o : {};
+      const wb = win.getBounds(), db = screen.getDisplayMatching(wb).bounds, r = o.rect && typeof o.rect === 'object' ? o.rect : {};
+      return celebrate.start(kind, { name: o.name, ms: o.ms, total: o.total, lang: o.lang, rect: { x: wb.x - db.x + (+r.x || 0), y: wb.y - db.y + (+r.y || 0), w: +r.w || 100, h: +r.h || 100 } });
+    } catch (e) { celebrate.stop(); return false; }
+  });
+  ipcMain.on('desk:celebrateStop', () => celebrate.stop());
+  app.on('before-quit', () => { wreck.stop(); celebrate.stop(); if (toyWin && !toyWin.isDestroyed()) toyWin.destroy(); });
   ipcMain.on('desk:installUpdate', () => { if (updateReady && autoUpdater) autoUpdater.quitAndInstall(); });
   setInterval(() => { if (updateReady && win && win.isVisible()) win.webContents.send('desk:updateReady'); }, 3 * 3600 * 1000);   // still waiting: a gentle reminder now and then
   // a reminder: bring Fumu back if he was hidden (without taking the keyboard from what you are doing)
@@ -847,9 +889,22 @@ function start() {
       shortcutsHeld: Object.assign({}, registered, hoverKeyOn), settingsFolder: app.getPath('userData')
     };
   }
+  /** Looks a typed place up for the settings window's Weather section. @returns {Promise<{ok: boolean, places?: object[], error?: string}>} */
+  async function weatherFind(name) {
+    const q = String(name || '').trim().slice(0, 60);
+    if (!q) return { ok: false, error: 'Type a city or postcode first.' };
+    const ctl = new AbortController(), kill = setTimeout(() => ctl.abort(), 8000);
+    try {
+      const r = await fetch(weatherPlace.searchUrl(q, 8), { signal: ctl.signal });
+      if (!r.ok) throw new Error('http ' + r.status);
+      const places = weatherPlace.parse(await r.json());
+      return places.length ? { ok: true, places } : { ok: false, error: 'No place found.' };
+    } catch (e) { return { ok: false, error: 'Could not look it up (are you online?).' }; } finally { clearTimeout(kill); }
+  }
   function action(name, arg) {
     if (!win) return false;
     switch (name) {
+      case 'weatherFind': return weatherFind(arg);   // (the settings window looks a typed place up through the shell: it has no network of its own)
       case 'reload': win.webContents.reloadIgnoringCache(); return true;
       case 'devtools': win.webContents.openDevTools({ mode: 'detach' }); return true;
       case 'do': if (['wander', 'peek', 'nap', 'perch', 'sit', 'remind', 'claude', 'note'].includes(arg)) { if (mode !== 'pet') applyMode('pet'); win.webContents.send('desk:do', arg); } return true;
@@ -872,7 +927,7 @@ function start() {
   }
   const panel = createPanel({
     state: () => ({
-      prefs: Object.assign({ onTop: prefs.onTop, aboveFull: prefs.aboveFull, hotkeys: prefs.hotkeys, startWithWindows: app.getLoginItemSettings().openAtLogin }, publicPrefs(), { perch: prefs.perch }),
+      prefs: Object.assign({ onTop: prefs.onTop, aboveFull: prefs.aboveFull, hotkeys: prefs.hotkeys, startWithWindows: app.getLoginItemSettings().openAtLogin }, publicPrefs(), { perch: prefs.perch, toyRoam: prefs.toyRoam, hideCushion: prefs.hideCushion }),
       keys: prefs.keys, channel: CHANNEL.name, privacy: { levels: privacy.LEVELS, always: privacy.ALWAYS, chatLevels: privacy.CHAT_LEVELS, moveLevels: privacy.MOVE_LEVELS }, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, petName: prefs.petName, update: updateReady, updateState
     }),
     set: setPref, rebind, action, diag,

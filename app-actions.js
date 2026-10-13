@@ -7,9 +7,10 @@
  * Plays an eating sound unless quiet mode is on.
  * @param {string} kind A Sounds.play kind, e.g. "glug".
  */
-var deskMuted = function () { return false; };   // the desktop app's "mute small Fumu" replaces this (app-desktop.js)
+var deskMuted = function () { return false; };   // the desktop app's volume slider (at zero) replaces this (app-desktop.js)
+var deskVolume = function () { return 1; };   // ...and this: how loud, 0 to 1 (small Fumu only)
 var swipeQuietUntil = 0;   // while an alert is being swiped away only its swoosh plays (set by swipeSound in app-send.js)
-function sound(kind) { clickSounded = true; if (Date.now() < swipeQuietUntil && !/^swoosh/.test(kind)) return; if (!state.quiet && state.settings.sounds && !deskMuted()) Sounds.play(kind); }
+function sound(kind) { clickSounded = true; if (Date.now() < swipeQuietUntil && !/^swoosh/.test(kind)) return; if (!state.quiet && state.settings.sounds && !deskMuted()) Sounds.play(kind, deskVolume()); }
 // every button and menu item makes a sound: handlers that play their own mark the click,
 // and any click left silent gets a soft tap (switches play on/off from their change event)
 var clickSounded = false;
@@ -105,7 +106,7 @@ function eat(item, fromRect, goals) {
     }).then(function () {
       if (goals && goals.unlocked.length) return cheerUnlocks(goals.unlocked);
     }).then(function () {
-      if (!item.treat && pending === 1 && L.mood(state.items) === 'stuffed') return celebrate();
+      if (!item.treat && pending === 1 && L.mood(state.items) === 'stuffed') return celebrate(goals && goals.trip);
     });
   });
 }
@@ -133,17 +134,67 @@ function spitBack(item) {
   });
 }
 
+// the trip stamp: a rubber-stamp print (ink only, so it looks pressed onto the receipt's paper)
+var TRIP_STAMP_SVG = '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29.5"/><circle class="trip-ring" cx="32" cy="32" r="24"/><text x="32" y="29.5">TRIP</text><text class="trip-small" x="32" y="40.5">DONE ✓</text></svg>';
+/** @returns {{x: number, y: number}} Where the trip stamp lands: on the receipt, or over his head where there is none. */
+function tripStampSpot() {
+  var r = receiptEl.hidden || document.documentElement.classList.contains('desktop-pet') ? null : receiptEl.getBoundingClientRect();
+  if (r && r.width) return { x: r.left + r.width / 2, y: r.top + Math.min(r.height / 2, 34) };
+  return holdPoint();
+}
 /**
- * The all-done moment: belly pat, jingle, emoji confetti and petals.
+ * The trip stamp thumps down at a point, stays a moment and fades.
+ * @param {{x: number, y: number}} at
+ * @returns {Promise<void>} Resolves when it has gone.
+ */
+function tripStampAt(at) {
+  var el = document.createElement('div');
+  el.className = 'trip-stamp';
+  el.innerHTML = TRIP_STAMP_SVG;
+  document.body.appendChild(el);
+  var x = at.x - 32, y = at.y - 32;
+  if (reduceMotion) { el.style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(-8deg)'; return wait(1800).then(el.remove.bind(el)); }
+  return el.animate([
+    { transform: 'translate(' + x + 'px,' + (y - 24) + 'px) scale(2.2) rotate(-22deg)', opacity: 0 },
+    { transform: 'translate(' + x + 'px,' + y + 'px) scale(.86) rotate(-6deg)', opacity: 1, offset: 0.14 },
+    { transform: 'translate(' + x + 'px,' + y + 'px) scale(1.06) rotate(-9deg)', opacity: 1, offset: 0.24 },
+    { transform: 'translate(' + x + 'px,' + y + 'px) scale(1) rotate(-8deg)', opacity: 1, offset: 0.32 },
+    { transform: 'translate(' + x + 'px,' + y + 'px) scale(1) rotate(-8deg)', opacity: 1, offset: 0.82 },
+    { transform: 'translate(' + x + 'px,' + (y - 10) + 'px) scale(.96) rotate(-8deg)', opacity: 0 }
+  ], { duration: 2600, easing: 'ease-out', fill: 'forwards' }).finished.then(el.remove.bind(el), el.remove.bind(el));
+}
+
+/**
+ * The all-done moment: belly pat, jingle, emoji confetti and petals. After a real shopping trip the trip
+ * stamp thumps onto the receipt first (the stamp book's Trips) and he says which trip it was.
+ * @param {{stamped: boolean, count: number}} [trip] What recordTripStamp gave for this list (shopping only).
  * @returns {Promise<void>}
  */
-function celebrate() {
+function celebrate(trip) {
+  var stamped = !!(trip && trip.stamped);
+  if (!stamped) return party();
+  // the stamp first: he nods along with the thump, then the party
+  sound('stamp');
+  tripStampAt(tripStampSpot());
+  setFace(tiredFace(FACES.nod));
+  pulse(isTired() ? 'rocksmall' : 'nod', 700);
+  buzz(18);
+  showToast('🛒', 'Trip #' + trip.count + ' stamped!', true, 3400);
+  return wait(650).then(function () { return party(trip.count); });
+}
+/**
+ * The party part of the all-done moment.
+ * @param {number} [stampNo] The trip stamp just given, when there was one: he says so.
+ * @returns {Promise<void>}
+ */
+function party(stampNo) {
   var eaten = state.items.filter(function (i) { return i.done; }).map(function (i) { return i.emoji; });
   var todo = state.mode === 'todo';   // all the tasks done: proud rather than full
   setFace(tiredFace(todo ? FACES.tada : FACES.party));
   pulse(todo ? (isTired() ? 'hopsmall' : 'hophop') : 'pat', todo ? 1500 : 1700);
   sound('party');
   if (todo) talk(isTired() ? 'todoAllTired' : 'todoAll', isTired() ? ['all done… *yawn*… so proud!', 'list empty… sleepy now ♡'] : ['all done! so proud!', 'to-do list: empty!', 'you did it all! ✧', 'what a day! ♡'], 2200);
+  else if (stampNo) talk(isTired() ? 'tripStampTired' : 'tripStamp', isTired() ? ['trip {n}… *yawn*… stamped ♡', 'stamped… so full… zzz'] : ['trip {n}, stamped! ♡', 'that\'s {n} trips together!', 'stamped! best trip ever!', 'full belly, full book ✧'], 2200, { n: stampNo });
   else if (isTired()) talk('fullTired', ['so full… *yawn*… thank you!', 'best late trip ever…', 'full and sleepy ♡'], 2200);
   else talk('full', ['so full! thank you!', 'best trip ever!', '*happy belly pat*'], 2200);
   buzz([20, 60, 20]);
@@ -249,6 +300,7 @@ function toggle(id) {
   var wasAsleep = item.done && baseState() === 'sleepy' && L.isNight(petNow());
   var todoMode = state.mode === 'todo';   // to-dos don't count for goals, tastes or the Top 10
   if (item.done) {
+    if (typeof plantWater === 'function') plantWater();   // the little plant gets its drink for the day (app-plant.js)
     if (L.isNight(petNow())) {   // checking anything off (either list) gets him out of bed for a while, and the light comes on
       setBellAwake(true);
       var bed = bedtime();
@@ -264,6 +316,7 @@ function toggle(id) {
       goals.counted = goals.counted.concat(trip.counted);
       goals.capped = goals.capped.concat(trip.capped);
       goals.unlocked = goals.unlocked.concat(trip.unlocked);
+      goals.trip = L.recordTripStamp(state.pet, state.items.map(rulesItem), now);   // the stamp book's Trips (celebrate shows it)
     }
   } else if (!todoMode) {
     // putting it back takes today's count back, so ticking on and off can't farm goals

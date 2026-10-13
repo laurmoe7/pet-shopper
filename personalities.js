@@ -19,7 +19,7 @@
 
   root.Personalities = [
     {
-      id: 'foodie', label: 'Hyper Foodie', icon: '🍙',
+      id: 'foodie', label: 'Cheerful', icon: '🍙',
       blurb: 'Bouncy and loud. Loves every food!',
       text: 'Loves a bit of everything',
       likes: ['fruit', 'veg', 'baked', 'dairy', 'protein', 'pantry', 'sweets', 'drink', 'spicy'],
@@ -48,7 +48,7 @@
       }
     },
     {
-      id: 'sweet', label: 'Sweetie Pie', icon: '🍰',
+      id: 'sweet', label: 'Sweetheart', icon: '🍰',
       blurb: 'Gushy and kind. Dessert first ♡',
       text: 'Feed it 10 sweets or baked treats',
       likes: ['sweets', 'baked'],
@@ -77,7 +77,7 @@
       }
     },
     {
-      id: 'green', label: 'Zen Sprout', icon: '🥦',
+      id: 'green', label: 'Zen', icon: '🥦',
       blurb: 'Calm and wholesome. Fresh fruit and veg.',
       text: 'Feed it 15 fruit or vegetables',
       likes: ['fruit', 'veg'],
@@ -306,6 +306,64 @@
         home: ['I\'m not cleaning. you do it.', 'fine. but I\'m supervising.'],
         stuff: ['I didn\'t ask for that. …keep it.', 'what is that? I want it.', 'ugh, more stuff. I\'ll allow it.'],
         name: ['it\'s {name}. no nicknames.', '{name}. and don\'t argue.']
+      }
+    },
+    {
+      id: 'villain', label: 'Mini Villain', icon: '😈',
+      blurb: 'Tries to be evil. Fails, sweetly.',
+      text: 'Feed it 12 baked or spicy foods',
+      likes: ['baked', 'spicy', 'sweets', 'drink'],
+      earn: { cats: ['baked', 'spicy'], count: 12 },
+      suggests: ['Cookies', 'Donuts', 'Hot sauce', 'Cupcakes', 'Soda', 'Croissants'],
+      lines: ['evil snack acquired.', 'muahaha… so tasty.', 'a villain\'s feast!'],
+      voice: {
+        tone: 'scheming',
+        style: { endings: [' muahaha', '… heh', ', as planned'], prefixes: ['behold: ', 'heh, '], lower: false, bang: '!' },
+        hi: ['mwahaha! …oh, hi.', 'my nemesis returns! …hi!'],
+        tap: ['villains don\'t purr. …purr.', 'stop! …I mean, continue.', 'I\'m scary! …that\'s nice.'],
+        sleepy: ['zzz… evil plan… zzz', 'zzz… world domination… nap…'],
+        suggest: ['my evil plan needs {x}.', 'I shall steal {x}! …or buy?', 'a villain demands {x}!'],
+        decline: ['curses! …it\'s fine.', 'foiled again! oh well.'],
+        dream: ['I\'ll steal all the {x}!', 'the {x}… will be MINE.'],
+        idle: ['plotting… plotting… snack?', '*evil laugh* *coughs*', 'my master plan: a nap.', 'I\'m menacing! …am I?'],
+        look: ['feared across the land!', 'very scary. very cute.', 'a villain\'s fashion!'],
+        room: ['my secret lair!', 'a lair. with cushions.'],
+        full: ['the heist worked! …shopping.', 'victory! I mean, thanks.'],
+        quick: ['suspiciously fast. I approve!', 'a clever scheme, hm?'],
+        spit: ['ptoo! sabotage!', 'foiled by a snack!'],
+        health: ['even villains brush teeth.', 'vitamins for evil plans!', 'I must stay strong!'],
+        home: ['cleaning my lair. evilly.', 'a tidy lair is a scary lair.'],
+        stuff: ['ooh, evil gadgets?', 'a doomsday… thingy?', 'shiny! for evil! …and fun.'],
+        name: ['fear me: {name}!', 'I\'m {name}, dread of snacks.']
+      }
+    },
+    {
+      id: 'wolf', label: 'Lone Wolf', icon: '🛡',
+      blurb: 'Quiet and cool. Soft at heart.',
+      text: 'Feed it 12 proteins or drinks',
+      likes: ['protein', 'drink', 'pantry', 'veg'],
+      earn: { cats: ['protein', 'drink'], count: 12 },
+      suggests: ['Steak', 'Black coffee', 'Sausages', 'Rice', 'Salmon', 'Chicken'],
+      lines: ['good food. thanks.', 'that hit the spot.', 'a warrior needs snacks.'],
+      voice: {
+        tone: 'cool',
+        style: { endings: [' …hm.', '.'], prefixes: ['…', 'hm. '], lower: false, bang: '.' },
+        hi: ['…hey.', 'you came back. good.'],
+        tap: ['…hm. okay.', 'don\'t make it weird. …more.', '*leans into it*', 'fine. that\'s nice.'],
+        sleepy: ['zzz… one eye open…', 'zzz… watching… zzz'],
+        suggest: ['we need {x}.', '{x}. get it. please.', '{x} would help.'],
+        decline: ['…fine.', 'your call.'],
+        dream: ['{x}. later.', 'thinking about {x}.'],
+        idle: ['…', 'stay close. I\'ve got you.', '*stares into the distance*', 'quiet night. good.'],
+        look: ['…not bad.', 'I wear it well. quietly.', 'huh. it suits me.'],
+        room: ['a good place to rest.', 'quiet. I like it.'],
+        full: ['good haul. well done.', 'we ate well. thanks.'],
+        quick: ['that was fast. …nice.', 'already? good work.'],
+        spit: ['not ready. wait.', 'ptoo. later.'],
+        health: ['take care of yourself. okay?', 'rest. I\'ll keep watch.', 'don\'t push too hard.'],
+        home: ['a clean place to rest.', 'I\'ll guard the clean floor.'],
+        stuff: ['do we need it? …okay.', 'hm. could be useful.', 'a gift? …thanks.'],
+        name: ['{name}.', 'call me {name}. …friend.']
       }
     }
   ];

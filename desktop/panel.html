@@ -27,6 +27,9 @@
   button:disabled { opacity: .45; cursor: default; }
   button.warn { color: var(--danger); }
   .btns { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 0; }
+  .vol { display: inline-flex; align-items: center; gap: 8px; }
+  .vol input { width: 130px; accent-color: var(--hl, #ec6a8f); }
+  .vol b { min-width: 2.8em; text-align: right; font-size: .8rem; color: var(--ink); }
   .seg { display: inline-flex; border: 1.8px solid var(--outline); border-radius: 999px; overflow: hidden; }
   .seg button { border: 0; border-radius: 0; box-shadow: none; background: transparent; padding: 4px 12px; }
   .seg button.on { background: var(--accent); color: var(--accent-ink); }
@@ -36,6 +39,11 @@
   .seg.wrap { display: flex; flex-wrap: wrap; gap: 6px; border: 0; border-radius: 0; overflow: visible; }
   .seg.wrap button { border: 1.8px solid var(--outline); border-radius: 999px; padding: 4px 12px; }
   .seg.wrap button.on { background: var(--accent); color: var(--accent-ink); }
+  /* the tabs stay at the top while the page scrolls */
+  #tabs { position: sticky; top: 0; z-index: 5; margin: 0 -16px; padding: 6px 16px 8px; background: var(--bg); }
+  html[data-look] #tabs { background: var(--bg) !important; border-radius: 0 !important; }
+  section[hidden] { display: none; }
+  .btns input[type=text] { flex: 1; min-width: 140px; border: 1.8px solid var(--outline); border-radius: 999px; padding: 5px 12px; background: var(--surface); color: var(--ink); font: inherit; }
   /* switches */
   .sw { position: relative; width: 44px; height: 26px; flex: none; }
   .sw input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
@@ -113,6 +121,7 @@
 </head>
 <body>
 <header><h1>Fumufumu settings</h1><span id="ver"></span></header>
+<nav id="tabs" class="seg wrap" aria-label="Settings"></nav>
 <main id="root"></main>
 <div id="fade" aria-hidden="true"></div>
 <script src="panel-ui.js"></script>

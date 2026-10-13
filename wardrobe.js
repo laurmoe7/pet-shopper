@@ -109,15 +109,18 @@ function boa() {
         '</g>'
     },
     {
-      id: 'butterflyclip', slot: 'hat', label: 'Butterfly clip', icon: '92 30 40 36',
+      id: 'butterflyclip', slot: 'hat', label: 'Butterfly clip', icon: '88 22 50 46',
       lines: ['so sparkly!', 'flutter flutter', 'y2k cutie'],
-      // a little blue butterfly clipped to the side of the head
-      svg: '<g class="hat-butterfly" transform="translate(110 47) rotate(18)">' +
+      // a little blue butterfly clipped to the side of the head: two-tone wings with veins, white spots and a twinkle
+      svg: '<g class="hat-butterfly" transform="translate(109 47) rotate(18) scale(1.4)">' +
         '<path class="bfly-wing" d="M0 0 C-4 -10 -14 -12 -14 -5 C-14 0 -7 2 0 0 Z M0 0 C4 -10 14 -12 14 -5 C14 0 7 2 0 0 Z"/>' +
         '<path class="bfly-wing bfly-low" d="M0 0 C-3 6 -10 9 -11 4 C-11 1 -6 0 0 0 Z M0 0 C3 6 10 9 11 4 C11 1 6 0 0 0 Z"/>' +
-        '<path class="bfly-spot" d="M-8 -6 h.1 M8 -6 h.1"/>' +
+        '<path class="bfly-vein" d="M-1 -1 C-5 -3 -9 -5 -11 -6 M1 -1 C5 -3 9 -5 11 -6 M-1 1 C-4 2.5 -7 4 -9 5 M1 1 C4 2.5 7 4 9 5"/>' +
+        '<path class="bfly-spot" d="M-9.4 -5.6 h.1 M9.4 -5.6 h.1 M-5.4 -2.6 h.1 M5.4 -2.6 h.1"/>' +
         '<path class="bfly-body" d="M0 -6 V5"/>' +
         '<path class="bfly-antenna" d="M0 -6 Q-2 -10 -4 -11 M0 -6 Q2 -10 4 -11"/>' +
+        '<circle class="bfly-tip" cx="-4" cy="-11" r=".9"/><circle class="bfly-tip" cx="4" cy="-11" r=".9"/>' +
+        '<path class="bfly-twinkle" d="M15 -12 l1 2.6 l2.6 1 l-2.6 1 l-1 2.6 l-1 -2.6 l-2.6 -1 l2.6 -1 Z"/>' +
         '</g>'
     },
     {
@@ -415,6 +418,57 @@ function boa() {
         '<path class="flag-blue" d="M52 37.2 H66 V41 H52 Z"/><rect class="flag-edge" x="52" y="29.6" width="14" height="11.4" rx="1.6"/></g>' +
         '</g>'
     },
+    // ---- the hats Fumu wears in the holiday celebrations (they come in the gift box of that day: `gift: true`, see bonuses.js) ----
+    {
+      id: 'partyhat', slot: 'hat', gift: true, label: 'Party hat', icon: '58 -6 52 54',
+      lines: ['party time!', 'is it my birthday?', 'confetti, please!'],
+      svg: '<g class="hat-gift"><g transform="translate(83 37) rotate(-4)"><path d="M0 -30 L15 0 Q0 5 -15 0 Z" fill="#ff8fb1" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
+        '<path d="M-8 -12 L8 -12 M-12 -5 L12 -5" stroke="#fff6ec" stroke-width="3" stroke-linecap="round"/><circle cx="0" cy="-31" r="4" fill="#ffd36b" stroke="#5b4239" stroke-width="2"/></g></g>'
+    },
+    {
+      id: 'santahat', slot: 'hat', gift: true, label: 'Santa hat', icon: '56 -4 60 52',
+      lines: ['ho ho ho!', 'merry christmas!', 'cosy and festive'],
+      svg: '<g class="hat-gift"><g transform="translate(83 38) rotate(-3)"><path d="M-16 0 Q-14 -24 3 -30 Q16 -34 22 -22 Q23 -16 18 -12 Q16 -6 16 0 Z" fill="#e8445a" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
+        '<path d="M-8 -14 Q-2 -22 6 -24" fill="none" stroke="#ff909d" stroke-width="2" stroke-linecap="round"/>' +
+        '<rect x="-19" y="-5" width="38" height="9" rx="4.5" fill="#fffaf0" stroke="#5b4239" stroke-width="2"/>' +
+        '<circle cx="22" cy="-20" r="5" fill="#fffaf0" stroke="#5b4239" stroke-width="2"/></g></g>'
+    },
+    {
+      id: 'witchhat', slot: 'hat', gift: true, label: 'Witch hat', icon: '52 -6 66 54',
+      lines: ['trick or treat!', 'spooky and cute', 'boo!'],
+      svg: '<g class="hat-gift"><g transform="translate(83 38) rotate(-3)"><path d="M-11 -2 Q-8 -18 0 -28 Q4 -34 12 -37 Q10 -30 12 -26 Q13 -12 14 -2 Z" fill="#7b4fc4" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
+        '<path d="M-7 -14 Q-3 -22 3 -27" fill="none" stroke="#a98be0" stroke-width="2" stroke-linecap="round"/>' +
+        '<ellipse cx="1" cy="-1" rx="23" ry="5.5" fill="#5b3d8f" stroke="#5b4239" stroke-width="2"/>' +
+        '<path d="M-10 -5 Q1 -2 13 -5 L13 -9 Q1 -6 -10 -9 Z" fill="#ff9a3c" stroke="#5b4239" stroke-width="1.6" stroke-linejoin="round"/>' +
+        '<rect x="-1.5" y="-9.5" width="6" height="5.5" rx="1" fill="#ffd36b" stroke="#5b4239" stroke-width="1.4"/></g></g>'
+    },
+    {
+      id: 'newyearhat', slot: 'hat', gift: true, label: 'New Year hat', icon: '58 -8 52 56',
+      lines: ['happy new year!', 'countdown time!', 'ten, nine, eight…'],
+      svg: '<g class="hat-gift"><g transform="translate(83 37) rotate(-4)"><path d="M0 -30 L15 0 Q0 5 -15 0 Z" fill="#ffd36b" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
+        '<path d="M-8 -12 L8 -12 M-12 -5 L12 -5" stroke="#3fa7ff" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M0 -41 l2.2 4.6 5 .6 -3.7 3.4 1 5 -4.5 -2.5 -4.5 2.5 1 -5 -3.7 -3.4 5 -.6z" fill="#fff6ec" stroke="#5b4239" stroke-width="1.6" stroke-linejoin="round" transform="translate(0 6)"/></g></g>'
+    },
+    {
+      id: 'bunnyears', slot: 'hat', gift: true, label: 'Easter ears', icon: '50 -6 60 56',
+      lines: ['hop hop!', 'where are the eggs?', 'happy easter!'],
+      // bunny ears on a pink headband; a bunny, who has ears already, wears the flower crown instead (styles.css)
+      svg: '<g class="hat-gift hat-ears"><g class="ge-ears">' +
+        '<g transform="translate(67 38) rotate(-12)"><ellipse cx="0" cy="-17" rx="6.5" ry="18" fill="#fffaf0" stroke="#5b4239" stroke-width="2"/><ellipse cx="0" cy="-16" rx="3.2" ry="13" fill="#ffb8c6"/></g>' +
+        '<g transform="translate(93 38) rotate(12)"><ellipse cx="0" cy="-17" rx="6.5" ry="18" fill="#fffaf0" stroke="#5b4239" stroke-width="2"/><ellipse cx="0" cy="-16" rx="3.2" ry="13" fill="#ffb8c6"/></g>' +
+        '<path d="M60 41 Q80 31 100 41" fill="none" stroke="#ff9ec1" stroke-width="3.6" stroke-linecap="round"/><path d="M60 41 Q80 31 100 41" fill="none" stroke="#5b4239" stroke-width=".9" stroke-linecap="round" opacity=".5"/>' +
+        '<g transform="translate(80 33)"><circle cx="-5" cy="0" r="3.2" fill="#ffe27a" stroke="#5b4239" stroke-width="1.2"/><circle cx="5" cy="0" r="3.2" fill="#ffe27a" stroke="#5b4239" stroke-width="1.2"/><circle r="2.4" fill="#ff9ec1" stroke="#5b4239" stroke-width="1.2"/></g></g>' +
+        '<g class="ge-crown"><path d="M61 40 Q80 28 99 40" fill="none" stroke="#5b9b6b" stroke-width="2.4" stroke-linecap="round"/>' +
+        [0, 1, 2, 3, 4, 5].map(function (i) { return '<g transform="translate(' + (63.5 + i * 6.6).toFixed(1) + ' ' + (38 - Math.sin((i / 5) * Math.PI) * 5).toFixed(1) + ')"><circle r="4.4" fill="' + ['#ff9ec1', '#fffaf0', '#ffe27a', '#ffb8d9', '#fffaf0', '#ff9ec1'][i] + '" stroke="#5b4239" stroke-width="1.4"/><circle r="1.5" fill="#ffd36b"/></g>'; }).join('') + '</g></g>'
+    },
+    {
+      id: 'kingscrown', slot: 'hat', gift: true, label: 'Golden crown', icon: '56 -2 48 46',
+      lines: ['hup Holland hup!', 'long live the king!', 'oranje boven!'],
+      svg: '<g class="hat-gift"><g transform="translate(80 38)"><path d="M-17 0 L-19 -20 L-9 -11 L0 -25 L9 -11 L19 -20 L17 0 Z" fill="#ffd36b" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
+        '<rect x="-18" y="-4" width="36" height="7" rx="2.5" fill="#ffc83a" stroke="#5b4239" stroke-width="2"/>' +
+        '<circle cx="0" cy="-0.5" r="2.6" fill="#ff8a1f" stroke="#5b4239" stroke-width="1.2"/><circle cx="-10" cy="-0.5" r="2" fill="#ff8a1f" stroke="#5b4239" stroke-width="1.1"/><circle cx="10" cy="-0.5" r="2" fill="#ff8a1f" stroke="#5b4239" stroke-width="1.1"/>' +
+        '<circle cx="-19" cy="-21" r="2.6" fill="#fffaf0" stroke="#5b4239" stroke-width="1.3"/><circle cx="0" cy="-26.5" r="2.8" fill="#ff8a1f" stroke="#5b4239" stroke-width="1.3"/><circle cx="19" cy="-21" r="2.6" fill="#fffaf0" stroke="#5b4239" stroke-width="1.3"/></g></g>'
+    },
     {
       id: 'scarf', slot: 'neck', label: 'Winter scarf', icon: '10 104 140 56',
       lines: ['so toasty!', 'snow day?', 'cozy cozy cozy'],
@@ -475,7 +529,7 @@ function boa() {
       id: 'necktie', slot: 'neck', label: 'Necktie', icon: '40 108 80 42',
       lines: ['dressed for success!', 'meeting at nine!', 'very businesslike'],
       svg: '<g class="neck-tie">' +
-        '<path class="tie-collar" d="M44 110 Q80 128 116 110 L112 118 Q80 134 48 118 Z"/>' +
+        '<path class="tie-collar" d="M75 116 L55 111 Q55 121 67 127 L76 123 Z M85 116 L105 111 Q105 121 93 127 L84 123 Z"/>' +
         '<path class="tie-cloth" d="M73 124 L87 124 L90 143 Q80 148 70 143 Z"/>' +
         '<path class="tie-stripe" d="M72.4 133 L87.6 130 M71.6 139 L88.4 136"/>' +
         '<path class="tie-cloth" d="M72 117 H88 L86 125 H74 Z"/>' +
@@ -487,8 +541,8 @@ function boa() {
       lines: ['it was a gift', 'bold choice, right?', 'my lucky tie!'],
       // the same shape as the necktie, with a clashing patchwork of greens, mustard, red and navy and some white doodles
       svg: '<g class="neck-tie neck-ugly">' +
-        '<path class="ugly-collar" d="M44 110 Q80 128 116 110 L112 118 Q80 134 48 118 Z"/>' +
-        '<path class="ugly-collar-dark" d="M46 113.6 Q80 130 114 113.6 L112 118 Q80 134 48 118 Z"/>' +
+        '<path class="ugly-collar" d="M75 116 L55 111 Q55 121 67 127 L76 123 Z M85 116 L105 111 Q105 121 93 127 L84 123 Z"/>' +
+        '<path class="ugly-collar-dark" d="M75 120 L58 116.4 Q60 122.4 67 127 L76 123 Z M85 120 L102 116.4 Q100 122.4 93 127 L84 123 Z"/>' +
         '<path class="ugly-base" d="M73 124 L87 124 L90 143 Q80 148 70 143 Z"/>' +
         '<path class="ugly-olive" d="M73.6 125.4 L83 125 L81.6 130.4 L72.9 131 Z"/>' +
         '<path class="ugly-navy" d="M72.2 133.6 L77.4 131.8 L78.2 137.8 L71.4 139 Z"/>' +
@@ -706,13 +760,14 @@ function boa() {
         '<ellipse class="ss-boot" cx="0" cy="0" rx="8.3" ry="9.2"/><ellipse class="ss-boot-in" cx="0" cy="-.4" rx="5.6" ry="6.4"/>' +
         '<path class="ss-tread" d="M-3.4 -3.6 H3.4 M-4 -.6 H4 M-3.4 2.4 H3.4"/><path class="ss-tread" d="M-5 5.6 Q0 7.6 5 5.6"/>';
     },
-    featherslides: function () {
+    featherslides: function () {   // the gold underside with a worn tread; only a rim of the pink feathers shows round the toes
       var puff = '';
-      [[-5.6, -6.8, 3.2], [-2, -8.4, 3.4], [2, -8.4, 3.4], [5.6, -6.8, 3.2], [0, -5.6, 3.2]].forEach(function (c) { puff += '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="' + c[2] + '"/>'; });
-      return '<ellipse class="slide-sole" cx="0" cy="0" rx="8.3" ry="9.2"/>' +
-        '<path class="ss-gold-in" d="M-4.8 1 Q0 5.6 4.8 1"/>' +
-        '<g class="boa-edge">' + puff + '</g><g class="boa-puff">' + puff + '</g>' +
-        '<path class="slide-gem" d="M0 2.6 l2.4 2.4 l-2.4 2.6 l-2.4 -2.6 Z"/>';
+      [[-6, -7.4, 3], [-2.2, -9, 3.2], [2.2, -9, 3.2], [6, -7.4, 3]].forEach(function (c) { puff += '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="' + c[2] + '"/>'; });
+      return '<g class="boa-edge">' + puff + '</g><g class="boa-puff">' + puff + '</g>' +
+        '<path class="slide-sole" d="M0 -8.4 C5.2 -8.4 7.8 -4.6 7.6 -.4 C7.4 2.6 5.8 4.2 5.8 6.2 C5.8 8.4 3.2 9.4 0 9.4 C-3.2 9.4 -5.8 8.4 -5.8 6.2 C-5.8 4.2 -7.4 2.6 -7.6 -.4 C-7.8 -4.6 -5.2 -8.4 0 -8.4 Z"/>' +
+        '<path class="ss-gold-in" d="M-4.8 -.6 C-4.8 -4.4 -2.6 -6.2 0 -6.2 C2.6 -6.2 4.8 -4.4 4.8 -.6 M-3.6 4.6 Q0 6.6 3.6 4.6"/>' +
+        '<path class="ss-gold-in" d="M-2.8 -2.6 h5.6 M-3 .2 h6"/>' +
+        '<path class="slide-gem" d="M0 2.6 l1.9 1.9 l-1.9 2 l-1.9 -2 Z"/>';
     },
     bunnyslippers: function () {
       var fluff = '';
@@ -720,24 +775,24 @@ function boa() {
         var a = i * Math.PI * 2 / 14;
         fluff += '<circle cx="' + (Math.cos(a) * 7.4).toFixed(1) + '" cy="' + (Math.sin(a) * 8.3).toFixed(1) + '" r="2.3"/>';
       }
-      return '<path class="bunny-ear" d="M-5.4 -7 C-8.6 -13 -4.4 -15 -2.8 -12.6 C-2 -11 -2 -8.6 -2 -7 Z"/>' +
-        '<path class="bunny-ear" d="M5.4 -7 C8.6 -13 4.4 -15 2.8 -12.6 C2 -11 2 -8.6 2 -7 Z"/>' +
-        '<g class="bunny-fluff-edge">' + fluff + '</g><ellipse class="bunny-fluff" cx="0" cy="0" rx="7.4" ry="8.3"/><g class="bunny-fluff">' + fluff + '</g>' +
+      return '<g class="bunny-fluff-edge">' + fluff + '</g><ellipse class="bunny-fluff" cx="0" cy="0" rx="7.4" ry="8.3"/><g class="bunny-fluff">' + fluff + '</g>' +
         '<ellipse class="bunny-nose" cx="0" cy="2.6" rx="3.4" ry="2.8"/>' +
         '<ellipse class="bunny-nose" cx="-4" cy="-2.2" rx="1.3" ry="1.7"/><ellipse class="bunny-nose" cx="-1.4" cy="-4.4" rx="1.3" ry="1.7"/>' +
         '<ellipse class="bunny-nose" cx="1.4" cy="-4.4" rx="1.3" ry="1.7"/><ellipse class="bunny-nose" cx="4" cy="-2.2" rx="1.3" ry="1.7"/>';
     },
-    cowboyboots: function () {
-      return '<path class="cb-foot" d="M0 -10.6 C5.2 -8.2 7.2 -3 5.2 1 C4.2 3 6.2 4.6 6.2 7.6 Q0 9.8 -6.2 7.6 C-6.2 4.6 -4.2 3 -5.2 1 C-7.2 -3 -5.2 -8.2 0 -10.6 Z"/>' +
-        '<path class="cb-stitch" d="M0 -8 C3.4 -6 4.6 -3 3.2 0 M0 -8 C-3.4 -6 -4.6 -3 -3.2 0"/>' +
-        '<rect class="cb-heel" x="-5" y="3.2" width="10" height="5.4" rx="1.6"/>' +
-        '<path class="ss-tread" d="M-3 5.9 H3"/>';
+    cowboyboots: function () {   // the sole with a stitched welt, the narrow arch and a chunky heel block with grooves
+      return '<path class="cb-foot" d="M0 -10.4 C5.4 -9.4 7.4 -4.6 6.4 -.6 C5.8 1.6 5 3 5.2 4.6 C5.4 7.4 3 9.4 0 9.4 C-3 9.4 -5.4 7.4 -5.2 4.6 C-5 3 -5.8 1.6 -6.4 -.6 C-7.4 -4.6 -5.4 -9.4 0 -10.4 Z"/>' +
+        '<path class="cb-stitch" d="M0 -8.4 C3.8 -7.6 5.2 -4.2 4.4 -.8 C3.8 1.2 3.2 2.6 3.4 4 M0 -8.4 C-3.8 -7.6 -5.2 -4.2 -4.4 -.8 C-3.8 1.2 -3.2 2.6 -3.4 4"/>' +
+        '<path class="ss-tread" d="M-2.8 -4.6 h5.6 M-3.2 -2 h6.4"/>' +
+        '<rect class="cb-heel" x="-4.9" y="3.8" width="9.8" height="5.8" rx="1.8"/>' +
+        '<path class="cb-stitch" d="M-2.8 5.6 h5.6 M-2.8 7.6 h5.6"/>';
     },
-    clogs: function () {
-      return '<ellipse class="clog" cx="0" cy="0" rx="8.2" ry="9.3"/>' +
-        '<path class="clog-grain" d="M-4.6 -4 q2 -1.4 4.4 0 M1 -1 q2 -1.2 4 0 M-3.6 1.4 q2 -1.2 4 0"/>' +
-        '<path class="clog-sole" d="M-5.2 3.2 H5.2 Q6.4 6.4 4.6 8.2 Q0 9.4 -4.6 8.2 Q-6.4 6.4 -5.2 3.2 Z"/>' +
-        '<path class="clog-heart" d="M0 -5.2 c-.8 -1.4 -3 -.6 -2 .9 l2 2 l2 -2 c1 -1.5 -1.2 -2.3 -2 -.9z"/>';
+    clogs: function () {   // the underside of a wooden clog: carved sole with wood grain, a raised heel block
+      return '<path class="clog" d="M0 -9.6 C5.4 -9.6 8 -5 7.8 -.6 C7.6 2.6 5.8 4.2 5.8 6.4 C5.8 8.8 3.2 9.8 0 9.8 C-3.2 9.8 -5.8 8.8 -5.8 6.4 C-5.8 4.2 -7.6 2.6 -7.8 -.6 C-8 -5 -5.4 -9.6 0 -9.6 Z"/>' +
+        '<path class="clog-inset" transform="scale(.8 .82)" d="M0 -9.6 C5.4 -9.6 8 -5 7.8 -.6 C7.6 2.6 5.8 4.2 5.8 6.4 C5.8 8.8 3.2 9.8 0 9.8 C-3.2 9.8 -5.8 8.8 -5.8 6.4 C-5.8 4.2 -7.6 2.6 -7.8 -.6 C-8 -5 -5.4 -9.6 0 -9.6 Z"/>' +
+        '<path class="clog-grain" d="M-3.6 -6.4 q1.4 3.4 .2 7 M0 -7.2 q1.4 4.4 0 9 M3.6 -6.2 q-1.2 3.2 -.2 6.6"/>' +
+        '<rect class="clog-sole" x="-4.9" y="3.2" width="9.8" height="6.4" rx="2.2"/>' +
+        '<path class="clog-groove" d="M-2.8 5.2 h5.6 M-2.8 7.4 h5.6"/>';
     },
     clownshoes: function () {
       return '<ellipse class="clown-shoe" cx="0" cy="0" rx="10.8" ry="11"/><ellipse class="clown-sole" cx="0" cy="0.4" rx="9" ry="9.4"/>' +

@@ -7,14 +7,14 @@ var animSheet = $('animSheet'), animList = $('animList'), animFilter = $('animFi
 var BODY_MOVES = [['wiggle', 900], ['twirl', 800], ['peek', 1400], ['bob', 1400], ['shuffle', 1500], ['boogie', 1500], ['rock', 1900], ['roly', 2800], ['rocksmall', 1300],
   ['sniff', 1700], ['stroll', 3600], ['waddle', 1800], ['scoot', 1400], ['sit', 2600], ['hop', 500], ['hopsmall', 450], ['hophop', 1500], ['chomp', 360], ['spit', 450],
   ['stretch', 1100], ['pat', 1300], ['nod', 900], ['tilt', 1800], ['flop', 2400], ['spinhop', 900], ['shiver', 700]];
-var ANIM_ARMS = ['rest', 'idle', 'reach', 'nom', 'hold', 'cover', 'carry', 'cheer', 'fan', 'clench', 'pat', 'eyerub', 'rub', 'scratch', 'grab'];
+var ANIM_ARMS = ['rest', 'idle', 'listen', 'reach', 'nom', 'hold', 'cover', 'carry', 'cheer', 'fan', 'clench', 'pat', 'eyerub', 'rub', 'scratch', 'grab', 'disco', 'royal'];
 var ANIM_EYES = ['open', 'closed', 'happy', 'sparkle', 'squint'];
 var ANIM_MOUTHS = ['smile', 'open', 'o', 'wavy', 'chew'];
 var ANIM_EXTRAS = ['hearts', 'sparkles', 'zzz', 'steam', 'question', 'sweat', 'shock', 'redface', 'cheeks'];
 
 /** @returns {string} A short name for an idle move, taken from what its code does (they are unnamed in the list). */
 function idleName(run, i) {
-  var src = String(run), m = src.match(/pulse\('(\w+)'/) || src.match(/FACES\.(\w+)/) || src.match(/(lookAround|bellyJiggle|handDance|chorusDance|freeSpiritDance|eyesDo|drift)\(/);
+  var src = String(run), m = src.match(/pulse\('(\w+)'/) || src.match(/FACES\.(\w+)/) || src.match(/(lookAround|bellyJiggle|handDance|chorusDance|partyDance|halloweenDance|discoDance|bunnyDance|kingsDance|eyesDo|drift)\(/);
   return (i + 1) + ' ' + (m ? m[1] : 'move');
 }
 /** @returns {{group: string, name: string, run: function(): (number|undefined)}[]} Everything the player can run. */
@@ -25,7 +25,15 @@ function animCatalogue() {
   add('Body moves', 'morning exercise', morningExercise);
   add('Body moves', 'hand dance', handDance);
   add('Body moves', 'chorus dance', chorusDance);
-  add('Body moves', 'free spirited dance', freeSpiritDance);
+  add('Body moves', 'party dance (the birthday one)', partyDance);
+  ['rain', 'storm', 'snow', 'cold', 'hot'].forEach(function (k) { add('Weather', 'weather: ' + k + (k === 'rain' ? ' (leaf)' : k === 'storm' ? ' (leaf, thunderbolts)' : k === 'hot' ? ' (fan, heat waves)' : ''), function () { return wxPlay(k); }); });
+  add('Weather', 'weather: back to the real one', function () { return wxPlay('real'); });
+  add('Plant', 'plant: water it (the next stage)', function () { devPlantGrow(); return 4000; });
+  add('Plant', 'plant: start over with a seed', function () { devPlantReset(); return 1500; });
+  add('Body moves', 'monster mash (the Halloween dance)', halloweenDance);
+  add('Body moves', 'disco dance (the New Year\'s Day one)', discoDance);
+  add('Body moves', 'bunny dance (the Easter one)', bunnyDance);
+  add('Body moves', 'royal dance (the King\'s Day one)', kingsDance);
   Object.keys(SQUISH).forEach(function (k) {
     if (k !== 'exercise' && !BODY_MOVES.some(function (m) { return m[0] === k; })) add('Body moves', k + ' (squash only)', function () { svgSquish(SQUISH[k]); return SQUISH[k].ms; });
   });
@@ -48,13 +56,15 @@ function animCatalogue() {
   ['l', 'r', 't'].forEach(function (w) {
     add('Specials', 'hit the ' + ({ l: 'left wall', r: 'right wall', t: 'ceiling' })[w], function () { if (window.wallHit) window.wallHit(w, .6); else say('only in the small pet window', 1800); return 800; });
   });
+  add('Specials', 'toy pops back in (after the birthday party)', function () { bdayToyAway(false); return 1000; });
+  add('Specials', 'trip stamp (thumps onto the receipt)', function () { sound('stamp'); tripStampAt(tripStampSpot()); return 2600; });
+  add('Specials', 'trip done (stamp and party)', function () { celebrate({ stamped: true, count: ((state.pet.stamps || {}).trip || 0) + 1 }); return 3200; });
   add('Specials', 'belly jiggle', function () { bellyJiggle(); return 1300; });
   add('Specials', 'look around', function () { lookAround(); return 2200; });
   add('Specials', 'hum', function () { hum(); setFace(FACES.dreamy); pulse('bob', 1400); return 1800; });
   add('Specials', 'goodnight kiss', function () { kissGoodnight(); return 2600; });
   add('Specials', 'snore', function () { snore(); return 2400; });
   add('Specials', 'nap (22 seconds, tap to wake)', function () { return napNow(22000, true) || 600; });
-  add('Body', 'sit with soles showing (5 seconds)', function () { pet.classList.add('seated'); setTimeout(function () { pet.classList.remove('seated'); }, 5000); return 5200; });
   if (window.deskDo) {
     add('Desktop', 'wander along the screen', function () { return window.deskDo('wander') || (say('only in the small pet window', 1800), 1200); });
     add('Desktop', 'peek round the edge', function () { return window.deskDo('peek') || (say('only in the small pet window', 1800), 1200); });

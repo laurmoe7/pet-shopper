@@ -177,12 +177,12 @@
   pet.addEventListener('click', function (e) { if (Date.now() < noClickUntil) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
 
   // quick ways between the small Fumu and the whole app: a middle click on him, a double click on the bar, or the shell's shortcuts
-  pet.addEventListener('auxclick', function (e) {   // (a middle click on him swaps the two: small Fumu to the whole app, and back)
+  document.addEventListener('auxclick', function (e) {   // (a middle click anywhere in the window swaps the two: small Fumu to the whole app, and back)
     if (e.button !== 1) return;
     if (isPet()) { e.preventDefault(); D.setMode('list'); }
     else if (root.classList.contains('desktop-list')) { e.preventDefault(); D.setMode('pet'); }
   });
-  pet.addEventListener('mousedown', function (e) { if (e.button === 1) e.preventDefault(); });   // no autoscroll circle
+  document.addEventListener('mousedown', function (e) { if (e.button === 1) e.preventDefault(); });   // no autoscroll circle
   bar.addEventListener('dblclick', function (e) { if (e.target === bar || e.target.className === 'desk-title') D.setMode('pet'); });
   if (D.onSwapList) D.onSwapList(function () { if (typeof switchList === 'function') switchList(); });   // the shortcut for shopping / to-do
 
@@ -203,18 +203,28 @@
   })();
 
   // ---------- what the tray menu chose (an older shell has none of this: then the defaults stay) ----------
-  var deskPrefs = { moveNormal: 'normal', moveFull: 'still', alertStyle: '', mute: false, remind: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare' };
+  var deskPrefs = { moveNormal: 'normal', moveFull: 'still', alertStyle: '', mute: false, remind: true, perch: false, hideToy: false, hideCushion: false, bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, awareness: 2, chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', celebBirthday: true, celebChristmas: true, celebHalloween: true, celebNewYear: true, celebEaster: true, celebKingsDay: true, celebScreen: true };
   /** Awareness: 1 = more privacy (idle and time only), 2 = normal. Anything he says about what you are doing, or knows about your windows and programs, checks this first. */
+  /** Mini Fumu's settings, Celebrations tab: whether one switch is on (everything is on until she turns it off). @param {string} key */
+  window.deskPref = function (key) { return deskPrefs[key] !== false; };
   window.deskAware = function (level) { return (deskPrefs.awareness === 1 ? 1 : 2) >= level; };
   /** The small window's look choices from the settings window: no toy, no cushion (classes on <html>, CSS at the end of styles.css). */
-  deskMuted = function () { return !!deskPrefs.mute && isPet(); };   // sounds off in the small window only
+  /** @returns {number} The volume slider, 0 to 1 (an older shell has only the old mute switch). */
+  function deskLevel() { return typeof deskPrefs.volume === 'number' ? Math.max(0, Math.min(1, deskPrefs.volume / 100)) : deskPrefs.mute ? 0 : 1; }
+  deskMuted = function () { return isPet() && deskLevel() === 0; };   // the volume is for the small window only
+  deskVolume = function () { return isPet() ? deskLevel() : 1; };
+  /** @returns {boolean} Whether the night sounds (an owl and crickets) may play: not when they are switched off for the small window. */
+  /** @returns {Object} What each swipe direction does on an alert card (the settings window's Swiping alerts), for swipeMap in app-send.js. */
+  window.deskSwipes = function () { return isPet() ? { left: deskPrefs.swipeLeft, right: deskPrefs.swipeRight, up: deskPrefs.swipeUp, down: deskPrefs.swipeDown } : null; };
+  window.deskAmbient = function () { return !(isPet() && deskPrefs.ambient === false); };
   /** @returns {boolean} Whether the app is dark now (its Appearance setting, or the system's when it is on Auto). */
   function appIsDark() {
     var t = root.dataset.theme;
     return t === 'dark' || (t !== 'light' && !!window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
   }
   function applyLook() {
-    root.classList.toggle('desk-notoy', !!deskPrefs.hideToy);
+    // the old "Show his toy" setting is gone (the ring menu's Toy button has a no-toy choice): once, an old choice of no toy carries over
+    try { if (deskPrefs.hideToy && !localStorage.getItem('nibble-toy-migrated')) { localStorage.setItem('nibble-toy-migrated', '1'); localStorage.setItem('nibble-toy-kind', 'none'); if (typeof applyToyKind === 'function') applyToyKind(); } } catch (e) { /* storage blocked */ }
     root.classList.toggle('desk-nocushion', !!deskPrefs.hideCushion);
     root.classList.toggle('desk-backdrop', deskPrefs.backdrop === true);
     root.classList.toggle('desk-nosparkles', deskPrefs.sparkles === false);
@@ -235,11 +245,12 @@
   document.addEventListener('visibilitychange', function () { if (!document.hidden) applyLook(); });
   // the whole app's light or dark changed: its alerts and bubbles follow
   try { new MutationObserver(function () { applyLook(); }).observe(root, { attributes: true, attributeFilter: ['data-theme', 'data-skin'] }); if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyLook); } catch (e) { /* old browser */ }
-  if (D.getPrefs) D.getPrefs().then(function (p) { if (p) { deskPrefs = p; applyLook(); applyChatter(); } });
+  if (D.getPrefs) D.getPrefs().then(function (p) { if (p) { deskPrefs = p; applyLook(); applyChatter(); if (typeof wxFromShell === 'function') wxFromShell(p.weather); } });
   if (D.onPrefs) D.onPrefs(function (p) {
     if (!p) return;
     var was = deskPrefs.alertStyle;
     deskPrefs = p; applyLook(); applyChatter();
+    if (typeof wxFromShell === 'function') wxFromShell(p.weather);
     if (was && p.alertStyle && was !== p.alertStyle && root.classList.contains('desktop-pet')) previewLook();
   });
   /** The pointer of a speech bubble (Quest style) aims at his head: on the side of the bubble facing him, and as far along as he is.
@@ -423,7 +434,7 @@
   };
   setTimeout(window.deskToyWarm, 4000);
   window.deskToyField = function () {
-    if (deskPrefs.toyRoam !== true || deskPrefs.hideToy || !isPet() || !D.toyField || !D.toyShow || toyField) return;
+    if (deskPrefs.toyRoam !== true || toyKind() === 'none' || !isPet() || !D.toyField || !D.toyShow || toyField) return;
     var token = ++fieldToken;
     if (homeX === null && D.where) D.where().then(function (x) { if (homeX === null && x !== null) homeX = x; });
     Promise.all([D.toyField(), toyPicture()]).then(function (r) {
@@ -730,6 +741,7 @@
    */
   window.deskRemind = function (items) {
     if (deskPrefs.remind === false) return false;
+    if (typeof birthdayHolding === 'function' && birthdayHolding()) { setTimeout(function () { window.deskRemind(items); }, 2500); return true; }   // (the birthday party plays first)
     if (D.reveal) D.reveal();   // he may be hidden: bring him back, without taking the keyboard
     if (!isPet()) return false; // the big window shows the usual bubble
     if (peeking) endPeek();
@@ -742,7 +754,7 @@
   // ---------- Fumu does things on his own: wander along the screen, peek round the edge, nap ----------
   var peeking = false, roaming = false, away = false, awayAt = 0, awayNap = false, perched = false;
   function roamOk() {
-    return isPet() && !document.hidden && !roaming && !peeking && !away && !carried && !press && !busy && !walking && !dreaming &&
+    return isPet() && !document.hidden && !roaming && !peeking && !away && !carried && !press && !busy && !walking && !dreaming && Date.now() >= remarkUntil &&
       !(typeof napping !== 'undefined' && napping) && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') &&
       !document.querySelector('dialog[open], .inbox-card') && bubble.hidden && suggestEl.hidden;
   }
@@ -931,6 +943,7 @@
   }
   if (D.onQuickAdd) D.onQuickAdd(openQuick);
   // the copied text goes to the other device at once (small Fumu or the whole app; the shell only lets the key through while the pointer is over him)
+  if (D.onOptions) D.onOptions(function () { var b = $('optionsBtn'); if (b && document.documentElement.classList.contains('desktop-list')) b.click(); });   // the Open settings key in the whole app: the app's own Options (it closes them again, like the gear)
   if (D.onSendCopied) D.onSendCopied(function (text) { if (typeof sendToOther === 'function') sendToOther(text); });
 
   // ---------- which program is in front (awareness level 2) ----------
@@ -949,7 +962,8 @@
   /** @returns {boolean} Whether he may move about (wander, peek, hop onto windows): not when "stand still" is on for the situation he is in. */
   function moveLevel() {
     var l = inFull() ? deskPrefs.moveFull : deskPrefs.moveNormal;
-    if (l === 'room' && !deskPrefs.backdrop) l = 'normal';   // his room only exists while its background shows
+    if (deskPrefs.backdrop === true) { if (l === 'lots' || l === 'normal') l = 'room'; }   // room mode: he stays in his room (a lot or normal movement is strolling about it)
+    else if (l === 'room') l = 'normal';   // wander mode has no room
     return l === 'lots' || l === 'low' || l === 'room' || l === 'still' ? l : 'normal';
   }
   function moveOk() { var l = moveLevel(); return l === 'lots' || l === 'normal'; }
@@ -970,6 +984,7 @@
   window.deskChatter = function () { return chatterRate; };
   window.deskQuiet = quietNow;   // for tests and the developer tools
   window.deskMayRemark = function () { return mayRemark(); };
+  window.deskRoomMode = function () { return isPet() && deskPrefs.backdrop === true; };   // Mini Fumu in room mode (the ring menu leaves out the wrecking ball there)
   var PROGRAM_LINES = {
     browser: ['browsing, hm?', 'so much internet~', 'looking something up?'],
     code: ['hard at work!', 'so many tiny words…', 'tap tap tap~'],
@@ -1012,9 +1027,10 @@
   }
   /** @returns {boolean} Whether he may say something about the program now (not at More privacy, not when switched off, not mid-something). */
   function mayRemark() {
-    return deskAware(2) && isPet() && !document.hidden && !busy && !dreaming && !walking && !carried && !press &&
+    // just below alerts and celebrations: those (a card, a dialog, a party, the question about one) still win, but his own idle moments, daydreams, walks and chatter give way to a remark
+    return deskAware(2) && isPet() && !document.hidden && busy <= lowBusy && !carried && !press && Date.now() >= speechLockUntil &&
       !(typeof napping !== 'undefined' && napping) && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') &&
-      !document.querySelector('dialog[open], .inbox-card') && bubble.hidden;
+      !(typeof birthdayHolding === 'function' && birthdayHolding()) && !document.querySelector('dialog[open], .inbox-card');
   }
   /** Runs fn once he is free to speak (a bubble that is up goes away by itself), trying for up to 12 seconds; `still` says whether it is still wanted. */
   function whenFree(still, fn, first) {
@@ -1027,7 +1043,8 @@
     })();
     return first;
   }
-  function remark(text, name) { say(text.replace(/\{name\}/g, name || 'it'), 4200, true); var m = pick(['hopsmall', 'hopsmall', 'tilt', 'shiver']); pulse(m, m === 'tilt' ? 1800 : m === 'shiver' ? 700 : 450); }
+  /** A remark about what you are doing. It is its own setting, apart from his chatter: a silent (muted) idle moment never swallows it. */
+  function remark(text, name) { idleQuiet = false; remarkUntil = Date.now() + 6000; if (dreaming) { dreamEl.hidden = true; dreaming = false; } say(text.replace(/\{name\}/g, name || 'it'), 4200, true); var m = pick(['hopsmall', 'hopsmall', 'tilt', 'shiver']); pulse(m, m === 'tilt' ? 1800 : m === 'shiver' ? 700 : 450); }
   /** Whether a 0..1 chance (already scaled by how often he is allowed to talk) comes up. */
   function chance(p) { return Math.random() < Math.min(1, p); }
   var duringTimer = 0;
@@ -1090,8 +1107,8 @@
 
   // ---------- swiping alerts with no clicking (while the mouse passes through him in a game) ----------
   // The shell lets the mouse go through him then, so an alert's buttons cannot be clicked, but the page still sees the pointer move over it:
-  // moving across the card is the swipe. A task reminder: left is Done (when the task can be ticked here, else it is put away),
-  // up or down snoozes it for 10 minutes, right puts it away (the cross). A note or link: left copies it, right puts it away. Any other alert: right or left puts it away.
+  // moving across the card is the swipe. What each direction does is the player's choice (settings: Swiping alerts; swipeMap in app-send.js): by default left is Done (a note or link: copy),
+  // up or down snoozes a reminder for 10 minutes, right puts it away (the cross).
   var trail = [];
   /** The pointer is at x, y: a sweep across an alert card. Fed by the page's own mouse events and by the shell, which watches the pointer itself.
    *  Forgiving on purpose: it looks at the last 0.4 s of the path, and the sweep only has to cross the card (it may start or end outside it). */
@@ -1113,13 +1130,10 @@
     var vertical = Math.abs(dy) >= Math.min(30, card.offsetHeight * 0.45) && Math.abs(dy) > Math.abs(dx) * 1.2;
     if (!sideways && !vertical) return;
     trail = [];
-    var remind = card.classList.contains('remind-card'), buttons = [].slice.call(card.querySelectorAll('button'));
-    function named(re) { return buttons.filter(function (b) { return re.test(b.textContent); })[0]; }
-    if (!remind && !vertical && dx < 0 && cardCopy(card)) return;   // a note or link: left copies it, right puts it away
-    var btn = card.querySelector('.inbox-done'), dir = dx < 0 ? -1 : 1;
-    if (vertical) { if (remind) btn = named(/^In 10 min/) || btn; dir = 0; }
-    else if (remind && dx < 0) btn = named(/^Done/) || btn;
-    if (!btn) return;
+    var name = vertical ? (dy < 0 ? 'up' : 'down') : (dx < 0 ? 'left' : 'right'), res = swipeResolve(card, name), btn = res.btn;   // (what each direction does: swipeMap in app-send.js, changed in his settings)
+    if (res.kind === 'copy') { cardCopy(card); return; }
+    if (res.kind !== 'button') return;
+    var dir = vertical ? 0 : dx < 0 ? -1 : 1;
     card.dataset.leaving = '1';
     if (dir) slideAway(card, dir, function () { btn.click(); }, swipeSound(btn));
     else { sound(swipeSound(btn)); card.style.animation = 'none'; card.style.transition = 'translate .26s ease-in, opacity .26s'; card.style.translate = '0 ' + (dy < 0 ? -1 : 1) * 60 + 'px'; card.style.opacity = '0'; setTimeout(function () { if (card.parentNode) btn.click(); }, 270); }
@@ -1350,6 +1364,12 @@
     suggest: function () { return devSuggest(); },
     giftday: function () { return devGiftCalendar(); },
     giftshut: function () { return devGiftReset(); },
+    celebBirthday: function () { return devBirthdayNow(); },
+    celebChristmas: function () { return devXmasNow(); },
+    celebHalloween: function () { return devHalloweenNow(); },
+    celebNewYear: function () { return devNewYearNow(); },
+    celebEaster: function () { return devEasterNow(); },
+    celebKingsDay: function () { return devKingsDayNow(); },
     tomorrow: function () { L.skipDays(state, 1); refreshAll(); return 'A day has passed.'; },
     sample: function () { state.items = state.items.concat(isTodo() ? sampleTodos() : L.parseState(null, newId).items); refreshAll(); return 'Sample items added.'; },
     clear: function () { state.items = []; refreshAll(); return 'List cleared.'; }

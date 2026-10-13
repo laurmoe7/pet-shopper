@@ -1,12 +1,15 @@
 // The settings window's page: draws the choices from what main.js reports and sends changes back.
 'use strict';
 (function () {
-  var P = window.fumuPanel, root = document.getElementById('root'), S = null, capture = null, note = '', diagTimer = 0, devOpen = false, devNote = '', devGroups = { 'Time of day and scenes': true };
+  var P = window.fumuPanel, root = document.getElementById('root'), S = null, capture = null, note = '', diagTimer = 0, devOpen = false, devNote = '', devGroups = { 'Time of day and scenes': true }, curTab = 'look', wxTyped = '', wxNote = '', wxList = [];
+  /** The tabs along the top, in order: the id each section is filed under, and its name. */
+  var TABS = [['look', 'Look'], ['behaviour', 'Behaviour'], ['celebrations', 'Celebrations'], ['privacy', 'Privacy'], ['window', 'Window'], ['dev', 'Developer']];
 
   /** His name, the one the player gave him (the shell passes it on). */
   function nm() { return (S && S.petName) || 'Fumu'; }
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
-  function section(title) { var s = el('section'); s.appendChild(el('h2', '', title)); root.appendChild(s); return s; }
+  /** A framed section of the page; it only shows while its tab (`tab`, one of TABS) is the open one. */
+  function section(title, tab) { var s = el('section'); s.hidden = tab !== curTab; s.appendChild(el('h2', '', title)); root.appendChild(s); return s; }
   /** A row with a switch. `pref` is the setting's name; `invert` shows the opposite (for "hide" choices written as "show"). */
   function toggle(sec, label, pref, hint, opts) {
     opts = opts || {};
@@ -23,10 +26,12 @@
   function render() {
     document.documentElement.dataset.look = S.prefs.alertStyle || 'auto';   // the window wears the chosen theme (panel.html)
     root.textContent = '';
+    var nav = document.getElementById('tabs'); nav.textContent = '';
+    TABS.forEach(function (t) { button(nav, t[1], function () { curTab = t[0]; window.scrollTo(0, 0); render(); }, curTab === t[0] ? 'on' : ''); });
     document.getElementById('ver').textContent = (S.packaged ? '' : 'running from source · ') + (S.channel === 'stable' ? 'stable channel' : 'dev channel');
     // friends use the stable channel: updating is a normal part of settings for them (for the dev channel it stays in the developer tools)
     if (S.channel === 'stable') {
-      var upd = section('Updates'), us = S.updateState || { state: 'idle' };
+      var upd = section('Updates', 'window'), us = S.updateState || { state: 'idle' };
       var said = us.state === 'checking' ? 'Checking for updates…' : us.state === 'downloading' ? 'Downloading an update' + (us.percent ? ' (' + us.percent + '%)' : '…') : us.state === 'ready' ? 'An update is ready. Restart Fumufumu to get it.' : us.state === 'none' ? 'Fumufumu is up to date.' : us.state === 'error' ? 'Could not check for updates (are you online?).' : 'Fumufumu updates itself in the background.';
       var urow = el('div', 'row'), utext = el('span', 'text', said);
       utext.appendChild(el('small', '', 'Updates install when you quit.'));
@@ -39,7 +44,7 @@
     }
 
     // how much he may notice (awareness level 1 or 2): the privacy choice comes first
-    var priv = section('Privacy: what he can notice');
+    var priv = section('What he can notice', 'privacy');
     var lv = S.privacy.levels, cur = S.prefs.awareness === 1 ? 1 : 2;
     var pickRow = el('div', 'row'); pickRow.appendChild(el('span', 'text', 'Awareness'));
     var pseg = el('span', 'seg');
@@ -71,7 +76,13 @@
       teach.insertBefore(tin, tgo); teach.insertBefore(teachText, tin); priv.appendChild(teach);
     }
 
-    var look = section('His look');
+    var look = section('His look', 'look');
+    // room mode: his room shows and he stays in it; wander mode: no room or cushion, he walks about the desktop and the toy can leave
+    var wander = S.prefs.deskMode === 'wander';
+    var modeRow = el('div', 'row'), modeText = el('span', 'text', 'Mode'); modeText.appendChild(el('small', '', wander ? 'Walks about your desktop.' : 'Stays in his room.'));
+    var modeSeg = el('span', 'seg');
+    [['room', 'Room'], ['wander', 'Wander']].forEach(function (o) { var b = button(modeSeg, o[1], function () { P.set('deskMode', o[0]).then(take); }); if ((wander ? 'wander' : 'room') === o[0]) b.className = 'on'; });
+    modeRow.append(modeText, modeSeg); look.appendChild(modeRow);
     var sizeRow = el('div', 'row'); sizeRow.appendChild(el('span', 'text', 'Size'));
     var seg = el('span', 'seg');
     [['small', 'Small'], ['normal', 'Normal'], ['large', 'Large']].forEach(function (o) { var b = button(seg, o[1], function () { P.set('size', o[0]).then(take); }); if (S.prefs.size === o[0]) b.className = 'on'; });
@@ -83,13 +94,19 @@
     toggle(look, 'Speech bubbles', 'bubbles', 'In the small window. Alerts still show.');
     toggle(look, 'Thought bubbles', 'clouds', 'Daydreams and wishes.');
     toggle(look, 'Sparkles around him', 'sparkles');
-    toggle(look, 'Room background', 'backdrop', 'The scene from the whole app.');
-    toggle(look, 'Sounds', 'mute', 'In the small window.', { invert: true });
-    toggle(look, 'Show his toy', 'hideToy', '', { invert: true });
-    toggle(look, 'Toy flies around the screen', 'toyRoam', '', { disabled: !!S.prefs.hideToy });
-    toggle(look, 'Show the cushion under him', 'hideCushion', 'His bed still shows at bedtime.', { invert: true });
+    // the volume of the small window (0 is silent), and the night sounds (an owl and crickets) that can be switched off on their own
+    var volRow = el('div', 'row'), volText = el('span', 'text', 'Volume'), volBox = el('span', 'vol'), vol = el('input'), volNum = el('b', '', '');
+    vol.type = 'range'; vol.min = '0'; vol.max = '100'; vol.step = '5'; vol.value = String(typeof S.prefs.volume === 'number' ? S.prefs.volume : 100); vol.setAttribute('aria-label', 'Volume');
+    function volShow() { volNum.textContent = +vol.value === 0 ? 'Off' : vol.value + '%'; }
+    volShow();
+    vol.addEventListener('input', volShow);
+    vol.addEventListener('change', function () { P.set('volume', +vol.value).then(take); });
+    volBox.append(vol, volNum); volRow.append(volText, volBox); look.appendChild(volRow);
+    toggle(look, 'Background sounds', 'ambient', 'Waves, rain, an owl at night.');
+    if (wander) { /* (wander mode has no cushion) */ } else toggle(look, 'Show the cushion under him', 'hideCushion', 'His bed still shows at bedtime.', { invert: true });
+    if (wander) toggle(look, 'Toy flies around the screen', 'toyRoam');   // (in his room the toy stays in it)
 
-    var does = section('What he does on his own');
+    var does = section('What he does on his own', 'behaviour');
     // how much he talks on his own: his idle chatter, daydreams, asking for things. Reminders, greetings and answers to you are never held back.
     function talkRow(label, hint, pref) {
       var row = el('div', 'row'), text = el('span', 'text', label); text.appendChild(el('small', '', hint));
@@ -107,8 +124,11 @@
       row.appendChild(text);
       if (!off) {
         var seg4 = el('span', 'seg');
-        S.privacy.moveLevels.filter(function (l) { return l.id !== 'room' || S.prefs.backdrop; }).forEach(function (l) {
-          var cur4 = S.prefs[pref] === 'room' && !S.prefs.backdrop ? 'normal' : S.prefs[pref];
+        // room mode: a little, in his room or still; wander mode: a lot, normal, a little or still
+        S.privacy.moveLevels.filter(function (l) { return wander ? l.id !== 'room' : l.id !== 'lots' && l.id !== 'normal'; }).forEach(function (l) {
+          var cur4 = S.prefs[pref];
+          if (wander && cur4 === 'room') cur4 = 'normal';
+          if (!wander && (cur4 === 'lots' || cur4 === 'normal')) cur4 = 'room';
           var b = button(seg4, l.label, function () { P.set(pref, l.id).then(take); }); if (cur4 === l.id) b.className = 'on';
         });
         row.appendChild(seg4);
@@ -117,7 +137,8 @@
     }
     moveRow('How much he moves about', '', 'moveNormal');
     moveRow('…in a game or full-screen', cur === 1 ? 'Needs Normal awareness.' : '', 'moveFull', cur === 1);
-    if (S.canPerch && cur === 1) {
+    if (!wander) { /* in his room he never sits on windows */ }
+    else if (S.canPerch && cur === 1) {
       var offRow = el('div', 'row off'); var offText = el('span', 'text', 'Sits on my windows'); offText.appendChild(el('small', '', 'Needs Normal awareness.')); offRow.appendChild(offText); does.appendChild(offRow);
     } else if (S.canPerch) {
       toggle(does, 'Sits on my windows', 'perch');
@@ -125,7 +146,63 @@
     }
     toggle(does, 'Reminds me of tasks', 'remind');
 
-    var win = section('His window');
+    // the weather he reacts to (the same setting as the app's Options > Weather): a switch and a place, looked up through the shell
+    var wx = section('Weather', 'behaviour'), w = S.prefs.weather || { on: false, lat: null, lon: null, place: '' };
+    var wxRow = el('label', 'row'), wxText = el('span', 'text', 'Weather');
+    wxText.appendChild(el('small', '', w.place && w.lat !== null ? w.place : 'Pick a place first.'));
+    var wxSw = el('span', 'sw'), wxIn = el('input'); wxIn.type = 'checkbox'; wxIn.checked = !!w.on && w.lat !== null; wxIn.disabled = w.lat === null;
+    wxIn.addEventListener('change', function () { P.set('weather', { on: wxIn.checked, lat: w.lat, lon: w.lon, place: w.place }).then(take); });
+    wxSw.append(wxIn, el('i')); wxRow.append(wxText, wxSw); wx.appendChild(wxRow);
+    var find = el('div', 'btns'), box = el('input'); box.type = 'text'; box.maxLength = 60; box.placeholder = 'City or postcode'; box.value = wxTyped; box.setAttribute('aria-label', 'City or postcode for the weather');
+    box.addEventListener('input', function () { wxTyped = box.value; });
+    function look() {
+      wxTyped = box.value; wxNote = 'Looking…'; wxList = []; render();
+      P.action('weatherFind', wxTyped).then(function (r) { wxNote = r && r.ok ? '' : (r && r.error) || 'Could not look it up.'; wxList = r && r.ok ? r.places : []; render(); });
+    }
+    box.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); look(); } });
+    find.append(box); button(find, 'Find', look); wx.appendChild(find);
+    if (wxNote) wx.appendChild(el('p', 'hint', wxNote));
+    if (wxList.length) {
+      var picks = el('div', 'btns');
+      wxList.forEach(function (p) { button(picks, p.place, function () { wxList = []; wxNote = ''; wxTyped = ''; P.set('weather', { on: true, lat: p.lat, lon: p.lon, place: p.place }).then(take); }); });
+      wx.appendChild(picks);
+    }
+
+    // what each swipe direction does on an alert card (sweepAt in app-desktop.js, the drag code in app-send.js): every direction has exactly one thing to do
+    var swipes = section('Swiping alerts', 'behaviour');
+    swipes.appendChild(el('p', 'hint', 'Done also copies a note or link.'));
+    [['Left', 'swipeLeft'], ['Right', 'swipeRight'], ['Up', 'swipeUp'], ['Down', 'swipeDown']].forEach(function (d) {
+      var row = el('div', 'row stack'), sseg = el('span', 'seg wrap');
+      row.appendChild(el('span', 'text', d[0]));
+      [['done', 'Done'], ['snooze', 'In 10 min'], ['away', 'Put away'], ['none', 'Nothing']].forEach(function (a) {
+        var b = button(sseg, a[1], function () { P.set(d[1], a[0]).then(take); });
+        if (S.prefs[d[1]] === a[0]) b.className = 'on';
+      });
+      row.appendChild(sseg); swipes.appendChild(row);
+    });
+
+    // the special days he celebrates (the page asks first, then covers the screen; see celebrate.js): each can be switched off, and "Play" shows the card now
+    var cel = section('Special days', 'celebrations');
+    cel.appendChild(el('p', 'hint', nm() + ' asks first, once on the day.'));
+    function celRow(label, hint, pref, id) {
+      var row = el('label', 'row'), text = el('span', 'text', label);
+      if (hint) text.appendChild(el('small', '', hint));
+      var sw = el('span', 'sw'), input = el('input'); input.type = 'checkbox'; input.checked = S.prefs[pref] !== false;
+      input.addEventListener('change', function () { P.set(pref, input.checked).then(take); });
+      sw.append(input, el('i'));
+      var play = button(row, 'Play', function (e) { e.preventDefault(); P.dev('run', id); }); play.title = 'Play it now';
+      row.insertBefore(text, play); row.appendChild(sw); cel.appendChild(row);
+    }
+    celRow('Birthday', 'Your birthday, from Profile.', 'celebBirthday', 'celebBirthday');
+    celRow('Christmas', '25 December.', 'celebChristmas', 'celebChristmas');
+    celRow('Halloween', '31 October.', 'celebHalloween', 'celebHalloween');
+    celRow('New Year\'s Day', '1 January.', 'celebNewYear', 'celebNewYear');
+    celRow('Easter', 'Easter Sunday.', 'celebEaster', 'celebEaster');
+    celRow('King\'s Day', '27 April.', 'celebKingsDay', 'celebKingsDay');
+    var cfx = section('Effects', 'celebrations');
+    toggle(cfx, 'Cover the whole screen', 'celebScreen', 'Off keeps them in his small window.');
+
+    var win = section('His window', 'window');
     toggle(win, 'Always on top', 'onTop');
     toggle(win, 'Stay above full-screen apps', 'aboveFull', 'Not exclusive full-screen games.', { disabled: !S.prefs.onTop });
     toggle(win, 'Click-through', 'clickThrough', 'Ctrl+Alt+G.');
@@ -136,7 +213,7 @@
     button(pos, 'Put him back', act('resetPosition'));
     win.appendChild(pos);
 
-    var keys = section('Shortcuts');
+    var keys = section('Shortcuts', 'window');
     toggle(keys, 'Shortcuts on', 'hotkeys');
     S.keyList.forEach(function (k) {
       var row = el('div', 'row' + (S.prefs.hotkeys ? '' : ' off')), text = el('span', 'text', k.label.replace('{name}', nm()));
@@ -159,7 +236,7 @@
     });
     keys.appendChild(back);
 
-    var dev = section('Developer tools');
+    var dev = section('Developer tools', 'dev');
     var status = el('p', 'devnote', devNote); dev.appendChild(status);
     function say(msg) { devNote = msg || ''; status.textContent = devNote; }
     /** A button that calls one of the page's developer functions (see window.deskDev in app-desktop.js) and shows what it says. */

@@ -31,6 +31,13 @@ pet.querySelector('.teddy-hug').innerHTML = TEDDY;
 var bedtimeKnown = false, wasAsleep = false;
 /** @returns {boolean} True when it is bedtime by the clock and the list: night, unless you are in the middle of shopping (items waiting on the list or tasks don't keep it up). */
 function bedtimeNow() { return L.isNight(petNow()) && !(typeof bellAwake === 'function' && bellAwake()) && (baseState() === 'sleepy' || !shoppingNow()); }
+/** The bed is at the middle: if he is standing off to the side (walking, or after a walk) when it comes out, he goes back to it. */
+function bedHome() {
+  if (!walkX && !walking) return;
+  stopWalk();
+  walkTo(0);
+  if (walkX) { stage.style.setProperty('--walk-ms', '0s'); stage.style.setProperty('--walk-x', '0px'); stage.classList.remove('walk-right'); walkX = 0; }   // (too short a way to walk, or reduced motion: he is just there)
+}
 /**
  * Shows the lamp, bed, quilt and dark room for the time and the list, and the tired eyes when it's up at night.
  * Bedtime starts fresh (lamp on, not tucked in) each time it begins or the pet wakes while the app is open,
@@ -60,7 +67,7 @@ function refreshBedtime() {
   // the small desktop window has no lamp to pull, so the light counts as off there: a tap tucks him in (the big window shows it off)
   if (bedNow && !bed.dark && document.documentElement.classList.contains('desktop-pet')) { bed.dark = true; saveBedtime(bed); }
   var wasTucked = pet.classList.contains('tucked');
-  if (bedNow && !wasBed) owlSoon(true);
+  if (bedNow && !wasBed) { owlSoon(true); bedHome(); }
   stage.classList.toggle('bedtime', bedNow);
   lampEl.hidden = !night;
   stage.classList.toggle('night-lamp', night && !bedNow);   // lit lamp, but still shopping: no bed yet
@@ -270,7 +277,7 @@ function bedSoon() {
 // night sounds while it sleeps: crickets now and then, and an owl hooting outside
 var owlTimer, cricketTimer;
 /** @returns {boolean} True when night sounds may play: asleep, on screen, no menu open. */
-function nightSounds() { return stage.classList.contains('bedtime') && !document.hidden && !document.querySelector('dialog[open]'); }
+function nightSounds() { return stage.classList.contains('bedtime') && !document.hidden && !document.querySelector('dialog[open]') && (typeof deskAmbient !== 'function' || deskAmbient()); }
 function owlSoon(first) {
   clearTimeout(owlTimer);
   owlTimer = setTimeout(function () {

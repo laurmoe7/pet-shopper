@@ -119,7 +119,7 @@ button { font: inherit; color: inherit; }
 .app { max-width: 560px; margin: 0 auto; min-height: 100vh; }
 
 /* ---------- stage ---------- */
-.scene { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; padding: 10px 16px 0; }
+.scene { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; padding: 4px 16px 0; }
 .scene-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .brand { font-family: var(--font-display); font-weight: 500; font-size: 1.12rem; margin: 0; display: flex; align-items: center; white-space: nowrap; min-width: 0; overflow: hidden; }
 .brand .pet-name { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
@@ -529,6 +529,10 @@ button { font: inherit; color: inherit; }
   border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 18px; cursor: pointer; font-weight: 700;
 }
 .species-grid button { gap: 2px; padding: 8px 4px 6px; font-size: .85rem; }
+/* how many skins you have for a species: a small round sticker in the corner, like the gift count on the Profile button */
+.skin-count { position: absolute; top: 4px; left: 4px; min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-radius: 999px; background: var(--accent); color: #fff; border: 2px solid #fff; font-style: normal; font-size: .7rem; font-weight: 800; line-height: 16px; text-align: center; box-shadow: 0 1px 0 rgba(91, 66, 57, .25); pointer-events: none; z-index: 2; }
+html:root[data-skin="quest"] .skin-count { border-color: #c9a227; color: #ffd100; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .skin-count { background: var(--os-red); color: var(--os-yellow); border: 1px solid #000; border-radius: 0; }
 .species-grid button:focus-visible, .hat-strip button:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
 .pet.mini { width: 72px; height: 66px; margin: 0; cursor: inherit; pointer-events: none; }
 /* the mini pets (species, skins, closet) are still pictures: the pet's own blinks, glints and sways would run in every one of them
@@ -645,9 +649,9 @@ button { font: inherit; color: inherit; }
 .paw-toes { fill: var(--pet-skin-shade); stroke: var(--pet-ink); stroke-width: 2.2; stroke-linejoin: round; }
 .paw-line { fill: none; stroke: var(--pet-ink); stroke-width: 1.3; stroke-linecap: round; }
 .arm .paw-bean { fill: #ff9fb5; stroke: none; }
-/* the hands show toe lines; the pink beans only when the palms turn out (arms up, cheering, holding, covering, fanning) */
+/* the hands show toe lines; the pink beans only when the palms turn out (arms up, cheering, fanning), never when the hands are held to the face or cover the eyes (hold, cover, eyerub) */
 .paw-beans { display: none; }
-.pet:is([data-arms="reach"], [data-arms="cheer"], [data-arms="hold"], [data-arms="fan"], [data-arms="pat"]) .paw-beans { display: inline; }
+.pet:is([data-arms="reach"], [data-arms="cheer"], [data-arms="fan"], [data-arms="pat"]) .paw-beans { display: inline; }
 .pet:is([data-arms="reach"], [data-arms="cheer"], [data-arms="hold"], [data-arms="fan"], [data-arms="pat"]) .paw-toe-lines { display: none; }
 .hoof { fill: #6e5a52; stroke: var(--pet-ink); stroke-width: 2; stroke-linejoin: round; }
 .pet[data-species="pig"] .hoof { fill: #c98896; }
@@ -694,7 +698,14 @@ button { font: inherit; color: inherit; }
 .build-label { margin: 8px 0 0; font-size: .75rem; color: var(--muted); text-align: center; }
 .dev-link { font-size: .8rem; color: var(--muted); text-decoration-color: var(--line); }
 .dev-warning { margin: 0; font-size: .85rem; font-weight: 700; color: var(--ink); background: var(--butter); border: 1.5px dashed var(--outline); border-radius: 14px; padding: 8px 12px; }
-.dev-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.dev-actions { display: flex; flex-direction: column; gap: 8px; }
+.dev-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0 8px 10px; }
+/* the developer tools are folded into sections (build 625) */
+.dev-group { border: 1.5px solid var(--line); border-radius: 16px; background: var(--surface); overflow: hidden; }
+.dev-group > summary { list-style: none; cursor: pointer; padding: 10px 14px; font-weight: 800; font-size: .88rem; display: flex; align-items: center; justify-content: space-between; -webkit-user-select: none; user-select: none; }
+.dev-group > summary::-webkit-details-marker { display: none; }
+.dev-group > summary::after { content: "▾"; color: var(--muted); transition: transform .2s; }
+.dev-group:not([open]) > summary::after { transform: rotate(-90deg); }
 .dev-actions button { border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 14px; padding: 10px 8px; font-weight: 800; font-size: .82rem; cursor: pointer; text-align: center; line-height: 1.25; }
 .dev-actions button:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
 .dev-actions button.danger { color: var(--danger); border-color: var(--danger); }
@@ -778,7 +789,7 @@ button { font: inherit; color: inherit; }
 @media (prefers-reduced-motion: reduce) { .cart-bag:not([hidden]), .cart-bag.bump { animation: none; } }
 
 /* ---------- daydreams ---------- */
-.dream { position: absolute; left: calc(50% - 40px + var(--walk-x, 0px)); top: -4px; width: 60px; height: 58px; z-index: 3; pointer-events: none; }
+.dream { position: absolute; left: calc(50% - 40px + var(--walk-x, 0px)); top: 4px;   /* (clear of the Shopping / To-do tabs above the stage) */ width: 60px; height: 58px; z-index: 3; pointer-events: none; }
 .dream:not([hidden]) { animation: dream-in .5s ease-out; }
 @keyframes dream-in { from { opacity: 0; transform: translateY(8px) scale(.7); } }
 .dream-cloud {
@@ -1029,17 +1040,17 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 
 /* ---------- goals and locks ---------- */
 .goal-toast {
-  /* sits on the cushion under the pet, clear of the buttons and the speech bubble */
-  position: absolute; left: 50%; bottom: 0; z-index: 3; transform: translateX(-50%);
-  display: flex; align-items: center; gap: 6px; width: max-content; max-width: 100%;
+  /* up in the top-left corner of the room, clear of Fumu and of the speech bubble (build 601) */
+  position: absolute; left: 0; top: 2px; z-index: 3;
+  display: flex; align-items: center; gap: 6px; width: max-content; max-width: calc(50% - 72px);
   font-weight: 800; font-size: .78rem; line-height: 1.2; color: var(--ink);
-  background: var(--surface); border: 1.5px solid var(--outline); border-radius: 999px;
+  background: var(--surface); border: 1.5px solid var(--outline); border-radius: 16px;
   padding: 4px 10px 4px 6px; box-shadow: 0 2px 0 var(--outline); pointer-events: none;
 }
 .goal-toast img { width: 22px; height: 22px; flex: none; }
 .goal-toast.win { background: var(--butter); }
 .goal-toast:not([hidden]) { animation: toast-in .35s cubic-bezier(.3, 1.4, .5, 1); }
-@keyframes toast-in { from { transform: translateX(-50%) translateY(-8px) scale(.8); opacity: 0; } }
+@keyframes toast-in { from { transform: translateY(-8px) scale(.8); opacity: 0; } }
 
 .species-grid button.locked, .hat-strip button.locked { background: var(--bg); border-style: dashed; color: var(--muted); }
 .species-grid button.locked .pet.mini, .hat-strip button.locked svg { filter: grayscale(1) brightness(.8); opacity: .45; }
@@ -1115,6 +1126,9 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .bfly-wing { fill: #7cc3ff; stroke: var(--pet-ink); stroke-width: 1.4; stroke-linejoin: round; }
 .bfly-low { fill: #a9d8ff; }
 .bfly-spot { fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; }
+.bfly-vein { fill: none; stroke: #fff; stroke-width: .7; stroke-linecap: round; opacity: .6; }
+.bfly-tip { fill: var(--pet-ink); }
+.bfly-twinkle { fill: #fff; stroke: #ffd36b; stroke-width: .6; stroke-linejoin: round; }
 .bfly-body { fill: none; stroke: var(--pet-ink); stroke-width: 2.4; stroke-linecap: round; }
 .bfly-antenna { fill: none; stroke: var(--pet-ink); stroke-width: 1.1; stroke-linecap: round; }
 .scarf-orange { fill: #e8832a; }
@@ -1179,6 +1193,8 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .clog-sole { fill: #a8703c; stroke: var(--pet-ink); stroke-width: 1.5; stroke-linejoin: round; }
 .clog-grain { fill: none; stroke: #c48848; stroke-width: 1; stroke-linecap: round; }
 .clog-heart { fill: #ee4f6c; }
+.clog-inset { fill: #f0c58f; stroke: none; }
+.clog-groove { fill: none; stroke: #6b4322; stroke-width: .9; stroke-linecap: round; opacity: .7; }
 
 /* Top 10 */
 .fav-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; min-height: 0; }
@@ -1313,6 +1329,8 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .pet[data-skin="calico"] { --pet-skin: #fffaf3; --pet-skin-shade: #f4e6d6; }
 .pet[data-skin="chihuahua"] { --pet-skin: #f1d3ae; --pet-skin-shade: #e0b98d; --pet-ear-in: #ffb8c6; --pet-mark: #d2a672; }
 .pet[data-skin="pomeranian"] { --pet-skin: #ee9b5c; --pet-skin-shade: #d8823f; --pet-ear-in: #f9cfa6; --pet-mark: #d8823f; }
+/* the black Pomeranian (build 626) is the Pomeranian drawn in black fur, with brown eyes */
+.pet[data-skin="blackpom"] { --pet-skin: #46404e; --pet-skin-shade: #373240; --pet-ear-in: #8f6f80; --pet-mark: #5a5366; }
 .pet[data-skin="golden"] { --pet-skin: #f6d08f; --pet-skin-shade: #e6b567; --pet-mark: #d79c47; }
 .pet[data-skin="chocolatemilk"] { --pet-skin: #bb8962; --pet-skin-shade: #9d6c48; --pet-mark: #f6e4cf; }
 .pet[data-skin="highland"] { --pet-skin: #d98a4c; --pet-skin-shade: #bf6c31; --pet-ear-in: #ffc4cf; }
@@ -1465,15 +1483,17 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .pet[data-skin="boar"] [data-sk~="boar"],
 .pet[data-skin="chihuahua"] [data-sk~="chihuahua"],
 .pet[data-skin="pomeranian"] [data-sk~="pomeranian"],
+.pet[data-skin="blackpom"] [data-sk~="blackpom"],
 .pet[data-skin="longhair"] [data-sk~="longhair"] { display: inline; }
 .pet[data-skin="kiwi"] [data-sk~="kiwi"], .pet[data-skin="dutch"] [data-sk~="dutch"], .pet[data-skin="fasthedgehog"] [data-sk~="fasthedgehog"],
 .pet[data-skin="dartfrog"] [data-sk~="dartfrog"], .pet[data-skin="toad"] [data-sk~="toad"] { display: inline; }
 /* a skin's own ears and horns replace the species' ones */
 .pet[data-skin="floppybunny"] [data-sp="bunny"],
 .pet[data-skin="chihuahua"] [data-sp="puppy"],
-.pet[data-skin="pomeranian"] [data-sp="puppy"] { display: none; }
+.pet[data-skin="pomeranian"] [data-sp="puppy"],
+.pet[data-skin="blackpom"] [data-sp="puppy"] { display: none; }
 .pet[data-skin="highland"] .horn, .pet[data-skin="highland"] .spot, .pet[data-skin="golden"] .spot { display: none; }
-.pet[data-skin="chihuahua"] .ear, .pet[data-skin="pomeranian"] .ear, .pet[data-skin="floppybunny"] .ear { fill: var(--pet-skin); }
+.pet[data-skin="chihuahua"] .ear, .pet[data-skin="pomeranian"] .ear, .pet[data-skin="blackpom"] .ear, .pet[data-skin="floppybunny"] .ear { fill: var(--pet-skin); }
 .pet[data-skin="calico"] .ear-l .ear { fill: #f3a95d; }
 .pet[data-skin="calico"] .ear-r .ear { fill: #5b566a; }
 /* the black cat's eyes show up as light on dark */
@@ -1505,6 +1525,10 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .fur-blend path { fill: var(--pet-skin); stroke: none; }
 .pom-muzzle { fill: #ffe0b4; }
 .pom-chest { fill: #ffe0b4; stroke: var(--pet-ink); stroke-width: 1.6; stroke-linejoin: round; }
+/* black Pomeranian: a softer grey-brown muzzle and chest, brown eyes with a light line for closed ones */
+.pet[data-skin="blackpom"] :is(.pom-muzzle, .pom-chest) { fill: #6d6478; }
+.pet[data-skin="blackpom"] .eyes-open .ink { fill: #8f5b34; stroke: #c99663; stroke-width: .8; }
+.pet[data-skin="blackpom"] g[data-eyes] path.line, .pet[data-skin="blackpom"] g[data-eyes].line path { stroke: #f1dcc8; }
 
 /* floppy bunny ears have no pink */
 .pet[data-skin="floppybunny"] .ear-in { display: none; }
@@ -1615,6 +1639,7 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .toy [data-toy="wrecker"] { display: none; }
 .stage.toy-wreck .toy [data-toy]:not([data-toy="wrecker"]) { display: none !important; }
 .stage.toy-wreck .toy [data-toy="wrecker"] { display: inline !important; }
+.stage.toy-none .toy { display: none !important; }   /* the ring menu's no-toy choice */
 .wreck-spike { fill: #1b1b22; stroke: #dfe2f2; stroke-width: 1.5; stroke-linejoin: round; paint-order: stroke; }   /* (a pale rim: a black ball is lost on a dark window) */
 .wreck-fill { fill: #34343f; stroke: #8b8fa6; stroke-width: 1; }
 .wreck-hi { fill: none; stroke: #b9bccb; stroke-width: 1.4; stroke-linecap: round; opacity: .8; }
@@ -1708,7 +1733,7 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
 .teddy-blush { fill: #ffb3c1; opacity: .8; }
 .pet .blanket { display: none; }
 .pet.tucked .blanket { display: inline; animation: blanket-in .6s cubic-bezier(.3, 1.4, .5, 1); }
-.pet.tucked .outfit-feet { display: none; }
+.pet.tucked :is(.outfit-feet, .outfit-feet-back) { display: none; }
 @keyframes blanket-in { from { transform: translateY(26px); opacity: 0; } to { transform: none; opacity: 1; } }
 .blanket-cloth { fill: none; stroke: var(--prop-ink); stroke-width: 1.8; stroke-linejoin: round; }
 .quilt-seam { fill: none; stroke: #b98aa0; stroke-width: 1; stroke-dasharray: 2.4 2; opacity: .8; }
@@ -1722,13 +1747,11 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
 @keyframes waddle { 0% { transform: translate(0px, 0px); } 8% { transform: translate(-1.5px, -2px); } 16% { transform: translate(-3px, 0px); } 33% { transform: translate(0px, -2px); } 50% { transform: translate(3px, 0px); } 66% { transform: translate(0px, -2px); } 83% { transform: translate(-3px, 0px); } 100% { transform: translate(0px, 0px); } }
 @keyframes hophop { 0% { transform: translate(0px, 0px); } 17% { transform: translate(0px, -14px); } 33% { transform: translate(0px, 0px); } 37% { transform: translate(0px, 2px); } 41% { transform: translate(0px, 0px); } 50% { transform: translate(0px, -12px); } 62% { transform: translate(0px, 0px); } 66% { transform: translate(0px, 2px); } 70% { transform: translate(0px, 0px); } 78% { transform: translate(0px, -9px); } 88% { transform: translate(0px, 0px); } 92% { transform: translate(0px, 1.5px); } 100% { transform: translate(0px, 0px); } }
 @keyframes scoot { 0% { transform: translate(0px, 0px); } 10% { transform: translate(-4px, -2px); } 20% { transform: translate(-16px, 0px); } 70% { transform: translate(-16px, 0px); } 85% { transform: translate(-6px, -2px); } 100% { transform: translate(0px, 0px); } }
-@keyframes sit { 0% { transform: translate(0px, 0px); } 25% { transform: translate(0px, 4px); } 75% { transform: translate(0px, 4px); } 100% { transform: translate(0px, 0px); } }
 @keyframes hopsmall { 0% { transform: translate(0px, 0px); } 40% { transform: translate(0px, -7px); } 75% { transform: translate(0px, 0px); } 85% { transform: translate(0px, 1.5px); } 100% { transform: translate(0px, 0px); } }
 @keyframes sh-stroll { 0% { transform: translateX(0px) scale(1); opacity: 1; } 4.5% { transform: translateX(-3px) scale(0.86); opacity: 0.8; } 9% { transform: translateX(-6px) scale(1); opacity: 1; } 13.5% { transform: translateX(-9px) scale(0.86); opacity: 0.8; } 18% { transform: translateX(-12px) scale(1); opacity: 1; } 22.5% { transform: translateX(-15px) scale(0.86); opacity: 0.8; } 27% { transform: translateX(-18px) scale(1); opacity: 1; } 31.5% { transform: translateX(-21px) scale(0.86); opacity: 0.8; } 36% { transform: translateX(-24px) scale(1); opacity: 1; } 46% { transform: translateX(-24px) scale(1); opacity: 1; } 48.25% { transform: translateX(-21px) scale(0.86); opacity: 0.8; } 50.5% { transform: translateX(-18px) scale(1); opacity: 1; } 52.75% { transform: translateX(-15px) scale(0.86); opacity: 0.8; } 55% { transform: translateX(-12px) scale(1); opacity: 1; } 57.25% { transform: translateX(-9px) scale(0.86); opacity: 0.8; } 59.5% { transform: translateX(-6px) scale(1); opacity: 1; } 61.75% { transform: translateX(-3px) scale(0.86); opacity: 0.8; } 64% { transform: translateX(0px) scale(1); opacity: 1; } 66.25% { transform: translateX(3px) scale(0.86); opacity: 0.8; } 68.5% { transform: translateX(6px) scale(1); opacity: 1; } 70.75% { transform: translateX(9px) scale(0.86); opacity: 0.8; } 73% { transform: translateX(12px) scale(1); opacity: 1; } 75.25% { transform: translateX(15px) scale(0.86); opacity: 0.8; } 77.5% { transform: translateX(18px) scale(1); opacity: 1; } 79.75% { transform: translateX(21px) scale(0.86); opacity: 0.8; } 82% { transform: translateX(24px) scale(1); opacity: 1; } 86% { transform: translateX(24px) scale(1); opacity: 1; } 87.75% { transform: translateX(21px) scale(0.86); opacity: 0.8; } 89.5% { transform: translateX(18px) scale(1); opacity: 1; } 91.25% { transform: translateX(15px) scale(0.86); opacity: 0.8; } 93% { transform: translateX(12px) scale(1); opacity: 1; } 94.75% { transform: translateX(9px) scale(0.86); opacity: 0.8; } 96.5% { transform: translateX(6px) scale(1); opacity: 1; } 98.25% { transform: translateX(3px) scale(0.86); opacity: 0.8; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
 @keyframes sh-waddle { 0% { transform: translateX(0px) scale(1); opacity: 1; } 8% { transform: translateX(-1.5px) scale(0.9); opacity: 0.85; } 16% { transform: translateX(-3px) scale(1); opacity: 1; } 33% { transform: translateX(0px) scale(0.9); opacity: 0.85; } 50% { transform: translateX(3px) scale(1); opacity: 1; } 66% { transform: translateX(0px) scale(0.9); opacity: 0.85; } 83% { transform: translateX(-3px) scale(1); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
 @keyframes sh-hophop { 0% { transform: translateX(0px) scale(1); opacity: 1; } 17% { transform: translateX(0px) scale(0.72); opacity: 0.5; } 33% { transform: translateX(0px) scale(1); opacity: 1; } 37% { transform: translateX(0px) scale(1.06); opacity: 1; } 41% { transform: translateX(0px) scale(1); opacity: 1; } 50% { transform: translateX(0px) scale(0.76); opacity: 0.55; } 62% { transform: translateX(0px) scale(1); opacity: 1; } 66% { transform: translateX(0px) scale(1.06); opacity: 1; } 70% { transform: translateX(0px) scale(1); opacity: 1; } 78% { transform: translateX(0px) scale(0.82); opacity: 0.65; } 88% { transform: translateX(0px) scale(1); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
 @keyframes sh-scoot { 0% { transform: translateX(0px) scale(1); opacity: 1; } 10% { transform: translateX(-4px) scale(0.9); opacity: 0.85; } 20% { transform: translateX(-16px) scale(1); opacity: 1; } 70% { transform: translateX(-16px) scale(1); opacity: 1; } 85% { transform: translateX(-6px) scale(0.9); opacity: 0.85; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
-@keyframes sh-sit { 0% { transform: translateX(0px) scale(1); opacity: 1; } 25% { transform: translateX(0px) scale(1.08); opacity: 1.1; } 75% { transform: translateX(0px) scale(1.08); opacity: 1.1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
 @keyframes sh-hopsmall { 0% { transform: translateX(0px) scale(1); opacity: 1; } 40% { transform: translateX(0px) scale(0.84); opacity: 0.65; } 75% { transform: translateX(0px) scale(1); opacity: 1; } 85% { transform: translateX(0px) scale(1.04); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
 @keyframes sh-bounce { 0% { transform: translateX(0px) scale(1); opacity: 1; } 14% { transform: translateX(0px) scale(0.8); opacity: 0.6; } 28% { transform: translateX(0px) scale(1); opacity: 1; } 32% { transform: translateX(0px) scale(1.05); opacity: 1; } 38% { transform: translateX(0px) scale(1); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
 @keyframes sh-hop { 0% { transform: translateX(0px) scale(1); opacity: 1; } 40% { transform: translateX(0px) scale(0.68); opacity: 0.5; } 82% { transform: translateX(0px) scale(1); opacity: 1; } 91% { transform: translateX(0px) scale(1.06); opacity: 1; } 100% { transform: translateX(0px) scale(1); opacity: 1; } }
@@ -1740,13 +1763,11 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
 .pet.waddle .pet-svg { animation: waddle 1.8s ease-in-out; }
 .pet.hophop .pet-svg { animation: hophop 1.5s ease-in-out; }
 .pet.scoot .pet-svg { animation: scoot 1.4s ease-in-out; }
-.pet.sit .pet-svg { animation: sit 2.6s ease-in-out; }
 .pet.hopsmall .pet-svg { animation: hopsmall .45s ease-in-out; }
 #pet.stroll::before { animation: sh-stroll 3.6s ease-in-out; }
 #pet.waddle::before { animation: sh-waddle 1.8s ease-in-out; }
 #pet.hophop::before { animation: sh-hophop 1.5s ease-in-out; }
 #pet.scoot::before { animation: sh-scoot 1.4s ease-in-out; }
-#pet.sit::before { animation: sh-sit 2.6s ease-in-out; }
 #pet.hopsmall::before { animation: sh-hopsmall .45s ease-in-out; }
 #pet.hop::before { animation: sh-hop .5s cubic-bezier(.3, 1.4, .5, 1); }
 #pet.bob::before { animation: sh-bob .7s ease-in-out 2; }
@@ -2077,10 +2098,6 @@ html:root[data-theme="dark"] .item:nth-child(3n+1) { --tab: #b4a4e0; }
 .pet[data-arms="fan"] :is(.foot-r, .shoe-r) { animation: stomp .24s ease-in-out -.12s infinite; }
 .pet[data-arms="clench"] :is(.foot-side, .shoe-l, .shoe-r) { animation: shiver .12s linear infinite; }
 /* sitting: the feet stick out a little to the sides */
-@keyframes sit-l { 0%, 100% { transform: translate(0, 0); } 25%, 75% { transform: translate(-2.4px, -.6px); } }
-@keyframes sit-r { 0%, 100% { transform: translate(0, 0); } 25%, 75% { transform: translate(2.4px, -.6px); } }
-.pet.sit :is(.foot-l, .shoe-l) { animation: sit-l 2.6s ease-in-out; }
-.pet.sit :is(.foot-r, .shoe-r) { animation: sit-r 2.6s ease-in-out; }
 @media (prefers-reduced-motion: reduce) { .foot-side, .shoe-l, .shoe-r { animation: none !important; } }
 /* sitting for a while (on a window edge on the desktop; app-desktop.js adds .seated): he sinks a little, his feet come out in front, tilted
    so the soles show: toe beans, split hooves, pigeon toes, frog toes. Every species has a pair. */
@@ -2142,6 +2159,14 @@ html[data-list="todo"] .cart, html[data-list="todo"] .receipt, html[data-list="t
 .task-stamp circle { fill: #9bdcb4; stroke: var(--prop-ink); stroke-width: 2.4; }
 .task-stamp .stamp-ring { fill: none; stroke: #fff; stroke-width: 1.3; stroke-dasharray: 2.4 3; opacity: .85; }
 .task-stamp path { fill: none; stroke: #fff; stroke-width: 4.6; stroke-linecap: round; stroke-linejoin: round; }
+/* the trip stamp (app-actions.js, celebrate): a rubber-stamp print in coral ink pressed onto the receipt when the last item is bought */
+.trip-stamp { position: fixed; left: 0; top: 0; z-index: 40; width: 64px; height: 64px; pointer-events: none; mix-blend-mode: multiply; --stamp-ink: #e4604f; }
+.trip-stamp svg { display: block; width: 100%; height: 100%; overflow: visible; font-family: var(--font-display); }
+.trip-stamp circle { fill: none; stroke: var(--stamp-ink); stroke-width: 3.2; }
+.trip-stamp .trip-ring { stroke-width: 1.4; stroke-dasharray: 2.2 2.6; opacity: .9; }
+.trip-stamp text { fill: var(--stamp-ink); font-size: 12.5px; font-weight: 900; letter-spacing: .1em; text-anchor: middle; }
+.trip-stamp .trip-small { font-size: 8.5px; letter-spacing: .06em; }
+html[data-theme="dark"] .trip-stamp { mix-blend-mode: normal; --stamp-ink: #ff8a78; }
 
 /* to-do dates and the clipboard (app-todo.js) */
 .qty-tag { flex: none; align-self: center; font-size: .72rem; font-weight: 800; line-height: 1; padding: 4px 8px; border-radius: 999px; background: var(--paper-pink, #ffe3ea); color: var(--muted); border: 1.5px solid var(--line); white-space: nowrap; }
@@ -2424,7 +2449,7 @@ html.typing .page-fade { display: none; }
 .closet-empty { grid-column: 1 / -1; }
 
 /* ---------- a wish: Fumu asking for a snack (app-treats.js) ---------- */
-.wish { position: absolute; left: calc(50% - 100px * var(--pet-size, 1) + var(--walk-x, 0px)); top: 2px; z-index: 4; width: 58px; height: 62px; padding: 0; border: 0; background: none; cursor: pointer; animation: wish-in .4s cubic-bezier(.3, 1.6, .5, 1); }
+.wish { position: absolute; left: calc(50% - 100px * var(--pet-size, 1) + var(--walk-x, 0px)); top: 8px; z-index: 4; width: 58px; height: 62px; padding: 0; border: 0; background: none; cursor: pointer; animation: wish-in .4s cubic-bezier(.3, 1.6, .5, 1); }
 .wish[hidden] { display: none; }
 .wish-cloud { position: absolute; left: 0; top: 0; width: 58px; height: 44px; display: grid; place-items: center; background: var(--surface); border: 1.8px solid var(--outline); border-radius: 24px; box-shadow: 0 2px 0 var(--shadow); animation: wish-bob 3.4s ease-in-out .5s infinite; }
 .wish-cloud img { width: 32px; height: 32px; display: block; }
@@ -2923,8 +2948,7 @@ html.desktop-pet .dream-dot.d2 { left: -12px; top: 54px; }
 html.desktop-pet .stage:has(.look-preview) .bubble { display: block; z-index: 40; left: auto !important; right: 2px !important; bottom: 58px; top: auto !important; margin: 0; max-width: 30% !important; }   /* the style preview shows card, bubble and ring together: the bubble stands to the side so nothing covers it */
 html.desktop-pet .stage .inbox-card { top: auto; bottom: calc(100% - 28px); }   /* (its lower part sits in the empty space above his head, so the whole card fits in the window without him moving) */   /* normal size: if he is at the side of the screen his window slides onto it while the card shows (app-desktop.js) */
 html.desktop-pet.card-narrow .stage .inbox-card { left: calc(var(--vis-l, 0px) + 8px); right: calc(100vw - var(--vis-r, 100vw) + 8px); }   /* (only when it cannot slide: then it is as wide as the part of the window that shows) */
-/* choices from the settings window: no toy, no cushion under him (the bed at night stays) */
-html.desktop-pet.desk-notoy .toy { display: none !important; }
+/* choice from the settings window: no cushion under him (the bed at night stays) */
 html.desktop-pet.desk-nocushion .stage:not(.bedtime) .cushion { display: none; }
 html.desktop-pet.desk-nobubbles:not(.grab-say) .bubble { display: none !important; }   /* (the grab key's answer still shows) */
 html.desktop-pet.desk-nosparkles .stage::before, html.desktop-pet.desk-nosparkles .stage::after { display: none; }
@@ -3328,14 +3352,37 @@ html.desktop-pet.ring-open .stage .bubble.ring-moved { left: var(--rl, 4px) !imp
 /* the Shop (app-shop.js): a test page, nothing can be bought */
 .shop-list { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; min-height: 0; scrollbar-width: none; }
 .shop-head { margin: 6px 0 0; font-family: var(--font-display); font-size: 1rem; color: var(--ink); }
-.shop-card { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 18px; background: var(--paper); border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--shadow); }
-.shop-card > img { width: 44px; height: 44px; }
+.shop-card { display: grid; grid-template-columns: 52px 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 20px; background: var(--paper); border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--shadow); }
+.shop-pic { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: color-mix(in srgb, var(--hl) 26%, var(--paper)); box-shadow: inset 0 0 0 1.5px var(--outline); }
+.shop-pic > img { width: 34px; height: 34px; }
 .shop-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .shop-body b { color: var(--ink); }
-.shop-body span, .shop-perks { font-size: .8rem; font-weight: 700; color: var(--muted); }
-.shop-perks { margin: 0; padding-left: 16px; }
-.shop-premium { background: var(--stage-top); border-color: var(--outline); }
+.shop-body span { font-size: .8rem; font-weight: 700; color: var(--muted); }
 .shop-buy { background: var(--surface); white-space: nowrap; }
+/* the Fumufumu Plus card: a soft glow at the top, sparkles, ticked perks and a yearly / monthly pick */
+.plus-card { position: relative; display: flex; flex-direction: column; gap: 12px; padding: 14px 14px 12px; border-radius: 24px; border: 2px solid var(--outline); box-shadow: 0 3px 0 var(--shadow); overflow: hidden;
+  background: radial-gradient(120% 70% at 85% -10%, var(--hl-glow), transparent 60%), linear-gradient(color-mix(in srgb, var(--hl) 26%, var(--paper)), var(--paper) 62%); }
+.plus-card::before, .plus-card::after { content: "✦"; position: absolute; color: var(--hl); opacity: .55; pointer-events: none; }
+.plus-card::before { top: 10px; right: 16px; font-size: 1.1rem; }
+.plus-card::after { top: 38px; right: 40px; font-size: .7rem; opacity: .4; }
+.plus-head { display: flex; align-items: center; gap: 12px; }
+.plus-head > img { width: 54px; height: 54px; flex: none; filter: drop-shadow(0 2px 0 var(--shadow)); }
+.plus-titles { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.plus-name { font-family: var(--font-display); font-size: 1.3rem; color: var(--ink); line-height: 1.1; }
+.plus-tag { font-size: .8rem; font-weight: 700; color: var(--muted); }
+.plus-perks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.plus-perks li { position: relative; padding-left: 26px; font-size: .86rem; font-weight: 700; color: var(--ink); line-height: 1.25; }
+.plus-perks li::before { content: "✓"; position: absolute; left: 0; top: -1px; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: var(--hl); color: #fff; font-size: .72rem; font-weight: 900; }
+.plus-plans { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.plus-plan { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 14px 10px 9px; border-radius: 16px; background: var(--paper); border: 2px solid var(--line); color: var(--ink); font: inherit; text-align: left; cursor: pointer; box-shadow: 0 2px 0 var(--shadow); transition: transform .12s; }
+.plus-plan:active { transform: translateY(1px); }
+.plus-plan.on { border-color: var(--hl); background: var(--surface); box-shadow: 0 0 0 3px var(--hl-glow), 0 2px 0 var(--shadow); }
+.plus-plan-name { font-size: .78rem; font-weight: 800; color: var(--muted); }
+.plus-price { display: flex; align-items: baseline; gap: 3px; }
+.plus-price b { font-family: var(--font-display); font-size: 1.25rem; color: var(--ink); }
+.plus-price small, .plus-sub { font-size: .72rem; font-weight: 700; color: var(--muted); }
+.plus-ribbon { position: absolute; top: -10px; left: 8px; max-width: calc(100% - 14px); padding: 2px 8px; border-radius: 999px; background: var(--badge); color: #fff; font-style: normal; font-size: .66rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 1.5px 0 var(--shadow); }
+html:root .shop-sheet .plus-cta { width: 100%; padding: 11px 14px; font-size: 1rem; font-weight: 800; background: var(--hl); color: #fff; border-color: var(--hl); box-shadow: 0 3px 0 var(--shadow), 0 0 14px var(--hl-glow); }
 .shop-note { min-height: 1.2em; margin: 0; text-align: center; }
 
 /* the sneaky snack (app-steal.js): the emoji he took is gone from its row until he spits it back */
@@ -3637,6 +3684,14 @@ html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .op
 .pet.handdance:not(#x) :is(.foot-l, .shoe-l) { animation: bs-foot-l 3.6s ease-in-out 3; }
 .pet.handdance:not(#x) :is(.foot-r, .shoe-r) { animation: bs-foot-r 3.6s ease-in-out 3; }
 .pet.handdance :is(.ear-l, .ear-r) { animation: ear-jiggle-l .4s ease-out 27; }
+/* the left foot goes across behind him and his other foot: while it is away from its place the shoe is the copy drawn behind the body (outfit-feet-back), and the front one is hidden */
+.outfit-feet-back { visibility: hidden; }
+.pet.handdance:not(#x) .outfit-feet-back { animation: bs-back-vis 3.6s linear 3; }
+.pet.handdance:not(#x) .outfit-feet-back .shoe-l { animation: bs-foot-l 3.6s ease-in-out 3; }
+.pet.handdance:not(#x) .outfit-feet .shoe-l { animation: bs-foot-l 3.6s ease-in-out 3, bs-front-vis 3.6s linear 3; }
+@keyframes bs-back-vis { 0%, 5.55% { visibility: hidden; } 5.56%, 27.77% { visibility: visible; } 27.78%, 100% { visibility: hidden; } }
+@keyframes bs-front-vis { 0%, 5.55% { visibility: visible; } 5.56%, 27.77% { visibility: hidden; } 27.78%, 100% { visibility: visible; } }
+@media (prefers-reduced-motion: reduce) { .outfit-feet-back, .pet.handdance .outfit-feet-back { animation: none; visibility: hidden; } }
 @media (prefers-reduced-motion: reduce) { .pet.handdance :is(.pet-svg, .arm-l, .arm-r, .ear-l, .ear-r), .pet.handdance:not(#x) :is(.foot-l, .shoe-l, .foot-r, .shoe-r) { animation: none; } }
 
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .stage { border: 0; border-radius: 0; box-shadow: none; }
@@ -4040,7 +4095,7 @@ html:root[data-skin="sweet"] body { background: var(--sw-dots), linear-gradient(
 html:root[data-skin="sweet"] .picker { background: linear-gradient(180deg, #fff7fa, #ffedf3); border: 3px solid var(--sw-edge); border-bottom: 0; border-radius: 28px 28px 0 0; box-shadow: 0 -6px 18px rgba(235, 150, 175, .3), inset 0 0 0 3px #fff; }
 html:root[data-skin="sweet"] .picker h2 { border: 0; border-radius: 999px; background: linear-gradient(180deg, #ffd3e0, #ffb3cb); color: #7a2a4a; box-shadow: 0 2px 0 #f3a3bb, inset 0 1px 0 rgba(255, 255, 255, .8); padding: 4px 18px; font-weight: 700; }
 /* cards: white and puffy, a pink outline, a ring and a soft edge under them; no tape or stitching */
-html:root[data-skin="sweet"] :is(.add, .item, .goal, .fav, .options, .picker .closet-wear, .scene-bar, .dress-panels) {
+html:root[data-skin="sweet"] :is(.add, .item, .goal, .fav, .options, .picker .closet-wear, .dress-panels) {
   background: linear-gradient(180deg, #fffdfb, #fff4f6); border: 2px solid var(--sw-edge); border-radius: 22px; box-shadow: 0 0 0 3px #fff, 0 4px 0 3px var(--sw-edge), 0 8px 12px rgba(235, 150, 175, .22);
 }
 html:root[data-skin="sweet"] :is(.item, .add, .options)::before, html:root[data-skin="sweet"] :is(.item, .add)::after { display: none; }
@@ -4067,9 +4122,9 @@ html:root[data-skin="sweet"] :is(.picker .species-grid button, .picker .hat-stri
 html:root[data-skin="sweet"] .add-btn { background: var(--sw-gloss), linear-gradient(180deg, #ff9fbd, #ff6f9a); color: #fff; border: 2px solid #f06a94; border-radius: 999px; box-shadow: 0 3px 0 #e0608a; text-shadow: 0 1px 0 rgba(180, 40, 80, .4); }
 html:root[data-skin="sweet"] .name-edit { background: var(--sw-gloss), linear-gradient(180deg, #ffb3cb, #ff8fb0); color: #fff; border: 2px solid #f06a94; box-shadow: 0 2px 0 #e0608a; }
 html:root[data-skin="sweet"] :is(.name-show, .dress-search, .cal-month select, .cal-add input) { background: #fff; border: 2px solid var(--sw-edge); border-radius: 999px; color: var(--sw-ink); }
-html:root[data-skin="sweet"] .list-tabs { background: #fff; border: 2px solid var(--sw-edge); box-shadow: 0 3px 0 var(--sw-edge); }
-html:root[data-skin="sweet"] .list-tab { background: transparent; border-color: transparent; box-shadow: none; text-shadow: none; }
-html:root[data-skin="sweet"] .list-tab[aria-selected="true"] { background: var(--sw-gloss), linear-gradient(180deg, #ffb3cb, #ff8fb0); color: #fff; border-color: #f06a94; box-shadow: 0 2px 0 #e0608a; }
+html:root[data-skin="sweet"] .list-tabs { background: #fff; border: 1.5px solid var(--sw-edge); box-shadow: 0 3px 0 var(--sw-edge); }
+html:root[data-skin="sweet"] .list-tab { background: transparent; border: 0; box-shadow: none; text-shadow: none; }
+html:root[data-skin="sweet"] .list-tab[aria-selected="true"] { background: var(--sw-gloss), linear-gradient(180deg, #ffb3cb, #ff8fb0); color: #fff; border: 0; box-shadow: 0 2px 0 #e0608a; }
 /* the bottom bar: a frosted pink shelf, round pastel stickers with a shine */
 html:root[data-skin="sweet"] .dock { background: linear-gradient(180deg, #fff7fa, #ffe3ec); border-top: 3px solid var(--sw-edge); box-shadow: 0 -4px 14px rgba(235, 150, 175, .3), inset 0 2px 0 #fff; }
 html:root[data-skin="sweet"] .dock-icon { border: 2.5px solid #fff; background: var(--sw-gloss), var(--sticker, #ffd3dd); box-shadow: 0 0 0 2px var(--sw-edge), 0 3px 0 2px var(--sw-edge); }
@@ -4087,7 +4142,6 @@ html:root[data-skin="sweet"] .cal-sheet .cal-cell:is(.today, .sel) { background:
 html:root[data-skin="sweet"] body::after { content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .55; background:
   linear-gradient(35deg, transparent 46%, #ff8fb0 46% 54%, transparent 54%) 8% 12% / 14px 5px no-repeat, linear-gradient(-30deg, transparent 46%, #8fd8b5 46% 54%, transparent 54%) 90% 22% / 14px 5px no-repeat,
   linear-gradient(60deg, transparent 46%, #ffd36a 46% 54%, transparent 54%) 14% 62% / 14px 5px no-repeat, linear-gradient(-55deg, transparent 46%, #b79bff 46% 54%, transparent 54%) 93% 70% / 14px 5px no-repeat; }
-html:root[data-skin="sweet"] .scene-bar { background: transparent; border: 0; box-shadow: none; padding-left: 0; padding-right: 0; }
 html:root[data-skin="sweet"] :is(.field-label, .picker legend) { background: #ffe3ec; color: #c0728f; border-radius: 999px; padding: 2px 12px; }
 
 /* chorus dance (an idle dance, chorusDance in app-idle.js; build 569, redone in 571 from Lauren's description of a group number): 8 s. He puts his left paw (the one on the
@@ -4104,18 +4158,295 @@ html:root[data-skin="sweet"] :is(.field-label, .picker legend) { background: #ff
 html[data-scene$="clip"] .pet.chorus .arm-l, html[data-list="todo"] .pet.chorus .arm-l { animation: none; }
 @media (prefers-reduced-motion: reduce) { .pet.chorus :is(.pet-svg, .arm-l, .arm-r), .pet.chorus:not(#x) :is(.foot-l, .shoe-l) { animation: none; } }
 
-/* free spirited dance (an idle dance, freeSpiritDance in app-idle.js; build 572, redone in 574 from Lauren's description of an anime dance): 8 s. He pumps his right arm
-   (the one on the right of the screen) out to the side and back, quickly, four times; then he puts his paws close together in front and shakes them to one side and the other in turn;
-   then, slowly, his paws go down and out from his sides while his right leg crosses in front of the left once (the feet just touch). The clipboard hand (to-do list) stays where it is. */
-@keyframes freespirit { 0% { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); } 3.75% { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); } 5.0% { transform: translate(-2px, -2px) rotate(-3deg) scale(1, 1); } 7.5% { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); } 10.0% { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); } 11.25% { transform: translate(-2px, -2px) rotate(-3deg) scale(1, 1); } 13.75% { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); } 16.25% { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); } 17.5% { transform: translate(-2px, -2px) rotate(-3deg) scale(1, 1); } 20.0% { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); } 22.5% { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); } 23.75% { transform: translate(-2px, -2px) rotate(-3deg) scale(1, 1); } 26.25% { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); } 30.0% { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); } 33.75% { transform: translate(1.75px, 0px) rotate(2.1deg) scale(1, 1); } 36.25% { transform: translate(-1.75px, -1px) rotate(-2.1deg) scale(1, 1); } 38.75% { transform: translate(1.75px, 0px) rotate(2.1deg) scale(1, 1); } 41.25% { transform: translate(-1.75px, -1px) rotate(-2.1deg) scale(1, 1); } 43.75% { transform: translate(1.75px, 0px) rotate(2.1deg) scale(1, 1); } 46.25% { transform: translate(-1.75px, -1px) rotate(-2.1deg) scale(1, 1); } 48.75% { transform: translate(1.75px, 0px) rotate(2.1deg) scale(1, 1); } 51.25% { transform: translate(-1.75px, -1px) rotate(-2.1deg) scale(1, 1); } 53.75% { transform: translate(1.75px, 0px) rotate(2.1deg) scale(1, 1); } 56.25% { transform: translate(-1.75px, -1px) rotate(-2.1deg) scale(1, 1); } 58.75% { transform: translate(1.75px, 0px) rotate(2.1deg) scale(1, 1); } 60.0% { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); } 67.5% { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); } 77.5% { transform: translate(-3px, 0px) rotate(-3deg) scale(1, 0.97); } 90.0% { transform: translate(-3px, 0px) rotate(-3deg) scale(1, 0.97); } 96.25% { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); } 100% { transform: translate(0px, 0px) rotate(0deg) scale(1, 1); } }
-@keyframes freespirit-arm-l { 0% { transform: translate(0px, 0px) rotate(18deg) scale(1, 1); } 30.0% { transform: translate(0px, 0px) rotate(18deg) scale(1, 1); } 32.5% { transform: translate(22px, 12px) rotate(-125deg) scale(1, 1); } 33.75% { transform: translate(15px, 12px) rotate(-125deg) scale(1, 1); } 36.25% { transform: translate(29px, 12px) rotate(-125deg) scale(1, 1); } 38.75% { transform: translate(15px, 12px) rotate(-125deg) scale(1, 1); } 41.25% { transform: translate(29px, 12px) rotate(-125deg) scale(1, 1); } 43.75% { transform: translate(15px, 12px) rotate(-125deg) scale(1, 1); } 46.25% { transform: translate(29px, 12px) rotate(-125deg) scale(1, 1); } 48.75% { transform: translate(15px, 12px) rotate(-125deg) scale(1, 1); } 51.25% { transform: translate(29px, 12px) rotate(-125deg) scale(1, 1); } 53.75% { transform: translate(15px, 12px) rotate(-125deg) scale(1, 1); } 56.25% { transform: translate(29px, 12px) rotate(-125deg) scale(1, 1); } 58.75% { transform: translate(15px, 12px) rotate(-125deg) scale(1, 1); } 60.0% { transform: translate(22px, 12px) rotate(-125deg) scale(1, 1); } 67.5% { transform: translate(0px, 0px) rotate(40deg) scale(1, 1); } 92.5% { transform: translate(0px, 0px) rotate(40deg) scale(1, 1); } 98.75% { transform: translate(0px, 0px) rotate(18deg) scale(1, 1); } 100% { transform: translate(0px, 0px) rotate(18deg) scale(1, 1); } }
-@keyframes freespirit-arm-r { 0% { transform: translate(0px, 0px) rotate(-18deg) scale(1, 1); } 3.75% { transform: translate(0px, 0px) rotate(-18deg) scale(1, 1); } 5.0% { transform: translate(0px, 0px) rotate(-85deg) scale(1, 1); } 7.5% { transform: translate(0px, 0px) rotate(-18deg) scale(1, 1); } 10.0% { transform: translate(0px, 0px) rotate(-18deg) scale(1, 1); } 11.25% { transform: translate(0px, 0px) rotate(-85deg) scale(1, 1); } 13.75% { transform: translate(0px, 0px) rotate(-18deg) scale(1, 1); } 16.25% { transform: translate(0px, 0px) rotate(-18deg) scale(1, 1); } 17.5% { transform: translate(0px, 0px) rotate(-85deg) scale(1, 1); } 20.0% { transform: translate(0px, 0px) rotate(-18deg) scale(1, 1); } 22.5% { transform: translate(0px, 0px) rotate(-18deg) scale(1, 1); } 23.75% { transform: translate(0px, 0px) rotate(-85deg) scale(1, 1); } 26.25% { transform: translate(0px, 0px) rotate(-18deg) scale(1, 1); } 30.0% { transform: translate(0px, 0px) rotate(-18deg) scale(1, 1); } 32.5% { transform: translate(-22px, 12px) rotate(125deg) scale(1, 1); } 33.75% { transform: translate(-29px, 12px) rotate(125deg) scale(1, 1); } 36.25% { transform: translate(-15px, 12px) rotate(125deg) scale(1, 1); } 38.75% { transform: translate(-29px, 12px) rotate(125deg) scale(1, 1); } 41.25% { transform: translate(-15px, 12px) rotate(125deg) scale(1, 1); } 43.75% { transform: translate(-29px, 12px) rotate(125deg) scale(1, 1); } 46.25% { transform: translate(-15px, 12px) rotate(125deg) scale(1, 1); } 48.75% { transform: translate(-29px, 12px) rotate(125deg) scale(1, 1); } 51.25% { transform: translate(-15px, 12px) rotate(125deg) scale(1, 1); } 53.75% { transform: translate(-29px, 12px) rotate(125deg) scale(1, 1); } 56.25% { transform: translate(-15px, 12px) rotate(125deg) scale(1, 1); } 58.75% { transform: translate(-29px, 12px) rotate(125deg) scale(1, 1); } 60.0% { transform: translate(-22px, 12px) rotate(125deg) scale(1, 1); } 67.5% { transform: translate(0px, 0px) rotate(-40deg) scale(1, 1); } 92.5% { transform: translate(0px, 0px) rotate(-40deg) scale(1, 1); } 98.75% { transform: translate(0px, 0px) rotate(-18deg) scale(1, 1); } 100% { transform: translate(0px, 0px) rotate(-18deg) scale(1, 1); } }
-@keyframes freespirit-foot-r { 0% { transform: translate(0, 0); } 70.0% { transform: translate(0, 0); } 77.5% { transform: translate(-18px, 0); } 90.0% { transform: translate(-18px, 0); } 96.25% { transform: translate(0, 0); } 100% { transform: translate(0, 0); } }
-@keyframes freespirit-foot-l { 0% { transform: translate(0, 0); } 70.0% { transform: translate(0, 0); } 77.5% { transform: translate(10px, 0); } 90.0% { transform: translate(10px, 0); } 96.25% { transform: translate(0, 0); } 100% { transform: translate(0, 0); } }
-.pet.freespirit .pet-svg { animation: freespirit 8s ease-in-out; transform-origin: 50% 94%; }
-.pet.freespirit .arm-l { animation: freespirit-arm-l 8s ease-in-out; }
-.pet.freespirit .arm-r { animation: freespirit-arm-r 8s ease-in-out; }
-.pet.freespirit:not(#x) :is(.foot-r, .shoe-r) { animation: freespirit-foot-r 8s ease-in-out; }
-.pet.freespirit:not(#x) :is(.foot-l, .shoe-l) { animation: freespirit-foot-l 8s ease-in-out; }
-html[data-scene$="clip"] .pet.freespirit .arm-l, html[data-list="todo"] .pet.freespirit .arm-l { animation: none; }
-@media (prefers-reduced-motion: reduce) { .pet.freespirit :is(.pet-svg, .arm-l, .arm-r), .pet.freespirit:not(#x) :is(.foot-l, .shoe-l, .foot-r, .shoe-r) { animation: none; } }
+/* ---- Pet tab sub-tabs (build 584, app-petsubs.js): Species, Skin, Persona one at a time. To drop: delete this block. ---- */
+.pet-subs { display: none; grid-template-columns: repeat(3, 1fr); gap: 6px; flex: none; margin: -4px 0 -2px; }   /* only on the Pet tab; pulled up under the tab row */
+#dressSheet:has(#dressTabs [data-tab="pet"][aria-selected="true"]) .pet-subs { display: grid; }
+.pet-subs button { display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 0; padding: 7px 4px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--paper, #fff); color: var(--ink); font: inherit; font-weight: 800; font-size: .85rem; box-shadow: 0 2px 0 var(--shadow); cursor: pointer; }
+.pet-subs button img { width: 20px; height: 20px; flex: none; }
+.pet-subs button { position: relative; }
+.pet-subs .skin-count { top: -6px; left: auto; right: 8px; }   /* the number of skins, on the Skin button */
+.pet-subs button[aria-selected="true"] { background: var(--accent); color: #fff; border-color: transparent; transform: translateY(-1px); }
+.pet-subbed:not(.pet-filtering)[data-sub="species"] :is(.sub-skin, .sub-persona, .pet-subs-none),
+.pet-subbed:not(.pet-filtering)[data-sub="skin"] :is(.sub-species, .sub-persona),
+.pet-subbed:not(.pet-filtering)[data-sub="persona"] :is(.sub-species, .sub-skin, .pet-subs-none) { display: none; }
+.pet-subs-none { display: none; text-align: center; }
+.pet-subbed:not(.pet-filtering)[data-sub="skin"] #skinField[hidden] + .pet-subs-none { display: block; }
+/* no search bar on the Pet tab (it has the sub-tabs now); the other tabs keep it */
+#dressSheet:has(.pet-subbed):has(#dressTabs [data-tab="pet"][aria-selected="true"]) #dressSearch { display: none; }
+/* a slimmer name field on the Pet tab (build 587) */
+.dress-panel[data-tab="pet"] > .field:first-child :is(.name-show, input) { min-height: 30px; padding-top: 2px; padding-bottom: 2px; font-size: .95rem; }
+.dress-panel[data-tab="pet"] > .field:first-child .name-edit { min-height: 24px; padding: 1px 10px; font-size: .8rem; }
+.dress-panel[data-tab="pet"] > .field:first-child + .species { margin-top: 12px; }
+
+/* the language flags at the top of Options (app-lang.js) */
+.lang-btns { gap: 10px; }
+.lang-flag { display: inline-flex; align-items: center; justify-content: center; padding: 3px 8px; }
+.lang-flag img { width: 32px; height: 32px; display: block; }
+
+/* listening (app-voice.js): his right hand cupped up beside his head, where an ear would be, while the mic is on (build 592) */
+.pet[data-arms="listen"] .arm-r { transform: translate(1px, -19px) rotate(-122deg); animation: listen-lean 1.8s ease-in-out infinite; }
+.pet[data-arms="listen"] .arm-l { animation: sway-l 2.6s ease-in-out infinite; }
+@keyframes listen-lean { 0%, 100% { transform: translate(1px, -19px) rotate(-122deg); } 50% { transform: translate(1px, -20px) rotate(-127deg); } }
+
+/* The Add button is a plus in both languages (index.html); its size is the width of the word "Add" it used to hold, kept so the add bar did not change (its theme colours colour the plus) */
+html:root .add-btn::before { content: "Add"; display: block; height: 0; width: auto; visibility: hidden; overflow: hidden; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .add-btn::before { display: block; }
+/* long words (Dutch) break and hyphenate inside the speech bubble instead of running out of it */
+.bubble { overflow-wrap: break-word; hyphens: auto; }
+
+/* the top bar (the Shopping / To-do swapper and the gear) and so Fumu's room are the same size in every theme: the themes may restyle them, not resize them */
+html:root:root .scene-bar { height: 38px; box-sizing: content-box; padding-top: 0; padding-bottom: 0; margin: 0; }
+html:root:root .list-tabs { box-sizing: border-box; height: 38px; margin: 0; padding: 3px; border-width: 1.5px; min-width: 200px; align-items: stretch; }
+html:root:root .list-tab { box-sizing: border-box; height: 30px; padding-top: 0; padding-bottom: 0; border-width: 0; flex: 1 1 auto; justify-content: center; }
+/* Old School and Bonfire draw a frame round the bar: it grows outwards over the room's edge instead of pushing the room down */
+html:root:root[data-skin="quest"][data-quest="osrs"] .scene-bar { margin-block: -5px; }
+html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-block: -4px; }
+
+/* the birthday cake he hands you at the end of the party (bdayCake in app-birthday.js; build 605): in front of his tummy, the flame flickers softly */
+.bday-cake { position: absolute; left: 50%; bottom: 0; width: 64px; height: 60px; margin-left: -32px; z-index: 6; pointer-events: none; }
+.bday-cake svg { display: block; overflow: visible; }
+.bday-cake .flame { transform-box: fill-box; transform-origin: 50% 100%; animation: cake-flame .9s ease-in-out infinite alternate; }
+@keyframes cake-flame { from { transform: scale(1, 1) rotate(-4deg); } to { transform: scale(.9, 1.15) rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) { .bday-cake .flame { animation: none; } }
+
+/* party dance (the birthday dance, partyDance in app-idle.js; build 607): 9 s, twelve beats of about 0.75 s, each a crouch, a stretch up, a squash down;
+   the squash and stretch itself is drawn by svgSquish (the `partydance` steps in app-idle.js), this is the hopping, swaying and the turn round it. Beats 1 to 4 hop on the spot,
+   5 to 8 hop from side to side, 9 and 10 turn round in the air, 11 is one big jump and 12 a happy little landing. Keep the two in step. */
+@keyframes partydance {
+  0% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  1.25% { transform: translate(0px, 3px) rotate(0deg) scaleX(1); }
+  2.917% { transform: translate(0px, -8px) rotate(0deg) scaleX(1); }
+  4.583% { transform: translate(0px, -16px) rotate(0deg) scaleX(1); }
+  6.667% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  8.333% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  8.333% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  9.583% { transform: translate(0px, 3px) rotate(0deg) scaleX(1); }
+  11.25% { transform: translate(0px, -8px) rotate(0deg) scaleX(1); }
+  12.917% { transform: translate(0px, -16px) rotate(0deg) scaleX(1); }
+  15% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  16.667% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  16.667% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  17.917% { transform: translate(0px, 3px) rotate(0deg) scaleX(1); }
+  19.583% { transform: translate(0px, -8px) rotate(0deg) scaleX(1); }
+  21.25% { transform: translate(0px, -16px) rotate(0deg) scaleX(1); }
+  23.333% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  25% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  25% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  26.25% { transform: translate(0px, 3px) rotate(0deg) scaleX(1); }
+  27.917% { transform: translate(0px, -8px) rotate(0deg) scaleX(1); }
+  29.583% { transform: translate(0px, -16px) rotate(0deg) scaleX(1); }
+  31.667% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  33.333% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  33.333% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  34.583% { transform: translate(0px, 3px) rotate(0deg) scaleX(1); }
+  36.25% { transform: translate(1.2px, -8px) rotate(2.8deg) scaleX(1); }
+  37.917% { transform: translate(4px, -16px) rotate(7deg) scaleX(1); }
+  40% { transform: translate(8px, 0px) rotate(2.1deg) scaleX(1); }
+  41.667% { transform: translate(8px, 0px) rotate(0deg) scaleX(1); }
+  41.667% { transform: translate(8px, 0px) rotate(0deg) scaleX(1); }
+  42.917% { transform: translate(8px, 3px) rotate(0deg) scaleX(1); }
+  44.583% { transform: translate(5.6px, -8px) rotate(-2.8deg) scaleX(1); }
+  46.25% { transform: translate(0px, -16px) rotate(-7deg) scaleX(1); }
+  48.333% { transform: translate(-8px, 0px) rotate(-2.1deg) scaleX(1); }
+  50% { transform: translate(-8px, 0px) rotate(0deg) scaleX(1); }
+  50% { transform: translate(-8px, 0px) rotate(0deg) scaleX(1); }
+  51.25% { transform: translate(-8px, 3px) rotate(0deg) scaleX(1); }
+  52.917% { transform: translate(-5.6px, -8px) rotate(2.8deg) scaleX(1); }
+  54.583% { transform: translate(0px, -16px) rotate(7deg) scaleX(1); }
+  56.667% { transform: translate(8px, 0px) rotate(2.1deg) scaleX(1); }
+  58.333% { transform: translate(8px, 0px) rotate(0deg) scaleX(1); }
+  58.333% { transform: translate(8px, 0px) rotate(0deg) scaleX(1); }
+  59.583% { transform: translate(8px, 3px) rotate(0deg) scaleX(1); }
+  61.25% { transform: translate(6.8px, -8px) rotate(-2.8deg) scaleX(1); }
+  62.917% { transform: translate(4px, -16px) rotate(-7deg) scaleX(1); }
+  65% { transform: translate(0px, 0px) rotate(-2.1deg) scaleX(1); }
+  66.667% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  66.667% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  67.917% { transform: translate(0px, 3px) rotate(0deg) scaleX(1); }
+  69.583% { transform: translate(0px, -9px) rotate(0deg) scaleX(1); }
+  71.25% { transform: translate(0px, -18px) rotate(0deg) scaleX(-1); }
+  73.333% { transform: translate(0px, 0px) rotate(0deg) scaleX(-1); }
+  75% { transform: translate(0px, 0px) rotate(0deg) scaleX(-1); }
+  75% { transform: translate(0px, 0px) rotate(0deg) scaleX(-1); }
+  76.25% { transform: translate(0px, 3px) rotate(0deg) scaleX(-1); }
+  77.917% { transform: translate(0px, -9px) rotate(0deg) scaleX(-1); }
+  79.583% { transform: translate(0px, -18px) rotate(0deg) scaleX(1); }
+  81.667% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  83.333% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  83.333% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  84.583% { transform: translate(0px, 6px) rotate(0deg) scaleX(1); }
+  86.25% { transform: translate(0px, -17px) rotate(0deg) scaleX(1); }
+  87.917% { transform: translate(0px, -34px) rotate(0deg) scaleX(1); }
+  90% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  91.667% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  91.667% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  92.917% { transform: translate(0px, 3px) rotate(0deg) scaleX(1); }
+  94.583% { transform: translate(0px, -6px) rotate(0deg) scaleX(1); }
+  96.25% { transform: translate(0px, -12px) rotate(0deg) scaleX(1); }
+  98.333% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+  100% { transform: translate(0px, 0px) rotate(0deg) scaleX(1); }
+}
+.pet.partydance .pet-svg { animation: partydance 9s ease-in-out; transform-origin: 50% 94%; }
+@media (prefers-reduced-motion: reduce) { .pet.partydance .pet-svg { animation: none; } }
+
+/* the toy is put away for the birthday party (bdayToyAway in app-birthday.js; build 612) */
+.stage.bday-toyaway .toy { display: none !important; }
+
+
+/* the disco arm pose (the New Year's Day dance, discoDance in app-newyear.js; build 619): one arm points up and across, the other down, and they swap every beat and a half, like the famous pose */
+.pet[data-arms="disco"] .arm-r { animation: disco-r 1.5s ease-in-out infinite; }
+.pet[data-arms="disco"] .arm-l { animation: disco-l 1.5s ease-in-out infinite; }
+@keyframes disco-r { 0%, 35% { transform: translate(-8px, -26px) rotate(-150deg); } 50%, 85% { transform: translate(0, 0) rotate(-24deg); } 100% { transform: translate(-8px, -26px) rotate(-150deg); } }
+@keyframes disco-l { 0%, 35% { transform: translate(0, 0) rotate(24deg); } 50%, 85% { transform: translate(8px, -26px) rotate(150deg); } 100% { transform: translate(0, 0) rotate(24deg); } }
+@media (prefers-reduced-motion: reduce) { .pet[data-arms="disco"] :is(.arm-l, .arm-r) { animation: none; } }
+
+/* the royal wave arm pose (the King's Day dance, kingsDance in app-kingsday.js; build 624): his right arm is raised and waves slowly, the left one stays at his side */
+.pet[data-arms="royal"] .arm-r { animation: royal-r 1.5s ease-in-out infinite; }
+@keyframes royal-r { 0%, 100% { transform: translate(-6px, -24px) rotate(-118deg); } 50% { transform: translate(-6px, -24px) rotate(-152deg); } }
+@media (prefers-reduced-motion: reduce) { .pet[data-arms="royal"] .arm-r { animation: none; } }
+
+/* the Shop's special-days calendar (app-shopcal.js; build 628) */
+.picker.pet-sheet.shop-sheet .picker-inner { display: flex; flex-direction: column; overflow: hidden; gap: 10px; }
+.shop-sheet .picker-inner > * + * { margin-top: 0; }
+.shop-tabs { margin: 0; display: flex; gap: 8px; flex: none; }
+.shop-panels { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 2px 2px 22px; margin: 0 -2px; scrollbar-width: none; }
+.shop-panels::-webkit-scrollbar { display: none; }
+.shop-panels > .shop-panel > * + * { margin-top: 12px; }
+.shop-panels .shop-list { overflow: visible; }
+.dress-tabs.shop-tabs button { flex: 1 1 0; width: auto; min-width: 0; flex-direction: row; justify-content: center; white-space: nowrap; padding: 8px 10px; }
+.shop-panel[hidden] { display: none; }
+.sc-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sc-month { font-family: var(--font-display); font-weight: 500; font-size: 1.05rem; text-transform: capitalize; }
+.sc-nav { width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 1.2rem; line-height: 1; }
+.sc-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.sc-wd { text-align: center; font-size: .72rem; font-weight: 800; color: var(--muted); padding-bottom: 2px; }
+.sc-day { aspect-ratio: 1 / 1; min-height: 38px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface-2); color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 2px 0; cursor: pointer; font: inherit; -webkit-tap-highlight-color: transparent; }
+.sc-day.special { background: var(--surface); border-color: var(--hl); }
+.sc-day.today { box-shadow: 0 0 0 2px var(--hl); font-weight: 800; }
+.sc-day.picked { background: var(--hl-soft); }
+.sc-num { font-size: .85rem; line-height: 1; font-weight: 700; }
+.sc-dots { display: flex; gap: 3px; min-height: 8px; }
+.sc-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; }
+.sc-dot.sc-party { background: #ff6f9c; }
+.sc-dot.sc-gift { background: #ffc83a; box-shadow: 0 0 0 1px rgba(91, 66, 57, .35); }
+.sc-legend { display: flex; gap: 14px; justify-content: center; font-size: .75rem; font-weight: 700; color: var(--muted); }
+.sc-legend > span { display: inline-flex; align-items: center; gap: 5px; }
+.sc-detail { display: flex; flex-direction: column; gap: 2px; font-size: .88rem; padding: 8px 12px; border: 1.5px dashed var(--outline); border-radius: 14px; background: var(--surface); }
+.sc-detail b { font-weight: 800; }
+.sc-up { display: flex; flex-direction: column; gap: 6px; }
+.sc-row { display: flex; flex-direction: column; gap: 1px; padding: 8px 12px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--surface-2); font-size: .85rem; }
+.sc-row span { color: var(--muted); font-weight: 700; font-size: .78rem; }
+.sc-row .sc-tags { color: var(--ink); }
+
+/* the black skins (the black cat and the black Pomeranian) have a darker outline, so they stand out from the dark fur (build 628) */
+.pet:is([data-skin="blackcat"], [data-skin="blackpom"]) :is(.skin, .ear, .tuft path, .fur path, .arm ellipse:not(.arm-hi), .foot) { stroke: #1d1722; }
+.pet[data-skin="blackpom"] .pom-chest { stroke: #1d1722; }
+/* and the outline of their open eyes (build 632) */
+.pet:is([data-skin="blackcat"], [data-skin="blackpom"]) .eyes-open .ink { stroke: #1d1722; }
+
+/* weather (app-weather.js; build 633): falling drops and flakes over the stage, thunderbolts, and a leaf held in his hand */
+.wx-fx { position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
+.wx-fx i { position: absolute; top: -12%; display: block; }
+.wx-rain i, .wx-storm i { width: 2px; height: 12px; border-radius: 2px; background: linear-gradient(#d4eeff, #6fbff0); opacity: .85; animation: wx-fall .9s linear infinite; }
+.wx-storm { background: linear-gradient(rgba(70, 80, 125, .2), rgba(70, 80, 125, .04)); }
+.wx-storm i { height: 17px; transform: rotate(14deg); animation-name: wx-fall-slant; }
+@keyframes wx-fall { from { translate: 0 0; } to { translate: 0 200px; } }
+@keyframes wx-fall-slant { from { translate: 0 0; } to { translate: -28px 200px; } }
+.wx-snow i { width: var(--s, 5px); height: var(--s, 5px); border-radius: 50%; background: #fff; box-shadow: 0 0 0 1.2px #bcd8ee; animation: wx-snow 4s linear infinite; }
+@keyframes wx-snow { 0% { translate: 0 0; } 33% { translate: 9px 66px; } 66% { translate: -7px 132px; } 100% { translate: 4px 200px; } }
+.wx-cold i { width: 6px; height: 6px; background: #d4ecff; rotate: 45deg; opacity: 0; animation: wx-twinkle 2.6s ease-in-out infinite; }
+@keyframes wx-twinkle { 0%, 100% { opacity: 0; scale: .4; } 50% { opacity: .9; scale: 1; } }
+.wx-bob { animation: wx-bob 2.6s ease-in-out infinite; }
+@keyframes wx-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2px; } }
+.wx-splash { transform-box: fill-box; transform-origin: 50% 100%; opacity: 0; animation: wx-splash 1.1s ease-out infinite; }
+@keyframes wx-splash { 0% { opacity: 0; scale: .2; } 12% { opacity: 1; scale: .7; } 55% { opacity: .9; scale: 1.1; } 100% { opacity: 0; scale: 1.3; } }
+.wx-rain, .wx-storm { z-index: 0; }   /* the rain falls behind him and his leaf, so the drops land on them instead of going through */
+/* (each wisp is placed by app-weather.js) */
+.wx-heat { position: absolute; height: 14px; opacity: 0; animation: wx-heat 5.5s ease-in-out infinite; }
+@keyframes wx-heat { 0% { translate: 0 0; opacity: 0; } 25% { opacity: .22; } 75% { opacity: .12; } 100% { translate: 6px -70px; opacity: 0; } }
+.wx-hot { background: linear-gradient(transparent 55%, rgba(255, 170, 90, .08)); }
+/* the fan: held in the spare right hand and waved by the arm */
+#pet[data-arms="idle"]:not(.desk, .tucked, [data-prop], [data-state="sleepy"]) .arm-r .wx-fan { display: inline; }
+#pet[data-arms="idle"]:not(.desk, .tucked, [data-prop], [data-state="sleepy"]):has(.wx-fan) .arm-r { transform-box: view-box; transform-origin: 133px 110.2px; transform: rotate(136deg); animation: wx-fanning .42s ease-in-out infinite alternate; }
+@keyframes wx-fanning { from { transform: rotate(120deg); } to { transform: rotate(152deg); } }
+.wx-bolt { position: absolute; top: 2%; width: 26px; height: 52px; opacity: 0; filter: drop-shadow(0 0 5px rgba(255, 230, 107, .8)); animation: wx-bolt 6s ease-in-out infinite; }
+@keyframes wx-bolt { 0%, 8%, 100% { opacity: 0; } 2% { opacity: .95; } 4% { opacity: .3; } 6% { opacity: .85; } }
+/* the leaf: held up in the spare right hand (not while it holds a pencil, glass or wand, or the desk pose) */
+.arm .wx-leaf, .arm .wx-fan { display: none; }
+#pet[data-arms="idle"]:not(.desk, .tucked, [data-prop], [data-state="sleepy"]) .arm-r .wx-leaf { display: inline; }
+#pet[data-arms="idle"]:not(.desk, .tucked, [data-prop], [data-state="sleepy"]):has(.wx-leaf) .arm-r { transform-box: view-box; transform-origin: 133px 110.2px; transform: rotate(10deg); animation: none; }
+.stage.bedtime .wx-fx, .stage.bedtime .wx-acc { display: none; }
+@media (prefers-reduced-motion: reduce) { .wx-fx i, .wx-bob, .wx-bolt, .wx-splash, .wx-heat { animation: none; } #pet:has(.wx-fan) .arm-r { animation: none !important; } .wx-fx i { top: 20%; } }
+.option-weather { padding: 0 4px 10px; border-bottom: 1.5px dashed var(--line); }
+.option:has(#wxOn) { border-bottom: 0; padding-bottom: 4px; }
+.wx-place { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
+.wx-place input { flex: 1; min-width: 0; font: inherit; font-size: .9rem; padding: 6px 12px; border: 1.5px solid var(--outline); border-radius: 14px; background: var(--surface); color: var(--ink); }
+.wx-suggest { list-style: none; margin: 6px 0 0; padding: 4px; border: 1.5px solid var(--outline); border-radius: 14px; background: var(--surface); box-shadow: 0 2px 0 var(--shadow); max-height: 200px; overflow-y: auto; scrollbar-width: none; }
+.wx-suggest[hidden] { display: none; }
+.wx-suggest button { display: block; width: 100%; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: inherit; font-size: .88rem; font-weight: 700; text-align: left; cursor: pointer; }
+.wx-suggest button:hover, .wx-suggest button:focus-visible { background: var(--hl-soft); outline: none; }
+.wx-place .pill-btn { flex: none; padding: 6px 12px; font-size: .85rem; }
+.option-weather .option-text { margin: 6px 0 0; }
+/* the little plant (app-plant.js): a tap makes it wiggle, and a flower gets a soft glow */
+.decor-plant { cursor: pointer; }
+.decor-plant.plant-bloom svg { filter: drop-shadow(0 0 5px rgba(255, 214, 120, .85)); }
+.decor-plant svg { transform-origin: 50% 90%; overflow: visible; }
+
+/* the bunny ears from the Easter gift: a bunny wears the flower crown instead */
+.hat-ears .ge-crown { display: none; }
+.pet[data-species="bunny"] .hat-ears .ge-ears { display: none; }
+.pet[data-species="bunny"] .hat-ears .ge-crown { display: inline; }
+.gift-chip.gift-hat { display: inline-flex; align-items: center; gap: 4px; }
+.gift-chip.gift-hat svg { width: 34px; height: 30px; overflow: visible; }
+.gift-box svg { overflow: visible; }
+.gift-box.opened svg { filter: none; opacity: 1; }
+
+/* the to-do list: a dotted line between the tasks for today and the ones for other days (dayNodes in app.js) */
+.day-divider { list-style: none; height: 0; margin: 8px 14px; border-top: 3px dotted var(--cb-edge-strong); pointer-events: none; }
+
+/* Light and Dark polish (build 673): small touches for the plain looks only (no skin: Sweet, Quest, Old School and Bonfire keep their own), the same tokens in Light, Dark and Auto.
+   A soft lamp glow behind him, a thin lit edge along the top of labels, calmer tape and a dimmer rug in Dark, clearer keyboard focus, softer selection and placeholders, a gentle fade when the theme changes. */
+:root { --pl-lamp: rgba(255, 246, 220, .6); --pl-edge: rgba(255, 255, 255, .7); --pl-tape: .9; --pl-rug: 1; --pl-focus: var(--hl); }
+:root[data-theme="dark"] { --pl-lamp: rgba(255, 186, 120, .15); --pl-edge: rgba(255, 236, 210, .09); --pl-tape: .7; --pl-rug: .85; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme]) { --pl-lamp: rgba(255, 186, 120, .15); --pl-edge: rgba(255, 236, 210, .09); --pl-tape: .7; --pl-rug: .85; } }
+html:root:not([data-skin]):not(.desktop-pet) .stage { background: radial-gradient(ellipse 62% 72% at 50% 78%, var(--pl-lamp), transparent 72%); }
+html:root:not([data-skin]) .item:not(.done), html:root:not([data-skin]) .add { box-shadow: 0 3px 0 var(--shadow), 0 0 0 1.5px var(--cb-edge), inset 0 1.5px 0 var(--pl-edge); }
+html:root:not([data-skin]) .item::before { opacity: var(--pl-tape); }
+html:root:not([data-skin]) .item.done::before { opacity: calc(var(--pl-tape) * .5); }
+html:root:not([data-skin]) .cushion { filter: brightness(var(--pl-rug)) saturate(calc(.6 + var(--pl-rug) * .4)); }
+html:root:not([data-skin]) .dock { box-shadow: 0 -3px 0 var(--cb-edge), inset 0 2px 0 var(--cb-shine), 0 -8px 14px -10px var(--shadow); }
+html:root:not([data-skin])::selection, html:root:not([data-skin]) ::selection { background: var(--hl-soft); color: var(--ink); }
+html:root:not([data-skin]) ::placeholder { color: var(--muted); opacity: .75; }
+/* keyboard focus: one clear ring for anything that does not have its own (:where keeps this from beating a rule that does) */
+:where(button, [role="button"], [role="switch"], select, input, textarea, summary, a[href]):focus-visible { outline: 2.5px solid var(--pl-focus); outline-offset: 2px; }
+html[data-theme="dark"]:not([data-skin]) body { -webkit-font-smoothing: antialiased; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  html:root:not([data-skin]) .dock-icon { transition: transform .15s ease, box-shadow .15s ease; }
+  html:root:not([data-skin]) .dock button:hover:not(:active) .dock-icon { transform: translateY(-2px) rotate(var(--tilt, -4deg)); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  html:root:not([data-skin]), html:root:not([data-skin]) body { transition: background-color .35s ease, color .35s ease; }
+}
+
+/* Alerts in Light and Dark (build 676): the plain card, now a paper note like the list rows: a strip of tape in the colour of its kind (note, link, Claude, reminder), a dashed cut line,
+   the icon on a round sticker, the main button filled and the others quiet. The themed looks (Sweet, Quest, Old School, Bonfire: any `al-*` class) keep their own. */
+html:not([class*="al-"]) .inbox-card, html:not([class*="al-"]) .remind-card { --ac: #a9dcc3; position: absolute; grid-template-columns: 38px 1fr; gap: 1px 10px; padding: 8px 12px 7px; border: 1.8px solid var(--cb-edge-strong); border-radius: 16px; overflow: visible;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 90%, #fff) 0, var(--surface) 38%); outline: 1.5px dashed var(--cb-edge); outline-offset: -5px;
+  box-shadow: 0 3px 0 var(--shadow), 0 9px 16px -6px var(--shadow), inset 0 1.5px 0 var(--pl-edge, rgba(255, 255, 255, .6)); }
+html:not([class*="al-"]) .link-card { --ac: #a8d4f0; }
+html:not([class*="al-"]) .claude-card { --ac: #c9b3f0; }
+html:not([class*="al-"]) .remind-card { --ac: #f5d36b; }
+html:not([class*="al-"]) .inbox-card::before { content: ""; position: absolute; top: -2px; left: 20px; width: 38px; height: 13px; z-index: 1; background: var(--ac); opacity: .9; transform: rotate(-3deg); pointer-events: none;
+  clip-path: polygon(0 12%, 6% 0, 12% 14%, 18% 0, 24% 14%, 30% 0, 100% 0, 100% 100%, 30% 100%, 24% 86%, 18% 100%, 12% 86%, 6% 100%, 0 88%); }
+html:not([class*="al-"]) .inbox-card .inbox-icon { box-sizing: border-box; width: 36px; height: 36px; padding: 5px; border-radius: 50%; background: color-mix(in srgb, var(--ac) 38%, var(--surface)); border: 2px solid var(--cb-back, #fff); box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 2px 2px var(--shadow); }
+html:not([class*="al-"]) .inbox-card .inbox-icon .inbox-bell { width: 100%; height: 100%; }
+html:not([class*="al-"]) .inbox-text b { font-size: 1rem; }
+html:not([class*="al-"]) .inbox-text span { opacity: .75; }
+html:not([class*="al-"]) .inbox-actions { gap: 7px; margin-top: 4px; }
+html:not([class*="al-"]) .inbox-actions button { border: 1.5px solid var(--cb-edge-strong); box-shadow: 0 2px 0 var(--cb-edge-strong); padding: 2px 11px; transition: transform .1s; }
+html:not([class*="al-"]) .inbox-actions button:first-child:not(.inbox-done) { background: var(--hl, var(--accent)); color: #fff; border-color: #fff; box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 2px 2px var(--shadow); text-shadow: 0 1px 0 rgba(0, 0, 0, .18); }
+html:not([class*="al-"]) .inbox-actions .inbox-done { padding: 2px 9px; background: transparent; box-shadow: none; opacity: .8; }
+html:not([class*="al-"]) .inbox-actions button:active { transform: translateY(2px); box-shadow: none; }
+html.desktop-pet:not([class*="al-"]) .stage .inbox-card { bottom: calc(100% - 24px); }   /* (a little lower: the top of the window must not cut the tape) */
+:root[data-theme="dark"] .inbox-card::before, :root[data-theme="dark"] .remind-card::before { opacity: .78; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme]) .inbox-card::before { opacity: .78; } }

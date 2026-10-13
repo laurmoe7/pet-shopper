@@ -1,9 +1,10 @@
 /* Fumu's sounds, synthesised with the Web Audio API (no audio files).
  * Sounds.play(kind) where kind is one of:
- *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party,
+ *   chomp, crunch, squish, jiggle, glug, slurp, sip, sweet, spicy, mystery, huh, spit, party, birthday (the Happy Birthday tune), christmas (Jingle Bells), halloween (a spooky-cute tune), newyear (a disco groove), kingsday (a brass-band polka), easter (a bouncy spring tune), peep (a chick), blower and blowerbig (party blower toots),
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
  *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), bell, tink and smash (the night bell ringing, clinking and breaking), glass (a piece of window breaking off, the wrecking ball), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
+ *   background sounds for a room or the weather (app-ambience.js): waves, gull, bubbles, blub, birds, breeze, rain, thunder, wind, cicadas, cluck, moo, sizzle, ticktock,
  *   notice (Claude's note arriving), done, sparkle, coin, ring (ticking off a to-do), stamp (the check mark landing), scribble (writing on the clipboard), shutter (the dressing room's camera),
  *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
  * Every play is pitch-shifted a little, and kinds with several variants pick a
@@ -82,11 +83,13 @@
    * @param {number} freq
    * @param {number} q
    * @param {AudioNode} out
+   * @param {boolean} [loop] Keeps the noise going for a long sound.
    * @returns {BiquadFilterNode} The filter, so callers can sweep it.
    */
-  function noise(t, dur, filterType, freq, q, out) {
+  function noise(t, dur, filterType, freq, q, out, loop) {
     var src = ctx.createBufferSource();
     src.buffer = noiseBuf;
+    if (loop) src.loop = true;   // (a sound longer than the one-second noise picture: waves, rain)
     var f = ctx.createBiquadFilter();
     f.type = filterType; f.frequency.setValueAtTime(freq * pitch, t); f.Q.value = q || 1;
     src.connect(f); f.connect(out);
@@ -297,6 +300,204 @@
     },
     notice: function (t) { chime(t, [988, 1319], 0.12, 0.85, 'sine'); chime(t + 0.34, [1568], 0.1, 0.5, 'sine'); },
     party: function (t) { chime(t, [523, 659, 784, 1047, 1319], 0.09, 1.1); },
+    birthday: function (t) {
+      // the "Happy Birthday" tune (a very old one, in the public domain) played on bells in C with a waltz under it, about 14 s: the party's length, until the cake goes (build 610)
+      var u = 0.57;   // one beat
+      var lead = [   // [pitch in Hz, beats]: "happy birthday to you" four times over
+        [392, .75], [392, .25],
+        [440, 1], [392, 1], [523, 1], [494, 2], [392, .75], [392, .25],
+        [440, 1], [392, 1], [587, 1], [523, 2], [392, .75], [392, .25],
+        [784, 1], [659, 1], [523, 1], [494, 1], [440, 1], [698, .75], [698, .25],
+        [659, 1], [523, 1], [587, 1], [523, 3]
+      ];
+      var at = t;
+      lead.forEach(function (n) {
+        var d = Math.min(n[1] * u * 1.05, 1.3);
+        tone(at, d + 0.1, 'triangle', n[0], null, env(at, 0.012, d, 0.22));
+        tone(at, d + 0.1, 'sine', n[0] * 2, null, env(at, 0.012, d * 0.7, 0.05));
+        at += n[1] * u;
+      });
+      // the waltz: a bass note on the first beat of each bar, a soft chord on the other two (the first bar starts one beat in)
+      var bass = [131, 98, 98, 131, 131, 87, 98, 131], chord = [[262, 330, 392], [247, 294, 392], [247, 294, 392], [262, 330, 392], [262, 330, 392], [262, 349, 440], [247, 294, 392], [262, 330, 392]];
+      for (var b = 0; b < 8; b++) {
+        var bar = t + u * (1 + b * 3);
+        tone(bar, 0.5, 'triangle', bass[b], null, env(bar, 0.012, 0.48, 0.24));
+        for (var k = 1; k <= 2; k++) chord[b].forEach(function (hz) { tone(bar + k * u, 0.3, 'sine', hz, null, env(bar + k * u, 0.01, 0.26, 0.04)); });
+      }
+      chime(t + u * 25 - 0.15, [1047, 1319, 1568, 2093], 0.1, 1.2);
+    },
+    christmas: function (t) {
+      // "Jingle Bells" (1857, in the public domain) on bells with a sleigh-bell rattle and an oom-pah bass, about 15 s: the Christmas celebration's length (build 614)
+      var u = 0.46;   // one beat
+      var E = 659, F = 698, G = 784, C = 523, D = 587, Cl = 1047;
+      var lead = [   // [pitch in Hz, beats]
+        [E, 1], [E, 1], [E, 2], [E, 1], [E, 1], [E, 2], [E, 1], [G, 1], [C, 1.5], [D, .5], [E, 4],
+        [F, 1], [F, 1], [F, 1.5], [F, .5], [F, 1], [E, 1], [E, 1], [E, .5], [E, .5], [E, 1], [D, 1], [D, 1], [E, 1], [D, 1], [G, 1], [Cl, 2]
+      ];
+      var at = t;
+      lead.forEach(function (n) {
+        var d = Math.min(n[1] * u * 1.05, 1.4);
+        tone(at, d + 0.1, 'triangle', n[0], null, env(at, 0.01, d, 0.22));
+        tone(at, d + 0.1, 'sine', n[0] * 2, null, env(at, 0.01, d * 0.6, 0.06));
+        at += n[1] * u;
+      });
+      var total = at - t;
+      // oom-pah: a low note on the beat, a soft chord on the off beat (C for the first half, F, then C and G)
+      var chords = [[131, [262, 330, 392]], [131, [262, 330, 392]], [131, [262, 330, 392]], [131, [262, 330, 392]], [87, [262, 349, 440]], [87, [262, 349, 440]], [131, [262, 330, 392]], [98, [247, 294, 392]]];
+      for (var bar = 0; bar < 8; bar++) for (var k = 0; k < 4; k++) {
+        var bt = t + (bar * 4 + k) * u;
+        if (bt - t > total) break;
+        if (k % 2 === 0) tone(bt, 0.3, 'triangle', chords[bar][0] * (k === 2 ? 1.5 : 1), null, env(bt, 0.01, 0.28, 0.2));
+        else chords[bar][1].forEach(function (hz) { tone(bt, 0.2, 'sine', hz, null, env(bt, 0.01, 0.16, 0.035)); });
+      }
+      // sleigh bells: a shimmer of high bright notes on every beat and a lighter one between
+      for (var j = 0; j < total / (u / 2); j++) {
+        var jt = t + j * (u / 2), loud = j % 2 === 0 ? 0.06 : 0.03;
+        [3520, 4186, 5274].forEach(function (hz, q) { tone(jt + q * 0.012, 0.09, 'sine', hz, null, env(jt + q * 0.012, 0.002, 0.08, loud)); });
+      }
+      chime(t + total - 0.1, [1047, 1319, 1568, 2093], 0.1, 1.2);
+    },
+    halloween: function (t) {
+      // spooky but cute (an original tune): a wobbly theremin voice creeping through A minor in waltz time over a plucked bass, with a church-bell toll, a ghostly "woo" and a few bat squeaks, about 15 s (build 616)
+      var u = 0.41;   // one beat
+      var A4 = 440, Gs4 = 415, B4 = 494, C5 = 523, Ds5 = 622, E5 = 659, D5 = 587, F5 = 698, A5 = 880;
+      var lead = [
+        [A4, 1.5], [Gs4, .5], [A4, 1],  [C5, 1.5], [B4, .5], [C5, 1],  [E5, 1.5], [Ds5, .5], [E5, 1],  [A5, 2], [E5, 1],
+        [F5, 1.5], [E5, .5], [D5, 1],  [C5, 1.5], [B4, .5], [A4, 1],  [Gs4, 1.5], [A4, .5], [B4, 1],  [E5, 3],
+        [A4, 1.5], [Gs4, .5], [A4, 1],  [C5, 1.5], [B4, .5], [C5, 1],  [E5, 1], [F5, 1], [E5, 1],  [A4, 3]
+      ];
+      var at = t;
+      lead.forEach(function (n) {
+        var d = Math.min(n[1] * u * 1.02, 1.3), o = tone(at, d + 0.12, 'sine', n[0], null, env(at, 0.05, d, 0.2));
+        var lfo = ctx.createOscillator(), depth = ctx.createGain();   // the wobble that makes it sound like a theremin
+        lfo.frequency.value = 5.5; depth.gain.value = n[0] * pitch * 0.012;
+        lfo.connect(depth); depth.connect(o.frequency); lfo.start(at); lfo.stop(at + d + 0.14);
+        tone(at, d + 0.1, 'triangle', n[0] / 2, null, env(at, 0.05, d * 0.8, 0.05));
+        at += n[1] * u;
+      });
+      var total = at - t;
+      // a plucked bass on the first beat of each bar and soft chords on the other two (Am Am Am Am Dm Am E E Am Am Dm Am)
+      var bass = [110, 110, 110, 110, 147, 110, 165, 165, 110, 110, 147, 110];
+      var chord = [[220, 262, 330], [220, 262, 330], [220, 262, 330], [220, 262, 330], [294, 349, 440], [220, 262, 330], [330, 415, 494], [330, 415, 494], [220, 262, 330], [220, 262, 330], [294, 349, 440], [220, 262, 330]];
+      for (var bar = 0; bar < 12; bar++) {
+        var b0 = t + bar * 3 * u;
+        tone(b0, 0.28, 'triangle', bass[bar], null, env(b0, 0.006, 0.26, 0.26));
+        for (var k = 1; k <= 2; k++) chord[bar].forEach(function (hz) { tone(b0 + k * u, 0.16, 'sine', hz, null, env(b0 + k * u, 0.006, 0.14, 0.04)); });
+      }
+      chime(t + 12 * u, [1760], 0.1, 0.8, 'sine'); chime(t + 24 * u, [1760, 1319], 0.12, 0.8, 'sine');   // a church bell toll at the start of the middle and last lines
+      var wt = t + 22 * u, wo = tone(wt, 1.1, 'sine', 740, 330, env(wt, 0.2, 0.9, 0.12));   // a ghostly "woo"
+      var wl = ctx.createOscillator(), wd = ctx.createGain(); wl.frequency.value = 6; wd.gain.value = 18 * pitch; wl.connect(wd); wd.connect(wo.frequency); wl.start(wt); wl.stop(wt + 1.15);
+      [4.2, 7.5, 9.6, 13.1].forEach(function (when) { var bt = t + when; tone(bt, 0.07, 'sine', 3200, 5200, env(bt, 0.004, 0.06, 0.06)); tone(bt + 0.1, 0.06, 'sine', 3600, 5600, env(bt + 0.1, 0.004, 0.05, 0.05)); });   // bat squeaks
+      chime(t + total - 0.2, [440, 523, 659, 880], 0.12, 1.1, 'sine');
+    },
+    blower: function (t) {
+      // a party blower: a honking paper horn, a rising "pweee" with a flutter, and the rattle of the paper unrolling
+      var o = tone(t, 0.5, 'square', 520, 880, env(t, 0.015, 0.46, 0.16));
+      tone(t, 0.5, 'sawtooth', 524, 888, env(t, 0.015, 0.46, 0.09));
+      tone(t, 0.5, 'sine', 1040, 1760, env(t, 0.02, 0.4, 0.05));
+      var lfo = ctx.createOscillator(), depth = ctx.createGain(); lfo.frequency.value = 22; depth.gain.value = 26 * pitch; lfo.connect(depth); depth.connect(o.frequency); lfo.start(t); lfo.stop(t + 0.52);
+      noise(t, 0.46, 'bandpass', 2600, 1.3, env(t, 0.01, 0.42, 0.14));
+    },
+    blowerbig: function (t) {
+      // the big toot: longer, higher, with a fall at the end like a real one running out of breath
+      var o = tone(t, 0.95, 'square', 480, 1000, env(t, 0.02, 0.9, 0.17));
+      o.frequency.setValueAtTime(1000 * pitch, t + 0.7); o.frequency.exponentialRampToValueAtTime(620 * pitch, t + 0.95);
+      tone(t, 0.95, 'sawtooth', 484, 1008, env(t, 0.02, 0.9, 0.1));
+      tone(t, 0.95, 'sine', 960, 2000, env(t, 0.02, 0.8, 0.05));
+      var lfo = ctx.createOscillator(), depth = ctx.createGain(); lfo.frequency.value = 24; depth.gain.value = 30 * pitch; lfo.connect(depth); depth.connect(o.frequency); lfo.start(t); lfo.stop(t + 0.97);
+      noise(t, 0.9, 'bandpass', 2800, 1.3, env(t, 0.01, 0.85, 0.15));
+    },
+    easter: function (t) {
+      // a bouncy spring tune (an original one): a marimba playing hop-hop-hop arpeggios in C over an oom-pah bass, shakers on every eighth, a couple of springy boings, about 15 s (build 622)
+      var q = 0.42;   // one beat
+      var C5 = 523, D5 = 587, E5 = 659, F5 = 698, G5 = 784, A5 = 880, B5 = 988, C6 = 1047, G4 = 392;
+      var A = [[E5, .5], [G5, .5], [C6, 1], [G5, .5], [E5, .5], [C5, 1],  [F5, .5], [A5, .5], [C6, 1], [A5, .5], [F5, .5], [C5, 1]];
+      var Bp = [[D5, .5], [F5, .5], [B5, 1], [F5, .5], [D5, .5], [G5, 1],  [E5, .5], [G5, .5], [C6, 1], [G5, 1], [C6, 1]];
+      var end = [[C6, .5], [G5, .5], [E5, .5], [C5, .5], [C6, 2]];
+      var lead = A.concat(Bp, A, Bp, end), at = t;
+      lead.forEach(function (n) {
+        var d = Math.min(n[1] * q * 1.1, 0.7);
+        tone(at, d + 0.08, 'triangle', n[0], null, env(at, 0.004, d, 0.24));
+        tone(at, 0.2, 'sine', n[0] * 2, null, env(at, 0.004, 0.16, 0.07));
+        tone(at, 0.06, 'sine', n[0] * 4, null, env(at, 0.002, 0.05, 0.03));
+        at += n[1] * q;
+      });
+      var total = at - t;
+      var chords = [[131, [262, 330, 392]], [175, [262, 349, 440]], [98, [247, 294, 392]], [131, [262, 330, 392]], [131, [262, 330, 392]], [175, [262, 349, 440]], [98, [247, 294, 392]], [131, [262, 330, 392]], [131, [262, 330, 392]]];
+      for (var bar = 0; bar < 9; bar++) for (var k = 0; k < 4; k++) {
+        var bt = t + (bar * 4 + k) * q;
+        if (bt - t > total) break;
+        if (k % 2 === 0) tone(bt, 0.3, 'triangle', chords[bar][0] * (k === 2 ? 1.5 : 1), null, env(bt, 0.008, 0.28, 0.22));
+        else chords[bar][1].forEach(function (hz) { tone(bt, 0.16, 'sine', hz, null, env(bt, 0.006, 0.14, 0.04)); });
+      }
+      for (var j = 0; j < total / (q / 2); j++) { var jt = t + j * (q / 2); noise(jt, 0.04, 'highpass', 7000, 1, env(jt, 0.002, 0.035, j % 2 ? 0.035 : 0.06)); }   // shakers
+      [8 * q, 24 * q, 32 * q].forEach(function (when) { var bt = t + when + q * 1.5; tone(bt, 0.28, 'sine', 170, 540, env(bt, 0.01, 0.26, 0.2)); });   // boing!
+      chime(t + total - 0.1, [1047, 1319, 1568, 2093], 0.09, 1.2);
+    },
+    peep: function (t) {
+      // a chick peeping: two quick high chirps
+      tone(t, 0.09, 'sine', 2300, 3100, env(t, 0.004, 0.08, 0.14)); tone(t + 0.13, 0.1, 'sine', 2500, 3300, env(t + 0.13, 0.004, 0.09, 0.14));
+    },
+    kingsday: function (t) {
+      // a festive brass-band polka (an original one) for King's Day: a fanfare, then a skipping tune in C over a tuba and an accordion's off-beat chords, snare and cymbals, about 14.5 s (build 624)
+      var q = 0.36;   // one beat (two to a bar)
+      var C5 = 523, D5 = 587, E5 = 659, F5 = 698, G5 = 784, A5 = 880, C6 = 1047, G4 = 392;
+      var fan = [[C5, .5], [E5, .5], [G5, 1], [G5, .5], [E5, .5], [C6, 1]];
+      var A = [[C5, .5], [E5, .5], [G5, .5], [E5, .5],  [D5, .5], [F5, .5], [A5, .5], [F5, .5],  [E5, .5], [G5, .5], [C6, .5], [G5, .5],  [D5, 1], [G4, 1]];
+      var Bp = [[A5, .5], [G5, .5], [F5, .5], [E5, .5],  [D5, .5], [E5, .5], [F5, .5], [D5, .5],  [E5, .5], [C5, .5], [G4, .5], [C5, .5],  [C5, 2]];
+      var coda = [[C6, .5], [G5, .5], [E5, .5], [C5, .5], [C6, 2]];
+      var lead = fan.concat(A, Bp, A, Bp, coda), at = t;
+      lead.forEach(function (n) {
+        var d = Math.min(n[1] * q * 1.05, 0.7), g = env(at, 0.02, d, 0.2), fl = ctx.createBiquadFilter();   // brass: a saw wave with its top rounded off
+        fl.type = 'lowpass'; fl.frequency.value = 2600; fl.connect(g);
+        tone(at, d + 0.08, 'sawtooth', n[0], null, fl);
+        tone(at, d + 0.08, 'square', n[0] / 2, null, env(at, 0.02, d, 0.05));
+        at += n[1] * q;
+      });
+      var total = at - t;
+      var roots = [131, 175, 98, 131], chords = [[262, 330, 392], [262, 349, 440], [247, 294, 392], [262, 330, 392]];
+      for (var bar = 0; bar * 2 * q < total; bar++) {
+        var b0 = t + bar * 2 * q, ci = (bar + 0) % 4;
+        var g2 = env(b0, 0.01, 0.3, 0.26), f2 = ctx.createBiquadFilter(); f2.type = 'lowpass'; f2.frequency.value = 500; f2.connect(g2);
+        tone(b0, 0.32, 'sawtooth', roots[ci], null, f2);   // tuba on the one
+        chords[ci].forEach(function (hz) { tone(b0 + q, 0.2, 'sawtooth', hz, null, env(b0 + q, 0.01, 0.18, 0.05)); tone(b0 + q, 0.2, 'square', hz * 2, null, env(b0 + q, 0.01, 0.16, 0.02)); });   // accordion chords on the two
+        noise(b0 + q, 0.12, 'bandpass', 2400, 1, env(b0 + q, 0.003, 0.1, 0.22));   // snare on the two
+        noise(b0 + q * 1.5, 0.05, 'highpass', 6000, 1, env(b0 + q * 1.5, 0.002, 0.04, 0.06));
+      }
+      for (var r = 0; r < 8; r++) { var rt = t + r * 0.09; noise(rt, 0.06, 'bandpass', 2400, 1, env(rt, 0.002, 0.05, 0.05 + r * 0.02)); }   // a snare roll into the fanfare
+      noise(t + 4 * q, 0.5, 'highpass', 5000, 1, env(t + 4 * q, 0.004, 0.45, 0.14));   // cymbal as the tune starts
+      noise(t + total - 0.1, 0.9, 'highpass', 4500, 1, env(t + total - 0.1, 0.004, 0.85, 0.16));   // and a crash at the end
+      chime(t + total - 0.1, [1047, 1319, 1568, 2093], 0.08, 1.2);
+    },
+    newyear: function (t) {
+      // a disco groove (original, about 15 s, 128 beats a minute): a kick on every beat, handclaps on two and four, open hats between, a funky octave-jumping bass, string stabs, a squelchy synth riff and a whoop up into it; ends on a big chord with a sparkle (build 619)
+      var u = 0.47;   // one beat
+      var bars = 8, bassOct = [[110, 220, 110, 220, 131, 262, 147, 196], [110, 220, 110, 220, 98, 196, 131, 165]];
+      var riff = [0, 659, 784, 880, 784, 659, 587, 523,   587, 0, 659, 0, 523, 0, 440, 0];   // two bars of eighth notes, 0 is a rest
+      for (var bar = 0; bar < bars; bar++) {
+        var b0 = t + bar * 4 * u;
+        for (var beat = 0; beat < 4; beat++) {
+          var bt = b0 + beat * u;
+          tone(bt, 0.16, 'sine', 160, 48, env(bt, 0.003, 0.15, 0.55));   // kick
+          if (beat % 2 === 1) { noise(bt, 0.1, 'bandpass', 1700, 1.1, env(bt, 0.002, 0.09, 0.4)); noise(bt + 0.012, 0.08, 'bandpass', 2400, 1.1, env(bt + 0.012, 0.002, 0.07, 0.25)); }   // clap
+          noise(bt + u / 2, 0.11, 'highpass', 7000, 1, env(bt + u / 2, 0.002, 0.1, 0.12));   // open hat on the off beat
+          noise(bt, 0.03, 'highpass', 8000, 1, env(bt, 0.001, 0.025, 0.05)); noise(bt + u / 4, 0.025, 'highpass', 8000, 1, env(bt + u / 4, 0.001, 0.02, 0.035)); noise(bt + u * 0.75, 0.025, 'highpass', 8000, 1, env(bt + u * 0.75, 0.001, 0.02, 0.035));   // 16th ticks
+        }
+        for (var e = 0; e < 8; e++) { var et = b0 + e * u / 2; tone(et, 0.2, 'sawtooth', bassOct[bar % 2][e], null, env(et, 0.006, 0.18, 0.2)); }   // funky bass: root, octave, root, octave...
+        [0, 2.5].forEach(function (beatPos) {   // string stabs (Am7) on the one and the and of two
+          var st = b0 + beatPos * u;
+          [220, 262, 330, 392].forEach(function (hz) { tone(st, 0.2, 'triangle', hz * 2, null, env(st, 0.01, 0.17, 0.05)); tone(st, 0.2, 'sine', hz, null, env(st, 0.01, 0.17, 0.035)); });
+        });
+        if (bar >= 2) for (var r = 0; r < 8; r++) {   // the synth riff from bar three, a little squelch on each note
+          var hz = riff[(bar % 2) * 8 + r], rt = b0 + r * u / 2;
+          if (hz) { var o = tone(rt, 0.17, 'square', hz * 0.9, hz, env(rt, 0.008, 0.15, 0.07)); }
+        }
+      }
+      var wt = t + 4 * u * 2 - 0.9, w = tone(wt, 0.9, 'sawtooth', 220, 1320, env(wt, 0.3, 0.6, 0.08));   // a whoop up into bar three
+      var end = t + bars * 4 * u;
+      [262, 330, 392, 494, 659].forEach(function (hz) { tone(end - 0.05, 0.9, 'triangle', hz, null, env(end - 0.05, 0.01, 0.85, 0.1)); });
+      chime(end - 0.05, [1047, 1319, 1568, 2093, 2637], 0.07, 1.2);
+    },
     jiggle: function (t) {
       // a belly wobble: soft boings that get smaller and lower
       for (var i = 0; i < 4; i++) tone(t + i * 0.12, 0.13, 'sine', 330 - i * 28, 230 - i * 22, env(t + i * 0.12, 0.008, 0.12, 0.3 - i * 0.05));
@@ -410,6 +611,99 @@
         for (var i = 0; i < 4; i++) tone(tt + i * 0.03, 0.022, 'sine', hz, null, env(tt + i * 0.03, 0.003, 0.018, 0.035));
       }
     },
+    // ---- background sounds (app-ambience.js): quiet, soft and a little different every time ----
+    waves: function (t) {
+      // a wave rolling in: a hush that swells, a fizz at the crest, and draws back out
+      var dur = rnd(3.8, 4.8), g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.2, t + dur * 0.42); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); g.connect(master);
+      var f = noise(t, dur, 'lowpass', 450, 0.7, g, true);
+      f.frequency.exponentialRampToValueAtTime(1500 * pitch, t + dur * 0.42); f.frequency.exponentialRampToValueAtTime(380 * pitch, t + dur);
+      noise(t + dur * 0.3, 1.6, 'highpass', 3600, 0.5, env(t + dur * 0.3, dur * 0.18, 1.4, 0.05), true);
+    },
+    gull: function (t) {
+      // a faraway seagull: two mewing calls
+      [[0, 1900, 1250], [0.32, 2100, 1150]].forEach(function (c) {
+        tone(t + c[0], 0.3, 'triangle', c[1], c[2], env(t + c[0], 0.05, 0.25, 0.06));
+        tone(t + c[0], 0.3, 'sine', c[1] * 2, c[2] * 2, env(t + c[0], 0.05, 0.25, 0.012));
+      });
+    },
+    bubbles: function (t) {
+      // aquarium bubbles: little round blips that rise, over a faint watery hush
+      var n = 3 + Math.floor(Math.random() * 5), at = t;
+      for (var i = 0; i < n; i++) {
+        at += rnd(0.06, 0.2);
+        var hz = rnd(500, 1100);
+        tone(at, 0.09, 'sine', hz, hz * 2, env(at, 0.006, 0.08, rnd(0.04, 0.08)));
+      }
+      noise(t, 1.2, 'lowpass', 700, 0.7, env(t, 0.3, 0.9, 0.03), true);
+    },
+    blub: function (t) {
+      // one big slow bubble: blub
+      tone(t, 0.16, 'sine', 260, 520, env(t, 0.01, 0.15, 0.1));
+      tone(t + 0.02, 0.12, 'sine', 520, 1040, env(t + 0.02, 0.01, 0.1, 0.03));
+    },
+    birds: function (t) {
+      // a couple of small birds: bright two-note chirps in a short run
+      var n = 2 + Math.floor(Math.random() * 3), at = t, base = rnd(2800, 3600);
+      for (var i = 0; i < n; i++) {
+        tone(at, 0.06, 'sine', base, base * 1.35, env(at, 0.008, 0.05, 0.05));
+        tone(at + 0.08, 0.07, 'sine', base * 1.3, base * 0.95, env(at + 0.08, 0.008, 0.06, 0.04));
+        at += rnd(0.22, 0.4);
+      }
+    },
+    breeze: function (t) {
+      // a soft breeze through the grass
+      var dur = rnd(2.8, 3.6), g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.07, t + dur * 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); g.connect(master);
+      var f = noise(t, dur, 'bandpass', 500, 0.6, g, true);
+      f.frequency.exponentialRampToValueAtTime(900 * pitch, t + dur * 0.5); f.frequency.exponentialRampToValueAtTime(450 * pitch, t + dur);
+    },
+    rain: function (t) {
+      // steady rain: a soft broad hiss with little drops pattering in it
+      var dur = 3, g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.09, t + 0.6); g.gain.setValueAtTime(0.09, t + dur - 0.7); g.gain.linearRampToValueAtTime(0.0001, t + dur); g.connect(master);
+      noise(t, dur, 'bandpass', 4200, 0.5, g, true);
+      for (var i = 0; i < 16; i++) { var at = t + rnd(0, dur - 0.1); noise(at, 0.02, 'bandpass', rnd(2600, 6500), 3, env(at, 0.002, 0.016, rnd(0.04, 0.12))); }
+    },
+    thunder: function (t) {
+      // far thunder: a long low rumble with a second roll
+      var f = noise(t, 3, 'lowpass', 220, 0.8, env(t, 0.5, 2.4, 0.4), true); f.frequency.exponentialRampToValueAtTime(70 * pitch, t + 3);
+      var f2 = noise(t + 1.1, 2, 'lowpass', 160, 0.8, env(t + 1.1, 0.3, 1.6, 0.22), true); f2.frequency.exponentialRampToValueAtTime(60 * pitch, t + 3);
+    },
+    wind: function (t) {
+      // a cold wind: a long low whistle that rises and falls
+      var dur = rnd(3.4, 4.4), g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.08, t + dur * 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); g.connect(master);
+      var f = noise(t, dur, 'bandpass', 320, 2.2, g, true);
+      f.frequency.exponentialRampToValueAtTime(720 * pitch, t + dur * 0.5); f.frequency.exponentialRampToValueAtTime(340 * pitch, t + dur);
+    },
+    cicadas: function (t) {
+      // a hot day: a shimmering cicada buzz, swelling and fading
+      var dur = rnd(1.6, 2.4), g = env(t, dur * 0.5, dur * 0.5, 0.05);
+      for (var i = 0; i < dur * 40; i++) tone(t + i * 0.025, 0.02, 'square', 4700, null, g);
+    },
+    cluck: function (t) {
+      // a hen: buk buk buk-bukaaak
+      [[0, 0.07], [0.16, 0.07], [0.34, 0.06], [0.45, 0.2]].forEach(function (c, i) {
+        tone(t + c[0], c[1] + 0.03, 'square', i === 3 ? 520 : 700, i === 3 ? 360 : 460, env(t + c[0], 0.008, c[1], 0.035));
+      });
+    },
+    moo: function (t) {
+      // a cow far off in the field
+      var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 650;
+      lp.connect(env(t, 0.2, 1.0, 0.11));
+      tone(t, 1.2, 'sawtooth', 150, 105, lp);
+      tone(t, 1.2, 'sawtooth', 152, 108, lp);
+    },
+    sizzle: function (t) {
+      // something frying in the kitchen: a crackly hiss
+      noise(t, 1.6, 'highpass', 5200, 0.6, env(t, 0.3, 1.3, 0.05), true);
+      for (var i = 0; i < 9; i++) { var at = t + rnd(0, 1.5); noise(at, 0.015, 'bandpass', rnd(3000, 7000), 4, env(at, 0.001, 0.012, rnd(0.04, 0.1))); }
+    },
+    ticktock: function (t) {
+      // a kitchen clock: tick… tock
+      [[0, 2300], [0.55, 1800]].forEach(function (c) { noise(t + c[0], 0.03, 'bandpass', c[1], 4, env(t + c[0], 0.001, 0.025, 0.18)); tone(t + c[0], 0.03, 'sine', c[1] / 2, null, env(t + c[0], 0.001, 0.025, 0.05)); });
+    },
     yawn: function (t) {
       // a sleepy "hwaaah" sliding down, with breath
       var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(1400 * pitch, t); lp.frequency.exponentialRampToValueAtTime(500 * pitch, t + 0.8);
@@ -521,9 +815,11 @@
     unlock: unlock,
     kinds: Object.keys(KINDS),
     variant: variant,
-    play: function (kind) {
+    /** @param {string} kind @param {number} [volume] 0 to 1 (1 when missing): the loudness of everything from now on (Mini Fumu's volume slider). */
+    play: function (kind, volume) {
       try {
         if (!init()) return;
+        master.gain.value = 0.8 * (typeof volume === 'number' ? Math.max(0, Math.min(1, volume)) : 1);
         if (ctx.state === 'suspended') ctx.resume().catch(function () {});
         var k = KINDS[kind] ? kind : 'chomp';
         // a slightly different pitch every time

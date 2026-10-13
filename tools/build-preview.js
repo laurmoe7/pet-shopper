@@ -26,8 +26,17 @@ const body = html
   .replace(/<script src="[^"]+"><\/script>\s*/g, '');
 const inline = (s, tag) => s.replace(new RegExp('</' + tag, 'gi'), '<\\/' + tag);
 
+// the head's own pieces: the loading card's style and the small inline scripts (the error keeper `Errors` and the boot script) that must run before everything else
+const head = html.slice(html.indexOf('<head>'), html.indexOf('</head>'));
+const headStyle = (/<style id="bootCss">[\s\S]*?<\/style>/.exec(head) || [''])[0];
+const headScripts = [...head.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => '<script>' + inline(m[1], 'script') + '</script>').join('\n');
+
 const page = [
+  '<meta charset="utf-8">',
+  '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
   "<title>Fumufumu</title>",
+  headStyle,
+  headScripts,
   '<style>' + inline(read('fonts.css') + read('styles.css'), 'style') + '</style>',
   body,
   ...SCRIPTS.map((n) => '<script>' + inline(read(n + '.js'), 'script') + '</script>'),

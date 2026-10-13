@@ -2,13 +2,359 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
-## Build 582
+## Build 680
 - Sync: a damaged document from another device no longer breaks the app
 - Sync server: the stored list cannot grow past its limit; long item names are cut
 - The stable channel keeps its own offline cache
 - Sync sheet no longer sticks on syncing when a round fails
 - Error list skips repeats
 - Small speed-ups (list redraw, toy check)
+
+## Build 679
+- Radial menu: one Toy button that opens a second ring with No toy, Default toy and Wrecking ball (no wrecking ball in Mini Fumu's room mode)
+
+## Build 678
+- Little plant is now ordinary furniture: place it from the Room list, on both lists and in Mini Fumu's room
+- Burger phone removed
+- New furniture: bookshelf, floor lamp and fish bowl
+- Polish for the rug, window, beanbag, clock and desk
+
+## Build 677
+- Background sounds: waves, gulls, bubbles, birds, hens, a cow, sizzle, a clock and crickets for each background
+- Weather sounds: rain, thunder, wind and cicadas
+- Options and Mini Fumu settings: Background sounds switch (was Night sounds)
+
+## Build 676
+- Alerts in Light and Dark: paper note look with tape in the colour of its kind, icon on a round sticker, filled main button
+
+## Build 675
+- Thought clouds sit clear of the Shopping and To-do tabs
+
+## Build 674
+- Skin count now sits on the Skin button instead of the species tiles
+- Personas renamed: Hyper Foodie is Cheerful, Sweetie Pie is Sweetheart, Zen Sprout is Zen
+
+## Build 673
+- Mini Fumu settings: Weather (switch and place), shared with the app's Options
+- Weather: he says when rain, a storm, snow, heat or cold is coming later today
+- His remarks on what you are doing now rank just below alerts and celebrations
+- Light and Dark: lamp glow behind him, lit edge on labels, calmer tape and rug in Dark, clearer focus ring, softer selection, dock hover, gentle fade on theme change
+
+## Build 672
+- Developer tools: weather report for a random place
+
+## Build 671
+- Weather report: gives up after 8 seconds instead of waiting for ever; a second press while he looks does nothing
+
+## Build 670
+- App ring menu: Weather report button (while the weather option is on)
+
+## Build 669
+- Petting: seven new reactions (puddle, leaning in, spin, shy, shivers, stretch, smitten)
+- New personalities: Mini Villain and Lone Wolf
+- Hands are drawn over shoes, so they never slip behind them
+
+## Build 668
+- To-do list: a dotted line between today's tasks and tasks for other days
+
+## Build 667
+- Hand dance: with shoes on, his left foot slides behind his body and his other foot
+
+## Build 666
+- Weather report button shows while the weather option is on; with no place picked he says so
+
+## Build 665
+- Radial menu: weather report button (only while the weather option is off); dance and wave buttons removed
+
+## Build 664
+- Mini Fumu settings: choose what each swipe direction does on an alert (Done, In 10 min, Put away, Nothing)
+
+## Build 663
+- Mini Fumu settings: volume slider replaces the sounds switch; Night sounds switch (owl and crickets); cushion switch in room mode
+
+## Build 662
+- Holiday hats: using the app on a celebration day puts a gift box in Profile with the hat Fumu wears; opening it unlocks the hat
+- Daily and holiday gift boxes removed
+- Easter egg has a round top
+- Halloween mist hangs low, around the taskbar (Mini Fumu)
+- New Year confetti flies in front of him (Mini Fumu)
+
+## Build 661
+- Saying yes to a celebration gets him out of bed if he is in bed or tucked in
+
+## Build 660
+- Mini Fumu: Room mode and Wander mode (Settings > His look > Mode)
+- Room mode: his room shows, he stays in it, toys stay inside; Wander mode: no room or cushion, he walks the desktop and toys can fly
+- Settings follow the mode: movement choices, sits on windows and toy flying
+- Weather option has no description line
+
+## Build 659
+- Weather place box: a pick list of matching places (Grove City, Pennsylvania / Ohio...) while typing
+
+## Build 658
+- Weather location box takes a postcode too
+
+## Build 657
+- Species buttons show how many skins you have as a small round sticker
+
+## Build 656
+- Shop: Fumufumu Plus card with a yearly (14.99) and monthly plan, nicer pack cards
+
+## Build 655
+- Slippers' sole without the ears; clog sole without the dots
+
+## Build 654
+- Sitting soles redrawn as real shoe bottoms: wooden clogs, cowboy boots, feather slides
+
+## Build 653
+- Cosmetics polish: shirt collar on the neckties, bigger butterfly clip with veins and a twinkle
+
+## Build 652
+- Lights off from the ring menu: he walks back to his bed instead of freezing
+- Waking him with the bell takes 6 knocks instead of 8
+
+## Build 651
+- Remarks about what you are doing no longer depend on his own chatter (turning chatter off keeps them)
+
+## Build 650
+- Heat waves fainter
+
+## Build 649
+- Heat waves broken into short wisps at random places
+
+## Build 648
+- Hot weather: Fumu fans himself with a paper fan in his spare hand, and faint heat waves rise
+
+## Build 647
+- Shop calendar tab renamed Gift days
+
+## Build 646
+- Rain on the leaf: fewer drops, landing at random spots
+- Open-settings key in the whole app opens the app's Options
+
+## Build 645
+- Rain splashes on top of the leaf; rain falls behind him and the leaf
+
+## Build 644
+- Rain leaf: stem curves into the leaf's base, cleaner veins
+
+## Build 643
+- Rain leaf: veins, shading and drops, all inside the leaf
+
+## Build 642
+- Rain leaf held upright over his head, like a leaf umbrella
+
+## Build 641
+- Fix: error on start (refreshBedtime is not defined)
+
+## Build 640
+- Rain and storm: Fumu holds a giant leaf over his head (when a hand is free)
+- Thunderstorm: thunderbolts
+- No scarf in snow or cold
+- Hot weather: nothing for now
+
+## Build 639
+- Mini Fumu settings: a note on what each swipe does
+
+## Build 638
+- Claude's alerts go to the PC first: the phone no longer takes them off the server (switch in Options to show them there too)
+
+## Build 637
+- Little plant: every task ticked off waters it (three a day), it grows a bit each time
+- Little plant: tulips, a sunflower and bluebells join the daisies
+- Little plant stays in the room across devices
+
+## Build 636
+- Stamp book: a Plants stamp for each flower grown
+
+## Build 635
+- The little plant is for the to-do list only
+- Ticking a reminder done in Mini Fumu waters the plant
+
+## Build 634
+- Radial menu: a Plant button to hide or show the little plant
+- The little plant is for the app only, not Mini Fumu
+- Preview build: keeps the error keeper, so Options opens again
+
+## Build 633
+- Weather: Fumu reacts to rain, storms, snow, cold and heat (turn it on in Options)
+- Little plant in the room: grows when you tick things off, then flowers
+
+## Build 632
+- Darker eye outline on the black cat and black Pomeranian
+
+## Build 631
+- Mini Fumu celebrations: no greeting card on the screen
+- Mini Fumu New Year: disco lights fill the whole screen
+- Mini Fumu New Year: blower confetti flies outside his room
+
+## Build 630
+- Mini Fumu settings: tabs along the top and sorted sections
+- Mini Fumu settings: Special days tab, a switch and Play for each celebration
+- Switch for covering the whole screen with celebration effects
+
+## Build 629
+- Shop opens on the Shop tab, with its two tabs staying at the top
+- Mini Fumu celebrations: a card asks first, then effects cover the whole screen
+- Special gift only once a year
+
+## Build 628
+- Black skins (black cat, black Pomeranian) get a darker outline
+- Shop: a new Special days tab with a calendar of celebrations and extra gifts, and what is coming up
+
+## Build 627
+- New Year's Day: gold and silver fireworks at the end (willow, crossette, palm, glitter and a finale volley), different from the birthday ones
+
+## Build 626
+- New skin: Black Pomeranian, with brown eyes
+
+## Build 625
+- Developer tools folded into sections with short names for the celebrations
+- King's Day: the windmill is gone and the tompouce has its layers right (pastry, cream, pastry, orange icing)
+
+## Build 624
+- King's Day celebration (27 April): crown, royal dance with a waving arm, orange and Dutch-flag bunting, balloons, confetti, a windmill, a brass-band polka, a tompouce with a flag and a real King's Day box in Profile
+- Celebrations pending on the same day no longer hold each other up
+
+## Build 623
+- Easter: bunny band centred on his head, egg emojis removed from the effects
+
+## Build 622
+- Celebration effects (ghosts, bats, snow, confetti, fireworks...) now go over the cards
+- Easter celebration on Easter Sunday: bunny ears, a bouncy bunny dance, flags, petals, butterflies, hopping eggs, a spring tune, an egg that hatches a chick and a real Easter egg in Profile
+
+## Build 621
+- Celebration banners slide up from the bottom, above the bottom bar, so they never cover him
+
+## Build 620
+- New Year's Day: the party blower is held in his mouth (beak, snout, whatever he is) and toots louder, with a longer big toot
+
+## Build 619
+- New Year's Day celebration on 1 January: gold party hat, disco ball with light spots, a disco dance with the pointing pose, disco music, and a party blower with confetti
+
+## Build 618
+- No toe beans when hands are held to the face or cover the eyes
+- Christmas lights blink like the Halloween ones, in Christmas colours
+
+## Build 617
+- Halloween: the screen goes dark except round his room, ghosts give off light, spooky flickering lantern and ghost lights, and a new monster mash dance
+
+## Build 616
+- Halloween celebration on 31 October: witch hat, party dance, bats, ghosts, spider webs, mist, pumpkin lights, spooky music, a trick-or-treat bucket and a real Halloween box in Profile
+- Christmas: the tree, gingerbread men and candy canes are gone again
+
+## Build 615
+- Christmas: a little tree pops up beside him, gingerbread men and candy canes fall with the snow, and he chats along
+
+## Build 614
+- Christmas celebration on 25 December: Santa hat, party dance, snow, lights, Jingle Bells, a gift box and a real Christmas box in Profile
+
+## Build 613
+- Birthday: he blows the candle out in the last second
+
+## Build 612
+- Birthday: the toy is put away for the party and pops back in after
+
+## Build 611
+- Fireworks redone: rockets, glowing streaks, rings, hearts and glitter, one every couple of seconds through the whole celebration
+
+## Build 610
+- Birthday tune: the Happy Birthday song, playing until the cake goes
+
+## Build 609
+- Birthday jingle plays during the celebration
+
+## Build 608
+- Birthday: Happy Birthday Name!, and it plays first when the app is opened that day, holding back alerts and other animations until it is over
+
+## Build 607
+- New birthday dance: bouncy party dance with lots of squash and stretch
+
+## Build 606
+- Birthday: party hat no longer lost when his outfit is drawn again
+- A couple more fireworks at the end
+
+## Build 605
+- Birthday: he hands you a cake at the end
+- Half as many fireworks
+
+## Build 604
+- Wrecking ball switch removed from Options (it stays in the ring menu)
+
+## Build 603
+- Free spirited dance removed
+- Birthday: chorus dance, fireworks, and the party hat stays on his head
+
+## Build 602
+- Developer tools: test goal, unlocked and trip stamp notifications
+
+## Build 601
+- Top bar a little higher
+- Goal and trip toasts moved to the top-left corner of the room, off Fumu
+
+## Build 600
+- Same room and top-bar size in every theme; Sweet loses the long bar
+
+## Build 599
+- Emoji thief freezes and looks around once it is in his paw
+
+## Build 598
+- One sit: feet out in front, everywhere he sat before
+- Middle click swaps Mini Fumu and the app from anywhere in the window
+
+## Build 597
+- Dutch: long words wrap inside the speech bubble
+- Add button is a plus in both languages
+
+## Build 596
+- Shopping suggestions off by default
+- Dutch: the Add symbol follows the theme (plus, strawberry in Sweet, flame in Bonfire)
+
+## Build 595
+- Dutch: the + button keeps the size of the English Add
+
+## Build 594
+- Dutch: the Add button is a + (the word was too long)
+
+## Build 593
+- Wrecking ball back in the ring menu
+
+## Build 592
+- Mic: Fumu puts a hand up to his ear while he listens
+
+## Build 591
+- Dutch language: pick it with the flags at the top of Options (first part of the app is translated)
+- Ring menu: the wrecking ball is gone from it (still in Options)
+
+## Build 590
+- Options: Shopping suggestions switch (turns off his shopping-list suggestions)
+
+## Build 589
+- App ring menu: feed him a snack
+
+## Build 588
+- Ring menu: a No toy switch next to the wrecking ball; the Show his toy setting is gone
+- Stamp book: Pets and Study are gone again (back in Care and Work)
+
+## Build 587
+- Pet tab: slimmer name field
+
+## Build 586
+- Pet tab: the Species, Skin and Persona buttons stay put under the tabs
+
+## Build 585
+- Pet tab: no search bar (hats, clothes and the rest keep it)
+
+## Build 584
+- Pet menu: Species, Skin and Persona are sub-tabs
+
+## Build 583
+- Stamp book: two more stamps, Pets and Study
+
+## Build 582
+- Finishing a shopping trip earns a trip stamp: Trips in the Stamp Book (one a day, 3 items or more)
+- All bought: the trip stamp thumps onto the receipt before the party, and Fumu says which trip it was
+- Animation player: trip stamp, trip done
 
 ## Build 581
 - Mini Fumu: the solid-spot check does a little less work

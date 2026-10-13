@@ -134,11 +134,22 @@ function bellyJiggle() {
  * @param {number} ms How long to keep the class.
  */
 function pulse(cls, ms) {
+  if (cls === 'sit') return sitFor(ms);   // (sitting is the soles-out pose, .seated, since build 598)
   pet.classList.remove(cls);
   void pet.offsetWidth;
   pet.classList.add(cls);
   setTimeout(function () { pet.classList.remove(cls); }, ms);
   if (SQUISH[cls] && !reduceMotion) svgSquish(SQUISH[cls]);
+}
+
+var sitTimer = 0, sitOwn = false;
+/** Sits him down for a while, feet out in front (the one sit he has: the idle, petting and bedtime sits and the desktop's sit all use it). A sit that was already on (the desktop's long one, a nap) is left alone. @param {number} ms */
+function sitFor(ms) {
+  if (pet.classList.contains('seated') && !sitOwn) return;
+  clearTimeout(sitTimer);
+  sitOwn = true;
+  pet.classList.add('seated');
+  sitTimer = setTimeout(function () { sitOwn = false; if (!(typeof perched !== 'undefined' && perched)) pet.classList.remove('seated'); }, ms);
 }
 
 // ---------- squash and stretch, drawn inside the SVG ----------
@@ -211,9 +222,12 @@ function bubbleToStage() {
  */
 var idleQuiet = false;   // set while an idle moment runs that he was told not to talk during (app-idle.js); a touch or key press ends it
 var chatterRate = 1;     // how much he talks on his own: 0 never, .35 rarely, 1 normal, 2.5 often (the desktop app's settings change it)
+var remarkUntil = 0;     // while set, his own chatter (idle moments, the weather line) keeps quiet: a remark on what you are doing comes just after alerts and celebrations
+var lowBusy = 0;         // how many of the busy counts are idle moves, which a remark may cut in on (app-idle.js)
 var speechLockUntil = 0;   // while set, nothing else may talk over an important line (the update notice)
 function say(text, ms, own) {
   if (!text || idleQuiet || Date.now() < speechLockUntil) return;
+  if (!own && typeof T === 'function') text = T(text);   // (Dutch: before the tone is put on it)
   text = text.replace(/\bFumu\b/g, petName());   // lines are written with his first name; use the one you gave him
   bubble.hidden = true;
   void bubble.offsetWidth;
@@ -236,7 +250,7 @@ function say(text, ms, own) {
  * @param {Object<string, string>} [vars]
  * @returns {string}
  */
-function line(key, fallback, vars) { return L.voiceLine(personality(), key, fallback, vars); }
+function line(key, fallback, vars) { return L.voiceLine(personality(), key, typeof T === 'function' ? fallback.map(T) : fallback, vars); }   // (Dutch: his own lines come from app-nlvoices.js, the fallbacks are translated here)
 /** Says the personality's line for a moment; a two-part line comes in two bubbles. */
 function talk(key, fallback, ms, vars) {
   var parts = line(key, fallback, vars).split('\n');

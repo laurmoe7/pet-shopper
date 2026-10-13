@@ -1,4 +1,4 @@
-// The ring menu (in the app it is only the toy switch, opened with a double tap on him): in the small desktop window, rest the pointer on him and a ring of little buttons opens above him (play ball, the toy switch, a snack,
+// The ring menu (in the app it is only the toy switches and a snack, opened with a double tap on him): in the small desktop window, rest the pointer on him and a ring of little buttons opens above him (play ball, the toy switch, a snack,
 // a dance, swap the list, and at night the lights or the night light). It lives in his own window, so it never has to fit round the edge of the
 // screen. What it offers follows his scene (petScene): in bed only the night light; drowsy at night he can be sent to bed (then you tuck him in).
 // Plain script, shares one scope, loaded after app-night.js.
@@ -19,44 +19,78 @@
     askForTreat(true);
     setTimeout(function () { wishEl.click(); }, 80);   // (feeds it the way tapping his cloud does)
   }
-  function ringDance() {
-    if (busy) return;
-    busy++;
-    var m = tiredMove(pick([['boogie', 2400], ['twirl', 1300], ['hophop', 1500]]));
-    setFace(tiredFace(FACES.party));
-    pulse(m[0], m[1]);
-    sound('excited');
-    say(pick(['la la la~', 'hehe~', 'dance dance!']), 1500);
-    setTimeout(function () { busy--; if (!busy) settle(); }, m[1] + 300);
+  /** @returns {string} What he says about the weather (a lookup result with a kind and a temperature). @param {{kind: string, temp: number}} w */
+  function ringWeatherWords(w) {
+    var nl = typeof Lang === 'object' && Lang.get() === 'nl', t = w.temp + '\u00b0';
+    var en = { clear: 'clear', rain: 'rainy', storm: 'stormy', snow: 'snowy', cold: 'chilly', hot: 'hot' }, du = { clear: 'helder', rain: 'regenachtig', storm: 'stormachtig', snow: 'sneeuwachtig', cold: 'koud', hot: 'heet' };
+    return nl ? 'het is ' + t + ', ' + (du[w.kind] || 'helder') + '~' : 'it is ' + t + ' and ' + (en[w.kind] || 'clear') + '~';
   }
-  function ringWave() {
-    if (busy) return;
-    busy++;
-    setFace(tiredFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }));
-    pulse('hopsmall', 450);
-    say(pick(['hi hi!', 'hello~', 'hi! ♡']), 1400);
-    setTimeout(function () { busy--; if (!busy) settle(); }, 1500);
+  /** The weather report: he looks outside and tells you (only offered while the weather option is on). With no place picked yet he says to pick one. */
+  /** After the weather now, what is coming later today (if anything special), in a second bubble. @param {{later: ?{kind: string, hour: number}}} w */
+  function ringLater(w, after) {
+    if (!w || !w.later) return;
+    setTimeout(function () { say(Weather.laterWords(w.later, typeof Lang === 'object' && Lang.get() === 'nl'), 3800, true); }, after);
+  }
+  var ringLooking = false;
+  function ringWeather(test) {   // (test: a made-up place from the developer tools; it ignores the saved place and the last answer, and saves nothing)
+    var nl = typeof Lang === 'object' && Lang.get() === 'nl', c = test || (typeof wxConf === 'function' ? wxConf() : null);
+    if (!c || c.lat === null || c.lon === null) { say(nl ? 'zet eerst een plaats in de opties~' : 'I need a place first: pick one in Options > Weather~', 3200, true); return; }
+    var last = !test && typeof wxLast === 'function' ? wxLast() : null;
+    if (last && Date.now() - last.at < 10 * 60000) { say(ringWeatherWords(last), 3600, true); pulse('hopsmall', 450); ringLater(last, 3900); return; }
+    if (!navigator.onLine) { say(nl ? 'ik kan nu niet kijken~' : 'I cannot look outside right now~', 2400, true); return; }
+    if (ringLooking) return;   // (a second press while he is still looking does nothing)
+    ringLooking = true;
+    var done = false, ctl = typeof AbortController === 'function' ? new AbortController() : null;
+    function fail() { if (done) return; done = true; ringLooking = false; say(nl ? 'ik kan nu niet kijken~' : 'I cannot look outside right now~', 2400, true); }
+    var kill = setTimeout(function () { if (ctl) ctl.abort(); fail(); }, 8000);   // (a slow or stuck connection ends here instead of leaving him waiting for ever)
+    say(nl ? 'even buiten kijken…' : 'let me look outside…', 1600, true);
+    try {
+      fetch(Weather.forecastUrl(c.lat, c.lon), ctl ? { signal: ctl.signal } : {}).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+        clearTimeout(kill);
+        if (done) return;
+        done = true; ringLooking = false;
+        var w = Weather.parse(j);
+        if (!w) { say(nl ? 'ik kan niets zien~' : 'I cannot see anything~', 2400, true); return; }
+        w.at = Date.now();
+        if (!test) { try { localStorage.setItem('nibble-weather-last', JSON.stringify(w)); } catch (e) { /* storage not available */ } }
+        setTimeout(function () { say((test ? test.place + ': ' : '') + ringWeatherWords(w), 3600, true); pulse('hopsmall', 450); ringLater(w, 3900); }, 900);
+      }).catch(function () { clearTimeout(kill); fail(); });
+    } catch (e) { clearTimeout(kill); fail(); }
   }
   function ringSleep() { bellToBed(['lights off… so sleepy…', '*yawn* bed time…', 'to bed we go…'], true); }   // (he only gets into bed: you still tuck him in)
 
   /** Everything the ring can offer. `on` is for switches. */
   var ITEMS = {
     ball: { icon: '⚽', label: 'Play ball', run: function () { if (!busy && typeof playToy === 'function') playToy(); } },
-    toy: { icon: '💥', label: 'Wrecking ball', on: function () { return toyKind() === 'wrecker'; }, run: function () { toggleToyKind(); } },
+    toys: { icon: '🧸', label: 'Toy', keep: true, run: function () { openMenu('toys'); } },   // (opens a second ring with the toy choices)
+    toyNone: { icon: '🚫', label: 'No toy', on: function () { return toyKind() === 'none'; }, run: function () { setToyKind('none'); } },
+    toyBall: { icon: '⚽', label: 'Default toy', on: function () { return toyKind() === 'ball'; }, run: function () { setToyKind('ball'); } },
+    toyWreck: { icon: '💥', label: 'Wrecking ball', on: function () { return toyKind() === 'wrecker'; }, run: function () { setToyKind('wrecker'); } },
+    back: { icon: '↩️', label: 'Back', keep: true, run: function () { openMenu('main'); } },
     snack: { icon: '🍪', label: 'Snack', run: ringSnack },
-    dance: { icon: '🎉', label: 'Dance', run: ringDance },
-    wave: { icon: '👋', label: 'Wave', run: ringWave },
+    weather: { icon: '⛅', label: 'Weather report', run: ringWeather },
     swap: { icon: '📝', label: 'Swap list', run: function () { if (typeof switchList === 'function') switchList(); } },
     lights: { icon: '💡', label: 'Lights off', run: ringSleep },
     night: { icon: '🌙', label: 'Night light', keep: true, on: function () { return nightLightOn; }, run: function () { toggleNightLight(); } }
   };
+  /** The toy circle opens a second ring with the toy choices in place of the first: no toy, his own (default) toy and the wrecking ball (not in Mini Fumu's room mode, where it does nothing special), and a way back. */
+  var menu = 'main';
+  function toyNames() { return ['toyNone', 'toyBall'].concat(typeof deskRoomMode === 'function' && deskRoomMode() ? [] : ['toyWreck'], ['back']); }
+  function openMenu(which) {
+    menu = which;
+    build();
+    if (!isDesk()) { clearTimeout(appHide); appHide = setTimeout(function () { hide(true); }, 7000); }
+    placeBubble();
+  }
   /** @returns {string[]} The buttons for the scene he is in now. */
   function items() {
     var scene = petScene();
-    if (!isDesk()) return scene === 'night-bed' ? [] : ['toy'];   // in the app it only has the toys (none picked: his own); in bed they are put away
+    var wx = typeof wxConf === 'function' && wxConf().want ? ['weather'] : [];   // (the report is offered while the weather option is on; with no place picked yet he says so when it is pressed)
+    if (!isDesk()) return scene === 'night-bed' ? [] : ['toys', 'snack'].concat(wx);   // in the app: the toy circle and a snack; in bed they are put away
     if (scene === 'night-bed') return ['night'];   // in bed: only the night light
-    if (scene.indexOf('night-drowsy') === 0) return ['ball', 'toy', 'snack', 'dance', 'swap', 'lights'];
-    return ['ball', 'toy', 'snack', 'dance', 'swap', 'wave'];
+    var play = toyKind() === 'none' ? [] : ['ball'];   // (nothing to play with when there is no toy)
+    if (scene.indexOf('night-drowsy') === 0) return play.concat(['toys', 'snack'], wx, ['swap', 'lights']);
+    return play.concat(['toys', 'snack'], wx, ['swap']);
   }
   function canShow(now, force) {
     // a double click on him or a style preview is asked for on purpose: only the mode is checked, so a stuck state (hidden window, a leftover
@@ -69,7 +103,7 @@
   }
   function build() {
     ring.replaceChildren();
-    var names = items(), n = names.length;
+    var names = menu === 'toys' ? toyNames() : items(), n = names.length;
     var pr = pet.getBoundingClientRect(), sr = stage.getBoundingClientRect();
     center = { x: pr.left + pr.width / 2 - sr.left, y: pr.top + pr.height * 0.55 - sr.top, r: Math.max(86, pr.width * 0.62) };
     // the part of his window that is on a screen (the shell sends it; --vis-l / --vis-r): near the side of the screen the arc turns
@@ -146,6 +180,7 @@
   try { new MutationObserver(function () { placeBubble(); }).observe(bubble, { attributes: true, attributeFilter: ['hidden'], childList: true, characterData: true, subtree: true }); } catch (e) { /* old browser */ }
   function show(now, force) {
     if (shown || !canShow(now, force) || !items().length) return;
+    menu = 'main';
     build();
     ring.hidden = false; shown = true;
     placeBubble();
@@ -155,7 +190,7 @@
     if (previewing && force !== true) return;   // (the style preview stays up for its time whatever the pointer does)
     clearTimeout(leaveTimer);
     if (!shown) return;
-    shown = false; ring.hidden = true; ring.replaceChildren();
+    shown = false; menu = 'main'; ring.hidden = true; ring.replaceChildren();
     placeBubble();
   }
   // opens with a double click on him (resting the pointer on him was slow and unreliable), and closes when the pointer has gone well away from him, on a click elsewhere or on Esc
@@ -206,5 +241,6 @@
     previewTimer = setTimeout(function () { previewing = false; if (shown) hide(true); }, ms || 2000);
     return shown;
   };
+  window.ringWeatherTest = ringWeather;   // for the developer tools
   window.deskRing = function () { show(); return shown; };   // for tests and the animation player
 })();

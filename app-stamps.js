@@ -1,20 +1,24 @@
-// The stamp book (to-do list only): every task ticked off earns a check-mark stamp, kept by kind of task.
+// The stamp book: every task ticked off earns a check-mark stamp, kept by kind of task, and every finished
+// shopping trip a trip stamp (`stamps.trip`, given by recordTripStamp when the last item is bought, build 582).
 // No streaks and nothing is lost by waiting: it only shows what you have done.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
 var stampSheet = $('stampSheet'), stampGrid = $('stampGrid');
-// a book entry can join several task kinds with '+': calls and chats count as social, and stamps already earned for either show together
+// a book entry can join several task kinds with '+' (Plants is the little plant's flowers, counted from `pet.plant`, not a task kind): calls and chats count as social, and stamps already earned for either show together (pets and study, build 583 to 587, went back into care and work)
 var STAMP_KINDS = [
-  ['chore', 'Chores'], ['social+call', 'Social'], ['health', 'Health'], ['money', 'Money'], ['errand', 'Errands'], ['fitness', 'Fitness'],
-  ['work', 'Work'], ['fun', 'Fun'], ['travel', 'Travel'], ['care', 'Care'], ['cook', 'Cooking'], ['other', 'Other']
+  ['trip', 'Trips'], ['plant', 'Plants'], ['chore', 'Chores'], ['social+call', 'Social'], ['health', 'Health'], ['money', 'Money'], ['errand', 'Errands'], ['fitness', 'Fitness'],
+  ['work+study', 'Work'], ['fun', 'Fun'], ['travel', 'Travel'], ['care+pets', 'Care'], ['cook', 'Cooking'], ['other', 'Other']
 ];
-/** @returns {string} The emoji that stands for a kind of task (the first one in tasks.js for it). */
+/** @returns {string} The emoji that stands for a kind of stamp: the cart for trips, else the first one in tasks.js for that kind of task. */
 function stampEmoji(kind) {
+  if (kind === 'trip') return '🛒';
+  if (kind === 'plant') return '🌷';
   return Tasks.all.filter(function (e) { return Tasks.categoryOf(e) === kind; })[0] || '📌';
 }
 /** @returns {number} How many stamps a book entry holds (all the task kinds joined in it). */
 function stampCount(entry) {
+  if (entry === 'plant') return L.plantInfo(state.pet.plant, L.dayNumber(giftDate())).flowers;   // (the little plant: one stamp for each flower grown, app-plant.js)
   return entry.split('+').reduce(function (n, k) { return n + ((state.pet.stamps || {})[k] || 0); }, 0);
 }
 /** @returns {number} 0 to 3: how grand a kind's stamp looks (1, 10 and 50 stamps). */
@@ -22,7 +26,7 @@ function stampTier(n) { return n >= 50 ? 3 : n >= 10 ? 2 : n >= 1 ? 1 : 0; }
 /** Draws the book: a round stamp for each kind, empty until the first task of that kind is ticked. */
 function renderStamps() {
   var total = STAMP_KINDS.reduce(function (n, k) { return n + stampCount(k[0]); }, 0);
-  $('stampSub').textContent = total ? '✦ ' + total + (total === 1 ? ' stamp' : ' stamps') + ' so far ✦' : 'Tick off tasks to collect your first stamp ♡';
+  $('stampSub').textContent = total ? '✦ ' + total + (total === 1 ? ' stamp' : ' stamps') + ' so far ✦' : 'Finish a shopping trip or tick off tasks for your first stamp ♡';
   stampGrid.replaceChildren.apply(stampGrid, STAMP_KINDS.map(function (k) {
     var n = stampCount(k[0]);
     var card = document.createElement('button');
@@ -46,8 +50,11 @@ function renderStamps() {
 stampGrid.addEventListener('click', function (e) {
   var card = e.target.closest('.stamp');
   if (!card) return;
-  var n = stampCount(card.dataset.kind);
+  var n = stampCount(card.dataset.kind), trips = card.dataset.kind === 'trip', plants = card.dataset.kind === 'plant';
   sound(n ? 'stamp' : 'tap');
-  if (!busy && baseState() !== 'sleepy') say(n ? pick(['look at all those!', 'so many stamps!', n + ' of those, wow!']) : pick(['not yet… soon?', 'an empty spot!']), 1500);
+  if (busy || baseState() === 'sleepy') return;
+  if (plants) say(n ? pick([n + (n === 1 ? ' flower' : ' flowers') + ' grown!', 'my garden grows ♡', 'so many pretty flowers!']) : pick(['no flowers yet… keep watering!', 'tick off tasks to water the plant']), 1500);
+  else if (trips) say(n ? pick([n + (n === 1 ? ' trip' : ' trips') + ' together!', 'all that shopping ♡', 'one stamp per trip!']) : pick(['no trips yet… soon?', 'buy everything on the list!']), 1500);
+  else say(n ? pick(['look at all those!', 'so many stamps!', n + ' of those, wow!']) : pick(['not yet… soon?', 'an empty spot!']), 1500);
 });
 $('stampBtn').addEventListener('click', function () { renderStamps(); sheetUnderMouth(stampSheet); openDialog(stampSheet); });

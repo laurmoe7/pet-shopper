@@ -10,21 +10,27 @@
 var TOY_KIND_KEY = 'nibble-toy-kind';
 var WRECK_MS = 10000, PAGE_WRECK_MS = 10000;   // (how long the ball flies: the small window, the page)
 
-/** @returns {string} Which toy is out: 'ball' (the one for his species) or 'wrecker'. */
+/** @returns {string} Which toy is out: 'ball' (the one for his species), 'wrecker' or 'none' (no toy at all). */
 function toyKind() {
-  try { return localStorage.getItem(TOY_KIND_KEY) === 'wrecker' ? 'wrecker' : 'ball'; } catch (e) { return 'ball'; }
+  try { var k = localStorage.getItem(TOY_KIND_KEY); return k === 'wrecker' || k === 'none' ? k : 'ball'; } catch (e) { return 'ball'; }
 }
 /** Shows the toy that is picked (a class on the stage; styles.css). */
-function applyToyKind() { stage.classList.toggle('toy-wreck', toyKind() === 'wrecker'); }
-/** The ring menu's toy switch: ball <-> wrecking ball. */
-function toggleToyKind() {
+function applyToyKind() {
+  stage.classList.toggle('toy-wreck', toyKind() === 'wrecker');
+  stage.classList.toggle('toy-none', toyKind() === 'none');
+}
+/** The ring menu's toy switches: the wrecking ball (the default) or no toy; pressing the one that is on puts his own ball back. @param {string} [which] 'wrecker' or 'none'. */
+function toggleToyKind(which) { setToyKind(toyKind() === (which || 'wrecker') ? 'ball' : (which || 'wrecker')); }
+/** Picks the toy (the ring menu's toy circle): 'ball' (his own, the default), 'wrecker' or 'none'. @param {string} next */
+function setToyKind(next) {
   if (playing) return;   // (not while a game is on)
-  var next = toyKind() === 'wrecker' ? 'ball' : 'wrecker';
+  if (next !== 'wrecker' && next !== 'none') next = 'ball';
   try { localStorage.setItem(TOY_KIND_KEY, next); } catch (e) { /* storage blocked */ }
   applyToyKind();
   sound('pick');
   if (typeof window.deskToyWarm === 'function') setTimeout(window.deskToyWarm, 200);   // (its picture ready for the screen-wide window)
-  say(next === 'wrecker' ? pick(['the wrecking ball… careful!', 'ooh, a big spiky one!']) : pick(['the nice ball again ♡', 'back to the ball~']), 1600);
+  if (next === 'none' && window.nibbleDesktop && window.nibbleDesktop.toyHide) window.nibbleDesktop.toyHide();   // (the screen-wide toy window goes too)
+  say(next === 'wrecker' ? pick(['the wrecking ball… careful!', 'ooh, a big spiky one!']) : next === 'none' ? pick(['no toy, then~', 'all put away!']) : pick(['the nice ball again ♡', 'back to the ball~']), 1600);
 }
 applyToyKind();
 
@@ -517,19 +523,3 @@ function pageWreck(vx, vy, px, py) {
   setTimeout(finish, PAGE_WRECK_MS + 1500);   // (if the page was in the background and no frames came: it is still mended)
   flight = requestAnimationFrame(step);
 }
-
-// the switch for it in App settings (Options): the ring menu only exists in the small desktop window
-(function () {
-  if (typeof optionsList === 'undefined' || !optionsList) return;
-  var label = document.createElement('label'), title = document.createElement('span'), box = document.createElement('input');
-  label.className = 'option'; title.className = 'option-title'; title.textContent = 'Wrecking ball';
-  box.type = 'checkbox'; box.setAttribute('role', 'switch');
-  label.append(title, box);
-  optionsList.appendChild(label);
-  box.addEventListener('change', function () {
-    if (box.checked !== (toyKind() === 'wrecker')) toggleToyKind();
-    box.checked = toyKind() === 'wrecker';
-  });
-  var btn = $('optionsBtn');
-  if (btn) btn.addEventListener('click', function () { box.checked = toyKind() === 'wrecker'; });
-})();

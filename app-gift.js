@@ -1,6 +1,6 @@
-// Daily gifts: a mystery box every day, and extra boxes on special days (holidays, the birthday). What counts as a special day
-// and what is in the boxes is all in bonuses.js (plain lists, easy to add to); this file is only the page part.
-// The prizes are placeholders for now: they are counted in pet.prizes and shown in the sheet's collection.
+// Holiday gifts: on a day Fumu celebrates (a holiday, the birthday) a gift box waits in Profile with the hat he wears in that celebration; opening it unlocks the hat. There are
+// no daily boxes. What counts as a special day and which hat it brings is all in bonuses.js (plain lists, easy to add to); this file is only the page part.
+// The unlocked hats are kept in pet.prizes (so they sync) and the dressing room reads them (`unlocked` in app-goals.js).
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
 'use strict';
 
@@ -15,7 +15,7 @@ function giftSvg(colour, ribbon) {
     '<path d="M24 13 V44" stroke="' + ribbon + '" stroke-width="6"/><path d="M24 13 C16 3 8 8 15 13 M24 13 C32 3 40 8 33 13" fill="none" stroke="#5b4239" stroke-width="2.4" stroke-linecap="round"/>' +
     '<circle cx="19" cy="31" r="1.6" fill="#5b4239"/><circle cx="29" cy="31" r="1.6" fill="#5b4239"/><path d="M21.5 34 Q24 36.6 26.5 34" fill="none" stroke="#5b4239" stroke-width="1.6" stroke-linecap="round"/></svg>';
 }
-/** For now the gift is not on the stage (so it never has to fit around him): it waits in the Profile sheet, with a count on the Profile button. Set to true to bring it back. */
+/** The gift is not on the stage (so it never has to fit around him): it waits in the Profile sheet, with a count on the Profile button. Set to true to bring it back. */
 var GIFT_ON_STAGE = false;
 /** Shows how many boxes for today are still shut: on the Profile button and in the Profile sheet (and on the stage when GIFT_ON_STAGE). */
 function refreshGift() {
@@ -32,31 +32,42 @@ function refreshGift() {
   if (!mine.firstChild.firstChild) mine.firstChild.innerHTML = giftSvg('#ffb3c7', '#fff4d6');
   $('profileBtn').setAttribute('aria-label', 'Profile: your name and birthday' + (left ? ' (' + label + ')' : ''));
 }
-/** Draws the sheet: today's boxes (shut ones to tap, open ones greyed), what is coming up, the collection and the birthday. */
+/** @returns {string} A small picture of a wardrobe hat (the one the dressing room button shows). @param {string} id */
+function giftHatSvg(id) {
+  var w = typeof wardrobeItem === 'function' ? wardrobeItem(id) : null;
+  return w ? '<svg viewBox="' + (w.icon || '40 0 80 60') + '" aria-hidden="true">' + w.svg + '</svg>' : '';
+}
+/** @returns {?{day: Object, date: Date, inDays: number}} The next day, after today, that brings a gift hat. */
+function nextGiftDay(date) {
+  for (var i = 1; i <= 366; i++) {
+    var d = new Date(date.getFullYear(), date.getMonth(), date.getDate() + i), hit = B.boxesFor(d, state.player.birthday)[0];
+    if (hit) return { label: hit.label, inDays: i };
+  }
+  return null;
+}
+/** Draws the sheet: today's gift box (shut to tap, or open), when the next one comes, and the hats collected from gifts. */
 function renderGifts() {
   var date = giftDate(), all = B.boxesFor(date, state.player.birthday), shut = B.unopened(state.pet, date, state.player.birthday).map(function (b) { return b.key; });
-  var specials = B.specialDays(date, state.player.birthday);
-  $('giftDay').textContent = specials.length ? '✦ ' + specials.map(function (d) { return d.label; }).join(' & ') + ' ✦' : 'Come back every day for a new box.';
+  $('giftDay').textContent = all.length ? '✦ ' + all.map(function (b) { return T(b.label); }).join(' & ') + ' ✦' : T('A gift box comes on every holiday Fumu celebrates.');
   giftBoxes.replaceChildren.apply(giftBoxes, all.map(function (b) {
-    var btn = document.createElement('button'), kind = B.BOXES[b.box];
+    var btn = document.createElement('button'), kind = B.BOXES[b.box], isShut = shut.indexOf(b.key) !== -1;
     btn.type = 'button';
-    btn.className = 'gift-box' + (shut.indexOf(b.key) === -1 ? ' opened' : '');
+    btn.className = 'gift-box' + (isShut ? '' : ' opened');
     btn.dataset.key = b.key;
-    btn.disabled = shut.indexOf(b.key) === -1;
-    btn.innerHTML = giftSvg(kind.colour, kind.ribbon) + '<span></span>';
-    btn.lastChild.textContent = b.day ? b.label : kind.label;
+    btn.disabled = !isShut;
+    btn.innerHTML = (isShut ? giftSvg(kind.colour, kind.ribbon) : giftHatSvg(b.hat)) + '<span></span>';
+    btn.lastChild.textContent = isShut ? T(kind.label) : T(b.hatLabel);
     return btn;
   }));
-  var next = B.nextSpecial(date, state.player.birthday);
-  $('giftNext').textContent = next ? 'Coming up: ' + next.day.label + ' ' + (next.inDays === 1 ? 'tomorrow' : 'in ' + next.inDays + ' days') : '';
-  var prizes = state.pet.prizes || {}, known = {};
-  Object.keys(B.PRIZES).forEach(function (t) { B.PRIZES[t].forEach(function (p) { known[p.id] = p; }); });
-  var got = Object.keys(prizes).filter(function (id) { return known[id]; });
-  $('giftPrizes').replaceChildren.apply($('giftPrizes'), got.map(function (id) {
-    var chip = document.createElement('span'), p = known[id];
-    chip.className = 'gift-chip';
-    chip.title = p.label;
-    chip.append(emojiImg(p.emoji, p.label), document.createTextNode('×' + prizes[id]));
+  var next = nextGiftDay(date);
+  $('giftNext').textContent = next ? T('Next gift') + ': ' + T(next.label) + ' ' + (next.inDays === 1 ? T('tomorrow') : T('in') + ' ' + next.inDays + ' ' + T('days')) : '';
+  var got = B.DAYS.filter(function (d) { return d.hat && B.owns(state.pet, d.hat); });
+  $('giftPrizes').replaceChildren.apply($('giftPrizes'), got.map(function (d) {
+    var chip = document.createElement('span');
+    chip.className = 'gift-chip gift-hat';
+    chip.title = T(d.hatLabel);
+    chip.innerHTML = giftHatSvg(d.hat);
+    chip.appendChild(document.createTextNode(T(d.hatLabel)));
     return chip;
   }));
   $('giftPrizesLabel').hidden = !got.length;
@@ -74,10 +85,12 @@ giftBoxes.addEventListener('click', function (e) {
     save();
     btn.classList.remove('shaking');
     btn.classList.add('opened');
-    btn.replaceChildren();
-    btn.append(emojiImg(got.prize.emoji, got.prize.label), Object.assign(document.createElement('span'), { textContent: got.prize.label }));
-    if (!got.prize.real) btn.append(Object.assign(document.createElement('b'), { className: 'gift-placeholder', textContent: 'placeholder' }));   // until a prize has `real: true` (bonuses.js)
+    btn.innerHTML = giftHatSvg(got.prize.id) + '<span></span>';
+    btn.lastChild.textContent = T(got.prize.label);
     sound('party');
+    if (typeof refreshDressRoom === 'function') refreshDressRoom();
+    if (typeof refreshLocks === 'function') refreshLocks();
+    showToast('🎁', T('New hat') + ': ' + T(got.prize.label) + '!', true, 3200);
     var day = got.box.day && B.DAYS.filter(function (d) { return d.id === got.box.day; })[0];
     if (!busy && baseState() !== 'sleepy') {
       pulse(isTired() ? 'hopsmall' : 'hop', 500);
@@ -102,10 +115,33 @@ function devGiftCalendar() {
 }
 /** Developer tool: shuts today's boxes again. @returns {string} */
 function devGiftReset() {
+  B.boxesFor(giftDate(), state.player.birthday).forEach(function (b) { if (state.pet.prizes) delete state.pet.prizes[b.hat]; });   // (the hat is locked again too)
   delete state.pet.gifts[B.dayKey(giftDate())];
+  if (typeof refreshLocks === 'function') refreshLocks();
   refreshGift();
-  return 'Today\'s boxes are shut again.';
+  return 'Today\'s gift box is shut again (and its hat locked).';
+}
+
+/** A toast that today's gift box is waiting in Profile (when there is one). @param {string} [icon] */
+function giftToast(icon) {
+  refreshGift();
+  if (!B.unopened(state.pet, giftDate(), state.player.birthday).length) return;
+  showToast(icon || '🎁', T('A gift box is waiting in Profile!'), true, 4200);
+}
+/** What he says about it at the end of a celebration (nothing when there is no box to open). */
+function giftSay() {
+  if (!B.unopened(state.pet, giftDate(), state.player.birthday).length || busy > 1) return;
+  say(T('there is a hat for you in your Profile~'), 2000);
+}
+/** Once a day, when the app (or Mini Fumu) is opened on a day with a gift box: a toast says so. */
+function giftOpenToast() {
+  var left = B.unopened(state.pet, giftDate(), state.player.birthday);
+  if (!left.length) return;
+  var key = B.dayKey(giftDate()) + left.map(function (b) { return b.key; }).join();
+  try { if (localStorage.getItem('nibble-gift-toast') === key) return; localStorage.setItem('nibble-gift-toast', key); } catch (e) { /* storage blocked */ }
+  setTimeout(function () { giftToast(); }, 3500);
 }
 
 refreshGift();
-setInterval(refreshGift, 60000);   // a new day brings a new box, even with the app left open
+giftOpenToast();
+setInterval(refreshGift, 60000);   // a new day can bring a box, even with the app left open

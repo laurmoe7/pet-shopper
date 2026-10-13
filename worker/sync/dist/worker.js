@@ -45,7 +45,7 @@
   };
   var FIELD_NAMES = Object.keys(FIELDS);
   /** The pet's counters, each merged by its own rule (see `mergeCounter`). */
-  var COUNTERS = ['achievements', 'tastes', 'stamps', 'favourites', 'gifts', 'prizes', 'treats', 'guard'];
+  var COUNTERS = ['achievements', 'tastes', 'stamps', 'favourites', 'gifts', 'prizes', 'plant', 'treats', 'guard'];
 
   // ---------- small helpers ----------
 
@@ -242,7 +242,7 @@
   /** The merge rule for one counter. */
   function mergeCounter(name, a, b) {
     if (name === 'achievements' || name === 'favourites') return mergeProgress(a, b);
-    if (name === 'tastes' || name === 'stamps' || name === 'prizes') return maxMap(a, b);
+    if (name === 'tastes' || name === 'stamps' || name === 'prizes' || name === 'plant') return maxMap(a, b);
     if (name === 'gifts') {   // day -> boxes opened that day
       var out = {};
       [a, b].forEach(function (m) { if (isObj(m)) Object.keys(m).forEach(function (d) { out[d] = unionSorted(out[d], m[d]); }); });
@@ -250,10 +250,16 @@
     }
     a = isObj(a) ? a : {}; b = isObj(b) ? b : {};
     var list = name === 'treats' ? 'used' : 'words';   // treats and guard: a day and what was done that day
-    if ((a.day || '') !== (b.day || '')) return copy((a.day || '') > (b.day || '') ? a : b);
+    var trip = name === 'guard' ? ((a.trip || '') > (b.trip || '') ? a.trip : b.trip) : '';   // the day of the last trip stamp: the later one
+    if ((a.day || '') !== (b.day || '')) {
+      var later = copy((a.day || '') > (b.day || '') ? a : b);
+      if (trip) later.trip = trip;
+      return later;
+    }
     var joined = { day: a.day || '' };
     joined[list] = unionSorted(a[list], b[list]);
     if (name === 'guard') joined.lastSeen = Math.max(num(a.lastSeen), num(b.lastSeen));
+    if (trip) joined.trip = trip;
     return joined;
   }
 

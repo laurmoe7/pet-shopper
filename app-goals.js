@@ -23,7 +23,14 @@ function achievement(id) { return byId(Achievements, id); }
  * @param {string} id
  * @returns {boolean} Whether that species or hat is unlocked.
  */
-function unlocked(kind, id) { return L.isUnlocked(state.pet, kind, id, Achievements, FreeUnlocks); }
+function unlocked(kind, id) {
+  if (isGiftHat(kind, id)) return Bonuses.owns(state.pet, id);   // (a holiday hat only comes from its gift box, whatever else is open)
+  return L.isUnlocked(state.pet, kind, id, Achievements, FreeUnlocks);
+}
+/** @returns {boolean} Whether this is one of the holiday hats that come in a gift box (`gift: true` in wardrobe.js). */
+function isGiftHat(kind, id) { var w = kind === 'hat' && typeof wardrobeItem === 'function' ? wardrobeItem(id) : null; return !!(w && w.gift); }
+/** @returns {string} Which gift box holds a holiday hat: "Christmas Day gift box". */
+function giftHatWhere(id) { var d = Bonuses.dayOfHat(id), t = typeof T === 'function' ? T : function (x) { return x; }; return d ? t(d.label) + ' ' + t('gift box') : t('a gift box'); }   // (the language helper may not be loaded yet when the first lock look is drawn)
 
 /**
  * Shows a short line under the pet: progress on a goal, or that today's share is used up.
@@ -85,6 +92,19 @@ function cheerUnlocks(list) {
 }
 
 /**
+ * A small round sticker with the number of skins you have for a species, in the corner of the Skin button (like the gift count on the Profile button); none when it has no skins.
+ * @param {HTMLElement} b The Skin button.
+ * @param {string} species
+ */
+function skinCount(b, species) {
+  var n = Skins.filter(function (s) { return s.base === species && unlocked('skin', s.id); }).length, tag = b.querySelector('.skin-count');
+  if (!n) { if (tag) tag.remove(); b.removeAttribute('data-skins'); return; }
+  if (!tag) { tag = document.createElement('i'); tag.className = 'skin-count'; tag.setAttribute('aria-hidden', 'true'); b.appendChild(tag); }
+  tag.textContent = n;
+  b.dataset.skins = n;
+  b.setAttribute('title', n + (n === 1 ? ' skin' : ' skins'));
+}
+/**
  * Adds or removes the lock look and progress badge on a species or hat button.
  * @param {HTMLButtonElement} b
  * @param {'species'|'skin'|'hat'} kind
@@ -95,6 +115,13 @@ function markLock(b, kind, id) {
   var badge = b.querySelector('.lock-badge');
   b.classList.toggle('locked', !open);
   if (open) { if (badge) badge.remove(); b.removeAttribute('aria-description'); return; }
+  if (isGiftHat(kind, id)) {   // a holiday hat: not a goal, it comes in that day's gift box
+    if (!badge) { badge = document.createElement('span'); badge.className = 'lock-badge'; b.appendChild(badge); }
+    var dh = Bonuses.dayOfHat(id);
+    badge.textContent = '🎁 ' + (typeof T === 'function' ? T(dh ? dh.short : 'gift') : dh ? dh.short : 'gift');   // (short, to fit on the tile)
+    b.setAttribute('aria-description', 'Locked. Comes in the ' + giftHatWhere(id) + '.');
+    return;
+  }
   var ach = L.gateFor(kind, id, Achievements);
   var p = L.progress(state.pet, ach, new Date());
   if (!badge) { badge = document.createElement('span'); badge.className = 'lock-badge'; b.appendChild(badge); }
@@ -104,6 +131,8 @@ function markLock(b, kind, id) {
 /** Brings every lock in the species grid and hat strip up to date. */
 function refreshLocks() {
   speciesGrid.querySelectorAll('button').forEach(function (b) { markLock(b, 'species', b.dataset.species); });
+  var skinTab = document.querySelector('.pet-subs button[data-sub="skin"]');   // (the number of skins sits on the Skin button, for the species he is now)
+  if (skinTab) skinCount(skinTab, state.pet.species);
   skinGrid.querySelectorAll('button').forEach(function (b) { markLock(b, 'skin', b.dataset.skin); });
   wearButtons().forEach(function (b) { markLock(b, 'hat', b.dataset.hat); });
 }
@@ -115,6 +144,7 @@ function refreshLocks() {
  */
 function lockHint(el, kind, id) {
   sound('locked');
+  if (isGiftHat(kind, id)) { el.textContent = '🎁 ' + T('Comes in the') + ' ' + giftHatWhere(id) + ': ' + T('use Fumufumu that day.'); el.hidden = false; return; }
   var ach = L.gateFor(kind, id, Achievements);
   var p = L.progress(state.pet, ach, new Date());
   el.textContent = '🔒 ' + ach.unlocks.label + ': ' + ach.text + ' (' + p.count + '/' + p.goal + ', up to ' + p.perDay + ' a day).';
@@ -181,3 +211,21 @@ document.querySelectorAll('dialog:not(#picker)').forEach(function (d) {
 document.querySelectorAll('dialog').forEach(function (d) {
   d.addEventListener('close', function () { if (bubble.parentNode === d) { bubble.hidden = true; bubbleToStage(); } });
 });
+
+/**
+ * Developer tools: shows a goal, unlocked or trip stamp notification as it looks in play, without changing anything saved.
+ * @param {'goal'|'unlock'|'trip'} kind
+ * @returns {string} What to tell.
+ */
+function devToasts(kind) {
+  var ach = Achievements[0];
+  if (kind === 'trip') {
+    sound('stamp');
+    tripStampAt(tripStampSpot());
+    showToast('🛒', 'Trip #12 stamped!', true, 3400);
+    return 'Trip stamp shown.';
+  }
+  if (kind === 'unlock') { sound('party'); showToast(ach.icon, 'Unlocked: Grumpy Chef!', true, 3200); return 'Unlocked notification shown.'; }
+  showToast(ach.icon, ach.title + ' 3/' + (ach.goal || 5), false, 2600);
+  return 'Goal notification shown.';
+}
