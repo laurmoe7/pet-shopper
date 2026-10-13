@@ -13,7 +13,8 @@ if (recipeUnits !== 'metric' && recipeUnits !== 'us') recipeUnits = '';
 
 /** @returns {string} The helper's address, or "". */
 function recipeHelper() {
-  try { return localStorage.getItem(RECIPE_HELPER_KEY) || RECIPE_HELPER; } catch (e) { return RECIPE_HELPER; }
+  if (RECIPE_HELPER) return RECIPE_HELPER;   // (a saved address only counts in a build without a built-in helper)
+  try { return localStorage.getItem(RECIPE_HELPER_KEY) || ''; } catch (e) { return ''; }
 }
 /** Writes a line under the button. @param {string} text @param {boolean} [bad] */
 function recipeSay(text, bad) { recipeStatus.textContent = text; recipeStatus.classList.toggle('bad', !!bad); }

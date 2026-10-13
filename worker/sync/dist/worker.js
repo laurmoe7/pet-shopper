@@ -357,8 +357,10 @@
       touched.push(name);
     });
     if (isObj(doc.counters)) COUNTERS.forEach(function (k) { if (doc.counters[k] !== undefined) state.pet[k] = copy(doc.counters[k]); });
-    // clean everything the way loading does, so a damaged document can't break the pet
+    // clean everything the way loading does, so a damaged document (another device on a broken build) can't break the pet, the player or the list
     if (L && L.petProfile) state.pet = L.petProfile(state.pet);
+    if (L && L.parsePlayer) state.player = L.parsePlayer(state.player);
+    if (L && L.cleanOverrides) state.overrides = L.cleanOverrides(state.overrides);
     touched.forEach(function (name) { meta.fields[name].h = fingerprint(FIELDS[name].get(state)); });   // the fingerprint of what is really saved now
     return out;
   }
@@ -412,7 +414,8 @@
   'use strict';
 
   var MAX_BODY = 1024 * 1024;       // bytes of one request
-  var MAX_ITEMS = 5000;             // records in one document
+  var MAX_ITEMS = 5000;             // records in one document (the stored one too)
+  var MAX_TEXT = 200;               // characters of one item's name or amount
   var FUTURE_MS = 24 * 3600 * 1000; // changes dated further ahead than this are pulled back (a clock set wrong)
   var ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';   // no 0/O or 1/I/L, which look alike
   var CODE_LENGTH = 25;             // 25 of 31 symbols: about 124 bits, shown as five groups of five
@@ -452,12 +455,15 @@
   }
 
   /** Pulls changes dated far in the future back to `limit`, so one wrong clock can't make everything else lose. */
+  /** Changes dated in the future are pulled back to `limit`, and an item's words are cut to MAX_TEXT, so no device can grow the document past what fits. */
   function clamp(doc, limit) {
     ['items', 'fields'].forEach(function (part) {
       if (!isObj(doc[part])) return;
       Object.keys(doc[part]).forEach(function (k) {
         var r = doc[part][k];
-        if (isObj(r) && typeof r.at === 'number' && r.at > limit) r.at = limit;
+        if (!isObj(r)) return;
+        if (typeof r.at === 'number' && r.at > limit) r.at = limit;
+        if (part === 'items' && isObj(r.item)) ['text', 'qty'].forEach(function (f) { if (typeof r.item[f] === 'string' && r.item[f].length > MAX_TEXT) r.item[f] = r.item[f].slice(0, MAX_TEXT); });
       });
     });
     return doc;
@@ -522,6 +528,8 @@
       var merged = root.Sync.trim(root.Sync.merge(stored, incoming), now);
       var body = JSON.stringify(merged);
       if (row.body === body) return reply({ doc: merged, rev: row.rev });   // nothing new
+      // what is stored must fit too (D1 keeps a row under 2 MB): otherwise every later sync would fail and the account would be stuck
+      if (body.length > MAX_BODY || Object.keys(merged.items || {}).length > MAX_ITEMS) return fail(413, 'The list is too big to store');
       if (await store.put(acct, body, row.rev, now)) return reply({ doc: merged, rev: row.rev + 1 });
       row = await store.get(acct);   // someone wrote in between: join with theirs and try again
       if (!row) return fail(401, 'Missing or wrong recovery code');

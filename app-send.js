@@ -386,7 +386,7 @@ function inboxPoll() {
     if (!list || !list.length || inboxCard) return;
     syncLogAdd('Got a ' + (list[0].kind === 'link' ? 'link' : 'note') + ' from your other device', 'sync');
     receiveMessage(list[0], list.length - 1);
-  });
+  }).catch(function (e) { polling = false; throw e; });   // (the error goes to Developer tools; the next poll runs as usual)
 }
 setInterval(inboxPoll, INBOX_POLL_MS);
 document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') setTimeout(inboxPoll, 200); });

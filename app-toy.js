@@ -537,9 +537,9 @@ function toyBackHome() {
 
 // the small window is at the edge of the screen: a toy resting where it would be cut off by the edge rolls into view
 setInterval(function () {
-  if (typeof held === 'undefined' || playing || held || toyField || toyCarried || stage.classList.contains('bedtime') || getComputedStyle(toyEl).display === 'none') return;
   var root = document.documentElement;
-  if (!root.classList.contains('desktop-pet')) return;
+  if (!root.classList.contains('desktop-pet')) return;   // (first: a phone must not pay the style read below every second)
+  if (typeof held === 'undefined' || playing || held || toyField || toyCarried || stage.classList.contains('bedtime') || getComputedStyle(toyEl).display === 'none') return;
   var cs = getComputedStyle(root), rawL = cs.getPropertyValue('--vis-l'), rawR = cs.getPropertyValue('--vis-r');
   var vl = parseFloat(rawL) || 0, vr = !rawR || /vw/.test(rawR) ? window.innerWidth : parseFloat(rawR);
   var r = toyEl.getBoundingClientRect();

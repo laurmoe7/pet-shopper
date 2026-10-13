@@ -2,6 +2,14 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 582
+- Sync: a damaged document from another device no longer breaks the app
+- Sync server: the stored list cannot grow past its limit; long item names are cut
+- The stable channel keeps its own offline cache
+- Sync sheet no longer sticks on syncing when a round fails
+- Error list skips repeats
+- Small speed-ups (list redraw, toy check)
+
 ## Build 581
 - Mini Fumu: the solid-spot check does a little less work
 

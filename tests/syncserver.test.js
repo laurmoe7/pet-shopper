@@ -374,3 +374,25 @@ test('a device gets what its other devices left, never its own, and no destinati
   assert.equal((await waiting(store, code, 'pc', T + 4000)).length, 1);   // the earlier way of asking still works
   assert.equal((await send(store, code, { to: 'tablet', kind: 'text', text: 'x' }, T)).status, 400);
 });
+
+test('the stored document must fit too: a sync that would grow it past the limit is refused, and long item words are cut', async () => {
+  const store = memoryStore();
+  const code = await signUp(store);
+  const big = { items: {}, fields: {}, counters: {} };
+  for (let i = 0; i < 1500; i++) big.items['b' + i] = { at: T, by: 'dev', list: 'shop', item: { id: 'b' + i, text: 'x'.repeat(150), emoji: '\u{1F34E}', cat: 'fruit', done: false, qty: 'y'.repeat(150) } };
+  let res = await call(store, 'POST', '/v1/sync', code, { doc: big });
+  assert.equal(res.status, 200);
+  const acct = [...store.rows.keys()][0], stored = JSON.parse((await store.get(acct)).body);
+  assert.equal(stored.items.b0.item.text.length, 150);
+  // the same again from another device, with other ids: the two together would not fit
+  const more = { items: {}, fields: {}, counters: {} };
+  for (let i = 0; i < 1500; i++) more.items['c' + i] = { at: T + 1, by: 'two', list: 'shop', item: { id: 'c' + i, text: 'x'.repeat(150), emoji: '\u{1F34E}', cat: 'fruit', done: false, qty: 'y'.repeat(150) } };
+  res = await call(store, 'POST', '/v1/sync', code, { doc: more });
+  assert.equal(res.status, 413);
+  assert.equal(Object.keys(JSON.parse((await store.get(acct)).body).items).length, 1500, 'the stored document is unchanged');
+  // a very long name is cut to 200 characters
+  const long = { items: { l1: { at: T + 2, by: 'dev', list: 'shop', item: { id: 'l1', text: 'z'.repeat(5000), emoji: '\u{1F34E}', cat: 'fruit', done: false } } }, fields: {}, counters: {} };
+  res = await call(store, 'POST', '/v1/sync', code, { doc: long });
+  assert.equal(res.status, 200);
+  assert.equal(res.json.doc.items.l1.item.text.length, 200);
+});

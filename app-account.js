@@ -116,6 +116,12 @@ function syncNow(why) {
     renderAccount();
     if (syncSheet.open) renderSyncLog();
     if (syncState.again) { syncState.again = false; syncSoon(); }
+  }).catch(function (e) {   // something threw (a document this build cannot read, say): the sheet must not stay on "syncing"; the error goes to Developer tools
+    syncState.busy = false; syncState.again = false;
+    syncState.error = 'sync broke';
+    syncLogAdd('Sync broke (' + why + '): ' + (e && e.message || e), 'error');
+    renderAccount();
+    throw e;
   });
 }
 /** Syncs after a short wait (so a run of ticks is one round). Called after every change that is saved. */

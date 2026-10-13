@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '581';
+var BUILD = '582';
 
 var STORE_KEY = 'nibble.v1';
 var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -62,8 +62,9 @@ if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListen
  * @param {HTMLImageElement} img
  * @param {string} emoji
  */
+var lookNow = '';   // the colours of the redraw under way (render reads them once, not once per row)
 function stickerize(img, emoji) {
-  var look = stickerLook(), key = emoji + '|' + look;
+  var look = lookNow || stickerLook(), key = emoji + '|' + look;
   function use(url) { img.src = url; img.classList.add('sticker'); }
   if (stickerCache[key]) { use(stickerCache[key]); return; }
   var src = new Image();
@@ -275,6 +276,10 @@ function aisleNodes(items, rowFor) {
 
 /** Redraws both lists and the empty hint from state. */
 function render() {
+  lookNow = stickerLook();
+  try { renderNow(); } finally { lookNow = ''; }
+}
+function renderNow() {
   var todo = state.items.filter(function (i) { return !i.done; });
   var done = state.items.filter(function (i) { return i.done; });
   // to-do list: plans more than 10 days away wait in the calendar until they get close
@@ -445,6 +450,6 @@ function find(id) {
  * @returns {?DOMRect}
  */
 function rowEmojiRect(id) {
-  var el = document.querySelector('.item[data-id="' + id + '"] .emoji-btn');
+  var el = document.querySelector('.item[data-id="' + (window.CSS && CSS.escape ? CSS.escape(id) : String(id).replace(/["\\]/g, '')) + '"] .emoji-btn');
   return el ? el.getBoundingClientRect() : null;
 }

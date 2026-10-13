@@ -355,8 +355,10 @@
       touched.push(name);
     });
     if (isObj(doc.counters)) COUNTERS.forEach(function (k) { if (doc.counters[k] !== undefined) state.pet[k] = copy(doc.counters[k]); });
-    // clean everything the way loading does, so a damaged document can't break the pet
+    // clean everything the way loading does, so a damaged document (another device on a broken build) can't break the pet, the player or the list
     if (L && L.petProfile) state.pet = L.petProfile(state.pet);
+    if (L && L.parsePlayer) state.player = L.parsePlayer(state.player);
+    if (L && L.cleanOverrides) state.overrides = L.cleanOverrides(state.overrides);
     touched.forEach(function (name) { meta.fields[name].h = fingerprint(FIELDS[name].get(state)); });   // the fingerprint of what is really saved now
     return out;
   }

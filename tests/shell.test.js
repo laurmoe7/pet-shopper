@@ -13,3 +13,13 @@ test('every script in index.html is in the service worker shell', () => {
   const shell = new Function('return ' + /var SHELL = (\[[^\]]*\]);/.exec(sw)[1])();
   assert.deepEqual(scripts.filter((s) => !shell.includes(s)), []);
 });
+
+test('the stable channel has cache names of its own, and each channel only clears its own old caches', () => {
+  const sw = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
+  assert.match(sw, /CACHE = CACHE\.replace\('nibble-', 'nibble-stable-'\)/);
+  assert.match(sw, /KEEP = KEEP\.replace\('nibble-', 'nibble-stable-'\)/);
+  assert.match(sw, /keys\.filter\(function \(k\) \{ return ownCache\(k\) && k !== CACHE && k !== KEEP; \}\)/);
+  const own = new Function('STABLE', sw.match(/function ownCache[^\n]*/)[0] + '; return ownCache;');
+  assert.deepEqual(['nibble-v5', 'nibble-emoji-v1', 'nibble-stable-v5', 'nibble-stable-emoji-v1', 'other'].filter(own(false)), ['nibble-v5', 'nibble-emoji-v1']);
+  assert.deepEqual(['nibble-v5', 'nibble-emoji-v1', 'nibble-stable-v5', 'nibble-stable-emoji-v1', 'other'].filter(own(true)), ['nibble-stable-v5', 'nibble-stable-emoji-v1']);
+});
