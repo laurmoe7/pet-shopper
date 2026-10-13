@@ -92,8 +92,8 @@ function cheerUnlocks(list) {
 }
 
 /**
- * A small round sticker with the number of skins you have for a species, in the corner of its button (like the gift count on the Profile button); none when it has no skins.
- * @param {HTMLElement} b The species button.
+ * A small round sticker with the number of skins you have for a species, in the corner of the Skin button (like the gift count on the Profile button); none when it has no skins.
+ * @param {HTMLElement} b The Skin button.
  * @param {string} species
  */
 function skinCount(b, species) {
@@ -130,7 +130,9 @@ function markLock(b, kind, id) {
 }
 /** Brings every lock in the species grid and hat strip up to date. */
 function refreshLocks() {
-  speciesGrid.querySelectorAll('button').forEach(function (b) { markLock(b, 'species', b.dataset.species); skinCount(b, b.dataset.species); });
+  speciesGrid.querySelectorAll('button').forEach(function (b) { markLock(b, 'species', b.dataset.species); });
+  var skinTab = document.querySelector('.pet-subs button[data-sub="skin"]');   // (the number of skins sits on the Skin button, for the species he is now)
+  if (skinTab) skinCount(skinTab, state.pet.species);
   skinGrid.querySelectorAll('button').forEach(function (b) { markLock(b, 'skin', b.dataset.skin); });
   wearButtons().forEach(function (b) { markLock(b, 'hat', b.dataset.hat); });
 }

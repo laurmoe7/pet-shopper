@@ -4163,6 +4163,8 @@ html[data-scene$="clip"] .pet.chorus .arm-l, html[data-list="todo"] .pet.chorus 
 #dressSheet:has(#dressTabs [data-tab="pet"][aria-selected="true"]) .pet-subs { display: grid; }
 .pet-subs button { display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 0; padding: 7px 4px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--paper, #fff); color: var(--ink); font: inherit; font-weight: 800; font-size: .85rem; box-shadow: 0 2px 0 var(--shadow); cursor: pointer; }
 .pet-subs button img { width: 20px; height: 20px; flex: none; }
+.pet-subs button { position: relative; }
+.pet-subs .skin-count { top: -6px; left: auto; right: 8px; }   /* the number of skins, on the Skin button */
 .pet-subs button[aria-selected="true"] { background: var(--accent); color: #fff; border-color: transparent; transform: translateY(-1px); }
 .pet-subbed:not(.pet-filtering)[data-sub="species"] :is(.sub-skin, .sub-persona, .pet-subs-none),
 .pet-subbed:not(.pet-filtering)[data-sub="skin"] :is(.sub-species, .sub-persona),

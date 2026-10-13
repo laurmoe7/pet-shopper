@@ -90,9 +90,9 @@ var Dutch = {
   'Tidy shopper': 'Nette shopper', 'Finish a list of 3 or more items on 5 different days': 'Rond op 5 verschillende dagen een lijstje van 3 of meer items af',
 
   // ---------- personalities ----------
-  'Hyper Foodie': 'Dolle Lekkerbek', 'Bouncy and loud. Loves every food!': 'Stuiterend en luid. Houdt van al het eten!', 'Loves a bit of everything': 'Houdt een beetje van alles',
-  'Sweetie Pie': 'Schatje', 'Gushy and kind. Dessert first ♡': 'Zacht en lief. Eerst het toetje ♡', 'Feed it 10 sweets or baked treats': 'Voer hem 10 keer snoep of gebak',
-  'Zen Sprout': 'Zen Scheutje', 'Calm and wholesome. Fresh fruit and veg.': 'Rustig en gezond. Vers fruit en groente.', 'Feed it 15 fruit or vegetables': 'Voer hem 15 keer fruit of groente',
+  'Cheerful': 'Vrolijk', 'Bouncy and loud. Loves every food!': 'Stuiterend en luid. Houdt van al het eten!', 'Loves a bit of everything': 'Houdt een beetje van alles',
+  'Sweetheart': 'Schatje', 'Gushy and kind. Dessert first ♡': 'Zacht en lief. Eerst het toetje ♡', 'Feed it 10 sweets or baked treats': 'Voer hem 10 keer snoep of gebak',
+  'Zen': 'Zen', 'Calm and wholesome. Fresh fruit and veg.': 'Rustig en gezond. Vers fruit en groente.', 'Feed it 15 fruit or vegetables': 'Voer hem 15 keer fruit of groente',
   'Grumpy Chef': 'Mopperende Chef', 'Grumbly but loving. Serious about cooking.': 'Moppert maar is lief. Serieus over koken.', 'Feed it 15 proteins, dairy or pantry foods': 'Voer hem 15 keer eiwit, zuivel of houdbaar eten',
   'Sleepy Head': 'Slaapkop', 'Slow and yawny. Lives for cozy drinks.': 'Traag en gapend. Leeft voor gezellige drankjes.', 'Feed it 10 drinks': 'Voer hem 10 drankjes',
   'Diva': 'Diva', 'Dramatic and fabulous. Only the finest.': 'Dramatisch en fantastisch. Alleen het beste.', 'Feed it 15 drinks': 'Voer hem 15 drankjes',
@@ -151,7 +151,7 @@ Object.assign(Dutch, {
   'Beach': 'Strand', 'Farm': 'Boerderij', 'Kitchen': 'Keuken', 'Meadow': 'Weide', 'Starry night': 'Sterrennacht', 'Aquarium': 'Aquarium', 'Pantry': 'Voorraadkast', 'Household': 'Huishouden',
   'Fruit & veg': 'Groente en fruit', 'Dairy & eggs': 'Zuivel en eieren', 'Treats': 'Lekkers',
   'Meat & fish': 'Vlees en vis', 'Bakery': 'Brood en gebak', 'Drinks': 'Drinken', 'Health': 'Gezondheid', 'Other': 'Overig',
-  'Hyper Foodie:': 'Dolle Lekkerbek:', 'Fumufumu Plus': 'Fumufumu Plus', 'Premium': 'Premium', '€2.99 / month': '€2,99 / maand', 'Little extras for you and Fumu': 'Kleine extra\'s voor jou en Fumu', 'Yearly': 'Jaarlijks', 'Monthly': 'Maandelijks', '€14.99': '€14,99', '€2.99': '€2,99', '/ year': '/ jaar', '/ month': '/ maand', '€1.25 a month': '€1,25 per maand', 'Pay as you go': 'Betaal per maand', 'Best value · save 58%': 'Beste prijs · bespaar 58%', 'Get Fumufumu Plus': 'Neem Fumufumu Plus', 'Cosmetic packs': 'Cosmetische pakketten',
+  'Cheerful:': 'Vrolijk:', 'Fumufumu Plus': 'Fumufumu Plus', 'Premium': 'Premium', '€2.99 / month': '€2,99 / maand', 'Little extras for you and Fumu': 'Kleine extra\'s voor jou en Fumu', 'Yearly': 'Jaarlijks', 'Monthly': 'Maandelijks', '€14.99': '€14,99', '€2.99': '€2,99', '/ year': '/ jaar', '/ month': '/ maand', '€1.25 a month': '€1,25 per maand', 'Pay as you go': 'Betaal per maand', 'Best value · save 58%': 'Beste prijs · bespaar 58%', 'Get Fumufumu Plus': 'Neem Fumufumu Plus', 'Cosmetic packs': 'Cosmetische pakketten',
   'Household syncing': 'Synchroniseren met je huishouden', 'Extra goals and rewards': 'Extra doelen en beloningen', 'Mini Fumu on your desktop': 'Mini Fumu op je bureaublad', 'Syncing between your phone and computer': 'Synchroniseren tussen je telefoon en computer',
   'Cosy Night pack': 'Gezellige-nacht-pakket', 'Pyjamas, a night cap and a teddy': 'Pyjama, een slaapmuts en een knuffelbeer', 'Dress-up pack': 'Verkleedpakket', 'Fancy hats and bows': 'Chique hoeden en strikken',
   'Tea Time pack': 'Theetijd-pakket', 'Cup, apron and a little hat': 'Kopje, schort en een klein hoedje', '· set up': '· ingesteld', 'Send a link or note': 'Stuur een link of notitie', 'Receive from my other devices': 'Ontvangen van mijn andere apparaten',

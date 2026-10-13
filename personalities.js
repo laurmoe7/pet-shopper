@@ -19,7 +19,7 @@
 
   root.Personalities = [
     {
-      id: 'foodie', label: 'Hyper Foodie', icon: '🍙',
+      id: 'foodie', label: 'Cheerful', icon: '🍙',
       blurb: 'Bouncy and loud. Loves every food!',
       text: 'Loves a bit of everything',
       likes: ['fruit', 'veg', 'baked', 'dairy', 'protein', 'pantry', 'sweets', 'drink', 'spicy'],
@@ -48,7 +48,7 @@
       }
     },
     {
-      id: 'sweet', label: 'Sweetie Pie', icon: '🍰',
+      id: 'sweet', label: 'Sweetheart', icon: '🍰',
       blurb: 'Gushy and kind. Dessert first ♡',
       text: 'Feed it 10 sweets or baked treats',
       likes: ['sweets', 'baked'],
@@ -77,7 +77,7 @@
       }
     },
     {
-      id: 'green', label: 'Zen Sprout', icon: '🥦',
+      id: 'green', label: 'Zen', icon: '🥦',
       blurb: 'Calm and wholesome. Fresh fruit and veg.',
       text: 'Feed it 15 fruit or vegetables',
       likes: ['fruit', 'veg'],

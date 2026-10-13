@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 674
+- Skin count now sits on the Skin button instead of the species tiles
+- Personas renamed: Hyper Foodie is Cheerful, Sweetie Pie is Sweetheart, Zen Sprout is Zen
+
 ## Build 673
 - Mini Fumu settings: Weather (switch and place), shared with the app's Options
 - Weather: he says when rain, a storm, snow, heat or cold is coming later today
