@@ -137,7 +137,7 @@ test('prices on a line are not part of the name', () => {
 
 test('metric shows butter, flour and the like in grams', () => {
   const c = [['3 tbsp', 'Salted butter', '45 g'], ['1 cup', 'Butter', '230 g'], ['1 cup', 'Flour', '125 g'], ['1 cup', 'Brown sugar', '215 g'], ['1 cup', 'Milk', '240 ml'], ['1 tsp', 'Garlic powder', '1 tsp'],
-    ['2 tbsp', 'Peanut butter', '2 tbsp'], ['1 cup', 'Butter', '1 cup', 'us'], ['200 g', 'Butter', '200 g']];
+    ['2 tbsp', 'Peanut butter', '30 g'], ['1 cup', 'Butter', '1 cup', 'us'], ['200 g', 'Butter', '200 g']];
   for (const [q, n, want, to] of c) assert.strictEqual(R.convertQty(q, to || 'metric', n), want, n);
 });
 
@@ -189,7 +189,7 @@ test('Fumu remarks on a recipe by its dish, then its food, then its size', () =>
 
 test('metric only turns cups and spoons into ml for liquids', () => {
   const c = [['2 cups', 'Potatoes', '2 cups'], ['1 3/4 cups', 'Carrots', '1 3/4 cups'], ['1 cup', 'Frozen peas', '1 cup'], ['4 cups', 'Chicken', '4 cups'], ['2/3 cup', 'Onion', '2/3 cup'],
-    ['3 cups', 'Chicken broth', '725 ml'], ['1 1/2 cups', 'Whole milk', '360 ml'], ['2 tbsp', 'Olive oil', '30 ml'], ['2 cups', 'Water', '475 ml'], ['1 1/2 tsp', 'Salt', '1 1/2 tsp']];
+    ['3 cups', 'Chicken broth', '725 ml'], ['1 1/2 cups', 'Whole milk', '360 ml'], ['2 tbsp', 'Olive oil', '30 ml'], ['2 cups', 'Water', '475 ml'], ['1 1/2 tsp', 'Salt', '9 g'], ['1/8 tsp', 'Salt', '1/8 tsp'], ['1 tsp', 'Dry yeast', '3 g'], ['1 cup', 'Shredded coconut', '85 g']];
   for (const [q, n, want] of c) assert.strictEqual(R.convertQty(q, 'metric', n), want, n);
 });
 
@@ -245,4 +245,12 @@ test('dry things are grams, not ml, and dry things with a liquid word stay as wr
     '1 cup chopped walnuts': '130 g', '1 tbsp coffee beans': '1 tbsp', '1 tbsp instant coffee granules': '1 tbsp', '1 tbsp bouillon powder': '1 tbsp', '1 cup mushroom, chopped': '1 cup',
     '1 cup watermelon cubes': '1 cup', '1 tbsp mustard seeds': '1 tbsp', '1 cup dry white wine': '240 ml', '2 tbsp soy sauce': '30 ml', '1 cup heavy cream': '240 ml', '1 cup cream cheese': '230 g' };
   for (const k of Object.keys(c)) assert.strictEqual(m(k), c[k], k);
+});
+
+test('amounts after a price, a zest line and "freshly squeezed" are read properly', () => {
+  assert.strictEqual(R.parseIngredient('2 tsp dry yeast (11.8g, $0.33*)').alt, '11.8 g');
+  assert.strictEqual(R.parseIngredient('2 Tbsp salted butter (25g, room temperature, $0.24)').alt, '25 g');
+  assert.strictEqual(R.parseIngredient('2\u00bd cups all purpose flour (300g, (more or less as needed) $0.30)').alt, '300 g');
+  assert.deepStrictEqual(R.parseIngredient('zest from a second orange ($0.38**)'), { name: 'Orange', qty: '' });
+  assert.strictEqual(R.parseIngredient('3 Tbsp freshly squeezed orange juice').name, 'Orange juice');
 });

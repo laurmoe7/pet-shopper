@@ -19,7 +19,7 @@
     'handvol', 'mespunt', 'scheut', 'beetje', 'bakje', 'pak', 'pakje', 'potje', 'fles', 'flesje', 'zak', 'pakket', 'rol', 'blokje', 'blokjes', 'tablet', 'tabletten', 'blikken', 'potten', 'flessen', 'zakken', 'pakken', 'stukken', 'teentje', 'teentjes'];
   // words that describe how it is prepared or how big it is: dropped from the front and the back of a name ("chopped fresh parsley", "parsley chopped")
   var FILLER = ['fresh', 'freshly', 'finely', 'roughly', 'coarsely', 'thinly', 'chopped', 'minced', 'diced', 'sliced', 'grated', 'crushed', 'peeled', 'cubed', 'shredded',
-    'low-sodium', 'reduced-sodium', 'torn', 'uncooked', 'toasted', 'sifted', 'melted', 'softened', 'cooled', 'beaten', 'drained', 'rinsed', 'trimmed', 'halved', 'quartered', 'mashed', 'pitted', 'seeded', 'deseeded', 'crumbled', 'packed', 'cooked', 'warm', 'lukewarm', 'boiling',
+    'low-sodium', 'reduced-sodium', 'torn', 'uncooked', 'toasted', 'sifted', 'melted', 'softened', 'cooled', 'beaten', 'drained', 'rinsed', 'trimmed', 'halved', 'quartered', 'mashed', 'pitted', 'seeded', 'deseeded', 'crumbled', 'packed', 'squeezed', 'cooked', 'warm', 'lukewarm', 'boiling',
     'large', 'small', 'medium', 'big', 'ripe', 'extra', 'good', 'quality', 'organic', 'optional', 'about', 'approx', 'approximately', 'of', 'a', 'an', 'the', 'some',
     'vers', 'verse', 'fijngehakt', 'gehakte', 'gesneden', 'geraspte', 'gesmolten', 'geschild', 'gepeld', 'grote', 'kleine', 'middelgrote', 'ongeveer', 'een', 'van', 'wat', 'naar', 'smaak', 'to', 'taste'];
   // describing words that can be followed by a comma and still belong to the name ("boneless, skinless chicken thighs")
@@ -65,13 +65,13 @@
     var optional = EXTRA.test(s);
     var label = s.match(/^([^:\d]{1,30}):\s*(\S.*)$/);                                  // "Optional: chopped nuts", "For serving: rice"
     if (label) s = label[2];
+    s = s.replace(/(?:[$\u20ac\u00a3]\s?\d[\d.,]*|\b\d[\d.,]*\s?(?:euro|eur|dollars?|usd)\b)\**/gi, ' ');   // prices: "($1.24)", "\u20ac 2,50", "$2.69**"
     var alt = '', am = s.match(/\(\s*(?:about\s+|approx\.?\s+|~)?(\d[\d.,]*)\s*(g|grams?|kg|ml|l)?\s*(?:(?:-|\u2013|to)\s*(\d[\d.,]*)\s*(g|grams?|kg|ml|l))?\s*\)/i);
     if (am && (am[4] || am[2]) && !/\beach\b/i.test(s)) alt = (am[1] + (am[3] ? '-' + am[3] : '') + ' ' + (am[4] || am[2]).toLowerCase().replace(/^grams?$/, 'g')).replace(/,/g, '.');   // the page's own metric amount: "(120g)", "(500g-688g)"
-    if (!alt) {   // "(4 Tbsp; 56g)", "(1 stick, 113 g)": the metric amount after a ; or ,
-      var am2 = s.match(/\([^)]*[;,]\s*(?:about\s+|approx\.?\s+|~)?(\d[\d.,]*)\s*(g|grams?|kg|ml|l)\s*\)/i);
+    if (!alt) {   // "(4 Tbsp; 56g)", "(1 stick, 113 g)", "(11.8g, room temperature)", "(300g, (more or less as needed))": the metric amount first or after a ; or ,
+      var am2 = s.match(/(?:\(|[;,])\s*(?:about\s+|approx\.?\s+|~)?(\d[\d.,]*)\s*(g|grams?|kg|ml|l)\b(?=\s*[,;)])/i);
       if (am2 && !/\beach\b/i.test(s)) alt = (am2[1] + ' ' + am2[2].toLowerCase().replace(/^grams?$/, 'g')).replace(/,/g, '.');
     }
-    s = s.replace(/(?:[$\u20ac\u00a3]\s?\d[\d.,]*|\b\d[\d.,]*\s?(?:euro|eur|dollars?|usd)\b)\**/gi, ' ');   // prices: "($1.24)", "\u20ac 2,50", "$2.69**"
     s = s.replace(/\([^)]*\)/g, ' ').replace(/\[[^\]]*\]/g, ' ').replace(/[()*]/g, ' ').replace(/\s+/g, ' ').trim();
     s = s.replace(/\bextra[- ]virgin\s+/gi, '').replace(/\b(?:freshly|fresh|vers)\s+(?:ground|gemalen)\s+/gi, '');
     s = s.replace(/^(\d+)\s*[-\u2013]\s*(\d+\/\d+)/, '$1 $2');                                   // "1-3/4 cups" is one and three quarters
@@ -101,8 +101,8 @@
     s = shared ? alts[0] + ' or ' + alts[1] : alts[0];
     var untailed = s.replace(TAIL, '');
     if (bareOf(untailed).length) s = untailed;                                          // "3 cups cooked chicken": 'cooked' is part of the name when nothing else is left
-    var jz = s.match(/^(?:juice|zest|rind|peel|sap|rasp|schil)(?:\s+(?:and|&|en)\s+(?:juice|zest|rind|peel|sap|rasp|schil))?\s+(?:of|van)\s+(.+)$/i);
-    if (jz) s = jz[1];                                                                  // "Juice of 1 lemon" is a lemon
+    var jz = s.match(/^(?:juice|zest|rind|peel|sap|rasp|schil)(?:\s+(?:and|&|en)\s+(?:juice|zest|rind|peel|sap|rasp|schil))?\s+(?:of|van|from)\s+(.+)$/i);
+    if (jz) s = jz[1].replace(/^(?:an?|the|another|een)\s+(?:second\s+)?/i, '');                                                                  // "Juice of 1 lemon" is a lemon
     // leading amounts: 2, 1.5, 1/2, 1 1/2, 2-3, 2 to 3, and vulgar fractions like ½
     var amount = new RegExp('^(?:[\\d.,]+|[' + VULGAR_CLASS + '])(?:\\s*[\\u2013\\-/]\\s*[\\d.,]+)?(?:\\s*(?:to|tot)\\s*[\\d.,]+)?(?:\\s*[' + VULGAR_CLASS + '])?(?:\\s*\\d+\\/\\d+)?\\s*', 'i');
     var qty = [], words, prev;
@@ -312,12 +312,12 @@
   /** @param {number} v @returns {string} Rounded to a tidy number, no trailing zeros (1.2, 450). */
   function fmtDecimal(v) { return String(Math.round(v * 10) / 10); }
   /** Grams per millilitre for things that are bought by weight but written in cups and spoons. First match wins. */
-  var DENSITY = [[/peanut butter|nut butter|almond butter|butter beans?|buttermilk|butternut/i, 0], [/baking soda|bicarbonate|zuiveringszout|natron/i, .95], [/baking powder|bakpoeder/i, .8], [/cream of tartar/i, .6], [/cornstarch|corn starch|cornflour|maizena|potato starch|aardappelzetmeel/i, .55], [/yeast|gist/i, .6],
-    [/bread ?crumbs|panko|paneermeel/i, .45], [/chocolate chips|chocolate chunks|chocoladedruppels/i, .7], [/raisins|rozijnen|currants/i, .65], [/walnuts?|almonds?|pecans?|cashews?|hazelnuts?|peanuts?|pistachios?|walnoten|amandelen|noten/i, .55], [/shredded coconut|desiccated|coconut flakes|kokosrasp/i, .35], [/butter|margarine|boter/i, .95], [/cream cheese|roomkaas/i, .96], [/shortening|lard|coconut oil/i, .92], [/ricotta|cottage|mascarpone|sour cream|zure room/i, 1], [/parmesan|parmezaan|pecorino/i, .4], [/cheese|kaas/i, .45],
+  var DENSITY = [[/butter beans?|buttermilk|butternut/i, 0], [/peanut butter|nut butter|almond butter|cashew butter|tahini|pindakaas/i, .95], [/\bsalt\b|\bzout\b/i, 1.2], [/jam\b|jelly|marmalade|jam$|confituur/i, 1.3], [/lentils|quinoa|couscous|barley(?! malt)|bulgur|linzen/i, .8], [/(?:sesame|chia|flax|poppy|sunflower|pumpkin) ?seeds?|\bzaad\b|\bzaden\b/i, .6], [/baking soda|bicarbonate|zuiveringszout|natron/i, .95], [/baking powder|bakpoeder/i, .8], [/cream of tartar/i, .6], [/cornstarch|corn starch|cornflour|maizena|potato starch|aardappelzetmeel/i, .55], [/yeast|gist/i, .6],
+    [/bread ?crumbs|panko|paneermeel/i, .45], [/chocolate chips|chocolate chunks|chocoladedruppels/i, .7], [/raisins|rozijnen|currants/i, .65], [/walnuts?|almonds?|pecans?|cashews?|hazelnuts?|peanuts?|pistachios?|walnoten|amandelen|noten/i, .55], [/shredded coconut|desiccated|coconut flakes|kokosrasp/i, .35], [/butter|margarine|boter/i, .95], [/cream cheese|roomkaas/i, .96], [/shortening|lard|coconut oil/i, .92], [/ricotta|cottage|mascarpone|sour cream|zure room/i, 1], [/parmesan|parmezaan|pecorino/i, .4], [/cheese|kaas|cheddar|mozzarella|gouda|emmental|gruy[eè]re|feta|brie|edam|pecorino/i, .45], [/gelatine?/i, .6],
     [/powdered sugar|icing sugar|confectioners|poedersuiker/i, .5], [/brown sugar|bruine suiker/i, .9], [/sugar|suiker/i, .83], [/flour|bloem|meel/i, .52], [/(?:^|\s)rice$|rijst$/i, .8], [/rolled oats|oats|havermout/i, .37], [/cocoa|cacao/i, .4],
-    [/grated|shredded|geraspte/i, .45], [/honey|honing|maple syrup|syrup|stroop/i, 1.4]];
+    [/coconut(?! (?:milk|cream|oil|water|sugar|flour|aminos))/i, .35], [/grated|shredded|geraspte/i, .45], [/honey|honing|maple syrup|syrup|stroop/i, 1.4]];
   /** Things that really are measured as a volume. Other cups and spoons ("2 cups diced potatoes") stay as written in metric. */
-  var LIQUID = /\bwater\b|\bmilk\b|melk|\bbroth\b|\bstock\b|bouillon|\bcream\b(?! of tartar)|\broom\b|slagroom|kookroom|\boil\b|olie|juice|sap\b|\bwine\b|wijn|vinegar|azijn|sauce|saus|marinade|syrup|stroop|yogh?urt|\bbeer\b|bier|\bcoffee\b|koffie|\btea\b|extract|\bvanilla\b|\bsoy\b|dressing|mayonnaise|ketchup|\bmustard\b|mosterd|\brum\b|brandy|whisky|vodka|liqueur|lemonade|club soda|soda water|\bcider\b|passata|puree/i;
+  var LIQUID = /\bwater\b|\bmilk\b|melk|\bbroth\b|\bstock\b|bouillon|\bcream\b(?! of tartar)|\broom\b|slagroom|kookroom|\boil\b|olie|juice|sap\b|\bwine\b|wijn|vinegar|azijn|sauce|saus|marinade|syrup|stroop|yogh?urt|\bbeer\b|bier|\bcoffee\b|koffie|\btea\b|extract|\bvanilla\b|\bsoy\b|dressing|mayonnaise|ketchup|\bmustard\b|mosterd|\brum\b|brandy|whisky|vodka|liqueur|lemonade|club soda|soda water|\bcider\b|passata|puree|\bpaste\b|sriracha|sambal/i;
   /** Dry things whose names contain a liquid word ("coffee beans", "tea leaves", "bouillon powder"): never measured in ml. */
   var DRY = /powder|powdered|granules|granulated|\bbeans?\b|\bseeds?\b|\bleaves\b|\bchips\b|\bflakes\b|\bzest\b|\bcubes?\b|crumbs|\bgrains?\b|\bnuts?\b|dry mustard/i;
   /** @param {string} name @returns {boolean} Whether it is really measured as a volume (milk, oil) and not a dry thing with a liquid word in its name. */
@@ -363,6 +363,7 @@
       var kind = c[0], dens = to === 'metric' && kind === 'ml' ? density(name) : 0, mul = dens || 1;
       if (to === 'metric' && kind === 'ml' && !dens && typeof name === 'string' && !isLiquid(name)) return part;   // "2 cups potatoes" is not a volume in ml
       if (dens) kind = 'g';
+      if (dens && a * c[1] * mul < 2) return part;   // a pinch of salt or soda in grams is too small to be useful: keep the spoon
       var first = writeAmount(a * c[1] * mul, kind, to);
       if (!m[2]) return first;
       var second = writeAmount(b * c[1] * mul, kind, to), unitOf = function (t) { return t.replace(/^[\d.\u00bd\u00bc\u00be]+\s*/, ''); };

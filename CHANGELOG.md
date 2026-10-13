@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 692
+- Recipes: yeast, salt, nut butter, jam, coconut, seeds, lentils and cheeses convert to grams
+- Recipes: the page's grams are found after a price or a comma, "zest from an orange" is an orange
+
 ## Build 691
 - Recipes: baking soda, baking powder, cornstarch, nuts, breadcrumbs and chocolate chips in grams
 - Recipes: coffee beans, tea leaves, mushrooms and cubes are no longer read as liquids
