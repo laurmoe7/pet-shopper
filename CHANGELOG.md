@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 661
+- Saying yes to a celebration gets him out of bed if he is in bed or tucked in
+
 ## Build 660
 - Mini Fumu: Room mode and Wander mode (Settings > His look > Mode)
 - Room mode: his room shows, he stays in it, toys stay inside; Wander mode: no room or cushion, he walks the desktop and toys can fly

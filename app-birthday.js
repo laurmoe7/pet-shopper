@@ -242,6 +242,17 @@ function celebFx(kind, ms, total, name) {
   celebFxUntil = Date.now() + total + 3000;
   return true;
 }
+/** Said yes to a celebration while he is in bed (tucked in or asleep): he gets up, drowsy and happy, like when the bell wakes him, and the party starts once he is out of bed. */
+function wakeForParty() {
+  var inBed = stage.classList.contains('bedtime') || baseState() === 'sleepy' || pet.classList.contains('tucked');
+  if (!inBed) return;
+  if (typeof setBellAwake === 'function') setBellAwake(true);   // (up for the party, then back to bed by himself after a while, as after the bell)
+  state.pet.dozing = ''; save();
+  refreshBedtime();
+  if (typeof FACES === 'object') setFace(FACES.tada);
+  say(pick(['a party?! I\'m up!', 'wha— a celebration?!', 'up up up~ party time!']), 2200);
+  pulse('hop', 500);
+}
 /**
  * Mini Fumu does not celebrate by itself: an alert card asks first (the screen is about to be covered with effects). "Celebrate" starts it, "Not now" skips it for today, and so does leaving it for two minutes.
  * @param {{kind: string, dev?: boolean, icon: string, title: string, party: function(): boolean, release?: function(): void, done?: function(): void}} o The celebration's name, its emoji, the card's title, how to start it, how to end its start-up hold, and how to remember it was offered today.
@@ -275,7 +286,7 @@ function celebAsk(o) {
     if (closed) return;
     closed = true; clearTimeout(timer);
     card.remove(); celebCard = null; busy--;
-    if (yes) { var n = 0; (function go() { if (o.party()) return; if (++n < 12) setTimeout(go, 1500); else { bdayToyAway(false); if (!busy) settle(); } })(); return; }
+    if (yes) { wakeForParty(); var n = 0; (function go() { if (o.party()) return; if (++n < 12) setTimeout(go, 1500); else { bdayToyAway(false); if (!busy) settle(); } })(); return; }
     say(pick(['ok, maybe next time~', 'no party then ♡']), 2000);
     if (!birthdayHolding()) bdayToyAway(false);
     if (!busy) settle();
