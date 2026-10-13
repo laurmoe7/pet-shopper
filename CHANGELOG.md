@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 653
+- Cosmetics polish: shirt collar on the neckties, bigger butterfly clip with veins and a twinkle
+
 ## Build 652
 - Lights off from the ring menu: he walks back to his bed instead of freezing
 - Waking him with the bell takes 6 knocks instead of 8

@@ -1122,6 +1122,9 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .bfly-wing { fill: #7cc3ff; stroke: var(--pet-ink); stroke-width: 1.4; stroke-linejoin: round; }
 .bfly-low { fill: #a9d8ff; }
 .bfly-spot { fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; }
+.bfly-vein { fill: none; stroke: #fff; stroke-width: .7; stroke-linecap: round; opacity: .6; }
+.bfly-tip { fill: var(--pet-ink); }
+.bfly-twinkle { fill: #fff; stroke: #ffd36b; stroke-width: .6; stroke-linejoin: round; }
 .bfly-body { fill: none; stroke: var(--pet-ink); stroke-width: 2.4; stroke-linecap: round; }
 .bfly-antenna { fill: none; stroke: var(--pet-ink); stroke-width: 1.1; stroke-linecap: round; }
 .scarf-orange { fill: #e8832a; }

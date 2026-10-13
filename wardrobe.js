@@ -109,15 +109,18 @@ function boa() {
         '</g>'
     },
     {
-      id: 'butterflyclip', slot: 'hat', label: 'Butterfly clip', icon: '92 30 40 36',
+      id: 'butterflyclip', slot: 'hat', label: 'Butterfly clip', icon: '88 22 50 46',
       lines: ['so sparkly!', 'flutter flutter', 'y2k cutie'],
-      // a little blue butterfly clipped to the side of the head
-      svg: '<g class="hat-butterfly" transform="translate(110 47) rotate(18)">' +
+      // a little blue butterfly clipped to the side of the head: two-tone wings with veins, white spots and a twinkle
+      svg: '<g class="hat-butterfly" transform="translate(109 47) rotate(18) scale(1.4)">' +
         '<path class="bfly-wing" d="M0 0 C-4 -10 -14 -12 -14 -5 C-14 0 -7 2 0 0 Z M0 0 C4 -10 14 -12 14 -5 C14 0 7 2 0 0 Z"/>' +
         '<path class="bfly-wing bfly-low" d="M0 0 C-3 6 -10 9 -11 4 C-11 1 -6 0 0 0 Z M0 0 C3 6 10 9 11 4 C11 1 6 0 0 0 Z"/>' +
-        '<path class="bfly-spot" d="M-8 -6 h.1 M8 -6 h.1"/>' +
+        '<path class="bfly-vein" d="M-1 -1 C-5 -3 -9 -5 -11 -6 M1 -1 C5 -3 9 -5 11 -6 M-1 1 C-4 2.5 -7 4 -9 5 M1 1 C4 2.5 7 4 9 5"/>' +
+        '<path class="bfly-spot" d="M-9.4 -5.6 h.1 M9.4 -5.6 h.1 M-5.4 -2.6 h.1 M5.4 -2.6 h.1"/>' +
         '<path class="bfly-body" d="M0 -6 V5"/>' +
         '<path class="bfly-antenna" d="M0 -6 Q-2 -10 -4 -11 M0 -6 Q2 -10 4 -11"/>' +
+        '<circle class="bfly-tip" cx="-4" cy="-11" r=".9"/><circle class="bfly-tip" cx="4" cy="-11" r=".9"/>' +
+        '<path class="bfly-twinkle" d="M15 -12 l1 2.6 l2.6 1 l-2.6 1 l-1 2.6 l-1 -2.6 l-2.6 -1 l2.6 -1 Z"/>' +
         '</g>'
     },
     {
@@ -475,7 +478,7 @@ function boa() {
       id: 'necktie', slot: 'neck', label: 'Necktie', icon: '40 108 80 42',
       lines: ['dressed for success!', 'meeting at nine!', 'very businesslike'],
       svg: '<g class="neck-tie">' +
-        '<path class="tie-collar" d="M44 110 Q80 128 116 110 L112 118 Q80 134 48 118 Z"/>' +
+        '<path class="tie-collar" d="M75 116 L55 111 Q55 121 67 127 L76 123 Z M85 116 L105 111 Q105 121 93 127 L84 123 Z"/>' +
         '<path class="tie-cloth" d="M73 124 L87 124 L90 143 Q80 148 70 143 Z"/>' +
         '<path class="tie-stripe" d="M72.4 133 L87.6 130 M71.6 139 L88.4 136"/>' +
         '<path class="tie-cloth" d="M72 117 H88 L86 125 H74 Z"/>' +
@@ -487,8 +490,8 @@ function boa() {
       lines: ['it was a gift', 'bold choice, right?', 'my lucky tie!'],
       // the same shape as the necktie, with a clashing patchwork of greens, mustard, red and navy and some white doodles
       svg: '<g class="neck-tie neck-ugly">' +
-        '<path class="ugly-collar" d="M44 110 Q80 128 116 110 L112 118 Q80 134 48 118 Z"/>' +
-        '<path class="ugly-collar-dark" d="M46 113.6 Q80 130 114 113.6 L112 118 Q80 134 48 118 Z"/>' +
+        '<path class="ugly-collar" d="M75 116 L55 111 Q55 121 67 127 L76 123 Z M85 116 L105 111 Q105 121 93 127 L84 123 Z"/>' +
+        '<path class="ugly-collar-dark" d="M75 120 L58 116.4 Q60 122.4 67 127 L76 123 Z M85 120 L102 116.4 Q100 122.4 93 127 L84 123 Z"/>' +
         '<path class="ugly-base" d="M73 124 L87 124 L90 143 Q80 148 70 143 Z"/>' +
         '<path class="ugly-olive" d="M73.6 125.4 L83 125 L81.6 130.4 L72.9 131 Z"/>' +
         '<path class="ugly-navy" d="M72.2 133.6 L77.4 131.8 L78.2 137.8 L71.4 139 Z"/>' +
