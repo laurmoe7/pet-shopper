@@ -25,9 +25,16 @@ function memoryStore() {
       inbox = inbox.filter((x) => !drop.has(x.id));
     },
     async inboxRemove(acct, ids) { const n = inbox.length; inbox = inbox.filter((m) => !(m.acct === acct && ids.includes(m.id))); return n - inbox.length; },
-    async get(id) { const r = rows.get(id); return r ? { body: r.body, rev: r.rev } : null; },
-    async create(id) { if (rows.has(id)) return false; rows.set(id, { body: null, rev: 0 }); return true; },
-    async put(id, body, rev) { const r = rows.get(id); if (!r || r.rev !== rev) return false; r.body = body; r.rev++; return true; },
+    async get(id) { const r = rows.get(id); return r ? { body: r.body, rev: r.rev, updated: r.updated } : null; },
+    async create(id, now) { if (rows.has(id)) return false; rows.set(id, { body: null, rev: 0, created: now, updated: now }); return true; },
+    async put(id, body, rev, now) { const r = rows.get(id); if (!r || r.rev !== rev) return false; r.body = body; r.rev++; r.updated = now; return true; },
+    async touch(id, now) { const r = rows.get(id); if (r) r.updated = now; },
+    async purge(staleBefore, emptyBefore) {
+      const gone = [...rows].filter(([, r]) => r.updated < staleBefore || (r.body === null && r.created < emptyBefore)).map(([id]) => id);
+      gone.forEach((id) => rows.delete(id));
+      inbox = inbox.filter((m) => !gone.includes(m.acct));
+      return gone.length;
+    },
     async remove(id) { rows.delete(id); inbox = inbox.filter((m) => m.acct !== id); },
     hits: new Map(),
     async hit(key, hour) { const k = key + hour; this.hits.set(k, (this.hits.get(k) || 0) + 1); return this.hits.get(k); }
@@ -373,4 +380,59 @@ test('a device gets what its other devices left, never its own, and no destinati
   assert.ok(!(await waitingFor(store, code, 'phone1', T + 4000)).some((m) => m.text === 'old style'));
   assert.equal((await waiting(store, code, 'pc', T + 4000)).length, 1);   // the earlier way of asking still works
   assert.equal((await send(store, code, { to: 'tablet', kind: 'text', text: 'x' }, T)).status, 400);
+});
+
+test('the stored document must fit too: a sync that would grow it past the limit is refused, and long item words are cut', async () => {
+  const store = memoryStore();
+  const code = await signUp(store);
+  const big = { items: {}, fields: {}, counters: {} };
+  for (let i = 0; i < 1500; i++) big.items['b' + i] = { at: T, by: 'dev', list: 'shop', item: { id: 'b' + i, text: 'x'.repeat(150), emoji: '\u{1F34E}', cat: 'fruit', done: false, qty: 'y'.repeat(150) } };
+  let res = await call(store, 'POST', '/v1/sync', code, { doc: big });
+  assert.equal(res.status, 200);
+  const acct = [...store.rows.keys()][0], stored = JSON.parse((await store.get(acct)).body);
+  assert.equal(stored.items.b0.item.text.length, 150);
+  // the same again from another device, with other ids: the two together would not fit
+  const more = { items: {}, fields: {}, counters: {} };
+  for (let i = 0; i < 1500; i++) more.items['c' + i] = { at: T + 1, by: 'two', list: 'shop', item: { id: 'c' + i, text: 'x'.repeat(150), emoji: '\u{1F34E}', cat: 'fruit', done: false, qty: 'y'.repeat(150) } };
+  res = await call(store, 'POST', '/v1/sync', code, { doc: more });
+  assert.equal(res.status, 413);
+  assert.equal(Object.keys(JSON.parse((await store.get(acct)).body).items).length, 1500, 'the stored document is unchanged');
+  // a very long name is cut to 200 characters
+  const long = { items: { l1: { at: T + 2, by: 'dev', list: 'shop', item: { id: 'l1', text: 'z'.repeat(5000), emoji: '\u{1F34E}', cat: 'fruit', done: false } } }, fields: {}, counters: {} };
+  res = await call(store, 'POST', '/v1/sync', code, { doc: long });
+  assert.equal(res.status, 200);
+  assert.equal(res.json.doc.items.l1.item.text.length, 200);
+});
+
+test('the nightly purge deletes backups not changed for a year and sign-ups never used, and a sync with nothing new still counts as use', async () => {
+  const store = memoryStore();
+  const live = await signUp(store), idle = await signUp(store), empty = await signUp(store);
+  const doc = Sync.snapshot(phone('p1', ['Milk']), T);
+  assert.equal((await call(store, 'POST', '/v1/sync', live, { doc }, T)).status, 200);
+  assert.equal((await call(store, 'POST', '/v1/sync', idle, { doc }, T)).status, 200);
+  // ten months later the live one syncs with nothing new: that marks it as in use (once a day)
+  const later = T + 300 * 24 * 3600 * 1000;
+  assert.equal((await call(store, 'POST', '/v1/sync', live, { doc }, later)).status, 200);
+  assert.equal([...store.rows.values()].filter((r) => r.updated === later).length, 1);
+  const again = later + 3600 * 1000;
+  await call(store, 'POST', '/v1/sync', live, { doc }, again);
+  assert.equal([...store.rows.values()].filter((r) => r.updated === again).length, 0, 'within a day it is not written again');
+  // a year and a day after the first sync: the idle backup and the unused sign-up go, the live one stays
+  const purgeAt = T + S.RETENTION_MS + 24 * 3600 * 1000;
+  assert.equal(await S.purge(store, purgeAt), 2);
+  assert.equal((await call(store, 'GET', '/v1/doc', live, undefined, purgeAt)).status, 200);
+  assert.equal((await call(store, 'GET', '/v1/doc', idle, undefined, purgeAt)).status, 401);
+  assert.equal((await call(store, 'GET', '/v1/doc', empty, undefined, purgeAt)).status, 401);
+  // a fresh sign-up is not purged within its first day
+  const fresh = (await call(store, 'POST', '/v1/account', undefined, undefined, purgeAt)).json.code;
+  assert.equal(await S.purge(store, purgeAt + 1000), 0);
+  assert.equal((await call(store, 'GET', '/v1/doc', fresh, undefined, purgeAt)).status, 200);
+});
+
+test('a connection that asks too often gets 429 from the Worker entry; without the binding there is no limit', async () => {
+  const env = { DB: null, LIMIT: { limit: async ({ key }) => ({ success: key !== '1.2.3.4' }) } };
+  const busy = new Request('https://x.test/v1/health', { headers: { 'CF-Connecting-IP': '1.2.3.4' } });
+  assert.equal((await S.worker.fetch(busy, env)).status, 429);
+  assert.equal(await S.tooOften(new Request('https://x.test/v1/health', { headers: { 'CF-Connecting-IP': '5.6.7.8' } }), env), false);
+  assert.equal(await S.tooOften(busy, {}), false);
 });

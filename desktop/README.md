@@ -59,6 +59,19 @@ also offers it). It works both ways, phone to PC and PC to phone, and only the o
 - Quiet by default: sounds start switched off (Options → Quiet mode).
 - Tapping a gift or opening any sheet switches to the bigger window; **Back to Fumu** returns.
 
+## Releases need a click
+
+Both release workflows run in the GitHub environment `release`. Give it a required reviewer once (GitHub: Settings, Environments,
+`release`, Required reviewers, add yourself) and every installer build waits for your approval on the Actions page before it is
+released; installed copies update themselves from releases, so this is the one place a mistaken or hostile change can be stopped.
+Without a reviewer the environment does nothing and builds release as before.
+
+The installer is not signed yet: Windows shows "protected your PC" on install, and updates are checked only against the release's
+own listing, not against a signature. To sign: a code-signing certificate (an OV certificate from a certificate seller, a few hundred
+euros a year, or Azure Trusted Signing, about ten euros a month), its file and password as the repository secrets `CSC_LINK` and
+`CSC_KEY_PASSWORD` (electron-builder reads them by itself), and then `publisherName` under `win` in `package.json` set to the
+certificate's name, which makes installed copies refuse an update that is not signed with it.
+
 ## For development
 
 `cd desktop && npm install && npm start` (needs Node). `NIBBLE_URL=http://localhost:8765/` loads another address,

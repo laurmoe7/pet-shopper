@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fumufumu privacy</title>
+<meta name="description" content="What Fumufumu keeps, where, and how to delete it.">
+<link rel="icon" href="icon-32.png" type="image/png" sizes="32x32">
+<link rel="stylesheet" href="fonts.css">
+<style>
+  :root { --bg: #f4e9d6; --paper: #fffaf0; --ink: #5b4239; --muted: #8a7466; --line: #e2cfae; --accent: #e7819a; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #3a2c22; --paper: #4b3b30; --ink: #f3e7d8; --muted: #c9b6a4; --line: #6a5444; } }
+  html { background: var(--bg); }
+  body { margin: 0; padding: 24px 16px 48px; color: var(--ink); font: 500 16px/1.55 "M PLUS Rounded 1c", system-ui, sans-serif; }
+  main { max-width: 640px; margin: 0 auto; background: var(--paper); border: 1.5px dashed var(--line); border-radius: 22px; padding: 22px 22px 26px; }
+  h1 { margin: 0 0 4px; font: 800 1.6rem/1.2 "Kiwi Maru", "M PLUS Rounded 1c", system-ui, sans-serif; }
+  h2 { margin: 26px 0 6px; font-size: 1.05rem; font-weight: 800; }
+  p, li { margin: 0 0 8px; }
+  ul { padding-left: 20px; }
+  .small { color: var(--muted); font-size: .9rem; }
+  a { color: inherit; text-decoration: underline wavy var(--accent); text-underline-offset: 4px; }
+  .back { display: inline-block; margin: 0 0 12px; padding: 6px 16px; border: 1.8px solid var(--ink); border-radius: 999px; background: var(--paper); font-weight: 800; font-size: .95rem; text-decoration: none; box-shadow: 0 2px 0 var(--ink); }
+  .back:active { transform: translateY(2px); box-shadow: none; }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="./">← Back to the app</a>
+  <h1>Fumufumu and your data</h1>
+  <p class="small">Last updated 13 October 2026. This page says in plain words what the app keeps, where, and how to delete it.</p>
+
+  <h2>On your device</h2>
+  <p>Fumufumu keeps your shopping list, your to-do list, your pet (its name, looks, room, outfits and progress), your options, and your name and birthday if you type them in. All of it stays on your phone or computer. Nothing is sent anywhere unless you turn on Backup &amp; sync.</p>
+  <p>There are no ads, no analytics and no tracking. The app loads no fonts, scripts or pictures from other companies.</p>
+
+  <h2>Backup &amp; sync (only if you turn it on)</h2>
+  <ul>
+    <li>What is sent: your shopping list, your pet, and your name and birthday. Your to-do list never leaves the device.</li>
+    <li>Where: a small server run for this app on Cloudflare. It keeps one copy per backup code, and the code itself only as a hash. There is no account name, e-mail or password.</li>
+    <li>The code is the only key. Anyone who has it can see and change your list and pet, so keep it to yourself.</li>
+    <li>Notes and links you send between your own devices wait on the server for at most a day, then they are deleted.</li>
+    <li>When you start a backup, the server keeps a scrambled form of your connection address for one hour, only to stop someone from making thousands of backups at once.</li>
+    <li>Delete: Options &gt; Backup &amp; sync &gt; Delete my backup removes everything on the server at once. A backup that has not changed for a year is deleted by itself.</li>
+    <li>Download: Options &gt; Backup &amp; sync &gt; Download my data gives you a file with everything the app has.</li>
+  </ul>
+
+  <h2>Recipe links</h2>
+  <p>When you paste a recipe link, the app sends that link to a small helper on Cloudflare, which reads the page and passes back only the recipe data. It keeps nothing; Cloudflare may hold a copy of the page for ten minutes to answer faster.</p>
+
+  <h2>Adding by voice</h2>
+  <p>The microphone button uses your browser's own speech recognition. In Chrome that means the audio is sent to Google to be turned into words, under Google's terms. Nothing is recorded by Fumufumu.</p>
+
+  <h2>Mini Fumu on Windows</h2>
+  <p>The desktop pet never reads window titles, page text or your screen. At the Normal privacy level it knows only the file name of the program in front (matched against a short list of games and common apps) and where your windows are, so he can sit on them. At the More privacy level he knows only whether you are at the keyboard and the time. Nothing about this leaves your computer.</p>
+
+  <h2>Questions</h2>
+  <p>Write to <a href="mailto:[your contact address]">[your contact address]</a>.</p>
+  <p><a class="back" href="./">← Back to the app</a></p>
+</main>
+</body>
+</html>

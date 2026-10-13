@@ -446,8 +446,10 @@ function start() {
   function toggleFull() { if (!win) return; if (!win.isVisible()) showFumu(); applyMode(mode === 'list' ? 'pet' : 'list'); }
   function swapList() { if (!win) return; if (!win.isVisible()) showFumu(); win.webContents.send('desk:swapList'); }
   // a small box by Fumu to add an item without opening the app: the page shows it and asks for the keyboard while it is open
+  let typingUntil = 0;   // the page may ask for the keyboard only while its quick-add box is opening (desk:typing)
   function quickAdd() {
     if (!win) return;
+    typingUntil = Date.now() + 8000;
     if (!win.isVisible()) showFumu();
     // the box opens over his window: if he is half off the screen (peeking, or near the edge) he is brought fully back first
     if (mode === 'pet') { const b = win.getBounds(), fixed = place.within(b, here()); if (fixed.x !== b.x || fixed.y !== b.y) { peekRest = null; stopTween(); win.setBounds(fixed); restHere(); } }
@@ -463,7 +465,7 @@ function start() {
       if (win && typeof text === 'string') win.webContents.send('desk:sendCopied', text.slice(0, 4100));
     }).catch((e) => log('clipboard read failed', e && e.message));
   }
-  ipcMain.on('desk:typing', (_e, yes) => { if (win && yes) win.focus(); });
+  ipcMain.on('desk:typing', (_e, yes) => { if (win && yes && Date.now() < typingUntil) win.focus(); });
   // in a full-screen game he lets the mouse through; this key makes him catch it for a while (to move him or clear an alert), and again lets go
   function grabMouse() { if (!win) return; setPref('clickThrough', !prefs.clickThrough); solidState = null; win.webContents.send('desk:grab', !prefs.clickThrough); }
   const HANDLERS = { swapSize: toggleFull, swapList, quickAdd, grab: grabMouse };
@@ -674,7 +676,7 @@ function start() {
     const spot = place.peekSpot(win.getBounds(), screen.getAllDisplays().map((d) => d.bounds));
     if (!spot) return null;
     peekRest = win.getBounds();
-    const done = await glide(spot.bounds, Math.max(300, +ms || 900));
+    const done = await glide(spot.bounds, Math.min(5000, Math.max(300, +ms || 900)));   // (capped like walk: a page bug must not leave him stuck half out of the screen)
     return done ? spot.edge : null;
   });
   ipcMain.handle('desk:unpeek', async (_e, ms) => {
@@ -949,8 +951,10 @@ function start() {
 
   app.whenReady().then(() => {
     app.setAppUserModelId('com.laurmoe.nibble');
-    // the page may only use the clipboard for writing; no camera, microphone, location, notifications
+    // the page may only use the clipboard for writing; no camera, microphone, location, notifications. Both handlers: Electron grants
+    // permission *checks* (which is how navigator.clipboard.readText asks) when no check handler is set, so the request handler alone was not enough
     session.defaultSession.setPermissionRequestHandler((_wc, permission, cb) => cb(permission === 'clipboard-sanitized-write'));
+    session.defaultSession.setPermissionCheckHandler((_wc, permission) => permission === 'clipboard-sanitized-write');
     createWindow();
     watchCursor();
     setupKeys();

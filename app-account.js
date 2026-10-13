@@ -57,7 +57,7 @@ function accountSummary() {
   if (syncState.busy) return 'syncing…';
   if (syncState.stopped) return 'code not accepted';
   if (syncState.error) return syncState.error + (account.last ? ' (last synced ' + syncClock(account.last) + ')' : '');
-  return account.last ? 'synced ' + syncClock(account.last) + ' (' + serverUrl().replace(/^https?:\/\//, '') + ')' : 'connected, not synced yet';
+  return account.last ? 'synced ' + syncClock(account.last) + (account.server ? ' (' + serverUrl().replace(/^https?:\/\//, '') + ')' : '') : 'connected, not synced yet';   // (the address only shows for a server the player picked: the default one is not worth printing on screen)
 }
 
 /**
@@ -116,6 +116,12 @@ function syncNow(why) {
     renderAccount();
     if (syncSheet.open) renderSyncLog();
     if (syncState.again) { syncState.again = false; syncSoon(); }
+  }).catch(function (e) {   // something threw (a document this build cannot read, say): the sheet must not stay on "syncing"; the error goes to Developer tools
+    syncState.busy = false; syncState.again = false;
+    syncState.error = 'sync broke';
+    syncLogAdd('Sync broke (' + why + '): ' + (e && e.message || e), 'error');
+    renderAccount();
+    throw e;
   });
 }
 /** Syncs after a short wait (so a run of ticks is one round). Called after every change that is saved. */
@@ -230,6 +236,17 @@ $('acctServer').addEventListener('change', function () {
 });
 accountSheet.addEventListener('click', function (e) { if (e.target === accountSheet) accountSheet.close(); });
 $('acctDone').addEventListener('click', function () { accountSheet.close(); });   // (opened from Options, so no bar button closes it: a Done button does, as well as the grab bar)
+// everything the app has, as a file (your data: lists, pet, options), for your own keeping or to show what is stored
+$('acctExport').addEventListener('click', function () {
+  sound('tap');
+  var text = JSON.stringify({ app: 'Fumufumu', build: BUILD, saved: new Date().toISOString(), data: state }, null, 1);
+  var a = document.createElement('a'), url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+  a.href = url; a.download = 'fumufumu-' + todayKey() + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+  say2('Saved as ' + a.download + '.');
+});
+$('acctPrivacy').addEventListener('click', function () { openPrivacy(); });
 function openAccount(code) {
   codeVisible = false;
   say2('');

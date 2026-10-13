@@ -50,7 +50,10 @@ html.desk-boot.booting,html.desk-boot.booting body{background:transparent!import
   function when(t) { var d = new Date(t); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2) + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
   function line(e) { return 'Build ' + e.b + ' \u00b7 ' + when(e.t) + ' \u00b7 ' + e.m + (e.w ? ' (' + e.w + ')' : ''); }
   function record(msg, where) {
-    var e = { t: Date.now(), b: typeof BUILD === 'string' ? BUILD : '?', m: String(msg || 'error').slice(0, 300), w: where || '' };
+    if (msg && typeof msg === 'object') { try { msg = JSON.stringify(msg); } catch (x) { msg = String(msg); } }
+    var e = { t: Date.now(), b: typeof BUILD === 'string' ? BUILD : '?', m: String(msg || 'error').slice(0, 300), w: where || '' }, last = fresh[fresh.length - 1];
+    if (last && last.m === e.m && e.t - last.t < 1000) return;   // the same error from a fast timer: once a second is enough
+    if (fresh.length >= 50) fresh.shift();
     fresh.push(e);
     try { localStorage.setItem(KEY, JSON.stringify(all().concat(e).slice(-MAX))); } catch (x) { /* storage blocked */ }
   }
@@ -1289,6 +1292,10 @@ html.desk-boot.booting,html.desk-boot.booting body{background:transparent!import
       </div>
     </div>
     <p class="dev-status" id="acctMsg" aria-live="polite"></p>
+    <div class="account-actions">
+      <button type="button" class="pill-btn" id="acctExport">Download my data</button>
+      <button type="button" class="pill-btn" id="acctPrivacy">Privacy</button>
+    </div>
     <details class="account-adv"><summary>Server address</summary>
       <input id="acctServer" type="url" autocomplete="off" spellcheck="false" placeholder="https://…workers.dev" aria-label="Sync server address">
     </details>
@@ -1314,6 +1321,7 @@ html.desk-boot.booting,html.desk-boot.booting body{background:transparent!import
     <p class="build-label" id="buildLabel"></p>
     <div class="picker-foot">
       <button type="button" class="text-btn dev-link" id="devBtn">Developer tools</button>
+      <button type="button" class="text-btn dev-link" id="privacyBtn">Privacy</button>
     </div>
   </form>
 </dialog>

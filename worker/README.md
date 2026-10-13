@@ -11,7 +11,7 @@ Worker does the fetching. It is free (Cloudflare's free plan allows 100,000 requ
 4. Copy the address it shows (like `https://pet-shopper-recipes.yourname.workers.dev`).
 5. In the app: Shopping list → the recipe button → **Recipe helper address** → paste it. Done.
 
-Test it in a browser: `https://<your-address>/?url=https://www.bbcgoodfood.com/recipes/easy-pancakes` should show text containing `application/ld+json` (not a blank page). A blank page means that site has no recipe data: try another recipe.
+Only the app may use it: a request without the app's origin gets 403, so test it from the app's Recipe sheet, not from the browser's address bar (the origins are `ORIGINS` in `recipe-proxy.js` plus `ALLOWED_ORIGINS` in `wrangler.toml`). Each connection gets 20 requests a minute (the `LIMIT` rate-limit binding in `wrangler.toml`; when the code is pasted in the dashboard, add the same binding under Settings > Bindings, or there is no limit). A blank answer means that site has no recipe data: try another recipe.
 
 ## With the command line instead
 

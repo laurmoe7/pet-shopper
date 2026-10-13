@@ -427,3 +427,18 @@ test('dropping the sample list leaves the to-do list alone', () => {
   Sync.dropSample(a);
   assert.deepEqual(texts(a.stash), ['Call mum']);
 });
+
+test('a document with a broken player or emoji overrides is cleaned on apply, like a saved copy is on load', () => {
+  const a = L.parseState(null, ids());
+  Sync.stamp(a, T);
+  const doc = { items: {}, fields: { player: { at: T + 5000, by: 'z', value: null }, overrides: { at: T + 5000, by: 'z', value: 'boom' } }, counters: {} };
+  Sync.apply(a, doc, T + 6000);
+  assert.equal(typeof a.player.name, 'string');
+  assert.deepEqual(a.overrides, {});
+  const doc2 = { items: {}, fields: { player: { at: T + 7000, by: 'z', value: { name: 7, birthday: [] } }, overrides: { at: T + 7000, by: 'z', value: { apples: 5, pears: '\u{1F350}', bad: 'x'.repeat(41) } } }, counters: {} };
+  Sync.apply(a, doc2, T + 8000);
+  assert.equal(typeof a.player.name, 'string');
+  assert.deepEqual(a.overrides, { pears: '\u{1F350}' });
+  assert.deepEqual(L.cleanOverrides(null), {});
+  assert.deepEqual(L.cleanOverrides([1, 2]), {});
+});

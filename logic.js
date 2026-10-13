@@ -213,6 +213,12 @@
    * @param {string} [oldBirthday] A birthday saved on the pet by an earlier build.
    * @returns {{name: string, birthday: string}} birthday is "MM-DD" or empty.
    */
+  /** The picked emoji per item text: only text-to-text pairs, whatever a saved or synced copy holds. @param {*} saved @returns {Object<string, string>} */
+  function cleanOverrides(saved) {
+    var out = {};
+    if (saved && typeof saved === 'object' && !Array.isArray(saved)) Object.keys(saved).forEach(function (k) { if (typeof saved[k] === 'string' && saved[k].length <= 40) out[k] = saved[k]; });
+    return out;
+  }
   function parsePlayer(saved, oldBirthday) {
     saved = saved && typeof saved === 'object' ? saved : {};
     var day = /^\d\d-\d\d$/;
@@ -241,7 +247,7 @@
         data.items.push(item);
       });
     }
-    data.overrides = data.overrides || {};
+    data.overrides = cleanOverrides(data.overrides);
     // the list on show (shopping or to-do) is state.items; the other one waits in state.stash
     data.mode = data.mode === 'todo' ? 'todo' : 'shop';
     if (!Array.isArray(data.stash)) data.stash = [];
@@ -2370,6 +2376,7 @@
     createItem: createItem,
     petProfile: petProfile,
     parsePlayer: parsePlayer,
+    cleanOverrides: cleanOverrides,
     CLOSET_MAX: CLOSET_MAX,
     cleanOutfitName: cleanOutfitName,
     parseCloset: parseCloset,

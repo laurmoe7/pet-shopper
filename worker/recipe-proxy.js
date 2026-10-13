@@ -7,6 +7,21 @@
 
 const MAX_BYTES = 3 * 1024 * 1024;
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Access-Control-Allow-Headers': '*' };
+// Only the app may use it (an open fetcher would be used by strangers and burn the free plan): the page's origin must be one of these,
+// or one listed in ALLOWED_ORIGINS in wrangler.toml (comma-separated). A local test page (localhost) may too.
+const ORIGINS = ['https://laurmoe7.github.io'];
+
+function fromApp(request, env) {
+  const origin = request.headers.get('Origin') || '';
+  const list = ORIGINS.concat(String((env && env.ALLOWED_ORIGINS) || '').split(',').map((s) => s.trim()).filter(Boolean));
+  return list.includes(origin) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+}
+
+/** The rate-limit binding LIMIT (wrangler.toml): a connection gets a few requests a minute. Without the binding there is no limit. */
+async function tooOften(request, env) {
+  if (!env || !env.LIMIT) return false;
+  try { return !(await env.LIMIT.limit({ key: request.headers.get('CF-Connecting-IP') || 'unknown' })).success; } catch (e) { return false; }
+}
 
 function reply(body, status, type) {
   return new Response(body, { status, headers: Object.assign({ 'Content-Type': type || 'text/plain; charset=utf-8', 'Cache-Control': 'public, max-age=600' }, CORS) });
@@ -23,9 +38,11 @@ function allowed(u) {
 }
 
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     if (request.method === 'OPTIONS') return reply(null, 204);
     if (request.method !== 'GET') return reply('GET only', 405);
+    if (!fromApp(request, env)) return reply('Only the Fumufumu app may use this helper', 403);
+    if (await tooOften(request, env)) return reply('Too many requests, try again in a minute', 429);
     let target;
     try { target = new URL(new URL(request.url).searchParams.get('url') || ''); } catch (e) { return reply('Give a recipe address: ?url=https://…', 400); }
     if (!allowed(target)) return reply('That address is not allowed', 400);
