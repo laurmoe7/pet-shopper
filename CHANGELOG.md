@@ -2,6 +2,12 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 660
+- Mini Fumu: Room mode and Wander mode (Settings > His look > Mode)
+- Room mode: his room shows, he stays in it, toys stay inside; Wander mode: no room or cushion, he walks the desktop and toys can fly
+- Settings follow the mode: movement choices, sits on windows and toy flying
+- Weather option has no description line
+
 ## Build 659
 - Weather place box: a pick list of matching places (Grove City, Pennsylvania / Ohio...) while typing
 

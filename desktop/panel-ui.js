@@ -77,6 +77,12 @@
     }
 
     var look = section('His look', 'look');
+    // room mode: his room shows and he stays in it; wander mode: no room or cushion, he walks about the desktop and the toy can leave
+    var wander = S.prefs.deskMode === 'wander';
+    var modeRow = el('div', 'row'), modeText = el('span', 'text', 'Mode'); modeText.appendChild(el('small', '', wander ? 'Walks about your desktop.' : 'Stays in his room.'));
+    var modeSeg = el('span', 'seg');
+    [['room', 'Room'], ['wander', 'Wander']].forEach(function (o) { var b = button(modeSeg, o[1], function () { P.set('deskMode', o[0]).then(take); }); if ((wander ? 'wander' : 'room') === o[0]) b.className = 'on'; });
+    modeRow.append(modeText, modeSeg); look.appendChild(modeRow);
     var sizeRow = el('div', 'row'); sizeRow.appendChild(el('span', 'text', 'Size'));
     var seg = el('span', 'seg');
     [['small', 'Small'], ['normal', 'Normal'], ['large', 'Large']].forEach(function (o) { var b = button(seg, o[1], function () { P.set('size', o[0]).then(take); }); if (S.prefs.size === o[0]) b.className = 'on'; });
@@ -88,10 +94,8 @@
     toggle(look, 'Speech bubbles', 'bubbles', 'In the small window. Alerts still show.');
     toggle(look, 'Thought bubbles', 'clouds', 'Daydreams and wishes.');
     toggle(look, 'Sparkles around him', 'sparkles');
-    toggle(look, 'Room background', 'backdrop', 'The scene from the whole app.');
     toggle(look, 'Sounds', 'mute', 'In the small window.', { invert: true });
-    toggle(look, 'Toy flies around the screen', 'toyRoam');
-    toggle(look, 'Show the cushion under him', 'hideCushion', 'His bed still shows at bedtime.', { invert: true });
+    if (wander) toggle(look, 'Toy flies around the screen', 'toyRoam');   // (in his room the toy stays in it)
 
     var does = section('What he does on his own', 'behaviour');
     // how much he talks on his own: his idle chatter, daydreams, asking for things. Reminders, greetings and answers to you are never held back.
@@ -111,8 +115,11 @@
       row.appendChild(text);
       if (!off) {
         var seg4 = el('span', 'seg');
-        S.privacy.moveLevels.filter(function (l) { return l.id !== 'room' || S.prefs.backdrop; }).forEach(function (l) {
-          var cur4 = S.prefs[pref] === 'room' && !S.prefs.backdrop ? 'normal' : S.prefs[pref];
+        // room mode: a little, in his room or still; wander mode: a lot, normal, a little or still
+        S.privacy.moveLevels.filter(function (l) { return wander ? l.id !== 'room' : l.id !== 'lots' && l.id !== 'normal'; }).forEach(function (l) {
+          var cur4 = S.prefs[pref];
+          if (wander && cur4 === 'room') cur4 = 'normal';
+          if (!wander && (cur4 === 'lots' || cur4 === 'normal')) cur4 = 'room';
           var b = button(seg4, l.label, function () { P.set(pref, l.id).then(take); }); if (cur4 === l.id) b.className = 'on';
         });
         row.appendChild(seg4);
@@ -121,7 +128,8 @@
     }
     moveRow('How much he moves about', '', 'moveNormal');
     moveRow('…in a game or full-screen', cur === 1 ? 'Needs Normal awareness.' : '', 'moveFull', cur === 1);
-    if (S.canPerch && cur === 1) {
+    if (!wander) { /* in his room he never sits on windows */ }
+    else if (S.canPerch && cur === 1) {
       var offRow = el('div', 'row off'); var offText = el('span', 'text', 'Sits on my windows'); offText.appendChild(el('small', '', 'Needs Normal awareness.')); offRow.appendChild(offText); does.appendChild(offRow);
     } else if (S.canPerch) {
       toggle(does, 'Sits on my windows', 'perch');

@@ -79,7 +79,7 @@ optionsList.appendChild(themeRow);
 // the weather (weather.js, app-weather.js): a switch, and a place to look it up for (a typed city or this device's position); kept on this device
 var wxRow = document.createElement('label'), wxPlaceBox = document.createElement('div');
 wxRow.className = 'option';
-wxRow.innerHTML = '<span class="option-title">Weather</span><input type="checkbox" role="switch" id="wxOn"><span class="option-text">He reacts to it. Only an area is sent to open-meteo.com.</span>';
+wxRow.innerHTML = '<span class="option-title">Weather</span><input type="checkbox" role="switch" id="wxOn">';
 wxPlaceBox.className = 'option-weather';
 wxPlaceBox.innerHTML = '<div class="wx-place"><input type="text" id="wxPlace" maxlength="60" placeholder="City or postcode" aria-label="City or postcode for the weather" autocomplete="off"><button type="button" class="pill-btn" id="wxFind">Find</button><button type="button" class="pill-btn" id="wxHere">My location</button></div><ul class="wx-suggest" id="wxSuggest" role="listbox" aria-label="Places" hidden></ul><p class="option-text" id="wxStatus" aria-live="polite"></p>';
 optionsList.append(wxRow, wxPlaceBox);

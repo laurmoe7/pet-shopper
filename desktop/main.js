@@ -27,9 +27,12 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, displaced = false, perch = null, perchTimer = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { alertStyle: 'auto', x: null, y: null, onTop: true, aboveFull: false, clickThrough: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, toyRoam: false, mute: false, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, celebBirthday: true, celebChristmas: true, celebHalloween: true, celebNewYear: true, celebEaster: true, celebKingsDay: true, celebScreen: true, myGames: {}, keys: null };
+  let prefs = { alertStyle: 'auto', x: null, y: null, onTop: true, aboveFull: false, clickThrough: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, deskMode: 'room', toyRoam: true, mute: false, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, celebBirthday: true, celebChristmas: true, celebHalloween: true, celebNewYear: true, celebEaster: true, celebKingsDay: true, celebScreen: true, myGames: {}, keys: null };
   const DEFAULTS = Object.assign({}, prefs);
-  try { prefs = Object.assign(prefs, JSON.parse(fs.readFileSync(prefsFile(), 'utf8'))); } catch (e) { /* first run */ }
+  let savedPrefs = {};
+  try { savedPrefs = JSON.parse(fs.readFileSync(prefsFile(), 'utf8')) || {}; prefs = Object.assign(prefs, savedPrefs); } catch (e) { /* first run */ }
+  // room mode (his room shows, he stays in it) or wander mode (no room or cushion, he walks about the desktop): new installs start in his room; an older save keeps what it had (a room background: room mode)
+  if (prefs.deskMode !== 'room' && prefs.deskMode !== 'wander') prefs.deskMode = Object.keys(savedPrefs).length && !savedPrefs.backdrop ? 'wander' : 'room';
   prefs.keys = keys.clean(prefs.keys);
   prefs.awareness = privacy.clean(prefs.awareness);
   prefs.petName = typeof prefs.petName === 'string' && prefs.petName.trim() ? prefs.petName.trim().slice(0, 16) : 'Fumu';
@@ -64,7 +67,9 @@ function start() {
     if (prefs.onTop && prefs.aboveFull) win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true });
     else win.setVisibleOnAllWorkspaces(false);
   };
-  const publicPrefs = () => ({ alertStyle: prefs.alertStyle, clickThrough: prefs.clickThrough, moveNormal: prefs.moveNormal, moveFull: prefs.moveFull, mute: prefs.mute, remind: prefs.remind, size: prefs.size, perch: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, hideToy: prefs.hideToy, hideCushion: prefs.hideCushion, bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles, backdrop: prefs.backdrop, toyRoam: prefs.toyRoam, celebBirthday: prefs.celebBirthday, celebChristmas: prefs.celebChristmas, celebHalloween: prefs.celebHalloween, celebNewYear: prefs.celebNewYear, celebEaster: prefs.celebEaster, celebKingsDay: prefs.celebKingsDay, celebScreen: prefs.celebScreen });
+  const wanderMode = () => prefs.deskMode === 'wander';
+  const toyRoamOn = () => wanderMode() && prefs.toyRoam;   // (the toy only leaves his room in wander mode)
+  const publicPrefs = () => ({ deskMode: prefs.deskMode, alertStyle: prefs.alertStyle, clickThrough: prefs.clickThrough, moveNormal: prefs.moveNormal, moveFull: prefs.moveFull, mute: prefs.mute, remind: prefs.remind, size: prefs.size, perch: wanderMode() && prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, hideToy: prefs.hideToy, hideCushion: wanderMode(), bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles, backdrop: !wanderMode(), toyRoam: toyRoamOn(), celebBirthday: prefs.celebBirthday, celebChristmas: prefs.celebChristmas, celebHalloween: prefs.celebHalloween, celebNewYear: prefs.celebNewYear, celebEaster: prefs.celebEaster, celebKingsDay: prefs.celebKingsDay, celebScreen: prefs.celebScreen });
   const sendPrefs = () => { if (win) win.webContents.send('desk:prefs', publicPrefs()); panel.push(); };
   // moves the window smoothly (walking, peeking round the screen edge); anything that takes hold of it stops the move
   let tween = null;
@@ -339,7 +344,7 @@ function start() {
   function hideFumu() { if (win) win.hide(); refreshMenus(); }
 
   // one place that changes a setting, for the right-click menu and the settings window alike
-  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'remind', 'perch', 'hideToy', 'hideCushion', 'startWithWindows', 'bubbles', 'clouds', 'sparkles', 'backdrop', 'mute', 'toyRoam', 'clickThrough', 'celebBirthday', 'celebChristmas', 'celebHalloween', 'celebNewYear', 'celebEaster', 'celebKingsDay', 'celebScreen'];
+  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'remind', 'perch', 'hideToy', 'startWithWindows', 'bubbles', 'clouds', 'sparkles', 'mute', 'toyRoam', 'clickThrough', 'celebBirthday', 'celebChristmas', 'celebHalloween', 'celebNewYear', 'celebEaster', 'celebKingsDay', 'celebScreen'];
   function setPref(key, value) {
     if (key === 'awareness') {   // 1 = more privacy, 2 = normal; at 1 he stops sitting on windows (he can no longer see them)
       prefs.awareness = privacy.clean(+value); savePrefs();
@@ -353,6 +358,13 @@ function start() {
       return;
     }
     if (key === 'alertStyle') { if (THEMES.includes(value)) { prefs.alertStyle = value; savePrefs(); sendPrefs(); } return; }
+    if (key === 'deskMode') {   // room mode or wander mode: back in his room, he stops sitting on windows and the toy comes home
+      if (value !== 'room' && value !== 'wander') return;
+      prefs.deskMode = value; savePrefs();
+      if (value === 'room') { fall(); hideToy(); }
+      sendPrefs(); refreshMenus();
+      return;
+    }
     if (key === 'moveNormal' || key === 'moveFull') { prefs[key] = privacy.cleanMove(value, prefs[key]); savePrefs(); sendPrefs(); return; }
     if (key === 'size') { if (['small', 'normal', 'large'].includes(value)) setSize(value); return; }
     if (!BOOLS.includes(key)) return;
@@ -603,7 +615,7 @@ function start() {
       if (Math.hypot(vx, vy) > 1400) { throwWindow(Math.max(-3500, Math.min(3500, vx)), Math.max(-3500, Math.min(3500, vy)), dragHome || b, !!inBed); return; }
     }
     // let go close above another window's edge and he sits on it
-    if (prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch')) {
+    if (wanderMode() && prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch')) {
       const all = frames(), seg = place.perchUnder(b, place.perches(all, areas(), petSize().height * 0.6), 40);
       if (seg) {
         const rect = all.find((f) => f.id === seg.id);
@@ -664,7 +676,7 @@ function start() {
     if (!win || mode !== 'pet' || dragFrom || peekRest) return null;
     if (want === 'down') { if (!perch) return null; await fall(); return false; }
     if (!privacy.allows(prefs.awareness, 'perch')) return 'private';
-    if (!prefs.perch || !windows.available()) return 'off';
+    if (!wanderMode() || !prefs.perch || !windows.available()) return 'off';
     const all = frames(), b = win.getBounds();
     const near = place.perchesNear(b, place.perches(all, areas(), petSize().height * 0.6), areas(), 1100, perch && perch.id);
     if (!near.length) return 'none';
@@ -692,15 +704,15 @@ function start() {
   }
   // (it is parked far off the screen rather than hidden: a hidden transparent window needs a moment to appear again, and the toy blinked out when it was picked up)
   function hideToy() { try { if (typeof stopToyFollow === 'function') stopToyFollow(); if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) { const b = toyWin.getBounds(); toyWin.setBounds({ x: -10000, y: -10000, width: b.width, height: b.height }); } } catch (e) { /* gone */ } }
-  setTimeout(() => { if (prefs.toyRoam && win && mode === 'pet') toyWindow(56); }, 3000);   // (made ahead of time: picking the toy up must not wait for a new window)
+  setTimeout(() => { if (toyRoamOn() && win && mode === 'pet') toyWindow(56); }, 3000);   // (made ahead of time: picking the toy up must not wait for a new window)
   // where his window is and how big the screen is (what the page needs to let the toy fly over all of it)
   ipcMain.handle('desk:toyField', () => {
-    if (!win || mode !== 'pet' || !prefs.toyRoam) return null;
+    if (!win || mode !== 'pet' || !toyRoamOn()) return null;
     const b = win.getBounds();
     return { wx: b.x, wy: b.y, zoom: zoom(), area: screen.getDisplayMatching(b).workArea };
   });
   ipcMain.on('desk:toyShow', (_e, dataUrl, px) => {
-    if (!win || mode !== 'pet' || !prefs.toyRoam || typeof dataUrl !== 'string' || dataUrl.length > 80000 || !/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(dataUrl)) return;
+    if (!win || mode !== 'pet' || !toyRoamOn() || typeof dataUrl !== 'string' || dataUrl.length > 80000 || !/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(dataUrl)) return;
     px = Math.max(16, Math.min(220, Math.round(+px || 32)));
     const w = toyWindow(px + 24);
     if (dataUrl !== toyImg || px !== toyPx) {
@@ -751,7 +763,7 @@ function start() {
   // the wrecking ball: an overlay that draws the open windows breaking (wreck.js); the page throws the toy and says what it hit
   const wreck = require('./wreck').makeWreck({
     BrowserWindow,
-    allowed: () => windows.available() && privacy.allows(prefs.awareness, 'wreck') && prefs.toyRoam,
+    allowed: () => windows.available() && privacy.allows(prefs.awareness, 'wreck') && toyRoamOn(),
     display: () => screen.getDisplayMatching(win.getBounds()),
     frames,
     raise: () => { if (win) win.moveTop(); if (toyWin && !toyWin.isDestroyed() && toyWin.isVisible()) toyWin.moveTop(); }
@@ -890,7 +902,7 @@ function start() {
   }
   const panel = createPanel({
     state: () => ({
-      prefs: Object.assign({ onTop: prefs.onTop, aboveFull: prefs.aboveFull, hotkeys: prefs.hotkeys, startWithWindows: app.getLoginItemSettings().openAtLogin }, publicPrefs(), { perch: prefs.perch }),
+      prefs: Object.assign({ onTop: prefs.onTop, aboveFull: prefs.aboveFull, hotkeys: prefs.hotkeys, startWithWindows: app.getLoginItemSettings().openAtLogin }, publicPrefs(), { perch: prefs.perch, toyRoam: prefs.toyRoam }),
       keys: prefs.keys, channel: CHANNEL.name, privacy: { levels: privacy.LEVELS, always: privacy.ALWAYS, chatLevels: privacy.CHAT_LEVELS, moveLevels: privacy.MOVE_LEVELS }, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, petName: prefs.petName, update: updateReady, updateState
     }),
     set: setPref, rebind, action, diag,

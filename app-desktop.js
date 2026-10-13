@@ -954,7 +954,8 @@
   /** @returns {boolean} Whether he may move about (wander, peek, hop onto windows): not when "stand still" is on for the situation he is in. */
   function moveLevel() {
     var l = inFull() ? deskPrefs.moveFull : deskPrefs.moveNormal;
-    if (l === 'room' && !deskPrefs.backdrop) l = 'normal';   // his room only exists while its background shows
+    if (deskPrefs.backdrop === true) { if (l === 'lots' || l === 'normal') l = 'room'; }   // room mode: he stays in his room (a lot or normal movement is strolling about it)
+    else if (l === 'room') l = 'normal';   // wander mode has no room
     return l === 'lots' || l === 'low' || l === 'room' || l === 'still' ? l : 'normal';
   }
   function moveOk() { var l = moveLevel(); return l === 'lots' || l === 'normal'; }
