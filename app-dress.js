@@ -39,6 +39,9 @@ function dressUp(el, outfit) {
   el.classList.toggle('hooded', !!hood);
   el.classList.toggle('snug', hats.some(function (h) { return h.snug; }));
   el.classList.toggle('shod', worn('feet').length > 0); // shoes replace the pet's own feet
+  // a copy of the left shoe drawn behind the body: the hand dance slides that foot across behind him and his other foot (styles.css), and swaps to this copy while it goes
+  var back = el.querySelector('.outfit-feet-back'), front = el.querySelector('.outfit-feet');
+  if (back && front) back.replaceChildren.apply(back, [].map.call(front.querySelectorAll('.shoe-l'), function (n) { var par = n.parentNode.cloneNode(false); par.appendChild(n.cloneNode(true)); return par; }));
   var soles = el.querySelector('.outfit-soles'); // the shoes seen from below, for the sitting pose
   if (soles) soles.innerHTML = worn('feet').map(function (w) { return w.sole || ''; }).join('');
 }

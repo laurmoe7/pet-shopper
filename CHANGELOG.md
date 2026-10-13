@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 667
+- Hand dance: with shoes on, his left foot slides behind his body and his other foot
+
 ## Build 666
 - Weather report button shows while the weather option is on; with no place picked he says so
 

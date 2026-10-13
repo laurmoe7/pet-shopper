@@ -1733,7 +1733,7 @@ body:has(#roomSheet[open]) .toy { pointer-events: none; }
 .teddy-blush { fill: #ffb3c1; opacity: .8; }
 .pet .blanket { display: none; }
 .pet.tucked .blanket { display: inline; animation: blanket-in .6s cubic-bezier(.3, 1.4, .5, 1); }
-.pet.tucked .outfit-feet { display: none; }
+.pet.tucked :is(.outfit-feet, .outfit-feet-back) { display: none; }
 @keyframes blanket-in { from { transform: translateY(26px); opacity: 0; } to { transform: none; opacity: 1; } }
 .blanket-cloth { fill: none; stroke: var(--prop-ink); stroke-width: 1.8; stroke-linejoin: round; }
 .quilt-seam { fill: none; stroke: #b98aa0; stroke-width: 1; stroke-dasharray: 2.4 2; opacity: .8; }
@@ -3684,6 +3684,14 @@ html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .op
 .pet.handdance:not(#x) :is(.foot-l, .shoe-l) { animation: bs-foot-l 3.6s ease-in-out 3; }
 .pet.handdance:not(#x) :is(.foot-r, .shoe-r) { animation: bs-foot-r 3.6s ease-in-out 3; }
 .pet.handdance :is(.ear-l, .ear-r) { animation: ear-jiggle-l .4s ease-out 27; }
+/* the left foot goes across behind him and his other foot: while it is away from its place the shoe is the copy drawn behind the body (outfit-feet-back), and the front one is hidden */
+.outfit-feet-back { visibility: hidden; }
+.pet.handdance:not(#x) .outfit-feet-back { animation: bs-back-vis 3.6s linear 3; }
+.pet.handdance:not(#x) .outfit-feet-back .shoe-l { animation: bs-foot-l 3.6s ease-in-out 3; }
+.pet.handdance:not(#x) .outfit-feet .shoe-l { animation: bs-foot-l 3.6s ease-in-out 3, bs-front-vis 3.6s linear 3; }
+@keyframes bs-back-vis { 0%, 5.55% { visibility: hidden; } 5.56%, 27.77% { visibility: visible; } 27.78%, 100% { visibility: hidden; } }
+@keyframes bs-front-vis { 0%, 5.55% { visibility: visible; } 5.56%, 27.77% { visibility: hidden; } 27.78%, 100% { visibility: visible; } }
+@media (prefers-reduced-motion: reduce) { .outfit-feet-back, .pet.handdance .outfit-feet-back { animation: none; visibility: hidden; } }
 @media (prefers-reduced-motion: reduce) { .pet.handdance :is(.pet-svg, .arm-l, .arm-r, .ear-l, .ear-r), .pet.handdance:not(#x) :is(.foot-l, .shoe-l, .foot-r, .shoe-r) { animation: none; } }
 
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .stage { border: 0; border-radius: 0; box-shadow: none; }
