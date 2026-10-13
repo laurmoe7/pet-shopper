@@ -19,23 +19,27 @@
     askForTreat(true);
     setTimeout(function () { wishEl.click(); }, 80);   // (feeds it the way tapping his cloud does)
   }
-  function ringDance() {
-    if (busy) return;
-    busy++;
-    var m = tiredMove(pick([['boogie', 2400], ['twirl', 1300], ['hophop', 1500]]));
-    setFace(tiredFace(FACES.party));
-    pulse(m[0], m[1]);
-    sound('excited');
-    say(pick(['la la la~', 'hehe~', 'dance dance!']), 1500);
-    setTimeout(function () { busy--; if (!busy) settle(); }, m[1] + 300);
+  /** @returns {string} What he says about the weather (a lookup result with a kind and a temperature). @param {{kind: string, temp: number}} w */
+  function ringWeatherWords(w) {
+    var nl = typeof Lang === 'object' && Lang.get() === 'nl', t = w.temp + '\u00b0';
+    var en = { clear: 'clear', rain: 'rainy', storm: 'stormy', snow: 'snowy', cold: 'chilly', hot: 'hot' }, du = { clear: 'helder', rain: 'regenachtig', storm: 'stormachtig', snow: 'sneeuwachtig', cold: 'koud', hot: 'heet' };
+    return nl ? 'het is ' + t + ', ' + (du[w.kind] || 'helder') + '~' : 'it is ' + t + ' and ' + (en[w.kind] || 'clear') + '~';
   }
-  function ringWave() {
-    if (busy) return;
-    busy++;
-    setFace(tiredFace({ eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['cheeks'] }));
-    pulse('hopsmall', 450);
-    say(pick(['hi hi!', 'hello~', 'hi! ♡']), 1400);
-    setTimeout(function () { busy--; if (!busy) settle(); }, 1500);
+  /** The weather report: he looks outside and tells you (only offered while the weather option is off, so he does not already show it). Needs a place, set in Options. */
+  function ringWeather() {
+    var nl = typeof Lang === 'object' && Lang.get() === 'nl', c = typeof wxConf === 'function' ? wxConf() : null;
+    if (!c || c.lat === null || c.lon === null) { say(nl ? 'zet eerst een plaats in de opties~' : 'pick a place in Options > Weather first~', 3200, true); return; }
+    var last = typeof wxLast === 'function' ? wxLast() : null;
+    if (last && Date.now() - last.at < 10 * 60000) { say(ringWeatherWords(last), 3600, true); pulse('hopsmall', 450); return; }
+    if (!navigator.onLine) { say(nl ? 'ik kan nu niet kijken~' : 'I cannot look outside right now~', 2400, true); return; }
+    say(nl ? 'even buiten kijken…' : 'let me look outside…', 1600, true);
+    fetch(Weather.forecastUrl(c.lat, c.lon)).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+      var w = Weather.parse(j);
+      if (!w) { say(nl ? 'ik kan niets zien~' : 'I cannot see anything~', 2400, true); return; }
+      w.at = Date.now();
+      try { localStorage.setItem('nibble-weather-last', JSON.stringify(w)); } catch (e) { /* storage not available */ }
+      setTimeout(function () { say(ringWeatherWords(w), 3600, true); pulse('hopsmall', 450); }, 900);
+    }).catch(function () { say(nl ? 'ik kan nu niet kijken~' : 'I cannot look outside right now~', 2400, true); });
   }
   function ringSleep() { bellToBed(['lights off… so sleepy…', '*yawn* bed time…', 'to bed we go…'], true); }   // (he only gets into bed: you still tuck him in)
 
@@ -46,8 +50,7 @@
     notoy: { icon: '🚫', label: 'No toy', on: function () { return toyKind() === 'none'; }, run: function () { toggleToyKind('none'); } },   // (neither switch on: his own ball)
     plant: { icon: '🌱', label: 'Plant', on: function () { return !!state.pet.room.plant; }, run: function () { if (typeof togglePlant === 'function') togglePlant(); } },   // (the app only: shows or hides the little plant)
     snack: { icon: '🍪', label: 'Snack', run: ringSnack },
-    dance: { icon: '🎉', label: 'Dance', run: ringDance },
-    wave: { icon: '👋', label: 'Wave', run: ringWave },
+    weather: { icon: '⛅', label: 'Weather report', run: ringWeather },
     swap: { icon: '📝', label: 'Swap list', run: function () { if (typeof switchList === 'function') switchList(); } },
     lights: { icon: '💡', label: 'Lights off', run: ringSleep },
     night: { icon: '🌙', label: 'Night light', keep: true, on: function () { return nightLightOn; }, run: function () { toggleNightLight(); } }
@@ -58,8 +61,9 @@
     if (!isDesk()) return scene === 'night-bed' ? [] : ['toy', 'notoy'].concat(isTodo() ? ['plant'] : [], ['snack']);   // in the app: the toys (none picked: his own) and a snack; in bed they are put away
     if (scene === 'night-bed') return ['night'];   // in bed: only the night light
     var play = toyKind() === 'none' ? [] : ['ball'];   // (nothing to play with when there is no toy)
-    if (scene.indexOf('night-drowsy') === 0) return play.concat(['toy', 'notoy', 'snack', 'dance', 'swap', 'lights']);
-    return play.concat(['toy', 'notoy', 'snack', 'dance', 'swap', 'wave']);
+    var wx = typeof wxConf === 'function' && !wxConf().want ? ['weather'] : [];   // (with the weather option on he already shows it: the report is for when it is off)
+    if (scene.indexOf('night-drowsy') === 0) return play.concat(['toy', 'notoy', 'snack'], wx, ['swap', 'lights']);
+    return play.concat(['toy', 'notoy', 'snack'], wx, ['swap']);
   }
   function canShow(now, force) {
     // a double click on him or a style preview is asked for on purpose: only the mode is checked, so a stuck state (hidden window, a leftover

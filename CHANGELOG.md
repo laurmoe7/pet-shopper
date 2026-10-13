@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 665
+- Radial menu: weather report button (only while the weather option is off); dance and wave buttons removed
+
 ## Build 664
 - Mini Fumu settings: choose what each swipe direction does on an alert (Done, In 10 min, Put away, Nothing)
 
