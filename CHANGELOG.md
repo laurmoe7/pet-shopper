@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 676
+- Alerts in Light and Dark: paper note look with tape in the colour of its kind, icon on a round sticker, filled main button
+
 ## Build 675
 - Thought clouds sit clear of the Shopping and To-do tabs
 

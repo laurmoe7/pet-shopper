@@ -4428,3 +4428,26 @@ html[data-theme="dark"]:not([data-skin]) body { -webkit-font-smoothing: antialia
 @media (prefers-reduced-motion: no-preference) {
   html:root:not([data-skin]), html:root:not([data-skin]) body { transition: background-color .35s ease, color .35s ease; }
 }
+
+/* Alerts in Light and Dark (build 676): the plain card, now a paper note like the list rows: a strip of tape in the colour of its kind (note, link, Claude, reminder), a dashed cut line,
+   the icon on a round sticker, the main button filled and the others quiet. The themed looks (Sweet, Quest, Old School, Bonfire: any `al-*` class) keep their own. */
+html:not([class*="al-"]) .inbox-card, html:not([class*="al-"]) .remind-card { --ac: #a9dcc3; position: absolute; grid-template-columns: 38px 1fr; gap: 1px 10px; padding: 8px 12px 7px; border: 1.8px solid var(--cb-edge-strong); border-radius: 16px; overflow: visible;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 90%, #fff) 0, var(--surface) 38%); outline: 1.5px dashed var(--cb-edge); outline-offset: -5px;
+  box-shadow: 0 3px 0 var(--shadow), 0 9px 16px -6px var(--shadow), inset 0 1.5px 0 var(--pl-edge, rgba(255, 255, 255, .6)); }
+html:not([class*="al-"]) .link-card { --ac: #a8d4f0; }
+html:not([class*="al-"]) .claude-card { --ac: #c9b3f0; }
+html:not([class*="al-"]) .remind-card { --ac: #f5d36b; }
+html:not([class*="al-"]) .inbox-card::before { content: ""; position: absolute; top: -2px; left: 20px; width: 38px; height: 13px; z-index: 1; background: var(--ac); opacity: .9; transform: rotate(-3deg); pointer-events: none;
+  clip-path: polygon(0 12%, 6% 0, 12% 14%, 18% 0, 24% 14%, 30% 0, 100% 0, 100% 100%, 30% 100%, 24% 86%, 18% 100%, 12% 86%, 6% 100%, 0 88%); }
+html:not([class*="al-"]) .inbox-card .inbox-icon { box-sizing: border-box; width: 36px; height: 36px; padding: 5px; border-radius: 50%; background: color-mix(in srgb, var(--ac) 38%, var(--surface)); border: 2px solid var(--cb-back, #fff); box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 2px 2px var(--shadow); }
+html:not([class*="al-"]) .inbox-card .inbox-icon .inbox-bell { width: 100%; height: 100%; }
+html:not([class*="al-"]) .inbox-text b { font-size: 1rem; }
+html:not([class*="al-"]) .inbox-text span { opacity: .75; }
+html:not([class*="al-"]) .inbox-actions { gap: 7px; margin-top: 4px; }
+html:not([class*="al-"]) .inbox-actions button { border: 1.5px solid var(--cb-edge-strong); box-shadow: 0 2px 0 var(--cb-edge-strong); padding: 2px 11px; transition: transform .1s; }
+html:not([class*="al-"]) .inbox-actions button:first-child:not(.inbox-done) { background: var(--hl, var(--accent)); color: #fff; border-color: #fff; box-shadow: 0 0 0 1.5px var(--cb-edge-strong), 0 2px 2px var(--shadow); text-shadow: 0 1px 0 rgba(0, 0, 0, .18); }
+html:not([class*="al-"]) .inbox-actions .inbox-done { padding: 2px 9px; background: transparent; box-shadow: none; opacity: .8; }
+html:not([class*="al-"]) .inbox-actions button:active { transform: translateY(2px); box-shadow: none; }
+html.desktop-pet:not([class*="al-"]) .stage .inbox-card { bottom: calc(100% - 24px); }   /* (a little lower: the top of the window must not cut the tape) */
+:root[data-theme="dark"] .inbox-card::before, :root[data-theme="dark"] .remind-card::before { opacity: .78; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme]) .inbox-card::before { opacity: .78; } }
