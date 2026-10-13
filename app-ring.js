@@ -58,10 +58,10 @@
   /** @returns {string[]} The buttons for the scene he is in now. */
   function items() {
     var scene = petScene();
-    if (!isDesk()) return scene === 'night-bed' ? [] : ['toy', 'notoy'].concat(isTodo() ? ['plant'] : [], ['snack']);   // in the app: the toys (none picked: his own) and a snack; in bed they are put away
+    var wx = typeof wxConf === 'function' && wxConf().want ? ['weather'] : [];   // (the report is offered while the weather option is on; with no place picked yet he says so when it is pressed)
+    if (!isDesk()) return scene === 'night-bed' ? [] : ['toy', 'notoy'].concat(isTodo() ? ['plant'] : [], ['snack'], wx);   // in the app: the toys (none picked: his own) and a snack; in bed they are put away
     if (scene === 'night-bed') return ['night'];   // in bed: only the night light
     var play = toyKind() === 'none' ? [] : ['ball'];   // (nothing to play with when there is no toy)
-    var wx = typeof wxConf === 'function' && wxConf().want ? ['weather'] : [];   // (the report is offered while the weather option is on; with no place picked yet he says so when it is pressed)
     if (scene.indexOf('night-drowsy') === 0) return play.concat(['toy', 'notoy', 'snack'], wx, ['swap', 'lights']);
     return play.concat(['toy', 'notoy', 'snack'], wx, ['swap']);
   }

@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 670
+- App ring menu: Weather report button (while the weather option is on)
+
 ## Build 669
 - Petting: seven new reactions (puddle, leaning in, spin, shy, shivers, stretch, smitten)
 - New personalities: Mini Villain and Lone Wolf
