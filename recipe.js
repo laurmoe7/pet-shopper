@@ -67,6 +67,10 @@
     if (label) s = label[2];
     var alt = '', am = s.match(/\(\s*(?:about\s+|approx\.?\s+|~)?(\d[\d.,]*)\s*(g|grams?|kg|ml|l)?\s*(?:(?:-|\u2013|to)\s*(\d[\d.,]*)\s*(g|grams?|kg|ml|l))?\s*\)/i);
     if (am && (am[4] || am[2]) && !/\beach\b/i.test(s)) alt = (am[1] + (am[3] ? '-' + am[3] : '') + ' ' + (am[4] || am[2]).toLowerCase().replace(/^grams?$/, 'g')).replace(/,/g, '.');   // the page's own metric amount: "(120g)", "(500g-688g)"
+    if (!alt) {   // "(4 Tbsp; 56g)", "(1 stick, 113 g)": the metric amount after a ; or ,
+      var am2 = s.match(/\([^)]*[;,]\s*(?:about\s+|approx\.?\s+|~)?(\d[\d.,]*)\s*(g|grams?|kg|ml|l)\s*\)/i);
+      if (am2 && !/\beach\b/i.test(s)) alt = (am2[1] + ' ' + am2[2].toLowerCase().replace(/^grams?$/, 'g')).replace(/,/g, '.');
+    }
     s = s.replace(/(?:[$\u20ac\u00a3]\s?\d[\d.,]*|\b\d[\d.,]*\s?(?:euro|eur|dollars?|usd)\b)\**/gi, ' ');   // prices: "($1.24)", "\u20ac 2,50", "$2.69**"
     s = s.replace(/\([^)]*\)/g, ' ').replace(/\[[^\]]*\]/g, ' ').replace(/[()*]/g, ' ').replace(/\s+/g, ' ').trim();
     s = s.replace(/\bextra[- ]virgin\s+/gi, '').replace(/\b(?:freshly|fresh|vers)\s+(?:ground|gemalen)\s+/gi, '');
@@ -106,6 +110,12 @@
     s = s.replace(/^(\d+)\s+(?=\d+(?:\.\d+)?\s*(?:ounces?|oz|g|grams?|ml|lbs?|pounds?)\b)/i, '$1 x ');          // "1 12 ounce can" is one 12 ounce can
     var times = s.match(/^(\d+)\s*[x×]\s*(?=\d)/i);                                     // "2 x 400g tin"
     if (times) { s = s.slice(times[0].length); if (+times[1] > 1) qty.push(times[1] + ' x'); }
+    var cm = s.match(/^((?:\d+\s+\d+\/\d+|\d+\/\d+|\d+(?:[.,]\d+)?|[\u00bd\u00bc\u00be])\s*([a-z]+)\.?)\s*\+\s*((?:\d+\s+\d+\/\d+|\d+\/\d+|\d+(?:[.,]\d+)?|[\u00bd\u00bc\u00be])\s*([a-z]+)\.?)\s+(?=\S)/i);
+    if (cm && UNITS.indexOf(cm[2].toLowerCase()) >= 0 && UNITS.indexOf(cm[4].toLowerCase()) >= 0) {   // "1 cup + 1 Tablespoon flour": one amount made of two
+      var one = function (t, u) { return t.replace(/\s*[a-z]+\.?$/i, '').trim() + ' ' + (SHORT[u.toLowerCase()] || u.toLowerCase()); };
+      qty.push(one(cm[1], cm[2]) + ' & ' + one(cm[3], cm[4]));
+      s = s.slice(cm[0].length);
+    }
     takeAmount();
     // units and filler words at the front, in any order ("2 large cloves fresh garlic"); "and" between two of them goes too ("peeled and diced")
     var lastFiller = false;
@@ -130,7 +140,7 @@
     } while (s !== prev);
     s = s.replace(/[.:;!]+$/, '').trim();
     s = s.replace(/^((?:fresh |dried )?(?:thyme|basil|mint|sage|parsley|cilantro|oregano|rosemary|tarragon|dill|chives)) leaves$/i, '$1');   // "thyme leaves" is thyme
-    var q = qty.join(' ').slice(0, 20);
+    var q = qty.join(' ').slice(0, 40);
     var pair = s.match(/^(.+?)\s+(?:and|&|en)\s+(.+)$/i);                               // "salt and pepper" is two things
     var two = pair && pair[1].split(' ').length < 4 && pair[2].split(' ').length < 4 && (SEASONING.test(pair[1]) && SEASONING.test(pair[2]) || SPLIT_HEADS.indexOf(lastWord(pair[1])) >= 0 && SPLIT_HEADS.indexOf(lastWord(pair[2])) >= 0);
     var names = two ? [pair[1], pair[2]] : [s];
@@ -168,6 +178,52 @@
     return !!rest && STAPLES.indexOf(rest) >= 0;
   }
 
+  // ---------- adding the amounts of the same ingredient from different lines ----------
+  var UNIT_KEY = { cups: 'cup', tablespoon: 'tbsp', tablespoons: 'tbsp', teaspoon: 'tsp', teaspoons: 'tsp', grams: 'g', gram: 'g', ounce: 'oz', ounces: 'oz', pound: 'lb', pounds: 'lb', lbs: 'lb' };
+  var FRACTION_TEXT = [[0, ''], [1 / 8, '1/8'], [1 / 4, '1/4'], [1 / 3, '1/3'], [3 / 8, '3/8'], [1 / 2, '1/2'], [5 / 8, '5/8'], [2 / 3, '2/3'], [3 / 4, '3/4'], [7 / 8, '7/8'], [1, '']];
+  /** @param {string} q One amount like "1/4 cup" or "2". @returns {{n: number, unit: string}|null} null for ranges and amounts with two parts ("1 cup & 1 tbsp"). */
+  function readPart(q) {
+    var m = String(q).match(/^\s*(\d+\s+\d+\/\d+|\d+\/\d+|\d+(?:[.,]\d+)?|[\u00bd\u00bc\u00be])\s*([a-z]*)\.?\s*$/i);
+    if (!m) return null;
+    var n = readNum(m[1]), u = m[2].toLowerCase();
+    return n > 0 ? { n: n, unit: UNIT_KEY[u] || u } : null;
+  }
+  /** @param {number} v @returns {string} Like 1 1/4 or 2.5. */
+  function fmtMixed(v) {
+    var whole = Math.floor(v + 1e-9), f = v - whole;
+    for (var i = 0; i < FRACTION_TEXT.length; i++) if (Math.abs(f - FRACTION_TEXT[i][0]) < .02) { if (i === FRACTION_TEXT.length - 1) whole++; return (whole ? whole : '') + (whole && FRACTION_TEXT[i][1] ? ' ' : '') + FRACTION_TEXT[i][1] || '0'; }
+    return String(Math.round(v * 10) / 10);
+  }
+  /** The metric amount of a part ("85 g") added to another ("16 g"); "-" when either is missing or they differ. */
+  function addMetric(a, b) {
+    if (a === '=') return b || '-';
+    if (b === '=') return a || '-';
+    var x = /^(\d+(?:\.\d+)?)\s*(g|ml)$/.exec(a || ''), y = /^(\d+(?:\.\d+)?)\s*(g|ml)$/.exec(b || '');
+    return x && y && x[2] === y[2] ? Math.round((+x[1] + +y[1]) * 10) / 10 + ' ' + x[2] : '-';
+  }
+  /** Adds the amount of `p` to `old` (the same ingredient on another line): the same unit is summed ("1/4 cup + 1 cup" is "1 1/4 cup"), different units are listed. */
+  function mergeQty(old, p) {
+    // "1 cup & 1 tbsp (133 g)" is split into its two amounts here: the first keeps the metric amount, the second is "=" (already counted in it)
+    function expand(q, alt) {
+      var qs = [], as = [], al = alt ? alt.split(/\s*\+\s*/) : [];
+      (q ? q.split(/\s*\+\s*/) : []).forEach(function (part, i) { part.split(/\s*&\s*/).forEach(function (x, k) { qs.push(x); as.push(k ? '=' : al[i] || '-'); }); });
+      return { q: qs, a: as };
+    }
+    var o = expand(old.qty, old.alt), n = expand(p.qty, p.alt), oq = o.q, oa = o.a, pq = n.q, pa = n.a;
+    pq.forEach(function (q, i) {
+      var np = readPart(q), at = -1;
+      oq.forEach(function (x, k) { var op = readPart(x); if (at < 0 && np && op && op.unit === np.unit) at = k; });
+      var a = pa[i] || '-';
+      if (at < 0) { oq.push(q); oa[oq.length - 1] = a; return; }
+      var op = readPart(oq[at]), sum = op.n + np.n, unit = op.unit === 'cup' && sum > 1 ? 'cups' : op.unit;
+      oq[at] = fmtMixed(sum) + (unit ? ' ' + unit : '');
+      oa[at] = addMetric(oa[at], a);
+    });
+    old.qty = oq.join(' + ').slice(0, 60);
+    var alts = oq.map(function (x, k) { return oa[k] || '-'; });
+    if (alts.some(function (x) { return x !== '-'; })) old.alt = alts.join(' + '); else delete old.alt;
+  }
+
   /**
    * Reads a list of ingredient lines into unique items. The same ingredient twice becomes one, with the amounts joined ("1 tbsp + 1 tsp").
    * @param {string[]} lines
@@ -180,10 +236,7 @@
         var k = p.name.toLowerCase() + '|' + (p.or || []).map(function (o) { return o.toLowerCase(); }).sort().join(','), old = seen[k];   // the same name with different "or" choices is a different use, so its own row
         if (!old) { seen[k] = p; out.push(p); return; }
         if (!p.optional) delete old.optional;                                          // needed once means needed
-        if (p.qty && old.qty !== p.qty) {
-          if (old.alt || p.alt) old.alt = (old.alt || '-') + ' + ' + (p.alt || '-');   // each amount keeps its own metric size ("-" for none)
-          old.qty = old.qty ? old.qty + ' + ' + p.qty : p.qty;
-        }
+        if (p.qty) mergeQty(old, p);
       });
     });
     return out.slice(0, 60);
@@ -286,14 +339,16 @@
    * @param {string} qty @param {'metric'|'us'|''} to  '' keeps it as written. @param {string} [name] The ingredient: in metric, cups and spoons of butter, flour and the like become grams. @param {string} [alt] The page's own metric amount for it ("120 g"), used for metric when given. @returns {string} */
   /** @param {string} qty @returns {boolean} Whether it is measured in cups, spoons, ounces or pounds. */
   function usesUs(qty) {
-    return String(qty).split(/\s*\+\s*/).some(function (part) { var m = part.match(QTY_RE); return !!m && !!US_UNITS[m[3].toLowerCase()]; });
+    return String(qty).split(/\s*[+&]\s*/).some(function (part) { var m = part.match(QTY_RE); return !!m && !!US_UNITS[m[3].toLowerCase()]; });
   }
   function convertQty(qty, to, name, alt) {
     if (!qty || (to !== 'metric' && to !== 'us')) return qty || '';
     var alts = String(alt || '').split(/\s*\+\s*/);
     var out = String(qty).split(/\s*\+\s*/).map(function (part, pi) {
-      var a = alts.length === 1 && !pi || alts.length > 1 ? alts[pi] : '';                  // the page's own metric amount for this part, when it gives one
+      var a = alts.length === 1 && !pi || alts.length > 1 ? alts[pi] : '';
+      if (a === '=') return '';                  // the page's own metric amount for this part, when it gives one
       if (to === 'metric' && a && a !== '-' && usesUs(part) && !(typeof name === 'string' && LIQUID.test(name) && !/ml$|l$/.test(a))) return a;
+      if (part.indexOf('&') >= 0) return part.split(/\s*&\s*/).map(function (x) { return convertQty(x, to, name); }).join(' + ');   // "1 cup & 1 tbsp" with no metric amount on the page: each piece
       var m = part.match(QTY_RE);
       if (!m) return part;
       var unit = m[3].toLowerCase(), c = CONVERT[unit];
@@ -307,8 +362,13 @@
       if (!m[2]) return first;
       var second = writeAmount(b * c[1] * mul, kind, to), unitOf = function (t) { return t.replace(/^[\d.\u00bd\u00bc\u00be]+\s*/, ''); };
       return unitOf(first) === unitOf(second) ? first.replace(/\s*[a-z]+$/, '') + '-' + second : first + '-' + second;
-    }).join(' + ');
-    return out.slice(0, 20);
+    }).filter(Boolean);
+    if (to === 'metric' && out.length > 1) {   // 31 g + 16 g + 133 g is 180 g
+      var kind = '', total = 0;
+      out.forEach(function (x) { var m = /^(\d+(?:\.\d+)?) (g|ml)$/.exec(x); if (m && (!kind || kind === m[2])) { kind = m[2]; total += +m[1]; } else kind = '#'; });
+      if (kind && kind !== '#') return (total >= 1000 ? fmtDecimal(total / 1000) + (kind === 'g' ? ' kg' : ' l') : Math.round(total) + ' ' + kind).slice(0, 40);
+    }
+    return out.join(' + ').slice(0, 40);
   }
 
   /** @param {string} s @returns {boolean} Whether it looks like a web address to fetch (http or https, or www.). */

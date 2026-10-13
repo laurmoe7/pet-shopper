@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 688
+- Recipes: "1 cup + 1 Tablespoon" reads as one amount
+- Recipes: the same ingredient on several lines adds up (1 1/4 cups + 3 tbsp, or 180 g)
+- Recipes: metric amount found in "(4 Tbsp; 56g)"
+
 ## Build 687
 - Birthday: pick a month and a day, no year
 - Dark alert cards: no pale gradient at the top

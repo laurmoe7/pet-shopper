@@ -215,7 +215,7 @@ function openItemSheet(id) {
 /** Saves the name and amount (the emoji and aisle follow a new name, unless you picked an emoji for it yourself). */
 function saveItemSheet() {
   var item = state.items.filter(function (i) { return i.id === editingItem; })[0];
-  var name = $('itemName').value.trim(), qty = $('itemQty').value.trim().slice(0, 20);
+  var name = $('itemName').value.trim(), qty = $('itemQty').value.trim().slice(0, 40);
   if (item && name) {
     if (name !== item.text) {
       var found = L.emojiFor(name, state.overrides);
