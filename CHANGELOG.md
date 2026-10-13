@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 658
+- Weather location box takes a postcode too
+
 ## Build 657
 - Species buttons show how many skins you have as a small round sticker
 

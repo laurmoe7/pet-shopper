@@ -39,9 +39,17 @@
   function forecastUrl(lat, lon) {
     return 'https://api.open-meteo.com/v1/forecast?latitude=' + round(lat) + '&longitude=' + round(lon) + '&current=temperature_2m,apparent_temperature,weather_code&timezone=auto';
   }
-  /** @returns {string} The address that looks a place name up. */
+  /**
+   * @param {string} text What was typed: a city or a postcode.
+   * @returns {string} What to look up: a Dutch postcode loses its two letters (1011 AB: 1011) and a UK one its last part (SW1A 1AA: SW1A), since the place list knows the short forms.
+   */
+  function placeQuery(text) {
+    var t = String(text || '').trim().slice(0, 60), m = /^(\d{4})\s?[A-Za-z]{2}$/.exec(t) || /^([A-Za-z]{1,2}\d[A-Za-z\d]?)\s*\d[A-Za-z]{2}$/.exec(t);
+    return m ? m[1] : t;
+  }
+  /** @returns {string} The address that looks a place name or postcode up (a few matches, so a postcode can pick the right one). */
   function searchUrl(name) {
-    return 'https://geocoding-api.open-meteo.com/v1/search?count=1&language=en&format=json&name=' + encodeURIComponent(String(name || '').trim().slice(0, 60));
+    return 'https://geocoding-api.open-meteo.com/v1/search?count=5&language=en&format=json&name=' + encodeURIComponent(placeQuery(name));
   }
   /**
    * @param {Object} json The answer from forecastUrl.
@@ -55,13 +63,15 @@
   }
   /**
    * @param {Object} json The answer from searchUrl.
-   * @returns {?{lat: number, lon: number, place: string}} The first place found (the position rounded), or null.
+   * @param {string} [typed] What was typed: when it is a postcode, the first place that lists it wins.
+   * @returns {?{lat: number, lon: number, place: string}} The place found (the position rounded), or null.
    */
-  function parsePlace(json) {
-    var r = json && json.results && json.results[0];
+  function parsePlace(json, typed) {
+    var list = (json && json.results) || [], code = placeQuery(typed).toLowerCase();
+    var r = (code && list.filter(function (x) { return (x.postcodes || []).some(function (c) { return String(c).toLowerCase() === code; }); })[0]) || (/^\d+$/.test(code) ? null : list[0]);   // (a number that no place lists is not a place)
     if (!r || !isFinite(+r.latitude) || !isFinite(+r.longitude)) return null;
     return { lat: round(r.latitude), lon: round(r.longitude), place: [r.name, r.country].filter(Boolean).join(', ').slice(0, 60) };
   }
 
-  root.Weather = { KINDS: KINDS, ORDER: ORDER, classify: classify, round: round, forecastUrl: forecastUrl, searchUrl: searchUrl, parse: parse, parsePlace: parsePlace };
+  root.Weather = { KINDS: KINDS, ORDER: ORDER, classify: classify, round: round, forecastUrl: forecastUrl, searchUrl: searchUrl, placeQuery: placeQuery, parse: parse, parsePlace: parsePlace };
 })(typeof self !== 'undefined' ? self : globalThis);

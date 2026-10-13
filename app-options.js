@@ -81,7 +81,7 @@ var wxRow = document.createElement('label'), wxPlaceBox = document.createElement
 wxRow.className = 'option';
 wxRow.innerHTML = '<span class="option-title">Weather</span><input type="checkbox" role="switch" id="wxOn"><span class="option-text">He reacts to it. Only an area is sent to open-meteo.com.</span>';
 wxPlaceBox.className = 'option-weather';
-wxPlaceBox.innerHTML = '<div class="wx-place"><input type="text" id="wxPlace" maxlength="60" placeholder="City" aria-label="City for the weather" autocomplete="off"><button type="button" class="pill-btn" id="wxFind">Find</button><button type="button" class="pill-btn" id="wxHere">My location</button></div><p class="option-text" id="wxStatus" aria-live="polite"></p>';
+wxPlaceBox.innerHTML = '<div class="wx-place"><input type="text" id="wxPlace" maxlength="60" placeholder="City or postcode" aria-label="City or postcode for the weather" autocomplete="off"><button type="button" class="pill-btn" id="wxFind">Find</button><button type="button" class="pill-btn" id="wxHere">My location</button></div><p class="option-text" id="wxStatus" aria-live="polite"></p>';
 optionsList.append(wxRow, wxPlaceBox);
 /** Says what the weather setting is doing now (the place and the weather last seen). */
 function wxStatus(note) {
@@ -99,10 +99,10 @@ $('wxOn').addEventListener('change', function () {
 /** Looks a typed place up and starts using it. */
 function wxFindPlace() {
   var name = $('wxPlace').value.trim();
-  if (!name) { wxStatus(T('Type a city first.')); return; }
+  if (!name) { wxStatus(T('Type a city or postcode first.')); return; }
   wxStatus(T('Looking…'));
   fetch(Weather.searchUrl(name)).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
-    var p = Weather.parsePlace(j);
+    var p = Weather.parsePlace(j, name);
     if (!p) { wxStatus(T('No place found.')); return; }
     wxSave({ want: true, lat: p.lat, lon: p.lon, place: p.place });
     $('wxOn').checked = true; $('wxPlace').value = p.place;

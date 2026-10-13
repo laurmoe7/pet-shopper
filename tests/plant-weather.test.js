@@ -65,3 +65,17 @@ test('the day number is the same all day', () => {
   assert.equal(L.dayNumber(new Date(2026, 5, 1, 0, 5)), L.dayNumber(new Date(2026, 5, 1, 23, 55)));
   assert.equal(L.dayNumber(new Date(2026, 5, 2)) - L.dayNumber(new Date(2026, 5, 1)), 1);
 });
+
+test('a postcode can be typed instead of a city', () => {
+  assert.equal(W.placeQuery('1011 AB'), '1011');
+  assert.equal(W.placeQuery('1011ab'), '1011');
+  assert.equal(W.placeQuery('SW1A 1AA'), 'SW1A');
+  assert.equal(W.placeQuery('90210'), '90210');
+  assert.equal(W.placeQuery('Utrecht'), 'Utrecht');
+  assert.ok(/name=1011$/.test(W.searchUrl('1011 AB')));
+  const found = W.parsePlace({ results: [
+    { name: 'Lausanne', country: 'Switzerland', latitude: 46.5, longitude: 6.6, postcodes: ['1000', '1003'] },
+    { name: 'Amsterdam', country: 'Netherlands', latitude: 52.37, longitude: 4.89, postcodes: ['1011', '1012'] }
+  ] }, '1011 AB');
+  assert.equal(found.place, 'Amsterdam, Netherlands');
+});
