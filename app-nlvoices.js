@@ -134,5 +134,31 @@ var NlVoices = {
       health: ['met mij is niks. geen pillen. …oké, geef maar.', 'jij hebt rust nodig. ik niet.', 'ik zei dat ik gezond ben!'], home: ['ik ga niet schoonmaken. doe jij dat.', 'goed. maar ik houd toezicht.'], stuff: ['daar heb ik niet om gevraagd. …hou maar.', 'wat is dat? ik wil het.', 'ugh, meer spullen. ik sta het toe.'],
       name: ['het is {name}. geen koosnaampjes.', '{name}. en geen gezeur.']
     }
+  },
+  villain: {
+    suggests: ['Koekjes', 'Donuts', 'Hete saus', 'Cupcakes', 'Frisdrank', 'Croissants'],
+    lines: ['kwaadaardige snack binnen.', 'moeahaha… zo lekker.', 'het feestmaal van een schurk!'],
+    style: { endings: [' moeahaha', '… heh', ', volgens plan'], prefixes: ['aanschouw: ', 'heh, '] },
+    voice: {
+      hi: ['moeahaha! …oh, hoi.', 'mijn aartsvijand is terug! …hoi!'], tap: ['schurken spinnen niet. …spin.', 'stop! …ik bedoel, ga door.', 'ik ben eng! …dit is fijn.'], sleepy: ['zzz… slecht plan… zzz', 'zzz… wereldheerschappij… dutje…'],
+      suggest: ['mijn slechte plan heeft {x} nodig.', 'ik ga {x} stelen! …of kopen?', 'een schurk eist {x}!'], decline: ['vervloekt! …is oké.', 'weer verijdeld! ach.'], dream: ['ik steel al die {x}!', 'de {x}… worden van MIJ.'],
+      idle: ['smeden… smeden… snack?', '*boze lach* *kucht*', 'mijn meesterplan: dutje.', 'ik ben dreigend! …toch?'], look: ['gevreesd in het hele land!', 'heel eng. heel schattig.', 'schurkenmode!'], room: ['mijn geheime schuilplaats!', 'een schuilplaats. met kussens.'],
+      full: ['de overval is gelukt! …boodschappen.', 'overwinning! ik bedoel, dank je.'], quick: ['verdacht snel. ik keur het goed!', 'een slim plan, hm?'], spit: ['ptoe! sabotage!', 'verijdeld door een snack!'],
+      health: ['ook schurken poetsen tanden.', 'vitamines voor slechte plannen!', 'ik moet sterk blijven!'], home: ['mijn schuilplaats schoonmaken. gemeen.', 'een nette schuilplaats is eng.'],
+      stuff: ['ooh, gemene gadgets?', 'een dag-des-oordeels… dingetje?', 'glimmend! voor het kwaad! …en leuk.'], name: ['vrees mij: {name}!', 'ik ben {name}, schrik van snacks.']
+    }
+  },
+  wolf: {
+    suggests: ['Biefstuk', 'Zwarte koffie', 'Worstjes', 'Rijst', 'Zalm', 'Kip'],
+    lines: ['goed eten. dank.', 'dat was precies goed.', 'een krijger heeft snacks nodig.'],
+    style: { endings: [' …hm.', '.'], prefixes: ['…', 'hm. '] },
+    voice: {
+      hi: ['…hé.', 'je bent terug. goed.'], tap: ['…hm. oké.', 'niet raar doen. …meer.', '*leunt ertegenaan*', 'goed. dit is fijn.'], sleepy: ['zzz… één oog open…', 'zzz… waken… zzz'],
+      suggest: ['we hebben {x} nodig.', '{x}. haal het. alsjeblieft.', '{x} zou helpen.'], decline: ['…prima.', 'jouw keuze.'], dream: ['{x}. straks.', 'denken aan {x}.'],
+      idle: ['…', 'blijf dichtbij. ik heb je.', '*staart in de verte*', 'rustige nacht. goed.'], look: ['…niet slecht.', 'ik draag het goed. stilletjes.', 'huh. het staat me.'], room: ['een goede plek om te rusten.', 'rustig. ik vind het fijn.'],
+      full: ['goede buit. goed gedaan.', 'we hebben goed gegeten. dank.'], quick: ['dat was snel. …fijn.', 'al? goed werk.'], spit: ['niet klaar. wacht.', 'ptoe. later.'],
+      health: ['zorg goed voor jezelf. oké?', 'rust. ik hou de wacht.', 'forceer het niet te veel.'], home: ['een schone plek om te rusten.', 'ik bewaak de schone vloer.'],
+      stuff: ['hebben we dat nodig? …oké.', 'hm. kan nuttig zijn.', 'een cadeau? …dank.'], name: ['{name}.', 'noem me {name}. …vriend.']
+    }
   }
 };

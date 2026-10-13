@@ -89,11 +89,11 @@ test('the headphones are over-ear: padded band, hinges, round cups with rims and
   }
 });
 
-test('the pet has places for neckwear (under the face) and shoes (over the feet)', () => {
+test('the pet has places for neckwear (under the face) and shoes (over the feet, under the hands)', () => {
   const neck = html.indexOf('<g class="outfit-neck">'), face = html.indexOf('<g class="outfit-faces">');
   const feet = html.indexOf('<g class="outfit-feet">'), arms = html.indexOf('<g class="arm arm-r">');
   assert.ok(neck > 0 && neck < html.indexOf('class="redface"') && neck < face);
-  assert.ok(feet > arms, 'shoes are drawn in front of the body');
+  assert.ok(feet > html.indexOf('<g class="outfit-body">') && feet < arms, 'shoes are in front of the body but behind the hands');
   assert.match(html, /id="neckStrip"/);
   assert.match(html, /id="feetStrip"/);
 });

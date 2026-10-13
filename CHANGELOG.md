@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 669
+- Petting: seven new reactions (puddle, leaning in, spin, shy, shivers, stretch, smitten)
+- New personalities: Mini Villain and Lone Wolf
+- Hands are drawn over shoes, so they never slip behind them
+
 ## Build 668
 - To-do list: a dotted line between today's tasks and tasks for other days
 

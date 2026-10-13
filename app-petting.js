@@ -13,7 +13,21 @@
     { face: { eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }, move: ['sit', 2600], lines: ['mmm~', 'so nice…', 'melting…'] },
     { face: { eyes: 'happy', mouth: 'open', arms: 'cheer', x: ['hearts', 'cheeks'] }, move: ['roly', 2800], lines: ['wheee~', 'hehe!', 'again!'] },
     { face: { eyes: 'happy', mouth: 'open', arms: 'cover', x: ['cheeks'] }, move: ['shuffle', 1500], lines: ['hehe, tickles!', 'that tickles!', 'hihihi'] },
-    { face: { eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['hearts', 'cheeks'] }, move: ['rocksmall', 1300], lines: ['purrr~', 'right there ♡', 'more pets?'] }
+    { face: { eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['hearts', 'cheeks'] }, move: ['rocksmall', 1300], lines: ['purrr~', 'right there ♡', 'more pets?'] },
+    // melts into a puddle
+    { face: { eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['cheeks'] }, move: ['flop', 2400], lines: ['I\'m a puddle~', 'gone… melted…', 'no bones left~'] },
+    // leans into the hand
+    { face: { eyes: 'closed', mouth: 'smile', arms: 'rest', x: ['hearts', 'cheeks'] }, move: ['tilt', 1800], lines: ['a bit more left~', 'leaning in…', 'mmm, that spot'] },
+    // so happy he spins
+    { face: { eyes: 'sparkle', mouth: 'open', arms: 'cheer', x: ['hearts', 'sparkles', 'cheeks'] }, move: ['spinhop', 900], lines: ['wheee!', 'spin spin!', 'I\'m so happy!'] },
+    // shy about it
+    { face: { eyes: 'closed', mouth: 'smile', arms: 'cover', x: ['cheeks', 'hearts'] }, move: ['shuffle', 1500], lines: ['oh! s-shy…', 'hehe… don\'t look', 'you\'re embarrassing me~'] },
+    // happy shivers
+    { face: { eyes: 'happy', mouth: 'open', arms: 'clench', x: ['cheeks', 'sparkles'] }, move: ['shiver', 700], lines: ['ooh, shivers!', 'tingly~', 'eeeee!'] },
+    // a happy stretch
+    { face: { eyes: 'closed', mouth: 'open', arms: 'cheer', x: ['cheeks'] }, move: ['stretch', 1100], lines: ['ahh~ stretchy', 'so relaxing…', 'mmm, ahhh'] },
+    // smitten: bouncing hearts
+    { face: { eyes: 'sparkle', mouth: 'smile', arms: 'cheer', x: ['hearts', 'cheeks'] }, move: ['hophop', 1500], lines: ['I love you!', 'best human~ ♡', 'you\'re my favourite!'] }
   ];
   /** Fumu enjoys it: one of a few happy reactions, hearts, a purr and a line. Only a reaction; nothing counts for goals. */
   function petted() {
