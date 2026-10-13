@@ -209,7 +209,12 @@
   window.deskPref = function (key) { return deskPrefs[key] !== false; };
   window.deskAware = function (level) { return (deskPrefs.awareness === 1 ? 1 : 2) >= level; };
   /** The small window's look choices from the settings window: no toy, no cushion (classes on <html>, CSS at the end of styles.css). */
-  deskMuted = function () { return !!deskPrefs.mute && isPet(); };   // sounds off in the small window only
+  /** @returns {number} The volume slider, 0 to 1 (an older shell has only the old mute switch). */
+  function deskLevel() { return typeof deskPrefs.volume === 'number' ? Math.max(0, Math.min(1, deskPrefs.volume / 100)) : deskPrefs.mute ? 0 : 1; }
+  deskMuted = function () { return isPet() && deskLevel() === 0; };   // the volume is for the small window only
+  deskVolume = function () { return isPet() ? deskLevel() : 1; };
+  /** @returns {boolean} Whether the night sounds (an owl and crickets) may play: not when they are switched off for the small window. */
+  window.deskAmbient = function () { return !(isPet() && deskPrefs.ambient === false); };
   /** @returns {boolean} Whether the app is dark now (its Appearance setting, or the system's when it is on Auto). */
   function appIsDark() {
     var t = root.dataset.theme;

@@ -94,7 +94,16 @@
     toggle(look, 'Speech bubbles', 'bubbles', 'In the small window. Alerts still show.');
     toggle(look, 'Thought bubbles', 'clouds', 'Daydreams and wishes.');
     toggle(look, 'Sparkles around him', 'sparkles');
-    toggle(look, 'Sounds', 'mute', 'In the small window.', { invert: true });
+    // the volume of the small window (0 is silent), and the night sounds (an owl and crickets) that can be switched off on their own
+    var volRow = el('div', 'row'), volText = el('span', 'text', 'Volume'), volBox = el('span', 'vol'), vol = el('input'), volNum = el('b', '', '');
+    vol.type = 'range'; vol.min = '0'; vol.max = '100'; vol.step = '5'; vol.value = String(typeof S.prefs.volume === 'number' ? S.prefs.volume : 100); vol.setAttribute('aria-label', 'Volume');
+    function volShow() { volNum.textContent = +vol.value === 0 ? 'Off' : vol.value + '%'; }
+    volShow();
+    vol.addEventListener('input', volShow);
+    vol.addEventListener('change', function () { P.set('volume', +vol.value).then(take); });
+    volBox.append(vol, volNum); volRow.append(volText, volBox); look.appendChild(volRow);
+    toggle(look, 'Night sounds', 'ambient', 'An owl and crickets.');
+    if (wander) { /* (wander mode has no cushion) */ } else toggle(look, 'Show the cushion under him', 'hideCushion', 'His bed still shows at bedtime.', { invert: true });
     if (wander) toggle(look, 'Toy flies around the screen', 'toyRoam');   // (in his room the toy stays in it)
 
     var does = section('What he does on his own', 'behaviour');

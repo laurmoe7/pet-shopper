@@ -719,9 +719,11 @@
     unlock: unlock,
     kinds: Object.keys(KINDS),
     variant: variant,
-    play: function (kind) {
+    /** @param {string} kind @param {number} [volume] 0 to 1 (1 when missing): the loudness of everything from now on (Mini Fumu's volume slider). */
+    play: function (kind, volume) {
       try {
         if (!init()) return;
+        master.gain.value = 0.8 * (typeof volume === 'number' ? Math.max(0, Math.min(1, volume)) : 1);
         if (ctx.state === 'suspended') ctx.resume().catch(function () {});
         var k = KINDS[kind] ? kind : 'chomp';
         // a slightly different pitch every time

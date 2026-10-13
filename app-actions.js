@@ -7,9 +7,10 @@
  * Plays an eating sound unless quiet mode is on.
  * @param {string} kind A Sounds.play kind, e.g. "glug".
  */
-var deskMuted = function () { return false; };   // the desktop app's "mute small Fumu" replaces this (app-desktop.js)
+var deskMuted = function () { return false; };   // the desktop app's volume slider (at zero) replaces this (app-desktop.js)
+var deskVolume = function () { return 1; };   // ...and this: how loud, 0 to 1 (small Fumu only)
 var swipeQuietUntil = 0;   // while an alert is being swiped away only its swoosh plays (set by swipeSound in app-send.js)
-function sound(kind) { clickSounded = true; if (Date.now() < swipeQuietUntil && !/^swoosh/.test(kind)) return; if (!state.quiet && state.settings.sounds && !deskMuted()) Sounds.play(kind); }
+function sound(kind) { clickSounded = true; if (Date.now() < swipeQuietUntil && !/^swoosh/.test(kind)) return; if (!state.quiet && state.settings.sounds && !deskMuted()) Sounds.play(kind, deskVolume()); }
 // every button and menu item makes a sound: handlers that play their own mark the click,
 // and any click left silent gets a soft tap (switches play on/off from their change event)
 var clickSounded = false;

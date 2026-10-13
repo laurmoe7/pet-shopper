@@ -27,11 +27,14 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, displaced = false, perch = null, perchTimer = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { alertStyle: 'auto', x: null, y: null, onTop: true, aboveFull: false, clickThrough: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, deskMode: 'room', toyRoam: true, mute: false, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, celebBirthday: true, celebChristmas: true, celebHalloween: true, celebNewYear: true, celebEaster: true, celebKingsDay: true, celebScreen: true, myGames: {}, keys: null };
+  let prefs = { alertStyle: 'auto', x: null, y: null, onTop: true, aboveFull: false, clickThrough: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, deskMode: 'room', toyRoam: true, mute: false, volume: 100, ambient: true, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, celebBirthday: true, celebChristmas: true, celebHalloween: true, celebNewYear: true, celebEaster: true, celebKingsDay: true, celebScreen: true, myGames: {}, keys: null };
   const DEFAULTS = Object.assign({}, prefs);
   let savedPrefs = {};
   try { savedPrefs = JSON.parse(fs.readFileSync(prefsFile(), 'utf8')) || {}; prefs = Object.assign(prefs, savedPrefs); } catch (e) { /* first run */ }
   // room mode (his room shows, he stays in it) or wander mode (no room or cushion, he walks about the desktop): new installs start in his room; an older save keeps what it had (a room background: room mode)
+  // the sound switch became a volume slider: an old mute is a volume of zero
+  if (typeof savedPrefs.volume !== 'number') prefs.volume = savedPrefs.mute ? 0 : 100;
+  prefs.volume = Math.max(0, Math.min(100, Math.round(+prefs.volume) || 0));
   if (prefs.deskMode !== 'room' && prefs.deskMode !== 'wander') prefs.deskMode = Object.keys(savedPrefs).length && !savedPrefs.backdrop ? 'wander' : 'room';
   prefs.keys = keys.clean(prefs.keys);
   prefs.awareness = privacy.clean(prefs.awareness);
@@ -69,7 +72,7 @@ function start() {
   };
   const wanderMode = () => prefs.deskMode === 'wander';
   const toyRoamOn = () => wanderMode() && prefs.toyRoam;   // (the toy only leaves his room in wander mode)
-  const publicPrefs = () => ({ deskMode: prefs.deskMode, alertStyle: prefs.alertStyle, clickThrough: prefs.clickThrough, moveNormal: prefs.moveNormal, moveFull: prefs.moveFull, mute: prefs.mute, remind: prefs.remind, size: prefs.size, perch: wanderMode() && prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, hideToy: prefs.hideToy, hideCushion: wanderMode(), bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles, backdrop: !wanderMode(), toyRoam: toyRoamOn(), celebBirthday: prefs.celebBirthday, celebChristmas: prefs.celebChristmas, celebHalloween: prefs.celebHalloween, celebNewYear: prefs.celebNewYear, celebEaster: prefs.celebEaster, celebKingsDay: prefs.celebKingsDay, celebScreen: prefs.celebScreen });
+  const publicPrefs = () => ({ deskMode: prefs.deskMode, alertStyle: prefs.alertStyle, clickThrough: prefs.clickThrough, moveNormal: prefs.moveNormal, moveFull: prefs.moveFull, remind: prefs.remind, size: prefs.size, perch: wanderMode() && prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, hideToy: prefs.hideToy, hideCushion: wanderMode() || prefs.hideCushion, volume: prefs.volume, ambient: prefs.ambient, bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles, backdrop: !wanderMode(), toyRoam: toyRoamOn(), celebBirthday: prefs.celebBirthday, celebChristmas: prefs.celebChristmas, celebHalloween: prefs.celebHalloween, celebNewYear: prefs.celebNewYear, celebEaster: prefs.celebEaster, celebKingsDay: prefs.celebKingsDay, celebScreen: prefs.celebScreen });
   const sendPrefs = () => { if (win) win.webContents.send('desk:prefs', publicPrefs()); panel.push(); };
   // moves the window smoothly (walking, peeking round the screen edge); anything that takes hold of it stops the move
   let tween = null;
@@ -344,7 +347,7 @@ function start() {
   function hideFumu() { if (win) win.hide(); refreshMenus(); }
 
   // one place that changes a setting, for the right-click menu and the settings window alike
-  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'remind', 'perch', 'hideToy', 'startWithWindows', 'bubbles', 'clouds', 'sparkles', 'mute', 'toyRoam', 'clickThrough', 'celebBirthday', 'celebChristmas', 'celebHalloween', 'celebNewYear', 'celebEaster', 'celebKingsDay', 'celebScreen'];
+  const BOOLS = ['onTop', 'aboveFull', 'hotkeys', 'remind', 'perch', 'hideToy', 'hideCushion', 'ambient', 'startWithWindows', 'bubbles', 'clouds', 'sparkles', 'toyRoam', 'clickThrough', 'celebBirthday', 'celebChristmas', 'celebHalloween', 'celebNewYear', 'celebEaster', 'celebKingsDay', 'celebScreen'];
   function setPref(key, value) {
     if (key === 'awareness') {   // 1 = more privacy, 2 = normal; at 1 he stops sitting on windows (he can no longer see them)
       prefs.awareness = privacy.clean(+value); savePrefs();
@@ -358,6 +361,7 @@ function start() {
       return;
     }
     if (key === 'alertStyle') { if (THEMES.includes(value)) { prefs.alertStyle = value; savePrefs(); sendPrefs(); } return; }
+    if (key === 'volume') { prefs.volume = Math.max(0, Math.min(100, Math.round(+value) || 0)); savePrefs(); sendPrefs(); return; }   // (0 is silent)
     if (key === 'deskMode') {   // room mode or wander mode: back in his room, he stops sitting on windows and the toy comes home
       if (value !== 'room' && value !== 'wander') return;
       prefs.deskMode = value; savePrefs();
@@ -902,7 +906,7 @@ function start() {
   }
   const panel = createPanel({
     state: () => ({
-      prefs: Object.assign({ onTop: prefs.onTop, aboveFull: prefs.aboveFull, hotkeys: prefs.hotkeys, startWithWindows: app.getLoginItemSettings().openAtLogin }, publicPrefs(), { perch: prefs.perch, toyRoam: prefs.toyRoam }),
+      prefs: Object.assign({ onTop: prefs.onTop, aboveFull: prefs.aboveFull, hotkeys: prefs.hotkeys, startWithWindows: app.getLoginItemSettings().openAtLogin }, publicPrefs(), { perch: prefs.perch, toyRoam: prefs.toyRoam, hideCushion: prefs.hideCushion }),
       keys: prefs.keys, channel: CHANNEL.name, privacy: { levels: privacy.LEVELS, always: privacy.ALWAYS, chatLevels: privacy.CHAT_LEVELS, moveLevels: privacy.MOVE_LEVELS }, keyList: keys.KEY_LIST, held: Object.assign({}, registered), canPerch: windows.available(), packaged: app.isPackaged, mode, petName: prefs.petName, update: updateReady, updateState
     }),
     set: setPref, rebind, action, diag,

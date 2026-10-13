@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 663
+- Mini Fumu settings: volume slider replaces the sounds switch; Night sounds switch (owl and crickets); cushion switch in room mode
+
 ## Build 662
 - Holiday hats: using the app on a celebration day puts a gift box in Profile with the hat Fumu wears; opening it unlocks the hat
 - Daily and holiday gift boxes removed

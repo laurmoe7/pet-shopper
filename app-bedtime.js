@@ -277,7 +277,7 @@ function bedSoon() {
 // night sounds while it sleeps: crickets now and then, and an owl hooting outside
 var owlTimer, cricketTimer;
 /** @returns {boolean} True when night sounds may play: asleep, on screen, no menu open. */
-function nightSounds() { return stage.classList.contains('bedtime') && !document.hidden && !document.querySelector('dialog[open]'); }
+function nightSounds() { return stage.classList.contains('bedtime') && !document.hidden && !document.querySelector('dialog[open]') && (typeof deskAmbient !== 'function' || deskAmbient()); }
 function owlSoon(first) {
   clearTimeout(owlTimer);
   owlTimer = setTimeout(function () {
