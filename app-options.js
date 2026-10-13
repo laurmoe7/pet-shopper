@@ -48,6 +48,7 @@ applyTheme(savedTheme);
 var optionsSheet = $('optionsSheet'), optionsList = $('optionsList');
 var OPTIONS = [
   { key: 'quiet', title: 'Sounds', text: '', invert: true },   // on = sounds on, stored as state.quiet
+  { key: 'ambience', title: 'Background sounds', text: '' },   // (waves, rain and so on: app-ambience.js)
   { key: 'vibration', title: 'Vibration', text: '' },
   { key: 'aisles', title: 'Sort by aisle', text: '' },
   { key: 'time24', title: '24-hour time', text: '' },

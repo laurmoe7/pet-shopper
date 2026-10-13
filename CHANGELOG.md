@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 677
+- Background sounds: waves, gulls, bubbles, birds, hens, a cow, sizzle, a clock and crickets for each background
+- Weather sounds: rain, thunder, wind and cicadas
+- Options and Mini Fumu settings: Background sounds switch (was Night sounds)
+
 ## Build 676
 - Alerts in Light and Dark: paper note look with tape in the colour of its kind, icon on a round sticker, filled main button
 

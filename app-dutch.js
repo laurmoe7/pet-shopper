@@ -54,7 +54,7 @@ var Dutch = {
   'Tap to feed': 'Tik om te voeren', 'Throw the toy': 'Gooi het speeltje', 'Lamp: pull the cord down to switch it': 'Lamp: trek aan het koord om hem aan of uit te doen',
 
   // ---------- options ----------
-  'Options': 'Opties', 'Language': 'Taal', 'Appearance': 'Uiterlijk van de app', 'Sounds': 'Geluid', 'Vibration': 'Trillen', 'Sort by aisle': 'Sorteren per schap', '24-hour time': '24-uurs tijd',
+  'Options': 'Opties', 'Language': 'Taal', 'Appearance': 'Uiterlijk van de app', 'Sounds': 'Geluid', 'Background sounds': 'Achtergrondgeluiden', 'Vibration': 'Trillen', 'Sort by aisle': 'Sorteren per schap', '24-hour time': '24-uurs tijd',
   'Goal progress display': 'Voortgang van doelen tonen', 'Shopping suggestions': 'Boodschappensuggesties', 'Fair-play tips': 'Eerlijk-spelen-tips', 'The rules still apply when off.': 'De regels gelden ook als dit uit staat.',
   'Voice language': 'Spraaktaal', 'Auto': 'Automatisch', 'English': 'English', 'Nederlands': 'Nederlands', 'Light': 'Licht', 'Dark': 'Donker', 'Sweet': 'Snoepjes', 'Quest': 'Quest', 'Old School': 'Old School', 'Bonfire': 'Kampvuur',
   'Developer tools': 'Ontwikkelaarstools', 'For testing only. These change your pet\'s progress and list right away.': 'Alleen om te testen. Dit verandert meteen de voortgang en de lijst van je huisdier.',

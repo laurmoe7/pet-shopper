@@ -4,6 +4,7 @@
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
  *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), bell, tink and smash (the night bell ringing, clinking and breaking), glass (a piece of window breaking off, the wrecking ball), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
+ *   background sounds for a room or the weather (app-ambience.js): waves, gull, bubbles, blub, birds, breeze, rain, thunder, wind, cicadas, cluck, moo, sizzle, ticktock,
  *   notice (Claude's note arriving), done, sparkle, coin, ring (ticking off a to-do), stamp (the check mark landing), scribble (writing on the clipboard), shutter (the dressing room's camera),
  *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
  * Every play is pitch-shifted a little, and kinds with several variants pick a
@@ -82,11 +83,13 @@
    * @param {number} freq
    * @param {number} q
    * @param {AudioNode} out
+   * @param {boolean} [loop] Keeps the noise going for a long sound.
    * @returns {BiquadFilterNode} The filter, so callers can sweep it.
    */
-  function noise(t, dur, filterType, freq, q, out) {
+  function noise(t, dur, filterType, freq, q, out, loop) {
     var src = ctx.createBufferSource();
     src.buffer = noiseBuf;
+    if (loop) src.loop = true;   // (a sound longer than the one-second noise picture: waves, rain)
     var f = ctx.createBiquadFilter();
     f.type = filterType; f.frequency.setValueAtTime(freq * pitch, t); f.Q.value = q || 1;
     src.connect(f); f.connect(out);
@@ -607,6 +610,99 @@
         var tt = t + j * rnd(0.32, 0.45), hz = rnd(4300, 4700);
         for (var i = 0; i < 4; i++) tone(tt + i * 0.03, 0.022, 'sine', hz, null, env(tt + i * 0.03, 0.003, 0.018, 0.035));
       }
+    },
+    // ---- background sounds (app-ambience.js): quiet, soft and a little different every time ----
+    waves: function (t) {
+      // a wave rolling in: a hush that swells, a fizz at the crest, and draws back out
+      var dur = rnd(3.8, 4.8), g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.2, t + dur * 0.42); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); g.connect(master);
+      var f = noise(t, dur, 'lowpass', 450, 0.7, g, true);
+      f.frequency.exponentialRampToValueAtTime(1500 * pitch, t + dur * 0.42); f.frequency.exponentialRampToValueAtTime(380 * pitch, t + dur);
+      noise(t + dur * 0.3, 1.6, 'highpass', 3600, 0.5, env(t + dur * 0.3, dur * 0.18, 1.4, 0.05), true);
+    },
+    gull: function (t) {
+      // a faraway seagull: two mewing calls
+      [[0, 1900, 1250], [0.32, 2100, 1150]].forEach(function (c) {
+        tone(t + c[0], 0.3, 'triangle', c[1], c[2], env(t + c[0], 0.05, 0.25, 0.06));
+        tone(t + c[0], 0.3, 'sine', c[1] * 2, c[2] * 2, env(t + c[0], 0.05, 0.25, 0.012));
+      });
+    },
+    bubbles: function (t) {
+      // aquarium bubbles: little round blips that rise, over a faint watery hush
+      var n = 3 + Math.floor(Math.random() * 5), at = t;
+      for (var i = 0; i < n; i++) {
+        at += rnd(0.06, 0.2);
+        var hz = rnd(500, 1100);
+        tone(at, 0.09, 'sine', hz, hz * 2, env(at, 0.006, 0.08, rnd(0.04, 0.08)));
+      }
+      noise(t, 1.2, 'lowpass', 700, 0.7, env(t, 0.3, 0.9, 0.03), true);
+    },
+    blub: function (t) {
+      // one big slow bubble: blub
+      tone(t, 0.16, 'sine', 260, 520, env(t, 0.01, 0.15, 0.1));
+      tone(t + 0.02, 0.12, 'sine', 520, 1040, env(t + 0.02, 0.01, 0.1, 0.03));
+    },
+    birds: function (t) {
+      // a couple of small birds: bright two-note chirps in a short run
+      var n = 2 + Math.floor(Math.random() * 3), at = t, base = rnd(2800, 3600);
+      for (var i = 0; i < n; i++) {
+        tone(at, 0.06, 'sine', base, base * 1.35, env(at, 0.008, 0.05, 0.05));
+        tone(at + 0.08, 0.07, 'sine', base * 1.3, base * 0.95, env(at + 0.08, 0.008, 0.06, 0.04));
+        at += rnd(0.22, 0.4);
+      }
+    },
+    breeze: function (t) {
+      // a soft breeze through the grass
+      var dur = rnd(2.8, 3.6), g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.07, t + dur * 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); g.connect(master);
+      var f = noise(t, dur, 'bandpass', 500, 0.6, g, true);
+      f.frequency.exponentialRampToValueAtTime(900 * pitch, t + dur * 0.5); f.frequency.exponentialRampToValueAtTime(450 * pitch, t + dur);
+    },
+    rain: function (t) {
+      // steady rain: a soft broad hiss with little drops pattering in it
+      var dur = 3, g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.09, t + 0.6); g.gain.setValueAtTime(0.09, t + dur - 0.7); g.gain.linearRampToValueAtTime(0.0001, t + dur); g.connect(master);
+      noise(t, dur, 'bandpass', 4200, 0.5, g, true);
+      for (var i = 0; i < 16; i++) { var at = t + rnd(0, dur - 0.1); noise(at, 0.02, 'bandpass', rnd(2600, 6500), 3, env(at, 0.002, 0.016, rnd(0.04, 0.12))); }
+    },
+    thunder: function (t) {
+      // far thunder: a long low rumble with a second roll
+      var f = noise(t, 3, 'lowpass', 220, 0.8, env(t, 0.5, 2.4, 0.4), true); f.frequency.exponentialRampToValueAtTime(70 * pitch, t + 3);
+      var f2 = noise(t + 1.1, 2, 'lowpass', 160, 0.8, env(t + 1.1, 0.3, 1.6, 0.22), true); f2.frequency.exponentialRampToValueAtTime(60 * pitch, t + 3);
+    },
+    wind: function (t) {
+      // a cold wind: a long low whistle that rises and falls
+      var dur = rnd(3.4, 4.4), g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.08, t + dur * 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); g.connect(master);
+      var f = noise(t, dur, 'bandpass', 320, 2.2, g, true);
+      f.frequency.exponentialRampToValueAtTime(720 * pitch, t + dur * 0.5); f.frequency.exponentialRampToValueAtTime(340 * pitch, t + dur);
+    },
+    cicadas: function (t) {
+      // a hot day: a shimmering cicada buzz, swelling and fading
+      var dur = rnd(1.6, 2.4), g = env(t, dur * 0.5, dur * 0.5, 0.05);
+      for (var i = 0; i < dur * 40; i++) tone(t + i * 0.025, 0.02, 'square', 4700, null, g);
+    },
+    cluck: function (t) {
+      // a hen: buk buk buk-bukaaak
+      [[0, 0.07], [0.16, 0.07], [0.34, 0.06], [0.45, 0.2]].forEach(function (c, i) {
+        tone(t + c[0], c[1] + 0.03, 'square', i === 3 ? 520 : 700, i === 3 ? 360 : 460, env(t + c[0], 0.008, c[1], 0.035));
+      });
+    },
+    moo: function (t) {
+      // a cow far off in the field
+      var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 650;
+      lp.connect(env(t, 0.2, 1.0, 0.11));
+      tone(t, 1.2, 'sawtooth', 150, 105, lp);
+      tone(t, 1.2, 'sawtooth', 152, 108, lp);
+    },
+    sizzle: function (t) {
+      // something frying in the kitchen: a crackly hiss
+      noise(t, 1.6, 'highpass', 5200, 0.6, env(t, 0.3, 1.3, 0.05), true);
+      for (var i = 0; i < 9; i++) { var at = t + rnd(0, 1.5); noise(at, 0.015, 'bandpass', rnd(3000, 7000), 4, env(at, 0.001, 0.012, rnd(0.04, 0.1))); }
+    },
+    ticktock: function (t) {
+      // a kitchen clock: tick… tock
+      [[0, 2300], [0.55, 1800]].forEach(function (c) { noise(t + c[0], 0.03, 'bandpass', c[1], 4, env(t + c[0], 0.001, 0.025, 0.18)); tone(t + c[0], 0.03, 'sine', c[1] / 2, null, env(t + c[0], 0.001, 0.025, 0.05)); });
     },
     yawn: function (t) {
       // a sleepy "hwaaah" sliding down, with breath

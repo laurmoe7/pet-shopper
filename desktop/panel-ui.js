@@ -102,7 +102,7 @@
     vol.addEventListener('input', volShow);
     vol.addEventListener('change', function () { P.set('volume', +vol.value).then(take); });
     volBox.append(vol, volNum); volRow.append(volText, volBox); look.appendChild(volRow);
-    toggle(look, 'Night sounds', 'ambient', 'An owl and crickets.');
+    toggle(look, 'Background sounds', 'ambient', 'Waves, rain, an owl at night.');
     if (wander) { /* (wander mode has no cushion) */ } else toggle(look, 'Show the cushion under him', 'hideCushion', 'His bed still shows at bedtime.', { invert: true });
     if (wander) toggle(look, 'Toy flies around the screen', 'toyRoam');   // (in his room the toy stays in it)
 
