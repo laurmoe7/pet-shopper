@@ -4456,3 +4456,4 @@ html.desktop-pet:not([class*="al-"]) .stage .inbox-card { bottom: calc(100% - 24
 .recipe-or button { font: inherit; font-size: .78rem; font-weight: 800; padding: 4px 10px; border-radius: 999px; border: 1.5px solid var(--paper-edge); background: transparent; color: var(--ink); cursor: pointer; }
 .recipe-or button[aria-pressed="true"] { background: var(--hl-soft); border-color: var(--hl); }
 .recipe-list label:has(input:not(:checked)) + .recipe-or { opacity: .5; }
+.recipe-list label span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

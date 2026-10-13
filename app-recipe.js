@@ -71,6 +71,8 @@ function recipeNames(f) {
   var all = [f.name].concat(f.or || []);
   return f.pick === -1 ? all : [all[f.pick || 0]];
 }
+/** @param {string[]} names @returns {string} "Honey or maple syrup": the names with "or" between, lower case after the first. */
+function recipeJoin(names) { return names.map(function (x, k) { return k ? x.charAt(0).toLowerCase() + x.slice(1) : x; }).join(' or '); }
 /** The "or" chips under a row: one per option and Both, to pick what goes on the list. @param {Object} f @param {HTMLElement} label @param {string} note @returns {HTMLElement} */
 function recipeChoices(f, label, note) {
   var all = [f.name].concat(f.or), wrap = document.createElement('div');
@@ -82,7 +84,7 @@ function recipeChoices(f, label, note) {
       f.pick = pick;
       wrap.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
       var names = recipeNames(f);
-      label.querySelector('span').textContent = names.map(function (x, k) { return k ? x.charAt(0).toLowerCase() + x.slice(1) : x; }).join(' or ') + note;
+      label.querySelector('span').textContent = recipeJoin(names) + note;
       var img = label.querySelector('img');
       if (img) img.replaceWith(emojiImg(L.createItem(names[0], state.overrides, 'x', 0, 'shop').emoji, ''));
       showUnits();
@@ -98,7 +100,7 @@ function recipeChosen() {
   return Array.prototype.filter.call(recipeList.querySelectorAll('input'), function (b) { return b.checked; }).map(function (b) { return recipeFound[+b.dataset.i]; });
 }
 function updateRecipeAdd() {
-  var n = recipeChosen().reduce(function (t, f) { return t + recipeNames(f).length; }, 0);
+  var n = recipeChosen().length;
   $('recipeAdd').textContent = n ? 'Add ' + n + (n === 1 ? ' thing' : ' things') + ' to the list' : 'Nothing ticked';
   $('recipeAdd').disabled = !n;
 }
@@ -157,14 +159,14 @@ function recipeAddAll() {
   if (!names.length || isTodo()) return;
   var count = 0;
   names.forEach(function (n) {
-    recipeNames(n).forEach(function (name) {
-      var item = L.createItem(name, state.overrides, newId(), Date.now(), 'shop');
-      var qty = Recipe.convertQty(n.qty, recipeUnits, name, n.alt);
-      if (qty) item.qty = qty;
-      L.addToList(state.items, item);
-      freshIds[item.id] = true;
-      count++;
-    });
+    var picked = recipeNames(n);   // all of them make one line: "honey or maple syrup" (the picture follows the first)
+    var item = L.createItem(picked[0], state.overrides, newId(), Date.now(), 'shop');
+    if (picked.length > 1) item.text = recipeJoin(picked).slice(0, 80);
+    var qty = Recipe.convertQty(n.qty, recipeUnits, picked[0], n.alt);
+    if (qty) item.qty = qty;
+    L.addToList(state.items, item);
+    freshIds[item.id] = true;
+    count++;
   });
   save();
   render();

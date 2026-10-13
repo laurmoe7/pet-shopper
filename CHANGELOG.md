@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 684
+- Recipes: long names end in ..., picking all makes one line
+
 ## Build 683
 - Recipes: picking all options reads "a or b"
 - A link typed in the add bar opens the recipe sheet
