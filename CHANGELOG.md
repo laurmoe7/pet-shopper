@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 686
+- A recipe link in the add bar shows a pot of food
+
 ## Build 685
 - Recipes: the same ingredient with different "or" choices stays on separate rows
 
