@@ -1190,7 +1190,6 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .clog-grain { fill: none; stroke: #c48848; stroke-width: 1; stroke-linecap: round; }
 .clog-heart { fill: #ee4f6c; }
 .clog-inset { fill: #f0c58f; stroke: none; }
-.clog-nail { fill: #7a4f27; }
 .clog-groove { fill: none; stroke: #6b4322; stroke-width: .9; stroke-linecap: round; opacity: .7; }
 
 /* Top 10 */

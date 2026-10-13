@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 655
+- Slippers' sole without the ears; clog sole without the dots
+
 ## Build 654
 - Sitting soles redrawn as real shoe bottoms: wooden clogs, cowboy boots, feather slides
 

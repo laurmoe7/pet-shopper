@@ -724,9 +724,7 @@ function boa() {
         var a = i * Math.PI * 2 / 14;
         fluff += '<circle cx="' + (Math.cos(a) * 7.4).toFixed(1) + '" cy="' + (Math.sin(a) * 8.3).toFixed(1) + '" r="2.3"/>';
       }
-      return '<path class="bunny-ear" d="M-5.4 -7 C-8.6 -13 -4.4 -15 -2.8 -12.6 C-2 -11 -2 -8.6 -2 -7 Z"/>' +
-        '<path class="bunny-ear" d="M5.4 -7 C8.6 -13 4.4 -15 2.8 -12.6 C2 -11 2 -8.6 2 -7 Z"/>' +
-        '<g class="bunny-fluff-edge">' + fluff + '</g><ellipse class="bunny-fluff" cx="0" cy="0" rx="7.4" ry="8.3"/><g class="bunny-fluff">' + fluff + '</g>' +
+      return '<g class="bunny-fluff-edge">' + fluff + '</g><ellipse class="bunny-fluff" cx="0" cy="0" rx="7.4" ry="8.3"/><g class="bunny-fluff">' + fluff + '</g>' +
         '<ellipse class="bunny-nose" cx="0" cy="2.6" rx="3.4" ry="2.8"/>' +
         '<ellipse class="bunny-nose" cx="-4" cy="-2.2" rx="1.3" ry="1.7"/><ellipse class="bunny-nose" cx="-1.4" cy="-4.4" rx="1.3" ry="1.7"/>' +
         '<ellipse class="bunny-nose" cx="1.4" cy="-4.4" rx="1.3" ry="1.7"/><ellipse class="bunny-nose" cx="4" cy="-2.2" rx="1.3" ry="1.7"/>';
@@ -738,11 +736,10 @@ function boa() {
         '<rect class="cb-heel" x="-4.9" y="3.8" width="9.8" height="5.8" rx="1.8"/>' +
         '<path class="cb-stitch" d="M-2.8 5.6 h5.6 M-2.8 7.6 h5.6"/>';
     },
-    clogs: function () {   // the underside of a wooden clog: carved sole with wood grain, two nails in the ball of the foot and a raised heel block
+    clogs: function () {   // the underside of a wooden clog: carved sole with wood grain, a raised heel block
       return '<path class="clog" d="M0 -9.6 C5.4 -9.6 8 -5 7.8 -.6 C7.6 2.6 5.8 4.2 5.8 6.4 C5.8 8.8 3.2 9.8 0 9.8 C-3.2 9.8 -5.8 8.8 -5.8 6.4 C-5.8 4.2 -7.6 2.6 -7.8 -.6 C-8 -5 -5.4 -9.6 0 -9.6 Z"/>' +
         '<path class="clog-inset" transform="scale(.8 .82)" d="M0 -9.6 C5.4 -9.6 8 -5 7.8 -.6 C7.6 2.6 5.8 4.2 5.8 6.4 C5.8 8.8 3.2 9.8 0 9.8 C-3.2 9.8 -5.8 8.8 -5.8 6.4 C-5.8 4.2 -7.6 2.6 -7.8 -.6 C-8 -5 -5.4 -9.6 0 -9.6 Z"/>' +
         '<path class="clog-grain" d="M-3.6 -6.4 q1.4 3.4 .2 7 M0 -7.2 q1.4 4.4 0 9 M3.6 -6.2 q-1.2 3.2 -.2 6.6"/>' +
-        '<circle class="clog-nail" cx="-2.6" cy="-5.6" r=".8"/><circle class="clog-nail" cx="2.6" cy="-5.6" r=".8"/>' +
         '<rect class="clog-sole" x="-4.9" y="3.2" width="9.8" height="6.4" rx="2.2"/>' +
         '<path class="clog-groove" d="M-2.8 5.2 h5.6 M-2.8 7.4 h5.6"/>';
     },
