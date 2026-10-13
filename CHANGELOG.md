@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 672
+- Developer tools: weather report for a random place
+
 ## Build 671
 - Weather report: gives up after 8 seconds instead of waiting for ever; a second press while he looks does nothing
 

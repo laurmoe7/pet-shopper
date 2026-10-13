@@ -27,10 +27,10 @@
   }
   /** The weather report: he looks outside and tells you (only offered while the weather option is on). With no place picked yet he says to pick one. */
   var ringLooking = false;
-  function ringWeather() {
-    var nl = typeof Lang === 'object' && Lang.get() === 'nl', c = typeof wxConf === 'function' ? wxConf() : null;
+  function ringWeather(test) {   // (test: a made-up place from the developer tools; it ignores the saved place and the last answer, and saves nothing)
+    var nl = typeof Lang === 'object' && Lang.get() === 'nl', c = test || (typeof wxConf === 'function' ? wxConf() : null);
     if (!c || c.lat === null || c.lon === null) { say(nl ? 'zet eerst een plaats in de opties~' : 'I need a place first: pick one in Options > Weather~', 3200, true); return; }
-    var last = typeof wxLast === 'function' ? wxLast() : null;
+    var last = !test && typeof wxLast === 'function' ? wxLast() : null;
     if (last && Date.now() - last.at < 10 * 60000) { say(ringWeatherWords(last), 3600, true); pulse('hopsmall', 450); return; }
     if (!navigator.onLine) { say(nl ? 'ik kan nu niet kijken~' : 'I cannot look outside right now~', 2400, true); return; }
     if (ringLooking) return;   // (a second press while he is still looking does nothing)
@@ -47,8 +47,8 @@
         var w = Weather.parse(j);
         if (!w) { say(nl ? 'ik kan niets zien~' : 'I cannot see anything~', 2400, true); return; }
         w.at = Date.now();
-        try { localStorage.setItem('nibble-weather-last', JSON.stringify(w)); } catch (e) { /* storage not available */ }
-        setTimeout(function () { say(ringWeatherWords(w), 3600, true); pulse('hopsmall', 450); }, 900);
+        if (!test) { try { localStorage.setItem('nibble-weather-last', JSON.stringify(w)); } catch (e) { /* storage not available */ } }
+        setTimeout(function () { say((test ? test.place + ': ' : '') + ringWeatherWords(w), 3600, true); pulse('hopsmall', 450); }, 900);
       }).catch(function () { clearTimeout(kill); fail(); });
     } catch (e) { clearTimeout(kill); fail(); }
   }
@@ -224,5 +224,6 @@
     previewTimer = setTimeout(function () { previewing = false; if (shown) hide(true); }, ms || 2000);
     return shown;
   };
+  window.ringWeatherTest = ringWeather;   // for the developer tools
   window.deskRing = function () { show(); return shown; };   // for tests and the animation player
 })();

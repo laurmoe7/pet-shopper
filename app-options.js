@@ -212,6 +212,13 @@ var DEV_ACTIONS = [
     return { auto: 'Using the real clock (asleep 10 pm to 7 am when nothing is left to buy).', day: 'Pretending it is daytime.', night: 'Pretending it is night: with nothing left to buy, the pet sleeps.' }[devClock];
   } },
   { label: 'Weather: pretend each kind in turn (rain, storm, snow, cold, hot, real)', run: function () { devSheet.close(); return devWeatherNext(); } },
+  { label: 'Weather report: for a random place (nothing saved)', run: function () {
+    var spots = [['Reykjavik', 64.15, -21.94], ['Cairo', 30.04, 31.24], ['Singapore', 1.35, 103.82], ['Oslo', 59.91, 10.75], ['Dubai', 25.2, 55.27], ['Lima', -12.05, -77.04], ['Sydney', -33.87, 151.21], ['Tokyo', 35.68, 139.69], ['Nairobi', -1.29, 36.82], ['Vancouver', 49.28, -123.12], ['Mumbai', 19.08, 72.88], ['Ushuaia', -54.8, -68.3], ['Mexico City', 19.43, -99.13], ['Helsinki', 60.17, 24.94]];
+    var s = spots[Math.floor(Math.random() * spots.length)];
+    devSheet.close();
+    window.ringWeatherTest({ lat: s[1], lon: s[2], place: s[0] });
+    return 'Looking at the weather in ' + s[0] + '.';
+  } },
   { label: 'Little plant: water it now (grows a stage)', run: function () { devSheet.close(); return devPlantGrow(); } },
   { label: 'Little plant: start over with a seed', run: function () { return devPlantReset(); } },
   { label: 'Unlock everything', run: function () { L.unlockAll(state.pet, Achievements, Personalities); return 'All goals finished and personalities earned.'; } },
