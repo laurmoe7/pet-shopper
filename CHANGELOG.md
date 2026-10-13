@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 685
+- Recipes: the same ingredient with different "or" choices stays on separate rows
+
 ## Build 684
 - Recipes: long names end in ..., picking all makes one line
 

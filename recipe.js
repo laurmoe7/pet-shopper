@@ -177,10 +177,9 @@
     var seen = {}, out = [];
     lines.forEach(function (l) {
       parseLine(l).forEach(function (p) {
-        var k = p.name.toLowerCase(), old = seen[k];
+        var k = p.name.toLowerCase() + '|' + (p.or || []).map(function (o) { return o.toLowerCase(); }).sort().join(','), old = seen[k];   // the same name with different "or" choices is a different use, so its own row
         if (!old) { seen[k] = p; out.push(p); return; }
         if (!p.optional) delete old.optional;                                          // needed once means needed
-        if (p.or) old.or = (old.or || []).concat(p.or.filter(function (o) { return (old.or || []).indexOf(o) < 0; })).slice(0, 3);
         if (p.qty && old.qty !== p.qty) {
           if (old.alt || p.alt) old.alt = (old.alt || '-') + ' + ' + (p.alt || '-');   // each amount keeps its own metric size ("-" for none)
           old.qty = old.qty ? old.qty + ' + ' + p.qty : p.qty;

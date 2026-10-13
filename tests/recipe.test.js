@@ -216,7 +216,9 @@ test('"or" options: a list, a pair, and merged amounts that still convert', () =
   assert.deepStrictEqual(R.parseIngredient('1 cup milk or water').or, ['Water']);
   assert.strictEqual(R.parseIngredient('1 cup flour, or more as needed').or, undefined);
   assert.strictEqual(R.parseIngredient('2 eggs or 1/4 cup applesauce').or, undefined);
-  const m = R.cleanAll(['1 Tablespoon barley malt syrup, granulated sugar, or brown sugar', '1/4 cup (85g) barley malt syrup or honey'])[0];
+  const two = R.cleanAll(['1 Tablespoon barley malt syrup, granulated sugar, or brown sugar', '1/4 cup (85g) barley malt syrup or honey']);
+  assert.deepStrictEqual(two.map((x) => [x.name, x.qty, x.or]), [['Barley malt syrup', '1 tbsp', ['Granulated sugar', 'Brown sugar']], ['Barley malt syrup', '1/4 cup', ['Honey']]]);   // different options: two rows
+  const m = R.cleanAll(['1 tbsp barley malt syrup or honey', '1/4 cup (85g) barley malt syrup or honey'])[0];
   assert.strictEqual(m.qty, '1 tbsp + 1/4 cup');
   assert.strictEqual(R.convertQty(m.qty, 'metric', m.name, m.alt), '20 g + 85 g');
   assert.strictEqual(R.convertQty(m.qty, 'us', m.name, m.alt), '1 tbsp + 1/4 cup');
