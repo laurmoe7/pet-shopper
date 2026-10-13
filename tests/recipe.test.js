@@ -238,3 +238,11 @@ test('an amount made of two ("1 cup + 1 Tablespoon"), metric amounts after a sem
   assert.strictEqual(R.cleanAll(['2 eggs', '3 eggs'])[0].qty, '5');
   assert.strictEqual(R.convertQty('1 cup & 1 tbsp', 'metric', 'Flour', '133 g'), '133 g');
 });
+
+test('dry things are grams, not ml, and dry things with a liquid word stay as written', () => {
+  const m = (l) => { const x = R.parseIngredient(l); return R.convertQty(x.qty, 'metric', x.name, x.alt); };
+  const c = { '1 tsp baking soda': '5 g', '1/2 tsp baking powder': '2 g', '1 tsp cream of tartar': '3 g', '2 tbsp cornstarch': '15 g', '1 cup breadcrumbs': '110 g', '1 cup chocolate chips': '170 g',
+    '1 cup chopped walnuts': '130 g', '1 tbsp coffee beans': '1 tbsp', '1 tbsp instant coffee granules': '1 tbsp', '1 tbsp bouillon powder': '1 tbsp', '1 cup mushroom, chopped': '1 cup',
+    '1 cup watermelon cubes': '1 cup', '1 tbsp mustard seeds': '1 tbsp', '1 cup dry white wine': '240 ml', '2 tbsp soy sauce': '30 ml', '1 cup heavy cream': '240 ml', '1 cup cream cheese': '230 g' };
+  for (const k of Object.keys(c)) assert.strictEqual(m(k), c[k], k);
+});

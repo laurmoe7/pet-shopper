@@ -312,11 +312,16 @@
   /** @param {number} v @returns {string} Rounded to a tidy number, no trailing zeros (1.2, 450). */
   function fmtDecimal(v) { return String(Math.round(v * 10) / 10); }
   /** Grams per millilitre for things that are bought by weight but written in cups and spoons. First match wins. */
-  var DENSITY = [[/peanut butter|nut butter|almond butter|butter beans?|buttermilk|butternut/i, 0], [/butter|margarine|boter/i, .95], [/cream cheese|roomkaas/i, .96], [/shortening|lard|coconut oil/i, .92], [/ricotta|cottage|mascarpone|sour cream|zure room/i, 1], [/parmesan|parmezaan|pecorino/i, .4], [/cheese|kaas/i, .45],
+  var DENSITY = [[/peanut butter|nut butter|almond butter|butter beans?|buttermilk|butternut/i, 0], [/baking soda|bicarbonate|zuiveringszout|natron/i, .95], [/baking powder|bakpoeder/i, .8], [/cream of tartar/i, .6], [/cornstarch|corn starch|cornflour|maizena|potato starch|aardappelzetmeel/i, .55], [/yeast|gist/i, .6],
+    [/bread ?crumbs|panko|paneermeel/i, .45], [/chocolate chips|chocolate chunks|chocoladedruppels/i, .7], [/raisins|rozijnen|currants/i, .65], [/walnuts?|almonds?|pecans?|cashews?|hazelnuts?|peanuts?|pistachios?|walnoten|amandelen|noten/i, .55], [/shredded coconut|desiccated|coconut flakes|kokosrasp/i, .35], [/butter|margarine|boter/i, .95], [/cream cheese|roomkaas/i, .96], [/shortening|lard|coconut oil/i, .92], [/ricotta|cottage|mascarpone|sour cream|zure room/i, 1], [/parmesan|parmezaan|pecorino/i, .4], [/cheese|kaas/i, .45],
     [/powdered sugar|icing sugar|confectioners|poedersuiker/i, .5], [/brown sugar|bruine suiker/i, .9], [/sugar|suiker/i, .83], [/flour|bloem|meel/i, .52], [/(?:^|\s)rice$|rijst$/i, .8], [/rolled oats|oats|havermout/i, .37], [/cocoa|cacao/i, .4],
     [/grated|shredded|geraspte/i, .45], [/honey|honing|maple syrup|syrup|stroop/i, 1.4]];
   /** Things that really are measured as a volume. Other cups and spoons ("2 cups diced potatoes") stay as written in metric. */
-  var LIQUID = /water|milk|melk|broth|stock|bouillon|cream|room\b|oil|olie|juice|sap\b|wine|wijn|vinegar|azijn|sauce|saus|marinade|syrup|stroop|yogh?urt|beer|bier|coffee|koffie|\btea\b|extract|vanilla|vanille|soy|dressing|mayonnaise|ketchup|mustard|mosterd|rum|brandy|whisky|vodka|liqueur|lemonade|soda|cider|passata|puree/i;
+  var LIQUID = /\bwater\b|\bmilk\b|melk|\bbroth\b|\bstock\b|bouillon|\bcream\b(?! of tartar)|\broom\b|slagroom|kookroom|\boil\b|olie|juice|sap\b|\bwine\b|wijn|vinegar|azijn|sauce|saus|marinade|syrup|stroop|yogh?urt|\bbeer\b|bier|\bcoffee\b|koffie|\btea\b|extract|\bvanilla\b|\bsoy\b|dressing|mayonnaise|ketchup|\bmustard\b|mosterd|\brum\b|brandy|whisky|vodka|liqueur|lemonade|club soda|soda water|\bcider\b|passata|puree/i;
+  /** Dry things whose names contain a liquid word ("coffee beans", "tea leaves", "bouillon powder"): never measured in ml. */
+  var DRY = /powder|powdered|granules|granulated|\bbeans?\b|\bseeds?\b|\bleaves\b|\bchips\b|\bflakes\b|\bzest\b|\bcubes?\b|crumbs|\bgrains?\b|\bnuts?\b|dry mustard/i;
+  /** @param {string} name @returns {boolean} Whether it is really measured as a volume (milk, oil) and not a dry thing with a liquid word in its name. */
+  function isLiquid(name) { return LIQUID.test(name) && !DRY.test(name); }
   /** @param {string} [name] @returns {number} Grams per ml for that ingredient, or 0 when it is kept in millilitres. */
   function density(name) {
     for (var i = 0; i < DENSITY.length; i++) if (DENSITY[i][0].test(name || '')) return DENSITY[i][1];
@@ -347,7 +352,7 @@
     var out = String(qty).split(/\s*\+\s*/).map(function (part, pi) {
       var a = alts.length === 1 && !pi || alts.length > 1 ? alts[pi] : '';
       if (a === '=') return '';                  // the page's own metric amount for this part, when it gives one
-      if (to === 'metric' && a && a !== '-' && usesUs(part) && !(typeof name === 'string' && LIQUID.test(name) && !/ml$|l$/.test(a))) return a;
+      if (to === 'metric' && a && a !== '-' && usesUs(part) && !(typeof name === 'string' && isLiquid(name) && !/ml$|l$/.test(a))) return a;
       if (part.indexOf('&') >= 0) return part.split(/\s*&\s*/).map(function (x) { return convertQty(x, to, name); }).join(' + ');   // "1 cup & 1 tbsp" with no metric amount on the page: each piece
       var m = part.match(QTY_RE);
       if (!m) return part;
@@ -356,7 +361,7 @@
       var a = readNum(m[1]), b = m[2] ? readNum(m[2]) : 0;
       if (!(a > 0) || (m[2] && !(b > 0))) return part;
       var kind = c[0], dens = to === 'metric' && kind === 'ml' ? density(name) : 0, mul = dens || 1;
-      if (to === 'metric' && kind === 'ml' && !dens && typeof name === 'string' && !LIQUID.test(name)) return part;   // "2 cups potatoes" is not a volume in ml
+      if (to === 'metric' && kind === 'ml' && !dens && typeof name === 'string' && !isLiquid(name)) return part;   // "2 cups potatoes" is not a volume in ml
       if (dens) kind = 'g';
       var first = writeAmount(a * c[1] * mul, kind, to);
       if (!m[2]) return first;

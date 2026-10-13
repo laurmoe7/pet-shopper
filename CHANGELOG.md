@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 691
+- Recipes: baking soda, baking powder, cornstarch, nuts, breadcrumbs and chocolate chips in grams
+- Recipes: coffee beans, tea leaves, mushrooms and cubes are no longer read as liquids
+
 ## Build 690
 - Updates: a new build always downloads its own files, so the app cannot stay on an older build
 
