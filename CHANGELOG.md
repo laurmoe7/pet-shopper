@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 689
+- Recipes: long names wrap to two lines before ending in ...
+
 ## Build 688
 - Recipes: "1 cup + 1 Tablespoon" reads as one amount
 - Recipes: the same ingredient on several lines adds up (1 1/4 cups + 3 tbsp, or 180 g)
