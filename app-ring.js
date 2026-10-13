@@ -62,23 +62,35 @@
   /** Everything the ring can offer. `on` is for switches. */
   var ITEMS = {
     ball: { icon: '⚽', label: 'Play ball', run: function () { if (!busy && typeof playToy === 'function') playToy(); } },
-    toy: { icon: '💥', label: 'Wrecking ball', on: function () { return toyKind() === 'wrecker'; }, run: function () { toggleToyKind('wrecker'); } },
-    notoy: { icon: '🚫', label: 'No toy', on: function () { return toyKind() === 'none'; }, run: function () { toggleToyKind('none'); } },   // (neither switch on: his own ball)
+    toys: { icon: '🧸', label: 'Toy', keep: true, run: function () { openMenu('toys'); } },   // (opens a second ring with the toy choices)
+    toyNone: { icon: '🚫', label: 'No toy', on: function () { return toyKind() === 'none'; }, run: function () { setToyKind('none'); } },
+    toyBall: { icon: '⚽', label: 'Default toy', on: function () { return toyKind() === 'ball'; }, run: function () { setToyKind('ball'); } },
+    toyWreck: { icon: '💥', label: 'Wrecking ball', on: function () { return toyKind() === 'wrecker'; }, run: function () { setToyKind('wrecker'); } },
+    back: { icon: '↩️', label: 'Back', keep: true, run: function () { openMenu('main'); } },
     snack: { icon: '🍪', label: 'Snack', run: ringSnack },
     weather: { icon: '⛅', label: 'Weather report', run: ringWeather },
     swap: { icon: '📝', label: 'Swap list', run: function () { if (typeof switchList === 'function') switchList(); } },
     lights: { icon: '💡', label: 'Lights off', run: ringSleep },
     night: { icon: '🌙', label: 'Night light', keep: true, on: function () { return nightLightOn; }, run: function () { toggleNightLight(); } }
   };
+  /** The toy circle opens a second ring with the toy choices in place of the first: no toy, his own (default) toy and the wrecking ball (not in Mini Fumu's room mode, where it does nothing special), and a way back. */
+  var menu = 'main';
+  function toyNames() { return ['toyNone', 'toyBall'].concat(typeof deskRoomMode === 'function' && deskRoomMode() ? [] : ['toyWreck'], ['back']); }
+  function openMenu(which) {
+    menu = which;
+    build();
+    if (!isDesk()) { clearTimeout(appHide); appHide = setTimeout(function () { hide(true); }, 7000); }
+    placeBubble();
+  }
   /** @returns {string[]} The buttons for the scene he is in now. */
   function items() {
     var scene = petScene();
     var wx = typeof wxConf === 'function' && wxConf().want ? ['weather'] : [];   // (the report is offered while the weather option is on; with no place picked yet he says so when it is pressed)
-    if (!isDesk()) return scene === 'night-bed' ? [] : ['toy', 'notoy', 'snack'].concat(wx);   // in the app: the toys (none picked: his own) and a snack; in bed they are put away
+    if (!isDesk()) return scene === 'night-bed' ? [] : ['toys', 'snack'].concat(wx);   // in the app: the toy circle and a snack; in bed they are put away
     if (scene === 'night-bed') return ['night'];   // in bed: only the night light
     var play = toyKind() === 'none' ? [] : ['ball'];   // (nothing to play with when there is no toy)
-    if (scene.indexOf('night-drowsy') === 0) return play.concat(['toy', 'notoy', 'snack'], wx, ['swap', 'lights']);
-    return play.concat(['toy', 'notoy', 'snack'], wx, ['swap']);
+    if (scene.indexOf('night-drowsy') === 0) return play.concat(['toys', 'snack'], wx, ['swap', 'lights']);
+    return play.concat(['toys', 'snack'], wx, ['swap']);
   }
   function canShow(now, force) {
     // a double click on him or a style preview is asked for on purpose: only the mode is checked, so a stuck state (hidden window, a leftover
@@ -91,7 +103,7 @@
   }
   function build() {
     ring.replaceChildren();
-    var names = items(), n = names.length;
+    var names = menu === 'toys' ? toyNames() : items(), n = names.length;
     var pr = pet.getBoundingClientRect(), sr = stage.getBoundingClientRect();
     center = { x: pr.left + pr.width / 2 - sr.left, y: pr.top + pr.height * 0.55 - sr.top, r: Math.max(86, pr.width * 0.62) };
     // the part of his window that is on a screen (the shell sends it; --vis-l / --vis-r): near the side of the screen the arc turns
@@ -168,6 +180,7 @@
   try { new MutationObserver(function () { placeBubble(); }).observe(bubble, { attributes: true, attributeFilter: ['hidden'], childList: true, characterData: true, subtree: true }); } catch (e) { /* old browser */ }
   function show(now, force) {
     if (shown || !canShow(now, force) || !items().length) return;
+    menu = 'main';
     build();
     ring.hidden = false; shown = true;
     placeBubble();
@@ -177,7 +190,7 @@
     if (previewing && force !== true) return;   // (the style preview stays up for its time whatever the pointer does)
     clearTimeout(leaveTimer);
     if (!shown) return;
-    shown = false; ring.hidden = true; ring.replaceChildren();
+    shown = false; menu = 'main'; ring.hidden = true; ring.replaceChildren();
     placeBubble();
   }
   // opens with a double click on him (resting the pointer on him was slow and unreliable), and closes when the pointer has gone well away from him, on a click elsewhere or on Esc

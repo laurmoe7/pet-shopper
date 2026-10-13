@@ -31,7 +31,7 @@ const TAB_ICONS = ['🐾', '🎨', '🧸', '🎩', '👕', '👓', '👄', '🧣
 // and the things sent from the phone to the PC (app-send.js): a link, a note
 const SEND_ICONS = ['🔗', '📝', '💌'];
 // and the ring menu's toy switch and weather report (app-ring.js): the wrecking ball, no toy, the weather
-const RING_ICONS = ['💥', '🚫', '⛅'];
+const RING_ICONS = ['💥', '🚫', '⛅', '🧸', '↩️'];
 // and the language flags in Options (app-lang.js)
 const LANG_ICONS = ['🇳🇱', '🇺🇸'];
 const CELEBRATION_ICONS = ['🎃', '🐣', '👑', '🎄', '🌷'];   // (the Halloween, Easter and King's Day box notifications, and the card Mini Fumu shows before a celebration)

@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 679
+- Radial menu: one Toy button that opens a second ring with No toy, Default toy and Wrecking ball (no wrecking ball in Mini Fumu's room mode)
+
 ## Build 678
 - Little plant is now ordinary furniture: place it from the Room list, on both lists and in Mini Fumu's room
 - Burger phone removed

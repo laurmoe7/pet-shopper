@@ -984,6 +984,7 @@
   window.deskChatter = function () { return chatterRate; };
   window.deskQuiet = quietNow;   // for tests and the developer tools
   window.deskMayRemark = function () { return mayRemark(); };
+  window.deskRoomMode = function () { return isPet() && deskPrefs.backdrop === true; };   // Mini Fumu in room mode (the ring menu leaves out the wrecking ball there)
   var PROGRAM_LINES = {
     browser: ['browsing, hm?', 'so much internet~', 'looking something up?'],
     code: ['hard at work!', 'so many tiny words…', 'tap tap tap~'],

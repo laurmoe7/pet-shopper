@@ -20,9 +20,11 @@ function applyToyKind() {
   stage.classList.toggle('toy-none', toyKind() === 'none');
 }
 /** The ring menu's toy switches: the wrecking ball (the default) or no toy; pressing the one that is on puts his own ball back. @param {string} [which] 'wrecker' or 'none'. */
-function toggleToyKind(which) {
+function toggleToyKind(which) { setToyKind(toyKind() === (which || 'wrecker') ? 'ball' : (which || 'wrecker')); }
+/** Picks the toy (the ring menu's toy circle): 'ball' (his own, the default), 'wrecker' or 'none'. @param {string} next */
+function setToyKind(next) {
   if (playing) return;   // (not while a game is on)
-  var next = toyKind() === (which || 'wrecker') ? 'ball' : (which || 'wrecker');
+  if (next !== 'wrecker' && next !== 'none') next = 'ball';
   try { localStorage.setItem(TOY_KIND_KEY, next); } catch (e) { /* storage blocked */ }
   applyToyKind();
   sound('pick');
