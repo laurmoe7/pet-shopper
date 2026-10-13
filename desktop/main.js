@@ -27,14 +27,16 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else { start(); }
 function start() {
   let peekRest = null, displaced = false, perch = null, perchTimer = null, updateReady = false, win = null, tray = null, mode = 'pet', petBounds = null, dragFrom = null, shown = false;
   const prefsFile = () => path.join(app.getPath('userData'), 'window.json');
-  let prefs = { alertStyle: 'auto', x: null, y: null, onTop: true, aboveFull: false, clickThrough: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, deskMode: 'room', toyRoam: true, mute: false, volume: 100, ambient: true, moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, celebBirthday: true, celebChristmas: true, celebHalloween: true, celebNewYear: true, celebEaster: true, celebKingsDay: true, celebScreen: true, myGames: {}, keys: null };
+  let prefs = { alertStyle: 'auto', x: null, y: null, onTop: true, aboveFull: false, clickThrough: false, size: 'normal', roam: true, remind: true, hotkeys: true, idle: true, perch: false, hideToy: false, hideCushion: false, awareness: 2, petName: 'Fumu', bubbles: true, clouds: true, sparkles: true, backdrop: false, deskMode: 'room', toyRoam: true, mute: false, volume: 100, ambient: true, swipeLeft: 'done', swipeRight: 'away', swipeUp: 'snooze', swipeDown: 'snooze', moveNormal: 'normal', moveFull: 'still', chatNormal: 'normal', chatFull: 'normal', talkNormal: 'normal', talkFull: 'rare', standStill: false, standStillFull: true, celebBirthday: true, celebChristmas: true, celebHalloween: true, celebNewYear: true, celebEaster: true, celebKingsDay: true, celebScreen: true, myGames: {}, keys: null };
   const DEFAULTS = Object.assign({}, prefs);
+  const SWIPE_ACTIONS = ['done', 'snooze', 'away', 'none'];   // what a swipe on an alert card can do (Done or copy, in 10 minutes, put away, nothing)
   let savedPrefs = {};
   try { savedPrefs = JSON.parse(fs.readFileSync(prefsFile(), 'utf8')) || {}; prefs = Object.assign(prefs, savedPrefs); } catch (e) { /* first run */ }
   // room mode (his room shows, he stays in it) or wander mode (no room or cushion, he walks about the desktop): new installs start in his room; an older save keeps what it had (a room background: room mode)
   // the sound switch became a volume slider: an old mute is a volume of zero
   if (typeof savedPrefs.volume !== 'number') prefs.volume = savedPrefs.mute ? 0 : 100;
   prefs.volume = Math.max(0, Math.min(100, Math.round(+prefs.volume) || 0));
+  ['Left', 'Right', 'Up', 'Down'].forEach((d) => { if (!SWIPE_ACTIONS.includes(prefs['swipe' + d])) prefs['swipe' + d] = DEFAULTS['swipe' + d]; });   // (what each swipe direction does on an alert card)
   if (prefs.deskMode !== 'room' && prefs.deskMode !== 'wander') prefs.deskMode = Object.keys(savedPrefs).length && !savedPrefs.backdrop ? 'wander' : 'room';
   prefs.keys = keys.clean(prefs.keys);
   prefs.awareness = privacy.clean(prefs.awareness);
@@ -72,7 +74,7 @@ function start() {
   };
   const wanderMode = () => prefs.deskMode === 'wander';
   const toyRoamOn = () => wanderMode() && prefs.toyRoam;   // (the toy only leaves his room in wander mode)
-  const publicPrefs = () => ({ deskMode: prefs.deskMode, alertStyle: prefs.alertStyle, clickThrough: prefs.clickThrough, moveNormal: prefs.moveNormal, moveFull: prefs.moveFull, remind: prefs.remind, size: prefs.size, perch: wanderMode() && prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, hideToy: prefs.hideToy, hideCushion: wanderMode() || prefs.hideCushion, volume: prefs.volume, ambient: prefs.ambient, bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles, backdrop: !wanderMode(), toyRoam: toyRoamOn(), celebBirthday: prefs.celebBirthday, celebChristmas: prefs.celebChristmas, celebHalloween: prefs.celebHalloween, celebNewYear: prefs.celebNewYear, celebEaster: prefs.celebEaster, celebKingsDay: prefs.celebKingsDay, celebScreen: prefs.celebScreen });
+  const publicPrefs = () => ({ deskMode: prefs.deskMode, alertStyle: prefs.alertStyle, clickThrough: prefs.clickThrough, moveNormal: prefs.moveNormal, moveFull: prefs.moveFull, remind: prefs.remind, size: prefs.size, perch: wanderMode() && prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch'), awareness: prefs.awareness, chatNormal: prefs.chatNormal, chatFull: prefs.chatFull, talkNormal: prefs.talkNormal, talkFull: prefs.talkFull, hideToy: prefs.hideToy, hideCushion: wanderMode() || prefs.hideCushion, volume: prefs.volume, ambient: prefs.ambient, swipeLeft: prefs.swipeLeft, swipeRight: prefs.swipeRight, swipeUp: prefs.swipeUp, swipeDown: prefs.swipeDown, bubbles: prefs.bubbles, clouds: prefs.clouds, sparkles: prefs.sparkles, backdrop: !wanderMode(), toyRoam: toyRoamOn(), celebBirthday: prefs.celebBirthday, celebChristmas: prefs.celebChristmas, celebHalloween: prefs.celebHalloween, celebNewYear: prefs.celebNewYear, celebEaster: prefs.celebEaster, celebKingsDay: prefs.celebKingsDay, celebScreen: prefs.celebScreen });
   const sendPrefs = () => { if (win) win.webContents.send('desk:prefs', publicPrefs()); panel.push(); };
   // moves the window smoothly (walking, peeking round the screen edge); anything that takes hold of it stops the move
   let tween = null;
@@ -361,6 +363,7 @@ function start() {
       return;
     }
     if (key === 'alertStyle') { if (THEMES.includes(value)) { prefs.alertStyle = value; savePrefs(); sendPrefs(); } return; }
+    if (/^swipe(Left|Right|Up|Down)$/.test(key)) { if (SWIPE_ACTIONS.includes(value)) { prefs[key] = value; savePrefs(); sendPrefs(); } return; }
     if (key === 'volume') { prefs.volume = Math.max(0, Math.min(100, Math.round(+value) || 0)); savePrefs(); sendPrefs(); return; }   // (0 is silent)
     if (key === 'deskMode') {   // room mode or wander mode: back in his room, he stops sitting on windows and the toy comes home
       if (value !== 'room' && value !== 'wander') return;

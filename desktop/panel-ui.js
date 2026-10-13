@@ -146,11 +146,17 @@
     }
     toggle(does, 'Reminds me of tasks', 'remind');
 
-    // a reminder of how to swipe an alert card (sweepAt in app-desktop.js, the drag code in app-send.js)
+    // what each swipe direction does on an alert card (sweepAt in app-desktop.js, the drag code in app-send.js): every direction has exactly one thing to do
     var swipes = section('Swiping alerts', 'behaviour');
-    [['Left', 'Done (reminder) or copy (note, link).'], ['Up or down', 'In 10 min (reminder).'], ['Right', 'Put away.']].forEach(function (s) {
-      var row = el('div', 'row note'), text = el('span', 'text', s[0]); text.appendChild(el('small', '', s[1]));
-      row.appendChild(text); swipes.appendChild(row);
+    swipes.appendChild(el('p', 'hint', 'Done also copies a note or link.'));
+    [['Left', 'swipeLeft'], ['Right', 'swipeRight'], ['Up', 'swipeUp'], ['Down', 'swipeDown']].forEach(function (d) {
+      var row = el('div', 'row stack'), sseg = el('span', 'seg wrap');
+      row.appendChild(el('span', 'text', d[0]));
+      [['done', 'Done'], ['snooze', 'In 10 min'], ['away', 'Put away'], ['none', 'Nothing']].forEach(function (a) {
+        var b = button(sseg, a[1], function () { P.set(d[1], a[0]).then(take); });
+        if (S.prefs[d[1]] === a[0]) b.className = 'on';
+      });
+      row.appendChild(sseg); swipes.appendChild(row);
     });
 
     // the special days he celebrates (the page asks first, then covers the screen; see celebrate.js): each can be switched off, and "Play" shows the card now

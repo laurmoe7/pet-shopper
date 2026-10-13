@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 664
+- Mini Fumu settings: choose what each swipe direction does on an alert (Done, In 10 min, Put away, Nothing)
+
 ## Build 663
 - Mini Fumu settings: volume slider replaces the sounds switch; Night sounds switch (owl and crickets); cushion switch in room mode
 

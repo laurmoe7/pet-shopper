@@ -234,6 +234,31 @@ function cardCopy(card) {
   return true;
 }
 /** An alert card slides on out of the window the way it was pushed, then `then` runs. @param {Element} card @param {number} dir -1 left, 1 right. */
+/** What each swipe direction does on an alert card (Mini Fumu's settings can change it; one action per direction): done (Done, or Copy on a note or link), snooze (In 10 min), away (put it away) or none. */
+var SWIPE_DEFAULT = { left: 'done', right: 'away', up: 'snooze', down: 'snooze' };
+function swipeMap() {
+  var m = typeof window.deskSwipes === 'function' ? window.deskSwipes() : null, out = {};
+  Object.keys(SWIPE_DEFAULT).forEach(function (d) { out[d] = m && /^(done|snooze|away|none)$/.test(m[d]) ? m[d] : SWIPE_DEFAULT[d]; });
+  return out;
+}
+/**
+ * Works out what a swipe in one direction does to a card.
+ * @param {Element} card @param {'left'|'right'|'up'|'down'} dir
+ * @returns {{kind: 'none'|'copy'|'button', btn?: Element}} Nothing (it springs back), copy a note or link (and springs back), or press a button (Done, In 10 min or the cross) as the card leaves.
+ */
+function swipeResolve(card, dir) {
+  var act = swipeMap()[dir], remind = card.classList.contains('remind-card'), buttons = [].slice.call(card.querySelectorAll('button'));
+  function named(re) { return buttons.filter(function (b) { return re.test(b.textContent); })[0]; }
+  var away = card.querySelector('.inbox-done');
+  if (act === 'none') return { kind: 'none' };
+  if (act === 'done') {
+    if (remind) { var d = named(/^Done/); return d ? { kind: 'button', btn: d } : away ? { kind: 'button', btn: away } : { kind: 'none' }; }   // (a task that cannot be ticked here is put away)
+    if (named(/^Copy/)) return { kind: 'copy' };
+    return away ? { kind: 'button', btn: away } : { kind: 'none' };
+  }
+  if (act === 'snooze') { var sn = remind && named(/^In 10 min/); if (sn) return { kind: 'button', btn: sn }; }
+  return away ? { kind: 'button', btn: away } : { kind: 'none' };   // away, and snooze on a card that cannot be snoozed
+}
 /** The swipe sound for what the swipe does: Done and snooze each have their own, anything else is a plain swoosh. @param {?Element} btn */
 function swipeSound(btn) {
   swipeQuietUntil = Date.now() + 900;   // (the button the swipe presses must not add its own tap or chime)
@@ -278,16 +303,13 @@ function slideAway(card, dir, then, kind) {
       setTimeout(function () { d.card.style.transition = ''; }, 200);
       return;
     }
-    if (!remind && !vertical && d.dx < 0 && cardCopy(d.card)) {   // a note or link: left copies it and the card springs back
+    var name = vertical ? (d.dy < 0 ? 'up' : 'down') : (d.dx < 0 ? 'left' : 'right'), res = swipeResolve(d.card, name), btn = res.btn;
+    if (res.kind === 'copy') cardCopy(d.card);
+    if (res.kind !== 'button') {   // nothing to do (or a copy): the card springs back
       d.card.style.transition = 'translate .18s'; d.card.style.translate = '';
       setTimeout(function () { d.card.style.transition = ''; }, 200);
       return;
     }
-    // a task reminder: left is Done (when it can be ticked here), up or down snoozes it, right puts it away; other alerts: either way puts it away
-    var btn = d.card.querySelector('.inbox-done');
-    function named(re) { return [].slice.call(d.card.querySelectorAll('button')).filter(function (b) { return re.test(b.textContent); })[0]; }
-    if (vertical) btn = named(/^In 10 min/) || btn;
-    else if (remind && d.dx < 0) btn = named(/^Done/) || btn;
     if (vertical) {
       sound(swipeSound(btn));
       d.card.style.animation = 'none';
