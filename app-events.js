@@ -8,7 +8,7 @@ addForm.addEventListener('submit', function (e) {
   if (!isTodo() && Recipe.looksLikeUrl(addInput.value)) {   // a link is a recipe: open the recipe sheet and read it
     var link = addInput.value.trim();
     addInput.value = '';
-    addPreview.replaceChildren();
+    addPreview.replaceChildren(); lastPreview = '';
     $('recipeBtn').click();
     recipeInput.value = link;
     recipeGo();
@@ -16,7 +16,7 @@ addForm.addEventListener('submit', function (e) {
   }
   addItem(addInput.value);
   addInput.value = '';
-  addPreview.replaceChildren();
+  addPreview.replaceChildren(); lastPreview = '';
   // keep typing: if the keyboard was up, stay in the box (as the Enter key already does)
   if (document.documentElement.classList.contains('typing')) addInput.focus();
 });
@@ -80,7 +80,7 @@ addInput.addEventListener('input', function () {
   var t = addInput.value.trim();
   if (!t) { addPreview.replaceChildren(); lastPreview = ''; return; }
   var e = !isTodo() && Recipe.looksLikeUrl(t) ? '\ud83d\udcd6' : L.emojiFor(t, state.overrides, state.mode).emoji;   // a link is a recipe: an open book
-  if (e !== lastPreview) { addPreview.replaceChildren(emojiImg(e, '')); lastPreview = e; }
+  if (e !== lastPreview || !addPreview.firstChild) { addPreview.replaceChildren(emojiImg(e, '')); lastPreview = e; }
 });
 
 /**

@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 693
+- The book shows every time a recipe link is typed in the add bar
+
 ## Build 692
 - Recipes: yeast, salt, nut butter, jam, coconut, seeds, lentils and cheeses convert to grams
 - Recipes: the page's grams are found after a price or a comma, "zest from an orange" is an orange
