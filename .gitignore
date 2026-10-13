@@ -1,3 +1,5 @@
 shots/
 node_modules/
 preview/
+android/node_modules/
+android/android/

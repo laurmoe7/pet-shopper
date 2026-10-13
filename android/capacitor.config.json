@@ -1,0 +1,12 @@
+{
+  "appId": "com.laurmoe.fumufumu",
+  "appName": "Fumufumu",
+  "webDir": "www",
+  "server": {
+    "url": "https://laurmoe7.github.io/pet-shopper/",
+    "cleartext": false
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
