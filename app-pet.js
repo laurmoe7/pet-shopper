@@ -222,6 +222,8 @@ function bubbleToStage() {
  */
 var idleQuiet = false;   // set while an idle moment runs that he was told not to talk during (app-idle.js); a touch or key press ends it
 var chatterRate = 1;     // how much he talks on his own: 0 never, .35 rarely, 1 normal, 2.5 often (the desktop app's settings change it)
+var remarkUntil = 0;     // while set, his own chatter (idle moments, the weather line) keeps quiet: a remark on what you are doing comes just after alerts and celebrations
+var lowBusy = 0;         // how many of the busy counts are idle moves, which a remark may cut in on (app-idle.js)
 var speechLockUntil = 0;   // while set, nothing else may talk over an important line (the update notice)
 function say(text, ms, own) {
   if (!text || idleQuiet || Date.now() < speechLockUntil) return;

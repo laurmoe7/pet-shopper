@@ -30,6 +30,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   /** The tray menu's choices that matter to the page: {roam, remind, size, idle, perch, hideToy, hideCushion, bubbles, awareness, chatNormal, chatFull, standStill, standStillFull}. */
   getPrefs: () => ipcRenderer.invoke('desk:getPrefs'),
   /** The app's Appearance was picked: the shell keeps it as the one theme for both windows (auto, light, dark, sweet, quest2, osrs, bonfire). */
+  /** The app's Options > Weather changed: the shell keeps it, so Mini Fumu's settings show the same ({on, lat, lon, place}). */
+  setWeather: (w) => ipcRenderer.send('desk:setWeather', w && typeof w === 'object' ? { on: !!w.on, lat: w.lat, lon: w.lon, place: String(w.place || '').slice(0, 60) } : null),
   setTheme: (t) => ipcRenderer.send('desk:setTheme', String(t).slice(0, 20)),
   onPrefs: (fn) => ipcRenderer.on('desk:prefs', (_e, p) => fn(p)),
   /** Walks the window dx px along (negative = left) over ms; resolves how far it really went. */

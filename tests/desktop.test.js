@@ -401,3 +401,14 @@ test('a window may stand partly off the sides of a screen, no more than 60% off 
   assert.equal(P.keepPartlyOn(-900, 320, disp), -192);
   assert.equal(P.keepPartlyOn(5000, 320, disp), 872);
 });
+
+test('the weather lookup for the settings window reads places and never stores a made-up setting', () => {
+  const wp = require('../desktop/weather-place.js');
+  assert.ok(wp.searchUrl('1011 AB').endsWith('name=1011'), 'a Dutch postcode loses its letters');
+  assert.deepEqual(wp.parse({ results: [{ name: 'Utrecht', admin1: 'Utrecht', country: 'Netherlands', latitude: 52.0907, longitude: 5.1214 }, { name: 'Utrecht', admin1: 'Utrecht', country: 'Netherlands', latitude: 52.1, longitude: 5.1 }, { name: 'Bad' }] }), [{ lat: 52.1, lon: 5.1, place: 'Utrecht, Netherlands' }]);
+  assert.equal(wp.clean(null), null);
+  assert.deepEqual(wp.clean({ on: true, lat: 52.3676, lon: 4.9041, place: 'Amsterdam' }), { on: true, lat: 52.4, lon: 4.9, place: 'Amsterdam' });
+  assert.deepEqual(wp.clean({ on: true, lat: 999, lon: 4 }), { on: true, lat: null, lon: null, place: '' }, 'a position that is not on Earth is dropped');
+  const pkg = require('../desktop/package.json');
+  assert.ok(pkg.build.files.includes('weather-place.js'), 'packed into the installer');
+});

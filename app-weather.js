@@ -11,7 +11,25 @@ var wxShown = '', wxDev = '', wxFx = null, wxTimers = [], wxTimer = 0;
 function wxConf() {
   try { var c = JSON.parse(localStorage.getItem(WX_KEY) || '{}'); return { on: !!c.on && isFinite(+c.lat) && isFinite(+c.lon), lat: isFinite(+c.lat) ? +c.lat : null, lon: isFinite(+c.lon) ? +c.lon : null, place: String(c.place || '').slice(0, 60), want: !!c.on }; } catch (e) { return { on: false, lat: null, lon: null, place: '', want: false }; }
 }
-function wxSave(c) { try { localStorage.setItem(WX_KEY, JSON.stringify({ on: !!c.want, lat: c.lat, lon: c.lon, place: c.place })); } catch (e) { /* storage not available */ } }
+function wxSave(c) {
+  var v = { on: !!c.want, lat: c.lat, lon: c.lon, place: c.place };
+  try { localStorage.setItem(WX_KEY, JSON.stringify(v)); } catch (e) { /* storage not available */ }
+  if (window.nibbleDesktop && window.nibbleDesktop.setWeather) window.nibbleDesktop.setWeather(v);   // (the Windows app keeps it too, for Mini Fumu's settings)
+}
+/**
+ * The Windows app's copy of the weather setting (Mini Fumu's settings change it there): the page takes it over, or hands over what Options already had when the shell has none yet.
+ * @param {?{on: boolean, lat: ?number, lon: ?number, place: string}} w
+ */
+function wxFromShell(w) {
+  var D = window.nibbleDesktop, c = wxConf();
+  if (!w) { if (c.want && D && D.setWeather) D.setWeather({ on: true, lat: c.lat, lon: c.lon, place: c.place }); return; }
+  if (w.on === c.want && w.lat === c.lat && w.lon === c.lon && w.place === c.place) return;
+  try { localStorage.setItem(WX_KEY, JSON.stringify({ on: !!w.on, lat: w.lat, lon: w.lon, place: w.place })); } catch (e) { /* storage not available */ }
+  wxShown = '';
+  wxFetch(true);
+  if (typeof wxStatus === 'function') wxStatus();
+  if (typeof wxFill === 'function' && $('wxOn')) wxFill();
+}
 /** @returns {?{kind: string, temp: number, feels: number, at: number}} The last weather that was fetched. */
 function wxLast() { try { return JSON.parse(localStorage.getItem(WX_LAST) || 'null'); } catch (e) { return null; } }
 
@@ -137,10 +155,23 @@ function wxSet(kind, quiet) {
   try { said = localStorage.getItem('nibble-wx-said') || ''; } catch (e) { /* storage not available */ }
   if (said === day + kind) return;
   setTimeout(function () {
-    if (wxShown !== kind || busy || document.hidden || stage.classList.contains('bedtime')) return;
+    if (wxShown !== kind || busy || Date.now() < remarkUntil || document.hidden || stage.classList.contains('bedtime')) return;
     try { localStorage.setItem('nibble-wx-said', day + kind); } catch (e) { /* storage not available */ }
     say(pick(Weather.KINDS[kind].lines), 3600, true);
   }, 6000);
+}
+/** If special weather is coming later today (rain, a storm, snow, heat or cold), he says so: once a day for each kind. @param {{kind: string, later: ?{kind: string, hour: number}}} w */
+function wxLater(w) {
+  if (!w || !w.later || wxDev) return;
+  var day = B.dayKey(giftDate()), key = day + w.later.kind, said = '';
+  try { said = localStorage.getItem('nibble-wx-later') || ''; } catch (e) { /* storage not available */ }
+  if (said === key) return;
+  setTimeout(function () {
+    if (busy || Date.now() < remarkUntil || document.hidden || baseState() === 'sleepy' || stage.classList.contains('bedtime') || document.querySelector('dialog[open], .inbox-card')) return;
+    try { localStorage.setItem('nibble-wx-later', key); } catch (e) { /* storage not available */ }
+    say(Weather.laterWords(w.later, typeof Lang === 'object' && Lang.get() === 'nl'), 4200, true);
+    pulse('hopsmall', 450);
+  }, 12000);
 }
 /** Asks for the weather now (when it is on and there is a place) and puts it on. @param {boolean} [force] */
 function wxFetch(force) {
@@ -160,6 +191,7 @@ function wxFetch(force) {
     w.at = Date.now();
     try { localStorage.setItem(WX_LAST, JSON.stringify(w)); } catch (e) { /* storage not available */ }
     if (!wxDev) wxSet(w.kind);
+    wxLater(w);
     if (typeof wxStatus === 'function') wxStatus();
   }).catch(function () { clearTimeout(kill); if (last && !wxDev) wxSet(last.kind); });
 }

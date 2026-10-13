@@ -2,6 +2,12 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 673
+- Mini Fumu settings: Weather (switch and place), shared with the app's Options
+- Weather: he says when rain, a storm, snow, heat or cold is coming later today
+- His remarks on what you are doing now rank just below alerts and celebrations
+- Light and Dark: lamp glow behind him, lit edge on labels, calmer tape and rug in Dark, clearer focus ring, softer selection, dock hover, gentle fade on theme change
+
 ## Build 672
 - Developer tools: weather report for a random place
 

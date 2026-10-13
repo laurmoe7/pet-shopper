@@ -37,7 +37,7 @@
   function round(n) { return Math.round(+n * 10) / 10; }
   /** @returns {string} The address that asks for the weather now at a place. */
   function forecastUrl(lat, lon) {
-    return 'https://api.open-meteo.com/v1/forecast?latitude=' + round(lat) + '&longitude=' + round(lon) + '&current=temperature_2m,apparent_temperature,weather_code&timezone=auto';
+    return 'https://api.open-meteo.com/v1/forecast?latitude=' + round(lat) + '&longitude=' + round(lon) + '&current=temperature_2m,apparent_temperature,weather_code&hourly=temperature_2m,apparent_temperature,weather_code&forecast_days=1&timezone=auto';
   }
   /**
    * @param {string} text What was typed: a city or a postcode.
@@ -59,7 +59,50 @@
     var c = json && json.current;
     if (!c || !isFinite(+c.temperature_2m) || !isFinite(+c.weather_code)) return null;
     var feels = isFinite(+c.apparent_temperature) ? +c.apparent_temperature : +c.temperature_2m;
-    return { kind: classify(c.weather_code, c.temperature_2m, feels), temp: Math.round(+c.temperature_2m), feels: Math.round(feels) };
+    var kind = classify(c.weather_code, c.temperature_2m, feels), out = { kind: kind, temp: Math.round(+c.temperature_2m), feels: Math.round(feels) };
+    var later = laterToday(json.hourly, c.time, kind);
+    if (later) out.later = later;
+    return out;
+  }
+  /** How much a kind is worth mentioning when several come later today (a storm before snow before rain, and so on). */
+  var SEVERITY = { storm: 5, snow: 4, rain: 3, hot: 2, cold: 1 };
+  /**
+   * @param {Object} hourly The `hourly` part of the answer (lists of local times, codes and temperatures for today).
+   * @param {string} now The local time of the current weather (2026-10-13T14:15).
+   * @param {string} kind The weather now.
+   * @returns {?{kind: string, hour: number}} The most notable special weather (rain, storm, snow, hot, cold) later today that is not already happening, with the hour it starts; null when there is none.
+   */
+  function laterToday(hourly, now, kind) {
+    var times = hourly && hourly.time, codes = hourly && hourly.weather_code;
+    if (!times || !codes || typeof now !== 'string') return null;
+    var from = now.slice(0, 13), best = null;
+    for (var i = 0; i < times.length; i++) {
+      var t = String(times[i]);
+      if (t.slice(0, 10) !== now.slice(0, 10) || t.slice(0, 13) <= from || !isFinite(+codes[i])) continue;
+      var temp = hourly.temperature_2m ? hourly.temperature_2m[i] : NaN, feels = hourly.apparent_temperature ? hourly.apparent_temperature[i] : temp;
+      var k = classify(codes[i], temp, feels);
+      if (k === 'clear' || k === kind || !SEVERITY[k]) continue;
+      if (!best || SEVERITY[k] > SEVERITY[best.kind]) best = { kind: k, hour: +t.slice(11, 13) };
+    }
+    return best;
+  }
+  /**
+   * @param {{kind: string, hour: number}} later What laterToday found.
+   * @param {boolean} [nl] In Dutch.
+   * @returns {string} What he says about it ("rain this afternoon, take an umbrella~").
+   */
+  function laterWords(later, nl) {
+    var h = later.hour, part = h < 12 ? 0 : h < 17 ? 1 : h < 21 ? 2 : 3;
+    var en = ['this morning', 'this afternoon', 'this evening', 'tonight'][part], du = ['vanochtend', 'vanmiddag', 'vanavond', 'vannacht'][part];
+    var lines = {
+      rain: ['rain ' + en + ', take an umbrella~', 'regen ' + du + ', neem een paraplu mee~'],
+      storm: ['a storm ' + en + ', stay cozy~', 'onweer ' + du + ', blijf lekker binnen~'],
+      snow: ['snow ' + en + '!', 'sneeuw ' + du + '!'],
+      hot: ['it gets hot ' + en + '~', 'het wordt heet ' + du + '~'],
+      cold: ['it gets chilly ' + en + ', bundle up~', 'het wordt koud ' + du + ', trek iets warms aan~']
+    };
+    var l = lines[later.kind];
+    return l ? l[nl ? 1 : 0] : '';
   }
   /**
    * @param {Object} json The answer from searchUrl.
@@ -89,5 +132,5 @@
     }).filter(function (p) { if (seen[p.place]) return false; seen[p.place] = 1; return true; });
   }
 
-  root.Weather = { parsePlaces: parsePlaces, KINDS: KINDS, ORDER: ORDER, classify: classify, round: round, forecastUrl: forecastUrl, searchUrl: searchUrl, placeQuery: placeQuery, parse: parse, parsePlace: parsePlace };
+  root.Weather = { parsePlaces: parsePlaces, KINDS: KINDS, ORDER: ORDER, classify: classify, round: round, forecastUrl: forecastUrl, searchUrl: searchUrl, placeQuery: placeQuery, parse: parse, laterToday: laterToday, laterWords: laterWords, parsePlace: parsePlace };
 })(typeof self !== 'undefined' ? self : globalThis);

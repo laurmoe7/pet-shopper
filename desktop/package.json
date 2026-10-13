@@ -21,6 +21,7 @@
       "main.js",
       "preload.js",
       "place.js",
+      "weather-place.js",
       "windows.js",
       "wreck.js",
       "celebrate.js",

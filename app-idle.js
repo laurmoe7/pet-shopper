@@ -14,7 +14,7 @@ function scheduleDream() {
 /** One idle moment, when nothing else is going on. */
 function idle() {
   scheduleDream();
-  if (busy || dreaming || napping || document.hidden || document.querySelector('dialog[open]:not(#roomSheet)')) return;
+  if (busy || dreaming || napping || document.hidden || Date.now() < remarkUntil || document.querySelector('dialog[open]:not(#roomSheet)')) return;
   // while it's awake it asks for something now and then (offerSuggestion keeps that to once every three minutes at most)
   // chatterRate (1 = as usual) scales how often it talks on its own: 0 never, below 1 less, above 1 more
   var c = chatterRate;
@@ -362,12 +362,12 @@ function idleMove() {
   // on the to-do list it often does something with its clipboard
   if (isTodo() && !late && mood !== 'sleepy' && Math.random() < 0.45) moves = TODO_MOVES.map(function (run) { return { run: run }; });
   if (!moves.length) return;
-  busy++;
+  busy++; lowBusy++;
   // told to talk less (or never): this move happens, but silently, until it is over or you touch him
   var mute = chatterRate < 1 && Math.random() >= chatterRate;
   if (mute) idleQuiet = true;
   var ms = pick(moves).run();
-  setTimeout(function () { busy--; if (!busy) settle(); }, Math.max(1600, ms || 0));
+  setTimeout(function () { busy--; lowBusy--; if (!busy) settle(); }, Math.max(1600, ms || 0));
   if (mute) setTimeout(function () { idleQuiet = false; }, Math.max(1600, ms || 0) + 2500);   // (a line that is said a moment after the move is muted too)
 }
 // anything you do ends a muted idle moment: what he says back to you is never held back

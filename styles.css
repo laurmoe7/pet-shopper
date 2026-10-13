@@ -4402,3 +4402,27 @@ html.desktop-pet .decor-plant, html:not([data-list="todo"]) .decor-plant { displ
 
 /* the to-do list: a dotted line between the tasks for today and the ones for other days (dayNodes in app.js) */
 .day-divider { list-style: none; height: 0; margin: 8px 14px; border-top: 3px dotted var(--cb-edge-strong); pointer-events: none; }
+
+/* Light and Dark polish (build 673): small touches for the plain looks only (no skin: Sweet, Quest, Old School and Bonfire keep their own), the same tokens in Light, Dark and Auto.
+   A soft lamp glow behind him, a thin lit edge along the top of labels, calmer tape and a dimmer rug in Dark, clearer keyboard focus, softer selection and placeholders, a gentle fade when the theme changes. */
+:root { --pl-lamp: rgba(255, 246, 220, .6); --pl-edge: rgba(255, 255, 255, .7); --pl-tape: .9; --pl-rug: 1; --pl-focus: var(--hl); }
+:root[data-theme="dark"] { --pl-lamp: rgba(255, 186, 120, .15); --pl-edge: rgba(255, 236, 210, .09); --pl-tape: .7; --pl-rug: .85; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme]) { --pl-lamp: rgba(255, 186, 120, .15); --pl-edge: rgba(255, 236, 210, .09); --pl-tape: .7; --pl-rug: .85; } }
+html:root:not([data-skin]):not(.desktop-pet) .stage { background: radial-gradient(ellipse 62% 72% at 50% 78%, var(--pl-lamp), transparent 72%); }
+html:root:not([data-skin]) .item:not(.done), html:root:not([data-skin]) .add { box-shadow: 0 3px 0 var(--shadow), 0 0 0 1.5px var(--cb-edge), inset 0 1.5px 0 var(--pl-edge); }
+html:root:not([data-skin]) .item::before { opacity: var(--pl-tape); }
+html:root:not([data-skin]) .item.done::before { opacity: calc(var(--pl-tape) * .5); }
+html:root:not([data-skin]) .cushion { filter: brightness(var(--pl-rug)) saturate(calc(.6 + var(--pl-rug) * .4)); }
+html:root:not([data-skin]) .dock { box-shadow: 0 -3px 0 var(--cb-edge), inset 0 2px 0 var(--cb-shine), 0 -8px 14px -10px var(--shadow); }
+html:root:not([data-skin])::selection, html:root:not([data-skin]) ::selection { background: var(--hl-soft); color: var(--ink); }
+html:root:not([data-skin]) ::placeholder { color: var(--muted); opacity: .75; }
+/* keyboard focus: one clear ring for anything that does not have its own (:where keeps this from beating a rule that does) */
+:where(button, [role="button"], [role="switch"], select, input, textarea, summary, a[href]):focus-visible { outline: 2.5px solid var(--pl-focus); outline-offset: 2px; }
+html[data-theme="dark"]:not([data-skin]) body { -webkit-font-smoothing: antialiased; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  html:root:not([data-skin]) .dock-icon { transition: transform .15s ease, box-shadow .15s ease; }
+  html:root:not([data-skin]) .dock button:hover:not(:active) .dock-icon { transform: translateY(-2px) rotate(var(--tilt, -4deg)); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  html:root:not([data-skin]), html:root:not([data-skin]) body { transition: background-color .35s ease, color .35s ease; }
+}

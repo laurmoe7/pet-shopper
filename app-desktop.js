@@ -245,11 +245,12 @@
   document.addEventListener('visibilitychange', function () { if (!document.hidden) applyLook(); });
   // the whole app's light or dark changed: its alerts and bubbles follow
   try { new MutationObserver(function () { applyLook(); }).observe(root, { attributes: true, attributeFilter: ['data-theme', 'data-skin'] }); if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyLook); } catch (e) { /* old browser */ }
-  if (D.getPrefs) D.getPrefs().then(function (p) { if (p) { deskPrefs = p; applyLook(); applyChatter(); } });
+  if (D.getPrefs) D.getPrefs().then(function (p) { if (p) { deskPrefs = p; applyLook(); applyChatter(); if (typeof wxFromShell === 'function') wxFromShell(p.weather); } });
   if (D.onPrefs) D.onPrefs(function (p) {
     if (!p) return;
     var was = deskPrefs.alertStyle;
     deskPrefs = p; applyLook(); applyChatter();
+    if (typeof wxFromShell === 'function') wxFromShell(p.weather);
     if (was && p.alertStyle && was !== p.alertStyle && root.classList.contains('desktop-pet')) previewLook();
   });
   /** The pointer of a speech bubble (Quest style) aims at his head: on the side of the bubble facing him, and as far along as he is.
@@ -753,7 +754,7 @@
   // ---------- Fumu does things on his own: wander along the screen, peek round the edge, nap ----------
   var peeking = false, roaming = false, away = false, awayAt = 0, awayNap = false, perched = false;
   function roamOk() {
-    return isPet() && !document.hidden && !roaming && !peeking && !away && !carried && !press && !busy && !walking && !dreaming &&
+    return isPet() && !document.hidden && !roaming && !peeking && !away && !carried && !press && !busy && !walking && !dreaming && Date.now() >= remarkUntil &&
       !(typeof napping !== 'undefined' && napping) && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') &&
       !document.querySelector('dialog[open], .inbox-card') && bubble.hidden && suggestEl.hidden;
   }
@@ -1025,9 +1026,10 @@
   }
   /** @returns {boolean} Whether he may say something about the program now (not at More privacy, not when switched off, not mid-something). */
   function mayRemark() {
-    return deskAware(2) && isPet() && !document.hidden && !busy && !dreaming && !walking && !carried && !press &&
+    // just below alerts and celebrations: those (a card, a dialog, a party, the question about one) still win, but his own idle moments, daydreams, walks and chatter give way to a remark
+    return deskAware(2) && isPet() && !document.hidden && busy <= lowBusy && !carried && !press && Date.now() >= speechLockUntil &&
       !(typeof napping !== 'undefined' && napping) && baseState() !== 'sleepy' && !stage.classList.contains('bedtime') &&
-      !document.querySelector('dialog[open], .inbox-card') && bubble.hidden;
+      !(typeof birthdayHolding === 'function' && birthdayHolding()) && !document.querySelector('dialog[open], .inbox-card');
   }
   /** Runs fn once he is free to speak (a bubble that is up goes away by itself), trying for up to 12 seconds; `still` says whether it is still wanted. */
   function whenFree(still, fn, first) {
@@ -1041,7 +1043,7 @@
     return first;
   }
   /** A remark about what you are doing. It is its own setting, apart from his chatter: a silent (muted) idle moment never swallows it. */
-  function remark(text, name) { idleQuiet = false; say(text.replace(/\{name\}/g, name || 'it'), 4200, true); var m = pick(['hopsmall', 'hopsmall', 'tilt', 'shiver']); pulse(m, m === 'tilt' ? 1800 : m === 'shiver' ? 700 : 450); }
+  function remark(text, name) { idleQuiet = false; remarkUntil = Date.now() + 6000; if (dreaming) { dreamEl.hidden = true; dreaming = false; } say(text.replace(/\{name\}/g, name || 'it'), 4200, true); var m = pick(['hopsmall', 'hopsmall', 'tilt', 'shiver']); pulse(m, m === 'tilt' ? 1800 : m === 'shiver' ? 700 : 450); }
   /** Whether a 0..1 chance (already scaled by how often he is allowed to talk) comes up. */
   function chance(p) { return Math.random() < Math.min(1, p); }
   var duringTimer = 0;

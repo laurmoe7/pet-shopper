@@ -26,12 +26,17 @@
     return nl ? 'het is ' + t + ', ' + (du[w.kind] || 'helder') + '~' : 'it is ' + t + ' and ' + (en[w.kind] || 'clear') + '~';
   }
   /** The weather report: he looks outside and tells you (only offered while the weather option is on). With no place picked yet he says to pick one. */
+  /** After the weather now, what is coming later today (if anything special), in a second bubble. @param {{later: ?{kind: string, hour: number}}} w */
+  function ringLater(w, after) {
+    if (!w || !w.later) return;
+    setTimeout(function () { say(Weather.laterWords(w.later, typeof Lang === 'object' && Lang.get() === 'nl'), 3800, true); }, after);
+  }
   var ringLooking = false;
   function ringWeather(test) {   // (test: a made-up place from the developer tools; it ignores the saved place and the last answer, and saves nothing)
     var nl = typeof Lang === 'object' && Lang.get() === 'nl', c = test || (typeof wxConf === 'function' ? wxConf() : null);
     if (!c || c.lat === null || c.lon === null) { say(nl ? 'zet eerst een plaats in de opties~' : 'I need a place first: pick one in Options > Weather~', 3200, true); return; }
     var last = !test && typeof wxLast === 'function' ? wxLast() : null;
-    if (last && Date.now() - last.at < 10 * 60000) { say(ringWeatherWords(last), 3600, true); pulse('hopsmall', 450); return; }
+    if (last && Date.now() - last.at < 10 * 60000) { say(ringWeatherWords(last), 3600, true); pulse('hopsmall', 450); ringLater(last, 3900); return; }
     if (!navigator.onLine) { say(nl ? 'ik kan nu niet kijken~' : 'I cannot look outside right now~', 2400, true); return; }
     if (ringLooking) return;   // (a second press while he is still looking does nothing)
     ringLooking = true;
@@ -48,7 +53,7 @@
         if (!w) { say(nl ? 'ik kan niets zien~' : 'I cannot see anything~', 2400, true); return; }
         w.at = Date.now();
         if (!test) { try { localStorage.setItem('nibble-weather-last', JSON.stringify(w)); } catch (e) { /* storage not available */ } }
-        setTimeout(function () { say((test ? test.place + ': ' : '') + ringWeatherWords(w), 3600, true); pulse('hopsmall', 450); }, 900);
+        setTimeout(function () { say((test ? test.place + ': ' : '') + ringWeatherWords(w), 3600, true); pulse('hopsmall', 450); ringLater(w, 3900); }, 900);
       }).catch(function () { clearTimeout(kill); fail(); });
     } catch (e) { clearTimeout(kill); fail(); }
   }

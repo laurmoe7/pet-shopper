@@ -1,7 +1,7 @@
 // The settings window's page: draws the choices from what main.js reports and sends changes back.
 'use strict';
 (function () {
-  var P = window.fumuPanel, root = document.getElementById('root'), S = null, capture = null, note = '', diagTimer = 0, devOpen = false, devNote = '', devGroups = { 'Time of day and scenes': true }, curTab = 'look';
+  var P = window.fumuPanel, root = document.getElementById('root'), S = null, capture = null, note = '', diagTimer = 0, devOpen = false, devNote = '', devGroups = { 'Time of day and scenes': true }, curTab = 'look', wxTyped = '', wxNote = '', wxList = [];
   /** The tabs along the top, in order: the id each section is filed under, and its name. */
   var TABS = [['look', 'Look'], ['behaviour', 'Behaviour'], ['celebrations', 'Celebrations'], ['privacy', 'Privacy'], ['window', 'Window'], ['dev', 'Developer']];
 
@@ -145,6 +145,28 @@
       if (S.prefs.perch) { var hint = el('small', '', 'Looking…'); hint.id = 'perchHint'; does.lastChild.querySelector('.text').appendChild(hint); }
     }
     toggle(does, 'Reminds me of tasks', 'remind');
+
+    // the weather he reacts to (the same setting as the app's Options > Weather): a switch and a place, looked up through the shell
+    var wx = section('Weather', 'behaviour'), w = S.prefs.weather || { on: false, lat: null, lon: null, place: '' };
+    var wxRow = el('label', 'row'), wxText = el('span', 'text', 'Weather');
+    wxText.appendChild(el('small', '', w.place && w.lat !== null ? w.place : 'Pick a place first.'));
+    var wxSw = el('span', 'sw'), wxIn = el('input'); wxIn.type = 'checkbox'; wxIn.checked = !!w.on && w.lat !== null; wxIn.disabled = w.lat === null;
+    wxIn.addEventListener('change', function () { P.set('weather', { on: wxIn.checked, lat: w.lat, lon: w.lon, place: w.place }).then(take); });
+    wxSw.append(wxIn, el('i')); wxRow.append(wxText, wxSw); wx.appendChild(wxRow);
+    var find = el('div', 'btns'), box = el('input'); box.type = 'text'; box.maxLength = 60; box.placeholder = 'City or postcode'; box.value = wxTyped; box.setAttribute('aria-label', 'City or postcode for the weather');
+    box.addEventListener('input', function () { wxTyped = box.value; });
+    function look() {
+      wxTyped = box.value; wxNote = 'Looking…'; wxList = []; render();
+      P.action('weatherFind', wxTyped).then(function (r) { wxNote = r && r.ok ? '' : (r && r.error) || 'Could not look it up.'; wxList = r && r.ok ? r.places : []; render(); });
+    }
+    box.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); look(); } });
+    find.append(box); button(find, 'Find', look); wx.appendChild(find);
+    if (wxNote) wx.appendChild(el('p', 'hint', wxNote));
+    if (wxList.length) {
+      var picks = el('div', 'btns');
+      wxList.forEach(function (p) { button(picks, p.place, function () { wxList = []; wxNote = ''; wxTyped = ''; P.set('weather', { on: true, lat: p.lat, lon: p.lon, place: p.place }).then(take); }); });
+      wx.appendChild(picks);
+    }
 
     // what each swipe direction does on an alert card (sweepAt in app-desktop.js, the drag code in app-send.js): every direction has exactly one thing to do
     var swipes = section('Swiping alerts', 'behaviour');

@@ -19,6 +19,17 @@ test('only a rounded position is sent, and a bad answer is not used', () => {
   assert.deepEqual(W.parse({ current: { temperature_2m: 12.4, apparent_temperature: 10.1, weather_code: 63 } }), { kind: 'rain', temp: 12, feels: 10 });
   assert.deepEqual(W.parsePlace({ results: [{ name: 'Utrecht', country: 'Netherlands', latitude: 52.0907, longitude: 5.1214 }] }), { lat: 52.1, lon: 5.1, place: 'Utrecht, Netherlands' });
   assert.equal(W.parsePlace({}), null);
+  // special weather later today: the most notable kind that is not already happening, with the hour it starts
+  const hours = (codes) => ({ time: codes.map((_, i) => '2026-10-13T' + String(i).padStart(2, '0') + ':00'), weather_code: codes, temperature_2m: codes.map(() => 12), apparent_temperature: codes.map(() => 12) });
+  const day = Array(24).fill(1); day[16] = 61; day[17] = 61; day[20] = 95; day[3] = 65;
+  const now = { temperature_2m: 12, apparent_temperature: 12, weather_code: 1, time: '2026-10-13T14:15' };
+  assert.deepEqual(W.parse({ current: now, hourly: hours(day) }).later, { kind: 'storm', hour: 20 }, 'a storm beats rain; the rain at 3 am is already past');
+  assert.deepEqual(W.laterToday(hours(day), now.time, 'storm'), { kind: 'rain', hour: 16 }, 'what is happening now is not "later"');
+  assert.equal(W.parse({ current: now, hourly: hours(Array(24).fill(1)) }).later, undefined);
+  assert.equal(W.parse({ current: now }).later, undefined, 'no forecast, no later');
+  assert.equal(W.laterWords({ kind: 'rain', hour: 16 }), 'rain this afternoon, take an umbrella~');
+  assert.match(W.laterWords({ kind: 'snow', hour: 22 }, true), /vannacht/);
+
 });
 test('every task ticked off waters the plant, up to three a day, and three drinks grow a stage', () => {
   const p = L.petProfile({});
