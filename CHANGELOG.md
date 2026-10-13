@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 675
+- Thought clouds sit clear of the Shopping and To-do tabs
+
 ## Build 674
 - Skin count now sits on the Skin button instead of the species tiles
 - Personas renamed: Hyper Foodie is Cheerful, Sweetie Pie is Sweetheart, Zen Sprout is Zen

@@ -789,7 +789,7 @@ html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .sk
 @media (prefers-reduced-motion: reduce) { .cart-bag:not([hidden]), .cart-bag.bump { animation: none; } }
 
 /* ---------- daydreams ---------- */
-.dream { position: absolute; left: calc(50% - 40px + var(--walk-x, 0px)); top: -4px; width: 60px; height: 58px; z-index: 3; pointer-events: none; }
+.dream { position: absolute; left: calc(50% - 40px + var(--walk-x, 0px)); top: 4px;   /* (clear of the Shopping / To-do tabs above the stage) */ width: 60px; height: 58px; z-index: 3; pointer-events: none; }
 .dream:not([hidden]) { animation: dream-in .5s ease-out; }
 @keyframes dream-in { from { opacity: 0; transform: translateY(8px) scale(.7); } }
 .dream-cloud {
@@ -2449,7 +2449,7 @@ html.typing .page-fade { display: none; }
 .closet-empty { grid-column: 1 / -1; }
 
 /* ---------- a wish: Fumu asking for a snack (app-treats.js) ---------- */
-.wish { position: absolute; left: calc(50% - 100px * var(--pet-size, 1) + var(--walk-x, 0px)); top: 2px; z-index: 4; width: 58px; height: 62px; padding: 0; border: 0; background: none; cursor: pointer; animation: wish-in .4s cubic-bezier(.3, 1.6, .5, 1); }
+.wish { position: absolute; left: calc(50% - 100px * var(--pet-size, 1) + var(--walk-x, 0px)); top: 8px; z-index: 4; width: 58px; height: 62px; padding: 0; border: 0; background: none; cursor: pointer; animation: wish-in .4s cubic-bezier(.3, 1.6, .5, 1); }
 .wish[hidden] { display: none; }
 .wish-cloud { position: absolute; left: 0; top: 0; width: 58px; height: 44px; display: grid; place-items: center; background: var(--surface); border: 1.8px solid var(--outline); border-radius: 24px; box-shadow: 0 2px 0 var(--shadow); animation: wish-bob 3.4s ease-in-out .5s infinite; }
 .wish-cloud img { width: 32px; height: 32px; display: block; }
