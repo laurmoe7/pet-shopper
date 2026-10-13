@@ -352,7 +352,7 @@ function swingLoop(h) {
     if (prev * h.w <= 0 && Math.abs(h.th) > 24) {
       sound('tink');
       h.strikes.push(now); h.strikes = h.strikes.filter(function (t) { return now - t < 1700; });
-      if (h.strikes.length >= 4) { h.strikes = []; bellRing(); }
+      if (h.strikes.length >= 3) { h.strikes = []; bellRing(); }   // (3 knocks a ring, two rings wake him: 6 knocks instead of 8)
     }
     requestAnimationFrame(frame);
   })(last);

@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 652
+- Lights off from the ring menu: he walks back to his bed instead of freezing
+- Waking him with the bell takes 6 knocks instead of 8
+
 ## Build 651
 - Remarks about what you are doing no longer depend on his own chatter (turning chatter off keeps them)
 
