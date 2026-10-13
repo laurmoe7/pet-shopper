@@ -229,6 +229,7 @@ $('acctServer').addEventListener('change', function () {
   say2('Server address saved.');
 });
 accountSheet.addEventListener('click', function (e) { if (e.target === accountSheet) accountSheet.close(); });
+$('acctDone').addEventListener('click', function () { accountSheet.close(); });   // (opened from Options, so no bar button closes it: a Done button does, as well as the grab bar)
 function openAccount(code) {
   codeVisible = false;
   say2('');

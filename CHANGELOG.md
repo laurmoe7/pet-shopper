@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 683
+- Backup & sync and Send sheets: a Done button to close them
+
 ## Build 682
 - Mini Fumu in room mode: nothing but you moves his window (no strolls, peeks or alert slides)
 - Weather reports are not interrupted by his chatter

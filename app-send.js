@@ -54,6 +54,7 @@ function sendToOther(quickText) {
 var quickSending = false;
 sendGo.addEventListener('click', function () { sound('tap'); sendToOther(); });
 sendSheet.addEventListener('click', function (e) { if (e.target === sendSheet) sendSheet.close(); });
+$('sendDone').addEventListener('click', function () { sendSheet.close(); });   // (a Done button as well as the grab bar)
 /** @returns {boolean} Whether this device shows what is sent to it (the desktop app always does; elsewhere it is on unless switched off). */
 function receivingHere() {
   if (deskShell) return true;
