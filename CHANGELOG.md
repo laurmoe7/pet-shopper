@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 656
+- Shop: Fumufumu Plus card with a yearly (14.99) and monthly plan, nicer pack cards
+
 ## Build 655
 - Slippers' sole without the ears; clog sole without the dots
 

@@ -3348,14 +3348,37 @@ html.desktop-pet.ring-open .stage .bubble.ring-moved { left: var(--rl, 4px) !imp
 /* the Shop (app-shop.js): a test page, nothing can be bought */
 .shop-list { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; min-height: 0; scrollbar-width: none; }
 .shop-head { margin: 6px 0 0; font-family: var(--font-display); font-size: 1rem; color: var(--ink); }
-.shop-card { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 18px; background: var(--paper); border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--shadow); }
-.shop-card > img { width: 44px; height: 44px; }
+.shop-card { display: grid; grid-template-columns: 52px 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 20px; background: var(--paper); border: 1.5px solid var(--line); box-shadow: 0 2px 0 var(--shadow); }
+.shop-pic { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: color-mix(in srgb, var(--hl) 26%, var(--paper)); box-shadow: inset 0 0 0 1.5px var(--outline); }
+.shop-pic > img { width: 34px; height: 34px; }
 .shop-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .shop-body b { color: var(--ink); }
-.shop-body span, .shop-perks { font-size: .8rem; font-weight: 700; color: var(--muted); }
-.shop-perks { margin: 0; padding-left: 16px; }
-.shop-premium { background: var(--stage-top); border-color: var(--outline); }
+.shop-body span { font-size: .8rem; font-weight: 700; color: var(--muted); }
 .shop-buy { background: var(--surface); white-space: nowrap; }
+/* the Fumufumu Plus card: a soft glow at the top, sparkles, ticked perks and a yearly / monthly pick */
+.plus-card { position: relative; display: flex; flex-direction: column; gap: 12px; padding: 14px 14px 12px; border-radius: 24px; border: 2px solid var(--outline); box-shadow: 0 3px 0 var(--shadow); overflow: hidden;
+  background: radial-gradient(120% 70% at 85% -10%, var(--hl-glow), transparent 60%), linear-gradient(color-mix(in srgb, var(--hl) 26%, var(--paper)), var(--paper) 62%); }
+.plus-card::before, .plus-card::after { content: "✦"; position: absolute; color: var(--hl); opacity: .55; pointer-events: none; }
+.plus-card::before { top: 10px; right: 16px; font-size: 1.1rem; }
+.plus-card::after { top: 38px; right: 40px; font-size: .7rem; opacity: .4; }
+.plus-head { display: flex; align-items: center; gap: 12px; }
+.plus-head > img { width: 54px; height: 54px; flex: none; filter: drop-shadow(0 2px 0 var(--shadow)); }
+.plus-titles { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.plus-name { font-family: var(--font-display); font-size: 1.3rem; color: var(--ink); line-height: 1.1; }
+.plus-tag { font-size: .8rem; font-weight: 700; color: var(--muted); }
+.plus-perks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.plus-perks li { position: relative; padding-left: 26px; font-size: .86rem; font-weight: 700; color: var(--ink); line-height: 1.25; }
+.plus-perks li::before { content: "✓"; position: absolute; left: 0; top: -1px; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: var(--hl); color: #fff; font-size: .72rem; font-weight: 900; }
+.plus-plans { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.plus-plan { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 14px 10px 9px; border-radius: 16px; background: var(--paper); border: 2px solid var(--line); color: var(--ink); font: inherit; text-align: left; cursor: pointer; box-shadow: 0 2px 0 var(--shadow); transition: transform .12s; }
+.plus-plan:active { transform: translateY(1px); }
+.plus-plan.on { border-color: var(--hl); background: var(--surface); box-shadow: 0 0 0 3px var(--hl-glow), 0 2px 0 var(--shadow); }
+.plus-plan-name { font-size: .78rem; font-weight: 800; color: var(--muted); }
+.plus-price { display: flex; align-items: baseline; gap: 3px; }
+.plus-price b { font-family: var(--font-display); font-size: 1.25rem; color: var(--ink); }
+.plus-price small, .plus-sub { font-size: .72rem; font-weight: 700; color: var(--muted); }
+.plus-ribbon { position: absolute; top: -10px; left: 8px; max-width: calc(100% - 14px); padding: 2px 8px; border-radius: 999px; background: var(--badge); color: #fff; font-style: normal; font-size: .66rem; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 1.5px 0 var(--shadow); }
+html:root .shop-sheet .plus-cta { width: 100%; padding: 11px 14px; font-size: 1rem; font-weight: 800; background: var(--hl); color: #fff; border-color: var(--hl); box-shadow: 0 3px 0 var(--shadow), 0 0 14px var(--hl-glow); }
 .shop-note { min-height: 1.2em; margin: 0; text-align: center; }
 
 /* the sneaky snack (app-steal.js): the emoji he took is gone from its row until he spits it back */
