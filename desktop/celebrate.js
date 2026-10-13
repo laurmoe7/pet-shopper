@@ -11,12 +11,13 @@ const MAX_MS = 40000;
  * @returns {{start: function(string, Object): boolean, stop: function(): void}}
  */
 function makeCelebrate(deps) {
-  let ov = null, timer = null;
+  let ov = null, front = null, timer = null;   // (front: a second overlay above Fumu for the effects that must pass in front of him, the New Year's confetti)
 
   function stop() {
     if (timer) { clearTimeout(timer); timer = null; }
     if (ov && !ov.isDestroyed()) ov.destroy();
-    ov = null;
+    if (front && !front.isDestroyed()) front.destroy();
+    ov = null; front = null;
   }
   const num = (n, lo, hi) => Math.max(lo, Math.min(hi, isFinite(n) ? Math.round(+n) : 0));
 
@@ -36,7 +37,18 @@ function makeCelebrate(deps) {
     ov.setIgnoreMouseEvents(true);
     ov.setAlwaysOnTop(true, 'screen-saver');
     const w = ov;
-    w.webContents.once('did-finish-load', () => { if (ov === w && !w.isDestroyed()) { w.showInactive(); deps.raise(); } });
+    w.webContents.once('did-finish-load', () => {
+      if (ov !== w || w.isDestroyed()) return;
+      w.showInactive(); deps.raise();   // (Fumu comes back above the screen-wide effects...)
+      if (kind === 'newyear') {   // ...and the confetti is thrown by a second overlay shown after him, so it passes in front of him
+        const f = new deps.BrowserWindow({ x: b.x, y: b.y, width: b.width, height: b.height, frame: false, transparent: true, resizable: false, movable: false, skipTaskbar: true, focusable: false, hasShadow: false, show: false, alwaysOnTop: true, webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false } });
+        front = f;
+        f.setIgnoreMouseEvents(true);
+        f.setAlwaysOnTop(true, 'screen-saver');
+        f.webContents.once('did-finish-load', () => { if (front === f && !f.isDestroyed()) f.showInactive(); });
+        f.loadURL(deps.pageUrl() + 'celebrate.html?' + q.toString() + '&front=1').catch(() => { if (front === f && !f.isDestroyed()) f.destroy(); });
+      }
+    });
     w.webContents.once('did-fail-load', () => { if (ov === w) stop(); });
     w.loadURL(deps.pageUrl() + 'celebrate.html?' + q.toString()).catch(() => { if (ov === w) stop(); });
     timer = setTimeout(stop, total + 4000);   // (whatever happens, it never stays)

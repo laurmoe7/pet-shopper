@@ -4382,3 +4382,12 @@ html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-bloc
 .decor-plant.plant-bloom svg { filter: drop-shadow(0 0 5px rgba(255, 214, 120, .85)); }
 .decor-plant svg { transform-origin: 50% 90%; overflow: visible; }
 html.desktop-pet .decor-plant, html:not([data-list="todo"]) .decor-plant { display: none; }   /* the plant is for the to-do list in the app, not the shopping list and not Mini Fumu */
+
+/* the bunny ears from the Easter gift: a bunny wears the flower crown instead */
+.hat-ears .ge-crown { display: none; }
+.pet[data-species="bunny"] .hat-ears .ge-ears { display: none; }
+.pet[data-species="bunny"] .hat-ears .ge-crown { display: inline; }
+.gift-chip.gift-hat { display: inline-flex; align-items: center; gap: 4px; }
+.gift-chip.gift-hat svg { width: 34px; height: 30px; overflow: visible; }
+.gift-box svg { overflow: visible; }
+.gift-box.opened svg { filter: none; opacity: 1; }

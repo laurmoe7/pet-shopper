@@ -418,6 +418,57 @@ function boa() {
         '<path class="flag-blue" d="M52 37.2 H66 V41 H52 Z"/><rect class="flag-edge" x="52" y="29.6" width="14" height="11.4" rx="1.6"/></g>' +
         '</g>'
     },
+    // ---- the hats Fumu wears in the holiday celebrations (they come in the gift box of that day: `gift: true`, see bonuses.js) ----
+    {
+      id: 'partyhat', slot: 'hat', gift: true, label: 'Party hat', icon: '58 -6 52 54',
+      lines: ['party time!', 'is it my birthday?', 'confetti, please!'],
+      svg: '<g class="hat-gift"><g transform="translate(83 37) rotate(-4)"><path d="M0 -30 L15 0 Q0 5 -15 0 Z" fill="#ff8fb1" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
+        '<path d="M-8 -12 L8 -12 M-12 -5 L12 -5" stroke="#fff6ec" stroke-width="3" stroke-linecap="round"/><circle cx="0" cy="-31" r="4" fill="#ffd36b" stroke="#5b4239" stroke-width="2"/></g></g>'
+    },
+    {
+      id: 'santahat', slot: 'hat', gift: true, label: 'Santa hat', icon: '56 -4 60 52',
+      lines: ['ho ho ho!', 'merry christmas!', 'cosy and festive'],
+      svg: '<g class="hat-gift"><g transform="translate(83 38) rotate(-3)"><path d="M-16 0 Q-14 -24 3 -30 Q16 -34 22 -22 Q23 -16 18 -12 Q16 -6 16 0 Z" fill="#e8445a" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
+        '<path d="M-8 -14 Q-2 -22 6 -24" fill="none" stroke="#ff909d" stroke-width="2" stroke-linecap="round"/>' +
+        '<rect x="-19" y="-5" width="38" height="9" rx="4.5" fill="#fffaf0" stroke="#5b4239" stroke-width="2"/>' +
+        '<circle cx="22" cy="-20" r="5" fill="#fffaf0" stroke="#5b4239" stroke-width="2"/></g></g>'
+    },
+    {
+      id: 'witchhat', slot: 'hat', gift: true, label: 'Witch hat', icon: '52 -6 66 54',
+      lines: ['trick or treat!', 'spooky and cute', 'boo!'],
+      svg: '<g class="hat-gift"><g transform="translate(83 38) rotate(-3)"><path d="M-11 -2 Q-8 -18 0 -28 Q4 -34 12 -37 Q10 -30 12 -26 Q13 -12 14 -2 Z" fill="#7b4fc4" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
+        '<path d="M-7 -14 Q-3 -22 3 -27" fill="none" stroke="#a98be0" stroke-width="2" stroke-linecap="round"/>' +
+        '<ellipse cx="1" cy="-1" rx="23" ry="5.5" fill="#5b3d8f" stroke="#5b4239" stroke-width="2"/>' +
+        '<path d="M-10 -5 Q1 -2 13 -5 L13 -9 Q1 -6 -10 -9 Z" fill="#ff9a3c" stroke="#5b4239" stroke-width="1.6" stroke-linejoin="round"/>' +
+        '<rect x="-1.5" y="-9.5" width="6" height="5.5" rx="1" fill="#ffd36b" stroke="#5b4239" stroke-width="1.4"/></g></g>'
+    },
+    {
+      id: 'newyearhat', slot: 'hat', gift: true, label: 'New Year hat', icon: '58 -8 52 56',
+      lines: ['happy new year!', 'countdown time!', 'ten, nine, eight…'],
+      svg: '<g class="hat-gift"><g transform="translate(83 37) rotate(-4)"><path d="M0 -30 L15 0 Q0 5 -15 0 Z" fill="#ffd36b" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
+        '<path d="M-8 -12 L8 -12 M-12 -5 L12 -5" stroke="#3fa7ff" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M0 -41 l2.2 4.6 5 .6 -3.7 3.4 1 5 -4.5 -2.5 -4.5 2.5 1 -5 -3.7 -3.4 5 -.6z" fill="#fff6ec" stroke="#5b4239" stroke-width="1.6" stroke-linejoin="round" transform="translate(0 6)"/></g></g>'
+    },
+    {
+      id: 'bunnyears', slot: 'hat', gift: true, label: 'Easter ears', icon: '50 -6 60 56',
+      lines: ['hop hop!', 'where are the eggs?', 'happy easter!'],
+      // bunny ears on a pink headband; a bunny, who has ears already, wears the flower crown instead (styles.css)
+      svg: '<g class="hat-gift hat-ears"><g class="ge-ears">' +
+        '<g transform="translate(67 38) rotate(-12)"><ellipse cx="0" cy="-17" rx="6.5" ry="18" fill="#fffaf0" stroke="#5b4239" stroke-width="2"/><ellipse cx="0" cy="-16" rx="3.2" ry="13" fill="#ffb8c6"/></g>' +
+        '<g transform="translate(93 38) rotate(12)"><ellipse cx="0" cy="-17" rx="6.5" ry="18" fill="#fffaf0" stroke="#5b4239" stroke-width="2"/><ellipse cx="0" cy="-16" rx="3.2" ry="13" fill="#ffb8c6"/></g>' +
+        '<path d="M60 41 Q80 31 100 41" fill="none" stroke="#ff9ec1" stroke-width="3.6" stroke-linecap="round"/><path d="M60 41 Q80 31 100 41" fill="none" stroke="#5b4239" stroke-width=".9" stroke-linecap="round" opacity=".5"/>' +
+        '<g transform="translate(80 33)"><circle cx="-5" cy="0" r="3.2" fill="#ffe27a" stroke="#5b4239" stroke-width="1.2"/><circle cx="5" cy="0" r="3.2" fill="#ffe27a" stroke="#5b4239" stroke-width="1.2"/><circle r="2.4" fill="#ff9ec1" stroke="#5b4239" stroke-width="1.2"/></g></g>' +
+        '<g class="ge-crown"><path d="M61 40 Q80 28 99 40" fill="none" stroke="#5b9b6b" stroke-width="2.4" stroke-linecap="round"/>' +
+        [0, 1, 2, 3, 4, 5].map(function (i) { return '<g transform="translate(' + (63.5 + i * 6.6).toFixed(1) + ' ' + (38 - Math.sin((i / 5) * Math.PI) * 5).toFixed(1) + ')"><circle r="4.4" fill="' + ['#ff9ec1', '#fffaf0', '#ffe27a', '#ffb8d9', '#fffaf0', '#ff9ec1'][i] + '" stroke="#5b4239" stroke-width="1.4"/><circle r="1.5" fill="#ffd36b"/></g>'; }).join('') + '</g></g>'
+    },
+    {
+      id: 'kingscrown', slot: 'hat', gift: true, label: 'Golden crown', icon: '56 -2 48 46',
+      lines: ['hup Holland hup!', 'long live the king!', 'oranje boven!'],
+      svg: '<g class="hat-gift"><g transform="translate(80 38)"><path d="M-17 0 L-19 -20 L-9 -11 L0 -25 L9 -11 L19 -20 L17 0 Z" fill="#ffd36b" stroke="#5b4239" stroke-width="2" stroke-linejoin="round"/>' +
+        '<rect x="-18" y="-4" width="36" height="7" rx="2.5" fill="#ffc83a" stroke="#5b4239" stroke-width="2"/>' +
+        '<circle cx="0" cy="-0.5" r="2.6" fill="#ff8a1f" stroke="#5b4239" stroke-width="1.2"/><circle cx="-10" cy="-0.5" r="2" fill="#ff8a1f" stroke="#5b4239" stroke-width="1.1"/><circle cx="10" cy="-0.5" r="2" fill="#ff8a1f" stroke="#5b4239" stroke-width="1.1"/>' +
+        '<circle cx="-19" cy="-21" r="2.6" fill="#fffaf0" stroke="#5b4239" stroke-width="1.3"/><circle cx="0" cy="-26.5" r="2.8" fill="#ff8a1f" stroke="#5b4239" stroke-width="1.3"/><circle cx="19" cy="-21" r="2.6" fill="#fffaf0" stroke="#5b4239" stroke-width="1.3"/></g></g>'
+    },
     {
       id: 'scarf', slot: 'neck', label: 'Winter scarf', icon: '10 104 140 56',
       lines: ['so toasty!', 'snow day?', 'cozy cozy cozy'],

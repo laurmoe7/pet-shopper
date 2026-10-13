@@ -13,14 +13,14 @@ function scLocale() {
   var loc = scNl() ? 'nl-NL' : (navigator.language || 'en-US');
   try { new Intl.DateTimeFormat(loc); return loc; } catch (e) { return scNl() ? 'nl-NL' : 'en-US'; }   // (a made-up or broken language tag must not break the page)
 }
-/** @returns {{names: string[], parties: string[], extra: number, total: number}} What a date brings: the special days, the celebrations, the extra boxes (beyond the daily one) and all the boxes. @param {Date} d */
+/** @returns {{names: string[], parties: string[], extra: number, gifts: string[]}} What a date brings: the special days, the celebrations and the gift hats (`extra` of them, in a box each). @param {Date} d */
 function scDay(d) {
   var days = B.specialDays(d, state.player.birthday), boxes = B.boxesFor(d, state.player.birthday);
   return {
     names: days.map(function (x) { return x.label; }),
     parties: days.filter(function (x) { return x.party; }).map(function (x) { return x.party; }),
-    extra: boxes.length - 1,
-    total: boxes.length
+    extra: boxes.length,
+    gifts: boxes.map(function (b) { return b.hatLabel; })
   };
 }
 /** Draws the month grid (weeks start on Monday). */
@@ -52,7 +52,7 @@ function scRenderDetail() {
   head.textContent = d.toLocaleDateString(scLocale(), { weekday: 'long', day: 'numeric', month: 'long' });
   if (info.names.length) lines.push(info.names.join(' · '));
   if (info.parties.length) lines.push('🎉 ' + info.parties.map(function (p) { return T(p); }).join(', '));
-  lines.push('🎁 ' + (info.extra > 0 ? scText(info.total + ' boxes: 1 daily and ' + info.extra + ' extra', info.total + ' dozen: 1 dagelijkse en ' + info.extra + ' extra') : scText('1 daily box', '1 dagelijkse doos')));
+  if (info.gifts.length) lines.push('🎁 ' + info.gifts.map(function (g) { return T(g); }).join(', ') + ' ' + scText('(in a gift box)', '(in een cadeaudoos)'));
   var els = [head].concat(lines.map(function (t) { var p = document.createElement('span'); p.textContent = t; return p; }));
   box.replaceChildren.apply(box, els);
 }
@@ -62,7 +62,7 @@ function scRenderUp() {
   for (var i = 0; i <= 400 && rows.length < 6; i++) {
     var d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + i), days = B.specialDays(d, state.player.birthday), ids = {};
     days.forEach(function (x) { ids[x.id] = 1; });
-    var mains = days.filter(function (x) { return x.id.indexOf('gift') < 0 || x.id === 'birthday'; }), info = scDay(d);
+    var mains = days.filter(function (x) { return true; }), info = scDay(d);
     var fresh = mains.some(function (x) { return !prev[x.id]; });   // (not just the next date of a day that began yesterday)
     prev = ids;
     if (!days.length || (!fresh && !info.parties.length)) continue;
@@ -71,7 +71,7 @@ function scRenderUp() {
     name.textContent = (info.parties.length ? '🎉 ' : '🎁 ') + (mains.length ? mains : days).map(function (x) { return T(x.label); }).filter(function (v, k, a) { return a.indexOf(v) === k; }).join(' · ');
     when.textContent = d.toLocaleDateString(scLocale(), { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + (i === 0 ? scText('today', 'vandaag') : i === 1 ? scText('tomorrow', 'morgen') : scText('in ' + i + ' days', 'over ' + i + ' dagen'));
     tags.className = 'sc-tags';
-    tags.textContent = info.parties.map(function (p) { return T(p); }).join(', ') + (info.parties.length && info.extra > 0 ? ' · ' : '') + (info.extra > 0 ? '+' + info.extra + ' ' + scText('extra', 'extra') : '');
+    tags.textContent = info.parties.map(function (p) { return T(p); }).join(', ') + (info.parties.length && info.gifts.length ? ' · ' : '') + (info.gifts.length ? '🎁 ' + info.gifts.map(function (g) { return T(g); }).join(', ') : '');
     row.append(name, when);
     if (tags.textContent) row.append(tags);
     rows.push(row);
@@ -82,7 +82,7 @@ function scRenderUp() {
 function renderShopCal() {
   if (!scYear) { var t = giftDate(); scYear = t.getFullYear(); scMonth = t.getMonth(); }
   scRenderGrid(); scRenderDetail(); scRenderUp();
-  $('scLegParty').textContent = scText('celebration', 'viering'); $('scLegGift').textContent = scText('extra gifts', 'extra cadeaus');
+  $('scLegParty').textContent = scText('celebration', 'viering'); $('scLegGift').textContent = scText('gift hat', 'cadeauhoed');
 }
 /** Shows one of the Shop's two tabs. @param {'cal'|'store'} tab */
 function showShopTab(tab) {

@@ -1,6 +1,6 @@
 // The Halloween celebration (build 616): once on 31 October, the first time the app is opened that day, Fumu puts on a witch hat and does the party dance while bats flutter past, cute
 // ghosts float up, a little spider hangs from a web in the corner, mist drifts along the bottom, the screen goes dark round Fumu's room, a string of flickering jack-o'-lantern and ghost lights glows along the top and spooky music plays; at the end he
-// holds out a trick-or-treat pumpkin bucket and a ghost pops out of it. A real Halloween box (the `halloweengift` day in bonuses.js) is then waiting in Profile.
+// holds out a trick-or-treat pumpkin bucket and a ghost pops out of it. The hat he wears comes in a gift box in Profile (app-gift.js).
 // It works like the Christmas celebration (app-xmas.js) and the birthday one (app-birthday.js): the hold that keeps alerts and other animations back, the toy put away and popping back in, the
 // banner in the app and the bubble in Mini Fumu. The birthday goes first when it is also the birthday.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
@@ -92,12 +92,12 @@ function halloweenGhosts(layer, ms) {
     ], { duration: dur, delay: 600 + i * ((ms - 9000) / 6) + Math.random() * 600, easing: 'ease-in-out', fill: 'both' }).onfinish = el.remove.bind(el);
   }
 }
-/** Soft mist drifting along the bottom, and a web in each top corner with a little spider bobbing on its thread. @param {Element} layer @param {number} ms */
+/** Soft mist drifting along the bottom (around the taskbar), and a web in each top corner with a little spider bobbing on its thread. @param {Element} layer @param {number} ms */
 function halloweenDecor(layer, ms) {
-  var w = window.innerWidth, h = window.innerHeight;
+  var w = window.innerWidth, h = window.innerHeight, mh = Math.max(90, h * 0.12);   // (the mist hangs low, its middle about where the taskbar is: he stands on it)
   [0, 1].forEach(function (k) {
     var mist = document.createElement('i');
-    mist.style.cssText = 'position:absolute;left:' + (k ? w * 0.35 : -w * 0.2) + 'px;bottom:-' + h * 0.06 + 'px;width:' + w * 0.9 + 'px;height:' + h * 0.28 + 'px;border-radius:50%;background:radial-gradient(ellipse,rgba(190,170,225,.55) 0%,rgba(190,170,225,.2) 50%,transparent 72%);filter:blur(6px)';
+    mist.style.cssText = 'position:absolute;left:' + (k ? w * 0.35 : -w * 0.2) + 'px;bottom:' + (26 - mh / 2).toFixed(0) + 'px;width:' + w * 0.9 + 'px;height:' + mh + 'px;border-radius:50%;background:radial-gradient(ellipse,rgba(190,170,225,.55) 0%,rgba(190,170,225,.2) 50%,transparent 72%);filter:blur(6px)';
     layer.appendChild(mist);
     if (!reduceMotion) mist.animate([{ transform: 'translateX(0)', opacity: 0 }, { transform: 'translateX(' + (k ? -w * 0.25 : w * 0.25) + 'px)', opacity: 1, offset: 0.2 }, { transform: 'translateX(' + (k ? -w * 0.5 : w * 0.5) + 'px)', opacity: 0 }], { duration: ms, easing: 'ease-in-out', fill: 'both' });
   });
@@ -158,7 +158,7 @@ function halloweenBanner(layer, name) {
   if (!reduceMotion) banner.animate([{ transform: 'translateY(110px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0)', opacity: 1, offset: 0.85 }, { transform: 'translateY(110px)', opacity: 0 }], { duration: 8000, fill: 'both' });
 }
 
-/** The end of the party: he holds out a trick-or-treat pumpkin bucket full of sweets; in the last second a little ghost pops out of it and says boo; then a real Halloween box is waiting in Profile. @returns {number} How long it takes, in ms. */
+/** The end of the party: he holds out a trick-or-treat pumpkin bucket full of sweets; in the last second a little ghost pops out of it and says boo; the hat he wears is in a gift box in Profile. @returns {number} How long it takes, in ms. */
 function halloweenTreat() {
   var bucket = document.createElement('span'), clip = document.documentElement.matches('[data-scene$="clip"], [data-list="todo"]');
   bucket.className = 'bday-cake halloween-bucket';   // (the same spot in front of his tummy as the birthday cake)
@@ -179,7 +179,7 @@ function halloweenTreat() {
     bucket.animate([{ transform: 'translateY(26px) scale(.4)', opacity: 0 }, { transform: 'translateY(-4px) scale(1.08)', opacity: 1, offset: 0.5 }, { transform: 'translateY(0) scale(1)', opacity: 1 }], { duration: 650, easing: 'ease-out', fill: 'both' });
     pulse('hopsmall', 450);
   }
-  setTimeout(function () { say('there is a treat in your Profile too~', 2000); }, 2800);
+  setTimeout(function () { if (typeof giftSay === 'function') giftSay(); }, 2800);
   setTimeout(function () {   // the last second: a ghost pops out of the bucket, boo!
     if (!bucket.parentNode) return;
     setFace({ eyes: 'open', mouth: 'o', arms: clip ? 'rest' : 'carry', x: ['cheeks', 'sparkles'] });
@@ -196,7 +196,7 @@ function halloweenTreat() {
     if (reduceMotion) { bucket.remove(); return; }
     bucket.animate([{ opacity: 1, transform: 'translateY(0) scale(1)' }, { opacity: 0, transform: 'translateY(12px) scale(.6)' }], { duration: 500, easing: 'ease-in', fill: 'both' }).onfinish = function () { bucket.remove(); };
   }, 5200);
-  setTimeout(function () { refreshGift(); showToast('🎃', 'A Halloween box is waiting in Profile!', true, 4200); }, 5200);   // (the real one: bonuses.js, the halloweengift day)
+  setTimeout(function () { if (typeof giftToast === 'function') giftToast('🎃'); }, 5200);   // (the hat of the day waits in a gift box in Profile: app-gift.js)
   return 5800;
 }
 
@@ -249,7 +249,7 @@ function devHalloweenNow() {
   devHalloween = true;
   if (!halloweenParty()) { devHalloween = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devHalloween = false; }, 9000);
-  return document.documentElement.classList.contains('desktop-pet') ? 'Mini Fumu\'s Halloween: bats, ghosts, a spider, spooky music and a treat. The Halloween box is in Profile on 31 October only.' : 'The app\'s Halloween: a banner, bats, ghosts, a spider, spooky music, the party dance and a treat. The Halloween box is in Profile on 31 October only.';
+  return document.documentElement.classList.contains('desktop-pet') ? 'Mini Fumu\'s Halloween: bats, ghosts, a spider, spooky music and a treat. The hat is in a gift box in Profile on 31 October.' : 'The app\'s Halloween: a banner, bats, ghosts, a spider, spooky music, the party dance and a treat. The hat is in a gift box in Profile on 31 October.';
 }
 // the first time the app is opened on Halloween the celebration comes first, like the birthday and Christmas ones (the hold keeps everything else back, for at most 60 s)
 if (isHalloween() && !halloweenDoneToday()) { halloweenHold = true; busy++; bdayToyAway(true); halloweenHoldTimer = setTimeout(function () { if (!halloweenHold) return; releaseHalloweenHold(); if (!halloweenOn && !bdayHold && !partyOn) bdayToyAway(false); if (!busy) settle(); }, 60000); }

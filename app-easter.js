@@ -1,6 +1,6 @@
 // The Easter celebration (build 622): once on Easter Sunday, the first time the app is opened that day, Fumu gets bunny ears (a flower crown if he already is a bunny) and does a bouncy bunny dance
 // while pastel flags hang along the top, flower petals fall, butterflies flutter by and little decorated eggs hop across the page, to a bouncy spring tune; at the end he holds out a big
-// egg that wobbles, cracks open and lets a chick out. A real Easter egg (the `eastergift` day in bonuses.js) is then waiting in Profile.
+// egg that wobbles, cracks open and lets a chick out. The hat he wears comes in a gift box in Profile (app-gift.js).
 // It works like the other celebrations (app-birthday.js, app-xmas.js, app-halloween.js, app-newyear.js): the hold that keeps alerts and other animations back, the toy put away and popping back
 // in, the card in the app and the bubble in Mini Fumu. The others go first when they are pending the same day.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
@@ -194,7 +194,7 @@ function easterBanner(layer, name) {
   if (!reduceMotion) banner.animate([{ transform: 'translateY(110px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0)', opacity: 1, offset: 0.85 }, { transform: 'translateY(110px)', opacity: 0 }], { duration: 8000, fill: 'both' });
 }
 
-/** The end of the party: he holds out a big pastel egg; it wobbles, cracks open in the last second and a little chick pops out and peeps; then a real Easter egg is waiting in Profile. @returns {number} How long it takes, in ms. */
+/** The end of the party: he holds out a big pastel egg; it wobbles, cracks open in the last second and a little chick pops out and peeps; the hat he wears is in a gift box in Profile. @returns {number} How long it takes, in ms. */
 function easterHatch() {
   var egg = document.createElement('span'), clip = document.documentElement.matches('[data-scene$="clip"], [data-list="todo"]');
   egg.className = 'bday-cake easter-egg';   // (the same spot in front of his tummy as the birthday cake)
@@ -203,9 +203,9 @@ function easterHatch() {
   egg.innerHTML = '<svg viewBox="0 0 64 60" width="64" height="60" style="overflow:visible"><g class="egg-chick" opacity="0"><ellipse cx="32" cy="34" rx="12" ry="11" fill="#ffe27a" stroke="#5b4239" stroke-width="1.8"/>' +
     '<circle cx="28" cy="31" r="1.5" fill="#5b4239"/><circle cx="36" cy="31" r="1.5" fill="#5b4239"/><path d="M30.4 34 L32 36.4 L33.6 34 Z" fill="#ff9a3c" stroke="#5b4239" stroke-width="1" stroke-linejoin="round"/><ellipse cx="25" cy="35" rx="2.4" ry="1.4" fill="#ffaab8" opacity=".8"/><ellipse cx="39" cy="35" rx="2.4" ry="1.4" fill="#ffaab8" opacity=".8"/>' +
     '<path d="M30 23 Q32 18 34 23" fill="none" stroke="#5b4239" stroke-width="1.6" stroke-linecap="round"/></g>' +
-    '<path d="M10 36 L18 31 L24 36 L32 31 L40 36 L46 31 L54 36 Q56 55 32 57 Q8 55 10 36 Z" fill="#ffb8d9" stroke="#5b4239" stroke-width="2.2" stroke-linejoin="round"/>' +
+    '<path d="M10 36 L18 31 L24 36 L32 31 L40 36 L46 31 L54 36 C57 52 46 57 32 57 C18 57 7 52 10 36 Z" fill="#ffb8d9" stroke="#5b4239" stroke-width="2.2" stroke-linejoin="round"/>' +
     '<path d="M12 46 Q32 52 52 46" fill="none" stroke="#fffaf0" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="1 6"/>' +
-    '<g class="egg-lid"><path d="M10 36 L18 31 L24 36 L32 31 L40 36 L46 31 L54 36 Q56 14 32 4 Q8 14 10 36 Z" fill="#ffb8d9" stroke="#5b4239" stroke-width="2.2" stroke-linejoin="round"/>' +
+    '<g class="egg-lid"><path d="M10 36 L18 31 L24 36 L32 31 L40 36 L46 31 L54 36 C57 18 46 4 32 4 C18 4 7 18 10 36 Z" fill="#ffb8d9" stroke="#5b4239" stroke-width="2.2" stroke-linejoin="round"/>' +
     '<path d="M16 22 L22 17 L28 22 L34 17 L40 22 L46 17" fill="none" stroke="#fffaf0" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="22" cy="28" r="2" fill="#fffaf0"/><circle cx="42" cy="28" r="2" fill="#fffaf0"/></g></svg>';
   pet.appendChild(egg);
   setFace({ eyes: 'happy', mouth: 'smile', arms: clip ? 'rest' : 'carry', x: ['cheeks', 'hearts'] });
@@ -215,7 +215,7 @@ function easterHatch() {
     egg.animate([{ transform: 'translateY(26px) scale(.4)', opacity: 0 }, { transform: 'translateY(-4px) scale(1.08)', opacity: 1, offset: 0.5 }, { transform: 'translateY(0) scale(1)', opacity: 1 }], { duration: 650, easing: 'ease-out', fill: 'both' });
     pulse('hopsmall', 450);
   }
-  setTimeout(function () { say('there is one in your Profile too~', 2000); }, 2800);
+  setTimeout(function () { if (typeof giftSay === 'function') giftSay(); }, 2800);
   setTimeout(function () {   // it starts to wobble...
     if (!egg.parentNode || reduceMotion) return;
     egg.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(-9deg)' }, { transform: 'rotate(9deg)' }, { transform: 'rotate(-7deg)' }, { transform: 'rotate(6deg)' }, { transform: 'rotate(0deg)' }], { duration: 800, delay: 0, easing: 'ease-in-out' });
@@ -237,7 +237,7 @@ function easterHatch() {
     if (reduceMotion) { egg.remove(); return; }
     egg.animate([{ opacity: 1, transform: 'translateY(0) scale(1)' }, { opacity: 0, transform: 'translateY(12px) scale(.6)' }], { duration: 500, easing: 'ease-in', fill: 'both' }).onfinish = function () { egg.remove(); };
   }, 5200);
-  setTimeout(function () { refreshGift(); showToast('🐣', 'An Easter egg is waiting in Profile!', true, 4200); }, 5200);   // (the real one: bonuses.js, the eastergift day)
+  setTimeout(function () { if (typeof giftToast === 'function') giftToast('🐣'); }, 5200);   // (the hat of the day waits in a gift box in Profile: app-gift.js)
   return 5800;
 }
 
@@ -289,7 +289,7 @@ function devEasterNow() {
   devEaster = true;
   if (!easterParty()) { devEaster = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devEaster = false; }, 9000);
-  return document.documentElement.classList.contains('desktop-pet') ? 'Mini Fumu\'s Easter: bunny ears, the bunny dance, butterflies, hopping eggs and a chick. The Easter egg is in Profile on Easter Sunday only.' : 'The app\'s Easter: a card, bunny ears, the bunny dance, flags, petals, butterflies, hopping eggs and a chick. The Easter egg is in Profile on Easter Sunday only.';
+  return document.documentElement.classList.contains('desktop-pet') ? 'Mini Fumu\'s Easter: bunny ears, the bunny dance, butterflies, hopping eggs and a chick. The hat is in a gift box in Profile on Easter Sunday.' : 'The app\'s Easter: a card, bunny ears, the bunny dance, flags, petals, butterflies, hopping eggs and a chick. The hat is in a gift box in Profile on Easter Sunday.';
 }
 // the first time the app is opened on Easter Sunday the celebration comes first, like the others (the hold keeps everything else back, for at most 60 s)
 if (isEaster() && !easterDoneToday()) { easterHold = true; busy++; bdayToyAway(true); easterHoldTimer = setTimeout(function () { if (!easterHold) return; releaseEasterHold(); if (!easterOn && !bdayHold && !partyOn) bdayToyAway(false); if (!busy) settle(); }, 60000); }

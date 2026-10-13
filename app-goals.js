@@ -23,7 +23,14 @@ function achievement(id) { return byId(Achievements, id); }
  * @param {string} id
  * @returns {boolean} Whether that species or hat is unlocked.
  */
-function unlocked(kind, id) { return L.isUnlocked(state.pet, kind, id, Achievements, FreeUnlocks); }
+function unlocked(kind, id) {
+  if (isGiftHat(kind, id)) return Bonuses.owns(state.pet, id);   // (a holiday hat only comes from its gift box, whatever else is open)
+  return L.isUnlocked(state.pet, kind, id, Achievements, FreeUnlocks);
+}
+/** @returns {boolean} Whether this is one of the holiday hats that come in a gift box (`gift: true` in wardrobe.js). */
+function isGiftHat(kind, id) { var w = kind === 'hat' && typeof wardrobeItem === 'function' ? wardrobeItem(id) : null; return !!(w && w.gift); }
+/** @returns {string} Which gift box holds a holiday hat: "Christmas Day gift box". */
+function giftHatWhere(id) { var d = Bonuses.dayOfHat(id), t = typeof T === 'function' ? T : function (x) { return x; }; return d ? t(d.label) + ' ' + t('gift box') : t('a gift box'); }   // (the language helper may not be loaded yet when the first lock look is drawn)
 
 /**
  * Shows a short line under the pet: progress on a goal, or that today's share is used up.
@@ -85,12 +92,6 @@ function cheerUnlocks(list) {
 }
 
 /**
- * Adds or removes the lock look and progress badge on a species or hat button.
- * @param {HTMLButtonElement} b
- * @param {'species'|'skin'|'hat'} kind
- * @param {string} id
- */
-/**
  * A small round sticker with the number of skins you have for a species, in the corner of its button (like the gift count on the Profile button); none when it has no skins.
  * @param {HTMLElement} b The species button.
  * @param {string} species
@@ -103,11 +104,24 @@ function skinCount(b, species) {
   b.dataset.skins = n;
   b.setAttribute('title', n + (n === 1 ? ' skin' : ' skins'));
 }
+/**
+ * Adds or removes the lock look and progress badge on a species or hat button.
+ * @param {HTMLButtonElement} b
+ * @param {'species'|'skin'|'hat'} kind
+ * @param {string} id
+ */
 function markLock(b, kind, id) {
   var open = unlocked(kind, id);
   var badge = b.querySelector('.lock-badge');
   b.classList.toggle('locked', !open);
   if (open) { if (badge) badge.remove(); b.removeAttribute('aria-description'); return; }
+  if (isGiftHat(kind, id)) {   // a holiday hat: not a goal, it comes in that day's gift box
+    if (!badge) { badge = document.createElement('span'); badge.className = 'lock-badge'; b.appendChild(badge); }
+    var dh = Bonuses.dayOfHat(id);
+    badge.textContent = '🎁 ' + (typeof T === 'function' ? T(dh ? dh.short : 'gift') : dh ? dh.short : 'gift');   // (short, to fit on the tile)
+    b.setAttribute('aria-description', 'Locked. Comes in the ' + giftHatWhere(id) + '.');
+    return;
+  }
   var ach = L.gateFor(kind, id, Achievements);
   var p = L.progress(state.pet, ach, new Date());
   if (!badge) { badge = document.createElement('span'); badge.className = 'lock-badge'; b.appendChild(badge); }
@@ -128,6 +142,7 @@ function refreshLocks() {
  */
 function lockHint(el, kind, id) {
   sound('locked');
+  if (isGiftHat(kind, id)) { el.textContent = '🎁 ' + T('Comes in the') + ' ' + giftHatWhere(id) + ': ' + T('use Fumufumu that day.'); el.hidden = false; return; }
   var ach = L.gateFor(kind, id, Achievements);
   var p = L.progress(state.pet, ach, new Date());
   el.textContent = '🔒 ' + ach.unlocks.label + ': ' + ach.text + ' (' + p.count + '/' + p.goal + ', up to ' + p.perDay + ' a day).';

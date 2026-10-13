@@ -1,6 +1,6 @@
 // The King's Day celebration (build 624): once on King's Day (Koningsdag, 27 April, or the 26th when the 27th is a Sunday), the first time the app is opened that day, everything goes orange: Fumu puts on a
 // crown and does a marching, waving dance while orange and Dutch-flag bunting hangs along the top, orange confetti falls, and orange balloons rise, to a brass-band polka;
-// at the end he holds out an orange-iced tompouce and a tiny Dutch flag pops up out of it. A real King's Day box (the `kingsdaygift` day in bonuses.js) is then waiting in Profile.
+// at the end he holds out an orange-iced tompouce and a tiny Dutch flag pops up out of it. The hat he wears comes in a gift box in Profile (app-gift.js).
 // It works like the other celebrations (app-birthday.js, app-xmas.js, app-halloween.js, app-newyear.js, app-easter.js): the hold that keeps alerts and other animations back, the toy put away and popping
 // back in, the card in the app and the bubble in Mini Fumu. The others go first when they are pending the same day.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
@@ -146,7 +146,7 @@ function kingsBanner(layer, name) {
   if (!reduceMotion) banner.animate([{ transform: 'translateY(110px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0)', opacity: 1, offset: 0.85 }, { transform: 'translateY(110px)', opacity: 0 }], { duration: 8000, fill: 'both' });
 }
 
-/** The end of the party: he holds out an orange-iced tompouce (the Dutch cream slice); in the last second a tiny Dutch flag pops up out of it and he cheers "oranje boven!"; then a real King's Day box is waiting in Profile. @returns {number} How long it takes, in ms. */
+/** The end of the party: he holds out an orange-iced tompouce (the Dutch cream slice); in the last second a tiny Dutch flag pops up out of it and he cheers "oranje boven!"; the hat he wears is in a gift box in Profile. @returns {number} How long it takes, in ms. */
 function kingsTreat() {
   var treat = document.createElement('span'), clip = document.documentElement.matches('[data-scene$="clip"], [data-list="todo"]');
   treat.className = 'bday-cake kings-treat';   // (the same spot in front of his tummy as the birthday cake)
@@ -167,7 +167,7 @@ function kingsTreat() {
     treat.animate([{ transform: 'translateY(26px) scale(.4)', opacity: 0 }, { transform: 'translateY(-4px) scale(1.08)', opacity: 1, offset: 0.5 }, { transform: 'translateY(0) scale(1)', opacity: 1 }], { duration: 650, easing: 'ease-out', fill: 'both' });
     pulse('hopsmall', 450);
   }
-  setTimeout(function () { say('there is one in your Profile too~', 2000); }, 2800);
+  setTimeout(function () { if (typeof giftSay === 'function') giftSay(); }, 2800);
   setTimeout(function () {   // the last second: a Dutch flag pops up out of it
     if (!treat.parentNode) return;
     setFace({ eyes: 'sparkle', mouth: 'open', arms: clip ? 'rest' : 'carry', x: ['cheeks', 'sparkles'] });
@@ -184,7 +184,7 @@ function kingsTreat() {
     if (reduceMotion) { treat.remove(); return; }
     treat.animate([{ opacity: 1, transform: 'translateY(0) scale(1)' }, { opacity: 0, transform: 'translateY(12px) scale(.6)' }], { duration: 500, easing: 'ease-in', fill: 'both' }).onfinish = function () { treat.remove(); };
   }, 5200);
-  setTimeout(function () { refreshGift(); showToast('👑', "A King's Day treat is waiting in Profile!", true, 4200); }, 5200);   // (the real one: bonuses.js, the kingsdaygift day)
+  setTimeout(function () { if (typeof giftToast === 'function') giftToast('👑'); }, 5200);   // (the hat of the day waits in a gift box in Profile: app-gift.js)
   return 5800;
 }
 
@@ -239,7 +239,7 @@ function devKingsDayNow() {
   devKingsDay = true;
   if (!kingsParty()) { devKingsDay = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devKingsDay = false; }, 9000);
-  return document.documentElement.classList.contains('desktop-pet') ? 'Mini Fumu\'s King\'s Day: a crown, the royal dance, orange balloons and a tompouce. The King\'s Day box is in Profile on King\'s Day only.' : 'The app\'s King\'s Day: a card, a crown, the royal dance, bunting, balloons, confetti and a tompouce. The King\'s Day box is in Profile on King\'s Day only.';
+  return document.documentElement.classList.contains('desktop-pet') ? 'Mini Fumu\'s King\'s Day: a crown, the royal dance, orange balloons and a tompouce. The hat is in a gift box in Profile on King\'s Day.' : 'The app\'s King\'s Day: a card, a crown, the royal dance, bunting, balloons, confetti and a tompouce. The hat is in a gift box in Profile on King\'s Day.';
 }
 // the first time the app is opened on King's Day the celebration comes first, like the others (the hold keeps everything else back, for at most 60 s)
 if (isKingsDay() && !kingsDoneToday()) { kingsHold = true; busy++; bdayToyAway(true); kingsHoldTimer = setTimeout(function () { if (!kingsHold) return; releaseKingsHold(); if (!kingsOn && !bdayHold && !partyOn) bdayToyAway(false); if (!busy) settle(); }, 60000); }

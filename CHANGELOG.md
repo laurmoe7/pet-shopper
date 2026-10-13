@@ -2,6 +2,13 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 662
+- Holiday hats: using the app on a celebration day puts a gift box in Profile with the hat Fumu wears; opening it unlocks the hat
+- Daily and holiday gift boxes removed
+- Easter egg has a round top
+- Halloween mist hangs low, around the taskbar (Mini Fumu)
+- New Year confetti flies in front of him (Mini Fumu)
+
 ## Build 661
 - Saying yes to a celebration gets him out of bed if he is in bed or tucked in
 

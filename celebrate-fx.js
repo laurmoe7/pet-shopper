@@ -6,6 +6,14 @@
 /** Plays the effects for one celebration. @param {string} kind birthday, christmas, halloween, newyear, easter or kingsday */
 function runCelebration(kind) {
   var ms = CELEB.ms, total = CELEB.total, name = CELEB.name, layer;
+  if (CELEB.front) {   // the front overlay (above Fumu): only what must pass in front of him
+    if (kind === 'newyear') {
+      // the party blower's confetti, from the tip of the blower (his mouth is about the middle of his window, a little below the centre; the tube reaches to the right)
+      var fk = CELEB.w / 320, ftipX = CELEB.x + CELEB.w * 0.5 + 64 * fk, ftipY = CELEB.y + CELEB.h * 0.66 - 5 * fk;
+      [[800, 125, 16], [1700, 125, 16], [2800, 234, 46]].forEach(function (t) { setTimeout(function () { newyearPuff({ x: ftipX, y: ftipY }, t[2] * 2, 2.6); }, ms + 300 + t[0] + t[1]); });
+    }
+    return;
+  }
   function cleanup(l, at) { setTimeout(function () { l.remove(); }, at); }
   if (kind === 'birthday') {
     bdayApp(name);   // (confetti, in a layer of its own; its card is taken off again)
@@ -29,9 +37,7 @@ function runCelebration(kind) {
     newyearDiscoBall(layer, total, true);
     cleanup(layer, total + 800);
     setTimeout(function () { newyearFireworks(5500); }, ms + 300);
-    // the party blower's confetti, from the tip of the blower (his mouth is about the middle of his window, a little below the centre; the tube reaches to the right)
-    var k = CELEB.w / 320, tipX = CELEB.x + CELEB.w * 0.5 + 64 * k, tipY = CELEB.y + CELEB.h * 0.66 - 5 * k;
-    [[800, 125, 16], [1700, 125, 16], [2800, 234, 46]].forEach(function (t) { setTimeout(function () { newyearPuff({ x: tipX, y: tipY }, t[2] * 2, 2.6); }, ms + 300 + t[0] + t[1]); });
+    // (the party blower's confetti comes from the front overlay, above Fumu)
   } else if (kind === 'easter') {
     layer = bdayLayer(9000);
     easterBunting(layer, total); easterPetals(layer, total); easterButterflies(layer, total); easterEggs(layer, total);

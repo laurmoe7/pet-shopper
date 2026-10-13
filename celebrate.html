@@ -18,7 +18,7 @@ html, body { margin: 0; height: 100%; background: transparent; overflow: hidden;
 // ---- the stand-in for the app ----
 var P = new URLSearchParams(location.search);
 var CELEB = { kind: P.get('kind') || '', name: (P.get('name') || '').slice(0, 24), ms: +P.get('ms') || 9000, total: +P.get('total') || 15000, lang: P.get('lang') === 'nl' ? 'nl' : 'en',
-  x: +P.get('x') || 0, y: +P.get('y') || 0, w: +P.get('w') || 320, h: +P.get('h') || 250 };
+  front: P.get('front') === '1', x: +P.get('x') || 0, y: +P.get('y') || 0, w: +P.get('w') || 320, h: +P.get('h') || 250 };
 var reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 var Lang = { get: function () { return CELEB.lang; } };
 var state = { player: { name: CELEB.name, birthday: '' }, pet: {}, settings: {} };

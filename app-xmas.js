@@ -101,7 +101,7 @@ function xmasBanner(layer, name) {
   if (!reduceMotion) banner.animate([{ transform: 'translateY(110px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1, offset: 0.2 }, { transform: 'translateY(0)', opacity: 1, offset: 0.85 }, { transform: 'translateY(110px)', opacity: 0 }], { duration: 8000, fill: 'both' });
 }
 
-/** The end of the party: he holds out a gift box for you; in the last second the lid pops off with a puff of stars; then a real Christmas box is waiting in Profile. @returns {number} How long it takes, in ms. */
+/** The end of the party: he holds out a gift box for you; in the last second the lid pops off with a puff of stars; the hat he wears is in a gift box in Profile. @returns {number} How long it takes, in ms. */
 function xmasGift() {
   var gift = document.createElement('span'), clip = document.documentElement.matches('[data-scene$="clip"], [data-list="todo"]');
   gift.className = 'bday-cake xmas-gift';   // (the same spot in front of his tummy as the birthday cake)
@@ -120,7 +120,7 @@ function xmasGift() {
     gift.animate([{ transform: 'translateY(26px) scale(.4)', opacity: 0 }, { transform: 'translateY(-4px) scale(1.08)', opacity: 1, offset: 0.5 }, { transform: 'translateY(0) scale(1)', opacity: 1 }], { duration: 650, easing: 'ease-out', fill: 'both' });
     pulse('hopsmall', 450);
   }
-  setTimeout(function () { say('there is one in your Profile too~', 2000); }, 2800);
+  setTimeout(function () { if (typeof giftSay === 'function') giftSay(); }, 2800);
   setTimeout(function () {   // the last second: the lid pops open with a puff of stars
     if (!gift.parentNode) return;
     setFace({ eyes: 'sparkle', mouth: 'open', arms: clip ? 'rest' : 'carry', x: ['cheeks', 'sparkles'] });
@@ -136,7 +136,7 @@ function xmasGift() {
     if (reduceMotion) { gift.remove(); return; }
     gift.animate([{ opacity: 1, transform: 'translateY(0) scale(1)' }, { opacity: 0, transform: 'translateY(12px) scale(.6)' }], { duration: 500, easing: 'ease-in', fill: 'both' }).onfinish = function () { gift.remove(); };
   }, 5200);
-  setTimeout(function () { refreshGift(); showToast('🎁', 'A Christmas box is waiting in Profile!', true, 4200); }, 5200);   // (the real one: bonuses.js, the xmasgift day)
+  setTimeout(function () { if (typeof giftToast === 'function') giftToast('🎁'); }, 5200);   // (the hat of the day waits in a gift box in Profile: app-gift.js)
   return 5800;
 }
 
@@ -186,7 +186,7 @@ function devXmasNow() {
   devXmas = true;
   if (!xmasParty()) { devXmas = false; return 'He is busy or asleep: try again in a moment.'; }
   setTimeout(function () { devXmas = false; }, 9000);
-  return document.documentElement.classList.contains('desktop-pet') ? 'Mini Fumu\'s Christmas: snow, lights, Jingle Bells and a gift. The Christmas box is in Profile on 25 December only.' : 'The app\'s Christmas: a banner, snow, lights, Jingle Bells, the party dance and a gift. The Christmas box is in Profile on 25 December only.';
+  return document.documentElement.classList.contains('desktop-pet') ? 'Mini Fumu\'s Christmas: snow, lights, Jingle Bells and a gift. The hat is in a gift box in Profile on 25 December.' : 'The app\'s Christmas: a banner, snow, lights, Jingle Bells, the party dance and a gift. The hat is in a gift box in Profile on 25 December.';
 }
 // the first time the app is opened on Christmas Day the celebration comes first, like the birthday one (the hold keeps everything else back, for at most 60 s)
 if (isChristmas() && !xmasDoneToday()) { xmasHold = true; busy++; bdayToyAway(true); xmasHoldTimer = setTimeout(function () { if (!xmasHold) return; releaseXmasHold(); if (!xmasOn && !bdayHold && !partyOn) bdayToyAway(false); if (!busy) settle(); }, 60000); }

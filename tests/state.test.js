@@ -42,7 +42,7 @@ test('older saves without pet details get the defaults', () => {
 
 test('wardrobe hats have unique ids and a drawing', () => {
   const hatIds = Wardrobe.map((w) => w.id);
-  assert.deepEqual(hatIds, ['tophat', 'butterflyclip', 'redribbon', 'goggles', 'catfriend', 'maid', 'sunhat', 'cap', 'hoodie', 'pighoodie', 'berrydress', 'lilacdress', 'overalls', 'hardhat', 'bandana', 'headphones', 'chefhat', 'knight', 'beret', 'bananapeel', 'trashlid', 'clownwig', 'jestercap', 'cowboyhat', 'sidecap', 'scarf', 'boa', 'toast', 'leaf', 'hay', 'necktie', 'uglytie', 'mustache', 'boots', 'featherslides', 'bunnyslippers', 'cowboyboots', 'clogs', 'clownshoes', 'shades', 'redspecs', 'eyepatch', 'nerdspecs', 'roundshades', 'bandage', 'clownnose']);
+  assert.deepEqual(hatIds, ['tophat', 'butterflyclip', 'redribbon', 'goggles', 'catfriend', 'maid', 'sunhat', 'cap', 'hoodie', 'pighoodie', 'berrydress', 'lilacdress', 'overalls', 'hardhat', 'bandana', 'headphones', 'chefhat', 'knight', 'beret', 'bananapeel', 'trashlid', 'clownwig', 'jestercap', 'cowboyhat', 'sidecap', 'partyhat', 'santahat', 'witchhat', 'newyearhat', 'bunnyears', 'kingscrown', 'scarf', 'boa', 'toast', 'leaf', 'hay', 'necktie', 'uglytie', 'mustache', 'boots', 'featherslides', 'bunnyslippers', 'cowboyboots', 'clogs', 'clownshoes', 'shades', 'redspecs', 'eyepatch', 'nerdspecs', 'roundshades', 'bandage', 'clownnose']);
   assert.equal(new Set(hatIds).size, hatIds.length);
   for (const w of Wardrobe) {
     assert.ok(PetLogic.OUTFIT_SLOTS.includes(w.slot), w.id);
