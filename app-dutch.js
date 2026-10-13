@@ -102,7 +102,7 @@ var Dutch = {
   'Feisty': 'Pittig', 'Sassy and stubborn. Never backs down.': 'Brutaal en koppig. Geeft nooit op.', 'Feed it 10 spicy or pantry foods': 'Voer hem 10 keer pittig of houdbaar eten',
 
   // ---------- room and gifts ----------
-  'Rug': 'Kleedje', 'Window': 'Raam', 'Beanbag': 'Zitzak', 'Cuckoo clock': 'Koekoeksklok', 'Gaming desk': 'Gamebureau', 'Burger phone': 'Burgertelefoon',
+  'Rug': 'Kleedje', 'Window': 'Raam', 'Beanbag': 'Zitzak', 'Cuckoo clock': 'Koekoeksklok', 'Gaming desk': 'Gamebureau', 'Bookshelf': 'Boekenkast', 'Floor lamp': 'Staande lamp', 'Fish bowl': 'Vissenkom',
   'Star sticker': 'Sterrenstickertje', 'Candy': 'Snoepje', 'Cookie': 'Koekje', 'Ribbon': 'Lintje', 'Cupcake (rare)': 'Cupcake (zeldzaam)', 'Party popper': 'Knaller', 'Balloon': 'Ballon', 'Cake': 'Taart',
   'Daily box': 'Dagelijks doosje', 'Special box': 'Speciaal doosje', 'Birthday box': 'Verjaardagsdoosje',
   'New Year\'s Day': 'Nieuwjaarsdag', 'Valentine\'s Day': 'Valentijnsdag', 'Good Friday': 'Goede Vrijdag', 'Easter': 'Pasen', 'Easter Monday': 'Tweede paasdag', 'King\'s Day': 'Koningsdag', 'Halloween': 'Halloween',

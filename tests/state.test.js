@@ -63,8 +63,8 @@ test('the cow hoodie covers the whole pet and tucks its ears away', () => {
   assert.match(hoodie.svg, /fill-rule="evenodd"/);
 });
 
-test('the room has a rug, window, beanbag, clock, gaming desk, burger phone and plant', () => {
-  assert.deepEqual(Decor.map((d) => d.id), ['rug', 'window', 'beanbag', 'clock', 'desk', 'burgerphone', 'plant']);
+test('the room has a rug, window, beanbag, clock, gaming desk, plant, bookshelf, floor lamp and fish bowl', () => {
+  assert.deepEqual(Decor.map((d) => d.id), ['rug', 'window', 'beanbag', 'clock', 'desk', 'plant', 'bookshelf', 'lamp', 'fishbowl']);
   assert.equal(Decor[0].id, 'rug', 'the rug is drawn first, under everything else');
   for (const d of Decor) {
     assert.ok(d.label && d.svg && d.view, d.id);

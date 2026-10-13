@@ -64,7 +64,6 @@
     ball: { icon: '⚽', label: 'Play ball', run: function () { if (!busy && typeof playToy === 'function') playToy(); } },
     toy: { icon: '💥', label: 'Wrecking ball', on: function () { return toyKind() === 'wrecker'; }, run: function () { toggleToyKind('wrecker'); } },
     notoy: { icon: '🚫', label: 'No toy', on: function () { return toyKind() === 'none'; }, run: function () { toggleToyKind('none'); } },   // (neither switch on: his own ball)
-    plant: { icon: '🌱', label: 'Plant', on: function () { return !!state.pet.room.plant; }, run: function () { if (typeof togglePlant === 'function') togglePlant(); } },   // (the app only: shows or hides the little plant)
     snack: { icon: '🍪', label: 'Snack', run: ringSnack },
     weather: { icon: '⛅', label: 'Weather report', run: ringWeather },
     swap: { icon: '📝', label: 'Swap list', run: function () { if (typeof switchList === 'function') switchList(); } },
@@ -75,7 +74,7 @@
   function items() {
     var scene = petScene();
     var wx = typeof wxConf === 'function' && wxConf().want ? ['weather'] : [];   // (the report is offered while the weather option is on; with no place picked yet he says so when it is pressed)
-    if (!isDesk()) return scene === 'night-bed' ? [] : ['toy', 'notoy'].concat(isTodo() ? ['plant'] : [], ['snack'], wx);   // in the app: the toys (none picked: his own) and a snack; in bed they are put away
+    if (!isDesk()) return scene === 'night-bed' ? [] : ['toy', 'notoy', 'snack'].concat(wx);   // in the app: the toys (none picked: his own) and a snack; in bed they are put away
     if (scene === 'night-bed') return ['night'];   // in bed: only the night light
     var play = toyKind() === 'none' ? [] : ['ball'];   // (nothing to play with when there is no toy)
     if (scene.indexOf('night-drowsy') === 0) return play.concat(['toy', 'notoy', 'snack'], wx, ['swap', 'lights']);

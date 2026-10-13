@@ -2,6 +2,12 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 678
+- Little plant is now ordinary furniture: place it from the Room list, on both lists and in Mini Fumu's room
+- Burger phone removed
+- New furniture: bookshelf, floor lamp and fish bowl
+- Polish for the rug, window, beanbag, clock and desk
+
 ## Build 677
 - Background sounds: waves, gulls, bubbles, birds, hens, a cow, sizzle, a clock and crickets for each background
 - Weather sounds: rain, thunder, wind and cicadas

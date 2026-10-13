@@ -12,7 +12,6 @@ var roomEl = $('room'), decorStrip = $('decorStrip'), stageEl = document.querySe
 function decorItem(id) { return byId(Decor, id); }
 /** Draws every placed decor item in the room, in the order decor.js lists them. */
 function renderRoom() {
-  if (typeof plantEnsure === 'function') plantEnsure();   // (the little plant is in the room unless it was put away, app-plant.js)
   roomEl.replaceChildren.apply(roomEl, Decor.filter(function (d) { return state.pet.room[d.id]; }).map(function (d) {
     var spot = state.pet.room[d.id];
     var el = document.createElement('div');
@@ -64,7 +63,6 @@ decorStrip.addEventListener('click', function (e) {
   var b = e.target.closest('button');
   if (!b) return;
   var placed = L.toggleDecor(state.pet.room, decorItem(b.dataset.decor));
-  if (b.dataset.decor === 'plant' && typeof plantSetHidden === 'function') plantSetHidden(!placed);
   save();
   renderRoom();
   sound(placed ? 'place' : 'remove');
