@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 680
+- Mini Fumu: switching from wander to room mode no longer moves him
+
 ## Build 679
 - Radial menu: one Toy button that opens a second ring with No toy, Default toy and Wrecking ball (no wrecking ball in Mini Fumu's room mode)
 

@@ -372,7 +372,7 @@ function start() {
     if (key === 'deskMode') {   // room mode or wander mode: back in his room, he stops sitting on windows and the toy comes home
       if (value !== 'room' && value !== 'wander') return;
       prefs.deskMode = value; savePrefs();
-      if (value === 'room') { fall(); hideToy(); }
+      if (value === 'room') { if (perch) fall(); hideToy(); }   // (he stays exactly where he is; only if he sits on a window does he come down)
       sendPrefs(); refreshMenus();
       return;
     }
