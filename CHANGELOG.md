@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 690
+- Updates: a new build always downloads its own files, so the app cannot stay on an older build
+
 ## Build 689
 - Recipes: long names wrap to two lines before ending in ...
 
