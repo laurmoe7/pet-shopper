@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 668
+- To-do list: a dotted line between today's tasks and tasks for other days
+
 ## Build 667
 - Hand dance: with shoes on, his left foot slides behind his body and his other foot
 

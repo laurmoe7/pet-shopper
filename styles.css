@@ -4399,3 +4399,6 @@ html.desktop-pet .decor-plant, html:not([data-list="todo"]) .decor-plant { displ
 .gift-chip.gift-hat svg { width: 34px; height: 30px; overflow: visible; }
 .gift-box svg { overflow: visible; }
 .gift-box.opened svg { filter: none; opacity: 1; }
+
+/* the to-do list: a dotted line between the tasks for today and the ones for other days (dayNodes in app.js) */
+.day-divider { list-style: none; height: 0; margin: 8px 14px; border-top: 3px dotted var(--cb-edge-strong); pointer-events: none; }

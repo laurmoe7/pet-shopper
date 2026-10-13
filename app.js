@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '667';
+var BUILD = '668';
 
 var STORE_KEY = 'nibble.v1';
 var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -273,6 +273,28 @@ function aisleNodes(items, rowFor) {
   return out;
 }
 
+/**
+ * The to-do list's rows with a dotted line between the tasks for today (a task with no date counts as today, and so does one that is late) and the ones for other days.
+ * @param {Item[]} items  The open tasks, already in date order.
+ * @param {function(Item): HTMLElement} rowFor
+ * @returns {HTMLElement[]}
+ */
+function dayNodes(items, rowFor) {
+  var today = todayKey(), out = [], prevToday = null;
+  items.forEach(function (i) {
+    var isToday = !i.due || i.due <= today;
+    if (prevToday === true && !isToday) {
+      var line = document.createElement('li');
+      line.className = 'day-divider';
+      line.setAttribute('role', 'separator');
+      out.push(line);
+    }
+    prevToday = isToday;
+    out.push(rowFor(i));
+  });
+  return out;
+}
+
 /** Redraws both lists and the empty hint from state. */
 function render() {
   var todo = state.items.filter(function (i) { return !i.done; });
@@ -288,7 +310,7 @@ function render() {
     kept[item.id] = { key: key, li: li };
     return li;
   }
-  todoEl.replaceChildren.apply(todoEl, state.mode !== 'todo' && state.settings.aisles ? aisleNodes(shown, rowFor) : shown.map(rowFor));
+  todoEl.replaceChildren.apply(todoEl, state.mode !== 'todo' && state.settings.aisles ? aisleNodes(shown, rowFor) : state.mode === 'todo' ? dayNodes(shown, rowFor) : shown.map(rowFor));
   var collapsed = !doneExpanded && done.length > DONE_SHOWN + 3;
   doneEl.replaceChildren.apply(doneEl, (collapsed ? done.slice(-DONE_SHOWN) : done).map(rowFor));
   doneMore.hidden = done.length <= DONE_SHOWN + 3;
