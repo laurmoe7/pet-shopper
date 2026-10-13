@@ -1292,6 +1292,10 @@ html.desk-boot.booting,html.desk-boot.booting body{background:transparent!import
       </div>
     </div>
     <p class="dev-status" id="acctMsg" aria-live="polite"></p>
+    <div class="account-actions">
+      <button type="button" class="pill-btn" id="acctExport">Download my data</button>
+      <button type="button" class="pill-btn" id="acctPrivacy">Privacy</button>
+    </div>
     <details class="account-adv"><summary>Server address</summary>
       <input id="acctServer" type="url" autocomplete="off" spellcheck="false" placeholder="https://…workers.dev" aria-label="Sync server address">
     </details>
@@ -1315,6 +1319,7 @@ html.desk-boot.booting,html.desk-boot.booting body{background:transparent!import
     <p class="build-label" id="buildLabel"></p>
     <div class="picker-foot">
       <button type="button" class="text-btn dev-link" id="devBtn">Developer tools</button>
+      <button type="button" class="text-btn" id="privacyBtn">Privacy</button>
     </div>
   </form>
 </dialog>

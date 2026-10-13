@@ -2,6 +2,13 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 681
+- Backup & sync: Download my data, and a Privacy page
+- Sync server: a limit per connection; backups unused for a year are deleted
+- Recipe helper: only the app may use it, with a limit per connection
+- Mini Fumu: the page cannot read the clipboard; the keyboard only for the add box
+- Installer releases can wait for approval
+
 ## Build 680
 - Sync: a damaged document from another device no longer breaks the app
 - Sync server: the stored list cannot grow past its limit; long item names are cut

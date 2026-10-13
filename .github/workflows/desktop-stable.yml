@@ -23,6 +23,8 @@ permissions:
 jobs:
   windows:
     runs-on: windows-latest
+    # the release waits for Lauren's approval when the "release" environment has her as a required reviewer (desktop/README.md, "Releases need a click")
+    environment: release
     defaults:
       run:
         working-directory: desktop

@@ -1,3 +1,13 @@
 name = "pet-shopper-recipes"
 main = "recipe-proxy.js"
 compatibility_date = "2025-01-01"
+
+# Pages of the app that may use the helper, besides https://laurmoe7.github.io (comma-separated; see ORIGINS in recipe-proxy.js)
+[vars]
+ALLOWED_ORIGINS = ""
+
+# Each connection (IP) may ask this many times a minute (needs wrangler 4.36 or newer; when pasted in the dashboard, add the same binding under Settings > Bindings)
+[[ratelimits]]
+name = "LIMIT"
+namespace_id = "1002"
+simple = { limit = 20, period = 60 }

@@ -7,3 +7,13 @@ compatibility_date = "2025-01-01"
 binding = "DB"
 database_name = "pet-shopper-sync"
 database_id = "abdfb669-87d3-42d7-9104-6d7653d2fe4a"
+
+# Each connection (IP) may make this many requests a minute: a household's devices need about 40 (inbox polls every 10 s, syncs every 2 min)
+[[ratelimits]]
+name = "LIMIT"
+namespace_id = "1001"
+simple = { limit = 120, period = 60 }
+
+# Once a night: backups not changed for a year, and sign-ups never used, are deleted (RETENTION_MS in server.js)
+[triggers]
+crons = ["17 4 * * *"]

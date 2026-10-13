@@ -432,6 +432,9 @@
   var INBOX_TO = ['any', 'pc', 'phone'];   // 'any' = whichever other device picks it up; 'pc' and 'phone' are from earlier builds
   var INBOX_KINDS = ['link', 'text'];
   var TRIES = 4;                    // compare-and-swap retries when two devices write at the same moment
+  var DAY_MS = 24 * 3600 * 1000;
+  var RETENTION_MS = 365 * DAY_MS;  // a backup not changed for this long is deleted (the nightly purge; privacy.html says so)
+  var TOUCH_MS = DAY_MS;            // a sync with nothing new still marks the backup as in use, once a day
 
   var CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS', 'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Access-Control-Max-Age': '86400' };
 
@@ -533,7 +536,10 @@
       var stored = row.body ? JSON.parse(row.body) : null;
       var merged = root.Sync.trim(root.Sync.merge(stored, incoming), now);
       var body = JSON.stringify(merged);
-      if (row.body === body) return reply({ doc: merged, rev: row.rev });   // nothing new
+      if (row.body === body) {   // nothing new: the backup is still in use, though (the purge keeps what was touched within a year)
+        if (store.touch && !(row.updated > now - TOUCH_MS)) await store.touch(acct, now);
+        return reply({ doc: merged, rev: row.rev });
+      }
       // what is stored must fit too (D1 keeps a row under 2 MB): otherwise every later sync would fail and the account would be stuck
       if (body.length > MAX_BODY || Object.keys(merged.items || {}).length > MAX_ITEMS) return fail(413, 'The list is too big to store');
       if (await store.put(acct, body, row.rev, now)) return reply({ doc: merged, rev: row.rev + 1 });
@@ -588,8 +594,21 @@
     return {
       /** @returns {Promise<{body: string|null, rev: number}|null>} */
       async get(id) {
-        var r = await db.prepare('SELECT body, rev FROM docs WHERE id = ?').bind(id).first();
-        return r ? { body: r.body, rev: r.rev } : null;
+        var r = await db.prepare('SELECT body, rev, updated FROM docs WHERE id = ?').bind(id).first();
+        return r ? { body: r.body, rev: r.rev, updated: r.updated } : null;
+      },
+      /** Marks the backup as in use today (a sync with nothing new). */
+      async touch(id, now) {
+        await db.prepare('UPDATE docs SET updated = ? WHERE id = ?').bind(now, id).run();
+      },
+      /**
+       * Deletes backups not changed since `staleBefore` and sign-ups never used (no document) made before `emptyBefore`, with their inbox.
+       * @returns {Promise<number>} How many backups went.
+       */
+      async purge(staleBefore, emptyBefore) {
+        try { await db.prepare('DELETE FROM inbox WHERE acct IN (SELECT id FROM docs WHERE updated < ? OR (body IS NULL AND created < ?))').bind(staleBefore, emptyBefore).run(); } catch (e) { /* no inbox table on an older database */ }
+        var r = await db.prepare('DELETE FROM docs WHERE updated < ? OR (body IS NULL AND created < ?)').bind(staleBefore, emptyBefore).run();
+        return r.meta.changes;
       },
       /** Makes an empty account. @returns {Promise<boolean>} false if the name is taken. */
       async create(id, now) {
@@ -643,11 +662,27 @@
     };
   }
 
+  /** The nightly clean-up: backups not changed for a year and sign-ups never used go, with their inbox. @returns {Promise<number>} */
+  function purge(store, now) { return store.purge(now - RETENTION_MS, now - DAY_MS); }
+
+  /** The rate-limit binding LIMIT (wrangler.toml): a connection gets so many requests a minute. Without the binding there is no limit. */
+  async function tooOften(request, env) {
+    if (!env || !env.LIMIT) return false;
+    try { return !(await env.LIMIT.limit({ key: request.headers.get('CF-Connecting-IP') || 'unknown' })).success; } catch (e) { return false; }
+  }
+
   root.SyncServer = {
     MAX_BODY: MAX_BODY, MAX_ITEMS: MAX_ITEMS, INBOX_MAX: INBOX_MAX, INBOX_TEXT_MAX: INBOX_TEXT_MAX, INBOX_TTL_MS: INBOX_TTL_MS, SIGNUPS_PER_HOUR: SIGNUPS_PER_HOUR, FUTURE_MS: FUTURE_MS,
-    newCode: newCode, cleanCode: cleanCode, accountId: accountId, clamp: clamp, handle: handle, d1Store: d1Store,
-    /** The Worker entry: the D1 database is bound as `DB`. */
-    worker: { fetch: function (request, env) { return handle(request, d1Store(env.DB), Date.now()); } }
+    RETENTION_MS: RETENTION_MS, TOUCH_MS: TOUCH_MS,
+    newCode: newCode, cleanCode: cleanCode, accountId: accountId, clamp: clamp, handle: handle, d1Store: d1Store, purge: purge, tooOften: tooOften,
+    /** The Worker entry: the D1 database is bound as `DB`, the rate limit as `LIMIT`; `scheduled` runs on the cron in wrangler.toml. */
+    worker: {
+      fetch: async function (request, env) {
+        if (await tooOften(request, env)) return fail(429, 'Too many requests, try again in a minute');
+        return handle(request, d1Store(env.DB), Date.now());
+      },
+      scheduled: function (event, env, ctx) { ctx.waitUntil(purge(d1Store(env.DB), Date.now())); }
+    }
   };
 })(globalThis);
 

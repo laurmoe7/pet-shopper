@@ -235,6 +235,17 @@ $('acctServer').addEventListener('change', function () {
   say2('Server address saved.');
 });
 accountSheet.addEventListener('click', function (e) { if (e.target === accountSheet) accountSheet.close(); });
+// everything the app has, as a file (your data: lists, pet, options), for your own keeping or to show what is stored
+$('acctExport').addEventListener('click', function () {
+  sound('tap');
+  var text = JSON.stringify({ app: 'Fumufumu', build: BUILD, saved: new Date().toISOString(), data: state }, null, 1);
+  var a = document.createElement('a'), url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+  a.href = url; a.download = 'fumufumu-' + todayKey() + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+  say2('Saved as ' + a.download + '.');
+});
+$('acctPrivacy').addEventListener('click', function () { openPrivacy(); });
 function openAccount(code) {
   codeVisible = false;
   say2('');

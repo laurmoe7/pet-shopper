@@ -330,6 +330,9 @@ $('devErrCopy').addEventListener('click', function () {
   else devStatus.textContent = 'Could not copy.';
 });
 $('devErrClear').addEventListener('click', function () { sound('tap'); Errors.clear(); renderDevErrors(); });
+/** The privacy page (privacy.html), in a new tab; in the Windows app the shell opens it in the browser (its window must not navigate away from the app). */
+function openPrivacy() { sound('tap'); window.open('privacy.html', '_blank', 'noopener'); }
+$('privacyBtn').addEventListener('click', openPrivacy);
 $('devBtn').addEventListener('click', function () {
   optionsSheet.close();
   devNoWait.checked = state.dev.noWait;
