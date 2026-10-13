@@ -2,6 +2,12 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 687
+- Birthday: pick a month and a day, no year
+- Dark alert cards: no pale gradient at the top
+- Recipe links in the add bar show an open book
+- Ring: Send to my other device (Mini Fumu sends what you copied, the app opens Send)
+
 ## Build 686
 - A recipe link in the add bar shows a pot of food
 

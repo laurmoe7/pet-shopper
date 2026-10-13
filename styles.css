@@ -4457,3 +4457,12 @@ html.desktop-pet:not([class*="al-"]) .stage .inbox-card { bottom: calc(100% - 24
 .recipe-or button[aria-pressed="true"] { background: var(--hl-soft); border-color: var(--hl); }
 .recipe-list label:has(input:not(:checked)) + .recipe-or { opacity: .5; }
 .recipe-list label span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* dark alert cards (Auto, Light and Dark looks): a flat card, no pale gradient at the top and no light edge */
+:root[data-theme="dark"]:not([class*="al-"]) :is(.inbox-card, .remind-card) { background: var(--surface); box-shadow: 0 3px 0 var(--shadow), 0 9px 16px -6px var(--shadow); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme]):not([class*="al-"]) :is(.inbox-card, .remind-card) { background: var(--surface); box-shadow: 0 3px 0 var(--shadow), 0 9px 16px -6px var(--shadow); } }
+
+/* the birthday: a month and a day, no year (app-profile.js) */
+.bday-pick { display: flex; gap: 8px; }
+.bday-pick[hidden] { display: none; }
+.bday-pick select { flex: 1; min-width: 0; }

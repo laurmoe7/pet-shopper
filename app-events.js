@@ -79,7 +79,7 @@ var lastPreview = '';
 addInput.addEventListener('input', function () {
   var t = addInput.value.trim();
   if (!t) { addPreview.replaceChildren(); lastPreview = ''; return; }
-  var e = !isTodo() && Recipe.looksLikeUrl(t) ? '\ud83c\udf72' : L.emojiFor(t, state.overrides, state.mode).emoji;   // a link is a recipe: a pot of food
+  var e = !isTodo() && Recipe.looksLikeUrl(t) ? '\ud83d\udcd6' : L.emojiFor(t, state.overrides, state.mode).emoji;   // a link is a recipe: an open book
   if (e !== lastPreview) { addPreview.replaceChildren(emojiImg(e, '')); lastPreview = e; }
 });
 
