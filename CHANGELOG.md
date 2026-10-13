@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 683
+- Recipes: picking all options reads "a or b"
+- A link typed in the add bar opens the recipe sheet
+
 ## Build 682
 - Recipes: pick one of the "or" choices, or keep both
 - Recipes: amounts like 1 tbsp + 1/4 cup convert together

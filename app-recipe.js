@@ -82,7 +82,7 @@ function recipeChoices(f, label, note) {
       f.pick = pick;
       wrap.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
       var names = recipeNames(f);
-      label.querySelector('span').textContent = names.join(' + ') + note;
+      label.querySelector('span').textContent = names.map(function (x, k) { return k ? x.charAt(0).toLowerCase() + x.slice(1) : x; }).join(' or ') + note;
       var img = label.querySelector('img');
       if (img) img.replaceWith(emojiImg(L.createItem(names[0], state.overrides, 'x', 0, 'shop').emoji, ''));
       showUnits();

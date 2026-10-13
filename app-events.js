@@ -5,6 +5,15 @@
 // ---------- events ----------
 addForm.addEventListener('submit', function (e) {
   e.preventDefault();
+  if (!isTodo() && Recipe.looksLikeUrl(addInput.value)) {   // a link is a recipe: open the recipe sheet and read it
+    var link = addInput.value.trim();
+    addInput.value = '';
+    addPreview.replaceChildren();
+    $('recipeBtn').click();
+    recipeInput.value = link;
+    recipeGo();
+    return;
+  }
   addItem(addInput.value);
   addInput.value = '';
   addPreview.replaceChildren();
