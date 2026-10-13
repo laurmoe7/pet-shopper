@@ -116,6 +116,12 @@
       qty.push(one(cm[1], cm[2]) + ' & ' + one(cm[3], cm[4]));
       s = s.slice(cm[0].length);
     }
+    var two = s.match(/^(\d+(?:[.,]\d+)?(?:\s*[\u00bd\u00bc\u00be\u2153\u2154\u215b])?|[\u00bd\u00bc\u00be])\s*(kg|g|ml|cl|dl|l|fl\.?\s*oz|oz|lbs?|cups?|tbsp|tsp)\s*\/\s*(\d+(?:[.,]\d+)?(?:\s*[\u00bd\u00bc\u00be\u2153\u2154\u215b])?|[\u00bd\u00bc\u00be])\s*(kg|g|ml|cl|dl|l|fl\.?\s*oz|oz|lbs?|cups?|tbsp|tsp)\b\.?\s*/i);
+    if (two) {   // "300g/10\u00bdoz plain flour", "1 lb/450 g apples": the same amount twice, once in each system; the first stays as the amount, the metric one is kept for the metric view
+      var metricOf = function (u) { return /^(?:kg|g|ml|cl|dl|l)$/i.test(u); };
+      if (!alt && metricOf(two[4]) && !metricOf(two[2])) alt = (two[3].replace(/\s+/g, '') + ' ' + two[4].toLowerCase()).replace(/,/g, '.');
+      s = two[1].replace(/\s+/g, '') + ' ' + two[2].toLowerCase().replace(/\s+/g, ' ') + ' ' + s.slice(two[0].length);
+    }
     takeAmount();
     // units and filler words at the front, in any order ("2 large cloves fresh garlic"); "and" between two of them goes too ("peeled and diced")
     var lastFiller = false;

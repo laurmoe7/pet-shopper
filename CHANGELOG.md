@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 694
+- Recipes: amounts given in both systems (300g/10oz) read properly
+
 ## Build 693
 - The book shows every time a recipe link is typed in the add bar
 

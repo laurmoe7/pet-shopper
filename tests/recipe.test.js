@@ -254,3 +254,13 @@ test('amounts after a price, a zest line and "freshly squeezed" are read properl
   assert.deepStrictEqual(R.parseIngredient('zest from a second orange ($0.38**)'), { name: 'Orange', qty: '' });
   assert.strictEqual(R.parseIngredient('3 Tbsp freshly squeezed orange juice').name, 'Orange juice');
 });
+
+test('an amount given twice, in both systems ("300g/10oz")', () => {
+  assert.deepStrictEqual(R.parseIngredient('300g/10½oz plain flour'), { name: 'Plain flour', qty: '300 g' });
+  assert.deepStrictEqual(R.parseIngredient('200g/7oz unsalted butter at room temperature, cubed, plus a little for greasing'), { name: 'Unsalted butter', qty: '200 g' });
+  assert.deepStrictEqual(R.parseIngredient('450g/1lb apples, peeled, cored and cut into 1cm/½in pieces (see recipe tip)'), { name: 'Apples', qty: '450 g' });
+  assert.deepStrictEqual(R.parseIngredient('1lb/450g apples'), { name: 'Apples', qty: '1 lb', alt: '450 g' });
+  assert.deepStrictEqual(R.parseIngredient('2 tbsp/30ml oil'), { name: 'Oil', qty: '2 tbsp', alt: '30 ml' });
+  assert.strictEqual(R.parseIngredient('250ml/9fl oz milk').name, 'Milk');
+  assert.strictEqual(R.convertQty('300 g', 'us', 'Plain flour'), '10½ oz');
+});
