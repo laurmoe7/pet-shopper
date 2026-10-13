@@ -2,6 +2,12 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 682
+- Recipes: pick one of the "or" choices, or keep both
+- Recipes: amounts like 1 tbsp + 1/4 cup convert together
+- Recipes: egg wash gives an egg, not water
+- Recipes: shorter "have it?" note
+
 ## Build 681
 - Backup & sync: Download my data, and a Privacy page
 - Sync server: a limit per connection; backups unused for a year are deleted

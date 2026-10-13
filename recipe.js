@@ -25,13 +25,15 @@
   // describing words that can be followed by a comma and still belong to the name ("boneless, skinless chicken thighs")
   var ADJECTIVES = ['boneless', 'skinless', 'unsalted', 'salted', 'lean', 'whole', 'dried', 'frozen', 'canned', 'sweet', 'plain', 'hot', 'cold', 'mild', 'smoked', 'raw', 'young', 'old'];
   // what comes after the name and is not part of it: "olive oil for frying", "chicken cut into pieces", "butter at room temperature", "boter om in te bakken"
-  var TAIL = /\s+(?:for|plus|om|voor|cut|torn|divided|drained|rinsed|cooked|at room|room temperature|such as|according to|about|approx\.?|or so|zodat|in (?:ringen|blokjes|stukjes|plakjes|reepjes|partjes)|to (?:serve|garnish|taste|decorate))\b.*$/i;
+  var TAIL = /\s+(?:(?:beaten|whisked|mixed|combined|stirred|blended) with|for|plus|om|voor|cut|torn|divided|drained|rinsed|cooked|at room|room temperature|such as|according to|about|approx\.?|or so|zodat|in (?:ringen|blokjes|stukjes|plakjes|reepjes|partjes)|to (?:serve|garnish|taste|decorate))\b.*$/i;
   // "green onions and sesame seeds", "oil and vinegar": two things when both sides end in one of these
   var SPLIT_HEADS = ['seeds', 'sauce', 'onions', 'nuts', 'sprouts', 'oil', 'vinegar', 'herbs', 'spices', 'cheese', 'flakes', 'peppers', 'tomatoes', 'mushrooms', 'beans', 'zaad', 'zaden', 'saus', 'uien', 'noten', 'olie', 'azijn'];
   // extras: only a line that says so is optional ("for serving" and "for garnish" are still things to buy)
   var EXTRA = /\b(?:optional|optioneel|naar wens)\b/i;
   // lines that are about the recipe, not an ingredient
   var NOT_FOOD = /^(?:serves?|serving|servings|makes|yields?|prep|cook|total|equipment|special equipment|notes?|tips?|directions|instructions|ingredients?|porties|bereiding|voor \d+ (?:personen|porties))\b/i;
+  var SHORT = { tablespoon: 'tbsp', tablespoons: 'tbsp', teaspoon: 'tsp', teaspoons: 'tsp' };   // keeps merged amounts short
+  var NOT_AN_OPTION = /\b(?:as|needed|need|more|extra|if|desired|taste|preferred|available|you|your|like|want)\b/i;
   var SEASONING = /\b(?:salt|pepper|zout|peper)\b/i;
   var VULGAR_CLASS = '½¼¾⅐-⅞';
 
@@ -79,6 +81,10 @@
       var lw = lastWord(s), bare = s.split(' ').filter(function (x) { x = x.toLowerCase(); return !/^[\d.,\/]+$/.test(x) && UNITS.indexOf(x) < 0 && FILLER.indexOf(x) < 0 && !new RegExp('^[' + VULGAR_CLASS + ']+$').test(x); });
       if (FILLER.indexOf(lw) >= 0 || ADJECTIVES.indexOf(lw) >= 0 || !bare.length) s += ' ' + segs.shift(); else break;   // (nothing but amounts and units before the comma)
     }
+    var others = [];                                                                     // other things the recipe allows instead: "honey or maple syrup", "butter, ghee, or oil"
+    if (segs.length && /^or\s+/i.test(segs[segs.length - 1]) && segs.every(function (g) { return !/\d/.test(g) && !NOT_AN_OPTION.test(g) && g.replace(/^or\s+/i, '').split(' ').length <= 3; })) {
+      others = segs.map(function (g) { return g.replace(/^or\s+/i, ''); });
+    }
     var alts = s.split(/\s+or\s+/i);                                                     // "butter or margarine" is butter, but "all-purpose or bread flour" keeps both
     var bareOf = function (t) { return t.split(' ').filter(function (x) { x = x.toLowerCase(); return !/^[\d.,\/\-\u2013]+$/.test(x) && UNITS.indexOf(x) < 0 && FILLER.indexOf(x) < 0 && !new RegExp('^[' + VULGAR_CLASS + ']+$').test(x); }); };
     if (alts.length === 2 && !bareOf(alts[0]).length) {                                  // "1 12 ounce can or jar red enchilada sauce": the or is between containers
@@ -86,7 +92,9 @@
       while (rest.length > 1 && UNITS.indexOf(rest[0].toLowerCase()) >= 0) rest.shift();
       alts = [alts[0] + ' ' + rest.join(' ')];
     }
-    s = alts.length === 2 && bareOf(alts[0]).length === 1 && alts[1].replace(TAIL, '').split(' ').length >= 2 ? alts[0] + ' or ' + alts[1] : alts[0];
+    var shared = alts.length === 2 && bareOf(alts[0]).length === 1 && alts[1].replace(TAIL, '').split(' ').length >= 2;   // "all-purpose or bread flour" is one name
+    if (!shared && !others.length && alts.length > 1 && !/^\d/.test(alts[1]) && !NOT_AN_OPTION.test(alts[1]) && bareOf(alts[0]).length) others = alts.slice(1);
+    s = shared ? alts[0] + ' or ' + alts[1] : alts[0];
     var untailed = s.replace(TAIL, '');
     if (bareOf(untailed).length) s = untailed;                                          // "3 cups cooked chicken": 'cooked' is part of the name when nothing else is left
     var jz = s.match(/^(?:juice|zest|rind|peel|sap|rasp|schil)(?:\s+(?:and|&|en)\s+(?:juice|zest|rind|peel|sap|rasp|schil))?\s+(?:of|van)\s+(.+)$/i);
@@ -107,7 +115,7 @@
       var w = words[0].toLowerCase().replace(/[.,]$/, '');
       var joiner = lastFiller && (w === 'and' || w === 'en' || w === '&');
       if (words.length > 1 && (UNITS.indexOf(w) >= 0 || FILLER.indexOf(w) >= 0 || joiner)) {
-        if (UNITS.indexOf(w) >= 0) qty.push(words[0].replace(/[.,]$/, ''));
+        if (UNITS.indexOf(w) >= 0) qty.push(SHORT[w] || words[0].replace(/[.,]$/, ''));
         lastFiller = FILLER.indexOf(w) >= 0;
         s = words.slice(1).join(' ');
         takeAmount();
@@ -128,6 +136,10 @@
     var names = two ? [pair[1], pair[2]] : [s];
     return names.filter(function (n) { return /[a-zÀ-ɏ]/i.test(n) && n.length >= 2 && n.split(' ').length <= 8; }).map(function (n, i) {
       var item = { name: cap(n), qty: i ? '' : q };
+      if (!i && !two && others.length) {
+        var more = others.map(function (o) { var p = parseLine(o)[0]; return p ? p.name : ''; }).filter(function (x) { return x && x.toLowerCase() !== n.toLowerCase(); });
+        if (more.length) item.or = more.slice(0, 3);
+      }
       if (alt && !i && q) item.alt = alt;
       if (optional) item.optional = true;
       return item;
@@ -168,8 +180,11 @@
         var k = p.name.toLowerCase(), old = seen[k];
         if (!old) { seen[k] = p; out.push(p); return; }
         if (!p.optional) delete old.optional;                                          // needed once means needed
-        if (p.qty && old.qty !== p.qty) delete old.alt;
-        if (p.qty && old.qty !== p.qty) old.qty = (old.qty ? old.qty + ' + ' + p.qty : p.qty).slice(0, 20);
+        if (p.or) old.or = (old.or || []).concat(p.or.filter(function (o) { return (old.or || []).indexOf(o) < 0; })).slice(0, 3);
+        if (p.qty && old.qty !== p.qty) {
+          if (old.alt || p.alt) old.alt = (old.alt || '-') + ' + ' + (p.alt || '-');   // each amount keeps its own metric size ("-" for none)
+          old.qty = old.qty ? old.qty + ' + ' + p.qty : p.qty;
+        }
       });
     });
     return out.slice(0, 60);
@@ -276,8 +291,10 @@
   }
   function convertQty(qty, to, name, alt) {
     if (!qty || (to !== 'metric' && to !== 'us')) return qty || '';
-    if (to === 'metric' && alt && usesUs(qty) && !(typeof name === 'string' && LIQUID.test(name) && !/ml$|l$/.test(alt))) return alt;   // the page's own metric amount, when it gives one
-    var out = String(qty).split(/\s*\+\s*/).map(function (part) {
+    var alts = String(alt || '').split(/\s*\+\s*/);
+    var out = String(qty).split(/\s*\+\s*/).map(function (part, pi) {
+      var a = alts.length === 1 && !pi || alts.length > 1 ? alts[pi] : '';                  // the page's own metric amount for this part, when it gives one
+      if (to === 'metric' && a && a !== '-' && usesUs(part) && !(typeof name === 'string' && LIQUID.test(name) && !/ml$|l$/.test(a))) return a;
       var m = part.match(QTY_RE);
       if (!m) return part;
       var unit = m[3].toLowerCase(), c = CONVERT[unit];

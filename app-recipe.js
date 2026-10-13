@@ -42,16 +42,20 @@ function showRecipe(title, found) {
   state.items.forEach(function (i) { if (!i.done) onList[i.text.toLowerCase()] = true; });
   var needed = found.filter(function (f) { return !recipeSkipReason(f); }), skipped = found.filter(recipeSkipReason);
   recipeFound = needed.concat(skipped);
-  recipeList.replaceChildren.apply(recipeList, recipeFound.map(function (f, i) {
+  recipeFound.forEach(function (f) { f.pick = 0; });
+  var rows = [];
+  recipeFound.forEach(function (f, i) {
     var n = f.name, why = recipeSkipReason(f);
     var label = document.createElement('label'), box = document.createElement('input');
     box.type = 'checkbox'; box.checked = !onList[n.toLowerCase()] && !why; box.dataset.i = i;
     var text = document.createElement('span');
-    text.textContent = n + (onList[n.toLowerCase()] ? ' (already on your list)' : why === 'optional' ? ' (optional)' : why === 'usual' ? ' (you probably have it)' : '');
+    text.textContent = n + (onList[n.toLowerCase()] ? ' (already on your list)' : why === 'optional' ? ' (optional)' : why === 'usual' ? ' (have it?)' : '');
     label.append(box, emojiImg(L.createItem(n, state.overrides, 'x', 0, 'shop').emoji, ''), text);
     if (f.qty) { var q = document.createElement('b'); q.className = 'qty-tag'; q.textContent = Recipe.convertQty(f.qty, recipeUnits, f.name, f.alt); label.append(q); }
-    return label;
-  }));
+    rows.push(label);
+    if (f.or && f.or.length) rows.push(recipeChoices(f, label, onList[n.toLowerCase()] ? ' (already on your list)' : why === 'optional' ? ' (optional)' : why === 'usual' ? ' (have it?)' : ''));
+  });
+  recipeList.replaceChildren.apply(recipeList, rows);
   $('recipeName').textContent = (title || 'Ingredients') + ' \u00b7 ' + found.length;
   showUnits();
   recipeStage(!!found.length);
@@ -62,12 +66,39 @@ function showRecipe(title, found) {
   }
   updateRecipeAdd();
 }
+/** @param {{name: string, or?: string[], pick?: number}} f @returns {string[]} The names to add for a row: the picked one, or all of them when pick is -1. */
+function recipeNames(f) {
+  var all = [f.name].concat(f.or || []);
+  return f.pick === -1 ? all : [all[f.pick || 0]];
+}
+/** The "or" chips under a row: one per option and Both, to pick what goes on the list. @param {Object} f @param {HTMLElement} label @param {string} note @returns {HTMLElement} */
+function recipeChoices(f, label, note) {
+  var all = [f.name].concat(f.or), wrap = document.createElement('div');
+  wrap.className = 'recipe-or'; wrap.setAttribute('role', 'group'); wrap.setAttribute('aria-label', 'Which one');
+  all.concat(['Both']).forEach(function (name, k) {
+    var b = document.createElement('button'), pick = k === all.length ? -1 : k;
+    b.type = 'button'; b.textContent = k === all.length ? (all.length > 2 ? 'All' : 'Both') : name; b.setAttribute('aria-pressed', String(pick === 0));
+    b.addEventListener('click', function () {
+      f.pick = pick;
+      wrap.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      var names = recipeNames(f);
+      label.querySelector('span').textContent = names.join(' + ') + note;
+      var img = label.querySelector('img');
+      if (img) img.replaceWith(emojiImg(L.createItem(names[0], state.overrides, 'x', 0, 'shop').emoji, ''));
+      showUnits();
+      updateRecipeAdd();
+      sound('tap');
+    });
+    wrap.append(b);
+  });
+  return wrap;
+}
 /** @returns {{name: string, qty: string}[]} The ingredients that are ticked. */
 function recipeChosen() {
   return Array.prototype.filter.call(recipeList.querySelectorAll('input'), function (b) { return b.checked; }).map(function (b) { return recipeFound[+b.dataset.i]; });
 }
 function updateRecipeAdd() {
-  var n = recipeChosen().length;
+  var n = recipeChosen().reduce(function (t, f) { return t + recipeNames(f).length; }, 0);
   $('recipeAdd').textContent = n ? 'Add ' + n + (n === 1 ? ' thing' : ' things') + ' to the list' : 'Nothing ticked';
   $('recipeAdd').disabled = !n;
 }
@@ -124,12 +155,16 @@ function recipeGo() {
 function recipeAddAll() {
   var names = recipeChosen();
   if (!names.length || isTodo()) return;
+  var count = 0;
   names.forEach(function (n) {
-    var item = L.createItem(n.name, state.overrides, newId(), Date.now(), 'shop');
-    var qty = Recipe.convertQty(n.qty, recipeUnits, n.name, n.alt);
-    if (qty) item.qty = qty;
-    L.addToList(state.items, item);
-    freshIds[item.id] = true;
+    recipeNames(n).forEach(function (name) {
+      var item = L.createItem(name, state.overrides, newId(), Date.now(), 'shop');
+      var qty = Recipe.convertQty(n.qty, recipeUnits, name, n.alt);
+      if (qty) item.qty = qty;
+      L.addToList(state.items, item);
+      freshIds[item.id] = true;
+      count++;
+    });
   });
   save();
   render();
@@ -140,7 +175,7 @@ function recipeAddAll() {
   sound('pick');
   if (baseState() === 'sleepy') { say('mm… yum…', 1300); return; }
   if (!busy) { pulse('hop', 460); setFace(FACES.tada || FACES.happy); setTimeout(function () { if (!busy) settle(); }, 900); }
-  say(names.length > 1 ? 'so many yummy things!' : 'ooh!', 1800);
+  say(count > 1 ? 'so many yummy things!' : 'ooh!', 1800);
 }
 
 $('recipeBtn').addEventListener('click', function () {
@@ -200,7 +235,7 @@ function showUnits() {
   $('recipeUnits').querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.units === recipeUnits)); });
   recipeList.querySelectorAll('input').forEach(function (box) {
     var q = box.parentNode.querySelector('.qty-tag'), f = recipeFound[+box.dataset.i];
-    if (q && f) q.textContent = Recipe.convertQty(f.qty, recipeUnits, f.name, f.alt);
+    if (q && f) q.textContent = Recipe.convertQty(f.qty, recipeUnits, recipeNames(f)[0], f.alt);
   });
 }
 $('recipeUnits').addEventListener('click', function (e) {

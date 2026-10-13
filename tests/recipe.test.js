@@ -69,7 +69,7 @@ test('convertQty goes between metric and US', () => {
 test('page-style lines: "1 and 1/2", "peeled and diced", whole wheat, extra virgin', () => {
   const c = {
     '2 and 1/4 cups (281g) all-purpose flour (spooned & leveled)': ['All-purpose flour', '2 1/4 cups'],
-    '1 and 1/2 teaspoons ground cinnamon': ['Ground cinnamon', '1 1/2 teaspoons'],
+    '1 and 1/2 teaspoons ground cinnamon': ['Ground cinnamon', '1 1/2 tsp'],
     '2 cups peeled and diced apples (about 2 large apples)': ['Apples', '2 cups'],
     '1 cup whole wheat flour': ['Whole wheat flour', '1 cup'],
     '2 tbsp extra virgin olive oil': ['Olive oil', '2 tbsp'],
@@ -160,7 +160,7 @@ test('"all-purpose or bread flour" keeps both, "butter or margarine" keeps the f
 
 test('cooked chicken, uncooked rice, garnish lines and two-in-one lines', () => {
   assert.deepStrictEqual(R.parseIngredient('3 cups cooked chicken, cut into bite-sized pieces'), { name: 'Chicken', qty: '3 cups' });
-  assert.deepStrictEqual(R.parseIngredient('1 1/2 cups uncooked sushi rice or short grain white rice, rinsed and drained'), { name: 'Sushi rice', qty: '1 1/2 cups' });
+  assert.deepStrictEqual(R.parseIngredient('1 1/2 cups uncooked sushi rice or short grain white rice, rinsed and drained'), { name: 'Sushi rice', qty: '1 1/2 cups', or: ['Short grain white rice'] });
   assert.deepStrictEqual(R.parseIngredient('1 cup teriyaki marinade and sauce, plus more for serving, such as Soy Vay Marinade and Sauce'), { name: 'Teriyaki marinade and sauce', qty: '1 cup' });
   assert.deepStrictEqual(R.cleanAll(['sliced green onions and sesame seeds, for garnish']), [{ name: 'Green onions', qty: '' }, { name: 'Sesame seeds', qty: '' }]);
   assert.deepStrictEqual(R.cleanAll(['Sriracha sauce and soy sauce, for serving (optional)']).map((x) => [x.name, x.optional]), [['Sriracha sauce', true], ['Soy sauce', true]]);
@@ -170,7 +170,7 @@ test('cooked chicken, uncooked rice, garnish lines and two-in-one lines', () => 
 test('a mixed number with a hyphen: 1-3/4 cups', () => {
   assert.deepStrictEqual(R.parseIngredient('1-3/4 cups sliced carrots'), { name: 'Carrots', qty: '1 3/4 cups' });
   assert.deepStrictEqual(R.parseIngredient('1-1/2 cups whole milk'), { name: 'Whole milk', qty: '1 1/2 cups' });
-  assert.deepStrictEqual(R.parseIngredient('1-3/4 teaspoons salt'), { name: 'Salt', qty: '1 3/4 teaspoons' });
+  assert.deepStrictEqual(R.parseIngredient('1-3/4 teaspoons salt'), { name: 'Salt', qty: '1 3/4 tsp' });
   assert.deepStrictEqual(R.parseIngredient('2-3 ripe bananas'), { name: 'Bananas', qty: '2-3' });
   assert.deepStrictEqual(R.parseIngredient('4 cups cubed cooked chicken'), { name: 'Chicken', qty: '4 cups' });
 });
@@ -209,4 +209,19 @@ test('cans with a size, "or jar", ears and cheese by the cup', () => {
   assert.deepStrictEqual(R.parseIngredient('4 ears corn, charred kernels, cut from the cob'), { name: 'Corn', qty: '4 ears' });
   assert.strictEqual(R.convertQty('1 1/2 cups', 'metric', 'Mexican cheese'), '160 g');
   assert.strictEqual(R.convertQty('1/4 cup', 'metric', 'Parmesan'), '25 g');
+});
+
+test('"or" options: a list, a pair, and merged amounts that still convert', () => {
+  assert.deepStrictEqual(R.parseIngredient('1 Tablespoon barley malt syrup, granulated sugar, or brown sugar*').or, ['Granulated sugar', 'Brown sugar']);
+  assert.deepStrictEqual(R.parseIngredient('1 cup milk or water').or, ['Water']);
+  assert.strictEqual(R.parseIngredient('1 cup flour, or more as needed').or, undefined);
+  assert.strictEqual(R.parseIngredient('2 eggs or 1/4 cup applesauce').or, undefined);
+  const m = R.cleanAll(['1 Tablespoon barley malt syrup, granulated sugar, or brown sugar', '1/4 cup (85g) barley malt syrup or honey'])[0];
+  assert.strictEqual(m.qty, '1 tbsp + 1/4 cup');
+  assert.strictEqual(R.convertQty(m.qty, 'metric', m.name, m.alt), '20 g + 85 g');
+  assert.strictEqual(R.convertQty(m.qty, 'us', m.name, m.alt), '1 tbsp + 1/4 cup');
+});
+
+test('an egg wash line is the egg, not the water it is beaten with', () => {
+  assert.deepStrictEqual(R.parseIngredient('egg wash: 1 egg white beaten with 1 Tablespoon water'), { name: 'Egg white', qty: '1' });
 });
