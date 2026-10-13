@@ -649,6 +649,7 @@ function start() {
   // Fumu walks along where he sits: the page plays the walking, the window glides
   ipcMain.handle('desk:walk', async (_e, dx, ms, free) => {
     if (!win || mode !== 'pet' || dragFrom || peekRest) return 0;
+    if (!wanderMode() && !free) return 0;   // room mode: his window never moves by itself (a stroll, an alert card making room): only you move it
     const from = win.getBounds(), want = Math.max(-900, Math.min(900, +dx || 0));
     let to = place.walkEnd(from, here(), want);
     to = { x: to.x, y: from.y, width: from.width, height: from.height };   // (sideways only)
@@ -669,7 +670,7 @@ function start() {
   });
   // peeking round the side of the screen, then back to where he sat
   ipcMain.handle('desk:peek', async (_e, ms) => {
-    if (!win || mode !== 'pet' || dragFrom || peekRest || perch) return null;
+    if (!win || mode !== 'pet' || dragFrom || peekRest || perch || !wanderMode()) return null;   // (room mode: no peeking round the screen's edge)
     const spot = place.peekSpot(win.getBounds(), screen.getAllDisplays().map((d) => d.bounds));
     if (!spot) return null;
     peekRest = win.getBounds();

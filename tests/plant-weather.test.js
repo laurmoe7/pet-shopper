@@ -29,6 +29,8 @@ test('only a rounded position is sent, and a bad answer is not used', () => {
   assert.equal(W.parse({ current: now }).later, undefined, 'no forecast, no later');
   assert.equal(W.laterWords({ kind: 'rain', hour: 16 }), 'rain this afternoon, take an umbrella~');
   assert.match(W.laterWords({ kind: 'snow', hour: 22 }, true), /vannacht/);
+  assert.equal(W.laterWords({ kind: 'rain', hour: 15 }, false, '3:00 PM'), 'rain around 3:00 PM, take an umbrella~', 'with a time it says about when');
+  assert.equal(W.laterWords({ kind: 'storm', hour: 20 }, true, '20:00'), 'onweer rond 20:00, blijf lekker binnen~');
 
 });
 test('every task ticked off waters the plant, up to three a day, and three drinks grow a stage', () => {

@@ -89,11 +89,12 @@
   /**
    * @param {{kind: string, hour: number}} later What laterToday found.
    * @param {boolean} [nl] In Dutch.
-   * @returns {string} What he says about it ("rain this afternoon, take an umbrella~").
+   * @param {string} [at] The time it starts, as the player likes to read it (15:00 or 3:00 PM): "around 3:00 PM". Without it the part of the day is said.
+   * @returns {string} What he says about it ("rain around 15:00, take an umbrella~").
    */
-  function laterWords(later, nl) {
+  function laterWords(later, nl, at) {
     var h = later.hour, part = h < 12 ? 0 : h < 17 ? 1 : h < 21 ? 2 : 3;
-    var en = ['this morning', 'this afternoon', 'this evening', 'tonight'][part], du = ['vanochtend', 'vanmiddag', 'vanavond', 'vannacht'][part];
+    var en = at ? 'around ' + at : ['this morning', 'this afternoon', 'this evening', 'tonight'][part], du = at ? 'rond ' + at : ['vanochtend', 'vanmiddag', 'vanavond', 'vannacht'][part];
     var lines = {
       rain: ['rain ' + en + ', take an umbrella~', 'regen ' + du + ', neem een paraplu mee~'],
       storm: ['a storm ' + en + ', stay cozy~', 'onweer ' + du + ', blijf lekker binnen~'],

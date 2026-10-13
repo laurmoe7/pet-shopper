@@ -157,8 +157,13 @@ function wxSet(kind, quiet) {
   setTimeout(function () {
     if (wxShown !== kind || busy || Date.now() < remarkUntil || document.hidden || stage.classList.contains('bedtime')) return;
     try { localStorage.setItem('nibble-wx-said', day + kind); } catch (e) { /* storage not available */ }
-    say(pick(Weather.KINDS[kind].lines), 3600, true);
+    say(pick(Weather.KINDS[kind].lines), 3600, true, true);
   }, 6000);
+}
+/** @returns {string} What he says about special weather coming later today, with about when it starts ("rain around 3:00 PM, take an umbrella~"). @param {{kind: string, hour: number}} later */
+function wxLaterLine(later) {
+  var at = typeof fmtTime === 'function' ? fmtTime((later.hour < 10 ? '0' : '') + later.hour + ':00') : '';
+  return Weather.laterWords(later, typeof Lang === 'object' && Lang.get() === 'nl', at);
 }
 /** If special weather is coming later today (rain, a storm, snow, heat or cold), he says so: once a day for each kind. @param {{kind: string, later: ?{kind: string, hour: number}}} w */
 function wxLater(w) {
@@ -169,7 +174,7 @@ function wxLater(w) {
   setTimeout(function () {
     if (busy || Date.now() < remarkUntil || document.hidden || baseState() === 'sleepy' || stage.classList.contains('bedtime') || document.querySelector('dialog[open], .inbox-card')) return;
     try { localStorage.setItem('nibble-wx-later', key); } catch (e) { /* storage not available */ }
-    say(Weather.laterWords(w.later, typeof Lang === 'object' && Lang.get() === 'nl'), 4200, true);
+    say(wxLaterLine(w.later), 4200, true, true);
     pulse('hopsmall', 450);
   }, 12000);
 }

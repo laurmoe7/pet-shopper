@@ -219,14 +219,17 @@ function bubbleToStage() {
  * @param {string} text
  * @param {number} [ms=1500] How long it stays.
  * @param {boolean} [own] Already in the personality's voice (from `line`), so not restyled.
+ * @param {boolean} [hold] A weather report: his chatter may not talk over it (speechHoldUntil).
  */
 var idleQuiet = false;   // set while an idle moment runs that he was told not to talk during (app-idle.js); a touch or key press ends it
 var chatterRate = 1;     // how much he talks on his own: 0 never, .35 rarely, 1 normal, 2.5 often (the desktop app's settings change it)
 var remarkUntil = 0;     // while set, his own chatter (idle moments, the weather line) keeps quiet: a remark on what you are doing comes just after alerts and celebrations
 var lowBusy = 0;         // how many of the busy counts are idle moves, which a remark may cut in on (app-idle.js)
+var speechHoldUntil = 0;   // while set, only a line that asks to hold (a weather report) may speak: his chatter does not cut it off (say's fourth argument)
 var speechLockUntil = 0;   // while set, nothing else may talk over an important line (the update notice)
-function say(text, ms, own) {
-  if (!text || idleQuiet || Date.now() < speechLockUntil) return;
+function say(text, ms, own, hold) {
+  if (!text || idleQuiet || Date.now() < speechLockUntil || (!hold && Date.now() < speechHoldUntil)) return;
+  if (hold) speechHoldUntil = Math.max(speechHoldUntil, Date.now() + (ms || 1500) + 400);
   if (!own && typeof T === 'function') text = T(text);   // (Dutch: before the tone is put on it)
   text = text.replace(/\bFumu\b/g, petName());   // lines are written with his first name; use the one you gave him
   bubble.hidden = true;

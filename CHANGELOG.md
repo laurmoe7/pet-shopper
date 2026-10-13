@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 682
+- Mini Fumu in room mode: nothing but you moves his window (no strolls, peeks or alert slides)
+- Weather reports are not interrupted by his chatter
+- Special weather later says about what time (rain around 3:00 PM)
+
 ## Build 681
 - Dark alerts: no lighter wash along the top
 
