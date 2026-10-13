@@ -529,6 +529,10 @@ button { font: inherit; color: inherit; }
   border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 18px; cursor: pointer; font-weight: 700;
 }
 .species-grid button { gap: 2px; padding: 8px 4px 6px; font-size: .85rem; }
+/* how many skins you have for a species: a small round sticker in the corner, like the gift count on the Profile button */
+.skin-count { position: absolute; top: 4px; left: 4px; min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-radius: 999px; background: var(--accent); color: #fff; border: 2px solid #fff; font-style: normal; font-size: .7rem; font-weight: 800; line-height: 16px; text-align: center; box-shadow: 0 1px 0 rgba(91, 66, 57, .25); pointer-events: none; z-index: 2; }
+html:root[data-skin="quest"] .skin-count { border-color: #c9a227; color: #ffd100; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .skin-count { background: var(--os-red); color: var(--os-yellow); border: 1px solid #000; border-radius: 0; }
 .species-grid button:focus-visible, .hat-strip button:focus-visible { outline: 3px dashed var(--accent); outline-offset: 2px; }
 .pet.mini { width: 72px; height: 66px; margin: 0; cursor: inherit; pointer-events: none; }
 /* the mini pets (species, skins, closet) are still pictures: the pet's own blinks, glints and sways would run in every one of them

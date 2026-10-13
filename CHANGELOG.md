@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 657
+- Species buttons show how many skins you have as a small round sticker
+
 ## Build 656
 - Shop: Fumufumu Plus card with a yearly (14.99) and monthly plan, nicer pack cards
 

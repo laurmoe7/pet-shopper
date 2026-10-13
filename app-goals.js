@@ -90,6 +90,19 @@ function cheerUnlocks(list) {
  * @param {'species'|'skin'|'hat'} kind
  * @param {string} id
  */
+/**
+ * A small round sticker with the number of skins you have for a species, in the corner of its button (like the gift count on the Profile button); none when it has no skins.
+ * @param {HTMLElement} b The species button.
+ * @param {string} species
+ */
+function skinCount(b, species) {
+  var n = Skins.filter(function (s) { return s.base === species && unlocked('skin', s.id); }).length, tag = b.querySelector('.skin-count');
+  if (!n) { if (tag) tag.remove(); b.removeAttribute('data-skins'); return; }
+  if (!tag) { tag = document.createElement('i'); tag.className = 'skin-count'; tag.setAttribute('aria-hidden', 'true'); b.appendChild(tag); }
+  tag.textContent = n;
+  b.dataset.skins = n;
+  b.setAttribute('title', n + (n === 1 ? ' skin' : ' skins'));
+}
 function markLock(b, kind, id) {
   var open = unlocked(kind, id);
   var badge = b.querySelector('.lock-badge');
@@ -103,7 +116,7 @@ function markLock(b, kind, id) {
 }
 /** Brings every lock in the species grid and hat strip up to date. */
 function refreshLocks() {
-  speciesGrid.querySelectorAll('button').forEach(function (b) { markLock(b, 'species', b.dataset.species); });
+  speciesGrid.querySelectorAll('button').forEach(function (b) { markLock(b, 'species', b.dataset.species); skinCount(b, b.dataset.species); });
   skinGrid.querySelectorAll('button').forEach(function (b) { markLock(b, 'skin', b.dataset.skin); });
   wearButtons().forEach(function (b) { markLock(b, 'hat', b.dataset.hat); });
 }
