@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 654
+- Sitting soles redrawn as real shoe bottoms: wooden clogs, cowboy boots, feather slides
+
 ## Build 653
 - Cosmetics polish: shirt collar on the neckties, bigger butterfly clip with veins and a twinkle
 
