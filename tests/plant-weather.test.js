@@ -79,3 +79,13 @@ test('a postcode can be typed instead of a city', () => {
   ] }, '1011 AB');
   assert.equal(found.place, 'Amsterdam, Netherlands');
 });
+
+test('a city that exists in several places gives a pick list with the region and country', () => {
+  const list = W.parsePlaces({ results: [
+    { name: 'Grove City', admin1: 'Pennsylvania', country: 'United States', latitude: 41.16, longitude: -80.09 },
+    { name: 'Grove City', admin1: 'Ohio', country: 'United States', latitude: 39.88, longitude: -83.09 },
+    { name: 'Paris', admin1: 'Paris', country: 'France', latitude: 48.85, longitude: 2.35 }
+  ] }, 'grove city');
+  assert.deepEqual(list.map((p) => p.place), ['Grove City, Pennsylvania, United States', 'Grove City, Ohio, United States', 'Paris, France']);
+  assert.deepEqual(W.parsePlaces({}, 'x'), []);
+});

@@ -48,8 +48,8 @@
     return m ? m[1] : t;
   }
   /** @returns {string} The address that looks a place name or postcode up (a few matches, so a postcode can pick the right one). */
-  function searchUrl(name) {
-    return 'https://geocoding-api.open-meteo.com/v1/search?count=5&language=en&format=json&name=' + encodeURIComponent(placeQuery(name));
+  function searchUrl(name, count) {
+    return 'https://geocoding-api.open-meteo.com/v1/search?count=' + (count || 5) + '&language=en&format=json&name=' + encodeURIComponent(placeQuery(name));
   }
   /**
    * @param {Object} json The answer from forecastUrl.
@@ -73,5 +73,21 @@
     return { lat: round(r.latitude), lon: round(r.longitude), place: [r.name, r.country].filter(Boolean).join(', ').slice(0, 60) };
   }
 
-  root.Weather = { KINDS: KINDS, ORDER: ORDER, classify: classify, round: round, forecastUrl: forecastUrl, searchUrl: searchUrl, placeQuery: placeQuery, parse: parse, parsePlace: parsePlace };
+  /**
+   * @param {Object} json The answer from searchUrl.
+   * @param {string} [typed] What was typed (a postcode puts the places that list it first).
+   * @returns {{lat: number, lon: number, place: string}[]} The places found, each named with its region and country (Grove City, Pennsylvania, United States), for a pick list.
+   */
+  function parsePlaces(json, typed) {
+    var list = ((json && json.results) || []).filter(function (r) { return isFinite(+r.latitude) && isFinite(+r.longitude); }), code = placeQuery(typed).toLowerCase();
+    function has(r) { return (r.postcodes || []).some(function (c) { return String(c).toLowerCase() === code; }); }
+    if (code) list = list.filter(has).concat(list.filter(function (r) { return !has(r); }));
+    var seen = {};
+    return list.map(function (r) {
+      var parts = [r.name, r.admin1 && r.admin1 !== r.name ? r.admin1 : '', r.country].filter(Boolean);
+      return { lat: round(r.latitude), lon: round(r.longitude), place: parts.join(', ').slice(0, 60) };
+    }).filter(function (p) { if (seen[p.place]) return false; seen[p.place] = 1; return true; });
+  }
+
+  root.Weather = { parsePlaces: parsePlaces, KINDS: KINDS, ORDER: ORDER, classify: classify, round: round, forecastUrl: forecastUrl, searchUrl: searchUrl, placeQuery: placeQuery, parse: parse, parsePlace: parsePlace };
 })(typeof self !== 'undefined' ? self : globalThis);

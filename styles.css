@@ -4371,6 +4371,10 @@ html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-bloc
 .option:has(#wxOn) { border-bottom: 0; padding-bottom: 4px; }
 .wx-place { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
 .wx-place input { flex: 1; min-width: 0; font: inherit; font-size: .9rem; padding: 6px 12px; border: 1.5px solid var(--outline); border-radius: 14px; background: var(--surface); color: var(--ink); }
+.wx-suggest { list-style: none; margin: 6px 0 0; padding: 4px; border: 1.5px solid var(--outline); border-radius: 14px; background: var(--surface); box-shadow: 0 2px 0 var(--shadow); max-height: 200px; overflow-y: auto; scrollbar-width: none; }
+.wx-suggest[hidden] { display: none; }
+.wx-suggest button { display: block; width: 100%; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: inherit; font-size: .88rem; font-weight: 700; text-align: left; cursor: pointer; }
+.wx-suggest button:hover, .wx-suggest button:focus-visible { background: var(--hl-soft); outline: none; }
 .wx-place .pill-btn { flex: none; padding: 6px 12px; font-size: .85rem; }
 .option-weather .option-text { margin: 6px 0 0; }
 /* the little plant (app-plant.js): a tap makes it wiggle, and a flower gets a soft glow */

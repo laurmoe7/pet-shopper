@@ -81,7 +81,7 @@ var wxRow = document.createElement('label'), wxPlaceBox = document.createElement
 wxRow.className = 'option';
 wxRow.innerHTML = '<span class="option-title">Weather</span><input type="checkbox" role="switch" id="wxOn"><span class="option-text">He reacts to it. Only an area is sent to open-meteo.com.</span>';
 wxPlaceBox.className = 'option-weather';
-wxPlaceBox.innerHTML = '<div class="wx-place"><input type="text" id="wxPlace" maxlength="60" placeholder="City or postcode" aria-label="City or postcode for the weather" autocomplete="off"><button type="button" class="pill-btn" id="wxFind">Find</button><button type="button" class="pill-btn" id="wxHere">My location</button></div><p class="option-text" id="wxStatus" aria-live="polite"></p>';
+wxPlaceBox.innerHTML = '<div class="wx-place"><input type="text" id="wxPlace" maxlength="60" placeholder="City or postcode" aria-label="City or postcode for the weather" autocomplete="off"><button type="button" class="pill-btn" id="wxFind">Find</button><button type="button" class="pill-btn" id="wxHere">My location</button></div><ul class="wx-suggest" id="wxSuggest" role="listbox" aria-label="Places" hidden></ul><p class="option-text" id="wxStatus" aria-live="polite"></p>';
 optionsList.append(wxRow, wxPlaceBox);
 /** Says what the weather setting is doing now (the place and the weather last seen). */
 function wxStatus(note) {
@@ -96,17 +96,55 @@ $('wxOn').addEventListener('change', function () {
   if (!state.quiet) sound(c.want ? 'on' : 'off');
   wxStatus(); wxFetch(true);
 });
+/** Starts using a place that was picked or found. */
+function wxUsePlace(p) {
+  wxSave({ want: true, lat: p.lat, lon: p.lon, place: p.place });
+  $('wxOn').checked = true; $('wxPlace').value = p.place; wxHideSuggest();
+  wxStatus(); wxFetch(true);
+}
+var wxSuggestTimer = 0, wxSuggestSeq = 0;
+function wxHideSuggest() { var u = $('wxSuggest'); u.hidden = true; u.replaceChildren(); }
+/** While typing: a pick list of matching places (a city can be in several states or countries). */
+function wxSuggest() {
+  var q = $('wxPlace').value.trim(), seq = ++wxSuggestSeq;
+  clearTimeout(wxSuggestTimer);
+  if (q.length < 2 || !navigator.onLine) { wxHideSuggest(); return; }
+  wxSuggestTimer = setTimeout(function () {
+    fetch(Weather.searchUrl(q, 8)).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+      if (seq !== wxSuggestSeq) return;   // (typed on since)
+      var list = Weather.parsePlaces(j, q), u = $('wxSuggest');
+      u.replaceChildren.apply(u, list.map(function (p) {
+        var li = document.createElement('li'), b = document.createElement('button');
+        b.type = 'button'; b.setAttribute('role', 'option'); b.textContent = p.place;
+        b.addEventListener('mousedown', function (e) { e.preventDefault(); });   // (keeps the box focused until the pick lands)
+        b.addEventListener('click', function () { if (!state.quiet) sound('tap'); wxUsePlace(p); });
+        li.appendChild(b); return li;
+      }));
+      u.hidden = !list.length;
+    }).catch(function () { /* the Find button says if it cannot look it up */ });
+  }, 280);
+}
+$('wxPlace').addEventListener('input', wxSuggest);
+$('wxPlace').addEventListener('keydown', function (e) {
+  var u = $('wxSuggest'), items = [].slice.call(u.querySelectorAll('button')), at = items.indexOf(document.activeElement);
+  if (e.key === 'Escape') { wxHideSuggest(); return; }
+  if (e.key === 'ArrowDown' && items.length) { e.preventDefault(); items[0].focus(); }
+});
+$('wxSuggest').addEventListener('keydown', function (e) {
+  var items = [].slice.call(this.querySelectorAll('button')), at = items.indexOf(document.activeElement);
+  if (e.key === 'ArrowDown' && at < items.length - 1) { e.preventDefault(); items[at + 1].focus(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); (at > 0 ? items[at - 1] : $('wxPlace')).focus(); }
+  else if (e.key === 'Escape') { wxHideSuggest(); $('wxPlace').focus(); }
+});
 /** Looks a typed place up and starts using it. */
 function wxFindPlace() {
   var name = $('wxPlace').value.trim();
   if (!name) { wxStatus(T('Type a city or postcode first.')); return; }
   wxStatus(T('Looking…'));
   fetch(Weather.searchUrl(name)).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
-    var p = Weather.parsePlace(j, name);
+    var p = Weather.parsePlaces(j, name)[0];   // (Find takes the best match; the pick list shows the others while typing)
     if (!p) { wxStatus(T('No place found.')); return; }
-    wxSave({ want: true, lat: p.lat, lon: p.lon, place: p.place });
-    $('wxOn').checked = true; $('wxPlace').value = p.place;
-    wxStatus(); wxFetch(true);
+    wxUsePlace(p);
   }).catch(function () { wxStatus(T('Could not look it up (are you online?).')); });
 }
 $('wxFind').addEventListener('click', wxFindPlace);

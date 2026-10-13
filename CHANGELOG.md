@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 659
+- Weather place box: a pick list of matching places (Grove City, Pennsylvania / Ohio...) while typing
+
 ## Build 658
 - Weather location box takes a postcode too
 
