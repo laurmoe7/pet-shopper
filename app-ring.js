@@ -26,20 +26,31 @@
     return nl ? 'het is ' + t + ', ' + (du[w.kind] || 'helder') + '~' : 'it is ' + t + ' and ' + (en[w.kind] || 'clear') + '~';
   }
   /** The weather report: he looks outside and tells you (only offered while the weather option is on). With no place picked yet he says to pick one. */
+  var ringLooking = false;
   function ringWeather() {
     var nl = typeof Lang === 'object' && Lang.get() === 'nl', c = typeof wxConf === 'function' ? wxConf() : null;
     if (!c || c.lat === null || c.lon === null) { say(nl ? 'zet eerst een plaats in de opties~' : 'I need a place first: pick one in Options > Weather~', 3200, true); return; }
     var last = typeof wxLast === 'function' ? wxLast() : null;
     if (last && Date.now() - last.at < 10 * 60000) { say(ringWeatherWords(last), 3600, true); pulse('hopsmall', 450); return; }
     if (!navigator.onLine) { say(nl ? 'ik kan nu niet kijken~' : 'I cannot look outside right now~', 2400, true); return; }
+    if (ringLooking) return;   // (a second press while he is still looking does nothing)
+    ringLooking = true;
+    var done = false, ctl = typeof AbortController === 'function' ? new AbortController() : null;
+    function fail() { if (done) return; done = true; ringLooking = false; say(nl ? 'ik kan nu niet kijken~' : 'I cannot look outside right now~', 2400, true); }
+    var kill = setTimeout(function () { if (ctl) ctl.abort(); fail(); }, 8000);   // (a slow or stuck connection ends here instead of leaving him waiting for ever)
     say(nl ? 'even buiten kijken…' : 'let me look outside…', 1600, true);
-    fetch(Weather.forecastUrl(c.lat, c.lon)).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
-      var w = Weather.parse(j);
-      if (!w) { say(nl ? 'ik kan niets zien~' : 'I cannot see anything~', 2400, true); return; }
-      w.at = Date.now();
-      try { localStorage.setItem('nibble-weather-last', JSON.stringify(w)); } catch (e) { /* storage not available */ }
-      setTimeout(function () { say(ringWeatherWords(w), 3600, true); pulse('hopsmall', 450); }, 900);
-    }).catch(function () { say(nl ? 'ik kan nu niet kijken~' : 'I cannot look outside right now~', 2400, true); });
+    try {
+      fetch(Weather.forecastUrl(c.lat, c.lon), ctl ? { signal: ctl.signal } : {}).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+        clearTimeout(kill);
+        if (done) return;
+        done = true; ringLooking = false;
+        var w = Weather.parse(j);
+        if (!w) { say(nl ? 'ik kan niets zien~' : 'I cannot see anything~', 2400, true); return; }
+        w.at = Date.now();
+        try { localStorage.setItem('nibble-weather-last', JSON.stringify(w)); } catch (e) { /* storage not available */ }
+        setTimeout(function () { say(ringWeatherWords(w), 3600, true); pulse('hopsmall', 450); }, 900);
+      }).catch(function () { clearTimeout(kill); fail(); });
+    } catch (e) { clearTimeout(kill); fail(); }
   }
   function ringSleep() { bellToBed(['lights off… so sleepy…', '*yawn* bed time…', 'to bed we go…'], true); }   // (he only gets into bed: you still tuck him in)
 
