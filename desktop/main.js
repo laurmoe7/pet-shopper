@@ -465,6 +465,7 @@ function start() {
       if (win && typeof text === 'string') win.webContents.send('desk:sendCopied', text.slice(0, 4100));
     }).catch((e) => log('clipboard read failed', e && e.message));
   }
+  ipcMain.on('desk:sendCopiedNow', () => sendCopied());   // the ring's Send button: the same as the shortcut
   ipcMain.on('desk:typing', (_e, yes) => { if (win && yes && Date.now() < typingUntil) win.focus(); });
   // in a full-screen game he lets the mouse through; this key makes him catch it for a while (to move him or clear an alert), and again lets go
   function grabMouse() { if (!win) return; setPref('clickThrough', !prefs.clickThrough); solidState = null; win.webContents.send('desk:grab', !prefs.clickThrough); }

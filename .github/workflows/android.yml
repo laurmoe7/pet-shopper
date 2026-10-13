@@ -1,0 +1,54 @@
+name: Build the Android app
+
+# By hand: Actions > "Build the Android app" > Run workflow.
+# Publishes a pre-release (never the latest one: dev installs of the Windows app follow the latest release)
+# with a debug-signed APK for testing on a phone. The app loads from the web, so only this folder
+# (android/) needs a new APK.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'android/**'
+      - '.github/workflows/android.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: npm install --no-audit --no-fund
+      - run: npx cap add android
+      - name: Permissions (microphone, location)
+        run: |
+          M=android/app/src/main/AndroidManifest.xml
+          sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#&\n    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />#' $M
+          grep -n "uses-permission" $M
+      - run: npx cap sync android
+      - name: Build the debug APK
+        working-directory: android/android
+        run: ./gradlew assembleDebug --no-daemon
+      - name: Publish the pre-release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk Fumufumu.apk
+          TAG="android-${{ github.run_number }}"
+          gh release create "$TAG" Fumufumu.apk --prerelease --latest=false --target "$GITHUB_SHA" --title "Android $TAG" --notes "Fumufumu for Android (debug build for testing)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Fumufumu-Android-apk
+          path: android/Fumufumu.apk

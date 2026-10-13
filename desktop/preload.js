@@ -74,6 +74,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   onQuickAdd: (fn) => ipcRenderer.on('desk:quickAdd', () => fn()),
   /** The send-copied-text shortcut was pressed: the text that was on the clipboard. */
   onSendCopied: (fn) => ipcRenderer.on('desk:sendCopied', (_e, text) => { if (typeof text === 'string') fn(text); }),
+  /** The ring's Send button: sends what is on the clipboard (the shell reads it and answers through onSendCopied). */
+  sendCopiedNow: () => ipcRenderer.send('desk:sendCopiedNow'),
   /** Which part of the window is on a screen: [left, right] in page pixels (he may be half out of it). */
   onVisible: (fn) => ipcRenderer.on('desk:visible', (_e, l, r) => fn(+l || 0, +r || 0)),
   /** He runs back along the floor after getting off a window: 1 right, -1 left, 0 stopped. */

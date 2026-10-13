@@ -24,11 +24,11 @@ test('cleanIngredient drops amounts, units and prep words', () => {
 });
 
 test('parseRecipeHtml reads JSON-LD, also inside @graph and arrays', () => {
-  const rec = { '@type': 'Recipe', name: 'Pancakes &amp; syrup', recipeIngredient: ['200 g flour', '2 eggs', '1 cup milk', '200 g flour'] };
+  const rec = { '@type': 'Recipe', name: 'Pancakes &amp; syrup', recipeIngredient: ['200 g flour', '2 eggs', '1 cup milk', '200 g sugar'] };
   const page = (data) => '<html><script type="application/ld+json">' + JSON.stringify(data) + '</script></html>';
   for (const data of [rec, [rec], { '@graph': [{ '@type': 'WebPage' }, rec] }, { '@type': ['Recipe', 'Thing'], name: 'x', recipeIngredient: rec.recipeIngredient }]) {
     const r = R.parseRecipeHtml(page(data));
-    assert.deepStrictEqual(r.ingredients, [{ name: 'Flour', qty: '200 g' }, { name: 'Eggs', qty: '2' }, { name: 'Milk', qty: '1 cup' }]);
+    assert.deepStrictEqual(r.ingredients, [{ name: 'Flour', qty: '200 g' }, { name: 'Eggs', qty: '2' }, { name: 'Milk', qty: '1 cup' }, { name: 'Sugar', qty: '200 g' }]);
   }
   assert.strictEqual(R.parseRecipeHtml(page(rec)).title, 'Pancakes & syrup');
 });
@@ -61,7 +61,7 @@ test('the same ingredient twice becomes one with both amounts', () => {
 test('convertQty goes between metric and US', () => {
   const c = [['200 g', 'us', '7 oz'], ['1 kg', 'us', '2\u00bc lb'], ['500 ml', 'us', '2 cups'], ['100 ml', 'us', '\u00bd cup'], ['10 ml', 'us', '2 tsp'],
     ['1 1/2 cups', 'metric', '360 ml'], ['2 tbsp', 'metric', '30 ml'], ['8 oz', 'metric', '225 g'], ['1 lb', 'metric', '450 g'], ['1 cup', 'metric', '240 ml'],
-    ['2-3 cups', 'metric', '475-725 ml'], ['1 tbsp + 1 tsp', 'metric', '15 ml + 5 ml'],
+    ['2-3 cups', 'metric', '475-725 ml'], ['1 tbsp + 1 tsp', 'metric', '20 ml'],
     ['3 cloves', 'us', '3 cloves'], ['pinch', 'metric', 'pinch'], ['2 cups', 'us', '2 cups'], ['200 g', 'metric', '200 g'], ['200 g', '', '200 g'], ['', 'us', '']];
   for (const [q, to, want] of c) assert.strictEqual(R.convertQty(q, to), want, q + ' -> ' + to);
 });
@@ -69,7 +69,7 @@ test('convertQty goes between metric and US', () => {
 test('page-style lines: "1 and 1/2", "peeled and diced", whole wheat, extra virgin', () => {
   const c = {
     '2 and 1/4 cups (281g) all-purpose flour (spooned & leveled)': ['All-purpose flour', '2 1/4 cups'],
-    '1 and 1/2 teaspoons ground cinnamon': ['Ground cinnamon', '1 1/2 teaspoons'],
+    '1 and 1/2 teaspoons ground cinnamon': ['Ground cinnamon', '1 1/2 tsp'],
     '2 cups peeled and diced apples (about 2 large apples)': ['Apples', '2 cups'],
     '1 cup whole wheat flour': ['Whole wheat flour', '1 cup'],
     '2 tbsp extra virgin olive oil': ['Olive oil', '2 tbsp'],
@@ -160,7 +160,7 @@ test('"all-purpose or bread flour" keeps both, "butter or margarine" keeps the f
 
 test('cooked chicken, uncooked rice, garnish lines and two-in-one lines', () => {
   assert.deepStrictEqual(R.parseIngredient('3 cups cooked chicken, cut into bite-sized pieces'), { name: 'Chicken', qty: '3 cups' });
-  assert.deepStrictEqual(R.parseIngredient('1 1/2 cups uncooked sushi rice or short grain white rice, rinsed and drained'), { name: 'Sushi rice', qty: '1 1/2 cups' });
+  assert.deepStrictEqual(R.parseIngredient('1 1/2 cups uncooked sushi rice or short grain white rice, rinsed and drained'), { name: 'Sushi rice', qty: '1 1/2 cups', or: ['Short grain white rice'] });
   assert.deepStrictEqual(R.parseIngredient('1 cup teriyaki marinade and sauce, plus more for serving, such as Soy Vay Marinade and Sauce'), { name: 'Teriyaki marinade and sauce', qty: '1 cup' });
   assert.deepStrictEqual(R.cleanAll(['sliced green onions and sesame seeds, for garnish']), [{ name: 'Green onions', qty: '' }, { name: 'Sesame seeds', qty: '' }]);
   assert.deepStrictEqual(R.cleanAll(['Sriracha sauce and soy sauce, for serving (optional)']).map((x) => [x.name, x.optional]), [['Sriracha sauce', true], ['Soy sauce', true]]);
@@ -170,7 +170,7 @@ test('cooked chicken, uncooked rice, garnish lines and two-in-one lines', () => 
 test('a mixed number with a hyphen: 1-3/4 cups', () => {
   assert.deepStrictEqual(R.parseIngredient('1-3/4 cups sliced carrots'), { name: 'Carrots', qty: '1 3/4 cups' });
   assert.deepStrictEqual(R.parseIngredient('1-1/2 cups whole milk'), { name: 'Whole milk', qty: '1 1/2 cups' });
-  assert.deepStrictEqual(R.parseIngredient('1-3/4 teaspoons salt'), { name: 'Salt', qty: '1 3/4 teaspoons' });
+  assert.deepStrictEqual(R.parseIngredient('1-3/4 teaspoons salt'), { name: 'Salt', qty: '1 3/4 tsp' });
   assert.deepStrictEqual(R.parseIngredient('2-3 ripe bananas'), { name: 'Bananas', qty: '2-3' });
   assert.deepStrictEqual(R.parseIngredient('4 cups cubed cooked chicken'), { name: 'Chicken', qty: '4 cups' });
 });
@@ -209,4 +209,32 @@ test('cans with a size, "or jar", ears and cheese by the cup', () => {
   assert.deepStrictEqual(R.parseIngredient('4 ears corn, charred kernels, cut from the cob'), { name: 'Corn', qty: '4 ears' });
   assert.strictEqual(R.convertQty('1 1/2 cups', 'metric', 'Mexican cheese'), '160 g');
   assert.strictEqual(R.convertQty('1/4 cup', 'metric', 'Parmesan'), '25 g');
+});
+
+test('"or" options: a list, a pair, and merged amounts that still convert', () => {
+  assert.deepStrictEqual(R.parseIngredient('1 Tablespoon barley malt syrup, granulated sugar, or brown sugar*').or, ['Granulated sugar', 'Brown sugar']);
+  assert.deepStrictEqual(R.parseIngredient('1 cup milk or water').or, ['Water']);
+  assert.strictEqual(R.parseIngredient('1 cup flour, or more as needed').or, undefined);
+  assert.strictEqual(R.parseIngredient('2 eggs or 1/4 cup applesauce').or, undefined);
+  const two = R.cleanAll(['1 Tablespoon barley malt syrup, granulated sugar, or brown sugar', '1/4 cup (85g) barley malt syrup or honey']);
+  assert.deepStrictEqual(two.map((x) => [x.name, x.qty, x.or]), [['Barley malt syrup', '1 tbsp', ['Granulated sugar', 'Brown sugar']], ['Barley malt syrup', '1/4 cup', ['Honey']]]);   // different options: two rows
+  const m = R.cleanAll(['1 tbsp barley malt syrup or honey', '1/4 cup (85g) barley malt syrup or honey'])[0];
+  assert.strictEqual(m.qty, '1 tbsp + 1/4 cup');
+  assert.strictEqual(R.convertQty(m.qty, 'metric', m.name, m.alt), '105 g');
+  assert.strictEqual(R.convertQty(m.qty, 'us', m.name, m.alt), '1 tbsp + 1/4 cup');
+});
+
+test('an egg wash line is the egg, not the water it is beaten with', () => {
+  assert.deepStrictEqual(R.parseIngredient('egg wash: 1 egg white beaten with 1 Tablespoon water'), { name: 'Egg white', qty: '1' });
+});
+
+test('an amount made of two ("1 cup + 1 Tablespoon"), metric amounts after a semicolon, and the same ingredient on three lines', () => {
+  assert.deepStrictEqual(R.parseIngredient('1 cup + 1 Tablespoon (133g) all-purpose flour (spooned & leveled)'), { name: 'All-purpose flour', qty: '1 cup & 1 tbsp', alt: '133 g' });
+  assert.strictEqual(R.parseIngredient('1/4 cup (4 Tbsp; 56g) unsalted butter, cold and cubed').alt, '56 g');
+  const f = R.cleanAll(['1/4 cup (31g) all-purpose flour', '1 cup + 1 Tablespoon (133g) all-purpose flour', '2 Tablespoons (16g) all-purpose flour'])[0];
+  assert.strictEqual(f.qty, '1 1/4 cups + 3 tbsp');
+  assert.strictEqual(R.convertQty(f.qty, 'metric', f.name, f.alt), '180 g');
+  assert.strictEqual(R.convertQty(f.qty, 'us', f.name, f.alt), '1 1/4 cups + 3 tbsp');
+  assert.strictEqual(R.cleanAll(['2 eggs', '3 eggs'])[0].qty, '5');
+  assert.strictEqual(R.convertQty('1 cup & 1 tbsp', 'metric', 'Flour', '133 g'), '133 g');
 });

@@ -57,6 +57,12 @@
       }).catch(function () { clearTimeout(kill); fail(); });
     } catch (e) { clearTimeout(kill); fail(); }
   }
+  /** Sends a link or note to the other synced device: Mini Fumu sends what is copied (the shell reads the clipboard), the app opens the Send sheet. */
+  function ringSend() {
+    var D = window.nibbleDesktop;
+    if (isDesk()) { if (D && D.sendCopiedNow) D.sendCopiedNow(); return; }
+    if (typeof openSend === 'function') openSend();
+  }
   function ringSleep() { bellToBed(['lights off… so sleepy…', '*yawn* bed time…', 'to bed we go…'], true); }   // (he only gets into bed: you still tuck him in)
 
   /** Everything the ring can offer. `on` is for switches. */
@@ -69,6 +75,7 @@
     back: { icon: '↩️', label: 'Back', keep: true, run: function () { openMenu('main'); } },
     snack: { icon: '🍪', label: 'Snack', run: ringSnack },
     weather: { icon: '⛅', label: 'Weather report', run: ringWeather },
+    send: { icon: '📮', label: 'Send to my other device', run: ringSend },
     swap: { icon: '📝', label: 'Swap list', run: function () { if (typeof switchList === 'function') switchList(); } },
     lights: { icon: '💡', label: 'Lights off', run: ringSleep },
     night: { icon: '🌙', label: 'Night light', keep: true, on: function () { return nightLightOn; }, run: function () { toggleNightLight(); } }
@@ -85,12 +92,13 @@
   /** @returns {string[]} The buttons for the scene he is in now. */
   function items() {
     var scene = petScene();
+    var snd = typeof account !== 'undefined' && account && account.code && (!isDesk() || (window.nibbleDesktop && window.nibbleDesktop.sendCopiedNow)) ? ['send'] : [];   // (only with Backup & sync on; Mini Fumu needs an installer that has the button)
     var wx = typeof wxConf === 'function' && wxConf().want ? ['weather'] : [];   // (the report is offered while the weather option is on; with no place picked yet he says so when it is pressed)
-    if (!isDesk()) return scene === 'night-bed' ? [] : ['toys', 'snack'].concat(wx);   // in the app: the toy circle and a snack; in bed they are put away
+    if (!isDesk()) return scene === 'night-bed' ? [] : ['toys', 'snack'].concat(wx, snd);   // in the app: the toy circle and a snack; in bed they are put away
     if (scene === 'night-bed') return ['night'];   // in bed: only the night light
     var play = toyKind() === 'none' ? [] : ['ball'];   // (nothing to play with when there is no toy)
-    if (scene.indexOf('night-drowsy') === 0) return play.concat(['toys', 'snack'], wx, ['swap', 'lights']);
-    return play.concat(['toys', 'snack'], wx, ['swap']);
+    if (scene.indexOf('night-drowsy') === 0) return play.concat(['toys', 'snack'], wx, snd, ['swap', 'lights']);
+    return play.concat(['toys', 'snack'], wx, snd, ['swap']);
   }
   function canShow(now, force) {
     // a double click on him or a style preview is asked for on purpose: only the mode is checked, so a stuck state (hidden window, a leftover

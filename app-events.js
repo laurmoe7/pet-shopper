@@ -5,6 +5,15 @@
 // ---------- events ----------
 addForm.addEventListener('submit', function (e) {
   e.preventDefault();
+  if (!isTodo() && Recipe.looksLikeUrl(addInput.value)) {   // a link is a recipe: open the recipe sheet and read it
+    var link = addInput.value.trim();
+    addInput.value = '';
+    addPreview.replaceChildren();
+    $('recipeBtn').click();
+    recipeInput.value = link;
+    recipeGo();
+    return;
+  }
   addItem(addInput.value);
   addInput.value = '';
   addPreview.replaceChildren();
@@ -70,7 +79,7 @@ var lastPreview = '';
 addInput.addEventListener('input', function () {
   var t = addInput.value.trim();
   if (!t) { addPreview.replaceChildren(); lastPreview = ''; return; }
-  var e = L.emojiFor(t, state.overrides, state.mode).emoji;
+  var e = !isTodo() && Recipe.looksLikeUrl(t) ? '\ud83d\udcd6' : L.emojiFor(t, state.overrides, state.mode).emoji;   // a link is a recipe: an open book
   if (e !== lastPreview) { addPreview.replaceChildren(emojiImg(e, '')); lastPreview = e; }
 });
 

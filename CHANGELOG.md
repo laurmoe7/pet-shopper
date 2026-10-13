@@ -2,6 +2,42 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 690
+- Updates: a new build always downloads its own files, so the app cannot stay on an older build
+
+## Build 689
+- Recipes: long names wrap to two lines before ending in ...
+
+## Build 688
+- Recipes: "1 cup + 1 Tablespoon" reads as one amount
+- Recipes: the same ingredient on several lines adds up (1 1/4 cups + 3 tbsp, or 180 g)
+- Recipes: metric amount found in "(4 Tbsp; 56g)"
+
+## Build 687
+- Birthday: pick a month and a day, no year
+- Dark alert cards: no pale gradient at the top
+- Recipe links in the add bar show an open book
+- Ring: Send to my other device (Mini Fumu sends what you copied, the app opens Send)
+
+## Build 686
+- A recipe link in the add bar shows a pot of food
+
+## Build 685
+- Recipes: the same ingredient with different "or" choices stays on separate rows
+
+## Build 684
+- Recipes: long names end in ..., picking all makes one line
+
+## Build 683
+- Recipes: picking all options reads "a or b"
+- A link typed in the add bar opens the recipe sheet
+
+## Build 682
+- Recipes: pick one of the "or" choices, or keep both
+- Recipes: amounts like 1 tbsp + 1/4 cup convert together
+- Recipes: egg wash gives an egg, not water
+- Recipes: shorter "have it?" note
+
 ## Build 681
 - Backup & sync: Download my data, and a Privacy page
 - Sync server: a limit per connection; backups unused for a year are deleted
