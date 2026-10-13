@@ -4450,3 +4450,6 @@ html:not([class*="al-"]) .inbox-actions button:active { transform: translateY(2p
 html.desktop-pet:not([class*="al-"]) .stage .inbox-card { bottom: calc(100% - 24px); }   /* (a little lower: the top of the window must not cut the tape) */
 :root[data-theme="dark"] .inbox-card::before, :root[data-theme="dark"] .remind-card::before { opacity: .78; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme]) .inbox-card::before { opacity: .78; } }
+/* alerts in Dark: a plain card colour, with no lighter wash along the top (build 681) */
+:root[data-theme="dark"]:not([data-skin]) .inbox-card, :root[data-theme="dark"]:not([data-skin]) .remind-card { background: var(--surface); box-shadow: 0 3px 0 var(--shadow), 0 9px 16px -6px var(--shadow); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme]):not([data-skin]) .inbox-card, :root:not([data-theme]):not([data-skin]) .remind-card { background: var(--surface); box-shadow: 0 3px 0 var(--shadow), 0 9px 16px -6px var(--shadow); } }

@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 681
+- Dark alerts: no lighter wash along the top
+
 ## Build 680
 - Mini Fumu: switching from wander to room mode no longer moves him
 
