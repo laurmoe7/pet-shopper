@@ -2,6 +2,12 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 699
+- Ring menu: toys only in the toy circle; picking the laser dot starts it
+- Laser dot: he stalks, wiggles, pounces and holds the dot like a cat
+- Laser dot: flickering dot with a glow and a streak, he leans and follows it with his eyes
+- Laser dot: he looks round for it when it goes out
+
 ## Build 698
 - Ring menu: buttons evenly spaced on one smooth curve
 

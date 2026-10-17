@@ -780,33 +780,41 @@ function start() {
   // up into the air too, not only along the floor. He keeps a little behind and below the dot, so it is in front of his face and clicks
   // mostly still reach what is under the pointer. When the time is up (or he is clicked) he drops to the floor and runs back to where he was.
   // Only the pointer's position is used, nothing about the windows, so it needs no awareness level; in room mode he stays in his room.
-  let chasing = false, chaseUntil = 0;
-  const LASER_PX = 22;
-  const LASER_PAGE = 'data:text/html;charset=utf-8,' + encodeURIComponent('<!doctype html><body style="margin:0;background:transparent;overflow:hidden;display:grid;place-items:center;height:100vh"><div style="width:11px;height:11px;border-radius:50%;background:#ff2b55;box-shadow:0 0 0 2px rgba(255,255,255,.75),0 0 8px 4px rgba(255,43,85,.5)"></div></body>');
-  ipcMain.on('desk:chaseStop', () => { if (chasing) chaseUntil = 0; });
+  let chasing = false, chaseUntil = 0, chaseClicked = false;
+  const LASER_PX = 30;
+  // the dot: a soft breathing glow round a bright core that flickers and trembles a little, like a real laser in a hand (the same look as .laser-dot in styles.css)
+  const LASER_PAGE = 'data:text/html;charset=utf-8,' + encodeURIComponent('<!doctype html><style>body{margin:0;background:transparent;overflow:hidden;display:grid;place-items:center;height:100vh}b{position:absolute;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle,rgba(255,60,90,.6) 0,rgba(255,43,85,.22) 45%,transparent 70%);animation:g 1.1s ease-in-out infinite}i{position:relative;width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#fff 0 16%,#ff6a86 38%,#ff1f4b 75%);box-shadow:0 0 6px 2px rgba(255,43,85,.8);animation:j .14s steps(2) infinite}@keyframes g{50%{scale:1.3;opacity:.7}}@keyframes j{25%{translate:.6px -.4px;opacity:.85}50%{translate:-.5px .5px}75%{translate:.3px .6px;opacity:.9}}</style><b></b><i></i>');
+  ipcMain.on('desk:chaseStop', () => { if (chasing) { chaseUntil = 0; chaseClicked = true; } });   // (clicked: he was caught, so he does not look round for the dot)
   ipcMain.handle('desk:chaseStart', async (_e, ms) => {
     if (!win || mode !== 'pet' || dragFrom || chasing || !wanderMode()) return false;
     const home = perch && perchOrigin ? place.within(perchOrigin, here()) : peekRest || win.getBounds();
     leavePerch(); peekRest = null; stopTween(); stopToyFollow();
-    chasing = true;
+    chasing = true; chaseClicked = false;
     chaseUntil = Date.now() + Math.max(2000, Math.min(30000, +ms || 15000));
     const dotWin = toyWindow(LASER_PX), ds = LASER_PX;
     toyImg = ''; toyPx = 0;   // (the toy window shows the dot now: the next toyShow loads the toy's picture again)
     try { dotWin.loadURL(LASER_PAGE); } catch (e) { /* no dot: he still chases the pointer */ }
     const all = areas(), b0 = win.getBounds();
     const box = { x: Math.min(...all.map((a) => a.x)), y: Math.min(...all.map((a) => a.y)), r: Math.max(...all.map((a) => a.x + a.width)), b: Math.max(...all.map((a) => a.y + a.height)) };
-    const p = { x: b0.x, y: b0.y, vx: 0, vy: 0 };
-    let face = 1, last = Date.now(), sent = 0, topAt = 0, dotAt = null;
+    const p = { x: b0.x, y: b0.y, vx: 0, vy: 0 }, game = {};
+    let face = 1, last = Date.now(), sent = 0, topAt = 0, dotAt = null, prev = null, dotSpeed = 0;
     const ok = await new Promise((resolve) => {
       const timer = setInterval(() => {
         if (!win || mode !== 'pet') { stopTween(); return; }
         const now = Date.now(), dt = Math.min(0.034, (now - last) / 1000);
         last = now;
         try {
-          const c = screen.getCursorScreenPoint(), bi = bodyIn(b0), bw = bi.r - bi.l, bh = bi.b - bi.t, mid = (bi.l + bi.r) / 2;
-          if (c.x > p.x + mid + bw * 0.3) face = 1; else if (c.x < p.x + mid - bw * 0.3) face = -1;   // (a little slack, so he does not flip back and forth)
-          const to = { x: c.x - face * bw * 0.5 - mid, y: c.y + bh * 0.18 - (bi.t + bi.b) / 2 };
-          place.chaseStep(p, to, dt, 1500);
+          const c = screen.getCursorScreenPoint(), bi = bodyIn(b0), bw = bi.r - bi.l, bh = bi.b - bi.t, mid = (bi.l + bi.r) / 2, midY = (bi.t + bi.b) / 2;
+          if (prev) dotSpeed = dotSpeed * 0.7 + (Math.hypot(c.x - prev.x, c.y - prev.y) / Math.max(dt, 0.001)) * 0.3;
+          prev = c;
+          const chaseTo = { x: c.x - face * bw * 0.5 - mid, y: c.y + bh * 0.18 - midY };
+          const ph = place.laserPhase(game, { now, x: c.x, y: c.y, speed: dotSpeed, gap: Math.hypot(chaseTo.x - p.x, chaseTo.y - p.y) });
+          if (ph === 'chase') { if (c.x > p.x + mid + bw * 0.3) face = 1; else if (c.x < p.x + mid - bw * 0.3) face = -1; }   // (a little slack, so he does not flip back and forth)
+          // behind and below the dot while chasing (it is in front of his face), backed off and low while stalking, the dot under his front paws once he pounces
+          let to = chaseTo, max = 1500, K = 40;
+          if (ph === 'stalk') { to = { x: c.x - face * bw * 0.72 - mid, y: c.y + bh * 0.24 - midY }; max = 80; }
+          else if (ph === 'pounce' || ph === 'caught') { to = { x: game.holdX - face * bw * 0.12 - mid, y: game.holdY - bh * 0.3 - midY }; max = 2600; K = 110; }
+          place.chaseStep(p, to, dt, max, K);
           // never out of the screens, and never below the floor (the top of the taskbar)
           if (p.x < box.x - bi.l) { p.x = box.x - bi.l; p.vx = Math.max(0, p.vx); }
           if (p.x > box.r - bi.r) { p.x = box.r - bi.r; p.vx = Math.min(0, p.vx); }
@@ -823,16 +831,22 @@ function start() {
           }
           if (now - sent > 60) {
             sent = now;
-            const near = Math.hypot(to.x - p.x, to.y - p.y) < 22 && Math.hypot(p.vx, p.vy) < 260;
-            win.webContents.send('desk:chase', Math.round(p.vx), Math.round(p.vy), face, near ? 1 : 0, p.y >= floor - 1 ? 1 : 0);
+            const z = zoom();   // (where the dot is from his face, in the page's own pixels, so his eyes follow it)
+            win.webContents.send('desk:chase', Math.round(p.vx), Math.round(p.vy), face, ph, p.y >= floor - 1 ? 1 : 0, Math.round((c.x - (p.x + mid)) / z), Math.round((c.y - (p.y + bi.t + bh * 0.35)) / z));
           }
         } catch (e) { log('chase step failed', e && e.message); chaseUntil = 0; }
         if (now >= chaseUntil) { clearInterval(timer); tween = null; resolve(true); }
       }, 8);
       tween = { timer, done: resolve };
     });
-    chasing = false;
     hideToy();
+    // the dot went out: he hangs where he is for a moment and looks round for it (the page plays that), then drops
+    if (ok && win && mode === 'pet' && !chaseClicked) {
+      win.webContents.send('desk:chase', 0, 0, face, 'lost', 0, 0, 0);
+      const stay = await new Promise((res) => { const tm = setTimeout(() => { tween = null; res(true); }, 1400); tween = { timer: tm, done: res }; });
+      if (!stay) { chasing = false; return false; }
+    }
+    chasing = false;
     if (!ok || !win || mode !== 'pet') return false;
     // the dot is gone: he drops to the floor and runs back to where he was
     await throwWindow(Math.max(-600, Math.min(600, p.vx * 0.5)), Math.max(-600, Math.min(600, p.vy * 0.5)), home, false, { noSpin: true, maxBounces: 1 });

@@ -71,8 +71,7 @@
     toyNone: { icon: '🚫', label: 'No toy', on: function () { return toyKind() === 'none'; }, run: function () { setToyKind('none'); } },
     toyBall: { icon: '⚽', label: 'Default toy', on: function () { return toyKind() === 'ball'; }, run: function () { setToyKind('ball'); } },
     toyWreck: { icon: '💥', label: 'Wrecking ball', on: function () { return toyKind() === 'wrecker'; }, run: function () { setToyKind('wrecker'); } },
-    toyLaser: { icon: '🔴', label: 'Laser dot', on: function () { return toyKind() === 'laser'; }, run: function () { setToyKind('laser'); } },
-    laser: { icon: '🔴', label: 'Laser dot', run: function () { if (!busy && typeof laserPlay === 'function') laserPlay(); } },
+    toyLaser: { icon: '🔴', label: 'Laser dot', on: function () { return toyKind() === 'laser'; }, run: function () { setToyKind('laser', true); if (typeof laserPlay === 'function') setTimeout(laserPlay, 250); } },   // (picking it starts a chase)
     back: { icon: '↩️', label: 'Back', keep: true, run: function () { openMenu('main'); } },
     snack: { icon: '🍪', label: 'Snack', run: ringSnack },
     weather: { icon: '⛅', label: 'Weather report', run: ringWeather },
@@ -97,9 +96,9 @@
     var wx = typeof wxConf === 'function' && wxConf().want ? ['weather'] : [];   // (the report is offered while the weather option is on; with no place picked yet he says so when it is pressed)
     if (!isDesk()) return scene === 'night-bed' ? [] : ['toys', 'snack'].concat(wx, snd);   // in the app: the toy circle and a snack; in bed they are put away
     if (scene === 'night-bed') return ['night'];   // in bed: only the night light
-    var play = toyKind() === 'laser' ? ['laser'] : [];   // (the ball is played with by tapping or throwing it; the laser dot keeps a start button)
-    if (scene.indexOf('night-drowsy') === 0) return play.concat(['toys', 'snack'], wx, snd, ['swap', 'lights']);
-    return play.concat(['toys', 'snack'], wx, snd, ['swap']);
+    // (toys only in the toy circle: the ball is tapped or thrown, the laser dot starts when it is picked there or its pen is tapped)
+    if (scene.indexOf('night-drowsy') === 0) return ['toys', 'snack'].concat(wx, snd, ['swap', 'lights']);
+    return ['toys', 'snack'].concat(wx, snd, ['swap']);
   }
   function canShow(now, force) {
     // a double click on him or a style preview is asked for on purpose: only the mode is checked, so a stuck state (hidden window, a leftover

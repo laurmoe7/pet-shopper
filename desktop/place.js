@@ -218,10 +218,11 @@ function hitTest(rects, x, y, pad) {
  * One step of him flying after the laser dot (app-laser.js): a spring towards `to` (where his window should be) with a top speed, so he
  * overshoots a little like a pet that cannot stop in time. The page's laserStep is the same rule.
  * @param {{x:number,y:number,vx:number,vy:number}} p His window's corner and speed (px, px/s); changed in place and returned.
- * @param {{x:number,y:number}} to @param {number} dt Seconds. @param {number} max Top speed, px/s.
+ * @param {{x:number,y:number}} to @param {number} dt Seconds. @param {number} max Top speed, px/s. @param {number} [K=40] How stiff (a pounce is quicker).
  */
-function chaseStep(p, to, dt, max) {
-  var K = 40, DAMP = 11;
+function chaseStep(p, to, dt, max, K) {
+  K = K || 40;
+  var DAMP = 2 * Math.sqrt(K) * 0.87;
   p.vx += ((to.x - p.x) * K - p.vx * DAMP) * dt;
   p.vy += ((to.y - p.y) * K - p.vy * DAMP) * dt;
   var sp = Math.hypot(p.vx, p.vy);
@@ -230,7 +231,26 @@ function chaseStep(p, to, dt, max) {
   return p;
 }
 
+/**
+ * The laser dot's chase rules, one step: he chases while the dot moves; once it has sat still near him he stalks it (backs off, wiggles),
+ * then pounces on it and holds it until it moves away. The same rules as laserRule in app-laser.js: keep them in step.
+ * @param {Object} st {phase, at, stillAt, holdX, holdY}, changed in place. @param {{now:number,x:number,y:number,speed:number,gap:number}} inp
+ *   The time (ms), the dot (px), how fast it moves (px/s) and how far he is from his chasing spot (px).
+ * @returns {string} chase, stalk, pounce or caught.
+ */
+function laserPhase(st, inp) {
+  var t = inp.now;
+  if (!st.phase) { st.phase = 'chase'; st.at = t; st.stillAt = t; }
+  if (inp.speed > 60) st.stillAt = t;
+  function to(ph) { st.phase = ph; st.at = t; if (ph === 'pounce') { st.holdX = inp.x; st.holdY = inp.y; } }
+  if (st.phase === 'chase') { if (t - st.stillAt > 450 && inp.gap < 46) to('stalk'); }
+  else if (st.phase === 'stalk') { if (inp.speed > 260) to('chase'); else if (t - st.at > 900) to('pounce'); }
+  else if (st.phase === 'pounce') { if (t - st.at > 300) to('caught'); }
+  else if (st.phase === 'caught') { if (Math.hypot(inp.x - st.holdX, inp.y - st.holdY) > 70) to('chase'); }
+  return st.phase;
+}
+
 module.exports = {
-  chaseStep: chaseStep,
+  chaseStep: chaseStep, laserPhase: laserPhase,
   hitTest: hitTest,  afterScreensChange: afterScreensChange, idleStep: idleStep, perches: perches, perchBounds: perchBounds, perchUnder: perchUnder, perchesNear: perchesNear, floorBounds: floorBounds, arcAt: arcAt, PERCH_BODY: PERCH_BODY,
   SIZES: SIZES, sizeFactor: sizeFactor, resizeKeepingBottom: resizeKeepingBottom, within: within, nudge: nudge, corner: corner, walkEnd: walkEnd, keepPartlyOn: keepPartlyOn, peekSpot: peekSpot, tweenAt: tweenAt, MARGIN: MARGIN, visibleFraction: visibleFraction, defaultBounds: defaultBounds, startBounds: startBounds, listBounds: listBounds, dragBounds: dragBounds };

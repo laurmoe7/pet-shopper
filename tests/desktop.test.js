@@ -420,3 +420,16 @@ test('chasing the laser dot gets him to it, never faster than the top speed', ()
   assert.ok(fastest <= 1500 + 1e-6);
   assert.ok(Math.hypot(p.x - to.x, p.y - to.y) < 5, 'he reaches the dot in under two seconds');
 });
+
+test('the laser game: chase while the dot moves, stalk then pounce when it stops, chase again when it moves away', () => {
+  const st = {};
+  let t = 0;
+  const at = (x, speed, gap) => P.laserPhase(st, { now: t, x, y: 100, speed, gap });
+  assert.equal(at(0, 900, 300), 'chase');
+  t = 400; assert.equal(at(0, 0, 20), 'chase', 'not stalking the moment it stops');
+  t = 500; assert.equal(at(0, 0, 20), 'stalk');
+  t = 1500; assert.equal(at(0, 0, 20), 'pounce');
+  t = 1850; assert.equal(at(0, 0, 0), 'caught');
+  t = 1900; assert.equal(at(40, 300, 0), 'caught', 'a nudge does not free it');
+  t = 1950; assert.equal(at(120, 900, 80), 'chase');
+});

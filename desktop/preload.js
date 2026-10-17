@@ -64,8 +64,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   chaseStart: (ms) => ipcRenderer.invoke('desk:chaseStart', +ms || 15000),
   /** Ends the chase now (he still drops to the floor and runs back). */
   chaseStop: () => ipcRenderer.send('desk:chaseStop'),
-  /** While he chases, a few times a second: his speed (px/s), which way he faces (1 right, -1 left), whether he is on the dot (1) and whether he is on the floor (1). */
-  onChase: (fn) => ipcRenderer.on('desk:chase', (_e, vx, vy, face, near, floor) => fn(+vx || 0, +vy || 0, face < 0 ? -1 : 1, !!near, !!floor)),
+  /** While he chases, about 16 times a second: his speed (px/s), which way he faces (1 right, -1 left), the part of the game (chase, stalk, pounce, caught, lost), whether he is on the floor, and where the dot is from his face (page px). */
+  onChase: (fn) => ipcRenderer.on('desk:chase', (_e, vx, vy, face, phase, floor, dx, dy) => fn(+vx || 0, +vy || 0, face < 0 ? -1 : 1, ['chase', 'stalk', 'pounce', 'caught', 'lost'].includes(phase) ? phase : 'chase', !!floor, +dx || 0, +dy || 0)),
   /** Takes the celebration overlay away at once. */
   celebrateStop: () => ipcRenderer.send('desk:celebrateStop'),
   setBody: (box) => ipcRenderer.send('desk:body', Array.isArray(box) ? box.slice(0, 4) : []),

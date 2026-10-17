@@ -22,8 +22,8 @@ function applyToyKind() {
 }
 /** The ring menu's toy switches: the wrecking ball (the default) or no toy; pressing the one that is on puts his own ball back. @param {string} [which] 'wrecker' or 'none'. */
 function toggleToyKind(which) { setToyKind(toyKind() === (which || 'wrecker') ? 'ball' : (which || 'wrecker')); }
-/** Picks the toy (the ring menu's toy circle): 'ball' (his own, the default), 'wrecker', 'laser' or 'none'. @param {string} next */
-function setToyKind(next) {
+/** Picks the toy (the ring menu's toy circle): 'ball' (his own, the default), 'wrecker', 'laser' or 'none'. @param {string} next @param {boolean} [quiet] No line (the laser dot's chase says its own). */
+function setToyKind(next, quiet) {
   if (playing) return;   // (not while a game is on)
   if (next !== 'wrecker' && next !== 'laser' && next !== 'none') next = 'ball';
   try { localStorage.setItem(TOY_KIND_KEY, next); } catch (e) { /* storage blocked */ }
@@ -31,7 +31,7 @@ function setToyKind(next) {
   sound('pick');
   if (typeof window.deskToyWarm === 'function') setTimeout(window.deskToyWarm, 200);   // (its picture ready for the screen-wide window)
   if (next === 'none' && window.nibbleDesktop && window.nibbleDesktop.toyHide) window.nibbleDesktop.toyHide();   // (the screen-wide toy window goes too)
-  say(next === 'wrecker' ? pick(['the wrecking ball… careful!', 'ooh, a big spiky one!']) : next === 'laser' ? pick(['the red dot! tap it~', 'ooh, the laser!']) : next === 'none' ? pick(['no toy, then~', 'all put away!']) : pick(['the nice ball again ♡', 'back to the ball~']), 1600);
+  if (!quiet) say(next === 'wrecker' ? pick(['the wrecking ball… careful!', 'ooh, a big spiky one!']) : next === 'laser' ? pick(['the red dot! tap it~', 'ooh, the laser!']) : next === 'none' ? pick(['no toy, then~', 'all put away!']) : pick(['the nice ball again ♡', 'back to the ball~']), 1600);
 }
 applyToyKind();
 
