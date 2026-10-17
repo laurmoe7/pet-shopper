@@ -752,7 +752,7 @@ function start() {
       try {
         const p = screen.getCursorScreenPoint(), nx = Math.round(p.x - s / 2), ny = Math.round(p.y - s / 2);
         if (!isFinite(nx) || !isFinite(ny)) return;
-        if (nx !== lx || ny !== ly) { if (lx === null) toyWin.setBounds({ x: nx, y: ny, width: s, height: s }); else toyWin.setPosition(nx, ny); lx = nx; ly = ny; }
+        if (nx !== lx || ny !== ly) { toyWin.setBounds({ x: nx, y: ny, width: s, height: s }); lx = nx; ly = ny; }   // (the whole box each time: moving only the position let Windows grow it on a scaled screen, and the toy crept off the pointer)
         if (!toyWin.isVisible()) toyWin.showInactive();
         const now = Date.now();
         if (now - top > 300) { top = now; toyWin.moveTop(); }
@@ -785,7 +785,9 @@ function start() {
   let chasing = false, chaseUntil = 0, chaseClicked = false;
   const LASER_PX = 30;
   // the dot: a soft breathing glow round a bright core that flickers and trembles a little, like a real laser in a hand (the same look as .laser-dot in styles.css)
-  const LASER_PAGE = 'data:text/html;charset=utf-8,' + encodeURIComponent('<!doctype html><style>body{margin:0;background:transparent;overflow:hidden;display:grid;place-items:center;height:100vh}b{position:absolute;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle,rgba(255,60,90,.6) 0,rgba(255,43,85,.22) 45%,transparent 70%);animation:g 1.1s ease-in-out infinite}i{position:relative;width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#fff 0 16%,#ff6a86 38%,#ff1f4b 75%);box-shadow:0 0 6px 2px rgba(255,43,85,.8);animation:j .14s steps(2) infinite}@keyframes g{50%{scale:1.3;opacity:.7}}@keyframes j{25%{translate:.6px -.4px;opacity:.85}50%{translate:-.5px .5px}75%{translate:.3px .6px;opacity:.9}}</style><b></b><i></i>');
+  // (the dot is drawn at a fixed spot from the window's top left corner, not centred: on a scaled screen Windows can make a window that is moved
+  // again and again a pixel bigger each time, and a centred dot then crept away from the pointer)
+  const LASER_PAGE = 'data:text/html;charset=utf-8,' + encodeURIComponent('<!doctype html><style>body{margin:0;background:transparent;overflow:hidden}b,i{position:absolute;border-radius:50%}b{left:3px;top:3px;width:24px;height:24px;background:radial-gradient(circle,rgba(255,60,90,.6) 0,rgba(255,43,85,.22) 45%,transparent 70%);animation:g 1.1s ease-in-out infinite}i{left:10px;top:10px;width:10px;height:10px;background:radial-gradient(circle at 40% 40%,#fff 0 16%,#ff6a86 38%,#ff1f4b 75%);box-shadow:0 0 6px 2px rgba(255,43,85,.8);animation:j .14s steps(2) infinite}@keyframes g{50%{scale:1.3;opacity:.7}}@keyframes j{25%{translate:.6px -.4px;opacity:.85}50%{translate:-.5px .5px}75%{translate:.3px .6px;opacity:.9}}</style><b></b><i></i>');
   ipcMain.on('desk:chaseStop', () => { if (chasing) { chaseUntil = 0; chaseClicked = true; } });   // (clicked: he was caught, so he does not look round for the dot)
   ipcMain.handle('desk:chaseStart', async (_e, ms) => {
     if (!win || mode !== 'pet' || dragFrom || chasing || !wanderMode()) return false;
@@ -832,7 +834,8 @@ function start() {
           win.setBounds({ x: Math.round(p.x), y: Math.round(p.y), width: b0.width, height: b0.height });
           if (!dotWin.isDestroyed()) {
             const nx = Math.round(c.x - ds / 2), ny = Math.round(c.y - ds / 2);
-            if (!dotAt) dotWin.setBounds({ x: nx, y: ny, width: ds, height: ds }); else if (dotAt.x !== nx || dotAt.y !== ny) dotWin.setPosition(nx, ny);
+            // (its whole box is set every time: setting only the position let Windows grow it on a scaled screen)
+            if (!dotAt || dotAt.x !== nx || dotAt.y !== ny) dotWin.setBounds({ x: nx, y: ny, width: ds, height: ds });
             dotAt = { x: nx, y: ny };
             if (!dotWin.isVisible()) dotWin.showInactive();
             if (now - topAt > 300) { topAt = now; dotWin.moveTop(); }

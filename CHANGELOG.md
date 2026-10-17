@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 703
+- Laser dot: the dot stays on the pointer
+- Laser dot: his face goes back to normal after you catch him
+
 ## Build 702
 - Night bell: no blink when it is picked up
 - Night bell: the clapper is no longer cut off while held

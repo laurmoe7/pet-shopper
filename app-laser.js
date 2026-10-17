@@ -88,7 +88,7 @@ function laserDone() {
   ['--look-x', '--look-y', '--lean'].forEach(function (v) { pet.style.removeProperty(v); });
   playing = false;
   busy--;
-  if (!busy) settle();
+  if (!busy || /^(sparkle|squint)$/.test(pet.dataset.eyes)) settle();   // (never left with the game's star or squinting eyes)
 }
 /** He looks round for the dot that went out: left, right, a puzzled tilt. @param {Element} el @returns {Promise} */
 function laserLost(el, st, talkAt) {
@@ -137,6 +137,7 @@ window.addEventListener('pointerdown', function (e) {
   if (!laserOn || !laserOn.desk || !e.target.closest || !e.target.closest('#pet')) return;
   e.stopImmediatePropagation(); e.preventDefault();
   if (window.nibbleDesktop.chaseStop) window.nibbleDesktop.chaseStop();
+  laserTired();   // (he does not look round for it: straight to his tired, happy face for the drop and the walk home)
   say(pick(['you caught me!', 'okay okay, I\'m done~', 'hehe, that was fun!']), 1500, true);
 }, true);
 
