@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 704
+- Laser dot: the dot no longer turns into the pen
+
 ## Build 703
 - Laser dot: the dot stays on the pointer
 - Laser dot: his face goes back to normal after you catch him

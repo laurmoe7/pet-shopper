@@ -729,6 +729,7 @@ function start() {
     return { wx: b.x, wy: b.y, zoom: zoom(), area: screen.getDisplayMatching(b).workArea };
   });
   ipcMain.on('desk:toyShow', (_e, dataUrl, px) => {
+    if (chasing) return;   // (the window shows the laser dot: a toy picture must not replace it)
     if (!win || mode !== 'pet' || !toyRoamOn() || typeof dataUrl !== 'string' || dataUrl.length > 80000 || !/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(dataUrl)) return;
     px = Math.max(16, Math.min(220, Math.round(+px || 32)));
     const w = toyWindow(px + 24);

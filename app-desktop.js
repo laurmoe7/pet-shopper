@@ -436,8 +436,10 @@
   /** Called when the toy is picked up: if the switch is on, from now on it can go anywhere on the screen. */
   /** Makes the toy's picture and loads it into the toy window ahead of time, so picking the toy up shows it at once. */
   window.deskToyWarm = function () {
-    if (!isPet() || deskPrefs.toyRoam !== true || !D.toyField || !D.toyShow) return;
-    Promise.all([D.toyField(), toyPicture()]).then(function (r) { if (r[0] && r[1]) D.toyShow(r[1], Math.round(32 * (r[0].zoom || 1))); });
+    // (not for the laser pen, which is never thrown: its window shows the red dot, and loading the pen into it mid-chase turned the dot into the pen)
+    function laserNow() { return toyKind() === 'laser' || (typeof laserOn !== 'undefined' && laserOn); }
+    if (!isPet() || deskPrefs.toyRoam !== true || !D.toyField || !D.toyShow || laserNow()) return;
+    Promise.all([D.toyField(), toyPicture()]).then(function (r) { if (r[0] && r[1] && !laserNow()) D.toyShow(r[1], Math.round(32 * (r[0].zoom || 1))); });
   };
   setTimeout(window.deskToyWarm, 4000);
   window.deskToyField = function () {
