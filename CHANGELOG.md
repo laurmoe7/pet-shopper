@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 698
+- Ring menu: buttons evenly spaced on one smooth curve
+
 ## Build 697
 - Ring menu: laser dot icon fixed
 - Ring menu: icons get a light edge on dark themes

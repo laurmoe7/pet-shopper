@@ -119,35 +119,42 @@
     // towards the middle of the screen so every button stays visible
     var cs = getComputedStyle(document.documentElement), vl = parseFloat(cs.getPropertyValue('--vis-l')) || 0;
     var vr = /vw/.test(cs.getPropertyValue('--vis-r')) || !cs.getPropertyValue('--vis-r') ? window.innerWidth : parseFloat(cs.getPropertyValue('--vis-r'));
-    var minX = vl - sr.left + 22, maxX = vr - sr.left - 22;
-    function okAt(a, r) { var x = center.x + Math.cos(a * Math.PI / 180) * r; return x >= minX && x <= maxX; }
-    // the angles (from low on his left, over his head, to low on his right: -218 to 38 degrees) where a button fits on screen: the longest unbroken run of them. If the run is too
-    // short for a ring, every other button goes on a second, wider ring so they fan out in two rows instead of piling up.
-    var R2 = center.r + 36, pref = n > 4 ? 30 : 34, plan = null;
-    for (var stag = 0; stag < 2 && !plan; stag++) {
-      var lo = 0, hi = -1, runLo = null;
-      for (var a = -218; a <= 38; a++) {
-        var ok = okAt(a, center.r) && (!stag || okAt(a, R2));
-        if (ok && runLo === null) runLo = a;
-        if (runLo !== null && (!ok || a === 38)) {
-          var end = ok ? a : a - 1;
-          if (end - runLo > hi - lo || hi < lo) { lo = runLo; hi = end; }
-          runLo = null;
-        }
-      }
-      if (hi < lo) continue;
-      var room = hi - lo, g = n > 1 ? Math.min(pref, room / (n - 1)) : 0;
-      if (n > 1 && !stag && g < 28) continue;   // too tight for one ring: try two
-      plan = { gap: g, start: (lo + hi) / 2 - g * (n - 1) / 2, stag: stag };
+    var minX = vl - sr.left + 22, maxX = vr - sr.left - 22, minY = 22, maxY = sr.height - 22;
+    // one even arc: the buttons are always the same distance apart along one curve (never pushed one by one against an edge, which left
+    // them bunched and crooked). Without room above him the curve gets flatter instead of covering his head; near the side of the screen
+    // the buttons move round it towards the middle, and if they still do not fit the whole curve slides over as one piece.
+    var R = Math.max(92, Math.min(116, pr.width * 0.64)), PITCH = 54;   // (54 px from one button's middle to the next)
+    var Ry = Math.min(R, center.y - minY);
+    if (Ry < R * 0.6) { center.y += R * 0.6 - Ry; Ry = R * 0.6; }
+    var pts = [], len = 0, mid = 0;   // the curve, from low on his left (-215 degrees) over his head to low on his right (35), with the length along it
+    for (var t = -215; t <= 35; t += 0.5) {
+      var px = center.x + Math.cos(t * Math.PI / 180) * R, py = center.y + Math.sin(t * Math.PI / 180) * Ry;
+      if (pts.length) len += Math.hypot(px - pts[pts.length - 1].x, py - pts[pts.length - 1].y);
+      if (t === -90) mid = len;
+      pts.push({ x: px, y: py, s: len });
     }
-    if (!plan) plan = { gap: 24, start: -90 - 12 * (n - 1), stag: 0 };
+    function at(sv) { var j = 0; while (j < pts.length - 1 && pts[j + 1].s < sv) j++; return pts[Math.max(0, Math.min(pts.length - 1, j))]; }
+    function spots(shift) { var out = []; for (var i = 0; i < n; i++) out.push(at(mid + shift + PITCH * (i - (n - 1) / 2))); return out; }
+    var half = PITCH * (n - 1) / 2, shift = 0, sp = spots(0);
+    for (var turn = 0; turn < 400; turn++) {   // move round the curve away from an edge it crosses, as far as the curve goes
+      var lo = Math.min.apply(null, sp.map(function (q) { return q.x; })), hi = Math.max.apply(null, sp.map(function (q) { return q.x; }));
+      if (lo < minX && mid + shift + half + 2 <= len) shift += 2;
+      else if (hi > maxX && mid + shift - half - 2 >= 0) shift -= 2;
+      else break;
+      sp = spots(shift);
+    }
+    var slide = 0, xs = sp.map(function (q) { return q.x; });
+    if (Math.min.apply(null, xs) < minX) slide = minX - Math.min.apply(null, xs);
+    else if (Math.max.apply(null, xs) > maxX) slide = maxX - Math.max.apply(null, xs);
+    var drop = Math.max(0, Math.max.apply(null, sp.map(function (q) { return q.y; })) - maxY);
+    center.r = R;
+    var plan = sp.map(function (q) { return { x: q.x + slide, y: q.y - drop }; });
     names.forEach(function (name, i) {
       var it = ITEMS[name], b = document.createElement('button');
       b.type = 'button'; b.className = 'ring-btn'; b.setAttribute('role', 'menuitem'); b.title = it.label; b.setAttribute('aria-label', it.label);
       if (it.on) b.setAttribute('aria-pressed', it.on() ? 'true' : 'false');
-      var ang = (plan.start + plan.gap * i) * Math.PI / 180, rad = plan.stag && i % 2 ? R2 : center.r;
-      var x = Math.max(minX, Math.min(maxX, center.x + Math.cos(ang) * rad)), y = Math.max(20, Math.min(sr.height - 20, center.y + Math.sin(ang) * rad));
-      b.style.left = (x - 17) + 'px'; b.style.top = (y - 17) + 'px'; b.style.setProperty('--i', i);
+      var x = plan[i].x, y = plan[i].y;
+      b.style.left = Math.round(x - 18) + 'px'; b.style.top = Math.round(y - 18) + 'px'; b.style.setProperty('--i', i);
       b.appendChild(emojiImg(it.icon, ''));
       b.addEventListener('click', function (e) {
         e.stopPropagation();
