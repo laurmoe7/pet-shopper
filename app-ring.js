@@ -67,7 +67,6 @@
 
   /** Everything the ring can offer. `on` is for switches. */
   var ITEMS = {
-    ball: { icon: '⚽', label: 'Play ball', run: function () { if (!busy && typeof playToy === 'function') playToy(); } },
     toys: { icon: '🧸', label: 'Toy', keep: true, run: function () { openMenu('toys'); } },   // (opens a second ring with the toy choices)
     toyNone: { icon: '🚫', label: 'No toy', on: function () { return toyKind() === 'none'; }, run: function () { setToyKind('none'); } },
     toyBall: { icon: '⚽', label: 'Default toy', on: function () { return toyKind() === 'ball'; }, run: function () { setToyKind('ball'); } },
@@ -98,7 +97,7 @@
     var wx = typeof wxConf === 'function' && wxConf().want ? ['weather'] : [];   // (the report is offered while the weather option is on; with no place picked yet he says so when it is pressed)
     if (!isDesk()) return scene === 'night-bed' ? [] : ['toys', 'snack'].concat(wx, snd);   // in the app: the toy circle and a snack; in bed they are put away
     if (scene === 'night-bed') return ['night'];   // in bed: only the night light
-    var play = toyKind() === 'none' ? [] : toyKind() === 'laser' ? ['laser'] : ['ball'];   // (nothing to play with when there is no toy)
+    var play = toyKind() === 'laser' ? ['laser'] : [];   // (the ball is played with by tapping or throwing it; the laser dot keeps a start button)
     if (scene.indexOf('night-drowsy') === 0) return play.concat(['toys', 'snack'], wx, snd, ['swap', 'lights']);
     return play.concat(['toys', 'snack'], wx, snd, ['swap']);
   }

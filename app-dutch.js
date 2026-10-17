@@ -217,7 +217,7 @@ Object.assign(Dutch, {
   'Nothing noted yet. Tick something off or add an item.': 'Nog niets genoteerd. Vink iets af of voeg een item toe.', 'Nothing saved yet. Dress up, name the outfit and save it here.': 'Nog niets bewaard. Kleed je huisdier aan, geef de outfit een naam en bewaar hem hier.',
   'Pink studio': 'Roze studio', 'Tap “+ date/time” on a task to set when it\'s due, a time and a repeat. Tap its emoji, or long-press it, to pick a different one.': 'Tik op “+ datum/tijd” bij een taak om te kiezen wanneer hij klaar moet zijn, een tijd en een herhaling. Tik op de emoji, of houd hem ingedrukt, voor een andere.',
   'has nothing to do! Add a task, like "call mum", then tap it to give it a date, a time or a repeat.': 'heeft niets te doen! Voeg een taak toe, zoals "mama bellen", en tik erop voor een datum, tijd of herhaling.',
-  'to-do list': 'takenlijst', 'touch your toes!': 'raak je tenen aan!', 'wiggle wiggle~': 'wiebel wiebel~', 'yaaay!': 'jaaa!', '★ {x}': '★ {x}', '{x} skin': '{x}-uiterlijk', 'Wrecking ball': 'Sloopkogel'
+  'to-do list': 'takenlijst', 'touch your toes!': 'raak je tenen aan!', 'wiggle wiggle~': 'wiebel wiebel~', 'yaaay!': 'jaaa!', '★ {x}': '★ {x}', '{x} skin': '{x}-uiterlijk', 'Wrecking ball': 'Sloopkogel', 'Laser dot': 'Laserstip'
 });
 Object.assign(Dutch, { 'Check off {x}': 'Vink {x} af', 'Change emoji for {x}': 'Emoji van {x} veranderen' });
 
