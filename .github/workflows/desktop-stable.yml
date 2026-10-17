@@ -23,8 +23,7 @@ permissions:
 jobs:
   windows:
     runs-on: windows-latest
-    # the release waits for Lauren's approval when the "release" environment has her as a required reviewer (desktop/README.md, "Releases need a click")
-    environment: release
+    # no approval step: Lauren chose (October 2026) that Windows installers release by themselves; only the Android APK waits (android.yml)
     defaults:
       run:
         working-directory: desktop
