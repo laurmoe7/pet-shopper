@@ -3117,7 +3117,7 @@ html.desktop-pet .stage.bed-settle { transition: rotate .6s cubic-bezier(.3, 1.3
 .ring { position: absolute; inset: 0; z-index: 9; pointer-events: none; }
 .ring[hidden] { display: none; }
 .ring-btn { position: absolute; width: 34px; height: 34px; padding: 5px; border: 1.8px solid var(--outline); border-radius: 50%; background: var(--surface); box-shadow: 0 2px 0 var(--outline); cursor: pointer; pointer-events: auto; animation: ring-pop .28s cubic-bezier(.3, 1.6, .5, 1) both; animation-delay: calc(var(--i, 0) * 40ms); -webkit-tap-highlight-color: transparent; }
-.ring-btn img { display: block; width: 100%; height: 100%; pointer-events: none; }
+.ring-btn img { display: block; width: 100%; height: 100%; pointer-events: none; filter: drop-shadow(0 0 .6px #fff8ee) drop-shadow(0 0 .6px #fff8ee) drop-shadow(0 0 .4px #fff8ee); }   /* (a cream sticker edge: the cocoa outlines vanish on a dark ring) */
 .ring-btn:hover { background: #fff4d6; translate: 0 -2px; }
 .ring-btn:active { translate: 0 1px; box-shadow: none; }
 .ring-btn[aria-pressed="true"] { background: #ffe3a8; box-shadow: 0 0 10px 3px rgba(255, 205, 120, .7), 0 2px 0 var(--outline); }

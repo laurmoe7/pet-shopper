@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 697
+- Ring menu: laser dot icon fixed
+- Ring menu: icons get a light edge on dark themes
+
 ## Build 696
 - Ring menu: Play ball button removed
 
