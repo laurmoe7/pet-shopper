@@ -233,7 +233,7 @@ function chaseStep(p, to, dt, max, K) {
 
 /**
  * The laser dot's chase rules, one step: he chases while the dot moves; once it has sat still near him he stalks it (backs off, wiggles),
- * then pounces on it and holds it until it moves away. The same rules as laserRule in app-laser.js: keep them in step.
+ * then pounces on it and holds it, following it while it is dragged slowly, until it darts away. The same rules as laserRule in app-laser.js: keep them in step.
  * @param {Object} st {phase, at, stillAt, holdX, holdY}, changed in place. @param {{now:number,x:number,y:number,speed:number,gap:number}} inp
  *   The time (ms), the dot (px), how fast it moves (px/s) and how far he is from his chasing spot (px).
  * @returns {string} chase, stalk, pounce or caught.
@@ -242,11 +242,12 @@ function laserPhase(st, inp) {
   var t = inp.now;
   if (!st.phase) { st.phase = 'chase'; st.at = t; st.stillAt = t; }
   if (inp.speed > 60) st.stillAt = t;
-  function to(ph) { st.phase = ph; st.at = t; if (ph === 'pounce') { st.holdX = inp.x; st.holdY = inp.y; } }
+  function to(ph) { st.phase = ph; st.at = t; if (ph === 'pounce' || ph === 'stalk') { st.holdX = inp.x; st.holdY = inp.y; } }
   if (st.phase === 'chase') { if (t - st.stillAt > 450 && inp.gap < 46) to('stalk'); }
-  else if (st.phase === 'stalk') { if (inp.speed > 260) to('chase'); else if (t - st.at > 900) to('pounce'); }
+  else if (st.phase === 'stalk') { if (inp.speed > 260 || Math.hypot(inp.x - st.holdX, inp.y - st.holdY) > 30) to('chase'); else if (t - st.at > 900) to('pounce'); }
   else if (st.phase === 'pounce') { if (t - st.at > 300) to('caught'); }
-  else if (st.phase === 'caught') { if (Math.hypot(inp.x - st.holdX, inp.y - st.holdY) > 70) to('chase'); }
+  // holding it: a slow drag takes him along with it (so he never falls behind a dot that creeps away); a quick move frees it
+  else if (st.phase === 'caught') { if (inp.speed > 450 || Math.hypot(inp.x - st.holdX, inp.y - st.holdY) > 90) to('chase'); else { st.holdX = inp.x; st.holdY = inp.y; } }
   return st.phase;
 }
 

@@ -433,3 +433,16 @@ test('the laser game: chase while the dot moves, stalk then pounce when it stops
   t = 1900; assert.equal(at(40, 300, 0), 'caught', 'a nudge does not free it');
   t = 1950; assert.equal(at(120, 900, 80), 'chase');
 });
+
+test('the laser game: a slow drag takes him along while he holds it, and a dot that creeps off while he stalks is chased again', () => {
+  const st = {};
+  let t = 0;
+  const at = (x, speed, gap) => P.laserPhase(st, { now: t, x, y: 100, speed, gap });
+  at(0, 900, 300); t = 500; at(0, 0, 20); t = 1500; at(0, 0, 20); t = 1850; assert.equal(at(0, 0, 0), 'caught');
+  for (let i = 1; i <= 20; i++) { t += 50; assert.equal(at(i * 8, 160, 0), 'caught'); }
+  assert.equal(st.holdX, 160, 'he holds it where it is now, 160 px on');
+  const s2 = {};
+  t = 0; P.laserPhase(s2, { now: t, x: 0, y: 0, speed: 900, gap: 300 });
+  t = 500; assert.equal(P.laserPhase(s2, { now: t, x: 0, y: 0, speed: 0, gap: 20 }), 'stalk');
+  t = 700; assert.equal(P.laserPhase(s2, { now: t, x: 40, y: 0, speed: 120, gap: 30 }), 'chase');
+});

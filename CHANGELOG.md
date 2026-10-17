@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 701
+- Laser dot: he keeps up with a slowly moving dot
+- Laser dot: a proper walk home with a tired, happy face
+
 ## Build 700
 - Laser dot: he holds the dot in front of him
 

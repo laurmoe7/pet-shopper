@@ -72,6 +72,13 @@ function laserStart() {
   setFace(LASER_FACES.chase);
   eyesDo('wide');
 }
+/** The game is over but he still has to get home: the laser moves come off and he looks happy and out of breath. */
+function laserTired() {
+  if (laserOn) laserOn.home = true;
+  LASER_CLASSES.forEach(function (c) { pet.classList.remove(c); });
+  ['--look-x', '--look-y', '--lean'].forEach(function (v) { pet.style.removeProperty(v); });
+  setFace({ eyes: 'happy', mouth: 'open', arms: 'idle', x: ['cheeks', 'sweat'] });
+}
 /** The chase is over: back to normal. */
 function laserDone() {
   laserOn = null;
@@ -108,7 +115,15 @@ function laserDesk() {
 if (window.nibbleDesktop && window.nibbleDesktop.onChase) window.nibbleDesktop.onChase(function (vx, vy, face, phase, floor, dx, dy) {
   if (!laserOn || !laserOn.desk) return;
   if (typeof phase !== 'string') phase = phase ? 'caught' : 'chase';   // (an installer from before build 699 only says whether he is on the dot)
-  if (phase === 'lost') { if (laserOn.shown !== 'lost') { pet.classList.remove('walking', 'running'); laserLost(pet, laserOn); } return; }
+  if (phase === 'lost') {
+    if (laserOn.shown !== 'lost') {
+      pet.classList.remove('walking', 'running', 'falling');
+      laserLean(pet, 0);
+      // then he gives up: his own moves again (the walk home needs them) and a tired, happy face for the drop and the run back
+      laserLost(pet, laserOn).then(function () { if (laserOn && laserOn.desk) laserTired(); });
+    }
+    return;
+  }
   if (phase !== laserOn.shown) laserPhaseShow(pet, phase, laserOn);
   if (dx === undefined) pet.style.setProperty('--look-x', (face < 0 ? -3.2 : 3.2) + 'px'); else laserEyes(pet, dx, dy);
   laserLean(pet, phase === 'chase' && !floor ? vx : 0);
@@ -135,11 +150,12 @@ function laserRule(st, inp) {
   var t = inp.now;
   if (!st.phase) { st.phase = 'chase'; st.at = t; st.stillAt = t; }
   if (inp.speed > 60) st.stillAt = t;
-  function to(ph) { st.phase = ph; st.at = t; if (ph === 'pounce') { st.holdX = inp.x; st.holdY = inp.y; } }
+  function to(ph) { st.phase = ph; st.at = t; if (ph === 'pounce' || ph === 'stalk') { st.holdX = inp.x; st.holdY = inp.y; } }
   if (st.phase === 'chase') { if (t - st.stillAt > 450 && inp.gap < 46) to('stalk'); }
-  else if (st.phase === 'stalk') { if (inp.speed > 260) to('chase'); else if (t - st.at > 900) to('pounce'); }
+  else if (st.phase === 'stalk') { if (inp.speed > 260 || Math.hypot(inp.x - st.holdX, inp.y - st.holdY) > 30) to('chase'); else if (t - st.at > 900) to('pounce'); }
   else if (st.phase === 'pounce') { if (t - st.at > 300) to('caught'); }
-  else if (st.phase === 'caught') { if (Math.hypot(inp.x - st.holdX, inp.y - st.holdY) > 70) to('chase'); }
+  // holding it: a slow drag takes him along with it (so he never falls behind a dot that creeps away); a quick move frees it
+  else if (st.phase === 'caught') { if (inp.speed > 450 || Math.hypot(inp.x - st.holdX, inp.y - st.holdY) > 90) to('chase'); else { st.holdX = inp.x; st.holdY = inp.y; } }
   return st.phase;
 }
 
@@ -205,14 +221,15 @@ function laserPage() {
     var cs0 = fit(d.x - face * bw * 0.5 - c0.x, d.y + bh * 0.18 - c0.y);
     var ph = laserRule(st, { now: now, x: d.x, y: d.y, speed: dSpeed, gap: Math.hypot(cs0.x - p.x, cs0.y - p.y) });
     if (ph === 'chase') { if (d.x > cx + bw * 0.3) face = 1; else if (d.x < cx - bw * 0.3) face = -1; }   // (a little slack, so he does not flip back and forth)
-    if (ph === 'pounce' && st.shown !== 'pounce') {   // he holds it in front of him: from the side that has room for him at the edge of the page
+    if ((ph === 'pounce' && st.shown !== 'pounce') || ph === 'caught') {   // he holds it in front of him: from the side that has room for him at the edge of the page (also while it is dragged there)
       var want = st.holdX - face * bw * 0.6 - c0.x;
       if (Math.abs(fit(want, 0).x - want) > 4) face = -face;
     }
     // where he wants to be: behind and below the dot while chasing (it is in front of his face), backed off and low while stalking, the dot held just in front of him once he pounces
     var sx = -0.5, sy = 0.18, max = 1300, K = 40, hx = d.x, hy = d.y;
-    if (ph === 'stalk') { sx = -0.72; sy = 0.24; max = 70; }
-    else if (ph === 'pounce' || ph === 'caught') { sx = -0.6; sy = 0.1; max = 2400; K = 110; hx = st.holdX; hy = st.holdY; }
+    if (ph === 'stalk') { sx = -0.62; sy = 0.22; max = 70; }
+    else if (ph === 'pounce') { sx = -0.6; sy = 0.1; max = 2400; K = 110; hx = st.holdX; hy = st.holdY; }
+    else if (ph === 'caught') { sx = -0.6; sy = 0.1; max = 600; hx = st.holdX; hy = st.holdY; }
     var tg = fit(hx + face * bw * sx - c0.x, hy + bh * sy - c0.y);
     laserStep(p, tg.x, tg.y, dt, max, K);
     gs.style.transform = 'translate(' + p.x.toFixed(1) + 'px,' + p.y.toFixed(1) + 'px)';

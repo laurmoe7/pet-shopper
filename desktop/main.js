@@ -810,15 +810,16 @@ function start() {
           const chaseTo = { x: c.x - face * bw * 0.5 - mid, y: c.y + bh * 0.18 - midY };
           const ph = place.laserPhase(game, { now, x: c.x, y: c.y, speed: dotSpeed, gap: Math.hypot(chaseTo.x - p.x, chaseTo.y - p.y) });
           if (ph === 'chase') { if (c.x > p.x + mid + bw * 0.3) face = 1; else if (c.x < p.x + mid - bw * 0.3) face = -1; }   // (a little slack, so he does not flip back and forth)
-          if (ph === 'pounce' && game.faced !== game.at) {   // he holds it in front of him: from the side that has room for him at the edge of the screens
+          if ((ph === 'pounce' && game.faced !== game.at) || ph === 'caught') {   // he holds it in front of him: from the side that has room for him at the edge of the screens (also while it is dragged there)
             game.faced = game.at;
             const wx = game.holdX - face * bw * 0.6 - mid;
             if (wx < box.x - bi.l || wx > box.r - bi.r) face = -face;
           }
           // behind and below the dot while chasing (it is in front of his face), backed off and low while stalking, the dot held just in front of him once he pounces
           let to = chaseTo, max = 1500, K = 40;
-          if (ph === 'stalk') { to = { x: c.x - face * bw * 0.72 - mid, y: c.y + bh * 0.24 - midY }; max = 80; }
-          else if (ph === 'pounce' || ph === 'caught') { to = { x: game.holdX - face * bw * 0.6 - mid, y: game.holdY + bh * 0.1 - midY }; max = 2600; K = 110; }
+          if (ph === 'stalk') { to = { x: c.x - face * bw * 0.62 - mid, y: c.y + bh * 0.22 - midY }; max = 80; }
+          else if (ph === 'pounce') { to = { x: game.holdX - face * bw * 0.6 - mid, y: game.holdY + bh * 0.1 - midY }; max = 2600; K = 110; }
+          else if (ph === 'caught') { to = { x: game.holdX - face * bw * 0.6 - mid, y: game.holdY + bh * 0.1 - midY }; max = 700; }   // (a slow drag takes him along)
           place.chaseStep(p, to, dt, max, K);
           // never out of the screens, and never below the floor (the top of the taskbar)
           if (p.x < box.x - bi.l) { p.x = box.x - bi.l; p.vx = Math.max(0, p.vx); }

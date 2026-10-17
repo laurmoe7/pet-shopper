@@ -1259,6 +1259,7 @@
   var fallDizzy = false;   // knocked off a window: dizzy eyes from the moment he drops, and they are not wiped when he lands
   if (D.onFall) D.onFall(function (on, dizzy) {
     pet.classList.toggle('falling', on);
+    if (on && typeof laserOn !== 'undefined' && laserOn) return;   // (dropping after the laser game: he keeps his tired, happy face; app-laser.js)
     if (on) { dizzy = dizzy || Date.now() - leftPerchAt < 700; fallDizzy = !!dizzy; setFace(dizzy ? { eyes: 'dizzy', mouth: 'o', arms: 'idle', x: ['sweat'] } : { eyes: 'sparkle', mouth: 'o', arms: 'idle', x: [] }); }
     else { if (!busy && !fallDizzy) settle(); fallDizzy = false; }
   });
