@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 700
+- Laser dot: he holds the dot in front of him
+
 ## Build 699
 - Ring menu: toys only in the toy circle; picking the laser dot starts it
 - Laser dot: he stalks, wiggles, pounces and holds the dot like a cat

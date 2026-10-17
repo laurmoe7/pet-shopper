@@ -1,16 +1,11 @@
 name: Build the Android app
 
-# By hand: Actions > "Build the Android app" > Run workflow.
+# Only by hand (Lauren asks for an APK; a push never builds one): Actions > "Build the Android app" > Run workflow.
 # Publishes a pre-release (never the latest one: dev installs of the Windows app follow the latest release)
 # with a debug-signed APK for testing on a phone. The app loads from the web, so only this folder
 # (android/) needs a new APK.
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'android/**'
-      - '.github/workflows/android.yml'
 
 permissions:
   contents: write

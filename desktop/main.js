@@ -810,10 +810,10 @@ function start() {
           const chaseTo = { x: c.x - face * bw * 0.5 - mid, y: c.y + bh * 0.18 - midY };
           const ph = place.laserPhase(game, { now, x: c.x, y: c.y, speed: dotSpeed, gap: Math.hypot(chaseTo.x - p.x, chaseTo.y - p.y) });
           if (ph === 'chase') { if (c.x > p.x + mid + bw * 0.3) face = 1; else if (c.x < p.x + mid - bw * 0.3) face = -1; }   // (a little slack, so he does not flip back and forth)
-          // behind and below the dot while chasing (it is in front of his face), backed off and low while stalking, the dot under his front paws once he pounces
+          // behind and below the dot while chasing (it is in front of his face), backed off and low while stalking, the dot held just in front of him once he pounces
           let to = chaseTo, max = 1500, K = 40;
           if (ph === 'stalk') { to = { x: c.x - face * bw * 0.72 - mid, y: c.y + bh * 0.24 - midY }; max = 80; }
-          else if (ph === 'pounce' || ph === 'caught') { to = { x: game.holdX - face * bw * 0.12 - mid, y: game.holdY - bh * 0.3 - midY }; max = 2600; K = 110; }
+          else if (ph === 'pounce' || ph === 'caught') { to = { x: game.holdX - face * bw * 0.6 - mid, y: game.holdY + bh * 0.1 - midY }; max = 2600; K = 110; }
           place.chaseStep(p, to, dt, max, K);
           // never out of the screens, and never below the floor (the top of the taskbar)
           if (p.x < box.x - bi.l) { p.x = box.x - bi.l; p.vx = Math.max(0, p.vx); }

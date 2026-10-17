@@ -205,10 +205,10 @@ function laserPage() {
     var cs0 = fit(d.x - face * bw * 0.5 - c0.x, d.y + bh * 0.18 - c0.y);
     var ph = laserRule(st, { now: now, x: d.x, y: d.y, speed: dSpeed, gap: Math.hypot(cs0.x - p.x, cs0.y - p.y) });
     if (ph === 'chase') { if (d.x > cx + bw * 0.3) face = 1; else if (d.x < cx - bw * 0.3) face = -1; }   // (a little slack, so he does not flip back and forth)
-    // where he wants to be: behind and below the dot while chasing (it is in front of his face), backed off and low while stalking, the dot under his front paws once he pounces
+    // where he wants to be: behind and below the dot while chasing (it is in front of his face), backed off and low while stalking, the dot held just in front of him once he pounces
     var sx = -0.5, sy = 0.18, max = 1300, K = 40, hx = d.x, hy = d.y;
     if (ph === 'stalk') { sx = -0.72; sy = 0.24; max = 70; }
-    else if (ph === 'pounce' || ph === 'caught') { sx = -0.12; sy = -0.3; max = 2400; K = 110; hx = st.holdX; hy = st.holdY; }
+    else if (ph === 'pounce' || ph === 'caught') { sx = -0.6; sy = 0.1; max = 2400; K = 110; hx = st.holdX; hy = st.holdY; }
     var tg = fit(hx + face * bw * sx - c0.x, hy + bh * sy - c0.y);
     laserStep(p, tg.x, tg.y, dt, max, K);
     gs.style.transform = 'translate(' + p.x.toFixed(1) + 'px,' + p.y.toFixed(1) + 'px)';
