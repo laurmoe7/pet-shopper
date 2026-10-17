@@ -165,7 +165,12 @@ function bellOut() { return L.isNight(petNow()) && !bellBroken && stage.classLis
 /** Where it rests: tucked into his bed beside him (when the bed is out), otherwise on the floor. */
 function bellRest() { var side = roomOnRight(120) ? 1 : -1; return stage.classList.contains('bedtime') ? { x: 100 * side, y: 20, tilt: 18 * side } : { x: -128, y: 0, tilt: 0 }; }
 function placeBell(turn, clap) {
-  if (bellField && bellHeld) { bellField.show(bellX, bellY, turn || 0); bell.style.visibility = 'hidden'; return; }   // held out in the screen-wide field: the bell is drawn by the window of its own
+  if (bellField && bellHeld) {   // held out in the screen-wide field: the bell is drawn by the window of its own
+    bellField.show(bellX, bellY, turn || 0);
+    // (the page's own bell stays a moment longer, until that window has surely drawn it: hiding it at once left a blink with no bell at all)
+    if (!bellField.since) bellField.since = performance.now();
+    if (performance.now() - bellField.since > 160) { bell.style.visibility = 'hidden'; return; }
+  }
   bell.style.translate = Math.round(bellX) + 'px 0'; bellImg.style.transform = 'translateY(' + (-bellY).toFixed(1) + 'px)'; bellSvg.style.rotate = (turn || 0).toFixed(1) + 'deg'; bellClap.style.rotate = (clap || 0).toFixed(1) + 'deg'; }
 /** Puts it back where it rests (a short hop), tilted, behind the front of the bed. */
 function bellNest(quick) {

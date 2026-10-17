@@ -714,6 +714,8 @@ function start() {
       toyWin.setIgnoreMouseEvents(true);
       toyWin.setAlwaysOnTop(true, 'screen-saver');
       toyImg = ''; toyPx = 0;
+      // shown at once, far off the screen: from then on it is only ever moved, never shown, so Windows never plays its fade-in when a toy or the bell is picked up (it blinked)
+      try { toyWin.setBounds({ x: -10000, y: -10000, width: px, height: px }); toyWin.showInactive(); } catch (e) { /* gone */ }
     }
     return toyWin;
   }

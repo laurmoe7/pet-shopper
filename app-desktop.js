@@ -375,10 +375,12 @@
    */
   window.deskFlyField = function (svg, w, h) {
     if (deskPrefs.toyRoam !== true || !isPet() || !D.toyField || !D.toyShow) return Promise.resolve(null);
-    return Promise.all([D.toyField(), svgPicture(svg, w, h)]).then(function (r) {
+    // (4 units of room round it: the bell's clapper hangs below its box and was cut off; the picture grows to match, so the bell keeps its size)
+    var big = 2 * Math.max(w, h) + 16;
+    return Promise.all([D.toyField(), svgPicture(svg, w, h, big, 4)]).then(function (r) {
       var f = r[0], png = r[1];
       if (!f || !png) return null;
-      D.toyShow(png, Math.round(48 * (f.zoom || 1)));
+      D.toyShow(png, Math.round(big / 2 * (f.zoom || 1)));
       return (D.toyReady ? D.toyReady() : Promise.resolve()).then(function () { return r; });
     }).then(function (r) {
       if (!r) return null;
@@ -406,9 +408,13 @@
       };
     });
   };
-  /** @returns {Promise<string>} A drawing as a small square PNG (its colours read from the page's CSS), centred, for the window that draws a flying thing. */
-  function svgPicture(svg, w, h, size) {
+  /**
+   * @returns {Promise<string>} A drawing as a small square PNG (its colours read from the page's CSS), centred, for the window that draws a flying thing.
+   * @param {number} [pad] Units of room round the drawing's own box, for parts that hang out of it (the bell's clapper): kept centred, so the middle stays put.
+   */
+  function svgPicture(svg, w, h, size, pad) {
     size = size || 96;
+    pad = pad || 0;
     return new Promise(function (resolve) {
       var copy = svg.cloneNode(true), src = svg.querySelectorAll('*'), dst = copy.querySelectorAll('*');
       for (var j = 0; j < src.length; j++) {
@@ -417,6 +423,7 @@
         dst[j].removeAttribute('class'); dst[j].style.removeProperty('rotate');
       }
       copy.removeAttribute('class'); copy.removeAttribute('style');
+      if (pad) { copy.setAttribute('viewBox', [-pad, -pad, w + pad * 2, h + pad * 2].join(' ')); w += pad * 2; h += pad * 2; }
       copy.setAttribute('xmlns', 'http://www.w3.org/2000/svg'); copy.setAttribute('width', String(w * 2)); copy.setAttribute('height', String(h * 2));
       var img = new Image();
       img.onload = function () {

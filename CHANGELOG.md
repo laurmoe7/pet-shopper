@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 702
+- Night bell: no blink when it is picked up
+- Night bell: the clapper is no longer cut off while held
+
 ## Build 701
 - Laser dot: he keeps up with a slowly moving dot
 - Laser dot: a proper walk home with a tired, happy face
