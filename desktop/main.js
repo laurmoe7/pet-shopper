@@ -651,7 +651,7 @@ function start() {
   ipcMain.handle('desk:where', () => (win && !win.isDestroyed() ? win.getBounds().x : null));
   // Fumu walks along where he sits: the page plays the walking, the window glides
   ipcMain.handle('desk:walk', async (_e, dx, ms, free) => {
-    if (!win || mode !== 'pet' || dragFrom || peekRest) return 0;
+    if (!win || mode !== 'pet' || dragFrom || peekRest || chasing) return 0;
     const from = win.getBounds(), want = Math.max(-900, Math.min(900, +dx || 0));
     let to = place.walkEnd(from, here(), want);
     to = { x: to.x, y: from.y, width: from.width, height: from.height };   // (sideways only)
@@ -672,7 +672,7 @@ function start() {
   });
   // peeking round the side of the screen, then back to where he sat
   ipcMain.handle('desk:peek', async (_e, ms) => {
-    if (!win || mode !== 'pet' || dragFrom || peekRest || perch) return null;
+    if (!win || mode !== 'pet' || dragFrom || peekRest || perch || chasing) return null;
     const spot = place.peekSpot(win.getBounds(), screen.getAllDisplays().map((d) => d.bounds));
     if (!spot) return null;
     peekRest = win.getBounds();
@@ -688,7 +688,7 @@ function start() {
   });
   // hop onto another window ('up') or back down to the floor ('down'); resolves whether he is on a window now, or null if nothing happened
   ipcMain.handle('desk:perch', async (_e, want) => {
-    if (!win || mode !== 'pet' || dragFrom || peekRest) return null;
+    if (!win || mode !== 'pet' || dragFrom || peekRest || chasing) return null;
     if (want === 'down') { if (!perch) return null; await fall(); return false; }
     if (!privacy.allows(prefs.awareness, 'perch')) return 'private';
     if (!wanderMode() || !prefs.perch || !windows.available()) return 'off';
@@ -775,6 +775,69 @@ function start() {
     if (dg !== toyDeg && now - toySpinAt > 30) { toySpinAt = now; toyDeg = dg; toyWin.webContents.executeJavaScript('document.getElementById("t")&&(document.getElementById("t").style.transform="rotate(' + Math.round(+deg || 0) + 'deg)")').catch(() => {}); }
   });
   ipcMain.on('desk:toyHide', () => hideToy());
+  // ---------- the laser dot (app-laser.js): he flies after the mouse pointer anywhere on the screens ----------
+  // A red dot sits on the pointer (drawn in the toy window, which clicks go through) and THIS process flies his window after it every 8 ms,
+  // up into the air too, not only along the floor. He keeps a little behind and below the dot, so it is in front of his face and clicks
+  // mostly still reach what is under the pointer. When the time is up (or he is clicked) he drops to the floor and runs back to where he was.
+  // Only the pointer's position is used, nothing about the windows, so it needs no awareness level; in room mode he stays in his room.
+  let chasing = false, chaseUntil = 0;
+  const LASER_PX = 22;
+  const LASER_PAGE = 'data:text/html;charset=utf-8,' + encodeURIComponent('<!doctype html><body style="margin:0;background:transparent;overflow:hidden;display:grid;place-items:center;height:100vh"><div style="width:11px;height:11px;border-radius:50%;background:#ff2b55;box-shadow:0 0 0 2px rgba(255,255,255,.75),0 0 8px 4px rgba(255,43,85,.5)"></div></body>');
+  ipcMain.on('desk:chaseStop', () => { if (chasing) chaseUntil = 0; });
+  ipcMain.handle('desk:chaseStart', async (_e, ms) => {
+    if (!win || mode !== 'pet' || dragFrom || chasing || !wanderMode()) return false;
+    const home = perch && perchOrigin ? place.within(perchOrigin, here()) : peekRest || win.getBounds();
+    leavePerch(); peekRest = null; stopTween(); stopToyFollow();
+    chasing = true;
+    chaseUntil = Date.now() + Math.max(2000, Math.min(30000, +ms || 15000));
+    const dotWin = toyWindow(LASER_PX), ds = LASER_PX;
+    toyImg = ''; toyPx = 0;   // (the toy window shows the dot now: the next toyShow loads the toy's picture again)
+    try { dotWin.loadURL(LASER_PAGE); } catch (e) { /* no dot: he still chases the pointer */ }
+    const all = areas(), b0 = win.getBounds();
+    const box = { x: Math.min(...all.map((a) => a.x)), y: Math.min(...all.map((a) => a.y)), r: Math.max(...all.map((a) => a.x + a.width)), b: Math.max(...all.map((a) => a.y + a.height)) };
+    const p = { x: b0.x, y: b0.y, vx: 0, vy: 0 };
+    let face = 1, last = Date.now(), sent = 0, topAt = 0, dotAt = null;
+    const ok = await new Promise((resolve) => {
+      const timer = setInterval(() => {
+        if (!win || mode !== 'pet') { stopTween(); return; }
+        const now = Date.now(), dt = Math.min(0.034, (now - last) / 1000);
+        last = now;
+        try {
+          const c = screen.getCursorScreenPoint(), bi = bodyIn(b0), bw = bi.r - bi.l, bh = bi.b - bi.t, mid = (bi.l + bi.r) / 2;
+          if (c.x > p.x + mid + bw * 0.3) face = 1; else if (c.x < p.x + mid - bw * 0.3) face = -1;   // (a little slack, so he does not flip back and forth)
+          const to = { x: c.x - face * bw * 0.5 - mid, y: c.y + bh * 0.18 - (bi.t + bi.b) / 2 };
+          place.chaseStep(p, to, dt, 1500);
+          // never out of the screens, and never below the floor (the top of the taskbar)
+          if (p.x < box.x - bi.l) { p.x = box.x - bi.l; p.vx = Math.max(0, p.vx); }
+          if (p.x > box.r - bi.r) { p.x = box.r - bi.r; p.vx = Math.min(0, p.vx); }
+          if (p.y < box.y - bi.t) { p.y = box.y - bi.t; p.vy = Math.max(0, p.vy); }
+          const floor = lowestY(screen.getDisplayNearestPoint({ x: Math.round(p.x + mid), y: Math.round(p.y + bi.b) }), b0);
+          if (p.y > floor) { p.y = floor; p.vy = Math.min(0, p.vy); }
+          win.setBounds({ x: Math.round(p.x), y: Math.round(p.y), width: b0.width, height: b0.height });
+          if (!dotWin.isDestroyed()) {
+            const nx = Math.round(c.x - ds / 2), ny = Math.round(c.y - ds / 2);
+            if (!dotAt) dotWin.setBounds({ x: nx, y: ny, width: ds, height: ds }); else if (dotAt.x !== nx || dotAt.y !== ny) dotWin.setPosition(nx, ny);
+            dotAt = { x: nx, y: ny };
+            if (!dotWin.isVisible()) dotWin.showInactive();
+            if (now - topAt > 300) { topAt = now; dotWin.moveTop(); }
+          }
+          if (now - sent > 60) {
+            sent = now;
+            const near = Math.hypot(to.x - p.x, to.y - p.y) < 22 && Math.hypot(p.vx, p.vy) < 260;
+            win.webContents.send('desk:chase', Math.round(p.vx), Math.round(p.vy), face, near ? 1 : 0, p.y >= floor - 1 ? 1 : 0);
+          }
+        } catch (e) { log('chase step failed', e && e.message); chaseUntil = 0; }
+        if (now >= chaseUntil) { clearInterval(timer); tween = null; resolve(true); }
+      }, 8);
+      tween = { timer, done: resolve };
+    });
+    chasing = false;
+    hideToy();
+    if (!ok || !win || mode !== 'pet') return false;
+    // the dot is gone: he drops to the floor and runs back to where he was
+    await throwWindow(Math.max(-600, Math.min(600, p.vx * 0.5)), Math.max(-600, Math.min(600, p.vy * 0.5)), home, false, { noSpin: true, maxBounces: 1 });
+    return true;
+  });
   // the wrecking ball: an overlay that draws the open windows breaking (wreck.js); the page throws the toy and says what it hit
   const wreck = require('./wreck').makeWreck({
     BrowserWindow,

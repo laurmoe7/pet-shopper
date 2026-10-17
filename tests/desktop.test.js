@@ -412,3 +412,11 @@ test('the weather lookup for the settings window reads places and never stores a
   const pkg = require('../desktop/package.json');
   assert.ok(pkg.build.files.includes('weather-place.js'), 'packed into the installer');
 });
+
+test('chasing the laser dot gets him to it, never faster than the top speed', () => {
+  const p = { x: 0, y: 0, vx: 0, vy: 0 }, to = { x: 800, y: -300 };
+  let fastest = 0;
+  for (let i = 0; i < 200; i++) { P.chaseStep(p, to, 0.008, 1500); fastest = Math.max(fastest, Math.hypot(p.vx, p.vy)); }
+  assert.ok(fastest <= 1500 + 1e-6);
+  assert.ok(Math.hypot(p.x - to.x, p.y - to.y) < 5, 'he reaches the dot in under two seconds');
+});

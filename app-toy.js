@@ -111,6 +111,7 @@ function mouthHeight() { return Math.round(pet.offsetHeight * 0.285 - 9); }
  */
 function playToy() {
   if (playing) return;
+  if (typeof toyKind === 'function' && toyKind() === 'laser') { if (typeof laserPlay === 'function') laserPlay(); return; }   // (the laser dot: app-laser.js)
   if (typeof toyKind === 'function' && toyKind() === 'wrecker') {   // (the wrecking ball is only thrown: grab it)
     if (!busy) say(pick(['grab it and throw it!', 'throw me… I mean it!']), 1500);
     if (!reduceMotion) toyBall.animate([{ transform: 'rotate(0)' }, { transform: 'rotate(-20deg)' }, { transform: 'rotate(14deg)' }, { transform: 'rotate(0)' }], { duration: 450 });
@@ -276,6 +277,7 @@ function placeToy(x, y, spin) {
 }
 toyEl.addEventListener('pointerdown', function (e) {
   if (playing || busy || stage.classList.contains('bedtime')) return;
+  if (typeof toyKind === 'function' && toyKind() === 'laser') return;   // (the laser pen is not thrown: a tap switches it on)
   try { toyEl.setPointerCapture(e.pointerId); } catch (err) { /* fine without */ }
   held = { x0: e.clientX, y0: e.clientY, moved: false, y: 0, pts: [] };
 });

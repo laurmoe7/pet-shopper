@@ -60,6 +60,12 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   wreckAbort: () => ipcRenderer.send('desk:wreckAbort'),
   /** A celebration the player said yes to starts: the shell opens an overlay over the whole screen with its effects (kind: birthday, christmas, halloween, newyear, easter, kingsday; o: {name, ms, total, lang, rect: Fumu's box in page pixels}). Resolves whether it did. */
   celebrateFx: (kind, o) => ipcRenderer.invoke('desk:celebrateFx', String(kind).slice(0, 12), o && typeof o === 'object' ? { name: String(o.name || '').slice(0, 24), ms: +o.ms || 0, total: +o.total || 0, lang: o.lang === 'nl' ? 'nl' : 'en', rect: o.rect && typeof o.rect === 'object' ? { x: +o.rect.x || 0, y: +o.rect.y || 0, w: +o.rect.w || 0, h: +o.rect.h || 0 } : null } : {}),
+  /** The laser dot: a red dot sits on the mouse pointer and the shell flies his window after it over the whole screen for ms; resolves when it is over and he is back down (true), or false when it could not start or was cut short. */
+  chaseStart: (ms) => ipcRenderer.invoke('desk:chaseStart', +ms || 15000),
+  /** Ends the chase now (he still drops to the floor and runs back). */
+  chaseStop: () => ipcRenderer.send('desk:chaseStop'),
+  /** While he chases, a few times a second: his speed (px/s), which way he faces (1 right, -1 left), whether he is on the dot (1) and whether he is on the floor (1). */
+  onChase: (fn) => ipcRenderer.on('desk:chase', (_e, vx, vy, face, near, floor) => fn(+vx || 0, +vy || 0, face < 0 ? -1 : 1, !!near, !!floor)),
   /** Takes the celebration overlay away at once. */
   celebrateStop: () => ipcRenderer.send('desk:celebrateStop'),
   setBody: (box) => ipcRenderer.send('desk:body', Array.isArray(box) ? box.slice(0, 4) : []),

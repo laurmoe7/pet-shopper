@@ -72,6 +72,8 @@
     toyNone: { icon: '🚫', label: 'No toy', on: function () { return toyKind() === 'none'; }, run: function () { setToyKind('none'); } },
     toyBall: { icon: '⚽', label: 'Default toy', on: function () { return toyKind() === 'ball'; }, run: function () { setToyKind('ball'); } },
     toyWreck: { icon: '💥', label: 'Wrecking ball', on: function () { return toyKind() === 'wrecker'; }, run: function () { setToyKind('wrecker'); } },
+    toyLaser: { icon: '🔴', label: 'Laser dot', on: function () { return toyKind() === 'laser'; }, run: function () { setToyKind('laser'); } },
+    laser: { icon: '🔴', label: 'Laser dot', run: function () { if (!busy && typeof laserPlay === 'function') laserPlay(); } },
     back: { icon: '↩️', label: 'Back', keep: true, run: function () { openMenu('main'); } },
     snack: { icon: '🍪', label: 'Snack', run: ringSnack },
     weather: { icon: '⛅', label: 'Weather report', run: ringWeather },
@@ -80,9 +82,9 @@
     lights: { icon: '💡', label: 'Lights off', run: ringSleep },
     night: { icon: '🌙', label: 'Night light', keep: true, on: function () { return nightLightOn; }, run: function () { toggleNightLight(); } }
   };
-  /** The toy circle opens a second ring with the toy choices in place of the first: no toy, his own (default) toy and the wrecking ball (not in Mini Fumu's room mode, where it does nothing special), and a way back. */
+  /** The toy circle opens a second ring with the toy choices in place of the first: no toy, his own (default) toy, the wrecking ball and the laser dot (those two not in Mini Fumu's room mode, where they cannot leave his window), and a way back. */
   var menu = 'main';
-  function toyNames() { return ['toyNone', 'toyBall'].concat(typeof deskRoomMode === 'function' && deskRoomMode() ? [] : ['toyWreck'], ['back']); }
+  function toyNames() { return ['toyNone', 'toyBall'].concat(typeof deskRoomMode === 'function' && deskRoomMode() ? [] : ['toyWreck', 'toyLaser'], ['back']); }
   function openMenu(which) {
     menu = which;
     build();
@@ -96,7 +98,7 @@
     var wx = typeof wxConf === 'function' && wxConf().want ? ['weather'] : [];   // (the report is offered while the weather option is on; with no place picked yet he says so when it is pressed)
     if (!isDesk()) return scene === 'night-bed' ? [] : ['toys', 'snack'].concat(wx, snd);   // in the app: the toy circle and a snack; in bed they are put away
     if (scene === 'night-bed') return ['night'];   // in bed: only the night light
-    var play = toyKind() === 'none' ? [] : ['ball'];   // (nothing to play with when there is no toy)
+    var play = toyKind() === 'none' ? [] : toyKind() === 'laser' ? ['laser'] : ['ball'];   // (nothing to play with when there is no toy)
     if (scene.indexOf('night-drowsy') === 0) return play.concat(['toys', 'snack'], wx, snd, ['swap', 'lights']);
     return play.concat(['toys', 'snack'], wx, snd, ['swap']);
   }

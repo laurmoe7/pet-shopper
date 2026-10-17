@@ -214,6 +214,23 @@ function hitTest(rects, x, y, pad) {
   return rects.some(function (r) { return x >= r[0] - pad && x <= r[2] + pad && y >= r[1] - pad && y <= r[3] + pad; });
 }
 
+/**
+ * One step of him flying after the laser dot (app-laser.js): a spring towards `to` (where his window should be) with a top speed, so he
+ * overshoots a little like a pet that cannot stop in time. The page's laserStep is the same rule.
+ * @param {{x:number,y:number,vx:number,vy:number}} p His window's corner and speed (px, px/s); changed in place and returned.
+ * @param {{x:number,y:number}} to @param {number} dt Seconds. @param {number} max Top speed, px/s.
+ */
+function chaseStep(p, to, dt, max) {
+  var K = 40, DAMP = 11;
+  p.vx += ((to.x - p.x) * K - p.vx * DAMP) * dt;
+  p.vy += ((to.y - p.y) * K - p.vy * DAMP) * dt;
+  var sp = Math.hypot(p.vx, p.vy);
+  if (sp > max) { p.vx *= max / sp; p.vy *= max / sp; }
+  p.x += p.vx * dt; p.y += p.vy * dt;
+  return p;
+}
+
 module.exports = {
+  chaseStep: chaseStep,
   hitTest: hitTest,  afterScreensChange: afterScreensChange, idleStep: idleStep, perches: perches, perchBounds: perchBounds, perchUnder: perchUnder, perchesNear: perchesNear, floorBounds: floorBounds, arcAt: arcAt, PERCH_BODY: PERCH_BODY,
   SIZES: SIZES, sizeFactor: sizeFactor, resizeKeepingBottom: resizeKeepingBottom, within: within, nudge: nudge, corner: corner, walkEnd: walkEnd, keepPartlyOn: keepPartlyOn, peekSpot: peekSpot, tweenAt: tweenAt, MARGIN: MARGIN, visibleFraction: visibleFraction, defaultBounds: defaultBounds, startBounds: startBounds, listBounds: listBounds, dragBounds: dragBounds };

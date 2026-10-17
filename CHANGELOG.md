@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 695
+- Laser dot: a new toy; he flies after the red dot all over the screen
+- Mini Fumu: click him to stop the chase
+
 ## Build 694
 - Recipes: amounts given in both systems (300g/10oz) read properly
 
