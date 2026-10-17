@@ -205,6 +205,10 @@ function laserPage() {
     var cs0 = fit(d.x - face * bw * 0.5 - c0.x, d.y + bh * 0.18 - c0.y);
     var ph = laserRule(st, { now: now, x: d.x, y: d.y, speed: dSpeed, gap: Math.hypot(cs0.x - p.x, cs0.y - p.y) });
     if (ph === 'chase') { if (d.x > cx + bw * 0.3) face = 1; else if (d.x < cx - bw * 0.3) face = -1; }   // (a little slack, so he does not flip back and forth)
+    if (ph === 'pounce' && st.shown !== 'pounce') {   // he holds it in front of him: from the side that has room for him at the edge of the page
+      var want = st.holdX - face * bw * 0.6 - c0.x;
+      if (Math.abs(fit(want, 0).x - want) > 4) face = -face;
+    }
     // where he wants to be: behind and below the dot while chasing (it is in front of his face), backed off and low while stalking, the dot held just in front of him once he pounces
     var sx = -0.5, sy = 0.18, max = 1300, K = 40, hx = d.x, hy = d.y;
     if (ph === 'stalk') { sx = -0.72; sy = 0.24; max = 70; }
