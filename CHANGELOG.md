@@ -2,6 +2,13 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 713
+- Big Boy: whiskers drawn over his outline
+- Big Boy: smaller lip mark, a bit to the left
+
+## Build 712
+- Big Boy: whiskers drawn over his outline
+
 ## Build 711
 - Big Boy: thin white whiskers from his cheeks
 - Big Boy: tapered stripe from each eye
