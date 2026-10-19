@@ -174,6 +174,7 @@ button { font: inherit; color: inherit; }
 .stage:has(#pet[data-skin="munchkin"]) { --pet-size: .8; }   /* the munchkin cat is a short-legged little one */
 .stage:has(#pet[data-species="hamster"]) { --pet-size: .8; }   /* the hamster is a small one, like the munchkin */
 .stage:has(#pet[data-species="dragon"]) { --pet-size: 1.1; }   /* the dragon is a tenth bigger (1.1 is the most any pet may be: a test checks) */
+.stage:has(#pet[data-skin="tabbywhite"]) { --pet-size: 1.1; }   /* Big Boy, the tabby and white cat, is a tenth bigger too */
 #pet { width: calc(150px * var(--pet-size)); height: calc(140px * var(--pet-size)); }
 
 /* speech bubble */
@@ -1421,7 +1422,7 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .pet[data-skin="munchkin"] :is(.foot-side, .shoe-l, .shoe-r) { scale: .82 .62; transform-box: fill-box; transform-origin: 50% 0%; }
 .ragdoll-mask { fill: #e6d4c4; }
 /* Siamese: a cream body with dark seal-brown points (ears, mask, paws and feet) and blue eyes */
-/* tabby and white: white body and paws under a brown tabby hood (the hood and stripes are drawn in index.html), green eyes */
+/* Big Boy (tabby and white): white body and paws under a brown tabby hood (the hood and stripes are drawn in index.html), green eyes */
 .pet[data-skin="tabbywhite"] { --pet-skin: #fffaf3; --pet-skin-shade: #efe3d4; --pet-ear-in: #f2a9ab; --pet-mark: #4f4339; }
 .pet[data-skin="tabbywhite"] [data-sk~="tabbywhite"] { display: inline; }
 .pet[data-skin="tabbywhite"] .ear { fill: #857563; }
