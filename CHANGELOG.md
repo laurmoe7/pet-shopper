@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 720
+- Task alert: room between In 10 min and the cross
+
 ## Build 719
 - Task alert cards are narrower
 
