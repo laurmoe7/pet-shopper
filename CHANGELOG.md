@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 724
+- Own lines for Cookie's Sheets
+
 ## Build 723
 - KoeStudio recognised by its own name only
 

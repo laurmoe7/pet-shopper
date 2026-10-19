@@ -1012,7 +1012,8 @@
     art: ['ooh, are you drawing?', 'draw me next!', 'pretty colours~'],
     'video-edit': ['editing! fancy~', 'make it cute!'],
     launcher: ['going gaming?', 'what are we playing?'],
-    learn: ['studying? so clever~', 'learning something new?', 'quiz me after!']
+    learn: ['studying? so clever~', 'learning something new?', 'quiz me after!'],
+    tabletop: ['rolling dice? ✦', 'adventure night?', 'can I roll too?']
   };
   // Lines for particular apps, said as well as their kind's lines above (picked from both). The key is the name desktop/programs.js gives it.
   var APP_LINES = {
@@ -1028,7 +1029,8 @@
     Steam: ['look, a sale?', 'what are we playing?'],
     // her own programs
     KoeStudio: ['KoeStudio! your very own app ♡', 'drawing in your own app~', 'moo! …that is how Koe says hi', 'draw me in KoeStudio?', 'did you make a new brush?', 'such a fancy art program~', 'you made this app? wow!'],
-    BiggTaal: ['Dutch practice? goed zo!', 'say hi to Bigg for me~', 'how do you say snack in Dutch?', 'de or het? hmm hm…', 'flashcard time! you got this', 'Bigg is cute… but I am cuter', 'keep your streak going!', 'pigeon in Dutch? duif!', 'oefening baart kunst~']
+    BiggTaal: ['Dutch practice? goed zo!', 'say hi to Bigg for me~', 'how do you say snack in Dutch?', 'de or het? hmm hm…', 'flashcard time! you got this', 'Bigg is cute… but I am cuter', 'keep your streak going!', 'pigeon in Dutch? duif!', 'oefening baart kunst~'],
+    "Cookie's Sheets": ['roll for initiative!', 'nat 20! …I hope', 'can I be your familiar?', 'level up time? ✦', 'how many hit points left?', 'pick a cute feat~', 'is your character cute?', 'I would be a bard ♪', 'do my math too?']
   };
   /** @param {string} kind @param {string} name  The front program. @returns {string[]} Its kind's lines plus its own ones. */
   function programLines(kind, name) { return (PROGRAM_LINES[kind] || []).concat(APP_LINES[name] || []); }

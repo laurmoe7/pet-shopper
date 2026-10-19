@@ -50,7 +50,8 @@ var APPS = {
   'eadesktop.exe': ['launcher', 'EA'],
   'explorer.exe': ['files', 'the file explorer'],
   // her own programs (KoeStudio.exe runs Python inside its own process, so the window is its own)
-  'koestudio.exe': ['art', 'KoeStudio'], 'biggtaal.exe': ['learn', 'BiggTaal']
+  'koestudio.exe': ['art', 'KoeStudio'], 'biggtaal.exe': ['learn', 'BiggTaal'],
+  "cookie's sheets.exe": ['tabletop', "Cookie's Sheets"]   // its packaged app and its branded Python launcher share this name
 };
 
 /**
