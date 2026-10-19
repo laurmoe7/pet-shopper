@@ -1424,8 +1424,10 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 /* tabby and white: white body and paws under a brown tabby hood (the hood and stripes are drawn in index.html), green eyes */
 .pet[data-skin="tabbywhite"] { --pet-skin: #fffaf3; --pet-skin-shade: #efe3d4; --pet-ear-in: #f2a9ab; --pet-mark: #4f4339; }
 .pet[data-skin="tabbywhite"] [data-sk~="tabbywhite"] { display: inline; }
-.pet[data-skin="tabbywhite"] .ear { fill: #8e7d6c; }
-.tw-hood { fill: #8e7d6c; }
+.pet[data-skin="tabbywhite"] .ear { fill: #857563; }
+.tw-hood { fill: #857563; }
+.tw-mask { fill: #4f4339; opacity: .35; clip-path: url(#bodyClip); }
+.tw-chin { fill: #5c4f44; opacity: .8; }
 .tw-stripes path { fill: #4f4339; opacity: .85; }
 .pet[data-skin="tabbywhite"] .eyes-open .ink { fill: #74b35a; stroke: #2f3a26; stroke-width: 1.5; }
 .pet[data-skin="siamese"] { --pet-skin: #f6ead9; --pet-skin-shade: #6e5042; --pet-ear-in: #a87c6c; --pet-mark: #6e5042; }

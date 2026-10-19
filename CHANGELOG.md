@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 707
+- Tabby and white: chin spot, darker fur round the eyes
+
 ## Build 706
 - New cat skin: Tabby and white
 
