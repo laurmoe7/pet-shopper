@@ -49,14 +49,28 @@ function applyPet() {
  * @returns {SVGSVGElement}
  */
 function petCopy(species, skin) {
-  var copy = petSvg.cloneNode(true);
+  var copy = species ? keptCopy(petSvg, species, skin) : petSvg.cloneNode(true);
   copy.querySelectorAll('defs').forEach(function (d) { d.remove(); });
   copy.querySelector('.pet-body').removeAttribute('transform'); // not caught mid-squish
-  if (species) {
-    copy.querySelectorAll('[data-sp]').forEach(function (el) { if (el.dataset.sp !== species) el.remove(); });
-    copy.querySelectorAll('[data-sk]').forEach(function (el) { if (!skin || el.dataset.sk.split(' ').indexOf(skin) === -1) el.remove(); });
-  }
   return copy;
+}
+// parts a still copy never shows (it always has open eyes, a smile and resting arms, and nothing in its hands): left out of the tiles too.
+// Found by drawing every species and skin in every theme (build 706); a part a tile should show must not be in this list
+var STILL_DROP = '.tired-lid, .dizzy-eyes, .eye-set > .line, .eye-set > .star, .eye-set > g:not([class]), .mouth-in, .tongue, .chew, .blanket, .teddy-hug, .sole-part, ' +
+  '.outfit-soles, .wand, .clipboard, .pencil, .magnifier, .arm-cuff, .arm-hand, .paw-beans, .zzz, .nose-bubble, .steam, .hearts, .sparkles, .question, .sweat, .shock';
+/** Copies the drawing without the other species' and skins' parts (copying them all and then removing them took most of the time the dressing room needed to open). */
+function keptCopy(node, species, skin) {
+  var out = node.cloneNode(false);
+  for (var c = node.firstChild; c; c = c.nextSibling) {
+    if (c.nodeType === 1) {
+      var sp = c.getAttribute('data-sp'), sk = c.getAttribute('data-sk');
+      if (sp !== null && sp !== species) continue;
+      if (sk !== null && (!skin || sk.split(' ').indexOf(skin) === -1)) continue;
+      if (c.matches(STILL_DROP)) continue;
+      out.appendChild(keptCopy(c, species, skin));
+    } else out.appendChild(c.cloneNode(false));
+  }
+  return out;
 }
 /** Species buttons show a small still copy of the pet. They are built the first time the dressing room opens: twenty mini pets are a lot of page. */
 function buildSpeciesGrid() {

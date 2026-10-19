@@ -2,6 +2,13 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 706
+- Dressing room opens faster
+- Laser dot: no chase face after you catch him
+- Laser dot: a double click no longer opens the ring mid-chase
+- Laser dot: eyes no longer stuck looking up after a cut-short chase
+- Laser dot: the chase ends when the app turns into Mini Fumu
+
 ## Build 705
 - Opens faster, most of all on phones
 - Looks for updates while the app loads, not after

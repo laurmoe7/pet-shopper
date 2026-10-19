@@ -95,7 +95,8 @@ function laserLost(el, st, talkAt) {
   laserPhaseShow(el, 'lost', st);
   if (talkAt) talkAt(['?']);
   if (el === pet) say(pick(['where did it go?', 'huh? it vanished…', 'come back, dot~']), 1600, true);
-  [[0, -3.2], [450, 3.2], [900, -2], [1250, 0]].forEach(function (g) { setTimeout(function () { el.style.setProperty('--look-x', g[1] + 'px'); el.style.setProperty('--look-y', '-1px'); }, g[0]); });
+  var run = laserOn;   // (the looks stop when the chase ends early, so the eyes are not left looking up)
+  [[0, -3.2], [450, 3.2], [900, -2], [1250, 0]].forEach(function (g) { setTimeout(function () { if (laserOn !== run || (run && run.home)) return; el.style.setProperty('--look-x', g[1] + 'px'); el.style.setProperty('--look-y', '-1px'); }, g[0]); });
   return wait(1400);
 }
 
@@ -113,7 +114,7 @@ function laserDesk() {
   D.chaseStart(LASER_MS).then(laserDone, laserDone);
 }
 if (window.nibbleDesktop && window.nibbleDesktop.onChase) window.nibbleDesktop.onChase(function (vx, vy, face, phase, floor, dx, dy) {
-  if (!laserOn || !laserOn.desk) return;
+  if (!laserOn || !laserOn.desk || laserOn.home) return;   // (a late message from the shell after he was caught must not bring the chase face back)
   if (typeof phase !== 'string') phase = phase ? 'caught' : 'chase';   // (an installer from before build 699 only says whether he is on the dot)
   if (phase === 'lost') {
     if (laserOn.shown !== 'lost') {
@@ -136,10 +137,17 @@ if (window.nibbleDesktop && window.nibbleDesktop.onChase) window.nibbleDesktop.o
 window.addEventListener('pointerdown', function (e) {
   if (!laserOn || !laserOn.desk || !e.target.closest || !e.target.closest('#pet')) return;
   e.stopImmediatePropagation(); e.preventDefault();
+  if (laserOn.home) return;   // caught already: he is on his way home (no "caught" line again)
   if (window.nibbleDesktop.chaseStop) window.nibbleDesktop.chaseStop();
   laserTired();   // (he does not look round for it: straight to his tired, happy face for the drop and the walk home)
   say(pick(['you caught me!', 'okay okay, I\'m done~', 'hehe, that was fun!']), 1500, true);
 }, true);
+// nor does a double click open the ring menu while he chases or goes home
+['click', 'dblclick'].forEach(function (type) {
+  window.addEventListener(type, function (e) {
+    if (laserOn && laserOn.desk && e.target.closest && e.target.closest('#pet')) { e.stopImmediatePropagation(); e.preventDefault(); }
+  }, true);
+});
 
 /**
  * The chase rules, one step: chase while the dot moves; once it has sat still near him he stalks it (backs off, wiggles), then pounces on it
@@ -211,6 +219,7 @@ function laserPage() {
   }
   function step(now) {
     if (ended) return;
+    if (document.documentElement.classList.contains('desktop-pet')) { end(false); return; }   // the whole app turned into the small window: no chase over a page that is gone
     var dt = Math.min(0.034, (now - last) / 1000);
     last = now;
     dSpeed = dSpeed * 0.7 + (Math.hypot(d.x - dPrev.x, d.y - dPrev.y) / Math.max(dt, 0.001)) * 0.3;
