@@ -49,10 +49,16 @@
     var month = Math.floor((h + l - 7 * m + 114) / 31), day = ((h + l - 7 * m + 114) % 31) + 1;
     return new Date(y, month - 1, day);
   }
+  /** @returns {boolean} Whether a "MM-DD" birthday is on this date (29 February is kept on the 28th outside leap years). */
+  function isBirthdayOn(birthday, date) {
+    if (!birthday) return false;
+    var key = dayKey(date).slice(5), y = date.getFullYear(), leap = new Date(y, 1, 29).getMonth() === 1;
+    return birthday === key || (birthday === '02-29' && !leap && key === '02-28');
+  }
   /** @returns {boolean} Whether a day of the calendar falls on this date. @param {Object} day @param {Date} date @param {string} [birthday] "MM-DD" */
   function falls(day, date, birthday) {
     var y = date.getFullYear(), start;
-    if (day.birthday) return !!birthday && birthday === dayKey(date).slice(5);
+    if (day.birthday) return isBirthdayOn(birthday, date);
     if (typeof day.easter === 'number') start = easterOf(y), start.setDate(start.getDate() + day.easter);
     else if (day.nth) {
       var m = day.nth[0] - 1, wd = day.nth[1], n = day.nth[2];
@@ -111,5 +117,5 @@
     return null;
   }
 
-  root.Bonuses = { BOXES: BOXES, DAYS: DAYS, dayKey: dayKey, easterOf: easterOf, specialDays: specialDays, boxesFor: boxesFor, unopened: unopened, owns: owns, dayOfHat: dayOfHat, open: open, nextSpecial: nextSpecial };
+  root.Bonuses = { BOXES: BOXES, DAYS: DAYS, dayKey: dayKey, isBirthdayOn: isBirthdayOn, easterOf: easterOf, specialDays: specialDays, boxesFor: boxesFor, unopened: unopened, owns: owns, dayOfHat: dayOfHat, open: open, nextSpecial: nextSpecial };
 })(typeof self !== 'undefined' ? self : globalThis);

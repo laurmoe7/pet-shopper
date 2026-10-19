@@ -8,7 +8,7 @@ var devBirthday = false;
 function isBirthday() {
   if (devBirthday) return true;
   var b = state.player.birthday;
-  return !!b && b === B.dayKey(giftDate()).slice(5);
+  return B.isBirthdayOn(b, giftDate());
 }
 /** @returns {string} "Happy Birthday Name!" (in Dutch "Gefeliciteerd Name!"), without the name when there is none. @param {string} name */
 function bdayGreeting(name) {

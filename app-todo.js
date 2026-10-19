@@ -443,6 +443,7 @@ function renderTaskSheet() {
   if (!item) return;
   var today = todayKey(), tomorrow = L.addDays(today, 1), week = L.addDays(today, 7);
   $('taskName').value = item.text;
+  $('taskEmoji').hidden = !find(item.id);   // (the emoji picker works on the list showing: not for a plan the calendar opened over the shopping list)
   $('dueChips').replaceChildren(
     chip('No date', !item.due, function () { setTaskDue(''); }),
     chip('Today', item.due === today, function () { setTaskDue(today); }),
@@ -504,7 +505,7 @@ function setTaskDue(due) {
   if (due) item.due = due; else { delete item.due; delete item.repeat; delete item.time; }
   delete alerted[item.id];
   fixUntil(item);
-  state.items = L.sortByDue(state.items, todayKey());
+  setPlanList(L.sortByDue(planList(), todayKey()));   // (the list the task is in: the to-do list, also when the calendar opened it over the shopping list)
   save();
   render();
   renderTaskSheet();
@@ -527,7 +528,7 @@ function setTaskRepeat(repeat) {
     if (item.until && item.until < item.due) delete item.until;
     fixUntil(item);
   } else { delete item.repeat; delete item.until; delete item.days; }
-  state.items = L.sortByDue(state.items, todayKey());
+  setPlanList(L.sortByDue(planList(), todayKey()));
   save();
   render();
   renderTaskSheet();
@@ -562,7 +563,7 @@ function toggleTaskDay(n) {
   item.days = days;
   item.due = L.firstOnDays(item.due < todayKey() ? todayKey() : item.due, days);
   fixUntil(item);
-  state.items = L.sortByDue(state.items, todayKey());
+  setPlanList(L.sortByDue(planList(), todayKey()));
   save();
   render();
   renderTaskSheet();
@@ -577,7 +578,7 @@ function setTaskTime(time) {
   if (!item || (time && !L.isTimeKey(time))) return;
   if (time) { item.time = time; if (!item.due) item.due = todayKey(); } else delete item.time;
   delete alerted[item.id];
-  state.items = L.sortByDue(state.items, todayKey());
+  setPlanList(L.sortByDue(planList(), todayKey()));
   save();
   render();
   renderTaskSheet();
@@ -627,7 +628,7 @@ $('taskCancel').addEventListener('click', function () {
     var snap = JSON.parse(taskBackup);
     Object.keys(item).forEach(function (k) { if (!(k in snap)) delete item[k]; });
     Object.assign(item, snap);
-    state.items = L.sortByDue(state.items, todayKey());
+    setPlanList(L.sortByDue(planList(), todayKey()));
     save();
     render();
   }

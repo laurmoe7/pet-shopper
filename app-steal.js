@@ -146,7 +146,7 @@ function stealNow(force) {
   // he walks down over the page to the emoji, takes it with a paw and runs back (a copy of him does the walking: see stealTrip)
   var trip = reduceMotion ? Promise.resolve(null) : wait(500).then(function () { return stealTrip(li, src, from); }).catch(function () { pet.style.visibility = ''; return null; });
   trip.then(function (paw) {
-    if (!stolen) { busy--; settle(); return; }
+    if (!stolen) return;   // (the row went: the last step below still takes him off busy, only once)
     if (paw) return flyEmoji(src, paw, stealMouth(), 330, 30, true);   // (it was in his paw: now it goes to his mouth)
     li.classList.add('stolen');   // (no trip: it simply flies to him)
     sound('swoosh');
@@ -162,7 +162,7 @@ function stealNow(force) {
     [0, 280, 560].forEach(function (t) { setTimeout(function () { if (stolen) { stealCrumbs(6); } }, t); });
     return wait(900);
   }).then(function () {
-    if (!stolen) { busy--; settle(); return; }
+    if (!stolen) return;
     setFace({ eyes: 'happy', mouth: 'smile', arms: 'idle', x: ['cheeks'] });
     say(pick(['…what?', '*gulp* nothing happened', 'hehe… yum', 'I didn\'t see anything~']), 2000, true);
     stolen.phase = 'eaten';
@@ -200,8 +200,8 @@ pet.addEventListener('click', function (e) {
 /** Now and then, while it is quiet. */
 function scheduleSteal(first) {
   clearTimeout(stealTimer);
-  stealTimer = setTimeout(function () {
-    if (stealOk()) { stealNow(); scheduleSteal(); } else { stealTimer = setTimeout(scheduleSteal, 12000); }
+  stealTimer = setTimeout(function tryNow() {
+    if (stealOk()) { stealNow(); scheduleSteal(); } else { stealTimer = setTimeout(tryNow, 12000); }   // (a bad moment: look again soon, not a whole wait later)
   }, caughtToday() ? stealRare() : first ? STEAL_FIRST_MS + Math.random() * 15000 : STEAL_MIN_MS + Math.random() * (STEAL_MAX_MS - STEAL_MIN_MS));
 }
 if (caughtToday()) stealNotBefore = Date.now() + stealRare();   // (opened again after catching him today: rare right away)

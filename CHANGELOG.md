@@ -2,6 +2,19 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 725
+- Faster start: offline files load about 3 times sooner
+- Faster start: the title is fitted once
+- Reset all saved data really resets
+- Sneaky snack no longer freezes Fumu if the row goes
+- 29 February birthdays celebrated on the 28th
+- Closet: Sure? step can't be skipped
+- Calendar task edits sort the to-do list
+- A stopped walk stops all its steps
+- Mini Fumu: look re-checked when a bubble shows
+- Sync ignores an answer for an old code
+- Privacy page always fresh
+
 ## Build 724
 - Own lines for Cookie's Sheets
 

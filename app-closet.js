@@ -29,6 +29,7 @@ function closetMini(outfit) {
 }
 /** Draws every saved outfit as a tile: tap to wear it, with a pen to rename and a cross to remove. */
 function renderCloset() {
+  closetDeleteArm = null;   // (a redraw shows plain crosses again: none of them may delete on the first tap)
   var closet = state.pet.closet;
   closetGrid.replaceChildren.apply(closetGrid, closet.length ? closet.map(function (o) {
     var tile = document.createElement('div'), wear = document.createElement('button'), label = document.createElement('span');

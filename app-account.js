@@ -73,7 +73,7 @@ function syncNow(why) {
   syncState.busy = true;
   syncState.error = '';
   renderAccount();
-  var first = account.joined ? Promise.resolve(null) : accountApi('/v1/doc', 'GET', account.code), droppedAny = false;
+  var code = account.code, first = account.joined ? Promise.resolve(null) : accountApi('/v1/doc', 'GET', code), droppedAny = false;
   return first.then(function (got) {
     if (got) {   // the first round from this device: if the account already has a list, take it instead of the sample one
       if (!got.ok) return got;
@@ -85,9 +85,10 @@ function syncNow(why) {
       }
     }
     var doc = Sync.snapshot(state, Date.now(), { skipSample: true });
-    return accountApi('/v1/sync', 'POST', account.code, { doc: doc });
+    return accountApi('/v1/sync', 'POST', code, { doc: doc });
   }).then(function (res) {
     syncState.busy = false;
+    if (account.code !== code) { syncState.again = false; renderAccount(); if (account.code) syncSoon(); return; }   // signed out or joined another code meanwhile: this answer is the old account's
     if (droppedAny && !(res.ok && res.json && res.json.doc)) refreshAll();   // the sample list is gone either way
     if (res.ok && res.json && res.json.doc) {
       // join once more here: something may have changed while the server was answering

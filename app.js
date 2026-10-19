@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '724';
+var BUILD = '725';
 
 var STORE_KEY = 'nibble.v1';
 var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -23,9 +23,10 @@ function load() {
   return L.parseState(raw, newId);
 }
 /** Called after each save with what changed since the last one, for the sync log (app-sync.js sets it). */
-var syncHook = null;
+var syncHook = null, resetting = false;   // resetting: Developer tools > Reset all saved data is reloading the page
 /** Saves the whole state on the phone. Fails quietly if storage is blocked. */
 function save() {
+  if (resetting) return;
   var found = Sync.stamp(state, Date.now());   // notes what changed, for syncing devices later (sync.js)
   if (syncHook && (found.items || found.deleted || found.fields.length)) syncHook(found);
   try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* storage blocked */ }
@@ -204,10 +205,10 @@ document.addEventListener('click', function (e) {
 (function () {
   var dock = document.querySelector('.dock');
   function measure() { if (!document.documentElement.classList.contains('typing')) document.documentElement.style.setProperty('--dock-h', dock.offsetHeight + 'px'); }
-  measure();
   addEventListener('resize', measure);
-  // also when the bar itself appears, disappears or changes size without the window changing (the desktop app hides it in the small window)
-  if (window.ResizeObserver) new ResizeObserver(measure).observe(dock);
+  // also when the bar itself appears, disappears or changes size without the window changing (the desktop app hides it in the small window);
+  // the observer also measures once before the first paint, so startup needs no measuring of its own (that made the browser lay out the half-built page)
+  if (window.ResizeObserver) new ResizeObserver(measure).observe(dock); else measure();
 })();
 
 // ---------- elements ----------

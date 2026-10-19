@@ -264,6 +264,7 @@ var DEV_ACTIONS = [
   { label: 'Clear the list', run: function () { state.items = []; return 'List cleared.'; } },
   { label: 'Reset all saved data', danger: true, run: function () {
     if (!confirm('Reset everything? Your list, pet, progress and options will be gone.')) return 'Nothing changed.';
+    resetting = true;   // (nothing may save the state again before the page has reloaded)
     try { localStorage.removeItem(STORE_KEY); } catch (e) { /* storage blocked */ }
     location.reload();
     return 'Resetting…';

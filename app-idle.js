@@ -102,7 +102,7 @@ function lookAround() {
 // ---------- walking about ----------
 // The pet wanders back and forth on the floor and stays where it stops. Only #pet slides (the CSS translate
 // property), never scaled or turned. --walk-x lives on the stage so the speech bubble and daydream follow.
-var stage = pet.parentNode, walkX = 0, walkTimer, walking = false, walkWide = false;
+var stage = pet.parentNode, walkX = 0, walkTimer, walking = false, walkWide = false, pathTimers = [];
 /** @returns {number} How far the pet may walk from the middle, in px; further while playing with the toy (walkWide). */
 /** @returns {number} How far his drawing reaches from the middle of his box (the dragon's wings stick out past it): he must not walk so far that the window's edge cuts it. */
 function petReach() { return pet.offsetWidth / 2 + (pet.dataset.species === 'dragon' ? 8.5 * pet.offsetWidth / 160 : 0); }
@@ -153,6 +153,7 @@ function walkTo(x, pace) {
 }
 /** Stops a walk where the pet is now, so food flies to the right spot. */
 function stopWalk() {
+  pathTimers.forEach(clearTimeout); pathTimers = [];   // (and the stops still to come on a walk with several, also while he pauses between them)
   if (!walking) return;
   var now = parseFloat(getComputedStyle(pet).translate) || 0;
   stage.style.setProperty('--walk-ms', '0s');
@@ -172,7 +173,7 @@ function walkPath(spots, pause) {
   var t = 0, from = walkX;
   spots.forEach(function (x) {
     x = clampWalk(x);
-    setTimeout(function () { walkTo(x); }, t);
+    pathTimers.push(setTimeout(function () { walkTo(x); }, t));
     t += Math.round(500 + Math.abs(x - from) * 26) + (pause || 500);
     from = x;
   });

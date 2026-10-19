@@ -104,7 +104,7 @@ test('the build number shown in Options matches the service worker cache, so a s
   assert.equal(sw.match(/CACHE = 'nibble-v(\d+)'/)[1], app.match(/var BUILD = '(\d+)'/)[1]);
   assert.match(html, /id="buildLabel"/);
   // the app's files come from this build's cache (build 579); a new build is found by the update check the page makes while its loading card is up
-  assert.match(sw, /caches\.match\(e\.request, \{ ignoreSearch: true \}\)\.then\(function \(hit\) \{\s*return hit \|\| fetch\(e\.request\)/, 'the app files come from the cache first');
+  assert.match(sw, /cache\(CACHE\)\.then\(function \(c\) \{ return c\.match\(e\.request, url\.search \? \{ ignoreSearch: true \} : undefined\); \}\)\.then\(function \(hit\) \{\s*return hit \|\| fetch\(e\.request\)/, 'the app files come from the cache first (this build\'s cache only: build 725)');
   assert.match(fs.readFileSync(path.join(__dirname, '..', 'app-start.js'), 'utf8'), /reg\.update\(\)/, 'the page looks for a newer build on every open');
 });
 

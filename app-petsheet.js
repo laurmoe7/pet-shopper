@@ -176,7 +176,14 @@ function fitBrand() {
   while (cut() && size > 12) { size -= 0.5; el.style.fontSize = size + 'px'; }
   brandFitting = false;
 }
-new MutationObserver(function () { fitBrand(); }).observe($('brand'), { childList: true, characterData: true, subtree: true });
-window.addEventListener('resize', fitBrand);
-if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitBrand);
-fitBrand();
+// (once a frame at most: measuring makes the browser lay out the whole page, and during startup the title changes several times)
+var brandQueued = false;
+function fitBrandSoon() {
+  if (brandQueued) return;
+  brandQueued = true;
+  requestAnimationFrame(function () { brandQueued = false; fitBrand(); });
+}
+new MutationObserver(fitBrandSoon).observe($('brand'), { childList: true, characterData: true, subtree: true });
+window.addEventListener('resize', fitBrandSoon);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitBrandSoon);
+fitBrandSoon();

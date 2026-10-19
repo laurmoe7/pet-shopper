@@ -26,7 +26,8 @@ function showProfile() {
 var bdayMonth = $('bdayMonth'), bdayDay = $('bdayDay');
 (function () {
   bdayMonth.appendChild(new Option('Month', ''));
-  for (var m = 1; m <= 12; m++) bdayMonth.appendChild(new Option(new Date(2000, m - 1, 1).toLocaleDateString(undefined, { month: 'long' }), (m < 10 ? '0' : '') + m));
+  var monthName = new Intl.DateTimeFormat(undefined, { month: 'long' });   // (one formatter for all twelve: each toLocaleDateString makes its own, slow at startup)
+  for (var m = 1; m <= 12; m++) bdayMonth.appendChild(new Option(monthName.format(new Date(2000, m - 1, 1)), (m < 10 ? '0' : '') + m));
   bdayDay.appendChild(new Option('Day', ''));
   for (var d = 1; d <= 31; d++) bdayDay.appendChild(new Option(String(d), (d < 10 ? '0' : '') + d));
 })();

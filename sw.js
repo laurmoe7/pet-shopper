@@ -2,7 +2,7 @@
 // (one request instead of fifty on every open; a new build is a new cache, found by the update check the page makes while
 // its loading card is up, app-start.js, and the page reloads once it has taken over); emoji and fonts are cache-first too.
 importScripts('foods.js', 'tasks.js');
-var CACHE = 'nibble-v724';
+var CACHE = 'nibble-v725';
 var SHELL = ['./', 'index.html', 'fonts.css', 'styles.css', 'app.js', 'app-pet.js', 'app-actions.js', 'app-petsheet.js', 'app-dress.js', 'app-petsubs.js', 'app-closet.js', 'app-shoot.js', 'app-photo.js', 'app-room.js', 'app-goals.js', 'app-events.js', 'app-todo.js', 'app-calendar.js', 'app-stamps.js', 'app-personality.js', 'app-favourites.js', 'app-petting.js', 'app-treats.js', 'app-gift.js', 'app-plant.js', 'app-profile.js', 'app-options.js', 'app-shop.js', 'app-shopcal.js', 'app-sync.js', 'app-account.js', 'app-send.js', 'send.js', 'app-desktop.js', 'app-anims.js', 'app-voice.js', 'app-recipe.js', 'backdrops.js', 'app-backdrop.js', 'app-idle.js', 'app-toy.js', 'app-wreck.js', 'app-laser.js', 'app-steal.js', 'app-bedtime.js', 'app-night.js', 'app-ring.js', 'app-fade.js', 'app-select.js', 'app-birthday.js', 'app-xmas.js', 'app-halloween.js', 'app-newyear.js', 'app-easter.js', 'app-kingsday.js', 'app-weather.js', 'app-ambience.js', 'celebrate.html', 'celebrate-fx.js', 'app-dutch.js', 'app-nlvoices.js', 'app-lang.js', 'app-start.js', 'foods.js', 'tasks.js', 'logic.js', 'sync.js', 'achievements.js', 'sounds.js', 'wardrobe.js', 'decor.js', 'bonuses.js', 'weather.js', 'recipe.js', 'personalities.js', 'skins.js', 'manifest.webmanifest', 'icon-32.png', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'];
 
 // Emoji and fonts live in their own cache that is kept between builds, so an update only downloads
@@ -35,25 +35,30 @@ self.addEventListener('activate', function (e) {
   }).then(function () { return self.clients.claim(); }));
 });
 
+// Each answer looks in its own cache only, and ignores ?… only when there is one: caches.match over every cache with ignoreSearch
+// scans all their entries for each of the hundred files a start asks for, and that made the scripts come in about three times slower.
+var opened = {};
+function cache(name) { return opened[name] || (opened[name] = caches.open(name)); }
 self.addEventListener('fetch', function (e) {
   if (e.request.method !== 'GET') return;
   var url = new URL(e.request.url);
   var own = url.origin === self.location.origin && !/\/(emoji|fonts)\//.test(url.pathname);
   if (own) {
-    e.respondWith(caches.match(e.request, { ignoreSearch: true }).then(function (hit) {
+    e.respondWith(cache(CACHE).then(function (c) { return c.match(e.request, url.search ? { ignoreSearch: true } : undefined); }).then(function (hit) {
       return hit || fetch(e.request).then(function (res) {
-        if (res.ok) { var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put(e.request, copy); }); }
+        // (the privacy page is not kept: it must always show the current text)
+        if (res.ok && !/privacy\.html$/.test(url.pathname)) { var copy = res.clone(); cache(CACHE).then(function (c) { c.put(e.request, copy); }); }
         return res;
       });
     }));
     return;
   }
-  e.respondWith(caches.match(e.request).then(function (hit) {
+  e.respondWith((url.origin === self.location.origin ? cache(KEEP).then(function (c) { return c.match(e.request); }) : caches.match(e.request)).then(function (hit) {
     return hit || fetch(e.request).then(function (res) {
       // keep emoji and fonts (offline too), in the cache that survives updates
       if (res.ok && /\/(emoji|fonts)\//.test(url.pathname)) {
         var copy = res.clone();
-        caches.open(KEEP).then(function (c) { c.put(e.request, copy); });
+        cache(KEEP).then(function (c) { c.put(e.request, copy); });
       }
       return res;
     });

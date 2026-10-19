@@ -240,7 +240,7 @@
   }
   function lastSolidReset() { lastSolid = null; }
   // the look is checked again whenever something shows (an alert, a bubble) or the window comes back, so it can never be left in the wrong style
-  try { new MutationObserver(function () { applyLook(); }).observe(stage, { childList: true }); } catch (e) { /* old browser */ }
+  try { new MutationObserver(function () { applyLook(); }).observe(pet.parentNode, { childList: true }); } catch (e) { /* old browser */ }   // (pet.parentNode is the stage: app-idle.js names it later)
   window.addEventListener('focus', function () { applyLook(); });
   document.addEventListener('visibilitychange', function () { if (!document.hidden) applyLook(); });
   // the whole app's light or dark changed: its alerts and bubbles follow

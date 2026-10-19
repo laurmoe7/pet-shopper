@@ -65,3 +65,10 @@ test('the next special day is found', () => {
   const next = B.nextSpecial(new Date(2026, 5, 10), '');
   assert.ok(next && next.inDays > 0);
 });
+test('a 29 February birthday is kept on the 28th outside leap years', () => {
+  assert.ok(B.isBirthdayOn('02-29', new Date(2028, 1, 29)));
+  assert.ok(!B.isBirthdayOn('02-29', new Date(2028, 1, 28)), 'a leap year has the real day');
+  assert.ok(B.isBirthdayOn('02-29', new Date(2027, 1, 28)));
+  assert.ok(B.isBirthdayOn('06-03', new Date(2027, 5, 3)));
+  assert.ok(!B.isBirthdayOn('', new Date(2027, 5, 3)));
+});
