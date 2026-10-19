@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 705
+- Opens faster, most of all on phones
+- Looks for updates while the app loads, not after
+
 ## Build 704
 - Laser dot: the dot no longer turns into the pen
 

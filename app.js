@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '704';
+var BUILD = '705';
 
 var STORE_KEY = 'nibble.v1';
 var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -54,8 +54,11 @@ function stickerLook() {
   var cs = getComputedStyle(document.documentElement);
   return cs.getPropertyValue('--cb-edge-strong').trim() + '|' + cs.getPropertyValue('--shadow').trim();
 }
-/** The colours changed (light or dark): draw the list's stickers again. */
-function refreshStickers() { rows = {}; if (typeof render === 'function' && typeof state !== 'undefined') render(); }
+/** The colours changed (light or dark): draw the list's stickers again (nothing to do when they are the ones the rows already have: the theme is set on every start). */
+function refreshStickers() {
+  if (typeof render !== 'function' || typeof state === 'undefined' || stickerLook() === rowsLook) return;
+  render();
+}
 if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () { setTimeout(refreshStickers, 50); });
 /**
  * Swaps a list emoji picture for its sticker version (it stays the plain picture until the sticker is drawn).
@@ -71,11 +74,14 @@ function stickerize(img, emoji) {
   src.onload = function () {
     var S = Math.min(3, Math.ceil(window.devicePixelRatio || 1)), parts = look.split('|');
     var size = (STICKER_PX + 2 * STICKER_PAD) * S, at = STICKER_PAD * S, px = STICKER_PX * S;
+    // the SVG is turned into pixels once; drawing a picture 16 times per outline is cheap, drawing the SVG 33 times was not (a slow phone spent a quarter of a second on it while opening)
+    var flat = document.createElement('canvas'); flat.width = flat.height = px;
+    flat.getContext('2d').drawImage(src, 0, 0, px, px);
     /** The picture's outline shape, grown by r and filled with one colour. */
     function shape(r, color) {
       var c = document.createElement('canvas'); c.width = c.height = size;
       var x = c.getContext('2d');
-      for (var a = 0; a < 16; a++) x.drawImage(src, at + Math.cos(a / 16 * 2 * Math.PI) * r, at + Math.sin(a / 16 * 2 * Math.PI) * r, px, px);
+      for (var a = 0; a < 16; a++) x.drawImage(flat, at + Math.cos(a / 16 * 2 * Math.PI) * r, at + Math.sin(a / 16 * 2 * Math.PI) * r);
       x.globalCompositeOperation = 'source-in'; x.fillStyle = color; x.fillRect(0, 0, size, size);
       return c;
     }
@@ -85,7 +91,7 @@ function stickerize(img, emoji) {
     ctx.drawImage(shape(2.5 * S, parts[0]), 0, 0);
     ctx.restore();
     ctx.drawImage(shape(1.6 * S, '#fffaf0'), 0, 0);
-    ctx.drawImage(src, at, at, px, px);
+    ctx.drawImage(flat, at, at);
     try { stickerCache[key] = out.toDataURL('image/png'); } catch (e) { return; }
     use(stickerCache[key]);
   };
@@ -297,8 +303,11 @@ function dayNodes(items, rowFor) {
 }
 
 /** Redraws both lists and the empty hint from state. */
+var rowsLook = '';   // the sticker colours the kept rows were drawn with
 function render() {
-  lookNow = stickerLook();
+  var look = stickerLook();
+  if (look !== rowsLook) { rows = {}; rowsLook = look; }   // new colours: every row is drawn again
+  lookNow = look;
   try { renderNow(); } finally { lookNow = ''; }
 }
 function renderNow() {

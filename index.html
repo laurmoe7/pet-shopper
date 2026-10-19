@@ -88,6 +88,18 @@ html.desk-boot.booting,html.desk-boot.booting body{background:transparent!import
     btns.children[1].onclick = function () { location.reload(); };
   }, 10000);
 })();
+// The look for a newer build starts here, at the very top, so the phone's trip to the server happens while the scripts below load and run instead of
+// after them (the start script waits for the answer before the loading card goes). Only when a build is already installed: the first visit registers the
+// worker at the end, so its big download does not slow the first open.
+(function () {
+  var sw = window.SwBoot = { had: false, changed: false, onChange: null, check: null };
+  if (!('serviceWorker' in navigator) || location.protocol !== 'https:') return;
+  sw.had = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', function () { sw.changed = true; if (sw.onChange) sw.onChange(); });
+  if (sw.had) sw.check = navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (reg) {
+    return reg.update().then(function () { return reg; }, function () { return reg; });
+  });
+})();
 </script>
 </head>
 <body>

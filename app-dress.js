@@ -70,11 +70,17 @@ function wearTile(item, slot) {
   b.append(icon, label);
   return b;
 }
-WEAR_ROWS.forEach(function (row) {
-  [{ id: 'none', label: row.none }].concat(Wardrobe.filter(function (w) { return w.slot === row.slot; })).forEach(function (item) {
-    row.strip.appendChild(wearTile(item, row.slot));
+// the tiles are made the first time the dressing room opens (about 1300 page elements: making them while the app opened slowed every phone's start)
+var wearBuilt = false;
+function buildWearStrips() {
+  if (wearBuilt) return;
+  wearBuilt = true;
+  WEAR_ROWS.forEach(function (row) {
+    [{ id: 'none', label: row.none }].concat(Wardrobe.filter(function (w) { return w.slot === row.slot; })).forEach(function (item) {
+      row.strip.appendChild(wearTile(item, row.slot));
+    });
   });
-});
+}
 /** Every wardrobe button, in every slot. */
 function wearButtons() { return dressSheet.querySelectorAll('.hat-strip button'); }
 /** Marks what is worn in each slot in the dressing room and updates its preview. */
@@ -124,6 +130,7 @@ $('dressBtn').addEventListener('click', function () {
   showName();
   lastNameTap = 0;
   buildSpeciesGrid();   // (the first time only)
+  buildWearStrips();   // (the same)
   refreshLocks();
   applyPet();
   renderPersonalities();

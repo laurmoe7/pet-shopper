@@ -176,7 +176,11 @@ function fitBrand() {
   while (cut() && size > 12) { size -= 0.5; el.style.fontSize = size + 'px'; }
   brandFitting = false;
 }
-new MutationObserver(function () { fitBrand(); }).observe($('brand'), { childList: true, characterData: true, subtree: true });
-window.addEventListener('resize', fitBrand);
-if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitBrand);
-fitBrand();
+// it measures the page, so it waits for the next frame and runs once for everything that changed by then (while the app was opening it ran
+// twice in the middle of the scripts and made the phone work out the whole page's styles each time)
+var brandFrame = 0;
+function fitBrandSoon() { if (!brandFrame) brandFrame = requestAnimationFrame(function () { brandFrame = 0; fitBrand(); }); }
+new MutationObserver(fitBrandSoon).observe($('brand'), { childList: true, characterData: true, subtree: true });
+window.addEventListener('resize', fitBrandSoon);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitBrandSoon);
+fitBrandSoon();

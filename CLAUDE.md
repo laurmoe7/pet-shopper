@@ -108,7 +108,7 @@ Details are in `docs/design/pet-todo-bedtime-notes.md`: read it before touching 
 
 ### Service worker and builds
 
-`sw.js` caches the app shell. Whenever you change a cached file: bump `CACHE` in `sw.js` (`nibble-vNN`) and `BUILD` in `app.js` to the same number (a test checks), and add any new script to `SHELL`. The stable channel (`/stable/`) runs on the same origin, so its worker renames its caches `nibble-stable-*` and each channel only clears its own old caches (`ownCache`, build 680).
+`sw.js` caches the app shell. Whenever you change a cached file: bump `CACHE` in `sw.js` (`nibble-vNN`) and `BUILD` in `app.js` to the same number (a test checks), and add any new script to `SHELL`. The stable channel (`/stable/`) runs on the same origin, so its worker renames its caches `nibble-stable-*` and each channel only clears its own old caches (`ownCache`, build 680). Opening (build 705): when a build is installed, the look for a newer one starts in `index.html`'s head (`window.SwBoot`), so it overlaps the scripts; `app-start.js` waits for the answer at most 2.5 s on the phone (6 s in the Windows app), and a newer build that takes over after the app shows reloads the phone page only once it is out of sight.
 
 ### Tools (`tools/`, for me; they save repeating the same steps)
 

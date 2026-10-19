@@ -44,22 +44,32 @@ function revealApp() {
   document.documentElement.classList.remove('booting');
   setTimeout(function () { if (boot && boot.parentNode) boot.parentNode.removeChild(boot); }, 500);
 }
+var swBoot = window.SwBoot || {};
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
-  // a new build takes over as soon as it is installed; reload once so the page runs the new code too
-  var hadWorker = !!navigator.serviceWorker.controller, reloaded = false;
-  navigator.serviceWorker.addEventListener('controllerchange', function () {
-    if (!hadWorker || reloaded) { hadWorker = true; revealApp(); return; }   // (the first install: nothing to reload)
-    reloaded = true;
-    location.reload();   // (the loading card stays up until the new page has started)
-  });
-  bootTimer = setTimeout(revealApp, 6000);   // never wait long for the network
+  // a new build takes over as soon as it is installed; reload once so the page runs the new code too. Before the app shows, that happens at once (the
+  // loading card stays up through it); once it shows, the phone reloads when the app is next out of sight, so it never starts again under her finger.
+  // The Windows app reloads at once as before (its window is never out of sight).
+  var hadWorker = !!swBoot.had, reloaded = false;
+  var reloadNow = function () { if (reloaded) return; reloaded = true; location.reload(); };
+  var tookOver = function () {
+    if (!hadWorker) { hadWorker = true; revealApp(); return; }   // (the first install: nothing to reload)
+    if (!bootRevealed || window.nibbleDesktop) { reloadNow(); return; }
+    if (document.visibilityState === 'hidden') reloadNow();
+    else document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') reloadNow(); });
+  };
+  swBoot.onChange = tookOver;
+  if (swBoot.changed) tookOver();   // (it took over while the scripts were loading)
+  // never wait long for the network: the phone shows the app after 2.5 s at most (a newer build found later is used from the next open), the Windows app after 6 s
+  bootTimer = setTimeout(revealApp, window.nibbleDesktop ? 6000 : 2500);
   // register() does not look for a newer build when this one is already registered (the browser does that later, in the background, after the page
-  // has shown: the page then reloaded a few seconds in, and the loading card came back). So the check is made here, while the card is still up.
-  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (reg) {
+  // has shown: the page then reloaded a few seconds in, and the loading card came back). So the check is made while the card is still up: it starts at
+  // the top of index.html when a build is installed, and here on the first visit.
+  (swBoot.check || navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (reg) {
     return reg.update().then(function () { return reg; }, function () { return reg; });
-  }).then(function (reg) {
+  })).then(function (reg) {
     function waitForTakeover() { clearTimeout(bootTimer); bootTimer = setTimeout(revealApp, 10000); }   // a newer build is on its way: wait for it
     if (reloaded) return;   // it has taken over already and the page is reloading: the card stays up
+    if (bootRevealed) return;   // the app is showing already: a newer build is used next time
     if (reg.installing || reg.waiting) waitForTakeover(); else revealApp();
     reg.addEventListener('updatefound', function () { if (!bootRevealed) waitForTakeover(); });
   }).catch(function () { revealApp(); /* not available here */ });
