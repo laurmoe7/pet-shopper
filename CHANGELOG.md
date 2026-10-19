@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 718
+- Mini Fumu stays on the taskbar after a resize, also for a spot saved before
+- Copy diagnostics shows his saved spot and the last screen change
+
 ## Build 717
 - Alert cards no longer cut off at the screen edge after a resize
 

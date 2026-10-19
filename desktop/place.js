@@ -150,6 +150,8 @@ function afterScreensChange(cur, saved, size, areas, primary, displaced) {
 function homeOnScreens(home, size, screens) {
   if (!home || !home.screen || typeof home.x !== 'number' || typeof home.y !== 'number') return null;
   var old = home.screen, s = screens.filter(function (d) { return d.id === old.id; })[0];
+  // (Windows can give a screen a new id when it changes mode: then the one that starts at the same corner, or the only one)
+  if (!s) s = screens.filter(function (d) { return d.bounds.x === old.x && d.bounds.y === old.y; })[0] || (screens.length === 1 ? screens[0] : null);
   if (!s) return null;
   var n = s.bounds, w = size.width, h = size.height;
   var x = home.x + w / 2 > old.x + old.width / 2 ? n.x + n.width - (old.x + old.width - home.x) : n.x + (home.x - old.x);

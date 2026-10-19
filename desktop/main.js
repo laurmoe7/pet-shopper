@@ -184,7 +184,11 @@ function start() {
   // meets the edges of the screen and the top of the taskbar with HIM, not with the empty space round him
   let bodyBox = null;
   ipcMain.on('desk:body', (_e, box) => {
-    if (Array.isArray(box) && box.length === 4 && box.every((n) => typeof n === 'number' && isFinite(n) && n >= 0 && n < 4000) && box[2] > box[0] && box[3] > box[1]) bodyBox = box;
+    if (Array.isArray(box) && box.length === 4 && box.every((n) => typeof n === 'number' && isFinite(n) && n >= 0 && n < 4000) && box[2] > box[0] && box[3] > box[1]) {
+      const first = !bodyBox; bodyBox = box;
+      // a spot saved by an older version has no screen yet: it is learned now, while he still stands on it
+      if (first && win && mode === 'pet' && !prefs.screen && prefs.x !== null && !displaced) { const b = win.getBounds(); if (b.x === prefs.x && b.y === prefs.y) restHere(); }
+    }
   });
   /** @returns {{l:number,t:number,r:number,b:number}} How far his body is in from each side of a window of size `b` (b = how far its lowest part is from the top). */
   function bodyIn(b) {
@@ -540,7 +544,7 @@ function start() {
   }, 150);
   // ---------- screens that come and go, and the computer going quiet ----------
   // A screen is unplugged or changes size: he goes to the main screen but remembers his own spot, and goes back when that screen returns.
-  let screenTimer = null, screensBefore = [];
+  let screenTimer = null, screensBefore = [], lastScreens = null;
   function screensChanged() {
     clearTimeout(screenTimer);
     screenTimer = setTimeout(() => {
@@ -558,7 +562,13 @@ function start() {
         const d = screens.find((s) => s.id === was.id), onFloor = cur.y >= lowestY(was, cur) - 6;
         r = { bounds: Object.assign({}, cur, { y: onFloor ? d.floor : Math.min(cur.y, d.floor) }), displaced: false };
       } else if (home) r = { bounds: home, displaced: false };
-      else r = place.afterScreensChange(cur, prefs.x === null ? null : prefs, size, areas(), screen.getPrimaryDisplay().workArea, displaced);
+      else {
+        r = place.afterScreensChange(cur, prefs.x === null ? null : prefs, size, areas(), screen.getPrimaryDisplay().workArea, displaced);
+        // pulled in from the side, but not up off the taskbar: if he stood on the floor he stands on the new one
+        const d = screen.getDisplayMatching(r.bounds), s = screens.find((x) => x.id === d.id);
+        if (!r.displaced && s && was && cur.y >= lowestY(was, cur) - 6) r.bounds = Object.assign({}, r.bounds, { y: s.floor });
+      }
+      lastScreens = { at: new Date().toISOString(), from: cur, to: r.bounds, how: same && !displaced ? 'stayed' : home ? 'home' : 'old rules' };
       screensBefore = now;
       displaced = r.displaced;
       win.setBounds(r.bounds);
@@ -992,7 +1002,7 @@ function start() {
     const b = win ? win.getBounds() : null;
     return {
       version: app.getVersion(), channel: CHANNEL.name, electron: process.versions.electron, packaged: app.isPackaged, page: APP_URL,
-      mode, bounds: b, lastThrow, zoom: zoom(), screens: screen.getAllDisplays().map((d) => d.workArea.width + 'x' + d.workArea.height + ' @' + d.scaleFactor),
+      mode, bounds: b, home: { x: prefs.x, y: prefs.y, screen: prefs.screen || null, floor: prefs.floor }, lastScreens, lastThrow, zoom: zoom(), screens: screen.getAllDisplays().map((d) => d.id + ': ' + d.bounds.width + 'x' + d.bounds.height + ' (work ' + d.workArea.width + 'x' + d.workArea.height + ') @' + d.scaleFactor),
       onPerch: perch ? perch.id : null, awareness: prefs.awareness, program: programNow, lastUnknownProgram: lastUnknown, taughtGames: Object.keys(prefs.myGames).length, windowsSeen: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch') ? windows.list().length : null, perchesNow: prefs.perch && windows.available() && privacy.allows(prefs.awareness, 'perch') ? perchesNow().length : null,
       idleSeconds: powerMonitor.getSystemIdleTime(), idle, displaced, pointerOverFumu: solidNow, clickThrough: gamingNow(),
       shortcutsHeld: Object.assign({}, registered, hoverKeyOn), settingsFolder: app.getPath('userData')

@@ -157,8 +157,10 @@ test('his resting place follows its screen when it changes size, and comes back 
   // top left, not on the floor: keeps its distance from the top left
   const corner = { x: 100, y: 80, screen: Object.assign({ id: 7 }, big), floor: false };
   assert.deepEqual(P.homeOnScreens(corner, size, scr(small, 840)), { x: 100, y: 80, width: 320, height: 250 });
+  // the screen came back with a new id: the same one is found by its corner (or as the only screen)
+  assert.deepEqual(P.homeOnScreens(clock, size, [{ id: 8, bounds: small, area: small, floor: 840 }]), { x: 1560, y: 840, width: 320, height: 250 });
   // his screen is gone, or an old save without a screen: nothing (the old rules decide)
-  assert.equal(P.homeOnScreens(clock, size, [{ id: 8, bounds: small, area: small, floor: 840 }]), null);
+  assert.equal(P.homeOnScreens(clock, size, [{ id: 8, bounds: { x: 1920, y: 0, width: 1920, height: 1080 }, area: small, floor: 840 }, { id: 9, bounds: { x: -1920, y: 0, width: 1920, height: 1080 }, area: small, floor: 840 }]), null);
   assert.equal(P.homeOnScreens({ x: 5, y: 5 }, size, scr(small, 840)), null);
 });
 
