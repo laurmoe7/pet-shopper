@@ -2,6 +2,15 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 708
+- Tabby and white is now Big Boy, a tenth bigger
+
+## Build 707
+- Tabby and white: chin spot, darker fur round the eyes
+
+## Build 706
+- New cat skin: Tabby and white
+
 ## Build 705
 - Unticking now stays unticked after Backup & sync (stamps, tastes, goals, favourites)
 
