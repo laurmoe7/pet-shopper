@@ -86,7 +86,7 @@
   // the shell also reports where the pointer is (Windows can stop forwarding it after a resize). An older shell has no such call, so ask first:
   // the page is loaded from the web and can be newer than the installed program
   if (D.onCursor) D.onCursor(hoverAt);
-  if (D.onResync) D.onResync(function () { lastSolid = null; });   // the shell changed the window: say again whether clicks are caught
+  if (D.onResync) D.onResync(function () { lastSolid = null; cardResync(); });   // the shell changed the window: say again whether clicks are caught
   document.addEventListener('mouseleave', function () { hoverAt(-1, -1); });
   new MutationObserver(function () { lastSolid = null; }).observe(root, { attributes: true, attributeFilter: ['class'] });
 
@@ -312,25 +312,28 @@
   if (window.MutationObserver) new MutationObserver(fitBubble).observe(bubble, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['hidden'] });
   // half out of the screen (peeking): the bubble keeps to the part that shows
   // until the shell has said which part of the window is on a screen (an older shell, or the first moments), work it out here from the window's place on its screen
-  var shellVisible = false;
-  function ownVisible() {
-    if (shellVisible || !isPet()) return;
-    var zoom = window.outerWidth && window.innerWidth ? window.outerWidth / window.innerWidth : 1, sx = window.screenX, sc = window.screen || {};
-    if (!isFinite(sx) || !sc.availWidth || !(zoom > 0.3 && zoom < 4)) return;
-    var left = sc.availLeft || 0, l = Math.max(0, (left + 16 - sx) / zoom), r = Math.min(window.innerWidth, (left + sc.availWidth - 16 - sx) / zoom);
-    if (r <= l + 120) return;   // nonsense: leave it
-    var full = l <= 0 && r >= window.innerWidth - 1;
+  // the shell says which part of the window is on a screen; the page also works it out from its own window position, and the
+  // narrower of the two wins (after the screen changes size the shell's numbers can be off for a moment, and a card was cut off)
+  var shellVis = null, ownVis = null;
+  function setVisible() {
+    var w = window.innerWidth, l = 0, r = w;
+    [shellVis, ownVis].forEach(function (v) { if (v) { l = Math.max(l, v[0]); r = Math.min(r, v[1]); } });
+    if (r <= l + 120) { var v = shellVis || ownVis || [0, w]; l = v[0]; r = v[1]; }   // they disagree wildly: trust the shell
+    var full = l <= 0 && r >= w - 1, was = root.style.getPropertyValue('--vis-r') + root.style.getPropertyValue('--vis-l');
     root.style.setProperty('--vis-l', full ? '0px' : l + 'px');
     root.style.setProperty('--vis-r', full ? '100vw' : r + 'px');
+    if (was !== root.style.getPropertyValue('--vis-r') + root.style.getPropertyValue('--vis-l')) fitBubble();
+  }
+  function ownVisible() {
+    if (!isPet()) return;
+    var zoom = window.outerWidth && window.innerWidth ? window.outerWidth / window.innerWidth : 1, sx = window.screenX, sc = window.screen || {};
+    if (!isFinite(sx) || !sc.availWidth || !(zoom > 0.3 && zoom < 4)) { ownVis = null; return; }
+    var left = sc.availLeft || 0, l = Math.max(0, (left + 16 - sx) / zoom), r = Math.min(window.innerWidth, (left + sc.availWidth - 16 - sx) / zoom);
+    ownVis = r <= l + 120 ? null : [l, r];   // nonsense: leave it
+    setVisible();
   }
   setInterval(ownVisible, 700);
-  if (D.onVisible) D.onVisible(function (l, r) {
-    shellVisible = true;
-    var full = l <= 0 && r >= window.innerWidth - 1;
-    root.style.setProperty('--vis-l', full ? '0px' : l + 'px');
-    root.style.setProperty('--vis-r', full ? '100vw' : r + 'px');
-    fitBubble();
-  });
+  if (D.onVisible) D.onVisible(function (l, r) { shellVis = [l, r]; setVisible(); });
 
   // ---------- the toy over the whole screen (the switch is in the settings window; see toyField in app-toy.js) ----------
   // While he is carried or thrown the toy is drawn by a window of its own (the shell moves it where this page says), so it can bounce
@@ -698,6 +701,8 @@
       root.classList.toggle('card-narrow', Math.abs(went) < 2);   // could not slide (he sits on a window, say): the card shrinks to fit instead
     }, function () { cardBusy = false; });
   }
+  // the shell put him somewhere new (a screen changed size): the old slide no longer means anything, and a card up now is checked again
+  function cardResync() { cardShift = 0; cardShiftAt = 0; root.classList.remove('card-narrow'); clearTimeout(cardBackTimer); cardBackTimer = 0; setTimeout(cardCheck, 300); }
   new MutationObserver(cardCheck).observe(document.querySelector('.stage'), { childList: true });
   setInterval(cardCheck, 700);
 

@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 717
+- Alert cards no longer cut off at the screen edge after a resize
+
 ## Build 716
 - Mini Fumu keeps his spot when the screen changes size
 
