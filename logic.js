@@ -258,7 +258,7 @@
     data.settings = settings(data.settings);
     // when each thing last changed, for syncing devices (sync.js); a first launch counts as never edited (time 0), so anything a person did wins
     if (root.Sync) {
-      data.sync = root.Sync.parse(data.sync);
+      data.sync = root.Sync.parse(data.sync, data.pet);
       if (fresh) root.Sync.stamp(data, 0, true);
     }
     // developer-only switches from the dev menu

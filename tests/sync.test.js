@@ -280,6 +280,13 @@ function randomDoc(r, by) {
     gifts: { d1: r() < 0.5 ? ['a'] : ['b', 'a'] },
     guard: { day: 'd' + Math.floor(r() * 2), words: r() < 0.5 ? ['x'] : ['y'], lastSeen: Math.floor(r() * 9) }
   };
+  // take-backs: each device's own, and sometimes a copy of another's
+  for (const dev of [by, r() < 0.5 ? 'aaaa' : 'bbbb']) {
+    if (r() < 0.3) continue;
+    const value = {};
+    for (const p of ['t:fruit', 'g:x', 'g:y', 'at:g', 'fd:milk']) if (r() < 0.6) value[p] = [p === 't:fruit' ? '' : 'd' + Math.floor(r() * 2), Math.floor(r() * 3), Math.floor(r() * 2), r() < 0.5 ? '' : 'p' + Math.floor(r() * 2)];
+    doc.fields['back.' + dev] = { at: Math.floor(r() * 4), by: dev, value };
+  }
   return doc;
 }
 
@@ -441,4 +448,125 @@ test('a document with a broken player or emoji overrides is cleaned on apply, li
   assert.deepEqual(a.overrides, { pears: '\u{1F350}' });
   assert.deepEqual(L.cleanOverrides(null), {});
   assert.deepEqual(L.cleanOverrides([1, 2]), {});
+});
+
+// ---------- taking counts back ----------
+
+test('a stamp taken back stays taken back after the next sync', () => {
+  const { a } = pair();
+  L.addStamp(a.pet, 'chore', 1); Sync.stamp(a, T + 1000);   // tick a task (save)
+  let shared = round(a, null, T + 2000);
+  assert.deepEqual(a.pet.stamps, { chore: 1 });
+  L.addStamp(a.pet, 'chore', -1); Sync.stamp(a, T + 3000);  // untick it
+  shared = round(a, shared, T + 4000);
+  assert.deepEqual(a.pet.stamps, {});
+  shared = round(a, shared, T + 5000);
+  assert.deepEqual(a.pet.stamps, {}, 'a second round does not bring it back');
+});
+
+test('unticking on one device and ticking again counts the purchase once, everywhere', () => {
+  const { a, b } = pair();
+  a.pet.tastes.fruit = 1; a.pet.stamps.chore = 3; Sync.stamp(a, T + 1000);
+  let shared = round(a, null, T + 2000);
+  shared = round(b, shared, T + 3000);
+  assert.deepEqual([b.pet.tastes, b.pet.stamps], [{ fruit: 1 }, { chore: 3 }]);
+  L.refundTaste(b.pet, { cat: 'fruit' }); L.addStamp(b.pet, 'chore', -1); Sync.stamp(b, T + 4000);
+  shared = round(b, shared, T + 5000);
+  shared = round(a, shared, T + 6000);
+  assert.deepEqual([a.pet.tastes.fruit, a.pet.stamps.chore], [0, 2], 'the take-back reaches the other device');
+  b.pet.tastes.fruit++; L.addStamp(b.pet, 'chore', 1); Sync.stamp(b, T + 7000);   // ticked again
+  shared = round(b, shared, T + 8000);
+  shared = round(a, shared, T + 9000);
+  round(b, shared, T + 10000);
+  for (const d of [a, b]) assert.deepEqual([d.pet.tastes.fruit, d.pet.stamps.chore], [1, 3]);
+});
+
+test('goals, favourites and the fair-play words taken back by unticking stay taken back', () => {
+  const { a, b } = pair();
+  const day = '2026-10-19';
+  a.pet.achievements = { fruit: { count: 4, day, today: 2 } };
+  a.pet.favourites = { milk: { label: 'Milk', emoji: '🥛', count: 3, day } };
+  a.pet.guard = { day, words: ['milk', 'egg'], lastSeen: 5, trip: '' };
+  Sync.stamp(a, T + 1000);
+  let shared = round(a, null, T + 2000);
+  shared = round(b, shared, T + 3000);
+  // B puts the milk back: what refundEaten and refundFavourite do
+  b.pet.achievements.fruit.count--; b.pet.achievements.fruit.today--;
+  b.pet.guard.words = ['egg'];
+  b.pet.favourites.milk.count--; b.pet.favourites.milk.day = '2026-10-12';
+  Sync.stamp(b, T + 4000);
+  shared = round(b, shared, T + 5000);
+  shared = round(a, shared, T + 6000);
+  for (const d of [a, b]) {
+    assert.deepEqual(d.pet.achievements.fruit, { count: 3, day, today: 1 });
+    assert.deepEqual(d.pet.guard.words, ['egg']);
+    assert.deepEqual(d.pet.favourites.milk, { label: 'Milk', emoji: '🥛', count: 2, day: '2026-10-12' });
+  }
+  // A ticks it again: it counts once more, as one purchase
+  a.pet.achievements.fruit.count++; a.pet.achievements.fruit.today++;
+  a.pet.guard.words.push('milk');
+  a.pet.favourites.milk.count++; a.pet.favourites.milk.day = day;
+  Sync.stamp(a, T + 7000);
+  shared = round(a, shared, T + 8000);
+  round(b, shared, T + 9000);
+  for (const d of [a, b]) {
+    assert.deepEqual(d.pet.achievements.fruit, { count: 4, day, today: 2 });
+    assert.deepEqual(d.pet.guard.words.slice().sort(), ['egg', 'milk']);
+    assert.deepEqual(d.pet.favourites.milk, { label: 'Milk', emoji: '🥛', count: 3, day });
+  }
+});
+
+test('a favourite taken back to nothing goes away everywhere', () => {
+  const { a, b } = pair();
+  a.pet.favourites = { kiwi: { label: 'Kiwi', emoji: '🥝', count: 1, day: '2026-10-19' } };
+  Sync.stamp(a, T + 1000);
+  let shared = round(b, round(a, null, T + 2000), T + 3000);
+  delete b.pet.favourites.kiwi; Sync.stamp(b, T + 4000);
+  shared = round(b, shared, T + 5000);
+  round(a, shared, T + 6000);
+  for (const d of [a, b]) assert.deepEqual(d.pet.favourites, {});
+});
+
+test('a new day clearing the fair-play words is not a take-back', () => {
+  const { a, b } = pair();
+  a.pet.guard = { day: '2026-10-18', words: ['milk'], lastSeen: 5, trip: '' };
+  Sync.stamp(a, T + 1000);
+  let shared = round(a, null, T + 2000);
+  a.pet.guard.day = '2026-10-19'; a.pet.guard.words = ['egg']; Sync.stamp(a, T + 3000);
+  shared = round(a, shared, T + 4000);
+  assert.equal(JSON.stringify(shared.fields).includes('back.'), false, 'nothing was taken back');
+  round(b, shared, T + 5000);
+  assert.deepEqual(b.pet.guard.words, ['egg']);
+});
+
+test('take-backs survive a server and devices on the old code', () => {
+  const { a, b } = pair();
+  // the old merge kept unknown fields by "latest wins" and the counters by "larger wins": both are what it still does here
+  const oldMerge = (x, y) => { const m = Sync.merge(x, y); for (const k of Object.keys(m.fields)) if (k.startsWith('back.')) { const rx = x && x.fields && x.fields[k], ry = y && y.fields && y.fields[k]; m.fields[k] = !rx ? ry : !ry ? rx : (rx.at >= ry.at ? rx : ry); } return m; };
+  a.pet.stamps = { chore: 2 }; Sync.stamp(a, T + 1000);
+  let server = oldMerge(null, Sync.snapshot(a, T + 2000));
+  Sync.apply(a, server);
+  L.addStamp(a.pet, 'chore', -1); Sync.stamp(a, T + 3000);
+  server = oldMerge(server, Sync.snapshot(a, T + 4000));
+  Sync.apply(a, server);
+  assert.deepEqual(a.pet.stamps, { chore: 1 });
+  // a device on the old code sees the larger count (as before) and its own tick still counts
+  const old = clone(server.counters);
+  assert.deepEqual(old.stamps, { chore: 2 });
+  server = oldMerge(server, { v: 1, items: {}, fields: {}, counters: Object.assign(old, { stamps: { chore: 3 } }) });
+  round(b, server, T + 5000);
+  assert.deepEqual(b.pet.stamps, { chore: 2 });
+});
+
+test('a document from before take-backs loads as it always did', () => {
+  const { a } = pair();
+  const oldDoc = { v: 1, items: {}, fields: {}, counters: { tastes: { fruit: 4 }, stamps: { chore: 2 } } };
+  round(a, oldDoc, T + 1000);
+  assert.deepEqual([a.pet.tastes, a.pet.stamps], [{ fruit: 4 }, { chore: 2 }]);
+  // a save from before this build (no take-back table) loads and takes back from then on
+  const saved = clone(a); delete saved.sync.was; delete saved.sync.gross; delete saved.sync.backs;
+  const s = L.parseState(JSON.stringify(saved), ids());
+  L.addStamp(s.pet, 'chore', -1); Sync.stamp(s, T + 2000);
+  round(s, oldDoc, T + 3000);
+  assert.deepEqual(s.pet.stamps, { chore: 1 });
 });

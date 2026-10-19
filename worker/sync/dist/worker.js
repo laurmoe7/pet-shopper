@@ -14,8 +14,12 @@
  *   "removed" marker for TOMBSTONE_DAYS so the other devices learn of it.
  * - single things (name, look, personality, room, closet, player, emoji overrides): the latest change wins.
  * - counters (goals, tastes, stamps, favourites, prizes): the larger value wins, so progress is never lost.
- *   They never go down through syncing, and two devices counting different things at once keep the larger
- *   count, not the sum.
+ *   Two devices counting different things at once keep the larger count, not the sum.
+ * - taking counts back (unticking an item or a task lowers tastes, stamps, goals, favourites and the fair-play
+ *   words on purpose): the document's counters hold the "gross" value, which only grows (what is shown plus
+ *   everything taken back), and each device adds its own record of what it took back (a `back.<device>` entry
+ *   in the fields part, which only grows too). What is shown is the gross minus all take-backs. A server or
+ *   device on older code keeps those entries as they are (latest wins) and sees the gross, as before.
  * - gift boxes, treats and the fair-play memory: the later day wins; on the same day what both know is joined.
  * Left on each device: the to-do list (private to each person), the lamp and sleep, options, developer
  * switches, which list is showing.
@@ -46,6 +50,10 @@
   var FIELD_NAMES = Object.keys(FIELDS);
   /** The pet's counters, each merged by its own rule (see `mergeCounter`). */
   var COUNTERS = ['achievements', 'tastes', 'stamps', 'favourites', 'gifts', 'prizes', 'plant', 'treats', 'guard'];
+  /** The fields part's entries holding one device's take-backs are named this plus the device. */
+  var BACK = 'back.';
+  /** Take-back paths that are a yes/no for one day (counted today, a fair-play word) rather than a number. */
+  var FLAGS = { fd: 1, g: 1 };
 
   // ---------- small helpers ----------
 
@@ -90,9 +98,10 @@
   /**
    * Cleans whatever was saved as state.sync (nothing, an older format or damaged data) into a usable table.
    * @param {Object} [saved]
-   * @returns {{v: number, device: string, seen: number, items: Object, fields: Object}}
+   * @param {Object} [pet]  The loaded pet: a save from before take-backs notes its counters now, so the first one is seen.
+   * @returns {{v: number, device: string, seen: number, items: Object, fields: Object, was: ?Object, gross: Object, backs: Object}}
    */
-  function parse(saved) {
+  function parse(saved, pet) {
     saved = isObj(saved) ? saved : {};
     var meta = {
       v: VERSION,
@@ -116,6 +125,17 @@
     if (isObj(saved.fields)) Object.keys(saved.fields).forEach(function (name) {
       var e = entry(saved.fields[name]);
       if (e && FIELDS[name]) meta.fields[name] = e;
+    });
+    // take-backs (see takeBack): the counters as last noted, the gross from the last sync, and every device's take-backs
+    if (isObj(saved.was)) {
+      meta.was = {};
+      Object.keys(saved.was).forEach(function (p) { var v = saved.was[p]; if (Array.isArray(v) && typeof v[0] === 'string' && num(v[1]) === v[1]) meta.was[p] = [v[0], v[1]]; });
+    } else if (isObj(pet)) meta.was = flat(pet);
+    meta.gross = isObj(saved.gross) ? saved.gross : {};
+    meta.backs = {};
+    if (isObj(saved.backs)) Object.keys(saved.backs).forEach(function (dev) {
+      var b = saved.backs[dev];
+      if (isObj(b) && typeof b.at === 'number' && isFinite(b.at)) meta.backs[dev] = { at: b.at, paths: cleanPaths(b.paths) };
     });
     return meta;
   }
@@ -155,7 +175,8 @@
       meta.fields[name] = { at: at, by: meta.device, h: h };
       out.fields.push(name);
     });
-    if (!exact && (out.items || out.deleted || out.fields.length)) meta.seen = at;   // the next change is always later than this one
+    var tookBack = takeBack(state, exact ? 0 : at);
+    if (!exact && (out.items || out.deleted || out.fields.length || tookBack)) meta.seen = at;   // the next change is always later than this one
     prune(meta, now);
     return out;
   }
@@ -168,6 +189,204 @@
       if (m.del && now - m.at > TOMBSTONE_DAYS * DAY_MS) { delete meta.items[id]; n++; }
     });
     return n;
+  }
+
+  // ---------- taking counts back ----------
+
+  /**
+   * The counters that can be taken back, as numbers by path: [day, number], the day being '' for lifetime
+   * counts. t: tastes, s: stamps, a: a goal's count, at: a goal's count today, f: a favourite's count,
+   * fd: a favourite counted that day, g: a fair-play word that counted that day.
+   */
+  function flat(pet) {
+    var out = {};
+    function each(o, fn) { if (isObj(o)) Object.keys(o).forEach(function (k) { fn(k, o[k]); }); }
+    each(pet.tastes, function (k, v) { out['t:' + k] = ['', num(v)]; });
+    each(pet.stamps, function (k, v) { out['s:' + k] = ['', num(v)]; });
+    each(pet.achievements, function (k, v) {
+      if (!isObj(v)) return;
+      out['a:' + k] = ['', num(v.count)];
+      if (v.day) out['at:' + k] = [String(v.day), num(v.today)];
+    });
+    each(pet.favourites, function (k, v) {
+      if (!isObj(v)) return;
+      out['f:' + k] = ['', num(v.count)];
+      if (v.day) out['fd:' + k] = [String(v.day), 1];
+    });
+    var guard = isObj(pet.guard) ? pet.guard : {};
+    if (guard.day && Array.isArray(guard.words)) guard.words.forEach(function (w) { if (typeof w === 'string') out['g:' + w] = [String(guard.day), 1]; });
+    return out;
+  }
+
+  /** A device's take-backs cleaned: path -> [day, taken back, counted again, the day before (favourites)]. */
+  function cleanPaths(paths) {
+    var out = {};
+    if (isObj(paths)) Object.keys(paths).forEach(function (p) {
+      var r = paths[p];
+      if (Array.isArray(r) && r.length === 4 && typeof r[0] === 'string' && num(r[1]) === r[1] && num(r[2]) === r[2] && typeof r[3] === 'string') out[p] = r.slice();
+    });
+    return out;
+  }
+  /** Joins two records of one path from the same device: the later day's, or on the same day the larger numbers. */
+  function joinPath(r, s) {
+    if (!r || !s) return r || s;
+    if (r[0] !== s[0]) return r[0] > s[0] ? r : s;
+    return [r[0], Math.max(r[1], s[1]), Math.max(r[2], s[2]), r[3] > s[3] ? r[3] : s[3]];
+  }
+  /** Joins two devices' take-back tables ({device: {at, paths}}). */
+  function joinBacks(x, y) {
+    var out = {};
+    [x, y].forEach(function (t) {
+      Object.keys(t).forEach(function (dev) {
+        var o = out[dev], b = t[dev];
+        if (!o) { out[dev] = { at: b.at, paths: copy(b.paths) }; return; }
+        o.at = Math.max(o.at, b.at);
+        Object.keys(b.paths).forEach(function (p) { o.paths[p] = copy(joinPath(o.paths[p], b.paths[p])); });
+      });
+    });
+    return out;
+  }
+  /** Fair-play words of earlier days no longer matter: forgets their take-backs (the guard's day only moves on, so every order agrees). */
+  function pruneBacks(backs, guard) {
+    var day = isObj(guard) && typeof guard.day === 'string' ? guard.day : '';
+    Object.keys(backs).forEach(function (dev) {
+      var paths = backs[dev].paths;
+      Object.keys(paths).forEach(function (p) { if (p.slice(0, 2) === 'g:' && paths[p][0] < day) delete paths[p]; });
+    });
+    return backs;
+  }
+  /** What is taken back (taken back minus counted again) of one path on one day, over all devices. */
+  function net(backs, p, day) {
+    var n = 0;
+    Object.keys(backs).forEach(function (dev) { var r = backs[dev].paths[p]; if (r && r[0] === day) n += r[1] - r[2]; });
+    return n;
+  }
+  /** The latest "day before" noted for a favourite taken back on that day. */
+  function prevDay(backs, p, day) {
+    var d = '';
+    Object.keys(backs).forEach(function (dev) { var r = backs[dev].paths[p]; if (r && r[0] === day && r[3] > d) d = r[3]; });
+    return d;
+  }
+
+  /**
+   * Notes what this device took back since last time (a count that went down, a favourite's day put back,
+   * a fair-play word removed) and a flag counted again after being taken back. Called by `stamp`.
+   * @param {Object} state
+   * @param {number} at  The time for this device's record; 0 only notes where things stand.
+   * @returns {boolean} Whether this device's take-backs changed.
+   */
+  function takeBack(state, at) {
+    var meta = state.sync, cur = flat(state.pet), was = meta.was, changed = false;
+    meta.was = cur;
+    if (!was || !at) return false;
+    var had = meta.backs[meta.device], mine = meta.backs[meta.device] = had || { at: 0, paths: {} }, guardDay = (state.pet.guard && state.pet.guard.day) || '';
+    function note(p, day, back, again, prev) {
+      var r = mine.paths[p];
+      if (r && r[0] > day) return;   // that day is already over here
+      if (!r || r[0] < day) r = mine.paths[p] = [day, 0, 0, ''];
+      r[1] += back; r[2] += again;
+      if (prev > r[3]) r[3] = prev;
+      changed = true;
+    }
+    var seen = {};
+    Object.keys(was).concat(Object.keys(cur)).forEach(function (p) {
+      if (seen[p]) return;
+      seen[p] = 1;
+      var w = was[p], c = cur[p], kind = p.slice(0, p.indexOf(':'));
+      if (w && c && c[0] === w[0]) {
+        if (c[1] < w[1]) note(p, w[0], w[1] - c[1], 0, '');
+        else if (c[1] > w[1] && FLAGS[kind]) again(p, c[0], c[1] - w[1]);
+      } else if (w && (!c || c[0] < w[0])) {
+        if (kind === 'g' && guardDay !== w[0]) return;   // a new day cleared the words: nothing taken back
+        note(p, w[0], w[1], 0, c ? c[0] : '');
+      } else if (c && FLAGS[kind]) again(p, c[0], c[1]);
+    });
+    function again(p, day, n) {   // a flag set again while still taken back cancels the take-back
+      var open = net(meta.backs, p, day);
+      if (open > 0) note(p, day, 0, Math.min(n, open), '');
+    }
+    if (changed) mine.at = at; else if (!had) delete meta.backs[meta.device];
+    return changed;
+  }
+
+  /** The counters as the document holds them: what is shown plus everything taken back. */
+  function gross(pet, backs) {
+    var out = {};
+    COUNTERS.forEach(function (k) { out[k] = copy(pet[k]); });
+    function plus(o, pre) { if (isObj(o)) Object.keys(o).forEach(function (k) { o[k] = num(o[k]) + net(backs, pre + k, ''); }); }
+    plus(out.tastes, 't:');
+    plus(out.stamps, 's:');
+    if (isObj(out.achievements)) Object.keys(out.achievements).forEach(function (k) {
+      var v = out.achievements[k];
+      if (!isObj(v)) return;
+      v.count = num(v.count) + net(backs, 'a:' + k, '');
+      if (v.day) v.today = num(v.today) + net(backs, 'at:' + k, v.day);
+    });
+    if (isObj(out.favourites)) Object.keys(out.favourites).forEach(function (k) {
+      var v = out.favourites[k];
+      if (isObj(v)) v.count = num(v.count) + net(backs, 'f:' + k, '');
+    });
+    var g = out.guard;
+    if (isObj(g) && g.day && Array.isArray(g.words)) {
+      Object.keys(backs).forEach(function (dev) {
+        Object.keys(backs[dev].paths).forEach(function (p) {
+          var w = p.slice(2);
+          if (p.slice(0, 2) === 'g:' && g.words.indexOf(w) < 0 && net(backs, p, g.day) > 0) g.words.push(w);
+        });
+      });
+    }
+    return out;
+  }
+
+  /** The counters to show: the gross minus everything taken back. */
+  function shown(counters, backs) {
+    var out = {};
+    COUNTERS.forEach(function (k) { out[k] = copy(counters[k]); });
+    if (isObj(out.tastes)) Object.keys(out.tastes).forEach(function (k) { out.tastes[k] = Math.max(0, num(out.tastes[k]) - net(backs, 't:' + k, '')); });
+    if (isObj(out.stamps)) Object.keys(out.stamps).forEach(function (k) {
+      var n = num(out.stamps[k]) - net(backs, 's:' + k, '');
+      if (n > 0) out.stamps[k] = n; else delete out.stamps[k];   // like addStamp: none left, no entry
+    });
+    if (isObj(out.achievements)) Object.keys(out.achievements).forEach(function (k) {
+      var v = out.achievements[k];
+      if (!isObj(v)) return;
+      v.count = Math.max(0, num(v.count) - net(backs, 'a:' + k, ''));
+      if (v.day) v.today = Math.max(0, num(v.today) - net(backs, 'at:' + k, v.day));
+    });
+    if (isObj(out.favourites)) Object.keys(out.favourites).forEach(function (k) {
+      var v = out.favourites[k];
+      if (!isObj(v)) return;
+      v.count = num(v.count) - net(backs, 'f:' + k, '');
+      if (v.count <= 0) { delete out.favourites[k]; return; }   // like refundFavourite
+      if (v.day && net(backs, 'fd:' + k, v.day) > 0) v.day = prevDay(backs, 'fd:' + k, v.day);
+    });
+    var g = out.guard;
+    if (isObj(g) && Array.isArray(g.words)) g.words = g.words.filter(function (w) { return net(backs, 'g:' + w, g.day) <= 0; });
+    return out;
+  }
+
+  /** Joins two sets of counters, each by its own rule. */
+  function mergeCounters(a, b) {
+    var out = {};
+    a = isObj(a) ? a : {}; b = isObj(b) ? b : {};
+    COUNTERS.forEach(function (k) { out[k] = mergeCounter(k, a[k], b[k]); });
+    return out;
+  }
+  /** The take-back entries of a document's fields part, cleaned: {device: {at, paths}}. */
+  function backsOf(fields) {
+    var out = {};
+    if (isObj(fields)) Object.keys(fields).forEach(function (name) {
+      var r = fields[name];
+      if (name.indexOf(BACK) !== 0 || !validRecord(r) || !isObj(r.value)) return;
+      var dev = name.slice(BACK.length);
+      out[dev] = joinBacks(out[dev] ? { x: out[dev] } : {}, { x: { at: r.at, paths: cleanPaths(r.value) } }).x;
+    });
+    return out;
+  }
+  function backFields(backs) {
+    var out = {};
+    Object.keys(backs).sort().forEach(function (dev) { out[BACK + dev] = { at: backs[dev].at, by: dev, value: copy(backs[dev].paths) }; });
+    return out;
   }
 
   // ---------- documents ----------
@@ -195,7 +414,9 @@
       var m = meta.fields[name] || { at: 0, by: meta.device };
       doc.fields[name] = { at: m.at, by: m.by, value: copy(FIELDS[name].get(state)) };
     });
-    COUNTERS.forEach(function (k) { doc.counters[k] = copy(state.pet[k]); });
+    doc.counters = mergeCounters(meta.gross, gross(state.pet, meta.backs));
+    var backs = backFields(meta.backs);
+    Object.keys(backs).forEach(function (name) { doc.fields[name] = backs[name]; });
     return doc;
   }
 
@@ -274,14 +495,15 @@
     ['items', 'fields'].forEach(function (part) {
       var x = isObj(a[part]) ? a[part] : {}, y = isObj(b[part]) ? b[part] : {};
       Object.keys(x).concat(Object.keys(y)).forEach(function (id) {
-        if (id in out[part]) return;
+        if (id in out[part] || (part === 'fields' && id.indexOf(BACK) === 0)) return;   // take-backs are joined below
         var ra = validPart(part, x[id]) ? x[id] : null, rb = validPart(part, y[id]) ? y[id] : null;
         var win = ra && rb ? (order(ra, rb) >= 0 ? ra : rb) : (ra || rb);
         if (win) out[part][id] = copy(win);
       });
     });
-    var ca = isObj(a.counters) ? a.counters : {}, cb = isObj(b.counters) ? b.counters : {};
-    COUNTERS.forEach(function (k) { out.counters[k] = mergeCounter(k, ca[k], cb[k]); });
+    out.counters = mergeCounters(a.counters, b.counters);
+    var backs = backFields(pruneBacks(joinBacks(backsOf(a.fields), backsOf(b.fields)), out.counters.guard));
+    Object.keys(backs).forEach(function (name) { out.fields[name] = backs[name]; });
     return out;
   }
 
@@ -362,12 +584,19 @@
       meta.fields[name] = { at: rec.at, by: rec.by, h: '' };
       touched.push(name);
     });
-    if (isObj(doc.counters)) COUNTERS.forEach(function (k) { if (doc.counters[k] !== undefined) state.pet[k] = copy(doc.counters[k]); });
+    // counters: the gross from here, from the last sync and from the document joined, minus every device's take-backs
+    var backs = joinBacks(meta.backs, backsOf(fields));
+    Object.keys(backs).forEach(function (dev) { meta.seen = Math.max(meta.seen, backs[dev].at); });
+    meta.gross = mergeCounters(mergeCounters(meta.gross, gross(state.pet, meta.backs)), doc.counters);
+    meta.backs = pruneBacks(backs, meta.gross.guard);
+    var show = shown(meta.gross, meta.backs);
+    COUNTERS.forEach(function (k) { state.pet[k] = show[k]; });
     // clean everything the way loading does, so a damaged document (another device on a broken build) can't break the pet, the player or the list
     if (L && L.petProfile) state.pet = L.petProfile(state.pet);
     if (L && L.parsePlayer) state.player = L.parsePlayer(state.player);
     if (L && L.cleanOverrides) state.overrides = L.cleanOverrides(state.overrides);
     touched.forEach(function (name) { meta.fields[name].h = fingerprint(FIELDS[name].get(state)); });   // the fingerprint of what is really saved now
+    meta.was = flat(state.pet);   // what came in is not a take-back of this device's
     return out;
   }
 

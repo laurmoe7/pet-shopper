@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 705
+- Unticking now stays unticked after Backup & sync (stamps, tastes, goals, favourites)
+
 ## Build 704
 - Laser dot: the dot no longer turns into the pen
 
