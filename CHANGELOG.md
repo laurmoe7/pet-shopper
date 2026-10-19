@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 721
+- More lines for browsers, Claude and chat apps
+- Own lines for Discord, Spotify, VS Code and more
+
 ## Build 720
 - Task alert: room between In 10 min and the cross
 

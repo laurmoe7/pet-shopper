@@ -1001,10 +1001,10 @@
   window.deskMayRemark = function () { return mayRemark(); };
   window.deskRoomMode = function () { return isPet() && deskPrefs.backdrop === true; };   // Mini Fumu in room mode (the ring menu leaves out the wrecking ball there)
   var PROGRAM_LINES = {
-    browser: ['browsing, hm?', 'so much internet~', 'looking something up?'],
+    browser: ['browsing, hm?', 'so much internet~', 'looking something up?', 'find anything good?', 'so many tabs…', 'can we look at cat videos?', 'ooh, what is that?', 'one more tab~', 'scroll scroll scroll~', 'any recipes in there?', "don't buy anything silly~", 'the internet is so big…', 'show me too!', 'is that a snack website?', 'remember to blink~', 'research time! fumu fumu'],
     code: ['hard at work!', 'so many tiny words…', 'tap tap tap~'],
-    chat: ['chatting with friends?', 'say hi from me!'],
-    ai: ['ooh, Claude! say hi from me~', 'asking Claude again?', 'Claude knows lots of things~', "tell Claude I'm the cute one", 'thinking together? hmm hm', 'fumu fumu~ (that means hi, Claude)'],
+    chat: ['chatting with friends?', 'say hi from me!', 'who are you talking to?', 'tell them I said hi ♡', 'ooh, gossip?', 'type type type~', 'any good news?', 'did someone send a cat picture?'],
+    ai: ['ooh, Claude! say hi from me~', 'asking Claude again?', 'Claude knows lots of things~', "tell Claude I'm the cute one", 'thinking together? hmm hm', 'fumu fumu~ (that means hi, Claude)', 'ask Claude about snacks!', 'is Claude making me new hats?', 'Claude and me, best helpers~', 'ask nicely! say please~', 'what are you two building?', 'hmm hm… very clever~', 'can Claude teach me tricks?', 'two brains are better than one~', 'did Claude say something nice?', 'tell Claude I ate my veggies', "I'm helping too! …moral support", 'ooh, a big question?'],
     music: ['nice music~ ♪', "what's playing?"],
     video: ['movie time?', 'can I watch too?'],
     office: ['working hard!', 'documents… zzz'],
@@ -1013,6 +1013,21 @@
     'video-edit': ['editing! fancy~', 'make it cute!'],
     launcher: ['going gaming?', 'what are we playing?']
   };
+  // Lines for particular apps, said as well as their kind's lines above (picked from both). The key is the name desktop/programs.js gives it.
+  var APP_LINES = {
+    Discord: ['Discord! who is online?', 'ooh, a voice channel?', 'any good memes today?', 'say hi to the server for me~', 'ping! ping! hehe', 'can I have an emoji there?', 'so many channels…', 'is that a cute sticker?', "don't forget to sleep, gamers~", 'mute me if I get loud ♡'],
+    Chrome: ['so many Chrome tabs~', 'Chrome is shiny today'],
+    Firefox: ['a little fox! hello~'],
+    Edge: ['Edge? edgy~'],
+    Slack: ['work chat? good luck~', 'so many little dots…'],
+    WhatsApp: ['who is texting?', 'send them a heart ♡'],
+    Spotify: ['play a song for me?', 'can we dance? ♪', 'is this my song?'],
+    'VS Code': ['coding? you are so smart', 'fix the bugs! not me though', 'is it compiling?'],
+    'the terminal': ['typing magic words~', 'hacker mode! ooh', 'so many letters!'],
+    Steam: ['look, a sale?', 'what are we playing?']
+  };
+  /** @param {string} kind @param {string} name  The front program. @returns {string[]} Its kind's lines plus its own ones. */
+  function programLines(kind, name) { return (PROGRAM_LINES[kind] || []).concat(APP_LINES[name] || []); }
   var GAME_START = ['ooh, {name}! have fun~', '{name} time! good luck!', "go get 'em in {name}!", "{name}! I'll be quiet ♡"];
   var GAME_END = ['good game~', 'how was {name}?', 'welcome back from {name}!'];
   var GAME_DURING = ['you can do it!', "don't die!", 'I believe in you ♡', 'focus focus~', 'snack break soon?', 'wow, you are so good at {name}!', 'careful careful…', 'drink some water~', 'sit up straight!', 'I am watching quietly ♡', 'ooh, what was that?', 'one more round?', 'you are doing great ♡', 'stretch your hands a bit~', 'good teamwork!', 'ooh, nice move!', 'I will guard your snacks~'];
@@ -1083,7 +1098,7 @@
     if (rate <= 0) return;
     whileTimer = setTimeout(function () {
       if (program.kind !== kind) return;
-      whenFree(function () { return program.kind === kind; }, function () { lastRemark = Date.now(); remark(pick(PROGRAM_LINES[kind]), program.name); });
+      whenFree(function () { return program.kind === kind; }, function () { lastRemark = Date.now(); remark(pick(programLines(kind, program.name)), program.name); });
       scheduleWhile();
     }, (8 + Math.random() * 7) * 60000 / rate);
   }
@@ -1113,7 +1128,7 @@
       programTimer = setTimeout(function () {
         whenFree(function () { return program.kind === kind; }, function () {
           lastRemark = Date.now(); kindRemark[kind] = lastRemark;
-          remark(pick(PROGRAM_LINES[kind]), program.name);
+          remark(pick(programLines(kind, program.name)), program.name);
         });
       }, 8000);
     }
