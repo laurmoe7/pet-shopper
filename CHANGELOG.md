@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 709
+- Big Boy: chin spot moved up to his lower lip
+- Big Boy: softer shading round the eyes
+
 ## Build 708
 - Tabby and white is now Big Boy, a tenth bigger
 

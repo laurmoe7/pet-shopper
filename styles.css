@@ -1427,7 +1427,7 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .pet[data-skin="tabbywhite"] [data-sk~="tabbywhite"] { display: inline; }
 .pet[data-skin="tabbywhite"] .ear { fill: #857563; }
 .tw-hood { fill: #857563; }
-.tw-mask { fill: #4f4339; opacity: .35; clip-path: url(#bodyClip); }
+.tw-mask { fill: #4f4339; opacity: .22; clip-path: url(#bodyClip); }
 .tw-chin { fill: #5c4f44; opacity: .8; }
 .tw-stripes path { fill: #4f4339; opacity: .85; }
 .pet[data-skin="tabbywhite"] .eyes-open .ink { fill: #74b35a; stroke: #2f3a26; stroke-width: 1.5; }
