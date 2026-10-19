@@ -1430,6 +1430,9 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .tw-mask { fill: #4f4339; opacity: .22; clip-path: url(#bodyClip); }
 .tw-chin { fill: #5c4f44; opacity: .8; }
 .tw-stripes path { fill: #4f4339; opacity: .85; }
+/* white whiskers like the real cat, with a thin dark edge so they still show off his body */
+.pet[data-skin="tabbywhite"] .whiskers { opacity: 1; filter: drop-shadow(0 0 .5px #4f4339) drop-shadow(0 0 .5px #4f4339); }
+.pet[data-skin="tabbywhite"] .whiskers path { stroke: #fffaf3; }
 .pet[data-skin="tabbywhite"] .eyes-open .ink { fill: #74b35a; stroke: #2f3a26; stroke-width: 1.5; }
 .pet[data-skin="siamese"] { --pet-skin: #f6ead9; --pet-skin-shade: #6e5042; --pet-ear-in: #a87c6c; --pet-mark: #6e5042; }
 .pet[data-skin="siamese"] [data-sk~="siamese"] { display: inline; }

@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 710
+- Big Boy: white whiskers
+
 ## Build 709
 - Big Boy: chin spot moved up to his lower lip
 - Big Boy: softer shading round the eyes
