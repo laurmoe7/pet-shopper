@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 716
+- Mini Fumu keeps his spot when the screen changes size
+
 ## Build 715
 - Big Boy: short whiskers again
 

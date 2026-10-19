@@ -138,6 +138,27 @@ function afterScreensChange(cur, saved, size, areas, primary, displaced) {
   return { bounds: defaultBounds(primary, size), displaced: true };
 }
 
+/**
+ * Where his resting place goes when screens change size: the spot he was put on, moved with the nearest edges of
+ * its screen (by the clock he stays by the clock), and back on the floor if he sat on it. The same screen at its old
+ * size gives back exactly the old spot.
+ * @param {{x: number, y: number, screen?: {id: number, x: number, y: number, width: number, height: number}, floor?: boolean}} home
+ * @param {{width: number, height: number}} size
+ * @param {{id: number, bounds: Object, area: Object, floor: number}[]} screens  `floor` is the lowest top edge the window may have there.
+ * @returns {Object|null} The window rectangle, or null when his screen is gone (or the spot has no screen saved).
+ */
+function homeOnScreens(home, size, screens) {
+  if (!home || !home.screen || typeof home.x !== 'number' || typeof home.y !== 'number') return null;
+  var old = home.screen, s = screens.filter(function (d) { return d.id === old.id; })[0];
+  if (!s) return null;
+  var n = s.bounds, w = size.width, h = size.height;
+  var x = home.x + w / 2 > old.x + old.width / 2 ? n.x + n.width - (old.x + old.width - home.x) : n.x + (home.x - old.x);
+  var y = home.floor ? s.floor : (home.y + h / 2 > old.y + old.height / 2 ? n.y + n.height - (old.y + old.height - home.y) : n.y + (home.y - old.y));
+  x = Math.max(n.x - Math.round(w / 4), Math.min(x, n.x + n.width - Math.round(w * 3 / 4)));
+  y = Math.max(s.area.y - Math.round(h / 4), Math.min(y, s.floor));
+  return { x: Math.round(x), y: Math.round(y), width: w, height: h };
+}
+
 /** Whether the computer counts as idle: after `after` seconds without input, and back as soon as there is any (polled every 2 s). */
 function idleStep(wasIdle, seconds, after) { return wasIdle ? seconds >= 3 : seconds >= after; }
 
@@ -253,5 +274,5 @@ function laserPhase(st, inp) {
 
 module.exports = {
   chaseStep: chaseStep, laserPhase: laserPhase,
-  hitTest: hitTest,  afterScreensChange: afterScreensChange, idleStep: idleStep, perches: perches, perchBounds: perchBounds, perchUnder: perchUnder, perchesNear: perchesNear, floorBounds: floorBounds, arcAt: arcAt, PERCH_BODY: PERCH_BODY,
+  hitTest: hitTest,  afterScreensChange: afterScreensChange, homeOnScreens: homeOnScreens, idleStep: idleStep, perches: perches, perchBounds: perchBounds, perchUnder: perchUnder, perchesNear: perchesNear, floorBounds: floorBounds, arcAt: arcAt, PERCH_BODY: PERCH_BODY,
   SIZES: SIZES, sizeFactor: sizeFactor, resizeKeepingBottom: resizeKeepingBottom, within: within, nudge: nudge, corner: corner, walkEnd: walkEnd, keepPartlyOn: keepPartlyOn, peekSpot: peekSpot, tweenAt: tweenAt, MARGIN: MARGIN, visibleFraction: visibleFraction, defaultBounds: defaultBounds, startBounds: startBounds, listBounds: listBounds, dragBounds: dragBounds };

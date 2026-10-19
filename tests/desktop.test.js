@@ -147,6 +147,21 @@ test('a window that still fits on a screen stays, and is pulled in when the scre
   assert.equal(shrunk.bounds.y + shrunk.bounds.height <= 1000, true);
 });
 
+test('his resting place follows its screen when it changes size, and comes back when it changes back', () => {
+  const size = { width: 320, height: 250 }, big = { x: 0, y: 0, width: 2560, height: 1440 }, small = { x: 0, y: 0, width: 1920, height: 1080 };
+  const scr = (b, floor) => [{ id: 7, bounds: b, area: { x: 0, y: 0, width: b.width, height: b.height - 40 }, floor }];
+  // by the clock, on the floor: stays by the clock and on the new floor
+  const clock = { x: 2200, y: 1200, screen: Object.assign({ id: 7 }, big), floor: true };
+  assert.deepEqual(P.homeOnScreens(clock, size, scr(small, 840)), { x: 1560, y: 840, width: 320, height: 250 });
+  assert.deepEqual(P.homeOnScreens(clock, size, scr(big, 1200)), { x: 2200, y: 1200, width: 320, height: 250 });
+  // top left, not on the floor: keeps its distance from the top left
+  const corner = { x: 100, y: 80, screen: Object.assign({ id: 7 }, big), floor: false };
+  assert.deepEqual(P.homeOnScreens(corner, size, scr(small, 840)), { x: 100, y: 80, width: 320, height: 250 });
+  // his screen is gone, or an old save without a screen: nothing (the old rules decide)
+  assert.equal(P.homeOnScreens(clock, size, [{ id: 8, bounds: small, area: small, floor: 840 }]), null);
+  assert.equal(P.homeOnScreens({ x: 5, y: 5 }, size, scr(small, 840)), null);
+});
+
 test('idle starts after the set time and ends at the first input', () => {
   assert.equal(P.idleStep(false, 100, 240), false);
   assert.equal(P.idleStep(false, 240, 240), true);

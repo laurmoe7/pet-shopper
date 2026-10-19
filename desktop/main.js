@@ -118,7 +118,12 @@ function start() {
       tween = { timer, done: resolve };
     });
   }
-  function restHere() { const b = win.getBounds(); prefs.x = b.x; prefs.y = b.y; displaced = false; savePrefs(); }
+  // his resting place also keeps the screen it is on and whether he sits on the floor, so a screen that changes size moves him with it
+  function restHere() {
+    const b = win.getBounds(), d = screen.getDisplayMatching(b);
+    prefs.x = b.x; prefs.y = b.y; prefs.screen = Object.assign({ id: d.id }, d.bounds); prefs.floor = b.y >= lowestY(d, b) - 6;
+    displaced = false; savePrefs();
+  }
 
   // ---------- sitting on other windows (a switch in the menu, off by default; Windows only) ----------
   // `perch` is {id, dx}: the window he sits on and how far across it he is. While it is set he rides along when that window
@@ -535,14 +540,26 @@ function start() {
   }, 150);
   // ---------- screens that come and go, and the computer going quiet ----------
   // A screen is unplugged or changes size: he goes to the main screen but remembers his own spot, and goes back when that screen returns.
-  let screenTimer = null;
+  let screenTimer = null, screensBefore = [];
   function screensChanged() {
     clearTimeout(screenTimer);
     screenTimer = setTimeout(() => {
       if (!win) return;
       if (mode !== 'pet') { const b = win.getBounds(), fixed = place.startBounds(b, b, areas(), screen.getPrimaryDisplay().workArea); if (fixed.x !== b.x || fixed.y !== b.y) win.setBounds(fixed); return; }
       leavePerch(); stopTween(); peekRest = null;
-      const r = place.afterScreensChange(win.getBounds(), prefs.x === null ? null : prefs, petSize(), areas(), screen.getPrimaryDisplay().workArea, displaced);
+      const cur = win.getBounds(), size = petSize(), now = screen.getAllDisplays();
+      const screens = now.map((d) => ({ id: d.id, bounds: d.bounds, area: d.workArea, floor: lowestY(d, cur) }));
+      const was = screensBefore.filter((d) => cur.x + cur.width / 2 >= d.bounds.x && cur.x + cur.width / 2 < d.bounds.x + d.bounds.width)[0];
+      const same = was && now.some((d) => d.id === was.id && d.bounds.width === was.bounds.width && d.bounds.height === was.bounds.height && d.bounds.x === was.bounds.x && d.bounds.y === was.bounds.y);
+      const home = place.homeOnScreens(prefs, size, screens);
+      let r;
+      if (same && !displaced) {
+        // his screen kept its size (another screen or only the taskbar changed): he stays, and keeps to the floor if he was on it
+        const d = screens.find((s) => s.id === was.id), onFloor = cur.y >= lowestY(was, cur) - 6;
+        r = { bounds: Object.assign({}, cur, { y: onFloor ? d.floor : Math.min(cur.y, d.floor) }), displaced: false };
+      } else if (home) r = { bounds: home, displaced: false };
+      else r = place.afterScreensChange(cur, prefs.x === null ? null : prefs, size, areas(), screen.getPrimaryDisplay().workArea, displaced);
+      screensBefore = now;
       displaced = r.displaced;
       win.setBounds(r.bounds);
       win.webContents.send('desk:resync');
@@ -1008,7 +1025,7 @@ function start() {
       case 'checkUpdates': checkUpdates(); return true;
       case 'installUpdate': if (updateReady && autoUpdater) autoUpdater.quitAndInstall(); return true;
       case 'resetSettings': {
-        const keep = { x: prefs.x, y: prefs.y };
+        const keep = { x: prefs.x, y: prefs.y, screen: prefs.screen, floor: prefs.floor };
         prefs = Object.assign({}, DEFAULTS, keep, { keys: keys.clean(null) });
         savePrefs(); app.setLoginItemSettings({ openAtLogin: false });
         setupKeys(); applyTop(); setSize('normal'); sendPrefs(); refreshMenus();
@@ -1047,6 +1064,7 @@ function start() {
     createWindow();
     watchCursor();
     setupKeys();
+    screensBefore = screen.getAllDisplays();
     ['display-added', 'display-removed', 'display-metrics-changed'].forEach((e) => screen.on(e, screensChanged));
     watchIdle();
     const icon = nativeImage.createFromPath(path.join(__dirname, 'build', 'icon.png')).resize({ width: 32, height: 32 });
