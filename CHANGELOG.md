@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 722
+- Own lines for KoeStudio and BiggTaal
+- Dropped two lines
+- Dutch for the new lines
+
 ## Build 721
 - More lines for browsers, Claude and chat apps
 - Own lines for Discord, Spotify, VS Code and more

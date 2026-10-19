@@ -74,7 +74,7 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   sweep: (on) => ipcRenderer.send('desk:sweep', !!on),
   onSweep: (fn) => ipcRenderer.on('desk:sweep', (_e, x, y) => fn(x, y)),
   hold: (yes) => ipcRenderer.send('desk:hold', !!yes),
-  /** The program in front changed: {kind, name, fullscreen} (kind 'game', 'browser', 'code', 'chat', 'ai', 'call', 'music', 'video', 'office', 'mail', 'art', 'video-edit', 'launcher', 'files', 'other', 'fullscreen' or 'none'), or null when awareness is on More privacy. Only listed programs have a name. */
+  /** The program in front changed: {kind, name, fullscreen} (kind 'game', 'browser', 'code', 'chat', 'ai', 'call', 'music', 'video', 'office', 'mail', 'art', 'video-edit', 'launcher', 'learn', 'files', 'other', 'fullscreen' or 'none'), or null when awareness is on More privacy. Only listed programs have a name. */
   onProgram: (fn) => ipcRenderer.on('desk:program', (_e, p) => fn(p)),
   /** The shortcut for adding an item was pressed. typing(true) asks the shell to give the window the keyboard. */
   onQuickAdd: (fn) => ipcRenderer.on('desk:quickAdd', () => fn()),

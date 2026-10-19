@@ -48,7 +48,9 @@ var APPS = {
   'steam.exe': ['launcher', 'Steam'], 'epicgameslauncher.exe': ['launcher', 'Epic Games'], 'battle.net.exe': ['launcher', 'Battle.net'],
   'riotclientservices.exe': ['launcher', 'the Riot launcher'], 'leagueclient.exe': ['launcher', 'the League client'], 'galaxyclient.exe': ['launcher', 'GOG Galaxy'],
   'eadesktop.exe': ['launcher', 'EA'],
-  'explorer.exe': ['files', 'the file explorer']
+  'explorer.exe': ['files', 'the file explorer'],
+  // her own programs: KoeStudio's window belongs to pythonw.exe (KoeStudio.exe only starts it), so any windowed Python program counts as KoeStudio
+  'pythonw.exe': ['art', 'KoeStudio'], 'koestudio.exe': ['art', 'KoeStudio'], 'biggtaal.exe': ['learn', 'BiggTaal']
 };
 
 /**

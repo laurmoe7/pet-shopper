@@ -1004,18 +1004,19 @@
     browser: ['browsing, hm?', 'so much internet~', 'looking something up?', 'find anything good?', 'so many tabs…', 'can we look at cat videos?', 'ooh, what is that?', 'one more tab~', 'scroll scroll scroll~', 'any recipes in there?', "don't buy anything silly~", 'the internet is so big…', 'show me too!', 'is that a snack website?', 'remember to blink~', 'research time! fumu fumu'],
     code: ['hard at work!', 'so many tiny words…', 'tap tap tap~'],
     chat: ['chatting with friends?', 'say hi from me!', 'who are you talking to?', 'tell them I said hi ♡', 'ooh, gossip?', 'type type type~', 'any good news?', 'did someone send a cat picture?'],
-    ai: ['ooh, Claude! say hi from me~', 'asking Claude again?', 'Claude knows lots of things~', "tell Claude I'm the cute one", 'thinking together? hmm hm', 'fumu fumu~ (that means hi, Claude)', 'ask Claude about snacks!', 'is Claude making me new hats?', 'Claude and me, best helpers~', 'ask nicely! say please~', 'what are you two building?', 'hmm hm… very clever~', 'can Claude teach me tricks?', 'two brains are better than one~', 'did Claude say something nice?', 'tell Claude I ate my veggies', "I'm helping too! …moral support", 'ooh, a big question?'],
+    ai: ['ooh, Claude! say hi from me~', 'asking Claude again?', 'Claude knows lots of things~', "tell Claude I'm the cute one", 'thinking together? hmm hm', 'fumu fumu~ (that means hi, Claude)', 'ask Claude about snacks!', 'Claude and me, best helpers~', 'ask nicely! say please~', 'what are you two building?', 'hmm hm… very clever~', 'can Claude teach me tricks?', 'two brains are better than one~', 'did Claude say something nice?', 'tell Claude I ate my veggies', "I'm helping too! …moral support", 'ooh, a big question?'],
     music: ['nice music~ ♪', "what's playing?"],
     video: ['movie time?', 'can I watch too?'],
     office: ['working hard!', 'documents… zzz'],
     mail: ['so many emails…', 'emails, ugh'],
     art: ['ooh, are you drawing?', 'draw me next!', 'pretty colours~'],
     'video-edit': ['editing! fancy~', 'make it cute!'],
-    launcher: ['going gaming?', 'what are we playing?']
+    launcher: ['going gaming?', 'what are we playing?'],
+    learn: ['studying? so clever~', 'learning something new?', 'quiz me after!']
   };
   // Lines for particular apps, said as well as their kind's lines above (picked from both). The key is the name desktop/programs.js gives it.
   var APP_LINES = {
-    Discord: ['Discord! who is online?', 'ooh, a voice channel?', 'any good memes today?', 'say hi to the server for me~', 'ping! ping! hehe', 'can I have an emoji there?', 'so many channels…', 'is that a cute sticker?', "don't forget to sleep, gamers~", 'mute me if I get loud ♡'],
+    Discord: ['Discord! who is online?', 'ooh, a voice channel?', 'any good memes today?', 'say hi to the server for me~', 'ping! ping! hehe', 'can I have an emoji there?', 'so many channels…', 'is that a cute sticker?', "don't forget to sleep, gamers~"],
     Chrome: ['so many Chrome tabs~', 'Chrome is shiny today'],
     Firefox: ['a little fox! hello~'],
     Edge: ['Edge? edgy~'],
@@ -1024,7 +1025,10 @@
     Spotify: ['play a song for me?', 'can we dance? ♪', 'is this my song?'],
     'VS Code': ['coding? you are so smart', 'fix the bugs! not me though', 'is it compiling?'],
     'the terminal': ['typing magic words~', 'hacker mode! ooh', 'so many letters!'],
-    Steam: ['look, a sale?', 'what are we playing?']
+    Steam: ['look, a sale?', 'what are we playing?'],
+    // her own programs
+    KoeStudio: ['KoeStudio! your very own app ♡', 'drawing in your own app~', 'moo! …that is how Koe says hi', 'draw me in KoeStudio?', 'did you make a new brush?', 'such a fancy art program~', 'you made this app? wow!'],
+    BiggTaal: ['Dutch practice? goed zo!', 'say hi to Bigg for me~', 'how do you say snack in Dutch?', 'de or het? hmm hm…', 'flashcard time! you got this', 'Bigg is cute… but I am cuter', 'keep your streak going!', 'pigeon in Dutch? duif!', 'oefening baart kunst~']
   };
   /** @param {string} kind @param {string} name  The front program. @returns {string[]} Its kind's lines plus its own ones. */
   function programLines(kind, name) { return (PROGRAM_LINES[kind] || []).concat(APP_LINES[name] || []); }
