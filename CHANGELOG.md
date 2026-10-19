@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 711
+- Big Boy: thin white whiskers from his cheeks
+- Big Boy: tapered stripe from each eye
+
 ## Build 710
 - Big Boy: white whiskers
 
