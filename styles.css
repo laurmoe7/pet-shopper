@@ -1421,6 +1421,13 @@ html.desktop-list .picker.room-sheet .picker-inner { max-height: calc(var(--shee
 .pet[data-skin="munchkin"] :is(.foot-side, .shoe-l, .shoe-r) { scale: .82 .62; transform-box: fill-box; transform-origin: 50% 0%; }
 .ragdoll-mask { fill: #e6d4c4; }
 /* Siamese: a cream body with dark seal-brown points (ears, mask, paws and feet) and blue eyes */
+/* tabby and white: white body and paws under a brown tabby hood (the hood and stripes are drawn in index.html), green eyes */
+.pet[data-skin="tabbywhite"] { --pet-skin: #fffaf3; --pet-skin-shade: #efe3d4; --pet-ear-in: #f2a9ab; --pet-mark: #4f4339; }
+.pet[data-skin="tabbywhite"] [data-sk~="tabbywhite"] { display: inline; }
+.pet[data-skin="tabbywhite"] .ear { fill: #8e7d6c; }
+.tw-hood { fill: #8e7d6c; }
+.tw-stripes path { fill: #4f4339; opacity: .85; }
+.pet[data-skin="tabbywhite"] .eyes-open .ink { fill: #74b35a; stroke: #2f3a26; stroke-width: 1.5; }
 .pet[data-skin="siamese"] { --pet-skin: #f6ead9; --pet-skin-shade: #6e5042; --pet-ear-in: #a87c6c; --pet-mark: #6e5042; }
 .pet[data-skin="siamese"] [data-sk~="siamese"] { display: inline; }
 .siamese-mask { fill: url(#siameseFade); }

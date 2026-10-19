@@ -24,6 +24,7 @@
     { id: 'ragdoll', base: 'kitty', label: 'Ragdoll' },
     { id: 'scottishfold', base: 'kitty', label: 'Scottish fold' },
     { id: 'siamese', base: 'kitty', label: 'Siamese' },
+    { id: 'tabbywhite', base: 'kitty', label: 'Tabby and white' },
     { id: 'chihuahua', base: 'puppy', label: 'Chihuahua' },
     { id: 'pomeranian', base: 'puppy', label: 'Pomeranian' },
     { id: 'blackpom', base: 'puppy', label: 'Black Pomeranian' },

@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 706
+- New cat skin: Tabby and white
+
 ## Build 705
 - Unticking now stays unticked after Backup & sync (stamps, tastes, goals, favourites)
 
