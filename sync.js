@@ -305,7 +305,7 @@
    * sees no change of its own. The to-do list is never touched.
    * @param {Object} state
    * @param {Object} doc  From `merge`.
-   * @returns {{added: number, changed: number, removed: number, fields: string[]}}
+   * @returns {{added: number, changed: number, removed: number, fields: string[], counters: boolean}}
    */
   function apply(state, doc) {
     var meta = state.sync, L = root.PetLogic, out = { added: 0, changed: 0, removed: 0, fields: [] };
@@ -360,12 +360,14 @@
       meta.fields[name] = { at: rec.at, by: rec.by, h: '' };
       touched.push(name);
     });
+    var countersBefore = fingerprint(COUNTERS.map(function (k) { return state.pet[k]; }));
     if (isObj(doc.counters)) COUNTERS.forEach(function (k) { if (doc.counters[k] !== undefined) state.pet[k] = copy(doc.counters[k]); });
     // clean everything the way loading does, so a damaged document (another device on a broken build) can't break the pet, the player or the list
     if (L && L.petProfile) state.pet = L.petProfile(state.pet);
     if (L && L.parsePlayer) state.player = L.parsePlayer(state.player);
     if (L && L.cleanOverrides) state.overrides = L.cleanOverrides(state.overrides);
     touched.forEach(function (name) { meta.fields[name].h = fingerprint(FIELDS[name].get(state)); });   // the fingerprint of what is really saved now
+    out.counters = fingerprint(COUNTERS.map(function (k) { return state.pet[k]; })) !== countersBefore;   // (a stamp, a prize or the plant from another device: redrawn and saved too)
     return out;
   }
 

@@ -461,9 +461,12 @@
    * @param {?string} due  Its due day, if it had one.
    * @param {string} repeat  A REPEATS id.
    * @param {string} today
+   * @param {number[]} [days] The weekdays of a 'certain days' repeat.
+   * @param {string} [anchor] The day a monthly or yearly repeat started on: its steps are counted from it, so the 31st or 29 February comes back
+   *   after a shorter month or year (ignored when the due day is not on its schedule, e.g. after the date was changed by hand).
    * @returns {string}
    */
-  function nextDue(due, repeat, today, days) {
+  function nextDue(due, repeat, today, days, anchor) {
     var r = REPEATS.filter(function (x) { return x.id === repeat; })[0];
     var base = isDayKey(due) ? due : today;
     if (!r || !r.id) return base;
@@ -474,11 +477,16 @@
       for (var n = 0; n < 7 && set.indexOf(dayDate(d).getDay()) === -1; n++) d = addDays(d, 1);
       return d;
     }
-    var k = 1, next;
+    var k = 1, next, from = base;
+    if (r.months && isDayKey(anchor) && anchor < base) {
+      var j = 1, on;
+      do { on = addMonths(anchor, r.months * j); j++; } while (on < base && j < 4000);
+      if (on === base) { from = anchor; k = j; }
+    }
     do {
-      next = r.months ? addMonths(base, r.months * k) : addDays(base, r.days * k);
+      next = r.months ? addMonths(from, r.months * k) : addDays(from, r.days * k);
       k++;
-    } while (next <= today && k < 4000);
+    } while ((next <= today || next <= base) && k < 4000);
     return next;
   }
   /**
@@ -614,6 +622,7 @@
     if (item && item.repeat === 'days' && !item.days) delete item.repeat;
     if (item && item.repeat !== undefined && (!item.due || !REPEATS.some(function (r) { return r.id && r.id === item.repeat; }))) delete item.repeat;
     if (item && item.until !== undefined && !item.repeat) delete item.until;
+    if (item && item.anchor !== undefined && (!isDayKey(item.anchor) || !item.repeat || !item.due || item.anchor > item.due)) delete item.anchor;   // (see nextDue)
     return item;
   }
 

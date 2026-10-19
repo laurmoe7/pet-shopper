@@ -357,7 +357,12 @@ function whenCanEat(fn, maxMs) {
 }
 /** Fumu eats the thing that arrived (it flies in from above), then the card shows. */
 function receiveMessage(msg, more) {
-  if (typeof birthdayHolding === 'function' && birthdayHolding()) { setTimeout(function () { receiveMessage(msg, more); }, 2500); return; }   // (the birthday party plays first)
+  if (typeof birthdayHolding === 'function' && birthdayHolding()) {   // (the birthday party plays first)
+    if (msg.id) shownIds[msg.id] = 1;   // marked and the place held at once: the inbox check every 10 s must not queue it again while it waits
+    if (!inboxCard) inboxCard = document.createElement('div');
+    setTimeout(function () { receiveMessage(msg, more); }, 2500);
+    return;
+  }
   var link = msg.kind === 'link';
   if (msg.id) shownIds[msg.id] = 1;
   if (msg.from === 'claude' && !msg.test) accountApi('/v1/inbox/ack', 'POST', account.code, { ids: [msg.id] });   // a tap on the shoulder: gone from the server at once, so it cannot come back

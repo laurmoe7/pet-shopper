@@ -95,13 +95,14 @@ function syncNow(why) {
       account.joined = true; account.rev = res.json.rev || 0; account.last = Date.now();
       accountSave();
       syncState.failures = 0; syncState.error = '';
-      var changed = a.added || a.changed || a.removed || a.fields.length;
+      var changed = a.added || a.changed || a.removed || a.fields.length || a.counters;
       if (changed || droppedAny) refreshAll();
       var parts = [];
       if (a.added) parts.push(a.added + ' added');
       if (a.changed) parts.push(a.changed + ' changed');
       if (a.removed) parts.push(a.removed + ' removed');
       if (a.fields.length) parts.push(a.fields.join(', '));
+      if (a.counters) parts.push('progress');
       syncLogAdd('Synced (' + why + '): ' + (parts.length ? 'got ' + parts.join(', ') : 'nothing new'), 'sync');
     } else if (res.status === 401) {
       syncState.stopped = true;

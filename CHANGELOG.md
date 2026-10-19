@@ -2,6 +2,14 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 707
+- To-do: a reminder that comes while the app is out of sight is said when you come back
+- To-do: monthly and yearly plans stay on the 31st or 29 Feb
+- To-do: plans far ahead no longer stop the list from being all done
+- To-do: No date also clears an old end day
+- Notes: one card, not several, when a note arrives during a celebration
+- Backup & sync: stamps, prizes and the plant from another device show at once
+
 ## Build 706
 - Dressing room opens faster
 - Laser dot: no chase face after you catch him

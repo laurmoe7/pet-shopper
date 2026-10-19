@@ -330,7 +330,7 @@ test('after syncing, the device sees nothing of its own to send, and a second ro
   for (const d of [a, b]) {
     assert.deepEqual(Sync.stamp(d, T + 4000), { items: 0, deleted: 0, fields: [] });
     const again = Sync.sync(d, shared, T + 5000);
-    assert.deepEqual(again.applied, { added: 0, changed: 0, removed: 0, fields: [] });
+    assert.deepEqual(again.applied, { added: 0, changed: 0, removed: 0, fields: [], counters: false });
     assert.deepEqual(again.doc, shared);
   }
 });
@@ -441,4 +441,13 @@ test('a document with a broken player or emoji overrides is cleaned on apply, li
   assert.deepEqual(a.overrides, { pears: '\u{1F350}' });
   assert.deepEqual(L.cleanOverrides(null), {});
   assert.deepEqual(L.cleanOverrides([1, 2]), {});
+});
+
+test('apply says when only the counters changed (a stamp or a prize from another device)', () => {
+  const { a, b } = pair();
+  b.pet.stamps = { call: 2 };
+  const doc = Sync.snapshot(b, T + 1000);
+  assert.equal(Sync.apply(a, doc).counters, true);
+  assert.equal(a.pet.stamps.call, 2);
+  assert.equal(Sync.apply(a, doc).counters, false);   // the same again: nothing new
 });

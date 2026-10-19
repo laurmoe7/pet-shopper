@@ -193,7 +193,7 @@ function doTask(item, fromRect) {
       delete repeatNote[item.id];
       if (again) { say(pick(['see you ' + again + '!', 'back ' + again + '!', 'again ' + again + '!']), 1300); return wait(1100 * sp); }
     }).then(function () {
-      if (pending === 1 && L.mood(state.items) === 'stuffed') return celebrate();
+      if (pending === 1 && L.mood(nearTasks()) === 'stuffed') return celebrate();
     }).then(function () {
       // woken up by a task (it stays 'dozing'): a happy word, then right back to sleep
       if (baseState() === 'sleepy') {
@@ -397,10 +397,12 @@ function dueTasks() {
   return list.filter(function (i) { return !i.done && i.due && i.due <= today; }).sort(function (a, b) { return a.due < b.due ? -1 : a.due > b.due ? 1 : 0; });
 }
 var brandDue = $('brandDue'), clipboardEl = $('clipboard');
+/** @returns {Item[]} The to-dos on show: plans more than 10 days away wait in the calendar and do not count for "all done". */
+function nearTasks() { var today = todayKey(); return state.items.filter(function (i) { return !L.isFarOff(i, today); }); }
 /** Keeps the clipboard's ticks and the due badge on the title in step with the lists. */
 function updateTodoExtras() {
   // the clipboard has a tick for each third of the list that is done
-  var total = state.items.length, done = state.items.filter(function (i) { return i.done; }).length;
+  var near = isTodo() ? nearTasks() : state.items, total = near.length, done = near.filter(function (i) { return i.done; }).length;
   clipboardEl.dataset.ticks = String(isTodo() && total ? (done === total ? 3 : Math.min(2, Math.floor(done * 3 / total))) : 0);
   // on the shopping list, a badge on the title says how many tasks are due
   var n = isTodo() ? 0 : dueTasks().length;
@@ -457,7 +459,7 @@ var DOW_ORDER = [1, 2, 3, 4, 5, 6, 0], DOW_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 
 /** Draws the repeat drop-downs (how it repeats, which weekdays, for how long) for a task. */
 /** @returns {boolean} Whether a repeat that ends on this day happens at least twice (one repeat after the first day). */
 function untilFits(item, until) {
-  return !until || !item.repeat || L.nextDue(item.due, item.repeat, item.due, item.days) <= until;
+  return !until || !item.repeat || L.nextDue(item.due, item.repeat, item.due, item.days, item.anchor) <= until;
 }
 /** Drops an end day that no longer fits the repeat (every year for 1 week), and says so. */
 function fixUntil(item) {
@@ -501,7 +503,7 @@ function setTaskDue(due) {
   var item = taskItem();
   if (!item) return;
   if (due && !L.isDayKey(due)) return;
-  if (due) item.due = due; else { delete item.due; delete item.repeat; delete item.time; }
+  if (due) item.due = due; else { delete item.due; delete item.repeat; delete item.time; delete item.until; delete item.days; }
   delete alerted[item.id];
   fixUntil(item);
   state.items = L.sortByDue(state.items, todayKey());
@@ -650,13 +652,14 @@ var repeatNote = {};   // task id -> when its next one is due, for Fumu to menti
  * @param {Item} item  The task that was just ticked or un-ticked.
  */
 function repeatTask(item) {
-  if (item.done && item.repeat && !(item.until && L.nextDue(item.due, item.repeat, todayKey(), item.days) > item.until)) {   // a repeat with an end stops after its last day
-    var due = L.nextDue(item.due, item.repeat, todayKey(), item.days);
+  if (item.done && item.repeat && !(item.until && L.nextDue(item.due, item.repeat, todayKey(), item.days, item.anchor) > item.until)) {   // a repeat with an end stops after its last day
+    var due = L.nextDue(item.due, item.repeat, todayKey(), item.days, item.anchor);
     var copy = L.createItem(item.text, state.overrides, newId(), Date.now(), 'todo');
     copy.emoji = item.emoji; copy.cat = item.cat; copy.due = due; copy.repeat = item.repeat;
     if (item.until) copy.until = item.until;
     if (item.days) copy.days = item.days.slice();
     if (item.time) copy.time = item.time;
+    copy.anchor = item.anchor || item.due;   // (the day it started on: a monthly one on the 31st stays on the 31st after February)
     item.spawned = copy.id;
     L.addToList(state.items, copy);
     state.items = L.sortByDue(state.items, todayKey());
@@ -707,13 +710,16 @@ function timeCheck(quiet) {
   var today = todayKey(), now = clockKey(), hit = [];
   state.items.concat(state.stash).forEach(function (i) {
     if (i.done || !i.time || i.due !== today || i.time > now || alerted[i.id]) return;
-    alerted[i.id] = true;
     hit.push(i);
   });
-  if (quiet || !hit.length) return;
+  if (!hit.length) return;
+  function mark() { hit.forEach(function (i) { alerted[i.id] = true; }); }
+  if (quiet) { mark(); return; }
   // the desktop companion pops up (even from hiding) and shows a card with Done and a snooze: it then does the speaking
-  if (window.deskRemind && window.deskRemind(hit)) return;
-  if (document.hidden || baseState() === 'sleepy') return;
+  if (window.deskRemind && window.deskRemind(hit)) { mark(); return; }
+  if (document.hidden) return;   // not marked: he says it on the first check after the app is back in sight
+  mark();
+  if (baseState() === 'sleepy') return;
   var hint = isTodo() ? '' : '\ncheck the to-do list ♡';
   var go = function () {
     if (busy) { setTimeout(go, 1500); return; }
@@ -728,6 +734,7 @@ function timeCheck(quiet) {
 }
 timeCheck(true);
 setInterval(timeCheck, 20000);
+document.addEventListener('visibilitychange', function () { if (!document.hidden) setTimeout(timeCheck, 800); });   // (a time that came while the app was out of sight is said on coming back)
 
 // ---------- ticking a task before its time ----------
 var earlySheet = $('earlySheet'), earlyFor = null;

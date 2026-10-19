@@ -222,3 +222,23 @@ test('cleanTask keeps a short amount and drops a bad one', () => {
   assert.strictEqual(L.cleanTask({ id: 'a', text: 'x', qty: 5 }).qty, undefined);
   assert.strictEqual(L.cleanTask({ id: 'a', text: 'x', qty: '' }).qty, undefined);
 });
+
+test('a monthly or yearly repeat keeps its day after a shorter month or year', () => {
+  // the 31st: February is the 28th, then back to the 31st (and the 30th where the month is shorter)
+  let due = '2027-01-31', anchor = due;
+  const seen = [];
+  for (let n = 0; n < 4; n++) { due = L.nextDue(due, 'monthly', due, undefined, anchor); seen.push(due); }
+  assert.deepEqual(seen, ['2027-02-28', '2027-03-31', '2027-04-30', '2027-05-31']);
+  // 29 February comes back in the next leap year
+  due = '2028-02-29'; anchor = due;
+  const years = [];
+  for (let n = 0; n < 4; n++) { due = L.nextDue(due, 'yearly', due, undefined, anchor); years.push(due); }
+  assert.deepEqual(years, ['2029-02-28', '2030-02-28', '2031-02-28', '2032-02-29']);
+  // a due day moved by hand (not on the schedule) steps from itself
+  assert.equal(L.nextDue('2027-03-15', 'monthly', '2027-03-15', undefined, '2027-01-31'), '2027-04-15');
+  // ticked late: the next one after today, still on its day
+  assert.equal(L.nextDue('2027-02-28', 'monthly', '2027-05-02', undefined, '2027-01-31'), '2027-05-31');
+  // a start day after the due day is not kept
+  assert.equal(L.cleanTask({ text: 'x', due: '2027-02-28', repeat: 'monthly', anchor: '2027-03-31' }).anchor, undefined);
+  assert.equal(L.cleanTask({ text: 'x', due: '2027-02-28', repeat: 'monthly', anchor: '2027-01-31' }).anchor, '2027-01-31');
+});
