@@ -49,8 +49,8 @@ var APPS = {
   'riotclientservices.exe': ['launcher', 'the Riot launcher'], 'leagueclient.exe': ['launcher', 'the League client'], 'galaxyclient.exe': ['launcher', 'GOG Galaxy'],
   'eadesktop.exe': ['launcher', 'EA'],
   'explorer.exe': ['files', 'the file explorer'],
-  // her own programs: KoeStudio's window belongs to pythonw.exe (KoeStudio.exe only starts it), so any windowed Python program counts as KoeStudio
-  'pythonw.exe': ['art', 'KoeStudio'], 'koestudio.exe': ['art', 'KoeStudio'], 'biggtaal.exe': ['learn', 'BiggTaal']
+  // her own programs (KoeStudio.exe runs Python inside its own process, so the window is its own)
+  'koestudio.exe': ['art', 'KoeStudio'], 'biggtaal.exe': ['learn', 'BiggTaal']
 };
 
 /**

@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 723
+- KoeStudio recognised by its own name only
+
 ## Build 722
 - Own lines for KoeStudio and BiggTaal
 - Dropped two lines
