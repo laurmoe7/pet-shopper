@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 719
+- Task alert cards are narrower
+
 ## Build 718
 - Mini Fumu stays on the taskbar after a resize, also for a spot saved before
 - Copy diagnostics shows his saved spot and the last screen change

@@ -692,6 +692,7 @@
     var cs = getComputedStyle(root), vl = parseFloat(cs.getPropertyValue('--vis-l')) || 0, vrRaw = cs.getPropertyValue('--vis-r');
     var vr = !vrRaw || /vw/.test(vrRaw) ? window.innerWidth : parseFloat(vrRaw);
     var need = vl > 3 ? vl : vr < window.innerWidth - 3 ? -(window.innerWidth - vr) : 0;   // page px: right (+) or left (-)
+    if (card.classList.contains('remind-card') && vr - vl >= 216) need = 0;   // (a task's card is narrow and moves inside the part that shows: he stays)
     if (!need) return;
     cardBusy = true;
     D.walk(need * cardZoom(), 350).then(function (went) {
