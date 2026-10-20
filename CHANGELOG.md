@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 734
+- Sync: ready for household lists
+
 ## Build 733
 - Devices (Backup & sync, Send, Receive) moved to their own sheet, from App settings
 

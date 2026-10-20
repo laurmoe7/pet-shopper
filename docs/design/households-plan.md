@@ -1,4 +1,4 @@
-# Households and list syncing (plan, not built yet)
+# Households and list syncing (plan, being built)
 
 Agreed with Lauren on 20 October 2026, after build 733. Read this together with `docs/design/desktop-companion-and-sync.md`
 (sections Sync, Built: sync server, Shared lists) and `docs/design/sync-send-and-desktop-notes.md` before touching
@@ -96,7 +96,7 @@ anyway, so the account is split in two:
 
 ## Order of work
 
-1. Server household document and endpoints, with tests; `npm run build:worker`.
+1. Server household document and endpoints, with tests; `npm run build:worker`. **Done (build 734).**
 2. `sync.js`: lists per document, the household snapshot/apply, to-dos in the personal document; tests for merging to-dos,
    joining and leaving, ticks from others not counting.
 3. App: household create/join/leave and members in the Devices sheet; the shopping list syncing through the household.
@@ -106,13 +106,35 @@ anyway, so the account is split in two:
 The server only changes when `main` is pushed (big push), so the app must keep working against the old server until then
 (for example: hide the Household block when `/v1/household` answers 404).
 
-## Open questions for Lauren (ask before building)
+## Decided with Lauren (20 October 2026), replacing parts of the plan above
 
-1. **Joining a household with your own shopping list**: merge it into the shared one (proposal), or replace yours?
-2. **Leaving a household**: keep a copy of the shared list as your own (proposal), or start empty?
-3. **Removing someone**: is "everyone gets a new invite code" enough at first (whoever has the old code can no longer
-   sync), or is a real "remove member" needed?
-4. **Sync my to-dos for new accounts**: on by default (proposal, since the personal code is only for your own devices
-   once households exist) or off?
-5. **Household size limit**: proposal 8 people.
-6. **Who added and who ticked**: show names on the list rows, or only in a detail view?
+These answers change sections 1 to 4; where they disagree with the text above, this section wins.
+
+1. **Two shopping lists in a household.** Joining does not merge or replace anything: a household adds a third list,
+   **Shared** (list name `shared`), next to your own shopping list. The list swap goes Shopping, Shared, To-do. Fumu eats
+   from both shopping lists the same way. Your own shopping list stays in your personal document.
+2. **Leaving** keeps your own shopping list (it never left); the Shared list just goes away on your devices.
+3. **The owner manages the members.** Whoever creates the household owns it (payment, when it exists, attaches to the
+   owner): makes a new invite code, removes members, hands ownership to someone else. So the household is **not**
+   opened with a shared household code. Each member syncs it with **their own personal code**; the server keeps who is a
+   member (`members` table), and the invite code is only for joining (the owner can replace it, the old one stops
+   working). Removing a member takes effect at once, without anyone getting a new code. One household per account.
+   If the owner leaves, the member who joined first becomes the owner; when the last member leaves the household is
+   deleted.
+4. **To-dos sync only to your own devices**, always (no switch, no migration: Lauren is the only tester), and never go
+   into a household. Nothing about to-dos is shared with anyone, now or later.
+5. Household size: 8 people (not answered; the proposal).
+6. **Names**: a small tag on a ticked row in Bought says who ticked it ("Sam"); who added it is only in the item sheet.
+
+### Server addresses (built, step 1)
+
+All with `Authorization: Bearer <personal code>`; the household document is `{v, items}` with only `shared` items.
+
+- `GET /v1/household`: `{household: null}`, or `{doc, rev, members: [{id, name, owner, me, joined, seen}], owner, invite}`
+  (`invite` only for the owner).
+- `POST /v1/household` `{name}`: create (you are the owner), 201 with the same answer. 409 when already in one.
+- `POST /v1/household/join` `{invite, name}`: join. 404 for an unknown invite, 409 when already in one, 403 when full.
+- `POST /v1/household/sync` `{doc, name?}`: merge, like `/v1/sync`; also notes your name and when you last synced.
+- `POST /v1/household/leave`, `POST /v1/household/remove` `{member}` (owner), `POST /v1/household/owner` `{member}`
+  (owner), `POST /v1/household/invite` (owner, a new invite code).
+- Deleting the personal account leaves its household. The nightly purge deletes households not changed for a year.

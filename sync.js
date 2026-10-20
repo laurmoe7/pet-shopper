@@ -31,6 +31,8 @@
   var DAY_MS = 24 * 3600 * 1000;
   /** Only the shopping list is shared; the to-do list stays private to each person and is never stamped, sent or changed by syncing. */
   var LISTS = ['shop'];
+  /** Every list a document may carry ('shared' is a household's shopping list): merge keeps their records, whatever this device sends. */
+  var KNOWN_LISTS = ['shop', 'todo', 'shared'];
   /** The single things merged by "latest change wins", with how to read and write each one in the state. */
   var FIELDS = {
     'pet.name': { get: function (s) { return s.pet.name; }, set: function (s, v) { s.pet.name = v; } },
@@ -431,7 +433,7 @@
   function validPart(part, r) {
     if (!validRecord(r)) return false;
     if (part === 'fields') return r.value !== undefined;
-    return LISTS.indexOf(r.list) >= 0 && (!!r.del || isObj(r.item));
+    return KNOWN_LISTS.indexOf(r.list) >= 0 && (!!r.del || isObj(r.item));
   }
 
   function unionSorted(a, b) {
@@ -540,7 +542,7 @@
 
     Object.keys(recs).forEach(function (id) {
       var rec = recs[id];
-      if (!validPart('items', rec)) return;
+      if (!validPart('items', rec) || LISTS.indexOf(rec.list) < 0) return;   // a list this document carries but this state does not keep here
       meta.seen = Math.max(meta.seen, rec.at);
       var here = where[id];
       if (rec.del) {
@@ -631,7 +633,7 @@
   }
 
   root.Sync = {
-    VERSION: VERSION, TOMBSTONE_DAYS: TOMBSTONE_DAYS, FIELD_NAMES: FIELD_NAMES, COUNTERS: COUNTERS,
+    VERSION: VERSION, TOMBSTONE_DAYS: TOMBSTONE_DAYS, KNOWN_LISTS: KNOWN_LISTS, FIELD_NAMES: FIELD_NAMES, COUNTERS: COUNTERS,
     parse: parse, dropSample: dropSample, stamp: stamp, prune: prune, snapshot: snapshot, merge: merge, trim: trim, apply: apply, sync: sync,
     hash: hash, stable: stable, fingerprint: fingerprint, newDevice: newDevice, listArray: listArray
   };

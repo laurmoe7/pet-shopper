@@ -57,6 +57,21 @@ table everything else works and sending says "the inbox is not set up". Messages
 - `POST /v1/inbox/ack` with `{ids: [...]}` removes read messages.
 - `GET /v1/health` returns `{ok:true}`.
 
+## Households (a shared shopping list)
+
+A second kind of document holding only the `shared` list's items (no pet, counters or to-dos). Each member opens it with
+their **own** code; the `members` table says who is in which household (one each, at most 8), the owner (who made it)
+manages the members, and the invite code is only for joining. It needs the last three lines of `schema.sql`
+(`households`, `members` and its index; the deploy workflow adds them). Without them these addresses answer 503.
+
+- `GET /v1/household`: `{household: null}`, or `{doc, rev, owner, members: [{id, name, owner, me, joined, seen}], invite}` (`invite` for the owner only).
+- `POST /v1/household` `{name}` makes one (201, you are the owner); `POST /v1/household/join` `{invite, name}` joins
+  (404 unknown invite, 409 already in one, 403 full).
+- `POST /v1/household/sync` `{doc, name?}` joins the shared list like `/v1/sync` and notes the member's name and last sync.
+- `POST /v1/household/leave`; for the owner `POST /v1/household/remove` `{member}`, `/owner` `{member}` (hand over) and
+  `/invite` (a new invite code; the old one stops working). A leaving owner hands over to the first to join; the last
+  one out deletes the household, and deleting your backup leaves it. The nightly purge deletes households not changed for a year.
+
 ## Notes
 
 - One document per account, up to 1 MB and 5000 records. Changes dated more than a day ahead are pulled back, so a

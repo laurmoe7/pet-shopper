@@ -10,10 +10,34 @@ const T = Date.UTC(2026, 9, 12, 12);
 
 /** A store that lives in memory, with the same rules as the D1 one. */
 function memoryStore() {
-  const rows = new Map();
+  const rows = new Map(), houses = new Map(), members = new Map();
   let inbox = [];
+  const people = (house) => [...members].filter(([, m]) => m.house === house).map(([acct, m]) => ({ ...m, acct })).sort((a, b) => a.joined - b.joined || (a.id < b.id ? -1 : 1));
   return {
-    rows,
+    rows, houses, members,
+    async memberOf(acct) { const m = members.get(acct); return m ? { ...m } : null; },
+    async houseGet(id) { const h = houses.get(id); return h ? { ...h } : null; },
+    async houseMembers(house) { return people(house).map(({ id, acct, name, joined, seen }) => ({ id, acct, name, joined, seen })); },
+    async houseByInvite(invite) { const f = [...houses].find(([, h]) => h.invite === invite); return f ? f[0] : null; },
+    async houseCreate(house, invite, acct, id, name, now) {
+      if (houses.has(house) || members.has(acct)) return false;
+      houses.set(house, { body: null, rev: 0, created: now, updated: now, owner: acct, invite });
+      members.set(acct, { house, id, name, joined: now, seen: now });
+      return true;
+    },
+    async houseJoin(house, acct, id, name, now, max) {
+      if (members.has(acct)) return 'taken';
+      if (people(house).length >= max) return 'full';
+      members.set(acct, { house, id, name, joined: now, seen: now });
+      return 'ok';
+    },
+    async housePut(house, body, rev, now) { const h = houses.get(house); if (!h || h.rev !== rev) return false; h.body = body; h.rev++; h.updated = now; return true; },
+    async houseTouch(house, now) { const h = houses.get(house); if (h) h.updated = now; },
+    async houseOwner(house, acct) { houses.get(house).owner = acct; },
+    async houseInvite(house, invite) { if ([...houses.values()].some((h) => h.invite === invite)) return false; houses.get(house).invite = invite; return true; },
+    async houseDelete(house) { people(house).forEach((m) => members.delete(m.acct)); houses.delete(house); },
+    async memberSeen(acct, name, now) { const m = members.get(acct); if (m) { m.name = name; m.seen = now; } },
+    async memberRemove(acct) { members.delete(acct); },
     get inbox() { return inbox; },
     async inboxList(acct, to, now, device) {
       inbox = inbox.filter((m) => now - m.at <= S.INBOX_TTL_MS);
@@ -33,6 +57,12 @@ function memoryStore() {
       const gone = [...rows].filter(([, r]) => r.updated < staleBefore || (r.body === null && r.created < emptyBefore)).map(([id]) => id);
       gone.forEach((id) => rows.delete(id));
       inbox = inbox.filter((m) => !gone.includes(m.acct));
+      [...houses].forEach(([id, h]) => { if (h.updated < staleBefore) houses.delete(id); });
+      [...members].forEach(([acct, m]) => { if (!rows.has(acct) || !houses.has(m.house)) members.delete(acct); });
+      [...houses].forEach(([id, h]) => {
+        const left = people(id);
+        if (!left.length) houses.delete(id); else if (!left.some((m) => m.acct === h.owner)) h.owner = left[0].acct;
+      });
       return gone.length;
     },
     async remove(id) { rows.delete(id); inbox = inbox.filter((m) => m.acct !== id); },
@@ -163,7 +193,7 @@ test('a damaged document from a device cannot spoil what is stored', async () =>
   const store = memoryStore(), code = await signUp(store);
   const a = phone('devicea', ['Milk']);
   await call(store, 'POST', '/v1/sync', code, { doc: Sync.snapshot(a, T) });
-  const r = await call(store, 'POST', '/v1/sync', code, { doc: { items: { z: 5, y: { at: 'soon' }, w: { at: 1, by: 'q', list: 'todo', item: { id: 'w' } } }, fields: 7, counters: { stamps: 'lots' } } });
+  const r = await call(store, 'POST', '/v1/sync', code, { doc: { items: { z: 5, y: { at: 'soon' }, w: { at: 1, by: 'q', list: 'pantry', item: { id: 'w' } } }, fields: 7, counters: { stamps: 'lots' } } });
   assert.equal(r.status, 200);
   assert.equal(Object.keys(r.json.doc.items).length, 1);
 });
@@ -435,4 +465,213 @@ test('a connection that asks too often gets 429 from the Worker entry; without t
   assert.equal((await S.worker.fetch(busy, env)).status, 429);
   assert.equal(await S.tooOften(new Request('https://x.test/v1/health', { headers: { 'CF-Connecting-IP': '5.6.7.8' } }), env), false);
   assert.equal(await S.tooOften(busy, {}), false);
+});
+
+// ---------- households: a shared shopping list, each member with their own code ----------
+const sqlStore = () => {
+  const db = new sqlite.DatabaseSync(':memory:');
+  db.exec(fs.readFileSync(path.join(__dirname, '../worker/sync/schema.sql'), 'utf8'));
+  return S.d1Store({ prepare(sql) { const st = db.prepare(sql); return { bind(...a) { return {
+    async first() { return st.get(...a) || null; },
+    async all() { return { results: st.all(...a) }; },
+    async run() { return { meta: { changes: Number(st.run(...a).changes) } }; } }; } }; } });
+};
+const STORES = [['in memory', memoryStore]].concat(sqlite ? [['in real SQL', sqlStore]] : []);
+const house = (store, code, p, body, now) => call(store, body === undefined && p === '' ? 'GET' : 'POST', '/v1/household' + p, code, body, now);
+const shared = (id, text, at, by, extra) => ({ at, by, list: 'shared', item: { id, text, emoji: '\u{1F34E}', cat: 'fruit', done: false, ...extra } });
+const names = (r) => r.json.members.map((m) => m.name);
+
+for (const [where, make] of STORES) {
+  test('a household is made by its owner and joined with the invite code, ' + where, async () => {
+    const store = make(), sam = await signUp(store), kim = await signUp(store);
+    assert.deepEqual((await house(store, sam, '')).json, { household: null });
+    const made = await house(store, sam, '', { name: '  Sam\n ' });
+    assert.equal(made.status, 201);
+    assert.equal(made.json.owner, true);
+    assert.match(made.json.invite, /^([A-HJKMNP-Z2-9]{5}-){4}[A-HJKMNP-Z2-9]{5}$/);
+    assert.deepEqual(names(made), ['Sam']);
+    assert.equal(made.json.members[0].me, true);
+    assert.equal(made.json.doc, null);
+    assert.equal((await house(store, kim, '/join', { invite: S.newCode(), name: 'Kim' })).status, 404);
+    const joined = await house(store, kim, '/join', { invite: made.json.invite.toLowerCase().replace(/-/g, ' '), name: 'Kim' }, T + 1000);
+    assert.equal(joined.status, 200);
+    assert.equal(joined.json.owner, false);
+    assert.equal(joined.json.invite, undefined, 'only the owner sees the invite code');
+    assert.deepEqual(names(joined), ['Sam', 'Kim']);
+    assert.deepEqual(joined.json.members.map((m) => [m.owner, m.me]), [[true, false], [false, true]]);
+    // one household per account
+    assert.equal((await house(store, kim, '', { name: 'Kim' })).status, 409);
+    assert.equal((await house(store, kim, '/join', { invite: made.json.invite })).status, 409);
+    // a member's own code is never shown to the others, and the household needs a real account
+    assert.ok(!JSON.stringify(joined.json).includes(await S.accountId(S.cleanCode(sam))));
+    assert.equal((await house(store, S.newCode(), '')).status, 401);
+  });
+
+  test('the shared list syncs between members and carries nothing personal, ' + where, async () => {
+    const store = make(), sam = await signUp(store), kim = await signUp(store), alone = await signUp(store);
+    const invite = (await house(store, sam, '', { name: 'Sam' })).json.invite;
+    await house(store, kim, '/join', { invite, name: 'Kim' });
+    const sent = { items: { a: shared('a', 'Milk', T, 'sam1'), own: { at: T, by: 'sam1', list: 'shop', item: { id: 'own', text: 'Secret', emoji: '\u{1F34E}', cat: 'fruit', done: false } }, t: { at: T, by: 'sam1', list: 'todo', item: { id: 't', text: 'Dentist', emoji: '\u{1F9B7}', cat: 'task', done: false } } },
+      fields: { 'pet.name': { at: T, by: 'sam1', value: 'Fumu' } }, counters: { tastes: { milk: 3 } } };
+    const r = await house(store, sam, '/sync', { doc: sent });
+    assert.equal(r.status, 200);
+    assert.deepEqual(Object.keys(r.json.doc), ['v', 'items']);
+    assert.deepEqual(Object.keys(r.json.doc.items), ['a']);
+    assert.equal(r.json.rev, 1);
+    const k = await house(store, kim, '/sync', { doc: { items: { b: shared('b', 'Bread', T + 1, 'kim1') } } }, T + 2000);
+    assert.deepEqual(Object.keys(k.json.doc.items).sort(), ['a', 'b']);
+    // a tick from Kim wins over Sam's older copy, and Sam sees it
+    await house(store, kim, '/sync', { doc: { items: { a: shared('a', 'Milk', T + 5, 'kim1', { done: true, doneBy: 'Kim' }) } } }, T + 3000);
+    const back = await house(store, sam, '/sync', { doc: sent }, T + 4000);
+    assert.equal(back.json.doc.items.a.item.done, true);
+    assert.equal(back.json.doc.items.a.item.doneBy, 'Kim');
+    // the personal backups never saw the shared list, and someone outside the household gets nothing
+    assert.equal((await call(store, 'GET', '/v1/doc', kim)).json.doc, null);
+    assert.equal((await house(store, alone, '/sync', { doc: sent })).status, 404);
+    assert.equal((await house(store, sam, '/sync', { nope: 1 })).status, 400);
+  });
+
+  test('syncing notes who was there, and a name sent changes the member name, ' + where, async () => {
+    const store = make(), sam = await signUp(store);
+    await house(store, sam, '', { name: '' }, T);
+    let r = await house(store, sam, '/sync', { doc: {}, name: 'Samantha' }, T + 10);
+    assert.deepEqual(names(r), ['Samantha']);
+    r = await house(store, sam, '/sync', { doc: {} }, T + 120000);
+    assert.equal(r.json.members[0].seen, T + 120000);
+    assert.deepEqual(names(r), ['Samantha'], 'no name sent keeps the old one');
+    assert.equal(S.cleanName('x'.repeat(100)).length, S.NAME_MAX);
+    assert.equal(S.cleanName('a\u0000b c'), 'a b c');
+    assert.equal(S.cleanName(42), '');
+  });
+
+  test('the owner removes members, hands over and makes a new invite code; nobody else can, ' + where, async () => {
+    const store = make(), sam = await signUp(store), kim = await signUp(store), lou = await signUp(store), late = await signUp(store);
+    const invite = (await house(store, sam, '', { name: 'Sam' })).json.invite;
+    await house(store, kim, '/join', { invite, name: 'Kim' }, T + 1);
+    const all = await house(store, lou, '/join', { invite, name: 'Lou' }, T + 2);
+    const [, kimId, louId] = all.json.members.map((m) => m.id);
+    assert.equal((await house(store, kim, '/remove', { member: louId })).status, 403);
+    assert.equal((await house(store, kim, '/invite', {})).status, 403);
+    assert.equal((await house(store, sam, '/remove', { member: 'nobody' })).status, 404);
+    assert.equal((await house(store, sam, '/remove', { member: all.json.members[0].id })).status, 400);
+    // removing works at once: Lou can no longer sync
+    const after = await house(store, sam, '/remove', { member: louId });
+    assert.deepEqual(names(after), ['Sam', 'Kim']);
+    assert.equal((await house(store, lou, '/sync', { doc: {} })).status, 404);
+    assert.deepEqual((await house(store, lou, '')).json, { household: null });
+    // a new invite code: the old one stops working
+    const fresh = (await house(store, sam, '/invite', {})).json.invite;
+    assert.notEqual(fresh, invite);
+    assert.equal((await house(store, late, '/join', { invite })).status, 404);
+    assert.equal((await house(store, late, '/join', { invite: fresh, name: 'Late' })).status, 200);
+    // handing over: Kim becomes the owner and sees the invite, Sam does not any more
+    const handed = await house(store, sam, '/owner', { member: kimId });
+    assert.equal(handed.json.owner, false);
+    assert.equal(handed.json.invite, undefined);
+    const kimView = await house(store, kim, '');
+    assert.equal(kimView.json.owner, true);
+    assert.equal(kimView.json.invite, fresh);
+  });
+
+  test('leaving: the first to join takes over from the owner, and the last one out deletes the household, ' + where, async () => {
+    const store = make(), sam = await signUp(store), kim = await signUp(store), lou = await signUp(store);
+    const invite = (await house(store, sam, '', { name: 'Sam' })).json.invite;
+    await house(store, kim, '/join', { invite, name: 'Kim' }, T + 1);
+    await house(store, lou, '/join', { invite, name: 'Lou' }, T + 2);
+    await house(store, sam, '/sync', { doc: { items: { a: shared('a', 'Milk', T, 's') } } });
+    assert.deepEqual((await house(store, sam, '/leave', {})).json, { household: null });
+    const kimView = await house(store, kim, '');
+    assert.equal(kimView.json.owner, true);
+    assert.deepEqual(names(kimView), ['Kim', 'Lou']);
+    assert.ok(kimView.json.doc.items.a, 'the list stays for the others');
+    assert.equal((await house(store, sam, '/leave', {})).status, 404);
+    await house(store, lou, '/leave', {});
+    await house(store, kim, '/leave', {});
+    assert.equal((await house(store, kim, '/join', { invite: kimView.json.invite })).status, 404, 'an empty household is gone');
+  });
+
+  test('a household holds at most 8 people, and deleting your backup takes you out, ' + where, async () => {
+    const store = make(), owner = await signUp(store);
+    const invite = (await house(store, owner, '', { name: 'O' })).json.invite;
+    const codes = [];
+    for (let i = 1; i < S.HOUSE_MAX; i++) { const c = await signUp(store); codes.push(c); assert.equal((await house(store, c, '/join', { invite, name: 'P' + i }, T + i)).status, 200); }
+    const extra = await signUp(store);
+    const full = await house(store, extra, '/join', { invite });
+    assert.equal(full.status, 403);
+    assert.match(full.json.error, /full/);
+    // the owner deletes their backup: they leave, the first to join owns it, and there is room again
+    assert.equal((await call(store, 'DELETE', '/v1/account', owner)).status, 200);
+    const view = await house(store, codes[0], '');
+    assert.equal(view.json.owner, true);
+    assert.equal(view.json.members.length, S.HOUSE_MAX - 1);
+    assert.equal((await house(store, extra, '/join', { invite: view.json.invite })).status, 200);
+  });
+
+  test('the household document has the same size limits, and two members writing at once are both kept, ' + where, async () => {
+    const store = make(), sam = await signUp(store), kim = await signUp(store);
+    const invite = (await house(store, sam, '', { name: 'Sam' })).json.invite;
+    await house(store, kim, '/join', { invite, name: 'Kim' });
+    const big = { items: {} };
+    for (let i = 0; i < S.MAX_ITEMS + 1; i++) big.items['x' + i] = shared('x' + i, 'x', T, 's');
+    assert.equal((await house(store, sam, '/sync', { doc: big })).status, 413);
+    const long = await house(store, sam, '/sync', { doc: { items: { l: shared('l', 'z'.repeat(5000), T + 1e12, 's') } } });
+    assert.equal(long.json.doc.items.l.item.text.length, 200);
+    assert.equal(long.json.doc.items.l.at, T + S.FUTURE_MS, 'a change dated far ahead is pulled back');
+    // a write lands between reading and writing: the server joins again
+    const put = store.housePut.bind(store);
+    let once = true;
+    store.housePut = async (...a) => {
+      if (once) { once = false; await house(store, kim, '/sync', { doc: { items: { k: shared('k', 'Kiwi', T, 'k') } } }); }
+      return put(...a);
+    };
+    const r = await house(store, sam, '/sync', { doc: { items: { s: shared('s', 'Soup', T, 's') } } });
+    assert.ok(r.json.doc.items.k && r.json.doc.items.s);
+  });
+
+  test('the purge deletes households not used for a year and members whose backup went, ' + where, async () => {
+    const store = make(), sam = await signUp(store), kim = await signUp(store), idle = await signUp(store);
+    const doc = Sync.snapshot(phone('p1', ['Milk']), T);
+    for (const c of [sam, kim]) await call(store, 'POST', '/v1/sync', c, { doc }, T);
+    const invite = (await house(store, sam, '', { name: 'Sam' })).json.invite;
+    await house(store, kim, '/join', { invite, name: 'Kim' }, T + 1);
+    await house(store, kim, '/sync', { doc: { items: { a: shared('a', 'Milk', T, 'k') } } }, T + 2);
+    await call(store, 'POST', '/v1/sync', idle, { doc }, T);
+    const quiet = (await house(store, idle, '', { name: 'Idle' }, T)).json.invite;
+    // Sam's backup is not used for a year, Kim's is: Sam goes, Kim owns the household, the idle one's household goes
+    const later = T + S.RETENTION_MS - 24 * 3600 * 1000;
+    await call(store, 'POST', '/v1/sync', kim, { doc }, later);
+    await house(store, kim, '/sync', { doc: { items: { b: shared('b', 'Bread', later, 'k') } } }, later);
+    await S.purge(store, T + S.RETENTION_MS + 1000);
+    const view = await house(store, kim, '', undefined, later);
+    assert.equal(view.json.owner, true);
+    assert.deepEqual(names(view), ['Kim']);
+    const fresh = await signUp(store);
+    assert.equal((await house(store, fresh, '/join', { invite: quiet })).status, 404);
+  });
+}
+
+test('without the household tables (an older database) the household addresses answer 503 and the rest works', { skip: !sqlite }, async () => {
+  const old = new sqlite.DatabaseSync(':memory:');
+  old.exec('CREATE TABLE docs (id TEXT PRIMARY KEY, body TEXT, rev INTEGER NOT NULL DEFAULT 0, created INTEGER NOT NULL, updated INTEGER NOT NULL)');
+  const store = S.d1Store({ prepare(sql) { const st = old.prepare(sql); return { bind(...a) { return {
+    async first() { return st.get(...a) || null; },
+    async all() { return { results: st.all(...a) }; },
+    async run() { return { meta: { changes: Number(st.run(...a).changes) } }; } }; } }; } });
+  const code = await signUp(store);
+  assert.equal((await house(store, code, '')).status, 503);
+  assert.equal((await house(store, code, '', { name: 'x' })).status, 503);
+  assert.equal(await S.purge(store, T), 0);
+  assert.equal((await call(store, 'DELETE', '/v1/account', code)).status, 200);
+});
+
+test('the personal backup keeps its to-do and shared records as they are, and applying never puts them in the shopping list', async () => {
+  const store = memoryStore(), code = await signUp(store);
+  const doc = { items: { t: { at: T, by: 'x', list: 'todo', item: { id: 't', text: 'Dentist', emoji: '\u{1F9B7}', cat: 'task', done: false } } }, fields: {}, counters: {} };
+  const r = await call(store, 'POST', '/v1/sync', code, { doc });
+  assert.ok(r.json.doc.items.t);
+  const a = phone('devicea', ['Milk']);
+  const before = a.items.length;
+  Sync.apply(a, r.json.doc);
+  assert.equal(a.items.length, before);
+  assert.ok(!a.sync.items.t);
 });

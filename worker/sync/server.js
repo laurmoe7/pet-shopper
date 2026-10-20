@@ -4,6 +4,9 @@
 // document, the server joins it with the stored one using the same `Sync.merge` the app uses, stores the
 // result and sends it back. An account is a long random recovery code; the server keeps only its hash.
 // To-do lists never reach it (sync.js leaves them out). How to put it online: worker/sync/README.md.
+// A household (a shopping list shared by several people, each with their own pet and code) is a second kind of
+// document: only the `shared` list's items. Members open it with their own personal code; the server keeps who is
+// in which household, the owner (who made it) manages the members, and an invite code is only for joining.
 (function (root) {
   'use strict';
 
@@ -23,6 +26,9 @@
   var DAY_MS = 24 * 3600 * 1000;
   var RETENTION_MS = 365 * DAY_MS;  // a backup not changed for this long is deleted (the nightly purge; privacy.html says so)
   var TOUCH_MS = DAY_MS;            // a sync with nothing new still marks the backup as in use, once a day
+  var HOUSE_MAX = 8;                // people in one household
+  var HOUSE_LIST = 'shared';        // the only list a household document carries
+  var NAME_MAX = 30;                // characters of a member's display name
 
   var CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS', 'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Access-Control-Max-Age': '86400' };
 
@@ -94,7 +100,9 @@
       return reply({ code: code }, 201);
     }
 
-    var routes = { '/v1/doc': ['GET'], '/v1/sync': ['POST'], '/v1/account': ['DELETE'], '/v1/inbox': ['GET', 'POST'], '/v1/inbox/ack': ['POST'] };
+    var routes = { '/v1/doc': ['GET'], '/v1/sync': ['POST'], '/v1/account': ['DELETE'], '/v1/inbox': ['GET', 'POST'], '/v1/inbox/ack': ['POST'],
+      '/v1/household': ['GET', 'POST'], '/v1/household/join': ['POST'], '/v1/household/sync': ['POST'], '/v1/household/leave': ['POST'],
+      '/v1/household/remove': ['POST'], '/v1/household/owner': ['POST'], '/v1/household/invite': ['POST'] };
     var allowed = routes[path];
     if (!allowed || allowed.indexOf(method) < 0) return fail(allowed ? 405 : 404, 'Not found');
 
@@ -104,12 +112,23 @@
     var acct = await accountId(plain), row = await store.get(acct);
     if (!row) return fail(401, 'Missing or wrong recovery code');
 
-    if (path === '/v1/account') { await store.remove(acct); return reply({ deleted: true }); }
+    if (path === '/v1/account') {
+      try { if (store.memberOf) await leave(store, acct); } catch (e) { /* no household tables on an older database */ }
+      await store.remove(acct);
+      return reply({ deleted: true });
+    }
     if (path === '/v1/doc') return reply({ doc: row.body ? JSON.parse(row.body) : null, rev: row.rev });
 
     if (path === '/v1/inbox' || path === '/v1/inbox/ack') {
       try { return await inbox(request, store, acct, path, method, now); }
       catch (e) { return fail(503, 'The inbox is not set up on the server yet'); }
+    }
+
+    if (path.indexOf('/v1/household') === 0) {
+      var asked;
+      try { asked = await readJson(request, method); } catch (e) { return e instanceof Response ? e : fail(400, 'Not JSON'); }
+      try { return await household(request, store, acct, path, method, asked, now); }
+      catch (e) { if (e instanceof Response) return e; return fail(503, 'Households are not set up on the server yet'); }
     }
 
     // sync: join what the device sent with what is stored
@@ -135,6 +154,123 @@
       if (!row) return fail(401, 'Missing or wrong recovery code');
     }
     return fail(409, 'Busy, try again');
+  }
+
+  /** The request's JSON object ({} for a GET or an empty body); throws a ready answer when it is too big or not an object. */
+  async function readJson(request, method) {
+    if (method === 'GET') return {};
+    var text = await request.text();
+    if (text.length > MAX_BODY) throw fail(413, 'Too much data');
+    if (!text) return {};
+    var v = JSON.parse(text);
+    if (!isObj(v)) throw fail(400, 'Send an object');
+    return v;
+  }
+
+  /** A display name from Profile: no control characters, spaces joined, at most NAME_MAX characters ('' if none). */
+  function cleanName(v) {
+    if (typeof v !== 'string') return '';
+    return Array.from(v.replace(/[\u0000-\u001f\u007f-\u009f\u2028\u2029]/g, ' ').replace(/\s+/g, ' ').trim()).slice(0, NAME_MAX).join('').trim();
+  }
+
+  /** Only what a household keeps: the shared list's item records (no pet, counters, to-dos or emoji overrides). */
+  function houseDoc(doc) {
+    var out = { v: root.Sync.VERSION, items: {} };
+    var items = isObj(doc) && isObj(doc.items) ? doc.items : {};
+    Object.keys(items).forEach(function (id) { if (isObj(items[id]) && items[id].list === HOUSE_LIST) out.items[id] = items[id]; });
+    return out;
+  }
+
+  /** What a member is told about their household: the document, the members (names only) and, for the owner, the invite code. */
+  async function houseAnswer(store, acct, house, status) {
+    var row = await store.houseGet(house), people = await store.houseMembers(house);
+    if (!row) return reply({ household: null });
+    var out = {
+      doc: row.body ? JSON.parse(row.body) : null, rev: row.rev, owner: row.owner === acct,
+      members: people.map(function (m) { return { id: m.id, name: m.name, owner: m.acct === row.owner, me: m.acct === acct, joined: m.joined, seen: m.seen }; })
+    };
+    if (out.owner) out.invite = row.invite.replace(/(.{5})(?=.)/g, '$1-');
+    return reply(out, status);
+  }
+
+  /** Takes `acct` out of its household: the first to join takes over from a leaving owner, and the last one out deletes it. */
+  async function leave(store, acct) {
+    var mine = await store.memberOf(acct);
+    if (!mine) return false;
+    await store.memberRemove(acct);
+    var row = await store.houseGet(mine.house), left = await store.houseMembers(mine.house);
+    if (!left.length) await store.houseDelete(mine.house);
+    else if (row && row.owner === acct) await store.houseOwner(mine.house, left[0].acct);
+    return true;
+  }
+
+  /**
+   * The household addresses (all with the person's own code): GET / POST /v1/household (see or make one), /join, /sync,
+   * /leave, and for the owner /remove, /owner (hand over) and /invite (a new invite code; the old one stops working).
+   */
+  async function household(request, store, acct, path, method, asked, now) {
+    var mine = await store.memberOf(acct);
+    if (path === '/v1/household' && method === 'GET') return mine ? houseAnswer(store, acct, mine.house) : reply({ household: null });
+
+    if (path === '/v1/household' || path === '/v1/household/join') {
+      if (mine) return fail(409, 'You are already in a household. Leave it first.');
+      var name = cleanName(asked.name);
+      if (path === '/v1/household') {
+        if (store.hit) {   // the same limit as new accounts, counted apart
+          var who = request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown';
+          if (await store.hit(await accountId('house:' + who), Math.floor(now / 3600000)) > SIGNUPS_PER_HOUR) return fail(429, 'Too many new households from this connection. Try again in an hour.');
+        }
+        var house = randomId();
+        if (!(await store.houseCreate(house, cleanCode(newCode()), acct, randomId(), name, now))) return fail(500, 'Could not make a household, try again');
+        return houseAnswer(store, acct, house, 201);
+      }
+      var invite = cleanCode(asked.invite), found = invite ? await store.houseByInvite(invite) : null;
+      if (!found) return fail(404, 'No household has that invite code');
+      var joined = await store.houseJoin(found, acct, randomId(), name, now, HOUSE_MAX);
+      if (joined === 'full') return fail(403, 'That household is full (' + HOUSE_MAX + ' people)');
+      if (joined !== 'ok') return fail(409, 'You are already in a household. Leave it first.');
+      return houseAnswer(store, acct, found);
+    }
+
+    if (!mine) return fail(404, 'You are not in a household');
+    if (path === '/v1/household/leave') { await leave(store, acct); return reply({ household: null }); }
+
+    if (path === '/v1/household/sync') {
+      if (!isObj(asked.doc)) return fail(400, 'Send {"doc": …}');
+      if (Object.keys(asked.doc.items || {}).length > MAX_ITEMS) return fail(413, 'Too many items');
+      var incoming = houseDoc(clamp(asked.doc, now + FUTURE_MS));
+      var row = await store.houseGet(mine.house);
+      for (var n = 0; n < TRIES && row; n++) {
+        var merged = houseDoc(root.Sync.trim(root.Sync.merge(row.body ? JSON.parse(row.body) : null, incoming), now));
+        var body = JSON.stringify(merged), wrote = row.body === body;
+        if (!wrote) {
+          if (body.length > MAX_BODY || Object.keys(merged.items).length > MAX_ITEMS) return fail(413, 'The list is too big to store');
+          wrote = await store.housePut(mine.house, body, row.rev, now);
+        } else if (!(row.updated > now - TOUCH_MS)) await store.houseTouch(mine.house, now);
+        if (wrote) {
+          var name2 = cleanName(asked.name);
+          if (!(mine.seen > now - 60000) || (name2 && name2 !== mine.name)) await store.memberSeen(acct, name2 || mine.name, now);   // at most once a minute
+          return houseAnswer(store, acct, mine.house);
+        }
+        row = await store.houseGet(mine.house);   // someone wrote in between: join with theirs and try again
+      }
+      return row ? fail(409, 'Busy, try again') : fail(404, 'You are not in a household');
+    }
+
+    // the owner's tools
+    var house2 = await store.houseGet(mine.house);
+    if (!house2 || house2.owner !== acct) return fail(403, 'Only the owner can do that');
+    if (path === '/v1/household/invite') {
+      if (!(await store.houseInvite(mine.house, cleanCode(newCode())))) return fail(500, 'Could not make a code, try again');
+      return houseAnswer(store, acct, mine.house);
+    }
+    var people = await store.houseMembers(mine.house);
+    var them = people.filter(function (m) { return m.id === asked.member; })[0];
+    if (!them) return fail(404, 'No such member');
+    if (them.acct === acct) return fail(400, path === '/v1/household/remove' ? 'Use leave to take yourself out' : 'You are the owner already');
+    if (path === '/v1/household/remove') await store.memberRemove(them.acct);
+    else await store.houseOwner(mine.house, them.acct);
+    return houseAnswer(store, acct, mine.house);
   }
 
   function randomId() {
@@ -196,6 +332,12 @@
       async purge(staleBefore, emptyBefore) {
         try { await db.prepare('DELETE FROM inbox WHERE acct IN (SELECT id FROM docs WHERE updated < ? OR (body IS NULL AND created < ?))').bind(staleBefore, emptyBefore).run(); } catch (e) { /* no inbox table on an older database */ }
         var r = await db.prepare('DELETE FROM docs WHERE updated < ? OR (body IS NULL AND created < ?)').bind(staleBefore, emptyBefore).run();
+        try {   // households: not changed for a year, then members whose backup went; an owner who went hands over to the first to join; empty ones go
+          await db.prepare('DELETE FROM households WHERE updated < ?').bind(staleBefore).run();
+          await db.prepare('DELETE FROM members WHERE acct NOT IN (SELECT id FROM docs) OR house NOT IN (SELECT id FROM households)').bind().run();
+          await db.prepare('UPDATE households SET owner = (SELECT acct FROM members WHERE members.house = households.id ORDER BY joined, id LIMIT 1) WHERE owner NOT IN (SELECT acct FROM members WHERE members.house = households.id)').bind().run();
+          await db.prepare('DELETE FROM households WHERE owner IS NULL OR id NOT IN (SELECT house FROM members)').bind().run();
+        } catch (e) { /* no household tables on an older database */ }
         return r.meta.changes;
       },
       /** Makes an empty account. @returns {Promise<boolean>} false if the name is taken. */
@@ -212,6 +354,59 @@
         await db.prepare('DELETE FROM docs WHERE id = ?').bind(id).run();
         try { await db.prepare('DELETE FROM inbox WHERE acct = ?').bind(id).run(); } catch (e) { /* no inbox table on an older database */ }
       },
+      /** @returns {Promise<{house, id, name, joined, seen}|null>} The household this account is in. */
+      async memberOf(acct) {
+        var r = await db.prepare('SELECT house, id, name, joined, seen FROM members WHERE acct = ?').bind(acct).first();
+        return r ? { house: r.house, id: r.id, name: r.name, joined: r.joined, seen: r.seen } : null;
+      },
+      /** @returns {Promise<{body, rev, updated, owner, invite}|null>} */
+      async houseGet(house) {
+        var r = await db.prepare('SELECT body, rev, updated, owner, invite FROM households WHERE id = ?').bind(house).first();
+        return r ? { body: r.body, rev: r.rev, updated: r.updated, owner: r.owner, invite: r.invite } : null;
+      },
+      /** The members, the first to join first. */
+      async houseMembers(house) {
+        var r = await db.prepare('SELECT id, acct, name, joined, seen FROM members WHERE house = ? ORDER BY joined, id').bind(house).all();
+        return (r.results || []).map(function (m) { return { id: m.id, acct: m.acct, name: m.name, joined: m.joined, seen: m.seen }; });
+      },
+      async houseByInvite(invite) {
+        var r = await db.prepare('SELECT id FROM households WHERE invite = ?').bind(invite).first();
+        return r ? r.id : null;
+      },
+      /** Makes a household with its owner as the first member. @returns {Promise<boolean>} */
+      async houseCreate(house, invite, acct, member, name, now) {
+        var r = await db.prepare('INSERT OR IGNORE INTO households (id, body, rev, created, updated, owner, invite) VALUES (?, NULL, 0, ?, ?, ?, ?)').bind(house, now, now, acct, invite).run();
+        if (r.meta.changes !== 1) return false;
+        var m = await db.prepare('INSERT OR IGNORE INTO members (acct, house, id, name, joined, seen) VALUES (?, ?, ?, ?, ?, ?)').bind(acct, house, member, name, now, now).run();
+        if (m.meta.changes === 1) return true;
+        await db.prepare('DELETE FROM households WHERE id = ?').bind(house).run();   // joined another one meanwhile
+        return false;
+      },
+      /** @returns {Promise<string>} 'ok', 'full' or 'taken' (already in a household). One statement, so two joining at once can't pass the limit. */
+      async houseJoin(house, acct, member, name, now, max) {
+        if (await this.memberOf(acct)) return 'taken';
+        var r = await db.prepare('INSERT OR IGNORE INTO members (acct, house, id, name, joined, seen) SELECT ?, ?, ?, ?, ?, ? WHERE (SELECT COUNT(*) FROM members WHERE house = ?) < ?').bind(acct, house, member, name, now, now, house, max).run();
+        if (r.meta.changes === 1) return 'ok';
+        return (await this.memberOf(acct)) ? 'taken' : 'full';
+      },
+      /** Writes the household's document only if nobody else did since `rev`. */
+      async housePut(house, body, rev, now) {
+        var r = await db.prepare('UPDATE households SET body = ?, rev = rev + 1, updated = ? WHERE id = ? AND rev = ?').bind(body, now, house, rev).run();
+        return r.meta.changes === 1;
+      },
+      async houseTouch(house, now) { await db.prepare('UPDATE households SET updated = ? WHERE id = ?').bind(now, house).run(); },
+      async houseOwner(house, acct) { await db.prepare('UPDATE households SET owner = ? WHERE id = ?').bind(acct, house).run(); },
+      /** @returns {Promise<boolean>} false if the code is taken by another household. */
+      async houseInvite(house, invite) {
+        var r = await db.prepare('UPDATE OR IGNORE households SET invite = ? WHERE id = ?').bind(invite, house).run();
+        return r.meta.changes === 1;
+      },
+      async houseDelete(house) {
+        await db.prepare('DELETE FROM members WHERE house = ?').bind(house).run();
+        await db.prepare('DELETE FROM households WHERE id = ?').bind(house).run();
+      },
+      async memberSeen(acct, name, now) { await db.prepare('UPDATE members SET name = ?, seen = ? WHERE acct = ?').bind(name, now, acct).run(); },
+      async memberRemove(acct) { await db.prepare('DELETE FROM members WHERE acct = ?').bind(acct).run(); },
       /**
        * What waits for a device, oldest first (a day old and older is not shown; the next message left clears it away).
        * With a device id: everything another device left. Without: what was addressed to `to` (the earlier way).
@@ -261,8 +456,8 @@
 
   root.SyncServer = {
     MAX_BODY: MAX_BODY, MAX_ITEMS: MAX_ITEMS, INBOX_MAX: INBOX_MAX, INBOX_TEXT_MAX: INBOX_TEXT_MAX, INBOX_TTL_MS: INBOX_TTL_MS, SIGNUPS_PER_HOUR: SIGNUPS_PER_HOUR, FUTURE_MS: FUTURE_MS,
-    RETENTION_MS: RETENTION_MS, TOUCH_MS: TOUCH_MS,
-    newCode: newCode, cleanCode: cleanCode, accountId: accountId, clamp: clamp, handle: handle, d1Store: d1Store, purge: purge, tooOften: tooOften,
+    RETENTION_MS: RETENTION_MS, TOUCH_MS: TOUCH_MS, HOUSE_MAX: HOUSE_MAX, NAME_MAX: NAME_MAX,
+    newCode: newCode, cleanName: cleanName, houseDoc: houseDoc, cleanCode: cleanCode, accountId: accountId, clamp: clamp, handle: handle, d1Store: d1Store, purge: purge, tooOften: tooOften,
     /** The Worker entry: the D1 database is bound as `DB`, the rate limit as `LIMIT`; `scheduled` runs on the cron in wrangler.toml. */
     worker: {
       fetch: async function (request, env) {
