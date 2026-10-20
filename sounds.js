@@ -4,7 +4,7 @@
  *   ooh (curious, for pointing at an outfit), excited (trying an outfit on),
  *   toss, bounce, squeak (the toy), tuck (tucking in at bedtime), lullaby (a hum for him while he sleeps), bell, tink and smash (the night bell ringing, clinking and breaking), glass (a piece of window breaking off, the wrecking ball), snore and snorebig (tucked in), owl, crickets (at night), yawn, click (the lamp's pull-cord),
  *   tongue (the frog catching the toy), kiss (a goodnight kiss),
- *   background sounds for a room or the weather (app-ambience.js): waves, gull, bubbles, blub, birds, breeze, rain, thunder, wind, cicadas, cluck, moo, sizzle, ticktock,
+ *   background sounds for a room or the weather (app-ambience.js): waves, gull, bubbles, blub, birds, breeze, thunder, wind, cicadas, cluck, moo, sizzle, ticktock,
  *   notice (Claude's note arriving), done, sparkle, coin, ring (ticking off a to-do), stamp (the check mark landing), scribble (writing on the clipboard), shutter (the dressing room's camera),
  *   and menu sounds: tap, pick, open, close, on, off, locked, place, remove
  * Every play is pitch-shifted a little, and kinds with several variants pick a
@@ -89,7 +89,7 @@
   function noise(t, dur, filterType, freq, q, out, loop) {
     var src = ctx.createBufferSource();
     src.buffer = noiseBuf;
-    if (loop) src.loop = true;   // (a sound longer than the one-second noise picture: waves, rain)
+    if (loop) src.loop = true;   // (a sound longer than the one-second noise picture: waves)
     var f = ctx.createBiquadFilter();
     f.type = filterType; f.frequency.setValueAtTime(freq * pitch, t); f.Q.value = q || 1;
     src.connect(f); f.connect(out);
@@ -657,13 +657,6 @@
       g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.07, t + dur * 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); g.connect(master);
       var f = noise(t, dur, 'bandpass', 500, 0.6, g, true);
       f.frequency.exponentialRampToValueAtTime(900 * pitch, t + dur * 0.5); f.frequency.exponentialRampToValueAtTime(450 * pitch, t + dur);
-    },
-    rain: function (t) {
-      // steady rain: a soft broad hiss with little drops pattering in it
-      var dur = 3, g = ctx.createGain();
-      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.09, t + 0.6); g.gain.setValueAtTime(0.09, t + dur - 0.7); g.gain.linearRampToValueAtTime(0.0001, t + dur); g.connect(master);
-      noise(t, dur, 'bandpass', 4200, 0.5, g, true);
-      for (var i = 0; i < 16; i++) { var at = t + rnd(0, dur - 0.1); noise(at, 0.02, 'bandpass', rnd(2600, 6500), 3, env(at, 0.002, 0.016, rnd(0.04, 0.12))); }
     },
     thunder: function (t) {
       // far thunder: a long low rumble with a second roll

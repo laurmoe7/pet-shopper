@@ -1,5 +1,5 @@
 // Background sounds (build 677): quiet sounds that fit the background behind him (waves on the beach, bubbles in the aquarium, birds in the meadow, hens and a cow on the farm, a sizzle and a clock in the kitchen,
-// crickets under the stars) and the weather (rain, thunder in a storm, wind when it is cold or snowing, cicadas when it is hot). Each sound is synthesised in sounds.js, comes now and then (never a loop),
+// crickets under the stars) and the weather (thunder in a storm, wind when it is cold or snowing, cicadas when it is hot). Each sound is synthesised in sounds.js, comes now and then (never a loop),
 // and is quiet. They keep to the same rules as every other sound (Quiet mode and Mini Fumu's volume), stop while the app is hidden, a sheet is open or he is in bed (the night sounds there are
 // app-bedtime.js's), and can be switched off: Options > Background sounds in the app, Mini Fumu settings > Background sounds in the small window.
 // These files are plain scripts that share one scope, loaded in the order listed in index.html.
@@ -16,8 +16,7 @@ var AMBIENT_BACKDROP = {
 };
 /** The same for the weather kinds (weather.js). */
 var AMBIENT_WEATHER = {
-  rain: [['rain', 2.4, 2.8]],
-  storm: [['rain', 2.4, 2.8], ['thunder', 12, 26]],
+  storm: [['thunder', 12, 26]],   // (no rain sound: taken out in build 726)
   snow: [['wind', 7, 12]],
   cold: [['wind', 8, 15]],
   hot: [['cicadas', 9, 18]]

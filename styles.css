@@ -4419,6 +4419,8 @@ html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-bloc
 #pet[data-arms="idle"]:not(.desk, .tucked, [data-prop], [data-state="sleepy"]) .arm-r .wx-leaf { display: inline; }
 #pet[data-arms="idle"]:not(.desk, .tucked, [data-prop], [data-state="sleepy"]):has(.wx-leaf) .arm-r { transform-box: view-box; transform-origin: 133px 110.2px; transform: rotate(10deg); animation: none; }
 .stage.bedtime .wx-fx, .stage.bedtime .wx-acc { display: none; }
+/* Mini Fumu has no falling rain (build 726): no drops and no splashes on his leaf; the leaf and a storm's thunderbolts stay */
+html.desktop-pet .wx-rain i, html.desktop-pet .wx-storm i, html.desktop-pet .wx-splash { display: none; }
 @media (prefers-reduced-motion: reduce) { .wx-fx i, .wx-bob, .wx-bolt, .wx-splash, .wx-heat { animation: none; } #pet:has(.wx-fan) .arm-r { animation: none !important; } .wx-fx i { top: 20%; } }
 .option-weather { padding: 0 4px 10px; border-bottom: 1.5px dashed var(--line); }
 .option:has(#wxOn) { border-bottom: 0; padding-bottom: 4px; }

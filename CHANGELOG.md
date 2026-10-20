@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 726
+- No more rain sounds
+- Mini Fumu: no falling rain
+
 ## Build 725
 - Faster start: offline files load about 3 times sooner
 - Faster start: the title is fitted once
