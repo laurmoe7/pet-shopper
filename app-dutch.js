@@ -454,3 +454,10 @@ Object.assign(Dutch, {
   'our list!': 'onze lijst!', 'shopping together!': 'samen boodschappen!', 'team snacks!': 'teamsnacks!', 'the house list!': 'de huislijst!',
   'Syncs your lists and': 'Synchroniseert je lijsten en', "between your own devices. No password: you get a code. Don't share it.": 'tussen je eigen apparaten. Geen wachtwoord: je krijgt een code. Deel hem niet.'
 });
+
+// updates on the phone (app-update.js, build 738)
+Object.assign(Dutch, {
+  'Check for updates': 'Zoek naar updates', 'Update': 'Bijwerken', 'Updating…': 'Bijwerken…', 'Build {name} is ready': 'Build {name} staat klaar', 'You have {name}.': 'Jij hebt {name}.',
+  'Still on its way. Try again in a few minutes.': 'Nog onderweg. Probeer het over een paar minuten.',
+  'Checking…': 'Zoeken…', 'Up to date': 'Helemaal bij', 'Could not check': 'Zoeken lukte niet', 'Update to {name}': 'Bijwerken naar {name}'
+});

@@ -111,7 +111,7 @@ Details are in `docs/design/pet-todo-bedtime-notes.md`: read it before touching 
 
 ### Service worker and builds
 
-`sw.js` caches the app shell. Whenever you change a cached file: bump `CACHE` in `sw.js` (`nibble-vNN`) and `BUILD` in `app.js` to the same number (a test checks), and add any new script to `SHELL`. The stable channel (`/stable/`) runs on the same origin, so its worker renames its caches `nibble-stable-*` and each channel only clears its own old caches (`ownCache`, build 680).
+`sw.js` caches the app shell. **Updates** (build 738, `app-update.js`): besides the check while the loading card is up (`app-start.js`), the app asks which build is newest (`sw.js?check=<time>`, no caching; `sw.js` itself is never answered by the worker) when it comes back to the front and every 5 minutes, and shows a "Build N is ready" card with Update (nothing reloads by itself; not in the Windows app); Options' foot has Check for updates. Whenever you change a cached file: bump `CACHE` in `sw.js` (`nibble-vNN`) and `BUILD` in `app.js` to the same number (a test checks), and add any new script to `SHELL`. The stable channel (`/stable/`) runs on the same origin, so its worker renames its caches `nibble-stable-*` and each channel only clears its own old caches (`ownCache`, build 680).
 
 ### Tools (`tools/`, for me; they save repeating the same steps)
 

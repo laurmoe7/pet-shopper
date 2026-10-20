@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 738
+- Check for updates in Options
+- Update card when a new build is out
+
 ## Build 737
 - Privacy page: households and to-dos
 
