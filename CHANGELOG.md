@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 733
+- Devices (Backup & sync, Send, Receive) moved to their own sheet, from App settings
+
 ## Build 732
 - App settings in sections: Look, Sound, Lists, Alerts, Goals, Weather, Devices
 - Weather's place box only shows while it is on

@@ -252,8 +252,7 @@ function openAccount(code) {
   say2('');
   if (code) $('acctCode').value = prettyCode(code);
   renderAccount();
-  optionsSheet.close();
-  openDialog(accountSheet);
+  openDialog(accountSheet);   // (it closes Options or Devices, whichever is open)
 }
 
 // the Options row

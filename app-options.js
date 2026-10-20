@@ -47,7 +47,8 @@ try { savedTheme = localStorage.getItem('nibble-theme') || 'auto'; } catch (e) {
 applyTheme(savedTheme);
 var optionsSheet = $('optionsSheet'), optionsList = $('optionsList');
 // Options is in sections (build 732), each a heading and a soft panel, in this order. Every file that adds a row puts it in
-// its section with addOption; a section with nothing in it (Alerts outside the phone app) stays hidden.
+// its section with addOption; a section with nothing in it (Alerts outside the phone app) stays hidden. Devices is its own
+// sheet (build 733), opened by the last row of Options.
 var OPTION_GROUPS = [['look', 'Look'], ['sound', 'Sound'], ['lists', 'Lists'], ['alerts', 'Alerts'], ['goals', 'Goals'], ['weather', 'Weather'], ['devices', 'Devices']];
 var optionBodies = {};
 OPTION_GROUPS.forEach(function (g) {
@@ -55,10 +56,18 @@ OPTION_GROUPS.forEach(function (g) {
   sec.className = 'opt-section'; sec.dataset.group = g[0];
   h.className = 'opt-head'; h.textContent = g[1];
   body.className = 'opt-body';
-  sec.append(h, body);
-  optionsList.appendChild(sec);
+  if (g[0] === 'devices') { sec.appendChild(body); $('devicesList').appendChild(sec); }   // (the sheet's title says Devices)
+  else { sec.append(h, body); optionsList.appendChild(sec); }
   optionBodies[g[0]] = body;
 });
+// the row that opens the Devices sheet, in a panel of its own at the end
+var devicesSheet = $('devicesSheet'), devicesBtn = document.createElement('button'), devicesSec = document.createElement('section'), devicesBody = document.createElement('div');
+devicesBtn.type = 'button'; devicesBtn.className = 'option opt-link'; devicesBtn.id = 'devicesBtn';
+devicesBtn.innerHTML = '<span class="option-title">Devices</span><span class="opt-chev" aria-hidden="true">›</span>';
+devicesSec.className = 'opt-section'; devicesBody.className = 'opt-body';
+devicesBody.appendChild(devicesBtn); devicesSec.appendChild(devicesBody); optionsList.appendChild(devicesSec);
+devicesBtn.addEventListener('click', function () { openDialog(devicesSheet); });
+devicesSheet.addEventListener('click', function (e) { if (e.target === devicesSheet) devicesSheet.close(); });
 /** Puts rows at the end of an Options section. @param {string} group  An OPTION_GROUPS id. @param {...Element} rows */
 function addOption(group) {
   var body = optionBodies[group] || optionBodies.lists;

@@ -4454,6 +4454,8 @@ html.desktop-pet .wx-rain i, html.desktop-pet .wx-storm i { display: none; }
 .opt-body > :last-child { border-bottom: 0 !important; box-shadow: none !important; }   /* (the panel's edge ends it; the themes draw a line under every row) */
 html:root[data-skin="quest"] .opt-body { border-radius: 4px; background: rgba(0, 0, 0, .22); }
 html:root[data-skin="quest"] .opt-head { color: var(--hl); }
+.opt-link { width: 100%; border: 0; background: none; color: inherit; font: inherit; text-align: left; }
+.opt-chev { font-size: 1.4rem; font-weight: 800; line-height: 1; color: var(--muted); }
 /* Phone alerts (app-phone.js, only in the Android app): the switch, the morning alert a step in under it, and a note when the phone blocks alerts or makes them late; one dashed line under the group */
 .option-group { border-bottom: 1.5px dashed var(--line); padding-bottom: 6px; }
 .option-group > .option { border-bottom: 0 !important; box-shadow: none !important; }   /* (the themes draw a line under every .option) */

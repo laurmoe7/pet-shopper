@@ -11,7 +11,6 @@ var deskShell = window.nibbleDesktop || null;   // the desktop app (desktop/): i
 function sendSay(text) { sendMsg.textContent = text || ''; }
 /** Opens the sheet, with something already in the box (a shared link) if there is one. */
 function openSend(prefill) {
-  optionsSheet.close();
   sendText.value = prefill || '';
   sendSay(account.code ? '' : 'Turn on Backup & sync first, on both devices.');
   renderRecent();
@@ -102,7 +101,7 @@ function claudeHere() {
     try { localStorage.setItem('nibble.claude', claudeSw.checked ? '1' : '0'); } catch (e) { /* storage blocked */ }
     if (claudeSw.checked) setTimeout(inboxPoll, 300);
   });
-  $('optionsBtn').addEventListener('click', function () { sendReceive.checked = receivingHere(); claudeSw.checked = claudeHere(); });
+  $('devicesBtn').addEventListener('click', function () { sendReceive.checked = receivingHere(); claudeSw.checked = claudeHere(); });
 })();
 
 // shared from another app (the share menu, once Fumufumu is installed on the phone): the link is ready to send
