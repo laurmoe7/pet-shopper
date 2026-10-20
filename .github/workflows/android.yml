@@ -40,18 +40,28 @@ jobs:
       - run: npx cap sync android
       - name: Signing key (the same one every time, so a new APK installs over the old one)
         # ANDROID_DEBUG_KEYSTORE: the base64 of a keystore (alias androiddebugkey, passwords "android"), a repository secret.
-        # Gradle signs debug builds with ~/.android/debug.keystore; without the secret it makes a new key, and Android then
-        # refuses the APK as an update ("App not installed").
+        # The app's build.gradle is pointed at it (a key in ~/.android was not picked up on GitHub's machines); without the
+        # secret Gradle makes a new key, and Android then refuses the APK as an update ("App not installed").
         env:
           KEYSTORE: ${{ secrets.ANDROID_DEBUG_KEYSTORE }}
         run: |
           if [ -z "$KEYSTORE" ]; then echo "::warning::No ANDROID_DEBUG_KEYSTORE secret: this APK will not install over an earlier one."; exit 0; fi
-          mkdir -p ~/.android
-          echo "$KEYSTORE" | base64 -d > ~/.android/debug.keystore
-          keytool -list -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey | tail -1
+          K="$RUNNER_TEMP/fumu.keystore"
+          echo "$KEYSTORE" | base64 -d > "$K"
+          echo "FUMU_KEYSTORE=$K" >> "$GITHUB_ENV"
+          printf '\nandroid {\n    signingConfigs {\n        debug {\n            storeFile file(System.getenv("FUMU_KEYSTORE"))\n            storePassword "android"\n            keyAlias "androiddebugkey"\n            keyPassword "android"\n        }\n    }\n}\n' >> android/app/build.gradle
+          tail -11 android/app/build.gradle
+          keytool -list -keystore "$K" -storepass android -alias androiddebugkey | tail -1
       - name: Build the debug APK
         working-directory: android/android
         run: ./gradlew assembleDebug --no-daemon
+      - name: Check the APK carries that key
+        if: env.FUMU_KEYSTORE != ''
+        run: |
+          want=$(keytool -list -v -keystore "$FUMU_KEYSTORE" -storepass android -alias androiddebugkey | grep -m1 'SHA256:' | awk '{print $2}')
+          got=$(keytool -printcert -jarfile android/app/build/outputs/apk/debug/app-debug.apk | grep -m1 'SHA256:' | awk '{print $2}')
+          echo "key $want, APK $got"
+          [ -n "$want" ] && [ "$want" = "$got" ] || { echo "::error::The APK is not signed with the ANDROID_DEBUG_KEYSTORE key; it would not install over the last one."; exit 1; }
       - name: Publish the pre-release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
