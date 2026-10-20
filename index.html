@@ -1051,14 +1051,21 @@ html.desk-boot.booting,html.desk-boot.booting body{background:transparent!import
 <!-- a to-do's date and repeat (app-todo.js): tap a task's words on the to-do list -->
 <dialog class="picker pet-sheet task-sheet" id="taskSheet" aria-labelledby="taskTitle">
   <form method="dialog" class="picker-inner">
-    <h2 id="taskTitle">Task</h2>
+    <div class="task-head"><h2 id="taskTitle">Task</h2>
+      <div class="task-confirm">
+        <button type="button" class="pill-btn" id="taskCancel">Cancel</button>
+        <button type="button" class="pill-btn task-save" id="taskSave">Save</button>
+      </div></div>
     <input class="task-name task-name-input" id="taskName" type="text" maxlength="80" autocomplete="off" enterkeyhint="done" aria-label="Task">
-    <!-- one label column for the day, time, repeat and its end (build 730) -->
+    <!-- two panels, when and repeat, with one label column (builds 730, 731) -->
+    <div class="task-card">
     <div class="task-chips task-due" id="dueChips" role="group" aria-label="Due"></div>
     <label class="task-row"><span class="task-row-label">Day</span><input type="date" id="dueDate" class="task-date"></label>
     <div class="task-row task-time"><span class="task-row-label">Time</span>
       <select id="timeH" class="task-date" aria-label="Hour"></select><span class="task-colon">:</span><select id="timeM" class="task-date" aria-label="Minute"></select><select id="timeAP" class="task-date" aria-label="AM or PM" hidden></select>
       <button type="button" class="task-x" id="clearTime" aria-label="No time">✕</button></div>
+    </div>
+    <div class="task-card">
     <label class="task-row"><span class="task-row-label">Repeat</span><select id="repeatSel" class="task-date task-select"></select></label>
     <div class="task-chips task-dow" id="dowChips" role="group" aria-label="Days of the week" hidden></div>
     <div id="untilField" hidden>
@@ -1066,9 +1073,6 @@ html.desk-boot.booting,html.desk-boot.booting body{background:transparent!import
       <label class="task-row" id="untilDateWrap" hidden><span class="task-row-label">Until</span><input type="date" id="untilDate" class="task-date"></label>
     </div>
     <p class="task-note" id="repeatNote" hidden></p>
-    <div class="task-confirm">
-      <button type="button" class="pill-btn" id="taskCancel">Cancel</button>
-      <button type="button" class="pill-btn task-save" id="taskSave">Save</button>
     </div>
     <div class="task-actions">
       <button type="button" class="text-btn" id="taskEmoji">Change emoji</button>

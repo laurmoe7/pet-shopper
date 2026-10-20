@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 731
+- Task menu: when and repeat in two panels, easier to read
+- Cancel and Save next to the title, always in view
+- Save stands out in Dark and the other themes
+
 ## Build 730
 - Morning alert in the phone app: the day's to-dos at a time you pick
 - Tidier task time menu: one-line day chips and weekdays, Save in view

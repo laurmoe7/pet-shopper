@@ -391,7 +391,7 @@
     { id: 'weekly', label: 'Every week', days: 7 },
     { id: 'weekdays', label: 'Weekdays (Mon to Fri)', dow: [1, 2, 3, 4, 5] },
     { id: 'weekends', label: 'Weekends', dow: [6, 0] },
-    { id: 'days', label: 'Certain days of the week…', dow: null },   // the days are on the task (item.days)
+    { id: 'days', label: 'On certain days…', dow: null },   // the days are on the task (item.days)
     { id: 'monthly', label: 'Every month', months: 1 },
     { id: 'yearly', label: 'Every year', months: 12 }
   ];
