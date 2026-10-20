@@ -101,7 +101,7 @@ function phoneAction(ev) {
   if (!item) return;
   var go = function () {
     if (pending > 0) { setTimeout(go, 800); return; }   // (the list cannot swap while he eats)
-    if (!isTodo()) switchList();
+    if (!isTodo()) switchList('todo');
     if (item.morning) return;
     if (ev.actionId === 'done') { if (!item.done && state.items.indexOf(item) !== -1) setTimeout(function () { toggle(item.id); }, 600); return; }
     if (ev.actionId === 'snooze') {

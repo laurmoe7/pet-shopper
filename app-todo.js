@@ -5,8 +5,15 @@
 'use strict';
 
 // The list on show is always state.items; the other one waits in state.stash (state.mode says which is which).
+// In a household there are two shopping lists: state.shopList says which one is the shopping list (sync.js, showShop).
 /** @returns {boolean} Whether the to-do list is the one on show. */
 function isTodo() { return state.mode === 'todo'; }
+/** @returns {string} The list on show: 'shop', 'shared' or 'todo'. */
+function shownList() { return isTodo() ? 'todo' : state.shopList === 'shared' ? 'shared' : 'shop'; }
+/** @returns {boolean} Whether the household's shared list is on show. */
+function isShared() { return shownList() === 'shared'; }
+/** @returns {string[]} The lists the tabs and the title go through: the shared one only in a household. */
+function listOrder() { return typeof houseIn === 'function' && houseIn() ? ['shop', 'shared', 'todo'] : ['shop', 'todo']; }
 
 var brandEl = $('brand'), brandKind = $('brandKind');
 /**
@@ -14,15 +21,17 @@ var brandEl = $('brand'), brandKind = $('brandKind');
  * @param {boolean} [animate] Flip the title's words instead of changing them at once.
  */
 function applyListMode(animate) {
-  var todo = isTodo();
+  var todo = isTodo(), shared = isShared();
   document.documentElement.dataset.list = todo ? 'todo' : 'shop';
-  var kind = todo ? 'to-do list' : 'shopping list';
+  var kind = todo ? 'to-do list' : shared ? 'shared list' : 'shopping list';
   if (animate && !reduceMotion) {
     brandKind.classList.remove('flip'); void brandKind.offsetWidth; brandKind.classList.add('flip');
     setTimeout(function () { brandKind.textContent = kind; }, 190);
   } else brandKind.textContent = kind;
   brandEl.classList.toggle('swapped', todo);
-  $('tabShop').setAttribute('aria-selected', String(!todo));
+  $('tabShop').setAttribute('aria-selected', String(!todo && !shared));
+  $('tabShared').setAttribute('aria-selected', String(shared));
+  $('tabShared').hidden = listOrder().indexOf('shared') < 0;
   $('tabTodo').setAttribute('aria-selected', String(todo));
   addInput.placeholder = todo ? 'Add a to-do, like call mum' : 'Add an item…';
   $('addLabel').textContent = todo ? 'Add a to-do' : 'Add an item';
@@ -35,13 +44,22 @@ function applyListMode(animate) {
   if (!todo && $('calSheet').open) $('calSheet').close();   // the calendar belongs to the to-do list (the stamp book is on both)
 }
 
-/** Swaps the shopping list and the to-do list; Fumu notices. */
-function switchList() {
+/**
+ * Shows another list; Fumu notices.
+ * @param {string} [to]  'shop', 'shared' or 'todo'; anything else (a click event, nothing) goes to the next one in turn.
+ */
+function switchList(to) {
   if (pending > 0) { pulse('rocksmall', 500); return; }   // still eating or cheering: wait for it
-  var shown = state.items;
-  state.items = state.stash;
-  state.stash = shown;
-  state.mode = isTodo() ? 'shop' : 'todo';
+  var from = shownList(), order = listOrder();
+  if (typeof to !== 'string') to = order[(order.indexOf(from) + 1) % order.length];
+  if (to === from || order.indexOf(to) < 0) return;
+  if ((to === 'todo') !== (from === 'todo')) {
+    var shown = state.items;
+    state.items = state.stash;
+    state.stash = shown;
+    state.mode = to === 'todo' ? 'todo' : 'shop';
+  }
+  if (to !== 'todo') Sync.showShop(state, to);
   suggestEl.hidden = true;
   closePicker();
   save();
@@ -56,13 +74,14 @@ function switchList() {
   pulse('hop', 460);
   setFace(todo ? FACES.tada : FACES.happy);
   drift(todo ? ['✓', '✦', '✧'] : ['♥', '✦', '✧'], at, 3);
-  talk(todo ? 'switchTodo' : 'switchShop', todo ? ['to-do time!', "let's get things done!", 'tick tick tick!', 'ooh, tasks!'] : ['shopping time!', 'snack run!', 'back to the shops!', 'ooh, snacks!'], 1500);
+  if (to === 'shared') talk('switchShared', ['our list!', 'shopping together!', 'team snacks!', 'the house list!'], 1500);
+  else talk(todo ? 'switchTodo' : 'switchShop', todo ? ['to-do time!', "let's get things done!", 'tick tick tick!', 'ooh, tasks!'] : ['shopping time!', 'snack run!', 'back to the shops!', 'ooh, snacks!'], 1500);
   setTimeout(function () { if (!busy) settle(); }, 900);
 }
 brandEl.addEventListener('click', switchList);
 $('listTabs').addEventListener('click', function (e) {
   var b = e.target.closest('.list-tab');
-  if (b && (b.dataset.list === 'todo') !== isTodo()) switchList();
+  if (b) switchList(b.dataset.list);
 });
 brandEl.addEventListener('keydown', function (e) {
   if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); switchList(); }

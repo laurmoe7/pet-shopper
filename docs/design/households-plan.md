@@ -105,6 +105,8 @@ anyway, so the account is split in two:
    (`ownIds`). Still for step 3: set `doneBy`/`doneWho` in `toggle`, and count a trip on the Shared list only from the
    items this person ticked.
 3. App: household create/join/leave and members in the Devices sheet; the shopping list syncing through the household.
+   **Done (build 736):** `app-household.js`, the Shared tab (only in a household), "ticked by" tags and "Added by" in the
+   item sheet, trips on the shared list count only your own ticks. Household size changed to **6** (Lauren).
 4. Sync my to-dos switch and the migration rule for existing accounts.
 5. Privacy page, docs, CHANGELOG; bump the build for every app change (`node tools/bump.js`).
 
@@ -128,7 +130,7 @@ These answers change sections 1 to 4; where they disagree with the text above, t
    deleted.
 4. **To-dos sync only to your own devices**, always (no switch, no migration: Lauren is the only tester), and never go
    into a household. Nothing about to-dos is shared with anyone, now or later.
-5. Household size: 8 people (not answered; the proposal).
+5. Household size: 6 people (Lauren, after step 2).
 6. **Names**: a small tag on a ticked row in Bought says who ticked it ("Sam"); who added it is only in the item sheet.
 
 ### Server addresses (built, step 1)

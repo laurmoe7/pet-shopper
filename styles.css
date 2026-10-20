@@ -2211,6 +2211,15 @@ html[data-theme="dark"] .trip-stamp { mix-blend-mode: normal; --stamp-ink: #ff8a
 
 /* to-do dates and the clipboard (app-todo.js) */
 .qty-tag { flex: none; align-self: center; font-size: .72rem; font-weight: 800; line-height: 1; padding: 4px 8px; border-radius: 999px; background: var(--paper-pink, #ffe3ea); color: var(--muted); border: 1.5px solid var(--line); white-space: nowrap; }
+/* who ticked an item on the household's shared list (app.js whoTicked): the qty tag's look, a little smaller */
+.who-tag { flex: none; align-self: center; max-width: 7em; overflow: hidden; text-overflow: ellipsis; font-size: .66rem; font-weight: 800; line-height: 1; padding: 3px 7px; border-radius: 999px; background: var(--paper-pink, #ffe3ea); color: var(--muted); border: 1.5px solid var(--line); white-space: nowrap; }
+/* the Household sheet's members (app-household.js) */
+.house-members { list-style: none; margin: 4px 0 10px; padding: 0; display: grid; gap: 6px; }
+.house-member { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 7px 10px; border: 1.5px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--surface) 80%, transparent); }
+.house-name { font-weight: 800; flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.house-tag { font-size: .72rem; font-weight: 800; color: var(--muted); }
+.house-member .pill-btn { padding: 4px 10px; font-size: .8rem; }
+.item-who { margin: 2px 0 6px; }
 .due-tag { flex: none; align-self: center; font-size: .72rem; font-weight: 800; line-height: 1; padding: 4px 8px; border-radius: 999px; background: rgba(212, 182, 138, .25); color: var(--muted); border: 1.5px solid var(--line); white-space: nowrap; }
 .due-tag.due-soon { background: #fff0c2; color: #8a6420; border-color: #e8cf86; }
 .due-tag.due-today { background: #ffe19a; color: #6e4a0c; border-color: #e0b24c; }
@@ -3604,7 +3613,7 @@ html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.add, .item, .goal, .fav, .options, .picker .closet-wear) { border: 1px solid #000; border-radius: 0; background: var(--os-dark); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 var(--os-hi); }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .item-text { color: var(--os-yellow); text-shadow: var(--os-text); font-weight: 400; }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .item.done .item-text { color: #b58a24; text-decoration-color: #000; }
-html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.qty-tag, .due-tag) { color: var(--os-orange); text-shadow: var(--os-text); }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.qty-tag, .due-tag, .who-tag) { color: var(--os-orange); text-shadow: var(--os-text); }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .item .emoji-btn { width: 44px; height: 44px; padding: 3px; border: 1px solid #000; border-radius: 0; background: var(--os-pit); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 #5b5140; }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .check { border: 1px solid #000; border-radius: 0; background: var(--os-pit); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 #5b5140; }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .check::before { border-radius: 0; border: 0; box-shadow: none; background: transparent; }
@@ -3668,11 +3677,11 @@ html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .fi
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .field-label::before, html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .field-label::after { display: none; }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .items .aisle { color: var(--os-orange); text-shadow: var(--os-text); font-weight: 400; letter-spacing: 0; }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .brand { color: var(--os-yellow); text-shadow: var(--os-text); font-weight: 400; }
-html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.name-show, .name-edit, .dress-search, .qty-tag, .due-tag, .badge, .dock-badge, .picker input, .picker select) { border-radius: 0; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.name-show, .name-edit, .dress-search, .qty-tag, .due-tag, .who-tag, .badge, .dock-badge, .picker input, .picker select) { border-radius: 0; }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .name-show { background: var(--os-dark); border: 1px solid #000; box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 var(--os-hi); color: var(--os-yellow); text-shadow: var(--os-text); }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .name-edit { background: var(--os-red); color: #fff; border: 1px solid #000; text-shadow: var(--os-text); box-shadow: inset 1px 1px 0 #b8432f, inset -1px -1px 0 #4a130b; }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .dress-search { background: var(--os-pit); border: 1px solid #000; color: var(--os-yellow); box-shadow: inset 1px 1px 0 var(--os-lo), inset -1px -1px 0 #5b5140; }
-html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.qty-tag, .due-tag) { background: var(--os-pit); border: 1px solid #000; }
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.qty-tag, .due-tag, .who-tag) { background: var(--os-pit); border: 1px solid #000; }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .gear-btn { border-radius: 0; background: var(--os-stone); border: 1px solid #000; box-shadow: inset 1px 1px 0 var(--os-hi), inset -1px -1px 0 var(--os-lo); }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.gear-btn, .dock-icon)::before, html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) :is(.gear-btn, .dock-icon)::after { display: none; }
 html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .stage .bubble:not(.in-sheet) { background: none; border: 0; box-shadow: none; color: var(--os-yellow); text-shadow: -1px 0 #000, 1px 0 #000, 0 -1px #000, 0 1px #000; font-size: 1.05rem; }
@@ -3790,7 +3799,7 @@ html:root[data-skin="quest"][data-quest="bonfire"] .item:hover { background: rgb
 html:root[data-skin="quest"][data-quest="bonfire"] .item.done { background: rgba(9, 8, 7, .6); }
 html:root[data-skin="quest"][data-quest="bonfire"] .item-text { color: var(--os-yellow); text-shadow: none; font-weight: 500; font-size: 1.06em; }
 html:root[data-skin="quest"][data-quest="bonfire"] .item.done .item-text { color: #857a5c; text-decoration-color: #5b4f33; }
-html:root[data-skin="quest"][data-quest="bonfire"] :is(.qty-tag, .due-tag) { color: var(--os-orange); text-shadow: none; background: #0d0b0a; border: 1px solid #3a3220; border-radius: 2px; }
+html:root[data-skin="quest"][data-quest="bonfire"] :is(.qty-tag, .due-tag, .who-tag) { color: var(--os-orange); text-shadow: none; background: #0d0b0a; border: 1px solid #3a3220; border-radius: 2px; }
 html:root[data-skin="quest"][data-quest="bonfire"] :is(.item .emoji-btn, .check) { background: #0d0b0a; border: 1px solid #4a3f28; border-radius: 2px; box-shadow: inset 0 0 0 1px #000; }
 html:root[data-skin="quest"][data-quest="bonfire"] .item:not(.done) .check::before { background: transparent; border: 1.5px solid #8f8059; box-shadow: none; }
 html:root[data-skin="quest"][data-quest="bonfire"] .item.done .check::before { background-color: #b3541d; border: 0; outline: 1px solid #e0a04a; outline-offset: -3px; }
@@ -4174,7 +4183,7 @@ html:root[data-skin="sweet"] .item-text { color: var(--sw-ink); font-weight: 600
 html:root[data-skin="sweet"] .item.done .item-text { color: #cfa9b6; text-decoration-color: #f59ab5; }
 html:root[data-skin="sweet"] .check::before { border: 2.5px solid #f3a3bb; background: #fff; box-shadow: inset 0 2px 0 rgba(235, 150, 175, .25); }
 html:root[data-skin="sweet"] .item.done .check::before { background-color: var(--sw-pink); border-color: var(--sw-pink-d); }
-html:root[data-skin="sweet"] :is(.qty-tag, .due-tag) { background: #ffe3ec; color: #b35a78; border: 0; border-radius: 999px; box-shadow: inset 0 0 0 1.5px #f7c0d0; }
+html:root[data-skin="sweet"] :is(.qty-tag, .due-tag, .who-tag) { background: #ffe3ec; color: #b35a78; border: 0; border-radius: 999px; box-shadow: inset 0 0 0 1.5px #f7c0d0; }
 /* buttons: glossy pastel pills with a soft edge under them */
 html:root[data-skin="sweet"] :is(.pill-btn, .recipe-btn, .mic-btn, .cal-add-btn, .gear-btn, .dress-tabs button, .picker-grid button, .list-tab, .closet-btn) {
   background: var(--sw-gloss), linear-gradient(180deg, #fffaf6, #ffeaf0); color: #b35a78; border: 2px solid var(--sw-edge); border-radius: 999px; box-shadow: 0 3px 0 var(--sw-edge); text-shadow: none;
@@ -4264,7 +4273,11 @@ html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .ad
 /* the top bar (the Shopping / To-do swapper and the gear) and so Fumu's room are the same size in every theme: the themes may restyle them, not resize them */
 html:root:root .scene-bar { height: 38px; box-sizing: content-box; padding-top: 0; padding-bottom: 0; margin: 0; }
 html:root:root .list-tabs { box-sizing: border-box; height: 38px; margin: 0; padding: 3px; border-width: 1.5px; min-width: 200px; align-items: stretch; }
-html:root:root .list-tab { box-sizing: border-box; height: 30px; padding-top: 0; padding-bottom: 0; border-width: 0; flex: 1 1 auto; justify-content: center; }
+html:root:root .list-tab { box-sizing: border-box; height: 30px; padding-top: 0; padding-bottom: 0; border-width: 0; flex: 1 1 auto; justify-content: center; white-space: nowrap; }
+/* three tabs (the Shared one shows in a household): a little tighter so they fit a phone next to the gear */
+html:root:root .list-tabs:has(> #tabShared:not([hidden])) { gap: 2px; min-width: 0; }
+html:root:root .list-tabs:has(> #tabShared:not([hidden])) .list-tab { padding-left: 9px; padding-right: 9px; gap: 3px; letter-spacing: 0; }
+html:root:root[data-quest="bonfire"] .list-tabs:has(> #tabShared:not([hidden])) .list-tab { padding-left: 6px; padding-right: 6px; font-size: .9em; }
 /* Old School and Bonfire draw a frame round the bar: it grows outwards over the room's edge instead of pushing the room down */
 html:root:root[data-skin="quest"][data-quest="osrs"] .scene-bar { margin-block: -5px; }
 html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-block: -4px; }

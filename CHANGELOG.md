@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 736
+- Households: share a shopping list
+- Shared tab, only in a household
+- Ticked-by tags on the shared list
+
 ## Build 735
 - To-dos sync to your own devices
 - Sync: ready for a shared list

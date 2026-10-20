@@ -1360,7 +1360,7 @@
     list.forEach(function (it, i) { it.done = i === 0; it.doneAt = i === 0 ? now : 0; });
   }
   function devQuietList(list) { list.forEach(function (it) { if (it.done) it.doneAt = 0; }); }
-  function devList(todo) { if (isTodo() !== todo) switchList(); }
+  function devList(todo) { if (isTodo() !== todo) switchList(todo ? 'todo' : 'shop'); }
   var DEV_RUN = {
     wander: function () { return window.deskDo('wander') ? 'He wanders.' : 'Not now.'; },
     peek: function () { return window.deskDo('peek') ? 'He peeks.' : 'Not now.'; },

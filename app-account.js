@@ -104,6 +104,7 @@ function syncNow(why) {
       if (a.removed) parts.push(a.removed + ' removed');
       if (a.fields.length) parts.push(a.fields.join(', '));
       syncLogAdd('Synced (' + why + '): ' + (parts.length ? 'got ' + parts.join(', ') : 'nothing new'), 'sync');
+      if (typeof houseSyncNow === 'function') houseSyncNow();   // then the household's shared list (app-household.js)
     } else if (res.status === 401) {
       syncState.stopped = true;
       syncState.error = 'code not accepted';
@@ -165,6 +166,7 @@ function accountLeave() {
   account.code = ''; account.joined = false; account.rev = 0; account.last = 0;
   syncState.stopped = false; syncState.error = ''; codeVisible = false;
   accountSave();
+  if (typeof houseGone === 'function') houseGone();   // the shared list goes with the code (the household keeps it)
   renderAccount();
 }
 

@@ -209,6 +209,9 @@ function openItemSheet(id) {
   editingItem = id;
   $('itemName').value = item.text;
   $('itemQty').value = item.qty || '';
+  var by = state.shopList === 'shared' && item.addedWho && (typeof houseMe !== 'function' || item.addedWho !== houseMe()) ? item.addedBy || 'Someone' : '';
+  $('itemWho').hidden = !by;
+  $('itemWhoName').textContent = by;
   sheetUnderMouth(itemSheet);
   openDialog(itemSheet);
 }

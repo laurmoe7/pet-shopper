@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '735';
+var BUILD = '736';
 
 var STORE_KEY = 'nibble.v1';
 var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -27,6 +27,7 @@ var syncHook = null, resetting = false;   // resetting: Developer tools > Reset 
 /** Saves the whole state on the phone. Fails quietly if storage is blocked. */
 function save() {
   if (resetting) return;
+  if (typeof houseMark === 'function') houseMark();   // who added a new item to the shared list (app-household.js)
   var found = Sync.stamp(state, Date.now());   // notes what changed, for syncing devices later (sync.js)
   if (syncHook && (found.items || found.deleted || found.fields.length)) syncHook(found);
   try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* storage blocked */ }
@@ -311,7 +312,7 @@ function renderNow() {
   var shown = far.length ? todo.filter(function (i) { return far.indexOf(i) === -1; }) : todo;
   var kept = {};
   function rowFor(item) {
-    var key = (item.done ? 1 : 0) + item.emoji + '|' + item.text + '|' + (item.qty || '') + '|' + dueTagKey(item);
+    var key = (item.done ? 1 : 0) + item.emoji + '|' + item.text + '|' + (item.qty || '') + '|' + dueTagKey(item) + '|' + (whoTicked(item) || '');
     var old = rows[item.id];
     var li = old && old.key === key && !freshIds[item.id] ? old.li : row(item);
     kept[item.id] = { key: key, li: li };
@@ -457,7 +458,21 @@ function row(item) {
   }
   var due = dueTagOf(item);
   if (due) li.append(due);
+  var who = whoTicked(item);
+  if (who) {   // on the shared list: a little tag with who ticked it, when it was someone else
+    var tag = document.createElement('span');
+    tag.className = 'who-tag';
+    tag.textContent = who;
+    if (item.doneBy) tag.setAttribute('data-notr', '');
+    li.append(tag);
+  }
   return li;
+}
+/** @returns {string} Who else ticked this item on the shared list ('' when it is not ticked, ticked here, or not the shared list). */
+function whoTicked(item) {
+  if (!item.done || !item.doneWho || state.mode === 'todo' || state.shopList !== 'shared') return '';
+  if (typeof houseMe === 'function' && item.doneWho === houseMe()) return '';
+  return item.doneBy || 'Someone';
 }
 
 /**

@@ -26,7 +26,7 @@
   var DAY_MS = 24 * 3600 * 1000;
   var RETENTION_MS = 365 * DAY_MS;  // a backup not changed for this long is deleted (the nightly purge; privacy.html says so)
   var TOUCH_MS = DAY_MS;            // a sync with nothing new still marks the backup as in use, once a day
-  var HOUSE_MAX = 8;                // people in one household
+  var HOUSE_MAX = 6;                // people in one household
   var HOUSE_LIST = 'shared';        // the only list a household document carries
   var NAME_MAX = 30;                // characters of a member's display name
 

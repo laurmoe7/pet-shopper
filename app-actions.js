@@ -299,6 +299,9 @@ function toggle(id) {
   var now = new Date(), goals = null;
   var wasAsleep = item.done && baseState() === 'sleepy' && L.isNight(petNow());
   var todoMode = state.mode === 'todo';   // to-dos don't count for goals, tastes or the Top 10
+  var shared = !todoMode && state.shopList === 'shared', me = shared && typeof houseMe === 'function' ? houseMe() : '';
+  // a trip on the shared list counts only what this person ticked (the others' ticks are for their own pets)
+  var tripItems = shared ? state.items.filter(function (i) { return i.done && i.doneWho === me || i === item; }) : state.items;
   if (item.done) {
     if (typeof plantWater === 'function') plantWater();   // the little plant gets its drink for the day (app-plant.js)
     if (L.isNight(petNow())) {   // checking anything off (either list) gets him out of bed for a while, and the light comes on
@@ -312,11 +315,11 @@ function toggle(id) {
       item.fav = L.recordFavourite(state.pet, rulesItem(item), now) || undefined;
     }
     if (!todoMode && L.mood(state.items) === 'stuffed') {
-      var trip = L.recordTrip(state.pet, state.items.map(rulesItem), now, Achievements);
+      var trip = L.recordTrip(state.pet, tripItems.map(rulesItem), now, Achievements);
       goals.counted = goals.counted.concat(trip.counted);
       goals.capped = goals.capped.concat(trip.capped);
       goals.unlocked = goals.unlocked.concat(trip.unlocked);
-      goals.trip = L.recordTripStamp(state.pet, state.items.map(rulesItem), now);   // the stamp book's Trips (celebrate shows it)
+      goals.trip = L.recordTripStamp(state.pet, tripItems.map(rulesItem), now);   // the stamp book's Trips (celebrate shows it)
     }
   } else if (!todoMode) {
     // putting it back takes today's count back, so ticking on and off can't farm goals
@@ -329,6 +332,8 @@ function toggle(id) {
     delete item.countedDay;
   }
   if (!todoMode) { if (item.done) item.doneAt = Date.now(); else delete item.doneAt; }   // when it was ticked: shopping right now keeps Fumu up at night
+  if (shared && item.done) { item.doneWho = me; if (houseName()) item.doneBy = houseName(); else delete item.doneBy; }   // "ticked by" on the others' lists
+  else { delete item.doneWho; delete item.doneBy; }
   if (todoMode) { repeatTask(item); L.addStamp(state.pet, item.cat, item.done ? 1 : -1); }   // the stamp book
   buzz(12);
   save();

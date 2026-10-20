@@ -428,3 +428,29 @@ Object.assign(Dutch, {
   'Day': 'Dag', 'Ends': 'Stopt',
   'Look': 'Uiterlijk', 'Sound': 'Geluid', 'Alerts': 'Meldingen', 'Devices': 'Apparaten', 'Show the weather': 'Weer tonen'
 });
+
+// households: the Shared tab and the Household sheet (app-household.js, build 736)
+Object.assign(Dutch, {
+  'Shared': 'Gedeeld', 'shared list': 'gedeelde lijst', 'Household': 'Huishouden',
+  'Turn on Backup & sync first.': 'Zet eerst Back-up en synchronisatie aan.', 'Not ready on the server yet.': 'Nog niet klaar op de server.',
+  'Share a shopping list. Everyone keeps their own pet and to-dos.': 'Deel een boodschappenlijstje. Iedereen houdt een eigen huisdier en eigen taken.',
+  'Start a household': 'Huishouden starten', 'Got an invite?': 'Uitgenodigd?', 'Join': 'Meedoen', 'Members': 'Leden',
+  "Add your name in Profile so the others know it's you.": 'Zet je naam in je profiel, dan weten de anderen dat jij het bent.',
+  'Copy invite link': 'Uitnodiging kopiëren', 'New invite code': 'Nieuwe uitnodiging', 'Leave household': 'Huishouden verlaten',
+  'No name yet': 'Nog geen naam', 'you': 'jij', 'owner': 'eigenaar', 'you · owner': 'jij · eigenaar', 'Make owner': 'Maak eigenaar', 'Remove': 'Verwijderen', 'Tap again': 'Tik nog eens',
+  'Someone': 'Iemand', 'Added by': 'Toegevoegd door', '{name} person': '{name} persoon', '{name} people': '{name} mensen',
+  'They will manage the household instead of you.': 'Zij beheren dan het huishouden in plaats van jij.',
+  'They lose the shared list. Their own lists and pet stay.': 'Ze raken de gedeelde lijst kwijt. Hun eigen lijsten en huisdier blijven.',
+  'The old invite stops working.': 'De oude uitnodiging werkt dan niet meer.', 'The shared list leaves your devices. Your own list stays.': 'De gedeelde lijst gaat van je apparaten af. Je eigen lijst blijft.',
+  'Your household is ready. Copy the invite link for the others.': 'Je huishouden is klaar. Kopieer de uitnodiging voor de anderen.',
+  'You joined. The Shared tab is on your list.': 'Je doet mee. Het tabblad Gedeeld staat bij je lijst.',
+  'That does not look like an invite: it has 25 letters and numbers.': 'Dat lijkt geen uitnodiging: die heeft 25 letters en cijfers.',
+  'No household has that invite code.': 'Geen huishouden heeft die uitnodiging.', 'That household is full.': 'Dat huishouden is vol.',
+  'You are already in a household. Leave it first.': 'Je zit al in een huishouden. Verlaat dat eerst.',
+  'Too many new households from this connection. Try again in an hour.': 'Te veel nieuwe huishoudens vanaf deze verbinding. Probeer het over een uur.',
+  'Invite link copied. Anyone with it can join until you make a new code.': 'Uitnodiging gekopieerd. Iedereen met de link kan meedoen tot je een nieuwe maakt.',
+  'New invite code made.': 'Nieuwe uitnodiging gemaakt.', 'Removed.': 'Verwijderd.', 'Done.': 'Klaar.', 'You left the household.': 'Je hebt het huishouden verlaten.',
+  'You are no longer in the household.': 'Je zit niet meer in het huishouden.',
+  'our list!': 'onze lijst!', 'shopping together!': 'samen boodschappen!', 'team snacks!': 'teamsnacks!', 'the house list!': 'de huislijst!',
+  'Syncs your lists and': 'Synchroniseert je lijsten en', "between your own devices. No password: you get a code. Don't share it.": 'tussen je eigen apparaten. Geen wachtwoord: je krijgt een code. Deel hem niet.'
+});

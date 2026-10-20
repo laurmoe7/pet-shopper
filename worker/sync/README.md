@@ -60,7 +60,7 @@ table everything else works and sending says "the inbox is not set up". Messages
 ## Households (a shared shopping list)
 
 A second kind of document holding only the `shared` list's items (no pet, counters or to-dos). Each member opens it with
-their **own** code; the `members` table says who is in which household (one each, at most 8), the owner (who made it)
+their **own** code; the `members` table says who is in which household (one each, at most 6), the owner (who made it)
 manages the members, and the invite code is only for joining. It needs the last three lines of `schema.sql`
 (`households`, `members` and its index; the deploy workflow adds them). Without them these addresses answer 503.
 
