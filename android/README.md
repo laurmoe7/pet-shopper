@@ -8,6 +8,13 @@ Build: Actions > "Build the Android app" > Run workflow. Every APK is signed wit
 `android-N` with `Fumufumu.apk`. Open that page on the phone, download the APK, allow
 "install unknown apps" for the browser once, and install. Debug-signed, for testing only.
 
+Updates (build 739, `app-apk.js`): from android-6 on, `android.yml` stamps each APK with its run number (Android's
+versionCode and versionName `android-N`, and `FumuAPK/N` added to the browser's name, `appendUserAgent`). The page asks
+GitHub for the `android-N` tags (at most every 6 hours, and from Options > Check for updates) and shows a card when a newer
+one exists; Install opens the APK's download in Chrome, and Chrome's Open installs it. An APK without the number counts as
+android-5 (`APK_UNMARKED`), the last one made before this. The check needs the repository (or wherever the APKs are
+released) to be public.
+
 The `android/` project itself is generated in CI (`npx cap add android`), so it is not checked in.
 
 Phone alerts (build 729): the APK carries `@capacitor/local-notifications`, the `SCHEDULE_EXACT_ALARM` permission and the status bar icon in `res/drawable/` (both added to the generated project by `android.yml`). An APK from before that has no alerts; the page then just leaves them out.

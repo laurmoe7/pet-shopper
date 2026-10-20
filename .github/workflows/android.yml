@@ -37,6 +37,13 @@ jobs:
       - name: Home screen icon, start-up picture and alert icon
         # android/res (made by tools/android-icons.py, plus the alert icon) replaces the template's Capacitor logos
         run: cp -r res/. android/app/src/main/res/
+      - name: "Version: the run number (Android sees a newer version; the page reads FumuAPK/N to offer updates, app-apk.js)"
+        run: |
+          N=${{ github.run_number }}
+          node -e "const fs=require('fs'),f='capacitor.config.json',c=JSON.parse(fs.readFileSync(f,'utf8'));c.android=Object.assign(c.android||{},{appendUserAgent:'FumuAPK/'+process.argv[1]});fs.writeFileSync(f,JSON.stringify(c,null,2))" "$N"
+          sed -i -E "s/versionCode [0-9]+/versionCode $N/; s/versionName \"[^\"]*\"/versionName \"android-$N\"/" android/app/build.gradle
+          grep -n "versionCode\|versionName" android/app/build.gradle
+          grep -n "appendUserAgent" capacitor.config.json
       - run: npx cap sync android
       - name: Signing key (the same one every time, so a new APK installs over the old one)
         # ANDROID_DEBUG_KEYSTORE: the base64 of a keystore (alias androiddebugkey, passwords "android"), a repository secret.

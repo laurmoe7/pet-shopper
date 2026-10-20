@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 739
+- Android app: update card and Options check
+
 ## Build 738
 - Check for updates in Options
 - Update card when a new build is out

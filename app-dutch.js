@@ -461,3 +461,8 @@ Object.assign(Dutch, {
   'Still on its way. Try again in a few minutes.': 'Nog onderweg. Probeer het over een paar minuten.',
   'Checking…': 'Zoeken…', 'Up to date': 'Helemaal bij', 'Could not check': 'Zoeken lukte niet', 'Update to {name}': 'Bijwerken naar {name}'
 });
+
+// updates of the Android app (app-apk.js, build 739)
+Object.assign(Dutch, {
+  'Install': 'Installeren', 'App update {name}': 'App-update {name}', 'Install app {name}': 'App {name} installeren'
+});

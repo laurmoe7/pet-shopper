@@ -221,7 +221,7 @@ $('optionsBtn').addEventListener('click', function () {
   wxFill();
   optionsList.querySelectorAll('input[data-key]').forEach(function (b) { b.checked = b.dataset.key === 'quiet' ? !state.quiet : state.settings[b.dataset.key]; });
   var n = Errors.fresh.length;   // errors since the app opened (Developer tools has them)
-  $('buildLabel').textContent = 'Build ' + BUILD + (n ? ' \u00b7 ' + n + (n === 1 ? ' error' : ' errors') : '');
+  $('buildLabel').textContent = 'Build ' + BUILD + (typeof apkLabel === 'function' ? apkLabel() : '') + (n ? ' \u00b7 ' + n + (n === 1 ? ' error' : ' errors') : '');
   openDialog(optionsSheet);
 });
 optionsSheet.addEventListener('click', function (e) { if (e.target === optionsSheet) optionsSheet.close(); });
