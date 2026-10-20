@@ -94,9 +94,11 @@ test('the room is saved with the pet', () => {
   assert.deepEqual(back.pet.room, { [Decor[1].id]: { x: Decor[1].x, y: Decor[1].y } });
 });
 
-test('options start on (shopping suggestions off) and keep what was saved', () => {
+test('options start on (shopping suggestions and the morning alert off) and keep what was saved', () => {
   const fresh = PetLogic.parseState(null, ids()).settings;
-  assert.ok(Object.entries(fresh).every(([k, v]) => v === (k !== 'suggestions')), 'all on but the shopping suggestions');
+  const switches = Object.entries(fresh).filter(([k]) => k !== 'morningTime');
+  assert.ok(switches.every(([k, v]) => v === !['suggestions', 'morningAlert'].includes(k)), 'all on but the shopping suggestions and the morning alert');
+  assert.equal(fresh.morningTime, '08:00');
   assert.ok('fairPlayTips' in fresh && 'suggestions' in fresh && 'daydreams' in fresh);
   assert.ok(!('bubbles' in fresh), 'speech bubbles are always on');
   const saved = PetLogic.parseState(JSON.stringify({ items: [], settings: { fairPlayTips: false, sounds: 'yes' } }), ids()).settings;

@@ -2223,6 +2223,21 @@ html[data-list="todo"] .item:not(.done) .item-text { cursor: pointer; }
 .task-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .task-chips .pill-btn { background: var(--surface); padding: 7px 14px; font-size: .88rem; }
 .task-chips .pill-btn[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: transparent; }
+/* the task sheet's rows (build 730): a label column, then the controls; the four due chips share one line */
+.task-due { flex-wrap: nowrap; gap: 6px; }
+.task-due .pill-btn { flex: 1 1 0; min-width: 0; padding: 7px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .84rem; }
+.task-row { display: flex; align-items: center; gap: 6px; min-height: 40px; }
+.pet-sheet .picker-inner > .task-row, .pet-sheet .picker-inner > #untilField, .pet-sheet .picker-inner > .task-dow, .pet-sheet .picker-inner > .task-note { margin-top: 8px; }
+#untilField .task-row + .task-row { margin-top: 8px; }
+.task-row-label { flex: none; width: 4.2em; font-size: .88rem; font-weight: 800; color: var(--muted); }
+.task-row .task-select { flex: 1; width: auto; min-width: 0; }
+.task-row input.task-date { flex: none; }
+.task-colon { font-weight: 800; color: var(--muted); }
+.task-x { flex: none; width: 30px; height: 30px; margin-left: 2px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--muted); font: inherit; font-size: .9rem; font-weight: 800; cursor: pointer; }
+.task-x:hover, .task-x:focus-visible { background: var(--hl-soft); color: var(--ink); outline: none; }
+.task-x[hidden] { display: none; }
+.task-dow { margin-left: calc(4.2em + 6px); }
+.task-note[hidden] { display: none; }
 .task-date-label { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: .88rem; font-weight: 700; color: var(--muted); }
 .task-date-label .text-btn { padding: 4px; font-size: .85rem; }
 .task-date { font: inherit; padding: 6px 8px; border: 1.5px solid var(--outline); border-radius: 10px; background: var(--surface); color: var(--ink); }
@@ -2692,8 +2707,8 @@ html:root .dock #profileBtn { --tilt: 5deg; --sticker: #d9ccf5; --sticker-ink: #
 #stampBtn.profile-link::before { background: rgba(255, 200, 215, .8); }
 
 .task-select { width: 100%; box-sizing: border-box; padding: 8px 12px; }
-.task-dow { margin: 6px 0; gap: 5px; }
-.task-dow .pill-btn { padding: 6px 9px; font-size: .8rem; }
+.task-dow { gap: 4px; flex-wrap: nowrap; }
+.task-dow .pill-btn { flex: 1 1 0; min-width: 0; padding: 6px 0; font-size: .78rem; text-align: center; }
 
 .task-note.warn { color: var(--danger); font-weight: 800; }
 .task-confirm { display: flex; gap: 10px; }
@@ -4422,12 +4437,18 @@ html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-bloc
 /* Mini Fumu has no falling rain in the background (build 726); the splashes on his leaf (build 727), the leaf and a storm's thunderbolts stay */
 html.desktop-pet .wx-rain i, html.desktop-pet .wx-storm i { display: none; }
 @media (prefers-reduced-motion: reduce) { .wx-fx i, .wx-bob, .wx-bolt, .wx-splash, .wx-heat { animation: none; } #pet:has(.wx-fan) .arm-r { animation: none !important; } .wx-fx i { top: 20%; } }
-/* Phone alerts (app-phone.js, only in the Android app): a note under the switch when the phone blocks them or makes them late */
-.option-phone { display: flex; align-items: center; gap: 8px; padding: 0 4px 10px; border-bottom: 1.5px dashed var(--line); }
-.option-phone[hidden] { display: none; }
+/* Phone alerts (app-phone.js, only in the Android app): the switch, the morning alert a step in under it, and a note when the phone blocks alerts or makes them late; one dashed line under the group */
+.option-group { border-bottom: 1.5px dashed var(--line); padding-bottom: 6px; }
+.option-group > .option { border-bottom: 0 !important; box-shadow: none !important; }   /* (the themes draw a line under every .option) */
+html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .option-group { border-bottom: 1px solid #1d1810; box-shadow: 0 1px 0 var(--os-hi); }
+html:root[data-skin="quest"][data-quest="bonfire"] .option-group { border-bottom: 1px solid #2a2519; box-shadow: none; }
+.option-group > [hidden] { display: none; }
+.option-sub { padding-left: 14px; }
+.option-phone { display: flex; align-items: center; gap: 8px; padding: 0 4px 6px; }
+.option-phone.option-sub { padding-left: 18px; }
 .option-phone .option-text { flex: 1; margin: 0; }
 .option-phone .pill-btn { flex: none; padding: 4px 12px; font-size: .85rem; }
-.option:has([data-key="phoneAlerts"]):has(+ .option-phone:not([hidden])) { border-bottom: 0; padding-bottom: 4px; }
+.option-phone select { flex: none; }
 .option-weather { padding: 0 4px 10px; border-bottom: 1.5px dashed var(--line); }
 .option:has(#wxOn) { border-bottom: 0; padding-bottom: 4px; }
 .wx-place { display: flex; gap: 8px; align-items: center; margin-top: 4px; }

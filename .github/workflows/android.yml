@@ -34,8 +34,9 @@ jobs:
           M=android/app/src/main/AndroidManifest.xml
           sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#&\n    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />#' $M
           grep -n "uses-permission" $M
-      - name: Status bar icon for alerts
-        run: cp res/drawable/ic_stat_fumu.xml android/app/src/main/res/drawable/
+      - name: Home screen icon, start-up picture and alert icon
+        # android/res (made by tools/android-icons.py, plus the alert icon) replaces the template's Capacitor logos
+        run: cp -r res/. android/app/src/main/res/
       - run: npx cap sync android
       - name: Build the debug APK
         working-directory: android/android

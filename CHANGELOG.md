@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 730
+- Morning alert in the phone app: the day's to-dos at a time you pick
+- Tidier task time menu: one-line day chips and weekdays, Save in view
+- Phone app: Fumu's own home screen icon and start-up picture
+
 ## Build 729
 - Phone app: alerts for tasks with a time, even when the app is closed
 - Done and In 10 min on the alert

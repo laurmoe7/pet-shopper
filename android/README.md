@@ -11,3 +11,5 @@ Build: Actions > "Build the Android app" > Run workflow. It publishes a pre-rele
 The `android/` project itself is generated in CI (`npx cap add android`), so it is not checked in.
 
 Phone alerts (build 729): the APK carries `@capacitor/local-notifications`, the `SCHEDULE_EXACT_ALARM` permission and the status bar icon in `res/drawable/` (both added to the generated project by `android.yml`). An APK from before that has no alerts; the page then just leaves them out.
+
+Home screen icon and start-up picture: `res/mipmap-*/` and `res/drawable*/splash.png`, made from `icon-maskable-512.png` and `icon-512.png` by `python3 tools/android-icons.py` (run it again after changing those icons); `android.yml` copies all of `res/` over the generated project.

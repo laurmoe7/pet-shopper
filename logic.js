@@ -280,6 +280,8 @@
    * @property {boolean} time24      Times on tasks as 14:30 (off: 2:30 PM).
    * @property {boolean} aisles      The shopping list is shown grouped by shop aisle.
    * @property {boolean} phoneAlerts In the phone app, tasks with a time get a notification.
+   * @property {boolean} morningAlert In the phone app, an alert each morning with the day's tasks.
+   * @property {string} morningTime  HH:MM for the morning alert.
    */
 
   // ---------- the little plant (build 633) ----------
@@ -318,7 +320,7 @@
   }
 
   /** The settings a new phone starts with: everything on. */
-  var DEFAULT_SETTINGS = { sounds: true, ambience: true, vibration: true, daydreams: true, suggestions: false, fairPlayTips: true, goalToasts: true, cardboard: true, time24: true, aisles: true, phoneAlerts: true };
+  var DEFAULT_SETTINGS = { sounds: true, ambience: true, vibration: true, daydreams: true, suggestions: false, fairPlayTips: true, goalToasts: true, cardboard: true, time24: true, aisles: true, phoneAlerts: true, morningAlert: false };
 
   /**
    * Fills in any settings missing from what was saved.
@@ -332,6 +334,7 @@
     });
     // sounds and daydreams are always on now (there is no switch for them; quiet mode mutes sound)
     out.sounds = out.daydreams = true;
+    out.morningTime = saved && isTimeKey(saved.morningTime) ? saved.morningTime : '08:00';   // (the one setting that is not a switch)
     return out;
   }
 
@@ -483,12 +486,34 @@
     return next;
   }
   /** How many alerts the phone app keeps waiting at once, and how far ahead (Android has a limit per app). */
-  var ALERT_MAX = 40, ALERT_DAYS = 30;
+  var ALERT_MAX = 40, ALERT_DAYS = 30, ALERT_SNOOZE = 0x20000000, ALERT_MORNING = 0x40000000, MORNING_DAYS = 7;
+  /**
+   * The morning alerts for the next MORNING_DAYS days: on each day with tasks due or late by then, one alert at `time`
+   * with that day's tasks (as the list stands now; it is worked out again after every change).
+   * @param {Item[]} items  Both lists.
+   * @param {number} now  ms
+   * @param {string} time  HH:MM
+   * @returns {{id: number, day: string, at: number, today: string[], late: number}[]}
+   */
+  function morningPlan(items, now, time) {
+    if (!isTimeKey(time)) return [];
+    var tasks = (items || []).filter(function (i) { return i && !i.done && isDayKey(i.due); }), out = [];
+    var day = dayKey(new Date(now));
+    for (var n = 0; n < MORNING_DAYS; n++, day = addDays(day, 1)) {
+      var d = dayDate(day);
+      d.setHours(+time.slice(0, 2), +time.slice(3, 5), 0, 0);
+      if (d.getTime() <= now) continue;
+      var due = tasks.filter(function (i) { return i.due === day; }).sort(function (a, b) { return (a.time || '') < (b.time || '') ? -1 : (a.time || '') > (b.time || '') ? 1 : 0; });
+      var late = tasks.filter(function (i) { return i.due < day; }).length;
+      if (due.length || late) out.push({ id: ALERT_MORNING + n, day: day, at: d.getTime(), today: due.map(function (i) { return String(i.text || ''); }), late: late });
+    }
+    return out;
+  }
   /** @returns {number} A whole number for a task id, the same every time (Android alerts need a number). */
   function alertId(id) {
     var h = 0, s = String(id);
     for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
-    return (h & 0x3fffffff) + 1;   // positive and below 2^30, so a snooze (+2^30) never meets another task's number
+    return (h & 0x1fffffff) + 1;   // 1 to 2^29: a snooze is +2^29 (ALERT_SNOOZE), morning alerts are from 2^30 (ALERT_MORNING), all below Android's 2^31
   }
   /**
    * The phone alerts to keep waiting: one per task that is not done and has a day and a time still to come
@@ -2399,7 +2424,7 @@
     isUnlocked: isUnlocked,
     gateFor: gateFor,
     emojiFor: emojiFor,
-    splitSpoken: splitSpoken, wornIds: wornIds, toggleWorn: toggleWorn, faceStack: faceStack, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, cleanTask: cleanTask, firstOnDays: firstOnDays, repeatDays: repeatDays, REPEATS: REPEATS, REPEAT_SPANS: REPEAT_SPANS, untilFor: untilFor, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue, alertPlan: alertPlan, alertId: alertId,
+    splitSpoken: splitSpoken, wornIds: wornIds, toggleWorn: toggleWorn, faceStack: faceStack, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, cleanTask: cleanTask, firstOnDays: firstOnDays, repeatDays: repeatDays, REPEATS: REPEATS, REPEAT_SPANS: REPEAT_SPANS, untilFor: untilFor, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue, alertPlan: alertPlan, alertId: alertId, morningPlan: morningPlan, ALERT_SNOOZE: ALERT_SNOOZE, ALERT_MORNING: ALERT_MORNING,
     createItem: createItem,
     petProfile: petProfile,
     parsePlayer: parsePlayer,

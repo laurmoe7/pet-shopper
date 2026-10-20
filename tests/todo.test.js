@@ -238,12 +238,39 @@ test('phone alerts: one per task with a day and a time still to come, soonest fi
   assert.deepEqual(plan.map((a) => a.task), ['soon', 'later']);
   assert.equal(plan[0].at, new Date(2026, 9, 20, 12, 30).getTime());
   assert.equal(plan[0].id, L.alertId('soon'));
-  // numbers are whole, positive, stay the same and leave room for a snooze (+2^30)
+  // numbers are whole, positive, stay the same, and a snooze (+2^29) stays under the morning ones and Android's 2^31
   for (const id of ['a', 'task-1729-abc', '9'.repeat(40)]) {
     const n = L.alertId(id);
-    assert.ok(Number.isInteger(n) && n > 0 && n <= 0x40000000, id);
+    assert.ok(Number.isInteger(n) && n > 0 && n <= L.ALERT_SNOOZE && n + L.ALERT_SNOOZE < L.ALERT_MORNING, id);
     assert.equal(n, L.alertId(id));
   }
   const many = Array.from({ length: 60 }, (_, i) => t('m' + i, '2026-10-22', '10:00'));
   assert.equal(L.alertPlan(many, now).length, 40);   // Android keeps a limited number waiting
+});
+
+test('morning alerts: one a day with the tasks due that day and how many are late by then', () => {
+  const now = new Date(2026, 9, 20, 9, 0).getTime();   // Tuesday 20 October, 9:00
+  const t = (id, due, time, more) => Object.assign({ id, text: id, due, time, done: false }, more);
+  const items = [t('gym', '2026-10-20', '18:00'), t('call', '2026-10-21', '15:00'), t('bins', '2026-10-21'), t('done', '2026-10-22', undefined, { done: true }), t('rent', '2026-10-24')];
+  const plan = L.morningPlan(items, now, '08:00');
+  // today's 8:00 has gone; Wednesday has two (tasks without a time first, then by time), Thursday and Friday
+  // still have the gym and call late, and Saturday has rent
+  assert.deepEqual(plan.map((p) => p.day), ['2026-10-21', '2026-10-22', '2026-10-23', '2026-10-24', '2026-10-25', '2026-10-26']);
+  assert.deepEqual(plan[0].today, ['bins', 'call']);
+  assert.equal(plan[0].late, 1);
+  assert.equal(plan[0].at, new Date(2026, 9, 21, 8, 0).getTime());
+  assert.equal(plan[0].id, L.ALERT_MORNING + 1);
+  assert.deepEqual(plan[3].today, ['rent']);
+  assert.equal(plan[3].late, 3);
+  // later in the morning, today counts too; nothing due means no alerts; a bad time means none
+  assert.equal(L.morningPlan(items, now, '10:30')[0].day, '2026-10-20');
+  assert.deepEqual(L.morningPlan([t('x', undefined)], now, '08:00'), []);
+  assert.deepEqual(L.morningPlan(items, now, '8am'), []);
+});
+
+test('settings keep the morning alert time, and start with it off', () => {
+  const s = L.settings({ morningTime: '07:30' });
+  assert.equal(s.morningTime, '07:30');
+  assert.equal(s.morningAlert, false);
+  assert.equal(L.settings({ morningTime: 'soon' }).morningTime, '08:00');
 });
