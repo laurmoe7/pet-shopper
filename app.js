@@ -3,7 +3,7 @@
 'use strict';
 
 // keep in step with CACHE in sw.js (a test checks); shown in Options so you can tell which build you are on
-var BUILD = '728';
+var BUILD = '729';
 
 var STORE_KEY = 'nibble.v1';
 var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -30,6 +30,7 @@ function save() {
   var found = Sync.stamp(state, Date.now());   // notes what changed, for syncing devices later (sync.js)
   if (syncHook && (found.items || found.deleted || found.fields.length)) syncHook(found);
   try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* storage blocked */ }
+  if (typeof phoneSoon === 'function') phoneSoon();   // the phone app's alerts follow the tasks (app-phone.js)
 }
 
 /**

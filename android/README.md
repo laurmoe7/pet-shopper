@@ -9,3 +9,5 @@ Build: Actions > "Build the Android app" > Run workflow. It publishes a pre-rele
 "install unknown apps" for the browser once, and install. Debug-signed, for testing only.
 
 The `android/` project itself is generated in CI (`npx cap add android`), so it is not checked in.
+
+Phone alerts (build 729): the APK carries `@capacitor/local-notifications`, the `SCHEDULE_EXACT_ALARM` permission and the status bar icon in `res/drawable/` (both added to the generated project by `android.yml`). An APK from before that has no alerts; the page then just leaves them out.

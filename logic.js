@@ -279,6 +279,7 @@
    * @property {boolean} cardboard    The cardboard-and-stickers look (off = the classic pink look).
    * @property {boolean} time24      Times on tasks as 14:30 (off: 2:30 PM).
    * @property {boolean} aisles      The shopping list is shown grouped by shop aisle.
+   * @property {boolean} phoneAlerts In the phone app, tasks with a time get a notification.
    */
 
   // ---------- the little plant (build 633) ----------
@@ -317,7 +318,7 @@
   }
 
   /** The settings a new phone starts with: everything on. */
-  var DEFAULT_SETTINGS = { sounds: true, ambience: true, vibration: true, daydreams: true, suggestions: false, fairPlayTips: true, goalToasts: true, cardboard: true, time24: true, aisles: true };
+  var DEFAULT_SETTINGS = { sounds: true, ambience: true, vibration: true, daydreams: true, suggestions: false, fairPlayTips: true, goalToasts: true, cardboard: true, time24: true, aisles: true, phoneAlerts: true };
 
   /**
    * Fills in any settings missing from what was saved.
@@ -480,6 +481,32 @@
       k++;
     } while (next <= today && k < 4000);
     return next;
+  }
+  /** How many alerts the phone app keeps waiting at once, and how far ahead (Android has a limit per app). */
+  var ALERT_MAX = 40, ALERT_DAYS = 30;
+  /** @returns {number} A whole number for a task id, the same every time (Android alerts need a number). */
+  function alertId(id) {
+    var h = 0, s = String(id);
+    for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+    return (h & 0x3fffffff) + 1;   // positive and below 2^30, so a snooze (+2^30) never meets another task's number
+  }
+  /**
+   * The phone alerts to keep waiting: one per task that is not done and has a day and a time still to come
+   * (within ALERT_DAYS, soonest first, at most ALERT_MAX). A repeating task has one alert, its next one.
+   * @param {Item[]} items  Both lists (only tasks have times).
+   * @param {number} now  ms
+   * @returns {{id: number, task: string, text: string, emoji: string, at: number}[]}
+   */
+  function alertPlan(items, now) {
+    var end = now + ALERT_DAYS * 864e5, seen = {};
+    return (items || []).filter(function (i) { return i && !i.done && isDayKey(i.due) && isTimeKey(i.time); }).map(function (i) {
+      var d = dayDate(i.due);
+      d.setHours(+i.time.slice(0, 2), +i.time.slice(3, 5), 0, 0);
+      return { id: alertId(i.id), task: String(i.id), text: String(i.text || ''), emoji: i.emoji || '', at: d.getTime() };
+    }).filter(function (a) {
+      if (a.at <= now || a.at > end || seen[a.id]) return false;
+      return (seen[a.id] = true);
+    }).sort(function (a, b) { return a.at - b.at; }).slice(0, ALERT_MAX);
   }
   /**
    * Puts the open tasks in due order: late ones, then today's, then the undated ones (they are not for any later day,
@@ -2372,7 +2399,7 @@
     isUnlocked: isUnlocked,
     gateFor: gateFor,
     emojiFor: emojiFor,
-    splitSpoken: splitSpoken, wornIds: wornIds, toggleWorn: toggleWorn, faceStack: faceStack, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, cleanTask: cleanTask, firstOnDays: firstOnDays, repeatDays: repeatDays, REPEATS: REPEATS, REPEAT_SPANS: REPEAT_SPANS, untilFor: untilFor, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue,
+    splitSpoken: splitSpoken, wornIds: wornIds, toggleWorn: toggleWorn, faceStack: faceStack, isFarOff: isFarOff, PLAN_AHEAD_DAYS: PLAN_AHEAD_DAYS, monthGrid: monthGrid, tasksOn: tasksOn, addStamp: addStamp, stampTotal: stampTotal, AISLES: AISLES, aisleOf: aisleOf, groupByAisle: groupByAisle, cleanTask: cleanTask, firstOnDays: firstOnDays, repeatDays: repeatDays, REPEATS: REPEATS, REPEAT_SPANS: REPEAT_SPANS, untilFor: untilFor, isDayKey: isDayKey, isTimeKey: isTimeKey, addDays: addDays, addMonths: addMonths, daysUntil: daysUntil, dueInfo: dueInfo, nextDue: nextDue, sortByDue: sortByDue, alertPlan: alertPlan, alertId: alertId,
     createItem: createItem,
     petProfile: petProfile,
     parsePlayer: parsePlayer,

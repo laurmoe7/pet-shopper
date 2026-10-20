@@ -4422,6 +4422,12 @@ html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-bloc
 /* Mini Fumu has no falling rain in the background (build 726); the splashes on his leaf (build 727), the leaf and a storm's thunderbolts stay */
 html.desktop-pet .wx-rain i, html.desktop-pet .wx-storm i { display: none; }
 @media (prefers-reduced-motion: reduce) { .wx-fx i, .wx-bob, .wx-bolt, .wx-splash, .wx-heat { animation: none; } #pet:has(.wx-fan) .arm-r { animation: none !important; } .wx-fx i { top: 20%; } }
+/* Phone alerts (app-phone.js, only in the Android app): a note under the switch when the phone blocks them or makes them late */
+.option-phone { display: flex; align-items: center; gap: 8px; padding: 0 4px 10px; border-bottom: 1.5px dashed var(--line); }
+.option-phone[hidden] { display: none; }
+.option-phone .option-text { flex: 1; margin: 0; }
+.option-phone .pill-btn { flex: none; padding: 4px 12px; font-size: .85rem; }
+.option:has([data-key="phoneAlerts"]):has(+ .option-phone:not([hidden])) { border-bottom: 0; padding-bottom: 4px; }
 .option-weather { padding: 0 4px 10px; border-bottom: 1.5px dashed var(--line); }
 .option:has(#wxOn) { border-bottom: 0; padding-bottom: 4px; }
 .wx-place { display: flex; gap: 8px; align-items: center; margin-top: 4px; }

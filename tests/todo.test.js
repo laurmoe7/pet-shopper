@@ -222,3 +222,28 @@ test('cleanTask keeps a short amount and drops a bad one', () => {
   assert.strictEqual(L.cleanTask({ id: 'a', text: 'x', qty: 5 }).qty, undefined);
   assert.strictEqual(L.cleanTask({ id: 'a', text: 'x', qty: '' }).qty, undefined);
 });
+
+test('phone alerts: one per task with a day and a time still to come, soonest first', () => {
+  const now = new Date(2026, 9, 20, 12, 0).getTime();
+  const t = (id, due, time, more) => Object.assign({ id, text: id, emoji: '📌', due, time, done: false }, more);
+  const plan = L.alertPlan([
+    t('later', '2026-10-21', '09:00'),
+    t('soon', '2026-10-20', '12:30'),
+    t('past', '2026-10-20', '11:59'),            // its time has gone: Fumu covers it in the app
+    t('done', '2026-10-20', '15:00', { done: true }),
+    t('notime', '2026-10-20', undefined),       // a day alone gets no alert
+    t('far', '2026-12-25', '10:00'),            // more than 30 days away
+    { id: 'shop', text: 'Milk' }
+  ], now);
+  assert.deepEqual(plan.map((a) => a.task), ['soon', 'later']);
+  assert.equal(plan[0].at, new Date(2026, 9, 20, 12, 30).getTime());
+  assert.equal(plan[0].id, L.alertId('soon'));
+  // numbers are whole, positive, stay the same and leave room for a snooze (+2^30)
+  for (const id of ['a', 'task-1729-abc', '9'.repeat(40)]) {
+    const n = L.alertId(id);
+    assert.ok(Number.isInteger(n) && n > 0 && n <= 0x40000000, id);
+    assert.equal(n, L.alertId(id));
+  }
+  const many = Array.from({ length: 60 }, (_, i) => t('m' + i, '2026-10-22', '10:00'));
+  assert.equal(L.alertPlan(many, now).length, 40);   // Android keeps a limited number waiting
+});

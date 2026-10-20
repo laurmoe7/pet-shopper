@@ -8,5 +8,11 @@
   },
   "android": {
     "allowMixedContent": false
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_fumu",
+      "iconColor": "#c9805f"
+    }
   }
 }

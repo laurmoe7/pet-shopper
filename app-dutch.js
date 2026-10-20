@@ -418,3 +418,10 @@ Object.assign(Dutch, {
   'Green tea': 'Groene thee', 'Almonds': 'Amandelen', 'Soup': 'Soep', 'Milk': 'Melk', 'Apples': 'Appels', 'Oranges': 'Sinaasappels', 'Lollipops': 'Lollies', 'Gummy bears': 'Winegums', 'Hot sauce': 'Hete saus', 'Soda': 'Fris',
   'Chilli sauce': 'Chilisaus', 'Noodles': 'Noedels', 'Nachos': 'Nacho\'s'
 });
+
+// phone alerts (app-phone.js, build 729)
+Object.assign(Dutch, {
+  'Phone alerts': 'Meldingen op de telefoon', 'Task reminders': 'Herinneringen voor taken', "it's time!": 'het is tijd!', 'here it is again!': 'daar is hij weer!',
+  'Notifications are off for Fumufumu in the phone\'s settings.': 'Meldingen voor Fumufumu staan uit in de instellingen van de telefoon.',
+  'Alerts may be a few minutes late.': 'Meldingen kunnen een paar minuten te laat komen.', 'Allow exact times': 'Precieze tijden toestaan'
+});

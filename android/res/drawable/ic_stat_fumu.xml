@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fumu's outline for the status bar (phone alerts, app-phone.js): Android draws it in one colour, so only the shape counts. Copied into the generated project by android.yml. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+  <!-- body and tail -->
+  <path android:fillColor="#FFFFFFFF" android:pathData="M5,15a7,6 0,1 0,14 0a7,6 0,1 0,-14 0zM5.6,14.2L1.5,11.2L2.8,16.4z"/>
+  <!-- head with an eye, and the beak -->
+  <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd" android:pathData="M11,8a4,4 0,1 0,8 0a4,4 0,1 0,-8 0zM15.2,7.3a0.9,0.9 0,1 0,1.8 0a0.9,0.9 0,1 0,-1.8 0zM18.6,7L22,8.2L18.6,9.4z"/>
+</vector>

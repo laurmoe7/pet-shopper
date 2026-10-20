@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 729
+- Phone app: alerts for tasks with a time, even when the app is closed
+- Done and In 10 min on the alert
+- Options > Phone alerts (phone app only)
+
 ## Build 728
 - Weather: °C or °F in Options
 
