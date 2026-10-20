@@ -6,7 +6,7 @@ requests a day, D1 5 GB).
 
 How it works: an account is a long random **recovery code** (like `K7M2P-9XQ4R-…`). The server keeps only a hash of it,
 no email, no name. Each device sends its whole saved list/pet, the server joins it with the stored copy using the same
-merge rules as the app (`sync.js`), stores the result and sends it back. **To-do lists never reach the server.**
+merge rules as the app (`sync.js`), stores the result and sends it back. The to-do list syncs too, to your own devices only; a household (below) shares only its own shopping list.
 Anyone with the code can read the data, so it is shown once and the app will ask you to save it. A lost code cannot be
 recovered.
 

@@ -664,9 +664,9 @@ test('without the household tables (an older database) the household addresses a
   assert.equal((await call(store, 'DELETE', '/v1/account', code)).status, 200);
 });
 
-test('the personal backup keeps its to-do and shared records as they are, and applying never puts them in the shopping list', async () => {
+test('the personal backup keeps a shared record as it is, and applying it never puts it in a list', async () => {
   const store = memoryStore(), code = await signUp(store);
-  const doc = { items: { t: { at: T, by: 'x', list: 'todo', item: { id: 't', text: 'Dentist', emoji: '\u{1F9B7}', cat: 'task', done: false } } }, fields: {}, counters: {} };
+  const doc = { items: { t: { at: T, by: 'x', list: 'shared', item: { id: 't', text: 'Dentist', emoji: '\u{1F9B7}', cat: 'task', done: false } } }, fields: {}, counters: {} };
   const r = await call(store, 'POST', '/v1/sync', code, { doc });
   assert.ok(r.json.doc.items.t);
   const a = phone('devicea', ['Milk']);

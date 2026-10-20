@@ -233,7 +233,7 @@
    * with the sample shopping list, so the app always opens in a working state.
    * @param {?string} raw  The stored JSON string, or null.
    * @param {function(): string} nextId  Makes ids for sample items.
-   * @returns {{items: Item[], mode: string, stash: Item[], overrides: Object<string,string>, quiet: boolean, lastOpen: number, pet: PetProfile}}
+   * @returns {{items: Item[], mode: string, stash: Item[], shopList: string, otherShop: Item[], overrides: Object<string,string>, quiet: boolean, lastOpen: number, pet: PetProfile}}
    */
   function parseState(raw, nextId) {
     var data = null;
@@ -251,8 +251,12 @@
     // the list on show (shopping or to-do) is state.items; the other one waits in state.stash
     data.mode = data.mode === 'todo' ? 'todo' : 'shop';
     if (!Array.isArray(data.stash)) data.stash = [];
+    // in a household there are two shopping lists: state.shopList says which one is in the shopping list's place, the other waits in state.otherShop
+    data.shopList = data.shopList === 'shared' ? 'shared' : 'shop';
+    if (!Array.isArray(data.otherShop)) data.otherShop = [];
     data.items.forEach(cleanTask);
     data.stash.forEach(cleanTask);
+    data.otherShop.forEach(cleanTask);
     data.player = parsePlayer(data.player, data.pet && data.pet.birthday);   // build 196 kept the birthday on the pet
     data.pet = petProfile(data.pet);
     data.settings = settings(data.settings);

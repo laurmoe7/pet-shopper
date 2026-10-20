@@ -69,7 +69,7 @@ function renderSyncLog() {
   var live = metas.filter(function (m) { return !m.del; }), gone = metas.length - live.length;
   var newest = metas.reduce(function (n, m) { return Math.max(n, m.at); }, 0);
   var days = Math.round(Sync.TOMBSTONE_DAYS);
-  syncSummary.textContent = 'Device ' + state.sync.device + ' · ' + live.length + ' shopping items (to-dos stay private) · ' + gone +
+  syncSummary.textContent = 'Device ' + state.sync.device + ' · ' + live.length + ' items · ' + gone +
     ' removed marker' + (gone === 1 ? '' : 's') + ' (kept ' + days + ' days) · latest change ' + (newest ? syncClock(newest) : 'none') + ' · server: not connected yet';
   syncList.replaceChildren.apply(syncList, syncLog.slice().reverse().map(function (e) {
     var row = document.createElement('div'), time = document.createElement('span'), text = document.createElement('span');

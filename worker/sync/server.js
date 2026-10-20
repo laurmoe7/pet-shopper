@@ -1,9 +1,9 @@
 // Sync server for Pet Shopper: a Cloudflare Worker with a D1 database. Loaded after sync.js, which holds the
 // merge rules (`Sync`); this file only adds accounts, storage and the web address layer.
-// It keeps one document per account (the shopping list, the pet and the counters). Phones send their whole
+// It keeps one document per account (the shopping list, the to-dos, the pet and the counters). Phones send their whole
 // document, the server joins it with the stored one using the same `Sync.merge` the app uses, stores the
 // result and sends it back. An account is a long random recovery code; the server keeps only its hash.
-// To-do lists never reach it (sync.js leaves them out). How to put it online: worker/sync/README.md.
+// It holds your to-dos too (only your own devices have your code). How to put it online: worker/sync/README.md.
 // A household (a shopping list shared by several people, each with their own pet and code) is a second kind of
 // document: only the `shared` list's items. Members open it with their own personal code; the server keeps who is
 // in which household, the owner (who made it) manages the members, and an invite code is only for joining.

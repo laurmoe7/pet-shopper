@@ -356,27 +356,159 @@ test('new items from another device go at the end of the to-buy part; eaten ones
   assert.ok(b.items.slice(0, -1).every((i) => !i.done));
 });
 
-test('the shopping list lands in the right place whichever list is showing, and to-dos never move', () => {
+test('each list lands in its own place whichever list is showing, and to-dos travel too', () => {
   const { a, b } = pair();
   b.mode = 'todo'; { const s = b.items; b.items = b.stash; b.stash = s; }   // b shows its to-dos
-  a.stash.push(L.createItem('Water plants', {}, 'task9', undefined, 'todo'));
+  a.stash.push(L.createItem('Water plants', {}, 'task9-devicea', undefined, 'todo'));
   a.items.push(L.createItem('Eggs', {}, 'ea', T));
   const shared = round(a, null, T + 1000);
-  assert.ok(!Object.values(shared.items).some((r) => r.list === 'todo'));
+  assert.equal(shared.items['task9-devicea'].list, 'todo');
   round(b, shared, T + 2000);
-  assert.deepEqual(texts(b.items), ['Call mum']);   // the to-do list is showing, untouched
-  assert.ok(texts(b.stash).includes('Eggs'));
+  assert.deepEqual(texts(b.items).sort(), ['Call mum', 'Water plants']);   // the to-do list is showing
+  assert.ok(texts(b.stash).includes('Eggs') && !texts(b.stash).includes('Water plants'));
   assert.equal(b.mode, 'todo');
 });
 
-test('to-do items in a document from elsewhere are ignored', () => {
+test('a ticked or removed to-do on one device is ticked or removed on the other', () => {
   const { a, b } = pair();
-  const shared = round(a, null, T + 1000);
-  shared.items.task8 = { at: T + 5, by: 'devicea', list: 'todo', item: Object.assign(L.createItem('Bad day', {}, 'task8', undefined, 'todo')) };
+  round(b, round(a, null, T + 1000), T + 2000);
+  a.stash[0].done = true;
+  b.stash.push(L.createItem('Dentist', {}, 'task2-deviceb', undefined, 'todo'));
+  let doc = round(a, round(b, round(a, null, T + 3000), T + 4000), T + 5000);
+  round(b, doc, T + 6000);
+  assert.equal(find(b, 'Call mum').done, true);
+  assert.equal(find(a, 'Dentist').done, false);
+  b.stash = b.stash.filter((i) => i.text !== 'Dentist');
+  doc = round(b, doc, T + 7000);
+  round(a, doc, T + 8000);
+  assert.equal(find(a, 'Dentist'), undefined);
+});
+
+test('shared items in a personal document are left alone', () => {
+  const { a, b } = pair();
+  const doc = round(a, null, T + 1000);
+  doc.items['h1-x'] = { at: T + 5, by: 'x', list: 'shared', item: L.createItem('Their soup', {}, 'h1-x', T) };
   const before = texts(b.items).concat(texts(b.stash));
-  round(b, shared, T + 2000);
+  round(b, doc, T + 2000);
   assert.deepEqual(texts(b.items).concat(texts(b.stash)), before);
-  assert.equal(b.sync.items.task8, undefined);
+  assert.equal(b.sync.items['h1-x'], undefined);
+  assert.deepEqual(b.otherShop, []);
+});
+
+test('to-dos from before ids named the device get the device name, and a repeat keeps its link', () => {
+  const a = L.parseState(null, ids());
+  a.sync.device = 'devicea';
+  a.stash = [Object.assign(L.createItem('Bins', {}, '17', undefined, 'todo'), { spawned: '18' }), L.createItem('Bins', {}, '18', undefined, 'todo')];
+  const doc = Sync.snapshot(a, T);
+  assert.deepEqual(a.stash.map((i) => i.id), ['17-devicea', '18-devicea']);
+  assert.equal(a.stash[0].spawned, '18-devicea');
+  assert.ok(doc.items['17-devicea'] && !doc.items['17']);
+  Sync.stamp(a, T + 1);
+  assert.deepEqual(a.stash.map((i) => i.id), ['17-devicea', '18-devicea'], 'only once');
+});
+
+// ---------- households: a second document with only the shared shopping list ----------
+
+/** Two people (not two devices of one person): each their own pet, list and to-dos, in one household. */
+function housemates() {
+  const mk = (device, task) => {
+    const s = L.parseState(null, ids());
+    s.sync.device = device;
+    s.items = [L.createItem('Own ' + device, {}, 'own-' + device, T)];
+    s.stash = [L.createItem(task, {}, 'task-' + device, undefined, 'todo')];
+    s.otherShop = [];
+    Sync.stamp(s, T);
+    return s;
+  };
+  return { sam: mk('samaaa', 'Sam task'), kim: mk('kimbbb', 'Kim task') };
+}
+const houseRound = (dev, doc, now) => Sync.sync(dev, doc, now, { house: true }).doc;
+
+test('the shared list syncs on its own: no own shopping list, to-dos, pet or counters in it, and none taken from it', () => {
+  const { sam, kim } = housemates();
+  Sync.showShop(sam, 'shared');
+  sam.items.push(L.createItem('Milk', {}, 'm-samaaa', T));
+  sam.pet.tastes = { milk: 4 };
+  const doc = houseRound(sam, null, T + 1000);
+  assert.deepEqual(Object.keys(doc), ['v', 'items']);
+  assert.deepEqual(Object.keys(doc.items), ['m-samaaa']);
+  // the personal document has Sam's own list and to-dos, never the shared one
+  const mine = Sync.snapshot(sam, T + 1000);
+  assert.ok(mine.items['own-samaaa'] && mine.items['task-samaaa'] && !mine.items['m-samaaa']);
+  // Kim gets it in the list not on show, and nothing else of Kim's changes
+  const kimPet = JSON.stringify(kim.pet);
+  houseRound(kim, Object.assign({}, doc, { fields: { 'pet.name': { at: T + 9, by: 'x', value: 'Evil' } }, counters: { tastes: { milk: 99 } } }), T + 2000);
+  assert.deepEqual(texts(kim.otherShop), ['Milk']);
+  assert.deepEqual(texts(kim.items), ['Own kimbbb']);
+  assert.deepEqual(texts(kim.stash), ['Kim task']);
+  assert.equal(JSON.stringify(kim.pet), kimPet);
+  // the item is in the list on show if Kim looks at the shared list
+  Sync.showShop(kim, 'shared');
+  assert.deepEqual(texts(kim.items), ['Milk']);
+  assert.deepEqual(texts(kim.otherShop), ['Own kimbbb']);
+  assert.deepEqual(texts(Sync.listArray(kim, 'shop')), ['Own kimbbb']);
+});
+
+test('an item ticked by someone else arrives without their pet\'s marks, so it never counts or refunds here; the ticker keeps theirs', () => {
+  const { sam, kim } = housemates();
+  Sync.showShop(sam, 'shared'); Sync.showShop(kim, 'shared');
+  sam.items.push(L.createItem('Apple', {}, 'a-samaaa', T));
+  let doc = houseRound(kim, houseRound(sam, null, T + 1000), T + 2000);
+  // Sam ticks it: Sam's pet counts it and notes that on the item
+  Object.assign(sam.items[0], { done: true, doneBy: 'Sam', counted: ['fruit-basket'], countedDay: L.dayKey(new Date(T)), tasted: 'apple', fav: 'apple' });
+  doc = houseRound(sam, doc, T + 3000);
+  assert.equal(doc.items['a-samaaa'].item.done, true);
+  assert.equal(doc.items['a-samaaa'].item.doneBy, 'Sam');
+  Sync.MARKS.forEach((k) => assert.equal(doc.items['a-samaaa'].item[k], undefined, k + ' stays with Sam'));
+  houseRound(kim, doc, T + 4000);
+  const k = kim.items.find((i) => i.id === 'a-samaaa');
+  assert.equal(k.done, true);
+  Sync.MARKS.forEach((m) => assert.equal(k[m], undefined));
+  // Kim unticks it: Kim's pet has nothing to give back
+  const pet = JSON.stringify(kim.pet);
+  L.refundEaten(kim.pet, k, new Date(T + 5000), globalThis.Achievements);
+  assert.equal(JSON.stringify(kim.pet), pet);
+  // Sam's marks survive the round trip, and an edit by Kim while it stays ticked
+  houseRound(sam, doc, T + 6000);
+  assert.deepEqual(sam.items[0].counted, ['fruit-basket']);
+  k.qty = '2';
+  doc = houseRound(kim, doc, T + 7000);
+  houseRound(sam, doc, T + 8000);
+  assert.equal(sam.items[0].qty, '2');
+  assert.equal(sam.items[0].tasted, 'apple');
+  // a tick on Sam's own device is not a change to send: the marks are Sam's business
+  assert.equal(Sync.stamp(sam, T + 9000).items, 0);
+  // Kim unticks it for real: Sam's copy is unticked and its marks go
+  k.done = false; delete k.doneBy;
+  houseRound(sam, houseRound(kim, doc, T + 10000), T + 11000);
+  assert.equal(sam.items[0].done, false);
+  assert.equal(sam.items[0].counted, undefined);
+});
+
+test('leaving a household takes the shared list off this device without removing it for the others, and keeps your own', () => {
+  const { sam, kim } = housemates();
+  kim.otherShop.push(L.createItem('Bread', {}, 'b-kimbbb', T));
+  const doc = houseRound(kim, null, T + 1000);
+  houseRound(sam, doc, T + 2000);
+  Sync.showShop(sam, 'shared');
+  sam.mode = 'todo'; { const t = sam.items; sam.items = sam.stash; sam.stash = t; }   // the to-dos show, the shared list waits
+  assert.equal(Sync.leaveHouse(sam), 1);
+  assert.equal(sam.shopList, 'shop');
+  assert.deepEqual(texts(sam.stash), ['Own samaaa']);
+  assert.deepEqual(texts(sam.items), ['Sam task']);
+  assert.deepEqual(sam.otherShop, []);
+  assert.ok(!Object.values(sam.sync.items).some((m) => m.list === 'shared'));
+  assert.deepEqual(Object.keys(Sync.snapshot(sam, T + 3000, { house: true }).items), [], 'no removed markers to send');
+  assert.ok(!Sync.snapshot(sam, T + 3000).items['b-kimbbb']);
+});
+
+test('the saved state keeps which shopping list shows and the other one', () => {
+  const s = L.parseState(JSON.stringify({ items: [], shopList: 'shared', otherShop: [L.createItem('Tea', {}, 't1', T)] }), ids());
+  assert.equal(s.shopList, 'shared');
+  assert.deepEqual(texts(s.otherShop), ['Tea']);
+  const old = L.parseState(JSON.stringify({ items: [] }), ids());
+  assert.equal(old.shopList, 'shop');
+  assert.deepEqual(old.otherShop, []);
 });
 
 test('removed markers are left out of a document older than 30 days', () => {

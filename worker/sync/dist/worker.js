@@ -21,8 +21,13 @@
  *   in the fields part, which only grows too). What is shown is the gross minus all take-backs. A server or
  *   device on older code keeps those entries as they are (latest wins) and sees the gross, as before.
  * - gift boxes, treats and the fair-play memory: the later day wins; on the same day what both know is joined.
- * Left on each device: the to-do list (private to each person), the lamp and sleep, options, developer
- * switches, which list is showing.
+ * - to-do items: like shopping items, in the personal document only (your own devices; never a household).
+ * Left on each device: the lamp and sleep, options, developer switches, which list is showing.
+ *
+ * Two kinds of document: the personal one (LISTS: your shopping list and your to-dos, the pet, the counters) and a
+ * household's (HOUSE_LISTS: only the shared shopping list's items; pass {house: true} to snapshot, apply and sync).
+ * Shared items travel without the marks one pet keeps on an item it ate (MARKS): the person who ticked keeps them,
+ * so only they can be refunded by unticking, and an item ticked by someone else never counts for this pet.
  */
 (function (root) {
   'use strict';
@@ -31,10 +36,14 @@
   /** Removed markers older than this are dropped: a device that was off for longer may bring a deleted item back. */
   var TOMBSTONE_DAYS = 30;
   var DAY_MS = 24 * 3600 * 1000;
-  /** Only the shopping list is shared; the to-do list stays private to each person and is never stamped, sent or changed by syncing. */
-  var LISTS = ['shop'];
-  /** Every list a document may carry ('shared' is a household's shopping list): merge keeps their records, whatever this device sends. */
+  /** The lists in the personal document: your own shopping list and your to-dos. */
+  var LISTS = ['shop', 'todo'];
+  /** The lists in a household's document: only the shared shopping list. */
+  var HOUSE_LISTS = ['shared'];
+  /** Every list a document may carry: merge keeps their records, whatever this device sends. */
   var KNOWN_LISTS = ['shop', 'todo', 'shared'];
+  /** What one pet notes on an item it ate (goals counted, a taste, a favourite): kept off a shared item. */
+  var MARKS = ['counted', 'countedDay', 'tasted', 'fav'];
   /** The single things merged by "latest change wins", with how to read and write each one in the state. */
   var FIELDS = {
     'pet.name': { get: function (s) { return s.pet.name; }, set: function (s, v) { s.pet.name = v; } },
@@ -90,10 +99,27 @@
     return s.slice(0, 6);
   }
 
-  /** @returns {Item[]} The items of one list ('shop' or 'todo'), whichever of items/stash holds it now. Only 'shop' is synced. */
+  /**
+   * @returns {Item[]} The items of one list ('shop', 'shared' or 'todo') wherever it is now: the list on show is state.items, the
+   *   to-do list or the shopping list on show waits in state.stash, and the shopping list not on show (state.shopList says
+   *   which one shows) waits in state.otherShop.
+   */
   function listArray(state, name) {
-    return (state.mode === 'todo') === (name === 'todo') ? state.items : state.stash;
+    return state[listSlot(state, name)] || [];
   }
+  function listSlot(state, name) {
+    if (name === 'todo') return state.mode === 'todo' ? 'items' : 'stash';
+    if (name === (state.shopList === 'shared' ? 'shared' : 'shop')) return state.mode === 'todo' ? 'stash' : 'items';
+    return 'otherShop';
+  }
+  /** An item without the marks one pet keeps on it (see MARKS). */
+  function bare(item) {
+    var out = copy(item);
+    MARKS.forEach(function (k) { delete out[k]; });
+    return out;
+  }
+  /** The fingerprint that decides whether an item changed: a shared item's marks are this pet's own business. */
+  function itemPrint(item, list) { return fingerprint(list === 'shared' ? bare(item) : item); }
 
   // ---------- the table of changes kept in state.sync ----------
 
@@ -119,7 +145,7 @@
     }
     if (isObj(saved.items)) Object.keys(saved.items).forEach(function (id) {
       var e = entry(saved.items[id]);
-      if (!e || LISTS.indexOf(saved.items[id].list) < 0) return;
+      if (!e || KNOWN_LISTS.indexOf(saved.items[id].list) < 0) return;
       e.list = saved.items[id].list;
       if (saved.items[id].del) e.del = 1;
       meta.items[id] = e;
@@ -156,10 +182,11 @@
   function stamp(state, now, exact) {
     var meta = state.sync, out = { items: 0, deleted: 0, fields: [] };
     var at = exact ? now : clock(meta, now), seen = {};
-    LISTS.forEach(function (name) {
+    ownIds(state);
+    KNOWN_LISTS.forEach(function (name) {
       listArray(state, name).forEach(function (item) {
         seen[item.id] = 1;
-        var h = fingerprint(item), m = meta.items[item.id];
+        var h = itemPrint(item, name), m = meta.items[item.id];
         if (m && !m.del && m.h === h && m.list === name) return;
         meta.items[item.id] = { at: at, by: meta.device, h: h, list: name };
         out.items++;
@@ -181,6 +208,20 @@
     if (!exact && (out.items || out.deleted || out.fields.length || tookBack)) meta.seen = at;   // the next change is always later than this one
     prune(meta, now);
     return out;
+  }
+
+  /**
+   * To-dos made before ids carried the device name (a plain number) get it the first time they are noted, so a task on the
+   * phone and one on the PC can never share an id once to-dos sync. A repeat's link to its next copy (`spawned`) follows.
+   */
+  function ownIds(state) {
+    var meta = state.sync, renamed = {}, list = listArray(state, 'todo');
+    list.forEach(function (item) {
+      if (typeof item.id !== 'string' || item.id.indexOf('-') >= 0 || meta.items[item.id]) return;
+      renamed[item.id] = item.id + '-' + meta.device;
+      item.id = renamed[item.id];
+    });
+    list.forEach(function (item) { if (renamed[item.spawned]) item.spawned = renamed[item.spawned]; });
   }
 
   /** Forgets removed markers older than TOMBSTONE_DAYS. @returns {number} How many were dropped. */
@@ -403,15 +444,18 @@
    */
   function snapshot(state, now, opts) {
     stamp(state, now);
-    var meta = state.sync, doc = { v: VERSION, items: {}, fields: {}, counters: {} };
+    var house = !!(opts && opts.house), lists = house ? HOUSE_LISTS : LISTS;
+    var meta = state.sync, doc = house ? { v: VERSION, items: {} } : { v: VERSION, items: {}, fields: {}, counters: {} };
     var byId = {};
-    LISTS.forEach(function (name) { listArray(state, name).forEach(function (item) { byId[item.id] = item; }); });
+    lists.forEach(function (name) { listArray(state, name).forEach(function (item) { byId[item.id] = item; }); });
     Object.keys(meta.items).forEach(function (id) {
       var m = meta.items[id], rec = { at: m.at, by: m.by, list: m.list };
-      if (m.del) rec.del = 1; else if (byId[id]) rec.item = copy(byId[id]); else return;
+      if (lists.indexOf(m.list) < 0) return;
+      if (m.del) rec.del = 1; else if (byId[id]) rec.item = m.list === 'shared' ? bare(byId[id]) : copy(byId[id]); else return;
       if (opts && opts.skipSample && !m.del && m.at === 0) return;
       doc.items[id] = rec;
     });
+    if (house) return doc;
     FIELD_NAMES.forEach(function (name) {
       var m = meta.fields[name] || { at: 0, by: meta.device };
       doc.fields[name] = { at: m.at, by: m.by, value: copy(FIELDS[name].get(state)) };
@@ -528,23 +572,25 @@
    * Writes a merged document into the state: items added, changed or removed, the single things and the
    * counters. Items keep their place; new ones go at the end of the to-buy part (or the end, if eaten);
    * eaten items stay below the rest. Afterwards the table in state.sync matches, so a later `stamp`
-   * sees no change of its own. The to-do list is never touched.
+   * sees no change of its own. Only the document's own lists are touched.
    * @param {Object} state
    * @param {Object} doc  From `merge`.
+   * @param {{house: boolean}} [opts]  house: a household's document (only the shared list; no pet, no counters).
    * @returns {{added: number, changed: number, removed: number, fields: string[]}}
    */
-  function apply(state, doc) {
+  function apply(state, doc, opts) {
     var meta = state.sync, L = root.PetLogic, out = { added: 0, changed: 0, removed: 0, fields: [] };
+    var house = !!(opts && opts.house), names = house ? HOUSE_LISTS : LISTS;
     doc = isObj(doc) ? doc : {};
     var recs = isObj(doc.items) ? doc.items : {};
     var lists = {};
-    LISTS.forEach(function (name) { lists[name] = listArray(state, name).slice(); });
+    names.forEach(function (name) { lists[name] = listArray(state, name).slice(); });
     var where = {};   // id -> [list name, index]
-    LISTS.forEach(function (name) { lists[name].forEach(function (item, i) { where[item.id] = [name, i]; }); });
+    names.forEach(function (name) { lists[name].forEach(function (item, i) { where[item.id] = [name, i]; }); });
 
     Object.keys(recs).forEach(function (id) {
       var rec = recs[id];
-      if (!validPart('items', rec) || LISTS.indexOf(rec.list) < 0) return;   // a list this document carries but this state does not keep here
+      if (!validPart('items', rec) || names.indexOf(rec.list) < 0) return;   // a list the other kind of document carries
       meta.seen = Math.max(meta.seen, rec.at);
       var here = where[id];
       if (rec.del) {
@@ -555,27 +601,31 @@
       var item = copy(rec.item);
       if (!validItem(item) || item.id !== id) return;
       if (L && L.cleanTask) L.cleanTask(item);
-      var h = fingerprint(item);
+      var h = itemPrint(item, rec.list);
       if (here) {
         var old = lists[here[0]][here[1]];
-        if (fingerprint(old) !== h || here[0] !== rec.list) {
+        if (rec.list === 'shared') {   // this pet's own marks stay while the item stays ticked; one ticked by someone else arrives without any
+          MARKS.forEach(function (k) { delete item[k]; if (old.done && item.done && old[k] !== undefined) item[k] = copy(old[k]); });
+        }
+        if (itemPrint(old, here[0]) !== h || here[0] !== rec.list) {
           if (here[0] === rec.list) { lists[here[0]][here[1]] = item; }
           else { lists[here[0]][here[1]] = null; lists[rec.list].push(item); }
           out.changed++;
         }
       } else {
+        if (rec.list === 'shared') MARKS.forEach(function (k) { delete item[k]; });
         lists[rec.list].push(item);   // placed below
         out.added++;
       }
       meta.items[id] = { at: rec.at, by: rec.by, h: h, list: rec.list };
     });
     // items deleted here and not mentioned by the document stay deleted (they have their markers)
-    LISTS.forEach(function (name) {
+    names.forEach(function (name) {
       var kept = lists[name].filter(function (i) { return i; });
       // to-buy first, eaten after, each part keeping its order
-      lists[name] = kept.filter(function (i) { return !i.done; }).concat(kept.filter(function (i) { return i.done; }));
+      state[listSlot(state, name)] = kept.filter(function (i) { return !i.done; }).concat(kept.filter(function (i) { return i.done; }));
     });
-    if (state.mode === 'todo') state.stash = lists.shop; else state.items = lists.shop;   // the to-do list is not touched
+    if (house) return out;
 
     var fields = isObj(doc.fields) ? doc.fields : {}, touched = [];
     FIELD_NAMES.forEach(function (name) {
@@ -608,12 +658,13 @@
    * @param {Object} state
    * @param {Object} remote  The other document, or null if there is none yet.
    * @param {number} now
-   * @param {{skipSample: boolean}} [opts]  See `snapshot`.
+   * @param {{skipSample: boolean, house: boolean}} [opts]  See `snapshot` and `apply`.
    * @returns {{doc: Object, applied: Object}} The merged document (to send back) and what changed here.
    */
   function sync(state, remote, now, opts) {
     var merged = trim(merge(snapshot(state, now, opts), remote), now);
-    var applied = apply(state, merged);
+    if (opts && opts.house) merged = { v: merged.v, items: merged.items };
+    var applied = apply(state, merged, opts);
     return { doc: merged, applied: applied };
   }
 
@@ -634,8 +685,31 @@
     return n;
   }
 
+  /**
+   * Leaving a household (or being removed): the shared list goes from this device without removed markers (the household
+   * keeps its list), and your own shopping list is the one on show if the shared one was.
+   * @returns {number} How many shared items went.
+   */
+  function leaveHouse(state) {
+    if (state.shopList === 'shared') showShop(state, 'shop');
+    var gone = (state.otherShop || []).length;
+    state.otherShop = [];
+    Object.keys(state.sync.items).forEach(function (id) { if (state.sync.items[id].list === 'shared') delete state.sync.items[id]; });
+    return gone;
+  }
+  /** Puts one shopping list ('shop' or 'shared') in the shopping list's place; the other waits in state.otherShop. */
+  function showShop(state, name) {
+    name = name === 'shared' ? 'shared' : 'shop';
+    if ((state.shopList === 'shared' ? 'shared' : 'shop') === name) return;
+    var slot = state.mode === 'todo' ? 'stash' : 'items', other = Array.isArray(state.otherShop) ? state.otherShop : [];
+    state.otherShop = state[slot];
+    state[slot] = other;
+    state.shopList = name;
+  }
+
   root.Sync = {
-    VERSION: VERSION, TOMBSTONE_DAYS: TOMBSTONE_DAYS, KNOWN_LISTS: KNOWN_LISTS, FIELD_NAMES: FIELD_NAMES, COUNTERS: COUNTERS,
+    VERSION: VERSION, TOMBSTONE_DAYS: TOMBSTONE_DAYS, LISTS: LISTS, HOUSE_LISTS: HOUSE_LISTS, KNOWN_LISTS: KNOWN_LISTS, MARKS: MARKS,
+    leaveHouse: leaveHouse, showShop: showShop, FIELD_NAMES: FIELD_NAMES, COUNTERS: COUNTERS,
     parse: parse, dropSample: dropSample, stamp: stamp, prune: prune, snapshot: snapshot, merge: merge, trim: trim, apply: apply, sync: sync,
     hash: hash, stable: stable, fingerprint: fingerprint, newDevice: newDevice, listArray: listArray
   };
@@ -643,10 +717,10 @@
 
 // Sync server for Pet Shopper: a Cloudflare Worker with a D1 database. Loaded after sync.js, which holds the
 // merge rules (`Sync`); this file only adds accounts, storage and the web address layer.
-// It keeps one document per account (the shopping list, the pet and the counters). Phones send their whole
+// It keeps one document per account (the shopping list, the to-dos, the pet and the counters). Phones send their whole
 // document, the server joins it with the stored one using the same `Sync.merge` the app uses, stores the
 // result and sends it back. An account is a long random recovery code; the server keeps only its hash.
-// To-do lists never reach it (sync.js leaves them out). How to put it online: worker/sync/README.md.
+// It holds your to-dos too (only your own devices have your code). How to put it online: worker/sync/README.md.
 // A household (a shopping list shared by several people, each with their own pet and code) is a second kind of
 // document: only the `shared` list's items. Members open it with their own personal code; the server keeps who is
 // in which household, the owner (who made it) manages the members, and an invite code is only for joining.

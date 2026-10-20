@@ -17,7 +17,7 @@ Decisions from the design talk. Do not start building until Lauren says so.
 
 ## Sync
 
-- **Only the shopping list syncs. To-do lists are private to each person** (Lauren's decision): never stamped, sent or changed by syncing. The Calendar's plans live in the to-do list, so they stay private too.
+- **To-dos sync to your own devices only** (Lauren's decision, 20 October 2026, replacing "to-dos never sync"): they are in the personal document with the shopping list and the pet, never in a household. A household shares only its own Shared list (`docs/design/households-plan.md`).
 - Sign-in: **recovery code first** (a long random code, shown as text and a QR to scan with the other device; no email service, no personal data on the server, works at once). Email magic link comes later as a way to get the account back; add Apple/Google sign-in if the stores need it.
 - Backend on Cloudflare (Worker + D1), EU region (Lauren has a Cloudflare account, the one the recipe helper uses). The local save (`nibble.v1`) stays the main copy; the server mirrors it, so the app works offline.
 - Merge per item, not whole lists: each item has an id and a "changed at" time; the latest change per item wins; deletions are kept as markers for a while.

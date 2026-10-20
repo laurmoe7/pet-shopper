@@ -1,6 +1,6 @@
 // Backup & sync: the account (a recovery code), talking to the sync server, and the Backup & sync sheet.
 // The rules for merging are in sync.js and the server is worker/sync/server.js; the local save stays the
-// main copy, so everything works offline and the server only mirrors it. To-do lists never leave the device.
+// main copy, so everything works offline and the server only mirrors it. Your shopping list, to-dos and pet sync; a household's shared list is its own document.
 'use strict';
 
 var ACCOUNT_KEY = 'nibble.account';

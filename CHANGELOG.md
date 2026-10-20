@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 735
+- To-dos sync to your own devices
+- Sync: ready for a shared list
+
 ## Build 734
 - Sync: ready for household lists
 

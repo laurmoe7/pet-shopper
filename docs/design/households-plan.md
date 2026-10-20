@@ -98,7 +98,12 @@ anyway, so the account is split in two:
 
 1. Server household document and endpoints, with tests; `npm run build:worker`. **Done (build 734).**
 2. `sync.js`: lists per document, the household snapshot/apply, to-dos in the personal document; tests for merging to-dos,
-   joining and leaving, ticks from others not counting.
+   joining and leaving, ticks from others not counting. **Done (build 735):** `LISTS` (`shop`, `todo`) and `HOUSE_LISTS`
+   (`shared`), `{house: true}` for `snapshot`/`apply`/`sync`; `state.shopList` + `state.otherShop` hold the second
+   shopping list (`showShop`, `leaveHouse`); shared items travel without `MARKS` (`counted`, `countedDay`, `tasted`,
+   `fav`), which the ticker's own copy keeps while it stays ticked; old to-do ids without a device name get one
+   (`ownIds`). Still for step 3: set `doneBy`/`doneWho` in `toggle`, and count a trip on the Shared list only from the
+   items this person ticked.
 3. App: household create/join/leave and members in the Devices sheet; the shopping list syncing through the household.
 4. Sync my to-dos switch and the migration rule for existing accounts.
 5. Privacy page, docs, CHANGELOG; bump the build for every app change (`node tools/bump.js`).

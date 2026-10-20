@@ -1,6 +1,6 @@
 // Phone alerts (build 729): in the Android app (android/, Capacitor) a task with a day and a time gets a notification at
 // that time, even when the app is closed. They are scheduled on the phone itself (@capacitor/local-notifications),
-// nothing goes to a server: to-dos stay private. L.alertPlan picks which ones; this file keeps the phone's list in step
+// no server is needed for the alerts. L.alertPlan picks which ones; this file keeps the phone's list in step
 // after every save, and handles Done / In 10 min on the notification. Off by Options > Phone alerts (state.settings.phoneAlerts).
 // Morning alert (build 730, off by default, state.settings.morningAlert and morningTime): one alert a morning with that day's
 // tasks and how many are late, for the next 7 days (L.morningPlan), worked out again after every change.
