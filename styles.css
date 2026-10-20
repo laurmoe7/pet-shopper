@@ -4432,6 +4432,8 @@ html.desktop-pet .wx-rain i, html.desktop-pet .wx-storm i { display: none; }
 .wx-suggest button:hover, .wx-suggest button:focus-visible { background: var(--hl-soft); outline: none; }
 .wx-place .pill-btn { flex: none; padding: 6px 12px; font-size: .85rem; }
 .option-weather .option-text { margin: 6px 0 0; }
+.wx-unit { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; }
+.wx-unit .pill-btn { padding: 4px 12px; font-size: .85rem; }
 /* the little plant (app-plant.js): a tap makes it wiggle, and a flower gets a soft glow */
 .decor-plant { cursor: pointer; }
 .decor-plant.plant-bloom svg { filter: drop-shadow(0 0 5px rgba(255, 214, 120, .85)); }

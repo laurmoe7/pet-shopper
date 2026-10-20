@@ -21,7 +21,7 @@
   }
   /** @returns {string} What he says about the weather (a lookup result with a kind and a temperature). @param {{kind: string, temp: number}} w */
   function ringWeatherWords(w) {
-    var nl = typeof Lang === 'object' && Lang.get() === 'nl', t = w.temp + '\u00b0';
+    var nl = typeof Lang === 'object' && Lang.get() === 'nl', t = typeof wxTemp === 'function' ? wxTemp(w.temp) : w.temp + '\u00b0';
     var en = { clear: 'clear', rain: 'rainy', storm: 'stormy', snow: 'snowy', cold: 'chilly', hot: 'hot' }, du = { clear: 'helder', rain: 'regenachtig', storm: 'stormachtig', snow: 'sneeuwachtig', cold: 'koud', hot: 'heet' };
     return nl ? 'het is ' + t + ', ' + (du[w.kind] || 'helder') + '~' : 'it is ' + t + ' and ' + (en[w.kind] || 'clear') + '~';
   }

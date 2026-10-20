@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 728
+- Weather: °C or °F in Options
+
 ## Build 727
 - Mini Fumu: rain splashes on his leaf are back
 

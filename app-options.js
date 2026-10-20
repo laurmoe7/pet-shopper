@@ -82,16 +82,23 @@ var wxRow = document.createElement('label'), wxPlaceBox = document.createElement
 wxRow.className = 'option';
 wxRow.innerHTML = '<span class="option-title">Weather</span><input type="checkbox" role="switch" id="wxOn">';
 wxPlaceBox.className = 'option-weather';
-wxPlaceBox.innerHTML = '<div class="wx-place"><input type="text" id="wxPlace" maxlength="60" placeholder="City or postcode" aria-label="City or postcode for the weather" autocomplete="off"><button type="button" class="pill-btn" id="wxFind">Find</button><button type="button" class="pill-btn" id="wxHere">My location</button></div><ul class="wx-suggest" id="wxSuggest" role="listbox" aria-label="Places" hidden></ul><p class="option-text" id="wxStatus" aria-live="polite"></p>';
+wxPlaceBox.innerHTML = '<div class="wx-place"><input type="text" id="wxPlace" maxlength="60" placeholder="City or postcode" aria-label="City or postcode for the weather" autocomplete="off"><button type="button" class="pill-btn" id="wxFind">Find</button><button type="button" class="pill-btn" id="wxHere">My location</button></div><ul class="wx-suggest" id="wxSuggest" role="listbox" aria-label="Places" hidden></ul><div class="wx-unit"><span class="option-title">Units</span><span class="theme-btns" id="wxUnit"><button type="button" class="pill-btn" data-unit="c">°C</button><button type="button" class="pill-btn" data-unit="f">°F</button></span></div><p class="option-text" id="wxStatus" aria-live="polite"></p>';
 optionsList.append(wxRow, wxPlaceBox);
 /** Says what the weather setting is doing now (the place and the weather last seen). */
 function wxStatus(note) {
   var c = wxConf(), l = wxLast(), el = $('wxStatus');
   if (!el) return;
-  el.textContent = note || (!c.want ? '' : !c.on ? T('Pick a place below.') : (c.place || T('Your location')) + (l ? ': ' + T(Weather.KINDS[l.kind].label) + ', ' + l.temp + '°' : ''));
+  el.textContent = note || (!c.want ? '' : !c.on ? T('Pick a place below.') : (c.place || T('Your location')) + (l ? ': ' + T(Weather.KINDS[l.kind].label) + ', ' + wxTemp(l.temp) : ''));
 }
+/** Marks the picked unit, °C or °F. */
+function wxUnitButtons() { $('wxUnit').querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.unit === wxUnit())); }); }
+$('wxUnit').addEventListener('click', function (e) {
+  var b = e.target.closest('button');
+  if (!b) return;
+  wxSetUnit(b.dataset.unit); wxUnitButtons(); wxStatus(); sound('pick');
+});
 /** Fills the weather row when Options opens. */
-function wxFill() { var c = wxConf(); $('wxOn').checked = c.want; if (c.place && document.activeElement !== $('wxPlace')) $('wxPlace').value = c.place === 'My location' ? '' : c.place; wxStatus(); }
+function wxFill() { wxUnitButtons(); var c = wxConf(); $('wxOn').checked = c.want; if (c.place && document.activeElement !== $('wxPlace')) $('wxPlace').value = c.place === 'My location' ? '' : c.place; wxStatus(); }
 $('wxOn').addEventListener('change', function () {
   var c = wxConf(); c.want = $('wxOn').checked; wxSave(c);
   if (!state.quiet) sound(c.want ? 'on' : 'off');

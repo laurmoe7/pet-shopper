@@ -30,6 +30,17 @@ function wxFromShell(w) {
   if (typeof wxStatus === 'function') wxStatus();
   if (typeof wxFill === 'function' && $('wxOn')) wxFill();
 }
+// °C or °F (Options > Weather): kept on this device, so the whole app and Mini Fumu show the same; °F by default only where the device is set to the US
+var WX_UNIT = 'nibble-temp-unit';
+/** @returns {'c'|'f'} The unit temperatures are shown in. */
+function wxUnit() {
+  try { var u = localStorage.getItem(WX_UNIT); if (u === 'c' || u === 'f') return u; } catch (e) { /* storage not available */ }
+  return /-US$/i.test(navigator.language || '') ? 'f' : 'c';
+}
+/** @param {'c'|'f'} u */
+function wxSetUnit(u) { try { localStorage.setItem(WX_UNIT, u === 'f' ? 'f' : 'c'); } catch (e) { /* storage not available */ } }
+/** @returns {string} A temperature (fetched in degrees C) as shown: "12°C" or "54°F". @param {number} c */
+function wxTemp(c) { return wxUnit() === 'f' ? Math.round(c * 9 / 5 + 32) + '\u00b0F' : Math.round(c) + '\u00b0C'; }
 /** @returns {?{kind: string, temp: number, feels: number, at: number}} The last weather that was fetched. */
 function wxLast() { try { return JSON.parse(localStorage.getItem(WX_LAST) || 'null'); } catch (e) { return null; } }
 
