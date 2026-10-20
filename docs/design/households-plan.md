@@ -1,4 +1,4 @@
-# Households and list syncing (plan, being built)
+# Households and list syncing (built: builds 734 to 737)
 
 Agreed with Lauren on 20 October 2026, after build 733. Read this together with `docs/design/desktop-companion-and-sync.md`
 (sections Sync, Built: sync server, Shared lists) and `docs/design/sync-send-and-desktop-notes.md` before touching
@@ -107,8 +107,8 @@ anyway, so the account is split in two:
 3. App: household create/join/leave and members in the Devices sheet; the shopping list syncing through the household.
    **Done (build 736):** `app-household.js`, the Shared tab (only in a household), "ticked by" tags and "Added by" in the
    item sheet, trips on the shared list count only your own ticks. Household size changed to **6** (Lauren).
-4. Sync my to-dos switch and the migration rule for existing accounts.
-5. Privacy page, docs, CHANGELOG; bump the build for every app change (`node tools/bump.js`).
+4. Sync my to-dos switch and the migration rule for existing accounts. **Dropped** (decision 4: to-dos always sync to your own devices, no switch).
+5. Privacy page, docs, CHANGELOG; bump the build for every app change (`node tools/bump.js`). **Done (build 737).**
 
 The server only changes when `main` is pushed (big push), so the app must keep working against the old server until then
 (for example: hide the Household block when `/v1/household` answers 404).

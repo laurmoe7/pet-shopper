@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 737
+- Privacy page: households and to-dos
+
 ## Build 736
 - Households: share a shopping list
 - Shared tab, only in a household

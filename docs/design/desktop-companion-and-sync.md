@@ -1,4 +1,4 @@
-# Desktop companion and sync (planned, nothing built yet)
+# Desktop companion and sync (mostly built; see the Built sections)
 
 Decisions from the design talk. Do not start building until Lauren says so.
 
@@ -35,9 +35,9 @@ Decisions from the design talk. Do not start building until Lauren says so.
 ## Built: sync server and Backup & sync (online, build 247, tested by Lauren on phone and PC)
 
 - `worker/sync/` (server.js, schema.sql, wrangler.toml, README.md with the Cloudflare steps) and `dist/worker.js` (made by `npm run build:worker` from `sync.js` + `server.js`, so it can be pasted in the dashboard). Tested in `tests/syncserver.test.js` (memory store plus real SQL on Node 22).
-- Account = recovery code (25 symbols, ~124 bits); the server stores only its hash. One document per account; the server joins what a device sends with the stored copy using `Sync.merge`, with compare-and-swap writes. The pet syncs between the person's own devices; the shopping list is the only list that does.
+- Account = recovery code (25 symbols, ~124 bits); the server stores only its hash. One document per account; the server joins what a device sends with the stored copy using `Sync.merge`, with compare-and-swap writes. The pet syncs between the person's own devices, with the shopping list and (since build 735) the to-do list.
 - App part (`app-account.js`): Options > Backup & sync: start a backup (code), join with a code or a `#join=` link, sync status, automatic syncing, sign out, delete. A joining device drops its sample list. No QR code (the link does the job).
-- Still to do: rate limit on `POST /v1/account` before other people use it; privacy policy; an export button; a way to get back in if the code is lost (email link, later); shared shopping list between people (needs a separate shared document); the desktop shell.
+- Still to do: rate limit on `POST /v1/account` before other people use it; privacy policy; an export button; a way to get back in if the code is lost (email link, later); the desktop shell. (The shared shopping list between people is built: see Households below.)
 
 ## Built: desktop shell v0 (build 248, Electron)
 
@@ -59,16 +59,14 @@ Decisions from the design talk. Do not start building until Lauren says so.
 - Next: images (small, deleted after a day), PC to phone (recipe ingredients), reminders, awareness level 1-2.
 - Release fix: electron-builder's own upload raced two release creations and failed after publishing the installer, with no `latest.yml`, so installed copies could not update. The workflow now builds, then `gh release create`s everything in one step.
 
-## Shared lists (open, see below)
+## Built: households (builds 734 to 736)
 
-Each person owns a pet; lists can be shared. Avoid a pile of separate lists. Proposed shape (not decided):
+Each person owns a pet; a household shares one shopping list. Full plan and decisions: `docs/design/households-plan.md`.
 
-- The two existing modes already split the need: the **shopping list** is the one that can be shared with a household, the **to-do list** stays personal. No extra list screens at first.
-- Personal items on a shared shopping list are a per-item "just me" flag (hidden from the others), not a second list.
-- Whoever ticks an item feeds *their own* pet; goals, tastes and the Top 10 count for the person who ticked. Partners see who ticked.
-- Shared plans in the Calendar (a birthday, a dinner) are a possible later step.
-- Only add real extra lists (several named lists) if people ask for them.
-- Open: how a household is joined (invite code), what happens when someone leaves, and how fair-play rules treat items ticked by someone else.
+- A household has its own **Shared** list next to your own shopping list (Lauren's choice, instead of a per-item "just me" flag); its tab shows only in a household. The to-do list is never shared.
+- Each member opens it with their own Backup & sync code; the owner (who made it) removes members, hands over and makes new invite codes. At most 6 people.
+- Whoever ticks an item feeds *their own* pet; goals, tastes, the Top 10 and trips count for the person who ticked. The others see who ticked (a small tag) and who added (the item sheet).
+- Shared plans in the Calendar (a birthday, a dinner) are a possible later step. Only add more named lists if people ask for them.
 
 ## Desktop features (wish list)
 
