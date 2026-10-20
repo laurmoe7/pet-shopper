@@ -118,5 +118,5 @@ if (Voice.supported) {
     voiceBtns.appendChild(b);
   });
   voiceRow.appendChild(voiceBtns);
-  optionsList.appendChild(voiceRow);
+  addOption('lists', voiceRow);
 }

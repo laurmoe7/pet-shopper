@@ -267,7 +267,7 @@ function openAccount(code) {
   b.append(st, document.createTextNode(' · set up'));
   b.addEventListener('click', function () { sound('tap'); openAccount(); });
   row.appendChild(b);
-  optionsList.insertBefore(row, optionsList.firstChild);
+  addOption('devices', row);
 })();
 
 // ---------- when to sync ----------

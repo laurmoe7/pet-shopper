@@ -4446,6 +4446,14 @@ html:root:root[data-skin="quest"][data-quest="bonfire"] .scene-bar { margin-bloc
 /* Mini Fumu has no falling rain in the background (build 726); the splashes on his leaf (build 727), the leaf and a storm's thunderbolts stay */
 html.desktop-pet .wx-rain i, html.desktop-pet .wx-storm i { display: none; }
 @media (prefers-reduced-motion: reduce) { .wx-fx i, .wx-bob, .wx-bolt, .wx-splash, .wx-heat { animation: none; } #pet:has(.wx-fan) .arm-r { animation: none !important; } .wx-fx i { top: 20%; } }
+/* Options in sections (build 732, OPTION_GROUPS in app-options.js): a small heading over a soft panel, like the task sheet's; a section with nothing in it is hidden */
+.opt-section + .opt-section { margin-top: 14px; }
+.opt-section:has(> .opt-body:empty) { display: none; }
+.opt-head { margin: 0 0 6px 8px; font-size: .8rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.opt-body { padding: 0 12px; border-radius: 18px; background: color-mix(in srgb, var(--ink) 6%, transparent); }
+.opt-body > :last-child { border-bottom: 0 !important; box-shadow: none !important; }   /* (the panel's edge ends it; the themes draw a line under every row) */
+html:root[data-skin="quest"] .opt-body { border-radius: 4px; background: rgba(0, 0, 0, .22); }
+html:root[data-skin="quest"] .opt-head { color: var(--hl); }
 /* Phone alerts (app-phone.js, only in the Android app): the switch, the morning alert a step in under it, and a note when the phone blocks alerts or makes them late; one dashed line under the group */
 .option-group { border-bottom: 1.5px dashed var(--line); padding-bottom: 6px; }
 .option-group > .option { border-bottom: 0 !important; box-shadow: none !important; }   /* (the themes draw a line under every .option) */

@@ -117,7 +117,7 @@ var Lang = (function () {
     syncButtons();
   }
 
-  // the two flags, at the top of Options
+  // the two flags, in Options' Look section
   var row = document.createElement('div');
   row.className = 'option option-theme option-lang';
   row.innerHTML = '<span class="option-title">Language</span>';
@@ -133,7 +133,7 @@ var Lang = (function () {
     btns.appendChild(b);
   });
   row.appendChild(btns);
-  optionsList.prepend(row);
+  addOption('look', row);
   function syncButtons() { btns.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lang === cur)); }); }
   syncButtons();
   if (cur === 'nl') wear();

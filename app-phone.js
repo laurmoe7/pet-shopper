@@ -136,8 +136,6 @@ if (phoneNotes) {
   phoneRow.innerHTML = '<span class="option-title">Phone alerts</span><input type="checkbox" role="switch" data-key="phoneAlerts">';
   phoneBox.className = 'option-phone'; phoneBox.id = 'phoneBox'; phoneBox.hidden = true;
   phoneBox.innerHTML = '<p class="option-text" id="phoneStatus" aria-live="polite"></p><button type="button" class="pill-btn" id="phoneExact" hidden>Allow exact times</button>';
-  var phoneAfter = optionsList.querySelector('input[data-key="vibration"]');
-  phoneAfter = phoneAfter && phoneAfter.closest('.option');
   // the morning alert: a switch, and its time under it while it is on (both only while phone alerts are on)
   var morningRow = document.createElement('label'), morningAt = document.createElement('div');
   morningRow.className = 'option option-sub';
@@ -147,7 +145,7 @@ if (phoneNotes) {
   var phoneGroup = document.createElement('div');   // (one dashed line under the whole group)
   phoneGroup.className = 'option-group';
   phoneGroup.append(phoneRow, morningRow, morningAt, phoneBox);
-  if (phoneAfter) phoneAfter.after(phoneGroup); else optionsList.append(phoneGroup);
+  addOption('alerts', phoneGroup);
   /** Shows the morning rows as the switches stand, with the times in the clock style picked (14:30 or 2:30 PM). */
   var morningFill = function () {
     var sel = $('morningTime'), cur = state.settings.morningTime, times = [];

@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 732
+- App settings in sections: Look, Sound, Lists, Alerts, Goals, Weather, Devices
+- Weather's place box only shows while it is on
+
 ## Build 731
 - Task menu: when and repeat in two panels, easier to read
 - Cancel and Save next to the title, always in view

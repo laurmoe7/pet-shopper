@@ -78,7 +78,7 @@ function claudeHere() {
   b.type = 'button'; b.className = 'pill-btn'; b.textContent = 'Send a link or note';
   b.addEventListener('click', function () { sound('tap'); openSend(); });
   row.appendChild(b);
-  optionsList.insertBefore(row, optionsList.children[1] || null);
+  addOption('devices', row);
   // whether this device shows what the others send (the desktop app always does, so it has no switch)
   if (deskShell) return;
   var rx = document.createElement('label');
@@ -87,7 +87,7 @@ function claudeHere() {
   sendReceive = document.createElement('input');
   sendReceive.type = 'checkbox'; sendReceive.setAttribute('role', 'switch');
   rx.appendChild(sendReceive);
-  optionsList.insertBefore(rx, optionsList.children[2] || null);
+  addOption('devices', rx);
   sendReceive.addEventListener('change', function () {
     try { localStorage.setItem(RECEIVE_KEY, sendReceive.checked ? '1' : '0'); } catch (e) { /* storage blocked */ }
     if (sendReceive.checked) setTimeout(inboxPoll, 300);
@@ -97,7 +97,7 @@ function claudeHere() {
   cx.innerHTML = '<span class="option-title">Show Claude\'s alerts here</span><span class="option-text">They go to your PC first.</span>';
   claudeSw.type = 'checkbox'; claudeSw.setAttribute('role', 'switch');
   cx.insertBefore(claudeSw, cx.lastChild);
-  optionsList.insertBefore(cx, optionsList.children[3] || null);
+  addOption('devices', cx);
   claudeSw.addEventListener('change', function () {
     try { localStorage.setItem('nibble.claude', claudeSw.checked ? '1' : '0'); } catch (e) { /* storage blocked */ }
     if (claudeSw.checked) setTimeout(inboxPoll, 300);

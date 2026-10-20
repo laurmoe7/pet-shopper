@@ -46,15 +46,33 @@ var savedTheme = 'auto';
 try { savedTheme = localStorage.getItem('nibble-theme') || 'auto'; } catch (e) { /* storage not available */ }
 applyTheme(savedTheme);
 var optionsSheet = $('optionsSheet'), optionsList = $('optionsList');
+// Options is in sections (build 732), each a heading and a soft panel, in this order. Every file that adds a row puts it in
+// its section with addOption; a section with nothing in it (Alerts outside the phone app) stays hidden.
+var OPTION_GROUPS = [['look', 'Look'], ['sound', 'Sound'], ['lists', 'Lists'], ['alerts', 'Alerts'], ['goals', 'Goals'], ['weather', 'Weather'], ['devices', 'Devices']];
+var optionBodies = {};
+OPTION_GROUPS.forEach(function (g) {
+  var sec = document.createElement('section'), h = document.createElement('h3'), body = document.createElement('div');
+  sec.className = 'opt-section'; sec.dataset.group = g[0];
+  h.className = 'opt-head'; h.textContent = g[1];
+  body.className = 'opt-body';
+  sec.append(h, body);
+  optionsList.appendChild(sec);
+  optionBodies[g[0]] = body;
+});
+/** Puts rows at the end of an Options section. @param {string} group  An OPTION_GROUPS id. @param {...Element} rows */
+function addOption(group) {
+  var body = optionBodies[group] || optionBodies.lists;
+  body.append.apply(body, [].slice.call(arguments, 1));
+}
 var OPTIONS = [
-  { key: 'quiet', title: 'Sounds', text: '', invert: true },   // on = sounds on, stored as state.quiet
-  { key: 'ambience', title: 'Background sounds', text: '' },   // (waves, rain and so on: app-ambience.js)
-  { key: 'vibration', title: 'Vibration', text: '' },
-  { key: 'aisles', title: 'Sort by aisle', text: '' },
-  { key: 'time24', title: '24-hour time', text: '' },
-  { key: 'goalToasts', title: 'Goal progress display', text: '' },
-  { key: 'suggestions', title: 'Shopping suggestions', text: '' },
-  { key: 'fairPlayTips', title: 'Fair-play tips', text: 'The rules still apply when off.' }
+  { key: 'quiet', title: 'Sounds', text: '', invert: true, group: 'sound' },   // on = sounds on, stored as state.quiet
+  { key: 'ambience', title: 'Background sounds', text: '', group: 'sound' },   // (waves, rain and so on: app-ambience.js)
+  { key: 'vibration', title: 'Vibration', text: '', group: 'sound' },
+  { key: 'aisles', title: 'Sort by aisle', text: '', group: 'lists' },
+  { key: 'time24', title: '24-hour time', text: '', group: 'lists' },
+  { key: 'suggestions', title: 'Shopping suggestions', text: '', group: 'lists' },
+  { key: 'goalToasts', title: 'Goal progress display', text: '', group: 'goals' },
+  { key: 'fairPlayTips', title: 'Fair-play tips', text: 'The rules still apply when off.', group: 'goals' }
 ];
 var themeRow = document.createElement('div');
 themeRow.className = 'option option-theme';
@@ -76,14 +94,14 @@ themeRow.appendChild(themeBtns);
 /** Marks the picked theme (it can change from the shell, when it is picked in Mini Fumu's settings). */
 function syncThemeButtons() { themeBtns.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x.dataset.theme === currentTheme)); }); }
 syncThemeButtons();
-optionsList.appendChild(themeRow);
+addOption('look', themeRow);
 // the weather (weather.js, app-weather.js): a switch, and a place to look it up for (a typed city or this device's position); kept on this device
 var wxRow = document.createElement('label'), wxPlaceBox = document.createElement('div');
 wxRow.className = 'option';
-wxRow.innerHTML = '<span class="option-title">Weather</span><input type="checkbox" role="switch" id="wxOn">';
+wxRow.innerHTML = '<span class="option-title">Show the weather</span><input type="checkbox" role="switch" id="wxOn">';
 wxPlaceBox.className = 'option-weather';
 wxPlaceBox.innerHTML = '<div class="wx-place"><input type="text" id="wxPlace" maxlength="60" placeholder="City or postcode" aria-label="City or postcode for the weather" autocomplete="off"><button type="button" class="pill-btn" id="wxFind">Find</button><button type="button" class="pill-btn" id="wxHere">My location</button></div><ul class="wx-suggest" id="wxSuggest" role="listbox" aria-label="Places" hidden></ul><div class="wx-unit"><span class="option-title">Units</span><span class="theme-btns" id="wxUnit"><button type="button" class="pill-btn" data-unit="c">°C</button><button type="button" class="pill-btn" data-unit="f">°F</button></span></div><p class="option-text" id="wxStatus" aria-live="polite"></p>';
-optionsList.append(wxRow, wxPlaceBox);
+addOption('weather', wxRow, wxPlaceBox);
 /** Says what the weather setting is doing now (the place and the weather last seen). */
 function wxStatus(note) {
   var c = wxConf(), l = wxLast(), el = $('wxStatus');
@@ -98,9 +116,9 @@ $('wxUnit').addEventListener('click', function (e) {
   wxSetUnit(b.dataset.unit); wxUnitButtons(); wxStatus(); sound('pick');
 });
 /** Fills the weather row when Options opens. */
-function wxFill() { wxUnitButtons(); var c = wxConf(); $('wxOn').checked = c.want; if (c.place && document.activeElement !== $('wxPlace')) $('wxPlace').value = c.place === 'My location' ? '' : c.place; wxStatus(); }
+function wxFill() { wxUnitButtons(); var c = wxConf(); $('wxOn').checked = c.want; wxPlaceBox.hidden = !c.want; if (c.place && document.activeElement !== $('wxPlace')) $('wxPlace').value = c.place === 'My location' ? '' : c.place; wxStatus(); }
 $('wxOn').addEventListener('change', function () {
-  var c = wxConf(); c.want = $('wxOn').checked; wxSave(c);
+  var c = wxConf(); c.want = $('wxOn').checked; wxSave(c); wxPlaceBox.hidden = !c.want;   // (the place and units only while it is on)
   if (!state.quiet) sound(c.want ? 'on' : 'off');
   wxStatus(); wxFetch(true);
 });
@@ -181,7 +199,7 @@ OPTIONS.forEach(function (o) {
   box.dataset.key = o.key;
   if (o.invert) box.dataset.invert = '1';
   if (o.text) label.append(title, box, text); else label.append(title, box);
-  optionsList.appendChild(label);
+  addOption(o.group, label);
 });
 optionsList.addEventListener('change', function (e) {
   var key = e.target.dataset.key;

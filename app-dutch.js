@@ -425,5 +425,6 @@ Object.assign(Dutch, {
   'Notifications are off for Fumufumu in the phone\'s settings.': 'Meldingen voor Fumufumu staan uit in de instellingen van de telefoon.',
   'Alerts may be a few minutes late.': 'Meldingen kunnen een paar minuten te laat komen.', 'Allow exact times': 'Precieze tijden toestaan',
   'Morning alert': 'Ochtendmelding', 'Morning alert time': 'Tijd van de ochtendmelding', '1 to-do today': '1 taak vandaag', '{n} to-dos today': '{n} taken vandaag', '1 to-do is late': '1 taak is te laat', '{n} to-dos are late': '{n} taken zijn te laat', '1 late': '1 te laat', '{n} late': '{n} te laat', 'shall we catch up?': 'zullen we bijwerken?',
-  'Day': 'Dag', 'Ends': 'Stopt'
+  'Day': 'Dag', 'Ends': 'Stopt',
+  'Look': 'Uiterlijk', 'Sound': 'Geluid', 'Alerts': 'Meldingen', 'Devices': 'Apparaten', 'Show the weather': 'Weer tonen'
 });
