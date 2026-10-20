@@ -4,7 +4,7 @@ A thin Capacitor shell: a real Android app whose window loads the app from
 https://laurmoe7.github.io/pet-shopper/ (the same way the Windows app does), so page changes
 arrive without a new APK. A new APK is only needed when this folder changes.
 
-Build: Actions > "Build the Android app" > Run workflow. It publishes a pre-release named
+Build: Actions > "Build the Android app" > Run workflow. Every APK is signed with the same key, the repository secret `ANDROID_DEBUG_KEYSTORE` (base64 of a keystore, alias `androiddebugkey`, passwords `android`; set up in build 734, after android-3 would not install over android-1 because each build had made its own key). Without the secret the build still works but makes a new key, and Android refuses it as an update ("App not installed"); losing the key means uninstalling once. It publishes a pre-release named
 `android-N` with `Fumufumu.apk`. Open that page on the phone, download the APK, allow
 "install unknown apps" for the browser once, and install. Debug-signed, for testing only.
 
