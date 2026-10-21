@@ -22,7 +22,14 @@ var SHOOT_STUDIOS = [
   { id: 's-lilac', name: 'Lilac studio', css: 'radial-gradient(circle at 50% 45%, #fbf7ff 0%, #e2d6f7 70%, #cfbff0 100%)' }
 ];
 var SHOOT_FRAMES = [['none', 'No frame'], ['polaroid', 'Polaroid'], ['hearts', 'Hearts'], ['ribbon', 'Ribbon']];
-var shootState = { pose: 0, bg: 0, frame: 'none', night: false, shown: false };
+var shootState = { pose: 0, bg: 0, frame: 'none', timer: false, night: false, shown: false };
+// the last pose, background, frame and self-timer are kept on this device, so the next photoshoot starts where you left it
+var SHOOT_KEY = 'nibble-shoot', shootSaved = {};
+try { shootSaved = JSON.parse(localStorage.getItem(SHOOT_KEY)) || {}; } catch (e) { shootSaved = {}; }
+function shootRemember() {
+  shootSaved.pose = shootState.pose; shootSaved.bg = shootBackgrounds()[shootState.bg].id; shootSaved.frame = shootState.frame; shootSaved.timer = shootState.timer;
+  try { localStorage.setItem(SHOOT_KEY, JSON.stringify(shootSaved)); } catch (e) { /* storage blocked */ }
+}
 /** @returns {Object[]} Every background to choose from: the studios, then the room backgrounds. */
 function shootBackgrounds() { return SHOOT_STUDIOS.concat(BACKDROPS.filter(function (b) { return b.draw; })); }
 /** Draws the pet, the background, the frame and its caption as they are now. */
@@ -45,7 +52,16 @@ function renderShoot() {
   $('shootCaption').textContent = petName() + ' · ' + new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
   $('shootPoses').querySelectorAll('button').forEach(function (b, i) { b.setAttribute('aria-pressed', String(i === shootState.pose)); });
   $('shootFrames').querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.frame === shootState.frame)); });
+  $('shootTimer').setAttribute('aria-pressed', String(!!shootState.timer));
+  shootRemember();
+  shootRowsFade();
 }
+/** Fades the right edge of a chip row that has more chips to scroll to. */
+function shootRowsFade() {
+  ['shootPoses', 'shootFrames'].forEach(function (id) { var r = $(id); r.classList.toggle('more', r.scrollLeft + r.clientWidth < r.scrollWidth - 2); });
+}
+['shootPoses', 'shootFrames'].forEach(function (id) { $(id).addEventListener('scroll', shootRowsFade, { passive: true }); });
+window.addEventListener('resize', function () { if (!shootEl.hidden) shootRowsFade(); });
 SHOOT_POSES.forEach(function (p, i) {
   var b = document.createElement('button');
   b.type = 'button'; b.className = 'shoot-chip'; b.textContent = p.label;
@@ -80,6 +96,11 @@ function openShoot() {
   camPos = { x: 0, y: 0, s: 1, r: 0 };
   applyCamPos();
   shootState.night = false;
+  var bgs = shootBackgrounds(), at = bgs.findIndex(function (b) { return b.id === shootSaved.bg; });
+  shootState.bg = at >= 0 ? at : 0;
+  shootState.pose = shootSaved.pose >= 0 && shootSaved.pose < SHOOT_POSES.length ? shootSaved.pose : 0;
+  shootState.frame = SHOOT_FRAMES.some(function (f) { return f[0] === shootSaved.frame; }) ? shootSaved.frame : 'none';
+  shootState.timer = !!shootSaved.timer;
   shootEl.hidden = false;
   shootEl.classList.remove('clean');
   renderShoot();
@@ -138,7 +159,8 @@ function camRefused(err) {
 function startCamera() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { camNote('This phone or browser has no camera for Fumu to use.'); return; }
   camNote('Waking the camera\u2026');
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: camFacing } }, audio: false }).then(function (stream) {
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: camFacing }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false })   // (without a size the phone gives 640 x 480: blurry photos)
+    .then(function (stream) {
     if (shootEl.hidden) { stream.getTracks().forEach(function (t) { t.stop(); }); return; }
     if (camStream) camStream.getTracks().forEach(function (t) { t.stop(); });
     camStream = stream;
@@ -150,6 +172,11 @@ function startCamera() {
     $('shootCamBtn').setAttribute('aria-pressed', 'true');
     $('shootFlip').hidden = false;
     camNote('');
+    if (!shootSaved.hinted) {   // how to place him, said once
+      shootSaved.hinted = true; shootRemember();
+      camNote('Drag to move · pinch to resize · double-tap to reset');
+      setTimeout(function () { if (!camFix) camNote(''); }, 5000);
+    }
   }).catch(function (err) {
     stopCamera();
     camRefused(err);
@@ -205,7 +232,19 @@ shootPet.addEventListener('click', function (e) {
 document.addEventListener('visibilitychange', function () { if (document.hidden && camStream) stopCamera(); });
 
 /** Closes it (the dressing room is still there underneath). */
-function closeShoot() { stopCamera(); shootEl.hidden = true; }
+function closeShoot() { stopCamera(); stopCountdown(); shootEl.hidden = true; }
+// a sideways swipe over the background picks the next or the one before (the arrows still work)
+var shootSwipe = null;
+shootEl.addEventListener('pointerdown', function (e) {
+  shootSwipe = shootEl.classList.contains('cam') || e.target.closest('.shoot-pet, .shoot-ui, .photo-result, button') ? null : { x: e.clientX, y: e.clientY };
+});
+shootEl.addEventListener('pointerup', function (e) {
+  if (!shootSwipe) return;
+  var dx = e.clientX - shootSwipe.x, dy = e.clientY - shootSwipe.y;
+  shootSwipe = null;
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) shootStep(dx < 0 ? 1 : -1);
+});
+shootEl.addEventListener('pointercancel', function () { shootSwipe = null; });
 shootEl.addEventListener('click', function (e) {
   if (shootEl.classList.contains('clean')) { shootEl.classList.remove('clean'); }
 });

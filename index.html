@@ -1003,6 +1003,7 @@ html.desk-boot.booting,html.desk-boot.booting body{background:transparent!import
   <div class="shoot-pet" id="shootPet"></div>
   <div class="shoot-frame" id="shootFrame" aria-hidden="true"><span class="shoot-caption" id="shootCaption"></span></div>
   <div class="shoot-flash" id="shootFlash" aria-hidden="true"></div>
+  <div class="shoot-count" id="shootCount" aria-live="polite" hidden></div>
   <div class="photo-result" id="photoResult" hidden>
     <button type="button" class="shoot-x photo-x" id="photoClose" aria-label="Put the photo away">✕</button>
     <img id="photoImg" alt="Your photo">
@@ -1026,7 +1027,10 @@ html.desk-boot.booting,html.desk-boot.booting body{background:transparent!import
     <p class="shoot-camnote" id="shootCamNote" hidden></p>
     <button type="button" class="shoot-chip shoot-camfix" id="shootCamFix" hidden>Open settings</button>
     <div class="shoot-row" id="shootFrames" role="group" aria-label="Frame"></div>
-    <button type="button" class="shoot-snap" id="shootSnap"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="5" fill="currentColor"/></svg><span>Photo</span></button>
+    <div class="shoot-snaprow">
+      <button type="button" class="shoot-arrow shoot-timer" id="shootTimer" aria-pressed="false" aria-label="Self-timer, 3 seconds"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9.5v4l2.5 1.5M9.5 3.5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><b>3</b></button>
+      <button type="button" class="shoot-snap" id="shootSnap"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="5" fill="currentColor"/></svg><span>Photo</span></button>
+    </div>
   </div>
 </div>
 

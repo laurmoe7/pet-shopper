@@ -2838,7 +2838,8 @@ html:root .cal-month select { flex: none; }
 .shoot-ui { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; display: flex; flex-direction: column; gap: 8px; padding: 12px 12px calc(14px + env(safe-area-inset-bottom, 0px)); transition: opacity .25s, translate .25s; }
 .shoot.clean .shoot-ui, .shoot.clean .shoot-x { opacity: 0; pointer-events: none; translate: 0 30px; }
 .shoot-x { position: absolute; left: 12px; top: calc(12px + env(safe-area-inset-top, 0px)); z-index: 3; width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-size: 1rem; font-weight: 800; cursor: pointer; box-shadow: 0 2px 0 var(--shadow); transition: opacity .25s; }
-.shoot-row { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 4px; scrollbar-width: none; }
+.shoot-row { display: flex; justify-content: safe center; gap: 6px; overflow-x: auto; padding: 2px 2px 4px; scrollbar-width: none; }
+.shoot-row.more { mask-image: linear-gradient(90deg, #000 82%, transparent); -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent); }
 .shoot-row::-webkit-scrollbar { display: none; }
 .shoot-chip { flex: none; padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--paper-cell); color: var(--ink); font: inherit; font-weight: 800; font-size: .82rem; cursor: pointer; box-shadow: 0 2px 0 var(--shadow); }
 .shoot-chip[aria-pressed="true"] { background: var(--paper-sel); border-color: var(--hl); }
@@ -2847,6 +2848,19 @@ html:root .cal-month select { flex: none; }
 .shoot-arrow { width: 36px; height: 32px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-size: 1.3rem; line-height: 1; cursor: pointer; box-shadow: 0 2px 0 var(--shadow); }
 .shoot-snap { align-self: center; display: flex; align-items: center; gap: 8px; padding: 10px 28px; border-radius: 999px; border: 3px solid #fff; background: var(--accent); color: var(--accent-ink); font: inherit; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 3px 0 var(--shadow); }
 .shoot-snap svg { width: 22px; height: 22px; }
+.shoot-snaprow { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.shoot-snaprow .shoot-snap { align-self: auto; }
+.shoot-snap.counting { background: var(--surface); color: var(--ink); }
+.shoot-timer { position: relative; width: 40px; height: 40px; display: grid; place-items: center; padding: 0; font-size: 1rem; }
+.shoot-timer:not([aria-pressed="true"]) svg { opacity: .6; }
+.shoot-timer svg { width: 22px; height: 22px; }
+.shoot-timer b { position: absolute; right: -4px; bottom: -4px; min-width: 18px; height: 18px; border-radius: 999px; background: var(--badge, var(--hl)); color: #fff; font-size: .7rem; line-height: 18px; display: none; }
+.shoot-timer[aria-pressed="true"] { background: var(--paper-sel); border-color: var(--hl); }
+.shoot-timer[aria-pressed="true"] b { display: block; }
+.shoot-count { position: absolute; left: 50%; top: 14%; translate: -50% -50%; z-index: 4; font-family: var(--font-display); font-size: 6rem; line-height: 1; color: #fff; text-shadow: 0 3px 0 rgba(90, 60, 50, .35), 0 0 18px rgba(255, 150, 190, .8); pointer-events: none; }
+.shoot-count[hidden] { display: none; }
+.shoot-count.pop { animation: shoot-count 1s ease-out; }
+@keyframes shoot-count { 0% { scale: 1.6; opacity: 0; } 20% { scale: 1; opacity: 1; } 80% { opacity: 1; } 100% { scale: .8; opacity: 0; } }
 .shoot-btn { bottom: 62px; }
 /* the camera behind the pet (app-shoot.js) */
 .shoot-cam { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #2a1f1b; }
@@ -2861,7 +2875,7 @@ html:root .cal-month select { flex: none; }
 .shoot.clean .shoot-camnote { display: none; }
 .shoot-camfix { align-self: center; }
 .shoot-camfix[hidden], .shoot.clean .shoot-camfix { display: none; }
-@media (prefers-reduced-motion: reduce) { .shoot-sparkles span { animation: none; opacity: .6; } .shoot-flash.pop { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .shoot-sparkles span { animation: none; opacity: .6; } .shoot-flash.pop, .shoot-count.pop { animation: none; } }
 
 /* the open drop-down list (app-select.js): round, soft and in the app's colours */
 .cs-pop { position: fixed; z-index: 120; overflow-y: auto; padding: 6px; border-radius: 20px; background: var(--paper); border: 2px solid var(--paper-edge); box-shadow: 0 4px 0 var(--shadow), 0 10px 24px rgba(0, 0, 0, .25); scrollbar-width: none; animation: cs-in .16s cubic-bezier(.3, 1.5, .5, 1); transform-origin: 50% 0; display: flex; flex-direction: column; gap: 2px; }

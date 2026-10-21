@@ -2,6 +2,13 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 747
+- Photo self-timer (3 s)
+- Photoshoot keeps your last pose, background and frame
+- Swipe to change the background
+- Sharper camera photos
+- Camera tip shown once
+
 ## Build 746
 - Photos save faster (smaller JPEG files)
 - Photo goes away after saving

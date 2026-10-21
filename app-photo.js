@@ -150,19 +150,53 @@ function showPhoto(blob) {
 function photoName() { return (petName().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'pet') + '-' + new Date().toISOString().slice(0, 10) + '.jpg'; }
 function closePhoto() { $('photoResult').hidden = true; $('photoNote').hidden = true; photoData = null; }
 
+// the self-timer: Photo then counts 3, 2, 1 (handy with the camera, to get yourself in the picture); tapping Photo again stops it
+var shootCountdown = 0;
+/** Shows a big number over the picture, or nothing. @param {number} n */
+function shootCount(n) {
+  var c = $('shootCount');
+  c.hidden = !n;
+  if (!n) return;
+  c.textContent = n;
+  c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop');
+}
+function stopCountdown() { clearTimeout(shootCountdown); shootCountdown = 0; shootCount(0); $('shootSnap').classList.remove('counting'); }
+$('shootTimer').addEventListener('click', function (e) {
+  e.stopPropagation();
+  sound('tap');
+  stopCountdown();
+  shootState.timer = !shootState.timer;
+  renderShoot();
+});
 $('shootSnap').addEventListener('click', function (e) {
   e.stopPropagation();
   var btn = $('shootSnap');
   if (btn.disabled) return;
+  if (shootCountdown) { stopCountdown(); return; }
+  if (shootState.timer) {
+    btn.classList.add('counting');
+    (function tick(n) {
+      if (shootEl.hidden) { stopCountdown(); return; }
+      if (!n) { stopCountdown(); takePhoto(); return; }
+      shootCount(n); sound('tap'); buzz(15);
+      shootCountdown = setTimeout(function () { tick(n - 1); }, 1000);
+    })(3);
+    return;
+  }
+  takePhoto();
+});
+/** Takes the picture now: the flash, the shutter, then the finished photo. */
+function takePhoto() {
+  var btn = $('shootSnap');
   btn.disabled = true;
   var f = $('shootFlash');
   f.classList.remove('pop'); void f.offsetWidth; f.classList.add('pop');
-  sound('shutter');
+  sound('shutter'); buzz(25);
   makePhoto().then(showPhoto).catch(function () {
     camNote('I couldn’t make the picture on this phone. A screenshot still works.');
     setTimeout(function () { camNote(''); }, 3500);
   }).then(function () { btn.disabled = false; });
-});
+}
 $('photoRetake').addEventListener('click', function () { sound('tap'); closePhoto(); });
 $('photoSave').addEventListener('click', function () {
   if (!photoBlob) return;
