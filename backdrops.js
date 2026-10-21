@@ -472,28 +472,23 @@ function bdFlakes(list, night) {
 function bdSnow(night) {
   var snow = night ? '#c9d3e6' : '#f6fafd', snow2 = night ? '#b3bfd8' : '#e6f0f8', shade = night ? '#a3b0cc' : '#d3e3f0';
   var hat = night ? '#8fa9c9' : '#a9cbe6', brim = night ? '#b3c6dd' : '#d3e5f3', scarf = night ? '#d98aa0' : '#ff9fb5', stick = night ? '#7d5f4a' : '#a9785a';
-  // the snowman: a shaded snowball body and head (a blue crescent low on the right of each), a knit beanie with a pompom,
-  // a wrapped scarf with a fringed tail, mittens on twig arms, a carrot nose and a little :3 smile, standing in a drift
+  // the snowman: a shaded snowball body and head (a blue crescent low on the right of each), a beanie with a pompom,
+  // a scarf, twig arms, a carrot nose and a little :3 smile, standing in a drift
   var man = '<defs><clipPath id="bdSnowman"><circle cx="336" cy="120" r="15"/><circle cx="336" cy="96" r="11"/></clipPath></defs>' +
     '<path d="M323 113L309 104M349 113L363 104" stroke="#5b4239" stroke-width="3.8" stroke-linecap="round"/><path d="M323 113L309 104M349 113L363 104" stroke="' + stick + '" stroke-width="1.9" stroke-linecap="round"/>' +
-    '<g fill="' + scarf + '" ' + BD_THIN + '><circle cx="308" cy="103" r="2.8"/><circle cx="364" cy="103" r="2.8"/></g>' +
     '<g clip-path="url(#bdSnowman)"><rect x="318" y="82" width="36" height="56" fill="' + shade + '"/>' +
     '<circle cx="333" cy="116.6" r="15" fill="' + snow + '"/><circle cx="334" cy="93.6" r="11" fill="' + snow + '"/></g>' +
     '<g fill="none" ' + BD_LINE + '><circle cx="336" cy="120" r="15"/><circle cx="336" cy="96" r="11"/></g>' +
-    '<g fill="#5b4239"><circle cx="336" cy="115" r="1.7"/><circle cx="336" cy="122" r="1.7"/></g><g fill="#fff"><circle cx="335.4" cy="114.4" r=".5"/><circle cx="335.4" cy="121.4" r=".5"/></g>' +
+    '<g fill="#5b4239"><circle cx="336" cy="115" r="1.7"/><circle cx="336" cy="122" r="1.7"/></g>' +
     '<path d="M312 137Q316 131 324 132Q330 129.6 336 130.6Q343 129.4 348 131.8Q356 131 360 137z" fill="' + snow + '" ' + BD_LINE + '/>' +
     '<path d="M323.8 101.4Q336 107.4 348.2 101.4L348.8 107.6Q336 114 323.2 107.6z" fill="' + scarf + '" ' + BD_THIN + '/>' +
-    '<path d="M330 104.4v5M342 104.4v5" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".7"/>' +
     '<path d="M340.6 109.4L344.2 121.6L339.4 122.4L337.4 110.4z" fill="' + scarf + '" ' + BD_THIN + '/>' +
-    '<path d="M340 122.4v2.2M342 122v2.2M344 121.6v2.2" stroke="#5b4239" stroke-width="1" stroke-linecap="round"/>' +
     '<g fill="#5b4239"><ellipse cx="331.6" cy="94" rx="1.5" ry="1.8"/><ellipse cx="340.4" cy="94" rx="1.5" ry="1.8"/></g><g fill="#fff"><circle cx="331.1" cy="93.3" r=".55"/><circle cx="339.9" cy="93.3" r=".55"/></g>' +
     '<ellipse cx="328.2" cy="98.4" rx="2.1" ry="1.3" fill="#ff9fb8" opacity=".75"/><ellipse cx="343.8" cy="98.4" rx="2.1" ry="1.3" fill="#ff9fb8" opacity=".75"/>' +
-    '<path d="M336 96.8L343.4 98.8L336 100.2z" fill="#ffa24d" ' + BD_THIN + '/><path d="M338.6 97.8v1.8M340.8 98.4v1" stroke="#e07f2e" stroke-width=".7" stroke-linecap="round"/>' +
+    '<path d="M336 96.8L343.4 98.8L336 100.2z" fill="#ffa24d" ' + BD_THIN + '/>' +
     '<path d="M333.4 101.8q1.3 1.1 2.6 0q1.3 1.1 2.6 0" stroke="#5b4239" stroke-width="1" fill="none" stroke-linecap="round"/>' +
     '<path d="M326 89Q325.6 76.6 336 76.6Q346.4 76.6 346 89z" fill="' + hat + '" ' + BD_LINE + '/>' +
-    '<path d="M327.6 82.6Q336 79.4 344.4 82.6" stroke="' + scarf + '" stroke-width="2" fill="none" stroke-linecap="round"/>' +
     '<rect x="324.6" y="86" width="22.8" height="5" rx="2.5" fill="' + brim + '" ' + BD_THIN + '/>' +
-    '<path d="M328.4 87.2v2.6M331.8 87.2v2.6M335.2 87.2v2.6M338.6 87.2v2.6M342 87.2v2.6" stroke="' + hat + '" stroke-width="1" stroke-linecap="round"/>' +
     '<circle cx="336" cy="74.6" r="3.6" fill="#fff" ' + BD_THIN + '/>';
   return (night ? bdSky('#2b3563', '#56608f') : bdSky('#bfe0f2', '#eef6fa')) +
     (night ? bdMoon(80, 30, 14) + bdStars([[170, 24, 4], [250, 36, 3], [130, 50, 1.2], [300, 22, 1.3]]) : bdCloud(96, 40, 0.8, '#fbfdff') + bdCloud(222, 30, 0.6, '#fbfdff')) +

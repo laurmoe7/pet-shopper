@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 756
+- Simpler snowman
+
 ## Build 755
 - Snowman: knit beanie, wrapped scarf, mittens, shading and a cuter face
 - Cherry trees: curvy trunk, shaded crown, more blossoms, fallen petals
