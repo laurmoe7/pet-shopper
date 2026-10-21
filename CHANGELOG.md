@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 752
+- New furniture: toy chest and fairy lights
+- Beanbag shade stays inside its outline
+
 ## Build 751
 - Window: curtains hang from the rod, clear glass, no flower
 - Bookshelf: pot and books sit on the shelves

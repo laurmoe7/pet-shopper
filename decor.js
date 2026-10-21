@@ -73,6 +73,26 @@
   }
   root.PlantArt = { svg: plantSvg, FLOWERS: FLOWERS, VIEW: '0 0 60 70' };
 
+  /** @returns {string} The fairy lights: two swags of wire with a bulb every so often, each with a soft glow and a shine. */
+  function fairyLights() {
+    var cols = ['#ffb3c6', '#ffe27a', '#bfe8d4', '#c7a6ff', '#ffc89a'], glow = '', bulbs = '', wire = '';
+    [[4, 80], [80, 156]].forEach(function (sw, k) {
+      var x0 = sw[0], x1 = sw[1], cx = (x0 + x1) / 2, y0 = 5, cy = 22;
+      wire += 'M' + x0 + ' ' + y0 + ' Q' + cx + ' ' + cy + ' ' + x1 + ' ' + y0;
+      for (var i = 1; i <= 5; i++) {
+        var t = i / 6, x = (1 - t) * (1 - t) * x0 + 2 * t * (1 - t) * cx + t * t * x1, y = (1 - t) * (1 - t) * y0 + 2 * t * (1 - t) * cy + t * t * y0;
+        var c = cols[(k * 5 + i) % cols.length], ang = (t - 0.5) * 50;
+        glow += '<circle cx="' + x.toFixed(1) + '" cy="' + (y + 7).toFixed(1) + '" r="7.6" fill="' + c + '" opacity=".35"/>';
+        bulbs += '<g transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') rotate(' + ang.toFixed(0) + ') scale(1.45)">' +
+          '<rect x="-1.8" y="-.4" width="3.6" height="2.6" rx=".6" fill="#8a6a52" stroke="#5b4239" stroke-width="1"/>' +
+          '<path d="M-2.6 2.2 h5.2 c.6 3 0 6.4 -2.6 7 c-2.6 -.6 -3.2 -4 -2.6 -7 Z" fill="' + c + '" stroke="#5b4239" stroke-width="1.2" stroke-linejoin="round"/>' +
+          '<path d="M-1.2 3.6 q-.4 1.8 .2 3.2" fill="none" stroke="#fff" stroke-width="1" stroke-linecap="round" opacity=".9"/></g>';
+      }
+    });
+    var pins = [4, 80, 156].map(function (x) { return '<circle cx="' + x + '" cy="5" r="2.4" fill="#ff9fb5" stroke="#5b4239" stroke-width="1.2"/><circle cx="' + (x - .7) + '" cy="4.3" r=".7" fill="#fff"/>'; }).join('');
+    return glow + '<path d="' + wire + '" fill="none" stroke="#5b4239" stroke-width="1.4" stroke-linecap="round"/>' + bulbs + pins;
+  }
+
   root.Decor = [
     {
       // listed first so it lies under everything else, right below the cushion
@@ -113,13 +133,15 @@
     },
     {
       id: 'beanbag', label: 'Beanbag', x: 0.84, y: 0.78, w: 82, h: 58, view: '0 0 72 50',
-      svg: '<path d="M7 44 C1 31 9 13 29 10 C47 8 64 18 66 34 C67 44 57 47 37 47 C21 47 10 47 7 44 Z" fill="#b9d9f2" ' + INK + '/>' +
-        '<path d="M37 11 Q22 26 12 43 M37 11 Q52 26 62 43" fill="none" stroke="#8fbde3" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="3 3"/>' +
-        '<path d="M9 40 C16 44 30 45 40 45 C53 45 61 42 65 36 C65.6 42 60 46.2 37 46.2 C22 46.2 11 46 9 40 Z" fill="#9cc8ea"/>' +
-        '<path d="M8 41 C14 45.4 30 46 40 46 C54 46 62 44 66 38" fill="none" stroke="#8fbde3" stroke-width="2.2" stroke-linecap="round" opacity=".8"/>' +
+      // the bottom shade is clipped to the bag and the outline drawn last, so nothing spills over the edge
+      svg: '<defs><clipPath id="decorBeanbag"><path d="M7 44 C1 31 9 13 29 10 C47 8 64 18 66 34 C67 44 57 47 37 47 C21 47 10 47 7 44 Z"/></clipPath></defs>' +
+        '<ellipse cx="36" cy="47.5" rx="27" ry="2.5" fill="#5b4239" opacity=".12"/>' +
+        '<path d="M7 44 C1 31 9 13 29 10 C47 8 64 18 66 34 C67 44 57 47 37 47 C21 47 10 47 7 44 Z" fill="#b9d9f2"/>' +
+        '<g clip-path="url(#decorBeanbag)"><path d="M0 37 C14 44 34 43.6 46 42.4 C58 41 65 37 72 30 V50 H0 Z" fill="#9cc8ea"/>' +
+        '<path d="M37 11 Q22 26 12 43 M37 11 Q52 26 62 43" fill="none" stroke="#8fbde3" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="3 3"/></g>' +
+        '<path d="M7 44 C1 31 9 13 29 10 C47 8 64 18 66 34 C67 44 57 47 37 47 C21 47 10 47 7 44 Z" fill="none" ' + INK + '/>' +
         '<circle cx="37" cy="11.5" r="2.6" fill="#ffc1cf" stroke="#5b4239" stroke-width="1.4"/>' +
-        '<path d="M14 22 C18 17 23 14 28 13" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8"/>' +
-        '<ellipse cx="36" cy="47.5" rx="26" ry="2.5" fill="#5b4239" opacity=".12"/>'
+        '<path d="M14 22 C18 17 23 14 28 13" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8"/>'
     },
     {
       id: 'clock', label: 'Cuckoo clock', x: 0.63, y: 0.22, w: 46, h: 68, view: '0 0 44 66',
@@ -233,6 +255,40 @@
         '<circle cx="19.6" cy="25" r="1.5" fill="#fff" stroke="#5b4239" stroke-width="1"/><circle cx="19.4" cy="25.1" r=".7" fill="#5b4239"/><path d="M17.6 27.8 q1 .8 2 .1" fill="none" stroke="#5b4239" stroke-width=".9" stroke-linecap="round"/>' +
         '<circle cx="31" cy="15.4" r="1.7" fill="#fff" fill-opacity=".7" stroke="#5b4239" stroke-width=".9"/><circle cx="33.4" cy="11.4" r="1.1" fill="#fff" fill-opacity=".7" stroke="#5b4239" stroke-width=".8"/>' +
         '<path d="M12.2 15 Q13.2 9.6 18 8.4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".85"/>'
+    },
+    {
+      id: 'toychest', label: 'Toy chest', x: 0.24, y: 0.86, w: 66, h: 58, view: '0 0 64 56',
+      // an open wooden chest with a plush bunny and a striped ball peeking out, and a heart lock
+      svg: '<ellipse cx="32" cy="54" rx="28" ry="2.2" fill="#5b4239" opacity=".12"/>' +
+        '<path d="M8 29 Q7 11 11 9 H53 Q57 11 56 29 Z" fill="#d9a06a" ' + INK + '/>' +
+        '<path d="M12 26 V13 M52 26 V13" stroke="#c48a58" stroke-width="1.4" stroke-linecap="round"/>' +
+        // the bunny: ears, head, face
+        '<g stroke="#5b4239" stroke-width="1.6" stroke-linejoin="round">' +
+        '<path d="M15.6 15 C13 7 14 1.6 16.8 1.6 C19.6 1.6 20 8 19.4 14 Z" fill="#fffaf4"/><path d="M22.6 14 C23 7 25 1.6 27.6 2.4 C30 3.4 28 10 25.6 15 Z" fill="#fffaf4"/>' +
+        '<circle cx="21" cy="21" r="8.6" fill="#fffaf4"/></g>' +
+        '<path d="M16.6 13 C15.6 8 16 4.6 17 4.6 C18 4.6 18.2 8 17.8 12.4 M24 12.4 C24.6 8 25.6 5 26.6 5.4" fill="none" stroke="#ffb3c6" stroke-width="1.6" stroke-linecap="round"/>' +
+        '<circle cx="18" cy="20" r="1.2" fill="#5b4239"/><circle cx="24" cy="20" r="1.2" fill="#5b4239"/><path d="M20 22.4 q1 .9 2 0" fill="none" stroke="#5b4239" stroke-width="1" stroke-linecap="round"/>' +
+        '<ellipse cx="15.6" cy="23" rx="1.8" ry="1.1" fill="#ff9fb8" opacity=".8"/><ellipse cx="26.4" cy="23" rx="1.8" ry="1.1" fill="#ff9fb8" opacity=".8"/>' +
+        // the ball
+        '<circle cx="43" cy="20" r="7.4" fill="#fffaf4" ' + INK + '/>' +
+        '<path d="M36.4 17 Q43 20.6 49.6 17 M36 22.4 Q43 26 50 22.4" fill="none" stroke="#a9dcff" stroke-width="2.4"/>' +
+        '<path d="M43 12.6 V27.4" stroke="#ff9fb5" stroke-width="2.4"/>' +
+        '<circle cx="43" cy="20" r="7.4" fill="none" ' + INK + '/><path d="M38.6 15.6 a5.4 5.4 0 0 1 3 -1.8" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".9"/>' +
+        // the chest
+        '<rect x="5" y="30" width="54" height="21" rx="4" fill="#f2c48f" ' + INK + '/>' +
+        '<path d="M8 37.6 H56 M8 44.6 H56" stroke="#d9a06a" stroke-width="1.4" stroke-linecap="round"/>' +
+        '<path d="M8 33.4 V47" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".55"/>' +
+        '<rect x="3" y="27.4" width="58" height="5.6" rx="2.8" fill="#f8d9b2" ' + INK + '/>' +
+        '<path d="M6 29.4 H58" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>' +
+        '<path d="M32 48 c-5.6 -3.6 -6.4 -8.6 -3 -9.6 c1.6 -.4 2.6 .6 3 1.6 c.4 -1 1.4 -2 3 -1.6 c3.4 1 2.6 6 -3 9.6 Z" fill="#ff9fb5" stroke="#5b4239" stroke-width="1.4" stroke-linejoin="round"/>' +
+        '<path d="M30 41.2 q.4 -.8 1.2 -1" fill="none" stroke="#fff" stroke-width="1" stroke-linecap="round"/>' +
+        '<path d="M14 39.8 l.9 1.9 2 .3 -1.5 1.4 .4 2 -1.8 -1 -1.8 1 .4 -2 -1.5 -1.4 2 -.3 Z M50 39.8 l.9 1.9 2 .3 -1.5 1.4 .4 2 -1.8 -1 -1.8 1 .4 -2 -1.5 -1.4 2 -.3 Z" fill="#ffe27a" stroke="#5b4239" stroke-width=".9" stroke-linejoin="round"/>' +
+        '<rect x="8" y="50" width="6" height="3.4" rx="1.2" fill="#d9a06a" stroke="#5b4239" stroke-width="1.2"/><rect x="50" y="50" width="6" height="3.4" rx="1.2" fill="#d9a06a" stroke="#5b4239" stroke-width="1.2"/>'
+    },
+    {
+      id: 'lights', label: 'Fairy lights', x: 0.5, y: 0.14, w: 170, h: 32, view: '0 0 160 30',
+      // a string of glowing pastel bulbs swagging between three pins
+      svg: fairyLights()
     }
   ];
 })(typeof self !== 'undefined' ? self : globalThis);
