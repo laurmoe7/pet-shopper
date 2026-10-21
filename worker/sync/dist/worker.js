@@ -605,7 +605,8 @@
       if (here) {
         var old = lists[here[0]][here[1]];
         if (rec.list === 'shared') {   // this pet's own marks stay while the item stays ticked; one ticked by someone else arrives without any
-          MARKS.forEach(function (k) { delete item[k]; if (old.done && item.done && old[k] !== undefined) item[k] = copy(old[k]); });
+          var same = old.done && item.done && old.doneWho === item.doneWho;   // the same tick: not unticked and ticked again by someone else meanwhile
+          MARKS.forEach(function (k) { delete item[k]; if (same && old[k] !== undefined) item[k] = copy(old[k]); });
         }
         if (itemPrint(old, here[0]) !== h || here[0] !== rec.list) {
           if (here[0] === rec.list) { lists[here[0]][here[1]] = item; }
@@ -622,8 +623,8 @@
     // items deleted here and not mentioned by the document stay deleted (they have their markers)
     names.forEach(function (name) {
       var kept = lists[name].filter(function (i) { return i; });
-      // to-buy first, eaten after, each part keeping its order
-      state[listSlot(state, name)] = kept.filter(function (i) { return !i.done; }).concat(kept.filter(function (i) { return i.done; }));
+      // to-buy first, eaten after, each part keeping its order; the to-do list is kept in due order, as the app keeps it (its "later" line depends on it)
+      state[listSlot(state, name)] = name === 'todo' && L && L.sortByDue ? L.sortByDue(kept, L.dayKey(new Date())) : kept.filter(function (i) { return !i.done; }).concat(kept.filter(function (i) { return i.done; }));
     });
     if (house) return out;
 
@@ -898,13 +899,13 @@
     return out;
   }
 
-  /** What a member is told about their household: the document, the members (names only) and, for the owner, the invite code. */
+  /** What a member is told about their household: the document, the members (names only, not when they joined or last synced) and, for the owner, the invite code. */
   async function houseAnswer(store, acct, house, status) {
     var row = await store.houseGet(house), people = await store.houseMembers(house);
     if (!row) return reply({ household: null });
     var out = {
       doc: row.body ? JSON.parse(row.body) : null, rev: row.rev, owner: row.owner === acct,
-      members: people.map(function (m) { return { id: m.id, name: m.name, owner: m.acct === row.owner, me: m.acct === acct, joined: m.joined, seen: m.seen }; })
+      members: people.map(function (m) { return { id: m.id, name: m.name, owner: m.acct === row.owner, me: m.acct === acct }; })
     };
     if (out.owner) out.invite = row.invite.replace(/(.{5})(?=.)/g, '$1-');
     return reply(out, status);
@@ -1049,11 +1050,11 @@
       async purge(staleBefore, emptyBefore) {
         try { await db.prepare('DELETE FROM inbox WHERE acct IN (SELECT id FROM docs WHERE updated < ? OR (body IS NULL AND created < ?))').bind(staleBefore, emptyBefore).run(); } catch (e) { /* no inbox table on an older database */ }
         var r = await db.prepare('DELETE FROM docs WHERE updated < ? OR (body IS NULL AND created < ?)').bind(staleBefore, emptyBefore).run();
-        try {   // households: not changed for a year, then members whose backup went; an owner who went hands over to the first to join; empty ones go
+        try {   // households: not changed for a year, then members whose backup went; empty ones go, and an owner who went hands over to the first to join
           await db.prepare('DELETE FROM households WHERE updated < ?').bind(staleBefore).run();
           await db.prepare('DELETE FROM members WHERE acct NOT IN (SELECT id FROM docs) OR house NOT IN (SELECT id FROM households)').bind().run();
+          await db.prepare('DELETE FROM households WHERE id NOT IN (SELECT house FROM members)').bind().run();   // (before the hand-over: owner can never be empty)
           await db.prepare('UPDATE households SET owner = (SELECT acct FROM members WHERE members.house = households.id ORDER BY joined, id LIMIT 1) WHERE owner NOT IN (SELECT acct FROM members WHERE members.house = households.id)').bind().run();
-          await db.prepare('DELETE FROM households WHERE owner IS NULL OR id NOT IN (SELECT house FROM members)').bind().run();
         } catch (e) { /* no household tables on an older database */ }
         return r.meta.changes;
       },

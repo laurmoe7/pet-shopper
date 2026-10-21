@@ -603,7 +603,8 @@
       if (here) {
         var old = lists[here[0]][here[1]];
         if (rec.list === 'shared') {   // this pet's own marks stay while the item stays ticked; one ticked by someone else arrives without any
-          MARKS.forEach(function (k) { delete item[k]; if (old.done && item.done && old[k] !== undefined) item[k] = copy(old[k]); });
+          var same = old.done && item.done && old.doneWho === item.doneWho;   // the same tick: not unticked and ticked again by someone else meanwhile
+          MARKS.forEach(function (k) { delete item[k]; if (same && old[k] !== undefined) item[k] = copy(old[k]); });
         }
         if (itemPrint(old, here[0]) !== h || here[0] !== rec.list) {
           if (here[0] === rec.list) { lists[here[0]][here[1]] = item; }
@@ -620,8 +621,8 @@
     // items deleted here and not mentioned by the document stay deleted (they have their markers)
     names.forEach(function (name) {
       var kept = lists[name].filter(function (i) { return i; });
-      // to-buy first, eaten after, each part keeping its order
-      state[listSlot(state, name)] = kept.filter(function (i) { return !i.done; }).concat(kept.filter(function (i) { return i.done; }));
+      // to-buy first, eaten after, each part keeping its order; the to-do list is kept in due order, as the app keeps it (its "later" line depends on it)
+      state[listSlot(state, name)] = name === 'todo' && L && L.sortByDue ? L.sortByDue(kept, L.dayKey(new Date())) : kept.filter(function (i) { return !i.done; }).concat(kept.filter(function (i) { return i.done; }));
     });
     if (house) return out;
 

@@ -137,7 +137,7 @@ These answers change sections 1 to 4; where they disagree with the text above, t
 
 All with `Authorization: Bearer <personal code>`; the household document is `{v, items}` with only `shared` items.
 
-- `GET /v1/household`: `{household: null}`, or `{doc, rev, members: [{id, name, owner, me, joined, seen}], owner, invite}`
+- `GET /v1/household`: `{household: null}`, or `{doc, rev, members: [{id, name, owner, me}], owner, invite}` (never when the others joined or last synced)
   (`invite` only for the owner).
 - `POST /v1/household` `{name}`: create (you are the owner), 201 with the same answer. 409 when already in one.
 - `POST /v1/household/join` `{invite, name}`: join. 404 for an unknown invite, 409 when already in one, 403 when full.

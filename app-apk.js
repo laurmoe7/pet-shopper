@@ -41,7 +41,7 @@ function apkNewest() {
 }
 
 function showApkReady(n) {
-  if (document.querySelector('.apk-update-card') || n <= apkSeen.skipped) return;
+  if (document.querySelector('.stage .inbox-card') || n <= apkSeen.skipped) return;   // (another card is up: this one comes back next time the app is opened)
   var card = document.createElement('div');
   card.className = 'inbox-card update-card apk-update-card';
   card.setAttribute('role', 'status');

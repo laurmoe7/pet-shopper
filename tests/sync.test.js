@@ -384,6 +384,15 @@ test('a ticked or removed to-do on one device is ticked or removed on the other'
   assert.equal(find(a, 'Dentist'), undefined);
 });
 
+test('a to-do from another device lands in due order, not at the end', () => {
+  const { a, b } = pair();
+  const today = L.dayKey(new Date()), later = L.dayKey(new Date(Date.now() + 5 * 86400000));
+  b.stash.push(Object.assign(L.createItem('Later thing', {}, 'late-deviceb', undefined, 'todo'), { due: later }));
+  a.stash.push(Object.assign(L.createItem('Today thing', {}, 'now-devicea', undefined, 'todo'), { due: today }));
+  round(b, round(a, null, T + 1000), T + 2000);
+  assert.deepEqual(texts(b.stash), ['Today thing', 'Call mum', 'Later thing']);   // (the app's order: today's dated tasks, then undated ones, then later ones)
+});
+
 test('shared items in a personal document are left alone', () => {
   const { a, b } = pair();
   const doc = round(a, null, T + 1000);
@@ -478,6 +487,15 @@ test('an item ticked by someone else arrives without their pet\'s marks, so it n
   assert.equal(sam.items[0].tasted, 'apple');
   // a tick on Sam's own device is not a change to send: the marks are Sam's business
   assert.equal(Sync.stamp(sam, T + 9000).items, 0);
+  // Kim unticks and ticks it again before Sam syncs: the tick is Kim's now, so Sam's marks go
+  const before = JSON.parse(JSON.stringify(doc));
+  k.done = true; k.doneWho = 'kim'; k.doneBy = 'Kim';
+  const again = houseRound(kim, before, T + 9500);
+  houseRound(sam, again, T + 9600);
+  assert.equal(sam.items[0].doneBy, 'Kim');
+  assert.equal(sam.items[0].tasted, undefined, 'not Sam\'s tick any more');
+  Object.assign(sam.items[0], { doneWho: 'sam', doneBy: 'Sam', tasted: 'apple' });   // (Sam ticks it again, for the rest of the test)
+  doc = houseRound(sam, again, T + 9700);
   // Kim unticks it for real: Sam's copy is unticked and its marks go
   k.done = false; delete k.doneBy;
   houseRound(sam, houseRound(kim, doc, T + 10000), T + 11000);

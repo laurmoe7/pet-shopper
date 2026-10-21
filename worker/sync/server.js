@@ -181,13 +181,13 @@
     return out;
   }
 
-  /** What a member is told about their household: the document, the members (names only) and, for the owner, the invite code. */
+  /** What a member is told about their household: the document, the members (names only, not when they joined or last synced) and, for the owner, the invite code. */
   async function houseAnswer(store, acct, house, status) {
     var row = await store.houseGet(house), people = await store.houseMembers(house);
     if (!row) return reply({ household: null });
     var out = {
       doc: row.body ? JSON.parse(row.body) : null, rev: row.rev, owner: row.owner === acct,
-      members: people.map(function (m) { return { id: m.id, name: m.name, owner: m.acct === row.owner, me: m.acct === acct, joined: m.joined, seen: m.seen }; })
+      members: people.map(function (m) { return { id: m.id, name: m.name, owner: m.acct === row.owner, me: m.acct === acct }; })
     };
     if (out.owner) out.invite = row.invite.replace(/(.{5})(?=.)/g, '$1-');
     return reply(out, status);
@@ -332,11 +332,11 @@
       async purge(staleBefore, emptyBefore) {
         try { await db.prepare('DELETE FROM inbox WHERE acct IN (SELECT id FROM docs WHERE updated < ? OR (body IS NULL AND created < ?))').bind(staleBefore, emptyBefore).run(); } catch (e) { /* no inbox table on an older database */ }
         var r = await db.prepare('DELETE FROM docs WHERE updated < ? OR (body IS NULL AND created < ?)').bind(staleBefore, emptyBefore).run();
-        try {   // households: not changed for a year, then members whose backup went; an owner who went hands over to the first to join; empty ones go
+        try {   // households: not changed for a year, then members whose backup went; empty ones go, and an owner who went hands over to the first to join
           await db.prepare('DELETE FROM households WHERE updated < ?').bind(staleBefore).run();
           await db.prepare('DELETE FROM members WHERE acct NOT IN (SELECT id FROM docs) OR house NOT IN (SELECT id FROM households)').bind().run();
+          await db.prepare('DELETE FROM households WHERE id NOT IN (SELECT house FROM members)').bind().run();   // (before the hand-over: owner can never be empty)
           await db.prepare('UPDATE households SET owner = (SELECT acct FROM members WHERE members.house = households.id ORDER BY joined, id LIMIT 1) WHERE owner NOT IN (SELECT acct FROM members WHERE members.house = households.id)').bind().run();
-          await db.prepare('DELETE FROM households WHERE owner IS NULL OR id NOT IN (SELECT house FROM members)').bind().run();
         } catch (e) { /* no household tables on an older database */ }
         return r.meta.changes;
       },

@@ -14,6 +14,7 @@ var house = (function () {
   return { in: !!h.in, me: typeof h.me === 'string' ? h.me : '', owner: !!h.owner, members: Array.isArray(h.members) ? h.members : [], invite: typeof h.invite === 'string' ? h.invite : '', server: h.server === 'yes' || h.server === 'no' ? h.server : '' };
 })();
 var houseBusy = false, houseArmed = {}, houseSheet = $('houseSheet');
+var houseWaiting = '';   // an invite opened before Backup & sync was on: the sheet comes back with it once the backup sheet closes
 
 function houseSave() {
   try { localStorage.setItem(HOUSE_KEY, JSON.stringify(house)); } catch (e) { /* storage blocked */ }
@@ -61,8 +62,9 @@ function houseSyncNow() {
     houseBusy = false;
     if (account.code !== code) return;
     if (r.ok && r.json) { house.server = 'yes'; houseTake(r.json); return; }
-    if (r.status === 503 || (r.status === 404 && !house.in)) { house.server = 'no'; houseSave(); houseRender(); return; }   // a server from before households
-    if (r.status === 404) { houseGone(); houseSay('You are no longer in the household.'); }
+    // a server from before households answers 404 to everything here; 503 is a passing database hiccup (or tables not made yet), which changes nothing
+    if (r.status === 404 && !house.in) { house.server = 'no'; houseSave(); houseRender(); return; }
+    if (r.status === 404 && r.json && /not in a household/i.test(r.json.error || '')) { houseGone(); houseSay('You are no longer in the household.'); }
   }, function () { houseBusy = false; });
 }
 
@@ -145,16 +147,29 @@ function houseRender() {
 function openHouse(invite) {
   houseSay('');
   if (invite) $('houseCode').value = prettyCode(invite);
+  houseWaiting = invite && !account.code ? invite : '';
   houseRender();
   openDialog(houseSheet);
   if (account.code) houseSyncNow();   // fresh members list
 }
 
-$('houseToAcct').addEventListener('click', function () { sound('tap'); openAccount(); });
+$('houseToAcct').addEventListener('click', function () { sound('tap'); if (!houseWaiting) houseWaiting = cleanCode(houseInvite($('houseCode').value)) || ''; openAccount(); });
+// back to the invite once the backup is made (after the backup sheet, which shows the new code, is closed)
+accountSheet.addEventListener('close', function () {
+  if (!houseWaiting || !account.code) return;
+  var code = houseWaiting;
+  houseWaiting = '';
+  setTimeout(function () { openHouse(code); }, 300);
+});
+/** @returns {string} The invite from what was typed or pasted: the code itself, or a whole invite link (…#household=CODE). */
+function houseInvite(text) {
+  var m = /household=([A-Za-z0-9-]+)/.exec(String(text || ''));
+  return m ? m[1] : String(text || '');
+}
 $('houseMake').addEventListener('click', function () { sound('tap'); houseAsk('', { name: houseName() }, 'Your household is ready. Copy the invite link for the others.'); });
 $('houseJoin').addEventListener('click', function () {
   sound('tap');
-  var code = cleanCode($('houseCode').value);
+  var code = cleanCode(houseInvite($('houseCode').value));
   if (!code) { houseSay('That does not look like an invite: it has 25 letters and numbers.'); return; }
   houseAsk('/join', { invite: code, name: houseName() }, 'You joined. The Shared tab is on your list.');
   $('houseCode').value = '';
@@ -163,7 +178,7 @@ $('houseLink').addEventListener('click', function () {
   sound('tap');
   var code = cleanCode(house.invite);
   if (!code) return;
-  var link = location.href.split('#')[0] + '#household=' + code, done = function () { houseSay('Invite link copied. Anyone with it can join until you make a new code.'); };
+  var link = location.href.split('#')[0] + '#household=' + code, done = function () { houseSay('Invite link copied. They open it, or paste it under Got an invite?. Anyone with it can join until you make a new code.'); };
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(done, function () { houseSay(link); }); else houseSay(link);
 });
 $('houseNewCode').addEventListener('click', function () {
@@ -217,5 +232,11 @@ function houseMark() {
     i.addedWho = house.me;
     if (who) i.addedBy = who;
   });
+}
+// a shared list left on this device without a household (its record here was lost, or the backup was turned off): your own list comes back
+if (!houseIn() && (state.shopList === 'shared' || (state.otherShop && state.otherShop.length))) {
+  Sync.leaveHouse(state);
+  save();
+  setTimeout(function () { render(); applyListMode(); }, 0);   // (once every script has loaded: drawing the list needs the later ones)
 }
 houseRender();

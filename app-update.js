@@ -37,7 +37,7 @@ function updateNow(say) {
 
 // ---------- the card ----------
 function showUpdateReady() {
-  if (document.querySelector('.phone-update-card') || updNewest === updSkipped) return;
+  if (document.querySelector('.stage .inbox-card') || updNewest === updSkipped) return;   // (another card is up: this one comes at the next check)
   var card = document.createElement('div');
   card.className = 'inbox-card update-card phone-update-card';
   card.setAttribute('role', 'status');

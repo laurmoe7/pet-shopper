@@ -64,7 +64,7 @@ their **own** code; the `members` table says who is in which household (one each
 manages the members, and the invite code is only for joining. It needs the last three lines of `schema.sql`
 (`households`, `members` and its index; the deploy workflow adds them). Without them these addresses answer 503.
 
-- `GET /v1/household`: `{household: null}`, or `{doc, rev, owner, members: [{id, name, owner, me, joined, seen}], invite}` (`invite` for the owner only).
+- `GET /v1/household`: `{household: null}`, or `{doc, rev, owner, members: [{id, name, owner, me}], invite}` (`invite` for the owner only).
 - `POST /v1/household` `{name}` makes one (201, you are the owner); `POST /v1/household/join` `{invite, name}` joins
   (404 unknown invite, 409 already in one, 403 full).
 - `POST /v1/household/sync` `{doc, name?}` joins the shared list like `/v1/sync` and notes the member's name and last sync.

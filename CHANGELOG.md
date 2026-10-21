@@ -2,6 +2,12 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 742
+- Fix: synced to-dos keep their date order
+- Fix: invite links for new people and pasted links
+- Fix: household row no longer vanishes on a server hiccup
+- Fix: update cards wait their turn
+
 ## Build 741
 - Android app: card when a new APK is out (update in Obtainium)
 

@@ -537,8 +537,9 @@ for (const [where, make] of STORES) {
     let r = await house(store, sam, '/sync', { doc: {}, name: 'Samantha' }, T + 10);
     assert.deepEqual(names(r), ['Samantha']);
     r = await house(store, sam, '/sync', { doc: {} }, T + 120000);
-    assert.equal(r.json.members[0].seen, T + 120000);
+    assert.equal((await store.memberOf(await S.accountId(S.cleanCode(sam)))).seen, T + 120000);
     assert.deepEqual(names(r), ['Samantha'], 'no name sent keeps the old one');
+    assert.deepEqual(Object.keys(r.json.members[0]).sort(), ['id', 'me', 'name', 'owner'], 'nobody is told when the others joined or last synced');
     assert.equal(S.cleanName('x'.repeat(100)).length, S.NAME_MAX);
     assert.equal(S.cleanName('a\u0000b c'), 'a b c');
     assert.equal(S.cleanName(42), '');
@@ -647,6 +648,25 @@ for (const [where, make] of STORES) {
     assert.deepEqual(names(view), ['Kim']);
     const fresh = await signUp(store);
     assert.equal((await house(store, fresh, '/join', { invite: quiet })).status, 404);
+  });
+
+  test('the purge copes with a household whose every member went while it was still in use, ' + where, async () => {
+    const store = make(), sam = await signUp(store), kim = await signUp(store), lou = await signUp(store);
+    const doc = Sync.snapshot(phone('p1', ['Milk']), T);
+    for (const c of [sam, kim, lou]) await call(store, 'POST', '/v1/sync', c, { doc }, T);
+    const gone = (await house(store, sam, '', { name: 'Sam' }, T)).json.invite;
+    const kept = (await house(store, kim, '', { name: 'Kim' }, T)).json.invite;
+    await house(store, lou, '/join', { invite: kept, name: 'Lou' }, T + 1);
+    // the households are used recently, but Sam's and Kim's backups are not: Sam's household empties, Kim's passes to Lou
+    const later = T + S.RETENTION_MS - 1000;
+    await call(store, 'POST', '/v1/sync', lou, { doc }, later);
+    for (const c of [sam, lou]) await house(store, c, '/sync', { doc: { items: { ['x' + c.slice(0, 3)]: shared('x' + c.slice(0, 3), 'Tea', later, 'z') } } }, later);
+    await S.purge(store, T + S.RETENTION_MS + 1000);
+    const view = await house(store, lou, '', undefined, later);
+    assert.equal(view.json.owner, true);
+    assert.deepEqual(names(view), ['Lou']);
+    const fresh = await signUp(store);
+    assert.equal((await house(store, fresh, '/join', { invite: gone })).status, 404, 'the empty household is gone');
   });
 }
 
