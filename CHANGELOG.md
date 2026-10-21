@@ -2,6 +2,13 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 750
+- Background sounds softer on phones: no sharp highs or clicks
+- Owl no longer much louder than the rest
+- Cicadas, hen, sizzle and clock smoother
+- Thunder heard on phone speakers
+- No burst of piled-up sounds after a pause
+
 ## Build 749
 - Photoshoot tabs and camera tip readable in dark themes
 

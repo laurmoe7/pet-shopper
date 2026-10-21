@@ -15,6 +15,12 @@
   'use strict';
 
   var ctx = null, master = null, noiseBuf = null;
+  // where env() sends a sound: master, or while a background sound plays the softer background bus (ambIn)
+  var bus = null, ambIn = null;
+  // a background sound's sources keep going a little after their envelope, so none is cut off mid-swing (a click)
+  var tail = 0;
+  /** Background sounds (app-ambience.js, and the night's owl and crickets): played softer, never piled up. */
+  var AMBIENT = { waves: 1, gull: 1, bubbles: 1, blub: 1, birds: 1, breeze: 1, thunder: 1, wind: 1, cicadas: 1, cluck: 1, moo: 1, sizzle: 1, ticktock: 1, crickets: 1, owl: 1 };
   // the random pitch for the sound playing now; tone() and noise() scale by it
   var pitch = 1;
 
@@ -34,6 +40,12 @@
     master.gain.value = 0.8;
     master.connect(comp);
     comp.connect(ctx.destination);
+    // the background bus takes the edge off: phone speakers are loudest around 2 to 5 kHz, so high chirps and hiss turned piercing there
+    ambIn = ctx.createGain(); ambIn.gain.value = 0.85;
+    var shelf = ctx.createBiquadFilter(); shelf.type = 'highshelf'; shelf.frequency.value = 2200; shelf.gain.value = -8;
+    var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 6000; lp.Q.value = 0.5;
+    ambIn.connect(shelf); shelf.connect(lp); lp.connect(master);
+    bus = master;
     noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
     var d = noiseBuf.getChannelData(0);
     for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
@@ -68,11 +80,12 @@
    * @returns {GainNode} Connected to the output.
    */
   function env(t, a, d, peak) {
+    if (bus === ambIn) a = Math.max(a, 0.012);   // (no hard starts in a background sound)
     var g = ctx.createGain();
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(peak, t + a);
     g.gain.exponentialRampToValueAtTime(0.0001, t + a + d);
-    g.connect(master);
+    g.connect(bus);
     return g;
   }
   /**
@@ -93,7 +106,7 @@
     var f = ctx.createBiquadFilter();
     f.type = filterType; f.frequency.setValueAtTime(freq * pitch, t); f.Q.value = q || 1;
     src.connect(f); f.connect(out);
-    src.start(t, Math.random() * 0.5); src.stop(t + dur);
+    src.start(t, Math.random() * 0.5); src.stop(t + dur + tail);
     return f;
   }
   /**
@@ -112,7 +125,7 @@
     o.frequency.setValueAtTime(f0 * pitch, t);
     if (f1) o.frequency.exponentialRampToValueAtTime(f1 * pitch, t + dur);
     o.connect(out);
-    o.start(t); o.stop(t + dur + 0.02);
+    o.start(t); o.stop(t + dur + 0.02 + tail);
     return o;
   }
 
@@ -534,9 +547,9 @@
       // an owl outside: hoo… hoo-hoo, with a soft breathy edge
       [[0, 0.36], [0.62, 0.16], [0.84, 0.42]].forEach(function (h) {
         var tt = t + h[0];
-        tone(tt, h[1] + 0.1, 'sine', 560, 500, env(tt, 0.05, h[1], 0.4));
-        tone(tt, h[1] + 0.1, 'sine', 1120, 1000, env(tt, 0.05, h[1], 0.05));
-        noise(tt, h[1], 'bandpass', 560, 4, env(tt, 0.05, h[1] * 0.8, 0.12));
+        tone(tt, h[1] + 0.1, 'sine', 560, 500, env(tt, 0.05, h[1], 0.13));   // (it was many times louder than the other background sounds)
+        tone(tt, h[1] + 0.1, 'sine', 1120, 1000, env(tt, 0.05, h[1], 0.02));
+        noise(tt, h[1], 'bandpass', 560, 4, env(tt, 0.05, h[1] * 0.8, 0.05));
       });
     },
     tongue: function (t) {
@@ -607,15 +620,15 @@
       // a few gentle cricket trills: tiny high pulses in twos and threes
       var n = 2 + Math.floor(Math.random() * 3);
       for (var j = 0; j < n; j++) {
-        var tt = t + j * rnd(0.32, 0.45), hz = rnd(4300, 4700);
-        for (var i = 0; i < 4; i++) tone(tt + i * 0.03, 0.022, 'sine', hz, null, env(tt + i * 0.03, 0.003, 0.018, 0.035));
+        var tt = t + j * rnd(0.32, 0.45), hz = rnd(3800, 4200);
+        for (var i = 0; i < 4; i++) tone(tt + i * 0.035, 0.03, 'sine', hz, null, env(tt + i * 0.035, 0.008, 0.02, 0.04));
       }
     },
     // ---- background sounds (app-ambience.js): quiet, soft and a little different every time ----
     waves: function (t) {
       // a wave rolling in: a hush that swells, a fizz at the crest, and draws back out
       var dur = rnd(3.8, 4.8), g = ctx.createGain();
-      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.2, t + dur * 0.42); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); g.connect(master);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.2, t + dur * 0.42); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); g.connect(bus);
       var f = noise(t, dur, 'lowpass', 450, 0.7, g, true);
       f.frequency.exponentialRampToValueAtTime(1500 * pitch, t + dur * 0.42); f.frequency.exponentialRampToValueAtTime(380 * pitch, t + dur);
       noise(t + dur * 0.3, 1.6, 'highpass', 3600, 0.5, env(t + dur * 0.3, dur * 0.18, 1.4, 0.05), true);
@@ -646,15 +659,15 @@
       // a couple of small birds: bright two-note chirps in a short run
       var n = 2 + Math.floor(Math.random() * 3), at = t, base = rnd(2800, 3600);
       for (var i = 0; i < n; i++) {
-        tone(at, 0.06, 'sine', base, base * 1.35, env(at, 0.008, 0.05, 0.05));
-        tone(at + 0.08, 0.07, 'sine', base * 1.3, base * 0.95, env(at + 0.08, 0.008, 0.06, 0.04));
+        tone(at, 0.06, 'sine', base, base * 1.35, env(at, 0.012, 0.05, 0.08));
+        tone(at + 0.08, 0.07, 'sine', base * 1.3, base * 0.95, env(at + 0.08, 0.012, 0.06, 0.065));
         at += rnd(0.22, 0.4);
       }
     },
     breeze: function (t) {
       // a soft breeze through the grass
       var dur = rnd(2.8, 3.6), g = ctx.createGain();
-      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.07, t + dur * 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); g.connect(master);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.07, t + dur * 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); g.connect(bus);
       var f = noise(t, dur, 'bandpass', 500, 0.6, g, true);
       f.frequency.exponentialRampToValueAtTime(900 * pitch, t + dur * 0.5); f.frequency.exponentialRampToValueAtTime(450 * pitch, t + dur);
     },
@@ -662,23 +675,31 @@
       // far thunder: a long low rumble with a second roll
       var f = noise(t, 3, 'lowpass', 220, 0.8, env(t, 0.5, 2.4, 0.4), true); f.frequency.exponentialRampToValueAtTime(70 * pitch, t + 3);
       var f2 = noise(t + 1.1, 2, 'lowpass', 160, 0.8, env(t + 1.1, 0.3, 1.6, 0.22), true); f2.frequency.exponentialRampToValueAtTime(60 * pitch, t + 3);
+      // a soft rumble in the middle too: phone speakers play almost nothing under 300 Hz, so the low roll alone went missing
+      var f3 = noise(t, 3, 'bandpass', 420, 0.7, env(t, 0.6, 2.2, 0.07), true); f3.frequency.exponentialRampToValueAtTime(250 * pitch, t + 3);
     },
     wind: function (t) {
       // a cold wind: a long low whistle that rises and falls
       var dur = rnd(3.4, 4.4), g = ctx.createGain();
-      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.08, t + dur * 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); g.connect(master);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.08, t + dur * 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); g.connect(bus);
       var f = noise(t, dur, 'bandpass', 320, 2.2, g, true);
       f.frequency.exponentialRampToValueAtTime(720 * pitch, t + dur * 0.5); f.frequency.exponentialRampToValueAtTime(340 * pitch, t + dur);
     },
     cicadas: function (t) {
       // a hot day: a shimmering cicada buzz, swelling and fading
-      var dur = rnd(1.6, 2.4), g = env(t, dur * 0.5, dur * 0.5, 0.05);
-      for (var i = 0; i < dur * 40; i++) tone(t + i * 0.025, 0.02, 'square', 4700, null, g);
+      // (a sine pulsed by a slow wobble: the old run of hard square blips clicked and buzzed on phones)
+      var dur = rnd(1.6, 2.4), g = env(t, dur * 0.5, dur * 0.5, 0.07), am = ctx.createGain();
+      am.gain.value = 0.5; am.connect(g);
+      var lfo = ctx.createOscillator(), depth = ctx.createGain();
+      lfo.frequency.value = rnd(32, 40); depth.gain.value = 0.5;
+      lfo.connect(depth); depth.connect(am.gain);
+      lfo.start(t); lfo.stop(t + dur + 0.02 + tail);
+      tone(t, dur, 'sine', 4000, null, am);
     },
     cluck: function (t) {
       // a hen: buk buk buk-bukaaak
       [[0, 0.07], [0.16, 0.07], [0.34, 0.06], [0.45, 0.2]].forEach(function (c, i) {
-        tone(t + c[0], c[1] + 0.03, 'square', i === 3 ? 520 : 700, i === 3 ? 360 : 460, env(t + c[0], 0.008, c[1], 0.035));
+        tone(t + c[0], c[1] + 0.03, 'triangle', i === 3 ? 520 : 700, i === 3 ? 360 : 460, env(t + c[0], 0.012, c[1], 0.07));
       });
     },
     moo: function (t) {
@@ -690,12 +711,12 @@
     },
     sizzle: function (t) {
       // something frying in the kitchen: a crackly hiss
-      noise(t, 1.6, 'highpass', 5200, 0.6, env(t, 0.3, 1.3, 0.05), true);
-      for (var i = 0; i < 9; i++) { var at = t + rnd(0, 1.5); noise(at, 0.015, 'bandpass', rnd(3000, 7000), 4, env(at, 0.001, 0.012, rnd(0.04, 0.1))); }
+      noise(t, 1.6, 'highpass', 3800, 0.6, env(t, 0.3, 1.3, 0.06), true);
+      for (var i = 0; i < 9; i++) { var at = t + rnd(0, 1.5); noise(at, 0.03, 'bandpass', rnd(2500, 4500), 1.5, env(at, 0.004, 0.02, rnd(0.02, 0.05))); }
     },
     ticktock: function (t) {
       // a kitchen clock: tick… tock
-      [[0, 2300], [0.55, 1800]].forEach(function (c) { noise(t + c[0], 0.03, 'bandpass', c[1], 4, env(t + c[0], 0.001, 0.025, 0.18)); tone(t + c[0], 0.03, 'sine', c[1] / 2, null, env(t + c[0], 0.001, 0.025, 0.05)); });
+      [[0, 1500], [0.55, 1150]].forEach(function (c) { noise(t + c[0], 0.04, 'bandpass', c[1], 2.5, env(t + c[0], 0.003, 0.03, 0.09)); tone(t + c[0], 0.04, 'sine', c[1] / 2, null, env(t + c[0], 0.003, 0.03, 0.05)); });
     },
     yawn: function (t) {
       // a sleepy "hwaaah" sliding down, with breath
@@ -815,10 +836,14 @@
         master.gain.value = 0.8 * (typeof volume === 'number' ? Math.max(0, Math.min(1, volume)) : 1);
         if (ctx.state === 'suspended') ctx.resume().catch(function () {});
         var k = KINDS[kind] ? kind : 'chomp';
+        // a background sound while audio is still asleep (no tap yet, or back from the background) is skipped:
+        // queued on a stopped clock, they all burst out together at the next tap
+        if (AMBIENT[k] && ctx.state !== 'running') return;
+        if (AMBIENT[k]) { bus = ambIn; tail = 0.06; }
         // a slightly different pitch every time
         pitch = rnd(0.9, 1.12);
         variant(k)(ctx.currentTime + 0.01);
-      } catch (e) { /* no audio */ } finally { pitch = 1; }
+      } catch (e) { /* no audio */ } finally { pitch = 1; bus = master; tail = 0; }
     }
   };
 })(typeof self !== 'undefined' ? self : globalThis);
