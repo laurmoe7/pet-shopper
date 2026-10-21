@@ -82,7 +82,9 @@
       for (var i = 1; i <= 5; i++) {
         var t = i / 6, x = (1 - t) * (1 - t) * x0 + 2 * t * (1 - t) * cx + t * t * x1, y = (1 - t) * (1 - t) * y0 + 2 * t * (1 - t) * cy + t * t * y0;
         var c = cols[(k * 5 + i) % cols.length], ang = (t - 0.5) * 50;
-        glow += '<circle cx="' + x.toFixed(1) + '" cy="' + (y + 7).toFixed(1) + '" r="7.6" fill="' + c + '" opacity=".35"/>';
+        // (fl-glow and fl-halo brighten at night through styles.css; --i staggers the twinkle)
+        glow += '<circle class="fl-halo" style="--i:' + (k * 5 + i) + '" cx="' + x.toFixed(1) + '" cy="' + (y + 7).toFixed(1) + '" r="13" fill="' + c + '" opacity="0"/>' +
+          '<circle class="fl-glow" style="--i:' + (k * 5 + i) + '" cx="' + x.toFixed(1) + '" cy="' + (y + 7).toFixed(1) + '" r="7.6" fill="' + c + '" opacity=".35"/>';
         bulbs += '<g transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') rotate(' + ang.toFixed(0) + ') scale(1.45)">' +
           '<rect x="-1.8" y="-.4" width="3.6" height="2.6" rx=".6" fill="#8a6a52" stroke="#5b4239" stroke-width="1"/>' +
           '<path d="M-2.6 2.2 h5.2 c.6 3 0 6.4 -2.6 7 c-2.6 -.6 -3.2 -4 -2.6 -7 Z" fill="' + c + '" stroke="#5b4239" stroke-width="1.2" stroke-linejoin="round"/>' +

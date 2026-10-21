@@ -114,6 +114,23 @@ function bdFish(x, y, s, fill, dir) {
     '<circle cx="4" cy="-1.5" r="1.3" fill="#5b4239"/></g>';
 }
 /**
+ * @param {boolean} night
+ * @returns {string} Three to five fish in new spots, sizes, colours and directions each time the aquarium is drawn,
+ *   kept apart from each other, the jellyfish and the seaweed.
+ */
+function bdSchool(night) {
+  var cols = night ? ['#d98a6a', '#c9b46a', '#c98aa0', '#8fb0c9', '#a99ad0'] : ['#ffa27a', '#ffd86b', '#ffb3c7', '#a9dcff', '#c7b2ff'];
+  var taken = [[186, 38, 22], [56, 100, 22], [352, 104, 26], [66, 40, 16], [333, 32, 12]], out = '', n = 3 + Math.floor(Math.random() * 3);
+  for (var i = 0, tries = 0; i < n && tries < 200; tries++) {
+    var x = 40 + Math.random() * 320, y = 18 + Math.random() * 92, sz = 0.6 + Math.random() * 0.45;
+    if (taken.some(function (t) { return Math.hypot(t[0] - x, t[1] - y) < t[2] + 16 * sz + 6; })) continue;
+    taken.push([x, y, 16 * sz]);
+    out += bdFish(Math.round(x), Math.round(y), +sz.toFixed(2), cols[(i + Math.floor(Math.random() * cols.length)) % cols.length], Math.random() < 0.5 ? 1 : -1);
+    i++;
+  }
+  return out;
+}
+/**
  * @param {number} x
  * @param {number} y
  * @param {number} r
@@ -172,7 +189,6 @@ function bdMeadow(night) {
     '<path d="M-10 136Q90 108 200 128T410 122V170H-10z" fill="' + (night ? '#3f6a55' : '#93cf85') + '" ' + BD_LINE + '/>' +
     bdTufts([[120, 112], [300, 104], [44, 140], [330, 140], [262, 134]], night ? '#2f5747' : '#6fb565') +
     bdFlower(318, 128, night ? '#c9c4d6' : '#c7b2ff') + bdFlower(96, 136, night ? '#c98aa0' : '#ffd45e') +
-    (night ? '' : bdButterfly(126, 76, '#ffc1d4') + bdButterfly(292, 62, '#fff1a8')) +
     bdFlower(298, 146, night ? '#c98aa0' : '#ffb3c7') + bdFlower(352, 136, night ? '#c9c4d6' : '#fff') + bdFlower(250, 112, night ? '#c9c4d6' : '#fff') +
     (night ? bdGlows([[280, 116], [340, 104], [110, 112], [366, 132]]) : '');
 }
@@ -207,17 +223,9 @@ function bdKitchen(night) {
     // an empty shelf on the left
     '<path d="M42 64h88" stroke="#c99566" stroke-width="5" stroke-linecap="round"/>' +
     '<path d="M52 66l6 8M120 66l-6 8" stroke="#c99566" stroke-width="3" stroke-linecap="round"/>' +
-    // jars, a teapot and a mug on the shelf
-    '<g ' + BD_LINE + '><rect x="48" y="44" width="14" height="18" rx="4" fill="#fff8ee" fill-opacity=".85"/><rect x="47" y="40.5" width="16" height="5" rx="2" fill="#ffb3c6"/>' +
-    '<rect x="66" y="49" width="11" height="13" rx="3.5" fill="#fff8ee" fill-opacity=".85"/><rect x="65" y="46" width="13" height="4.4" rx="2" fill="#a8d8ef"/>' +
-    '<path d="M86 62q-4 -15 12 -15q16 0 12 15z" fill="#bfe8d4"/><path d="M110 51q7 -1 5 6l-3 2" fill="none"/><path d="M86 53l-6 -4" /><circle cx="98" cy="45" r="2.2" fill="#ffd45e"/>' +
-    '<path d="M117 52h9v8a2 2 0 0 1 -2 2h-5a2 2 0 0 1 -2 -2z" fill="#ffd9a8"/></g>' +
-    '<path d="M50.5 48v10M68.5 52v7" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".8"/>' +
-    '<g fill="#e9b07a" ' + BD_THIN + '><circle cx="52" cy="57" r="1.6"/><circle cx="56" cy="55" r="1.6"/><circle cx="58" cy="58.4" r="1.6"/></g>' +
-    '<path d="M93 54q5 3 10 0" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".8"/>' +
     // a little herb pot on the sill
-    '<path d="M330 77q-1 -9 -5 -12M332 77q1 -10 6 -12M331 77v-12" stroke="#6fb565" stroke-width="2" fill="none" stroke-linecap="round"/>' +
-    '<path d="M324 70h14l-2 8h-10z" fill="#e8a98a" ' + BD_THIN + '/>' +
+    '<path d="M293 77q-1 -9 -5 -12M295 77q1 -10 6 -12M294 77v-12" stroke="#6fb565" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+    '<path d="M287 70h14l-2 8h-10z" fill="#e8a98a" ' + BD_THIN + '/>' +
     // the counter top along the floor
     '<rect x="-10" y="128" width="420" height="40" fill="' + (night ? '#c7a07a' : '#e9bf8f') + '" ' + BD_LINE + '/>' +
     '<path d="M-10 136H410" stroke="#d6a574" stroke-width="2"/><path d="M60 140v28M170 140v28M280 140v28M380 140v28" stroke="#d6a574" stroke-width="1.6"/>' +
@@ -229,16 +237,9 @@ function bdKitchen(night) {
  */
 function bdStarry() {
   return bdSky('#2e2f63', '#5b5294') + bdMoon(86, 30, 17) +
-    bdStars([[150, 30, 6], [240, 22, 4], [300, 48, 7], [352, 22, 4], [48, 70, 4], [200, 62, 3], [372, 80, 3.5], [128, 62, 1.4], [270, 80, 1.2], [330, 100, 1.4], [34, 36, 1.2]]) +
-    // a shooting star
-    '<path d="M214 34L258 18" stroke="#fff3c4" stroke-width="2" stroke-linecap="round" opacity=".5"/>' + bdStar(260, 17, 4.4, '#fff3c4') +
+    bdStars([[170, 30, 5], [300, 44, 6], [248, 20, 1.4], [352, 22, 3], [130, 64, 1.3], [372, 78, 1.3]]) +
     '<path d="M-10 124Q70 98 150 116T300 108T410 116V170H-10z" fill="#3f4579" ' + BD_LINE + '/>' +
-    // a little house with a lit window on the far hill, and round trees
-    '<g ' + BD_LINE + '><path d="M318 110V96l11 -9l11 9v14z" fill="#5a5f97"/><path d="M314 98l15 -13l15 13" fill="none"/></g>' +
-    '<rect x="325" y="98" width="8" height="7" rx="1.4" fill="#ffe28a" ' + BD_THIN + '/><circle cx="329" cy="101.5" r="10" fill="#ffe28a" opacity=".18"/>' +
-    bdTree(60, 104, 0.8, true) + bdTree(362, 112, 0.6, true) +
-    '<path d="M-10 140Q100 120 210 136T410 132V170H-10z" fill="#4c5a8a" ' + BD_LINE + '/>' +
-    bdTufts([[92, 130], [300, 136], [356, 140]], '#3f4579') + bdGlows([[110, 118], [282, 122], [380, 128]]);
+    '<path d="M-10 140Q100 120 210 136T410 132V170H-10z" fill="#4c5a8a" ' + BD_LINE + '/>';
 }
 /**
  * @param {boolean} night
@@ -263,7 +264,7 @@ function bdFarm(night) {
     '<rect x="236" y="114" width="26" height="16" rx="4" fill="' + (night ? '#c9a95c' : '#f2d27a') + '" ' + BD_LINE + '/><path d="M242 117v10M249 117v10M256 117v10" stroke="#c9a14a" stroke-width="1.2"/>' +
     bdTree(150, 112, 0.75, night) + bdTree(214, 106, 0.55, night) +
     // a fence on the left, behind the receipt
-    fence + '<path d="M28 112H118M28 124H118" stroke="' + wood + '" stroke-width="4.5" stroke-linecap="round"/>' +
+    fence + '<rect x="27" y="109.6" width="92" height="5" rx="2.5" fill="' + wood + '" ' + BD_THIN + '/><rect x="27" y="121.6" width="92" height="5" rx="2.5" fill="' + wood + '" ' + BD_THIN + '/>' +
     '<path d="M-10 138Q100 128 200 136T410 134V170H-10z" fill="' + (night ? '#3f6a55' : '#93cf85') + '" ' + BD_LINE + '/>' +
     bdTufts([[160, 146], [252, 144], [338, 146]], night ? '#2f5747' : '#6fb565') +
     (night ? bdGlows([[118, 92], [236, 92], [370, 140]]) : bdFlower(214, 146, '#fff') + bdFlower(366, 148, '#ffb3c7') + bdButterfly(232, 78, '#ffc1d4'));
@@ -282,7 +283,7 @@ function bdAquarium(night) {
     '<path d="M342 140Q332 118 342 102Q352 86 344 70Q358 86 352 104Q346 122 356 140z" fill="' + weed2 + '" ' + BD_LINE + '/>' +
     '<path d="M362 140Q358 124 366 112Q372 102 368 92Q380 104 374 118Q370 130 376 140z" fill="' + weed + '" ' + BD_LINE + '/>' +
     // fish
-    bdFish(110, 40, 1, night ? '#d98a6a' : '#ffa27a', 1) + bdFish(300, 56, 0.8, night ? '#c9b46a' : '#ffd86b', -1) + bdFish(268, 28, 0.6, night ? '#c98aa0' : '#ffb3c7', -1) +
+    bdSchool(night) +
     // bubbles
     bdBubble(64, 54, 4) + bdBubble(70, 38, 3) + bdBubble(62, 26, 2.2) + bdBubble(330, 40, 3.5) + bdBubble(336, 24, 2.4) +
     // a jellyfish, glowing at night
@@ -292,10 +293,6 @@ function bdAquarium(night) {
     // sand, pebbles and a shell
     '<path d="M-10 136Q100 126 200 134T410 130V170H-10z" fill="' + (night ? '#b8a27e' : '#f3dfae') + '" ' + BD_LINE + '/>' +
     '<ellipse cx="300" cy="146" rx="7" ry="4.5" fill="' + (night ? '#8f8aa6' : '#c9c3dc') + '" ' + BD_THIN + '/><ellipse cx="312" cy="150" rx="5" ry="3.5" fill="' + (night ? '#a37f86' : '#f2b8c2') + '" ' + BD_THIN + '/>' +
-    // a little treasure chest, half sunk, with a glint
-    '<g ' + BD_LINE + '><rect x="244" y="128" width="26" height="13" rx="2" fill="' + (night ? '#8a6a52' : '#c98f5e') + '"/><path d="M244 129q13 -11 26 0z" fill="' + (night ? '#9a7a60' : '#dba06e') + '"/></g>' +
-    '<path d="M244 134h26M257 124v17" stroke="' + (night ? '#c9a95c' : '#ffd45e') + '" stroke-width="2"/><rect x="254.6" y="130.6" width="4.8" height="5" rx="1" fill="' + (night ? '#c9a95c' : '#ffd45e') + '" ' + BD_THIN + '/>' +
-    (night ? '' : bdStar(275, 124, 3.4, '#fff8c9')) +
     '<g fill="' + (night ? '#a08a68' : '#e3c88a') + '"><circle cx="230" cy="150" r="1"/><circle cx="262" cy="154" r="1"/><circle cx="284" cy="148" r="1"/><circle cx="340" cy="154" r="1"/><circle cx="388" cy="146" r="1"/></g>' +
     '<path d="M358 150q0-10 9-10q9 0 9 10z" fill="' + (night ? '#c9a0a8' : '#ffd1da') + '" ' + BD_THIN + '/><path d="M367 141v9M362 143l2 7M372 143l-2 7" stroke="#5b4239" stroke-width=".9"/>';
 }

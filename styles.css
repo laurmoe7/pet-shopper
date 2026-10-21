@@ -819,6 +819,11 @@ html:root[data-skin="quest"]:is([data-quest="osrs"], [data-quest="bonfire"]) .sk
 
 /* ---------- room decor, behind the pet ---------- */
 .room { position: absolute; inset: 0; z-index: 0; }
+/* the fairy lights (decor.js) glow brighter at night, each bulb twinkling a little out of step with the next */
+.stage:is(.night-lamp, .bedtime) .room .fl-glow { opacity: .8; }
+.stage:is(.night-lamp, .bedtime) .room .fl-halo { opacity: .3; animation: fl-twinkle 2.8s ease-in-out calc(var(--i, 0) * -.37s) infinite; }
+@keyframes fl-twinkle { 50% { opacity: .5; } }
+@media (prefers-reduced-motion: reduce) { .stage .room .fl-halo { animation: none; } }
 .decor { position: absolute; transform: translate(-50%, -50%); touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
 .decor svg { width: 100%; height: 100%; display: block; overflow: visible; pointer-events: none; }
 .decor.dragging { cursor: grabbing; filter: drop-shadow(0 4px 0 rgba(91, 66, 57, .25)); z-index: 1; }

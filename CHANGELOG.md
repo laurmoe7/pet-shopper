@@ -2,6 +2,15 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 753
+- Fairy lights glow brighter at night
+- Starry night: simpler, fewer stars
+- Kitchen shelf empty again, herb pot clear of the curtains
+- Aquarium fish swim in new spots each time
+- No butterflies in the meadow
+- Farm fence rails outlined
+- No treasure chest in the aquarium
+
 ## Build 752
 - New furniture: toy chest and fairy lights
 - Beanbag shade stays inside its outline
