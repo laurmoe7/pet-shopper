@@ -4,6 +4,10 @@ A grocery list with a little pet, Fumu, who eats each item as you check it off.
 
 This is the first playable prototype. It answers one question: do people smile when Fumu eats, and do they still smile on the fifth trip?
 
+## Set it up
+
+To get someone started (the app, their own backup, and joining a household): [Fumufumu setup guide](https://claude.ai/artifact/T8PJgq7aAENwdhPcmZZCGn).
+
 ## Try it
 
 It is a plain web app with no build step. Serve the folder over HTTP and open it:
