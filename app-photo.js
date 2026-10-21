@@ -108,7 +108,7 @@ function heart(ctx, x, y, r) {
   ctx.bezierCurveTo(x + r * 0.9, y - r * 1.5, x + r * 1.9, y - r * 0.4, x, y + r * 0.9);
   ctx.fill();
 }
-/** Makes the whole picture. @returns {Promise<Blob>} A PNG. */
+/** Makes the whole picture. @returns {Promise<Blob>} A JPEG (a camera picture as PNG was several MB, slow to save in the phone app). */
 function makePhoto() {
   var rect = shootEl.getBoundingClientRect(), k = Math.min(2, window.devicePixelRatio || 1);
   var W = Math.round(rect.width * k), H = Math.round(rect.height * k);
@@ -130,23 +130,25 @@ function makePhoto() {
     ctx.drawImage(res[1], -(pr.width / 2 + pad) * k, -(pr.height / 2 + pad) * k, (pr.width + 2 * pad) * k, (pr.height + 2 * pad) * k);
     ctx.restore();
     paintFrame(ctx, W, H, k);
-    return new Promise(function (resolve, reject) { cv.toBlob(function (b) { if (b) resolve(b); else reject(new Error('blob')); }, 'image/png'); });
+    return new Promise(function (resolve, reject) { cv.toBlob(function (b) { if (b) resolve(b); else reject(new Error('blob')); }, 'image/jpeg', 0.9); });
   });
 }
 
-var photoBlob = null, photoUrl = '';
+var photoBlob = null, photoUrl = '', photoData = null;
 /** Shows the finished picture with Share / Save / Retake. @param {Blob} blob */
 function showPhoto(blob) {
   if (photoUrl) URL.revokeObjectURL(photoUrl);
   photoBlob = blob; photoUrl = URL.createObjectURL(blob);
   $('photoImg').src = photoUrl;
-  var file = typeof File === 'function' ? new File([blob], photoName(), { type: 'image/png' }) : null;
+  photoData = phoneApp() ? photoBase64() : null;   // ready by the time Save or Share is tapped
+  photoData && photoData.catch(function () { /* tried again on Save */ });
+  var file = typeof File === 'function' ? new File([blob], photoName(), { type: 'image/jpeg' }) : null;
   $('photoShare').hidden = !(phonePlug('Share') || (file && navigator.canShare && navigator.canShare({ files: [file] })));
   $('photoResult').hidden = false;
 }
-/** @returns {string} A file name like nibble-2026-10-10.png (the pet's own name, safe for a file). */
-function photoName() { return (petName().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'pet') + '-' + new Date().toISOString().slice(0, 10) + '.png'; }
-function closePhoto() { $('photoResult').hidden = true; $('photoNote').hidden = true; }
+/** @returns {string} A file name like nibble-2026-10-10.jpg (the pet's own name, safe for a file). */
+function photoName() { return (petName().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'pet') + '-' + new Date().toISOString().slice(0, 10) + '.jpg'; }
+function closePhoto() { $('photoResult').hidden = true; $('photoNote').hidden = true; photoData = null; }
 
 $('shootSnap').addEventListener('click', function (e) {
   e.stopPropagation();
@@ -169,11 +171,21 @@ $('photoSave').addEventListener('click', function () {
   a.href = photoUrl; a.download = photoName();
   document.body.appendChild(a); a.click(); a.remove();
   sound('pick');
+  photoSaved();
 });
+$('photoClose').addEventListener('click', function () { sound('tap'); closePhoto(); });
+// a tap on the dark around the picture puts it away too
+$('photoResult').addEventListener('click', function (e) { if (e.target === e.currentTarget) closePhoto(); });
+/** After saving: the picture goes away and the photoshoot says it was kept, so the next one can be taken straight away. @param {string} [text] */
+function photoSaved(text) {
+  closePhoto();
+  camNote(text || 'Saved!');
+  clearTimeout(photoSaved.t); photoSaved.t = setTimeout(function () { camNote(''); }, 2500);
+}
 $('photoShare').addEventListener('click', function () {
   if (!photoBlob) return;
   if (phonePlug('Share')) { phoneSharePhoto(); return; }
-  var file = new File([photoBlob], photoName(), { type: 'image/png' });
+  var file = new File([photoBlob], photoName(), { type: 'image/jpeg' });
   navigator.share({ files: [file], title: petName() }).catch(function () { /* closed without sharing */ });
 });
 
@@ -201,16 +213,20 @@ function photoNote(text) {
 function phoneSavePhoto() {
   var fs = phonePlug('Filesystem');
   if (!fs) { photoNote('Update the app in Obtainium to save pictures.'); return; }
-  var name = photoName().replace(/\.png$/, '-' + Date.now().toString(36).slice(-4) + '.png');   // several pictures a day each keep their own file
-  photoBase64().then(function (data) {
+  var btn = $('photoSave');
+  if (btn.disabled) return;
+  btn.disabled = true; btn.textContent = T('Saving…');
+  var name = photoName().replace(/\.jpg$/, '-' + Date.now().toString(36).slice(-4) + '.jpg');   // several pictures a day each keep their own file
+  (photoData || photoBase64()).then(function (data) {
     return fs.writeFile({ path: 'Pictures/Fumufumu/' + name, data: data, directory: 'EXTERNAL_STORAGE', recursive: true });
-  }).then(function () { sound('pick'); photoNote('Saved in your pictures (Fumufumu folder).'); },
-    function () { photoNote(phonePlug('Share') ? 'I couldn’t save it here. Try Share instead.' : 'I couldn’t save it here.'); });
+  }).then(function () { sound('pick'); photoSaved('Saved in your pictures (Fumufumu folder).'); },
+    function () { photoNote(phonePlug('Share') ? 'I couldn’t save it here. Try Share instead.' : 'I couldn’t save it here.'); })
+    .then(function () { btn.disabled = false; btn.textContent = T('Save'); });
 }
 function phoneSharePhoto() {
   var fs = phonePlug('Filesystem');
   if (!fs) { photoNote('Update the app in Obtainium to share pictures.'); return; }
-  photoBase64().then(function (data) {
+  (photoData || photoBase64()).then(function (data) {
     return fs.writeFile({ path: photoName(), data: data, directory: 'CACHE' });
   }).then(function (r) {
     return phonePlug('Share').share({ title: petName(), files: [r.uri] });

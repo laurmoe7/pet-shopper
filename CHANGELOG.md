@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 746
+- Photos save faster (smaller JPEG files)
+- Photo goes away after saving
+- ✕ and tapping outside put the photo away
+
 ## Build 745
 - Camera works in the Windows app (needs the new installer)
 - Open settings button when the camera is off

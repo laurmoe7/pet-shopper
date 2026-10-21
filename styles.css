@@ -2935,6 +2935,8 @@ html[data-list="todo"] .recipe-btn { display: none; }
 .photo-actions { display: flex; gap: 10px; align-items: center; }
 .photo-btn { padding: 10px 22px; }
 .photo-btn[hidden] { display: none; }
+.photo-result { padding-top: calc(60px + env(safe-area-inset-top, 0px)); }
+.photo-x, .shoot.clean .photo-x { z-index: 1; opacity: 1; pointer-events: auto; translate: none; }
 
 /* the recipe helper is open: Fumu searches with the magnifying glass (app-recipe.js), sweeping it and his eyes about */
 #pet.searching:not([data-state="sleepy"], .tucked) .arm-r { transform: rotate(0deg); translate: -15px -16px; animation: search-sweep 2.6s ease-in-out infinite alternate; }
