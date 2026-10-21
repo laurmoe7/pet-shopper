@@ -61,10 +61,10 @@ also offers it). It works both ways, phone to PC and PC to phone, and only the o
 
 ## Releases need a click
 
-Only the Android APK (`android.yml`) runs in the GitHub environment `release`: with a required reviewer on it (GitHub: Settings,
-Environments, `release`, Required reviewers) every APK build waits for your approval on the Actions page. The Windows installers
-(`desktop.yml`, `desktop-stable.yml`) release by themselves since October 2026, as you chose; put `environment: release` back on their
-job to make them wait again.
+No build waits for approval any more: the Windows installers (`desktop.yml`, `desktop-stable.yml`) release by themselves since
+October 2026, and the Android APK (`android.yml`, built only when you ask) too, as you chose. To make one wait again, put
+`environment: release` back on its job, with a required reviewer on that environment (GitHub: Settings, Environments, `release`,
+Required reviewers).
 
 The installer is not signed yet: Windows shows "protected your PC" on install, and updates are checked only against the release's
 own listing, not against a signature. To sign: a code-signing certificate (an OV certificate from a certificate seller, a few hundred

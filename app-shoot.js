@@ -94,8 +94,13 @@ function applyCamPos() {
   shootPet.style.setProperty('--shoot-s', String(camPos.s));
   shootPet.style.setProperty('--shoot-r', camPos.r + 'deg');
 }
-/** Says something under the picker, or nothing. @param {string} text */
-function camNote(text) { $('shootCamNote').textContent = text; $('shootCamNote').hidden = !text; }
+/** Says something under the picker, or nothing; with fix, an Open settings button after it. @param {string} text @param {Function} [fix] */
+function camNote(text, fix) {
+  $('shootCamNote').textContent = text; $('shootCamNote').hidden = !text;
+  camFix = text && fix || null;
+  $('shootCamFix').hidden = !camFix;
+}
+var camFix = null, camRetry = false;
 /** Turns the camera off and shows the normal background again. */
 function stopCamera() {
   if (camStream) camStream.getTracks().forEach(function (t) { t.stop(); });
@@ -107,13 +112,27 @@ function stopCamera() {
   $('shootFlip').hidden = true;
   camNote('');
 }
-/** @returns {string} Why the camera did not start, said for where the app runs (the phone app, the Windows app or a browser). @param {Error} err */
+/**
+ * Says why the camera did not start, for where the app runs. In the phone app and the Windows app an Open settings button
+ * goes straight to the right settings page (the APK's NativeSettings plugin, the shell's camSettings), and the camera is
+ * tried again when you come back. An APK or installer from before the camera was allowed is told to update instead.
+ * @param {Error} err
+ */
 function camRefused(err) {
-  if (err && (err.name === 'NotFoundError' || err.name === 'OverconstrainedError')) return 'This phone or browser has no camera for Fumu to use.';
-  var C = window.Capacitor;
-  if (C && C.isNativePlatform && C.isNativePlatform()) return 'The camera is off. Allow it for Fumufumu in the phone\u2019s settings (Apps > Fumufumu > Permissions), then try again.';
-  if (window.nibbleDesktop) return 'The Windows app can\u2019t use the camera.';
-  return 'The camera is off. Allow it in the browser\u2019s settings for this page to try again.';
+  if (err && (err.name === 'NotFoundError' || err.name === 'OverconstrainedError')) { camNote('This phone or browser has no camera for Fumu to use.'); return; }
+  var C = window.Capacitor, D = window.nibbleDesktop;
+  if (C && C.isNativePlatform && C.isNativePlatform()) {
+    var ns = C.Plugins && C.Plugins.NativeSettings;
+    if (!ns) { camNote('Update the app in Obtainium to use the camera.'); return; }
+    camNote('The camera is off. Allow it for Fumufumu in the phone\u2019s settings.', function () { camRetry = true; ns.openAndroid({ option: 'application_details' }).catch(function () { camRetry = false; }); });
+    return;
+  }
+  if (D) {
+    if (!D.camSettings) { camNote('Update the Windows app to use the camera.'); return; }
+    camNote('Windows is keeping the camera off. Allow it for desktop apps in Windows\u2019 settings.', function () { camRetry = true; D.camSettings(); });
+    return;
+  }
+  camNote('The camera is off. Allow it in the browser\u2019s settings for this page to try again.');
 }
 /** Turns the camera on behind the pet (asks the phone for permission the first time). */
 function startCamera() {
@@ -133,10 +152,14 @@ function startCamera() {
     camNote('');
   }).catch(function (err) {
     stopCamera();
-    camNote(camRefused(err));
+    camRefused(err);
   });
 }
 $('shootCamBtn').addEventListener('click', function () { sound('tap'); if (camStream) stopCamera(); else startCamera(); });
+$('shootCamFix').addEventListener('click', function () { sound('tap'); if (camFix) camFix(); });
+// back from the settings: try the camera again
+document.addEventListener('visibilitychange', function () { if (!document.hidden && camRetry) { camRetry = false; if (!shootEl.hidden && !camStream) startCamera(); } });
+window.addEventListener('focus', function () { if (camRetry && window.nibbleDesktop) { camRetry = false; if (!shootEl.hidden && !camStream) startCamera(); } });
 $('shootFlip').addEventListener('click', function () { sound('tap'); camFacing = camFacing === 'environment' ? 'user' : 'environment'; startCamera(); });
 // drag to move, two fingers to resize and turn, double-tap to put him back in the middle
 var camPointers = {}, camPinch = 0, camAngle = 0, camMoved = false, camLastTap = 0;

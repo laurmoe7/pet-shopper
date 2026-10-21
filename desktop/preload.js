@@ -24,6 +24,8 @@ contextBridge.exposeInMainWorld('nibbleDesktop', {
   menu: () => ipcRenderer.send('desk:menu'),
   /** Opens a web link in the browser (only http and https are passed on by the shell). */
   open: (url) => ipcRenderer.send('desk:open', String(url).slice(0, 4100)),
+  /** Opens Windows' camera privacy settings (when Windows keeps the camera from desktop apps). */
+  camSettings: () => ipcRenderer.send('desk:camSettings'),
   /** Puts text on the clipboard. */
   copy: (text) => ipcRenderer.send('desk:copy', String(text).slice(0, 20000)),
   hide: () => ipcRenderer.send('desk:hide'),

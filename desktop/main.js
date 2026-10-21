@@ -930,6 +930,7 @@ function start() {
     const n = typeof name === 'string' && name.trim() ? name.trim().slice(0, 16) : 'Fumu';
     if (n !== prefs.petName) { prefs.petName = n; savePrefs(); refreshMenus(); panel.push(); }
   });
+  ipcMain.on('desk:camSettings', () => shell.openExternal('ms-settings:privacy-webcam'));   // Windows' own camera privacy page (the photoshoot's Open settings)
   ipcMain.on('desk:open', (_e, url) => { if (typeof url === 'string' && /^https?:\/\/[^\s]+$/i.test(url)) shell.openExternal(url); });
   ipcMain.on('desk:copy', (_e, text) => { if (typeof text === 'string') clipboard.writeText(text.slice(0, 20000)); });
 
@@ -1067,10 +1068,15 @@ function start() {
 
   app.whenReady().then(() => {
     app.setAppUserModelId('com.laurmoe.nibble');
-    // the page may only use the clipboard for writing; no camera, microphone, location, notifications. Both handlers: Electron grants
-    // permission *checks* (which is how navigator.clipboard.readText asks) when no check handler is set, so the request handler alone was not enough
-    session.defaultSession.setPermissionRequestHandler((_wc, permission, cb) => cb(permission === 'clipboard-sanitized-write'));
-    session.defaultSession.setPermissionCheckHandler((_wc, permission) => permission === 'clipboard-sanitized-write');
+    // the page may only write to the clipboard and use the camera (the photoshoot; video only, never the microphone, and only the
+    // app's own page); no location, notifications. Both handlers: Electron grants permission *checks* (which is how
+    // navigator.clipboard.readText asks) when no check handler is set, so the request handler alone was not enough
+    const ours = (url) => { try { return new URL(url).origin === new URL(APP_URL).origin; } catch (e) { return false; } };
+    const camOnly = (types) => Array.isArray(types) && types.length > 0 && types.every((t) => t === 'video');
+    session.defaultSession.setPermissionRequestHandler((_wc, permission, cb, details) => cb(permission === 'clipboard-sanitized-write'
+      || (permission === 'media' && camOnly(details && details.mediaTypes) && ours(details.requestingUrl))));
+    session.defaultSession.setPermissionCheckHandler((_wc, permission, origin, details) => permission === 'clipboard-sanitized-write'
+      || (permission === 'media' && (details && details.mediaType) === 'video' && ours(origin)));
     createWindow();
     watchCursor();
     setupKeys();

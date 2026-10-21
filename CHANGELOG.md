@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 745
+- Camera works in the Windows app (needs the new installer)
+- Open settings button when the camera is off
+- Android app builds without an approval step
+
 ## Build 744
 - Photos save and share in the Android app (needs the new APK)
 - Camera allowed in the Android app (needs the new APK)

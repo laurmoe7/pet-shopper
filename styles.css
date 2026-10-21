@@ -2859,6 +2859,8 @@ html:root .cal-month select { flex: none; }
 .shoot-camnote { margin: 0; text-align: center; font-size: .8rem; font-weight: 800; color: var(--ink); text-shadow: 0 1px 0 rgba(255, 255, 255, .7); }
 .shoot.cam .shoot-camnote { background: rgba(255, 253, 248, .85); border-radius: 999px; padding: 4px 12px; align-self: center; text-shadow: none; }
 .shoot.clean .shoot-camnote { display: none; }
+.shoot-camfix { align-self: center; }
+.shoot-camfix[hidden], .shoot.clean .shoot-camfix { display: none; }
 @media (prefers-reduced-motion: reduce) { .shoot-sparkles span { animation: none; opacity: .6; } .shoot-flash.pop { animation: none; } }
 
 /* the open drop-down list (app-select.js): round, soft and in the app's colours */

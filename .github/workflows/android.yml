@@ -13,8 +13,7 @@ permissions:
 jobs:
   apk:
     runs-on: ubuntu-latest
-    # the APK waits for Lauren's approval when the "release" environment has her as a required reviewer (desktop/README.md, "Releases need a click")
-    environment: release
+    # no approval step: Lauren chose (October 2026) that the APK, built only when she asks, releases by itself like the Windows installers
     defaults:
       run:
         working-directory: android
