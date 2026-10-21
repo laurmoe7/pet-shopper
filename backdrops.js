@@ -380,21 +380,46 @@ function bdPetals(list, fill) {
 }
 
 /**
+ * @param {number} x Trunk foot.
+ * @param {number} y
+ * @param {number} s Size (1 is about 110 tall); lines keep their width at any size.
+ * @param {boolean} night
+ * @returns {string} A cherry tree in bloom: a curvy trunk forking into a puffy crown with deeper pink underneath, a light top,
+ *   blossoms dotted over it and a ring of fallen petals round its foot.
+ */
+function bdCherry(x, y, s, night) {
+  var bloom = night ? '#c98aa8' : '#ffc4d6', deep = night ? '#b77796' : '#ffb2c8', light = night ? '#d9a0b8' : '#ffdbe6', bark = night ? '#7d5f4a' : '#a9785a', flower = night ? '#e3b5c8' : '#fff4f7';
+  function P(px, py) { return (x + px * s).toFixed(1) + ' ' + (y + py * s).toFixed(1); }
+  function C(list) { return list.map(function (c) { return [+(x + c[0] * s).toFixed(1), +(y + c[1] * s).toFixed(1), +(c[2] * s).toFixed(1)]; }); }
+  function dots(list, fill) { return C(list).map(function (c) { return '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="' + c[2] + '" fill="' + fill + '"/>'; }).join(''); }
+  var ring = '<ellipse cx="' + x + '" cy="' + (y + 1) + '" rx="' + (22 * s).toFixed(1) + '" ry="' + (3.4 * s + 1).toFixed(1) + '" fill="' + bloom + '" opacity=".55"/>';
+  var trunk = '<path d="M' + P(-9, 0) + 'Q' + P(-4, -2) + ' ' + P(-5, -12) + 'Q' + P(-4, -30) + ' ' + P(-11, -42) + 'L' + P(-20, -54) + 'L' + P(-14, -57) + 'L' + P(-4, -46) +
+    'Q' + P(0, -42) + ' ' + P(3, -47) + 'L' + P(13, -60) + 'L' + P(18, -56) + 'L' + P(7, -42) + 'Q' + P(4, -28) + ' ' + P(6, -12) + 'Q' + P(6, -2) + ' ' + P(11, 0) + 'z" fill="' + bark + '" ' + BD_LINE + '/>' +
+    '<path d="M' + P(-1, -8) + 'q' + (1.4 * s) + ' ' + (-6 * s) + ' 0 ' + (-12 * s) + 'M' + P(2, -26) + 'q' + (-1.2 * s) + ' ' + (-4 * s) + ' ' + (0.6 * s) + ' ' + (-8 * s) + '" stroke="#5b4239" stroke-width="1" fill="none" stroke-linecap="round" opacity=".45"/>';
+  var crown = bdPuff(C([[-34, -70, 17], [-12, -88, 20], [14, -84, 19], [26, -64, 12], [0, -62, 16], [-24, -54, 11], [20, -50, 10], [-6, -72, 16], [10, -68, 14], [-18, -68, 13], [18, -60, 9], [-36, -56, 7], [6, -50, 9]]), bloom);
+  var shade = dots([[-32, -59, 7], [-22, -55, 8], [-10, -54, 9], [2, -54, 9], [13, -54, 8], [22, -59, 6]], deep);
+  var shine = night ? '' : dots([[-14, -94, 7], [-8, -96, 5]], light) +
+    '<path d="M' + P(-22, -94) + 'a' + (12 * s).toFixed(1) + ' ' + (12 * s).toFixed(1) + ' 0 0 1 ' + (8 * s).toFixed(1) + ' ' + (-6 * s).toFixed(1) + '" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>';
+  var flowers = '';
+  if (s > 0.6) {
+    C([[-22, -80, 5], [12, -96, 4.4], [24, -70, 4], [-6, -66, 3.8], [-38, -66, 3.6], [4, -80, 3.2], [-12, -98, 3], [16, -58, 3.2], [-26, -58, 3]]).forEach(function (f) { flowers += bdBlossom(f[0], f[1], f[2], flower); });
+  } else {
+    C([[-16, -84, 6], [10, -80, 5.4], [-2, -66, 5]]).forEach(function (f) { flowers += bdBlossom(f[0], f[1], f[2], flower); });
+  }
+  return ring + trunk + crown + shade + shine + flowers;
+}
+
+/**
  * @param {boolean} night
  * @returns {string} A cherry tree in full bloom on a soft spring hill, petals drifting; paper lanterns glow in its branches at night.
  */
 function bdSakura(night) {
-  var bloom = night ? '#c98aa8' : '#ffc4d6', bloom2 = night ? '#b77796' : '#ffadc6', bark = night ? '#7d5f4a' : '#a9785a', petal = night ? '#d9a0b8' : '#ffc4d6';
-  var tree = '<path d="M326 134Q330 112 324 96Q318 84 306 78L310 74Q322 80 330 90Q334 80 346 72L350 76Q338 88 338 100Q338 116 342 134z" fill="' + bark + '" ' + BD_LINE + '/>' +
-    bdPuff([[300, 64, 17], [322, 46, 20], [348, 50, 19], [360, 70, 12], [334, 72, 16], [310, 80, 11], [354, 84, 10], [328, 62, 16], [344, 66, 14], [316, 66, 13], [352, 74, 9]], bloom) +
-    '<path d="M300 76q8 6 18 4M338 84q10 2 18 -4" stroke="' + bloom2 + '" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
-    (night ? '' : '<path d="M310 40a16 16 0 0 1 10 -8" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".8"/>') +
-    bdBlossom(312, 52, 5, night ? '#e3b5c8' : '#fff0f5') + bdBlossom(344, 40, 4.4, night ? '#e3b5c8' : '#fff0f5') + bdBlossom(356, 66, 4, night ? '#e3b5c8' : '#fff0f5') + bdBlossom(324, 70, 3.6, night ? '#e3b5c8' : '#fff0f5');
-  var small = '<path d="M62 112Q64 102 60 94H66Q68 104 68 112z" fill="' + bark + '" ' + BD_LINE + '/>' + bdPuff([[54, 88, 9], [64, 82, 10], [74, 90, 8]], bloom);
+  var petal = night ? '#d9a0b8' : '#ffc4d6';
+  var tree = bdCherry(334, 134, 1, night), small = bdCherry(62, 112, 0.42, night);
   var lanterns = '';
   if (night) {
-    lanterns = '<path d="M296 82Q318 96 344 88" stroke="#5b4239" stroke-width="1.1" fill="none"/>';
-    [[304, 88, '#ffb37a'], [322, 92, '#ff9fb5'], [338, 90, '#ffe28a']].forEach(function (l) {
+    lanterns = '<path d="M300 84Q320 98 348 86" stroke="#5b4239" stroke-width="1.1" fill="none"/>';
+    [[306, 90, '#ffb37a'], [322, 94, '#ff9fb5'], [340, 91, '#ffe28a']].forEach(function (l) {
       lanterns += '<circle cx="' + l[0] + '" cy="' + (l[1] + 6) + '" r="10" fill="' + l[2] + '" opacity=".28"/>' +
         '<path d="M' + l[0] + ' ' + l[1] + 'v2" stroke="#5b4239" stroke-width="1.1"/>' +
         '<rect x="' + (l[0] - 4.4) + '" y="' + (l[1] + 2) + '" width="8.8" height="9" rx="3.4" fill="' + l[2] + '" ' + BD_THIN + '/>' +
@@ -446,16 +471,30 @@ function bdFlakes(list, night) {
  */
 function bdSnow(night) {
   var snow = night ? '#c9d3e6' : '#f6fafd', snow2 = night ? '#b3bfd8' : '#e6f0f8', shade = night ? '#a3b0cc' : '#d3e3f0';
-  var man = '<g ' + BD_LINE + '><circle cx="336" cy="120" r="15" fill="' + snow + '"/><circle cx="336" cy="96" r="11" fill="' + snow + '"/></g>' +
-    '<path d="M324 126q12 8 24 0" stroke="' + shade + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
-    '<path d="M322 116L308 106M350 116L364 106M311 108l-4 -1M361 108l4 -1" stroke="#8a5a3a" stroke-width="2" stroke-linecap="round"/>' +
-    '<path d="M325 103q11 6 22 0v5q-11 6 -22 0z" fill="#ff9fb5" ' + BD_THIN + '/><path d="M341 106l4 12h-6l-1 -11z" fill="#ff9fb5" ' + BD_THIN + '/>' +
-    '<path d="M342.4 110.6h3.4M343.4 114.4h3.4" stroke="#fff" stroke-width="1.1" stroke-linecap="round"/>' +
-    '<circle cx="332" cy="94" r="1.4" fill="#5b4239"/><circle cx="340" cy="94" r="1.4" fill="#5b4239"/>' +
-    '<path d="M336 97l5 1.6l-5 1.2z" fill="#ffa24d" ' + BD_THIN + '/>' +
-    '<ellipse cx="329" cy="98.4" rx="2" ry="1.2" fill="#ff9fb8" opacity=".75"/><ellipse cx="343" cy="98.4" rx="2" ry="1.2" fill="#ff9fb8" opacity=".75"/>' +
-    '<circle cx="336" cy="116" r="1.5" fill="#5b4239"/><circle cx="336" cy="123" r="1.5" fill="#5b4239"/>' +
-    '<path d="M326 86q10 -12 20 0z" fill="#a9cbe6" ' + BD_THIN + '/><circle cx="336" cy="76.6" r="3" fill="#fff" ' + BD_THIN + '/>';
+  var hat = night ? '#8fa9c9' : '#a9cbe6', brim = night ? '#b3c6dd' : '#d3e5f3', scarf = night ? '#d98aa0' : '#ff9fb5', stick = night ? '#7d5f4a' : '#a9785a';
+  // the snowman: a shaded snowball body and head (a blue crescent low on the right of each), a knit beanie with a pompom,
+  // a wrapped scarf with a fringed tail, mittens on twig arms, a carrot nose and a little :3 smile, standing in a drift
+  var man = '<defs><clipPath id="bdSnowman"><circle cx="336" cy="120" r="15"/><circle cx="336" cy="96" r="11"/></clipPath></defs>' +
+    '<path d="M323 113L309 104M349 113L363 104" stroke="#5b4239" stroke-width="3.8" stroke-linecap="round"/><path d="M323 113L309 104M349 113L363 104" stroke="' + stick + '" stroke-width="1.9" stroke-linecap="round"/>' +
+    '<g fill="' + scarf + '" ' + BD_THIN + '><circle cx="308" cy="103" r="2.8"/><circle cx="364" cy="103" r="2.8"/></g>' +
+    '<g clip-path="url(#bdSnowman)"><rect x="318" y="82" width="36" height="56" fill="' + shade + '"/>' +
+    '<circle cx="333" cy="116.6" r="15" fill="' + snow + '"/><circle cx="334" cy="93.6" r="11" fill="' + snow + '"/></g>' +
+    '<g fill="none" ' + BD_LINE + '><circle cx="336" cy="120" r="15"/><circle cx="336" cy="96" r="11"/></g>' +
+    '<g fill="#5b4239"><circle cx="336" cy="115" r="1.7"/><circle cx="336" cy="122" r="1.7"/></g><g fill="#fff"><circle cx="335.4" cy="114.4" r=".5"/><circle cx="335.4" cy="121.4" r=".5"/></g>' +
+    '<path d="M312 137Q316 131 324 132Q330 129.6 336 130.6Q343 129.4 348 131.8Q356 131 360 137z" fill="' + snow + '" ' + BD_LINE + '/>' +
+    '<path d="M323.8 101.4Q336 107.4 348.2 101.4L348.8 107.6Q336 114 323.2 107.6z" fill="' + scarf + '" ' + BD_THIN + '/>' +
+    '<path d="M330 104.4v5M342 104.4v5" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".7"/>' +
+    '<path d="M340.6 109.4L344.2 121.6L339.4 122.4L337.4 110.4z" fill="' + scarf + '" ' + BD_THIN + '/>' +
+    '<path d="M340 122.4v2.2M342 122v2.2M344 121.6v2.2" stroke="#5b4239" stroke-width="1" stroke-linecap="round"/>' +
+    '<g fill="#5b4239"><ellipse cx="331.6" cy="94" rx="1.5" ry="1.8"/><ellipse cx="340.4" cy="94" rx="1.5" ry="1.8"/></g><g fill="#fff"><circle cx="331.1" cy="93.3" r=".55"/><circle cx="339.9" cy="93.3" r=".55"/></g>' +
+    '<ellipse cx="328.2" cy="98.4" rx="2.1" ry="1.3" fill="#ff9fb8" opacity=".75"/><ellipse cx="343.8" cy="98.4" rx="2.1" ry="1.3" fill="#ff9fb8" opacity=".75"/>' +
+    '<path d="M336 96.8L343.4 98.8L336 100.2z" fill="#ffa24d" ' + BD_THIN + '/><path d="M338.6 97.8v1.8M340.8 98.4v1" stroke="#e07f2e" stroke-width=".7" stroke-linecap="round"/>' +
+    '<path d="M333.4 101.8q1.3 1.1 2.6 0q1.3 1.1 2.6 0" stroke="#5b4239" stroke-width="1" fill="none" stroke-linecap="round"/>' +
+    '<path d="M326 89Q325.6 76.6 336 76.6Q346.4 76.6 346 89z" fill="' + hat + '" ' + BD_LINE + '/>' +
+    '<path d="M327.6 82.6Q336 79.4 344.4 82.6" stroke="' + scarf + '" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+    '<rect x="324.6" y="86" width="22.8" height="5" rx="2.5" fill="' + brim + '" ' + BD_THIN + '/>' +
+    '<path d="M328.4 87.2v2.6M331.8 87.2v2.6M335.2 87.2v2.6M338.6 87.2v2.6M342 87.2v2.6" stroke="' + hat + '" stroke-width="1" stroke-linecap="round"/>' +
+    '<circle cx="336" cy="74.6" r="3.6" fill="#fff" ' + BD_THIN + '/>';
   return (night ? bdSky('#2b3563', '#56608f') : bdSky('#bfe0f2', '#eef6fa')) +
     (night ? bdMoon(80, 30, 14) + bdStars([[170, 24, 4], [250, 36, 3], [130, 50, 1.2], [300, 22, 1.3]]) : bdCloud(96, 40, 0.8, '#fbfdff') + bdCloud(222, 30, 0.6, '#fbfdff')) +
     '<path d="M-10 114Q70 92 160 106T300 98T410 104V170H-10z" fill="' + snow2 + '" ' + BD_LINE + '/>' +
