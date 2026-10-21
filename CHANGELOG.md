@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 741
+- Android app: card when a new APK is out (update in Obtainium)
+
 ## Build 740
 - Android app: update card removed (Obtainium instead)
 - Options shows the Android app's number

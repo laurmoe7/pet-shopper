@@ -9,10 +9,12 @@ Build: Actions > "Build the Android app" > Run workflow. Every APK is signed wit
 "install unknown apps" for the browser once, and install. Debug-signed, for testing only.
 
 Updates: with **Obtainium** (a free Android app that watches GitHub releases; Lauren's choice, build 740, over an in-app card
-that opened the download in Chrome). Set up once on the phone: add the source `https://github.com/laurmoe7/pet-shopper`,
-turn on **Include prereleases**, set **Filter release titles by regular expression** to `^Android ` (the Windows releases in
+that opened the download in Chrome), with its background checks off: Fumufumu tells her instead, only while it is open (build
+741, `app-apk.js`: at most every 6 hours it asks GitHub for the `android-N` tags and shows "App update android-N · Update it in
+Obtainium", no install button). Set up once on the phone: add the source `https://github.com/laurmoe7/pet-shopper`,
+turn on **Include prereleases** and **Fallback to older releases**, set **Filter release titles by regular expression** to `^Android ` (the Windows releases in
 the same repository have no APK, and the newest release is often one of them) and **Filter APKs by regular expression** to
-`Fumufumu\.apk`. From android-6 on, `android.yml` stamps each APK with its run number (Android's versionCode, and the
+`Fumufumu\.apk` (not the release notes filter, the field above it). From android-6 on, `android.yml` stamps each APK with its run number (Android's versionCode, and the
 versionName `android-N`, which Obtainium matches to the release's tag) and adds `FumuAPK/N` to the browser's name, so
 Options shows "app android-N" (`app-apk.js`). The APKs before that say version 1.0: install android-6 through Obtainium once.
 If the repository goes private, give Obtainium a GitHub token.

@@ -462,3 +462,6 @@ Object.assign(Dutch, {
   'Checking…': 'Zoeken…', 'Up to date': 'Helemaal bij', 'Could not check': 'Zoeken lukte niet', 'Update to {name}': 'Bijwerken naar {name}'
 });
 
+
+// the Android app's update card (app-apk.js, build 741)
+Object.assign(Dutch, { 'App update {name}': 'App-update {name}', 'Update it in Obtainium.': 'Werk hem bij in Obtainium.' });
