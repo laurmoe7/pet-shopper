@@ -2927,6 +2927,8 @@ html[data-list="todo"] .recipe-btn { display: none; }
 /* the finished photo (app-photo.js) */
 .photo-result { position: absolute; inset: 0; z-index: 6; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); background: rgba(60, 40, 34, .78); }
 .photo-result[hidden] { display: none; }
+.photo-note { margin: 0; text-align: center; font-size: .8rem; font-weight: 800; color: #3a2a24; background: rgba(255, 253, 248, .9); border-radius: 999px; padding: 4px 12px; }
+.photo-note[hidden] { display: none; }
 .photo-result img { max-width: 100%; max-height: calc(100% - 90px); object-fit: contain; border-radius: 14px; box-shadow: 0 6px 20px rgba(0, 0, 0, .35); background: #fff; }
 .photo-actions { display: flex; gap: 10px; align-items: center; }
 .photo-btn { padding: 10px 22px; }

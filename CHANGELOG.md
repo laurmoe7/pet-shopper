@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 744
+- Photos save and share in the Android app (needs the new APK)
+- Camera allowed in the Android app (needs the new APK)
+- Camera message names the phone's settings in the app
+
 ## Build 743
 - Fix: a list from an old household can't reach a new one
 - Fix: someone else's late tick doesn't keep Fumu up

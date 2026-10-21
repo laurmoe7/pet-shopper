@@ -358,6 +358,10 @@ Object.assign(Dutch, {
   'Saved "{x}"!': '"{x}" bewaard!', 'Wearing "{x}".': 'Draagt "{x}".', 'I\'m {name}!': 'ik ben {name}!', 'cute pajamas?': 'schattige pyjama?', 'kawaii?': 'kawaii?', 'mm… fancy…': 'mm… chique…', 'pretty… and sleepy': 'mooi… en slaperig', 'pretty… zzz': 'mooi… zzz',
   'so fancy!': 'zo chic!', 'so fancy… *yawn*': 'zo chic… *gaap*', 'ta-da… *yawn*': 'ta-da… *gaap*', 'Cream studio': 'Crème studio', 'Lilac studio': 'Lila studio', 'Mint studio': 'Munt studio',
   'The camera is off. Allow it in the browser’s settings for this page to try again.': 'De camera staat uit. Sta hem toe in de browserinstellingen voor deze pagina om het opnieuw te proberen.', 'This phone or browser has no camera for Fumu to use.': 'Deze telefoon of browser heeft geen camera die Fumu kan gebruiken.',
+  'The camera is off. Allow it for Fumufumu in the phone’s settings (Apps > Fumufumu > Permissions), then try again.': 'De camera staat uit. Sta hem toe voor Fumufumu in de instellingen van je telefoon (Apps > Fumufumu > Machtigingen) en probeer het opnieuw.',
+  'The Windows app can’t use the camera.': 'De Windows-app kan de camera niet gebruiken.', 'Saved in your pictures (Fumufumu folder).': 'Bewaard bij je foto’s (map Fumufumu).',
+  'I couldn’t save it here. Try Share instead.': 'Ik kon hem hier niet bewaren. Probeer Delen.', 'I couldn’t save it here.': 'Ik kon hem hier niet bewaren.',
+  'Update the app in Obtainium to save pictures.': 'Werk de app bij in Obtainium om foto’s te bewaren.', 'Update the app in Obtainium to share pictures.': 'Werk de app bij in Obtainium om foto’s te delen.',
   'Waking the camera…': 'De camera wakker maken…', 'I couldn’t make the picture on this phone. A screenshot still works.': 'Ik kon de foto op deze telefoon niet maken. Een schermafbeelding werkt nog wel.',
   // adding, tidying, eating
   'all done ♡': 'allemaal klaar ♡', 'all tidy!': 'helemaal netjes!', 'bedtime…': 'bedtijd…', 'bye bye~': 'dag dag~', 'changed your mind?': 'bedacht je je?', 'fresh start!': 'nieuwe start!', 'let\'s do it!': 'laten we het doen!', 'nothing left to do!': 'niets meer te doen!',

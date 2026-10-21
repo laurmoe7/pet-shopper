@@ -29,10 +29,10 @@ jobs:
           java-version: 17
       - run: npm install --no-audit --no-fund
       - run: npx cap add android
-      - name: Permissions (microphone, location, alerts on time)
+      - name: Permissions (microphone, camera, location, alerts on time, saving pictures on Android 9 and older)
         run: |
           M=android/app/src/main/AndroidManifest.xml
-          sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#&\n    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />#' $M
+          sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#&\n    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />\n    <uses-permission android:name="android.permission.CAMERA" />\n    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />#' $M
           grep -n "uses-permission" $M
       - name: Home screen icon, start-up picture and alert icon
         # android/res (made by tools/android-icons.py, plus the alert icon) replaces the template's Capacitor logos

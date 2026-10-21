@@ -107,6 +107,14 @@ function stopCamera() {
   $('shootFlip').hidden = true;
   camNote('');
 }
+/** @returns {string} Why the camera did not start, said for where the app runs (the phone app, the Windows app or a browser). @param {Error} err */
+function camRefused(err) {
+  if (err && (err.name === 'NotFoundError' || err.name === 'OverconstrainedError')) return 'This phone or browser has no camera for Fumu to use.';
+  var C = window.Capacitor;
+  if (C && C.isNativePlatform && C.isNativePlatform()) return 'The camera is off. Allow it for Fumufumu in the phone\u2019s settings (Apps > Fumufumu > Permissions), then try again.';
+  if (window.nibbleDesktop) return 'The Windows app can\u2019t use the camera.';
+  return 'The camera is off. Allow it in the browser\u2019s settings for this page to try again.';
+}
 /** Turns the camera on behind the pet (asks the phone for permission the first time). */
 function startCamera() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { camNote('This phone or browser has no camera for Fumu to use.'); return; }
@@ -123,9 +131,9 @@ function startCamera() {
     $('shootCamBtn').setAttribute('aria-pressed', 'true');
     $('shootFlip').hidden = false;
     camNote('');
-  }).catch(function () {
+  }).catch(function (err) {
     stopCamera();
-    camNote('The camera is off. Allow it in the browser\u2019s settings for this page to try again.');
+    camNote(camRefused(err));
   });
 }
 $('shootCamBtn').addEventListener('click', function () { sound('tap'); if (camStream) stopCamera(); else startCamera(); });

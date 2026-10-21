@@ -141,12 +141,12 @@ function showPhoto(blob) {
   photoBlob = blob; photoUrl = URL.createObjectURL(blob);
   $('photoImg').src = photoUrl;
   var file = typeof File === 'function' ? new File([blob], photoName(), { type: 'image/png' }) : null;
-  $('photoShare').hidden = !(file && navigator.canShare && navigator.canShare({ files: [file] }));
+  $('photoShare').hidden = !(phonePlug('Share') || (file && navigator.canShare && navigator.canShare({ files: [file] })));
   $('photoResult').hidden = false;
 }
 /** @returns {string} A file name like nibble-2026-10-10.png (the pet's own name, safe for a file). */
 function photoName() { return (petName().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'pet') + '-' + new Date().toISOString().slice(0, 10) + '.png'; }
-function closePhoto() { $('photoResult').hidden = true; }
+function closePhoto() { $('photoResult').hidden = true; $('photoNote').hidden = true; }
 
 $('shootSnap').addEventListener('click', function (e) {
   e.stopPropagation();
@@ -164,6 +164,7 @@ $('shootSnap').addEventListener('click', function (e) {
 $('photoRetake').addEventListener('click', function () { sound('tap'); closePhoto(); });
 $('photoSave').addEventListener('click', function () {
   if (!photoBlob) return;
+  if (phoneApp()) { phoneSavePhoto(); return; }
   var a = document.createElement('a');
   a.href = photoUrl; a.download = photoName();
   document.body.appendChild(a); a.click(); a.remove();
@@ -171,9 +172,50 @@ $('photoSave').addEventListener('click', function () {
 });
 $('photoShare').addEventListener('click', function () {
   if (!photoBlob) return;
+  if (phonePlug('Share')) { phoneSharePhoto(); return; }
   var file = new File([photoBlob], photoName(), { type: 'image/png' });
   navigator.share({ files: [file], title: petName() }).catch(function () { /* closed without sharing */ });
 });
+
+// In the Android app (android/, Capacitor) the page's download link and navigator.share do nothing: the APK's own
+// Filesystem and Share plugins save the picture to the phone's Pictures/Fumufumu folder (so the gallery shows it) and share it.
+/** @returns {boolean} Whether this is the phone app. */
+function phoneApp() { var C = window.Capacitor; return !!(C && C.isNativePlatform && C.isNativePlatform()); }
+/** @returns {Object|null} One of the APK's plugins (null outside the app, or in an APK from before it was added). @param {string} name */
+function phonePlug(name) { return phoneApp() && window.Capacitor.Plugins && window.Capacitor.Plugins[name] || null; }
+/** @returns {Promise<string>} The picture as base64, the way the Filesystem plugin takes it. */
+function photoBase64() {
+  return new Promise(function (resolve, reject) {
+    var r = new FileReader();
+    r.onload = function () { resolve(String(r.result).split(',')[1]); };
+    r.onerror = reject;
+    r.readAsDataURL(photoBlob);
+  });
+}
+/** Says something under the picture for a moment. @param {string} text */
+function photoNote(text) {
+  var n = $('photoNote');
+  n.textContent = text; n.hidden = false;
+  clearTimeout(photoNote.t); photoNote.t = setTimeout(function () { n.hidden = true; }, 3500);
+}
+function phoneSavePhoto() {
+  var fs = phonePlug('Filesystem');
+  if (!fs) { photoNote('Update the app in Obtainium to save pictures.'); return; }
+  var name = photoName().replace(/\.png$/, '-' + Date.now().toString(36).slice(-4) + '.png');   // several pictures a day each keep their own file
+  photoBase64().then(function (data) {
+    return fs.writeFile({ path: 'Pictures/Fumufumu/' + name, data: data, directory: 'EXTERNAL_STORAGE', recursive: true });
+  }).then(function () { sound('pick'); photoNote('Saved in your pictures (Fumufumu folder).'); },
+    function () { photoNote(phonePlug('Share') ? 'I couldn’t save it here. Try Share instead.' : 'I couldn’t save it here.'); });
+}
+function phoneSharePhoto() {
+  var fs = phonePlug('Filesystem');
+  if (!fs) { photoNote('Update the app in Obtainium to share pictures.'); return; }
+  photoBase64().then(function (data) {
+    return fs.writeFile({ path: photoName(), data: data, directory: 'CACHE' });
+  }).then(function (r) {
+    return phonePlug('Share').share({ title: petName(), files: [r.uri] });
+  }).catch(function () { /* closed without sharing */ });
+}
 // leaving the photoshoot clears the picture
 var photoWatcher = new MutationObserver(function () { if (shootEl.hidden) { closePhoto(); if (photoUrl) { URL.revokeObjectURL(photoUrl); photoUrl = ''; photoBlob = null; } } });
 photoWatcher.observe(shootEl, { attributes: true, attributeFilter: ['hidden'] });
