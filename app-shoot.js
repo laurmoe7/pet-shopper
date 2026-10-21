@@ -22,12 +22,12 @@ var SHOOT_STUDIOS = [
   { id: 's-lilac', name: 'Lilac studio', css: 'radial-gradient(circle at 50% 45%, #fbf7ff 0%, #e2d6f7 70%, #cfbff0 100%)' }
 ];
 var SHOOT_FRAMES = [['none', 'No frame'], ['polaroid', 'Polaroid'], ['hearts', 'Hearts'], ['ribbon', 'Ribbon']];
-var shootState = { pose: 0, bg: 0, frame: 'none', timer: false, night: false, shown: false };
+var shootState = { pose: 0, bg: 0, frame: 'none', tab: 'pose', timer: false, night: false, shown: false };
 // the last pose, background, frame and self-timer are kept on this device, so the next photoshoot starts where you left it
 var SHOOT_KEY = 'nibble-shoot', shootSaved = {};
 try { shootSaved = JSON.parse(localStorage.getItem(SHOOT_KEY)) || {}; } catch (e) { shootSaved = {}; }
 function shootRemember() {
-  shootSaved.pose = shootState.pose; shootSaved.bg = shootBackgrounds()[shootState.bg].id; shootSaved.frame = shootState.frame; shootSaved.timer = shootState.timer;
+  shootSaved.pose = shootState.pose; shootSaved.bg = shootBackgrounds()[shootState.bg].id; shootSaved.frame = shootState.frame; shootSaved.timer = shootState.timer; shootSaved.tab = shootState.tab;
   try { localStorage.setItem(SHOOT_KEY, JSON.stringify(shootSaved)); } catch (e) { /* storage blocked */ }
 }
 /** @returns {Object[]} Every background to choose from: the studios, then the room backgrounds. */
@@ -47,32 +47,50 @@ function renderShoot() {
   var bg = shootBackgrounds()[shootState.bg];
   shootBg.style.background = bg.css || '';
   shootBg.innerHTML = bg.draw ? '<svg viewBox="0 0 400 160" preserveAspectRatio="xMidYMax slice" aria-hidden="true">' + bg.draw(shootState.night) + '</svg>' : '';
-  $('shootBgName').textContent = bg.name;
   shootEl.dataset.frame = shootState.frame;
   $('shootCaption').textContent = petName() + ' · ' + new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
-  $('shootPoses').querySelectorAll('button').forEach(function (b, i) { b.setAttribute('aria-pressed', String(i === shootState.pose)); });
-  $('shootFrames').querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.frame === shootState.frame)); });
   $('shootTimer').setAttribute('aria-pressed', String(!!shootState.timer));
+  renderChips();
   shootRemember();
-  shootRowsFade();
 }
-/** Fades the right edge of a chip row that has more chips to scroll to. */
-function shootRowsFade() {
-  ['shootPoses', 'shootFrames'].forEach(function (id) { var r = $(id); r.classList.toggle('more', r.scrollLeft + r.clientWidth < r.scrollWidth - 2); });
+// one row of choices at a time: the poses, the backgrounds or the frames, picked by the tabs under it (less at the bottom than three rows)
+var SHOOT_TABS = {
+  pose: function () { return SHOOT_POSES.map(function (p, i) { return { label: p.label, on: i === shootState.pose, pick: function () { shootState.pose = i; } }; }); },
+  bg: function () { return shootBackgrounds().map(function (b, i) { return { label: b.name, on: i === shootState.bg, pick: function () { shootState.bg = i; } }; }); },
+  frame: function () { return SHOOT_FRAMES.map(function (f) { return { label: f[1], on: f[0] === shootState.frame, pick: function () { shootState.frame = f[0]; } }; }); }
+};
+/** Fills the choices row for the tab that is open (built again only when the tab changes) and marks the picked one. @param {boolean} [center] Scroll the picked one into view. */
+function renderChips(center) {
+  if (!SHOOT_TABS[shootState.tab] || (shootState.tab === 'bg' && shootEl.classList.contains('cam'))) shootState.tab = 'pose';   // (no backgrounds behind the camera)
+  var row = $('shootChips'), list = SHOOT_TABS[shootState.tab]();
+  if (row.dataset.tab !== shootState.tab) {
+    row.dataset.tab = shootState.tab;
+    row.replaceChildren.apply(row, list.map(function (it) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'shoot-chip'; b.textContent = it.label;
+      b.addEventListener('click', function () { it.pick(); sound('tap'); renderShoot(); });
+      return b;
+    }));
+    center = true;
+  }
+  var picked = null;
+  Array.prototype.forEach.call(row.children, function (b, i) { b.setAttribute('aria-pressed', String(list[i].on)); if (list[i].on) picked = b; });
+  if (center && picked) row.scrollLeft = picked.offsetLeft - (row.clientWidth - picked.offsetWidth) / 2;
+  $('shootTabs').querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === shootState.tab)); });
+  shootRowFade();
 }
-['shootPoses', 'shootFrames'].forEach(function (id) { $(id).addEventListener('scroll', shootRowsFade, { passive: true }); });
-window.addEventListener('resize', function () { if (!shootEl.hidden) shootRowsFade(); });
-SHOOT_POSES.forEach(function (p, i) {
-  var b = document.createElement('button');
-  b.type = 'button'; b.className = 'shoot-chip'; b.textContent = p.label;
-  b.addEventListener('click', function () { shootState.pose = i; sound('tap'); renderShoot(); });
-  $('shootPoses').appendChild(b);
-});
-SHOOT_FRAMES.forEach(function (f) {
-  var b = document.createElement('button');
-  b.type = 'button'; b.className = 'shoot-chip'; b.dataset.frame = f[0]; b.textContent = f[1];
-  b.addEventListener('click', function () { shootState.frame = f[0]; sound('tap'); renderShoot(); });
-  $('shootFrames').appendChild(b);
+/** Fades the edges of the choices row where there are more to scroll to. */
+function shootRowFade() {
+  var r = $('shootChips');
+  r.classList.toggle('more-r', r.scrollLeft + r.clientWidth < r.scrollWidth - 2);
+  r.classList.toggle('more-l', r.scrollLeft > 2);
+}
+$('shootChips').addEventListener('scroll', shootRowFade, { passive: true });
+window.addEventListener('resize', function () { if (!shootEl.hidden) shootRowFade(); });
+$('shootTabs').addEventListener('click', function (e) {
+  var b = e.target.closest('button');
+  if (!b || b.dataset.tab === shootState.tab) return;
+  shootState.tab = b.dataset.tab; sound('tap'); renderShoot();
 });
 // a few twinkles drifting about the picture
 for (var si = 0; si < 9; si++) {
@@ -85,11 +103,11 @@ for (var si = 0; si < 9; si++) {
 function shootStep(n) {
   var all = shootBackgrounds();
   shootState.bg = (shootState.bg + n + all.length) % all.length;
+  shootState.tab = 'bg';   // (so you see which one it is)
   sound('tap');
   renderShoot();
+  renderChips(true);
 }
-$('shootPrev').addEventListener('click', function () { shootStep(-1); });
-$('shootNext').addEventListener('click', function () { shootStep(1); });
 /** Opens the photoshoot. */
 function openShoot() {
   stopCamera();
@@ -101,9 +119,11 @@ function openShoot() {
   shootState.pose = shootSaved.pose >= 0 && shootSaved.pose < SHOOT_POSES.length ? shootSaved.pose : 0;
   shootState.frame = SHOOT_FRAMES.some(function (f) { return f[0] === shootSaved.frame; }) ? shootSaved.frame : 'none';
   shootState.timer = !!shootSaved.timer;
+  shootState.tab = SHOOT_TABS[shootSaved.tab] ? shootSaved.tab : 'pose';
   shootEl.hidden = false;
   shootEl.classList.remove('clean');
   renderShoot();
+  renderChips(true);
   sound('open');
 }
 // ---------- the camera ----------
@@ -132,6 +152,7 @@ function stopCamera() {
   $('shootCamBtn').setAttribute('aria-pressed', 'false');
   $('shootFlip').hidden = true;
   camNote('');
+  if (!shootEl.hidden) renderChips();
 }
 /**
  * Says why the camera did not start, for where the app runs. In the phone app and the Windows app an Open settings button
@@ -172,9 +193,10 @@ function startCamera() {
     $('shootCamBtn').setAttribute('aria-pressed', 'true');
     $('shootFlip').hidden = false;
     camNote('');
+    renderChips();
     if (!shootSaved.hinted) {   // how to place him, said once
       shootSaved.hinted = true; shootRemember();
-      camNote('Drag to move · pinch to resize · double-tap to reset');
+      camNote('Drag to move · pinch to resize');
       setTimeout(function () { if (!camFix) camNote(''); }, 5000);
     }
   }).catch(function (err) {

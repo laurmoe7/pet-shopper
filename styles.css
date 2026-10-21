@@ -2839,25 +2839,35 @@ html:root .cal-month select { flex: none; }
 .shoot.clean .shoot-ui, .shoot.clean .shoot-x { opacity: 0; pointer-events: none; translate: 0 30px; }
 .shoot-x { position: absolute; left: 12px; top: calc(12px + env(safe-area-inset-top, 0px)); z-index: 3; width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-size: 1rem; font-weight: 800; cursor: pointer; box-shadow: 0 2px 0 var(--shadow); transition: opacity .25s; }
 .shoot-row { display: flex; justify-content: safe center; gap: 6px; overflow-x: auto; padding: 2px 2px 4px; scrollbar-width: none; }
-.shoot-row.more { mask-image: linear-gradient(90deg, #000 82%, transparent); -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent); }
 .shoot-row::-webkit-scrollbar { display: none; }
 .shoot-chip { flex: none; padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--paper-cell); color: var(--ink); font: inherit; font-weight: 800; font-size: .82rem; cursor: pointer; box-shadow: 0 2px 0 var(--shadow); }
 .shoot-chip[aria-pressed="true"] { background: var(--paper-sel); border-color: var(--hl); }
-.shoot-pick { align-items: center; justify-content: center; gap: 8px 12px; flex-wrap: wrap; }
-.shoot-bgname { min-width: 120px; text-align: center; font-family: var(--font-display); font-size: 1.05rem; }
 .shoot-arrow { width: 36px; height: 32px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-size: 1.3rem; line-height: 1; cursor: pointer; box-shadow: 0 2px 0 var(--shadow); }
 .shoot-snap { align-self: center; display: flex; align-items: center; gap: 8px; padding: 10px 28px; border-radius: 999px; border: 3px solid #fff; background: var(--accent); color: var(--accent-ink); font: inherit; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 3px 0 var(--shadow); }
 .shoot-snap svg { width: 22px; height: 22px; }
-.shoot-snaprow { display: flex; align-items: center; justify-content: center; gap: 12px; }
-.shoot-snaprow .shoot-snap { align-self: auto; }
-.shoot-snap.counting { background: var(--surface); color: var(--ink); }
-.shoot-timer { position: relative; width: 40px; height: 40px; display: grid; place-items: center; padding: 0; font-size: 1rem; }
-.shoot-timer:not([aria-pressed="true"]) svg { opacity: .6; }
-.shoot-timer svg { width: 22px; height: 22px; }
-.shoot-timer b { position: absolute; right: -4px; bottom: -4px; min-width: 18px; height: 18px; border-radius: 999px; background: var(--badge, var(--hl)); color: #fff; font-size: .7rem; line-height: 18px; display: none; }
-.shoot-timer[aria-pressed="true"] { background: var(--paper-sel); border-color: var(--hl); }
+.shoot-row.more-r { -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); }
+.shoot-row.more-l { -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%); mask-image: linear-gradient(90deg, transparent, #000 15%); }
+.shoot-row.more-l.more-r { -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent); mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent); }
+/* the tabs: plain words, the open one underlined, like a phone camera's modes */
+.shoot-tabs { display: flex; align-self: center; gap: 2px; padding: 2px; border-radius: 999px; background: rgba(255, 253, 248, .55); }
+.shoot-tabs button { padding: 4px 10px; border: 0; background: none; color: var(--ink); font: inherit; font-weight: 800; font-size: .8rem; opacity: .6; cursor: pointer; border-radius: 999px; }
+.shoot-tabs button[aria-selected="true"] { opacity: 1; background: var(--surface); box-shadow: inset 0 -2px 0 var(--hl); }
+.shoot.cam .shoot-tabs [data-tab="bg"] { display: none; }
+/* the bar: camera, the round shutter, the self-timer */
+.shoot-bar { display: flex; align-items: center; justify-content: center; gap: 34px; padding-top: 2px; }
+.shoot-round { position: relative; width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; box-shadow: 0 2px 0 var(--shadow); }
+.shoot-round svg { width: 22px; height: 22px; opacity: .65; }
+.shoot-round[aria-pressed="true"] { background: var(--paper-sel); border-color: var(--hl); }
+.shoot-round[aria-pressed="true"] svg { opacity: 1; }
+.shoot-timer b { position: absolute; right: -4px; bottom: -4px; min-width: 18px; height: 18px; border-radius: 999px; background: var(--badge, var(--hl)); color: #fff; font-size: .7rem; line-height: 18px; text-align: center; display: none; }
 .shoot-timer[aria-pressed="true"] b { display: block; }
-.shoot-count { position: absolute; left: 50%; top: 14%; translate: -50% -50%; z-index: 4; font-family: var(--font-display); font-size: 6rem; line-height: 1; color: #fff; text-shadow: 0 3px 0 rgba(90, 60, 50, .35), 0 0 18px rgba(255, 150, 190, .8); pointer-events: none; }
+.shoot-shutter { width: 68px; height: 68px; padding: 0; border-radius: 50%; border: 4px solid #fff; background: rgba(255, 255, 255, .35); display: grid; place-items: center; cursor: pointer; box-shadow: 0 3px 0 var(--shadow), 0 0 0 1.5px var(--line); }
+.shoot-shutter span { width: 50px; height: 50px; border-radius: 50%; background: var(--accent); transition: scale .15s, background .2s; }
+.shoot-shutter:active span { scale: .88; }
+.shoot-shutter.counting span { background: var(--surface); scale: .6; border-radius: 12px; }
+.shoot-shutter:disabled { opacity: .6; }
+.shoot-flip { left: auto; right: 12px; }
+.shoot-flip[hidden] { display: none; }.shoot-count { position: absolute; left: 50%; top: 14%; translate: -50% -50%; z-index: 4; font-family: var(--font-display); font-size: 6rem; line-height: 1; color: #fff; text-shadow: 0 3px 0 rgba(90, 60, 50, .35), 0 0 18px rgba(255, 150, 190, .8); pointer-events: none; }
 .shoot-count[hidden] { display: none; }
 .shoot-count.pop { animation: shoot-count 1s ease-out; }
 @keyframes shoot-count { 0% { scale: 1.6; opacity: 0; } 20% { scale: 1; opacity: 1; } 80% { opacity: 1; } 100% { scale: .8; opacity: 0; } }
@@ -2868,9 +2878,6 @@ html:root .cal-month select { flex: none; }
 .shoot-cam.mirror { transform: scaleX(-1); }
 .shoot.cam .shoot-bg, .shoot.cam .shoot-sparkles { display: none; }
 .shoot.cam .shoot-pet { touch-action: none; cursor: grab; }
-.shoot-camchip { align-self: center; }
-.shoot.cam #shootPrev, .shoot.cam #shootNext, .shoot.cam .shoot-bgname { display: none; }
-.shoot-camnote { margin: 0; text-align: center; font-size: .8rem; font-weight: 800; color: var(--ink); text-shadow: 0 1px 0 rgba(255, 255, 255, .7); }
 .shoot.cam .shoot-camnote { background: rgba(255, 253, 248, .85); border-radius: 999px; padding: 4px 12px; align-self: center; text-shadow: none; }
 .shoot.clean .shoot-camnote { display: none; }
 .shoot-camfix { align-self: center; }

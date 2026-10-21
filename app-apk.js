@@ -68,3 +68,23 @@ if (APK) {
   document.addEventListener('visibilitychange', apkAuto);
   setTimeout(apkAuto, 20000);
 }
+
+// The phone's Back button (build 748; the APK's @capacitor/app plugin, an older APK just closes the app as before): closes the
+// thing on top, one press each: the finished photo, the photoshoot, an open drop-down, the top sheet; with nothing open, the
+// app goes to the background like other Android apps.
+(function () {
+  var A = APK && window.Capacitor.Plugins && window.Capacitor.Plugins.App;
+  if (!A) return;
+  A.addListener('backButton', function () {
+    if (!$('photoResult').hidden) { closePhoto(); return; }
+    if (!shootEl.hidden) { closeShoot(); return; }
+    if (selectPop) { closeSelectPop(); return; }
+    var open = document.querySelectorAll('dialog[open]');
+    if (open.length) {
+      var d = open[open.length - 1];   // (the later one in the page is the one on top, like the closet over the dressing room)
+      if (d.dispatchEvent(new Event('cancel', { cancelable: true }))) d.close();
+      return;
+    }
+    A.minimizeApp().catch(function () { A.exitApp(); });
+  });
+})();

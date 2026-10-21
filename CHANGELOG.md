@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 748
+- Back button closes the photo, photoshoot and sheets (needs the new APK)
+- Tidier photoshoot: one row of choices with tabs, round shutter
+
 ## Build 747
 - Photo self-timer (3 s)
 - Photoshoot keeps your last pose, background and frame
