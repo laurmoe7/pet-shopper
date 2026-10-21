@@ -2,6 +2,19 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 751
+- Window: curtains hang from the rod, clear glass, no flower
+- Bookshelf: pot and books sit on the shelves
+- Beanbag: no dent line, soft shading
+- Gaming desk: headset rests on the PC, cordless mouse
+- Cuckoo clock: chains and pine-cone weights
+- Window curtains hang in front of the sill
+- Fish bowl weed stays inside the glass
+- Backgrounds: trees, flowers and butterflies in the meadow and farm
+- Kitchen shelf filled, herb pot on the sill
+- Beach sailboat and shell, aquarium treasure chest
+- Starry night: little house, trees, shooting star, fireflies
+
 ## Build 750
 - Background sounds softer on phones: no sharp highs or clicks
 - Owl no longer much louder than the rest

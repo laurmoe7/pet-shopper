@@ -89,27 +89,33 @@
     },
     {
       id: 'window', label: 'Window', x: 0.84, y: 0.32, w: 70, h: 64, view: '0 0 60 56',
-      svg: '<rect x="1" y="1.5" width="58" height="3.6" rx="1.8" fill="#d9a77c" ' + INK.replace('2', '1.5') + '/><circle cx="2.5" cy="3.3" r="2.3" fill="#e9bf96" stroke="#5b4239" stroke-width="1.4"/><circle cx="57.5" cy="3.3" r="2.3" fill="#e9bf96" stroke="#5b4239" stroke-width="1.4"/>' +
-        '<path d="M8 6 Q30 0 52 6" fill="none" ' + INK + '/>' +
-        '<rect x="7" y="5" width="46" height="42" rx="6" fill="#fffaf4" ' + INK + '/>' +
-        '<rect x="11.5" y="9.5" width="37" height="33" rx="3" fill="#cfe9fb"/>' +
-        '<path d="M15 23 a4 4 0 0 1 6 -3 a5 5 0 0 1 9 1 a3.5 3.5 0 0 1 2 6 h-15 a3 3 0 0 1 -2 -4z" fill="#fff"/>' +
-        '<circle cx="42" cy="15" r="6" fill="#fff3b8" opacity=".55"/><circle cx="42" cy="15" r="3.2" fill="#ffe27a"/>' +
-        '<path d="M15 40 L22 14 M21 40 L26 22" stroke="#fff" stroke-width="2.6" stroke-linecap="round" opacity=".55"/>' +
-        '<path d="M30 9.5 V42.5 M11.5 26 H48.5" stroke="#5b4239" stroke-width="2"/>' +
-        '<path d="M3 4 Q13 5 15 15 Q12 31 9 47 H3 Z" fill="#ffc1cf" ' + INK + '/>' +
-        '<path d="M57 4 Q47 5 45 15 Q48 31 51 47 H57 Z" fill="#ffc1cf" ' + INK + '/>' +
-        '<path d="M8 26 Q12 28 15 26 M52 26 Q48 28 45 26" fill="none" stroke="#f39bb0" stroke-width="2" stroke-linecap="round"/>' +
-        '<path d="M7 9 Q9 25 6.5 43 M11 12 Q12.5 27 10 40 M53 9 Q51 25 53.5 43 M49 12 Q47.5 27 50 40" fill="none" stroke="#f39bb0" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>' +
-        '<rect x="1" y="46" width="58" height="7" rx="3.5" fill="#f6dcc8" ' + INK + '/>' +
-        '<path d="M4 48.4 H56" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".7"/>' +
-        '<path d="M37 46 v-3.4 q-1.6 -3 .2 -5.4 q2.2 2.4 2.4 5.4 v3.4 z" fill="#8fd18a" stroke="#5b4239" stroke-width="1.2" stroke-linejoin="round"/><circle cx="38.8" cy="35.6" r="2.6" fill="#ff9fb8" stroke="#5b4239" stroke-width="1.1"/>'
+      // the curtains hang from the rod outside the frame, gathered by tiebacks; their folds stay inside the cloth, off the glass
+      svg: '<rect x="9" y="6" width="42" height="40" rx="5" fill="#fffaf4" ' + INK + '/>' +
+        '<rect x="13" y="10" width="34" height="32" rx="3" fill="#cfe9fb"/>' +
+        '<path d="M13 34 Q30 30 47 33 V39 a3 3 0 0 1 -3 3 H16 a3 3 0 0 1 -3 -3 Z" fill="#e3f3fc"/>' +
+        '<circle cx="40" cy="17" r="6" fill="#fff3b8" opacity=".6"/><circle cx="40" cy="17" r="3.2" fill="#ffe27a"/>' +
+        '<path d="M17 24 a3.4 3.4 0 0 1 5 -2.6 a4.4 4.4 0 0 1 8 1 a3 3 0 0 1 1.4 5 h-13 a2.6 2.6 0 0 1 -1.4 -3.4z" fill="#fff"/>' +
+        '<path d="M17 39 L22.4 13 M22 39 L25.6 22" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".5"/>' +
+        '<path d="M30 10 V42 M13 26 H47" stroke="#fffaf4" stroke-width="3"/>' +
+        '<rect x="13" y="10" width="34" height="32" rx="3" fill="none" stroke="#5b4239" stroke-width="1.6"/>' +
+        '<path d="M30 10 V42 M13 26 H47" stroke="#5b4239" stroke-width="1" opacity=".35"/>' +
+        '<rect x="5" y="44.5" width="50" height="6.5" rx="3.2" fill="#f6dcc8" ' + INK + '/>' +
+        '<path d="M8 46.8 H52" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".7"/>' +
+        [1, -1].map(function (d) {
+          var X = function (x) { return d === 1 ? x : 60 - x; };
+          return '<path d="M' + X(2) + ' 4 H' + X(16.5) + ' Q' + X(15.5) + ' 17 ' + X(10.5) + ' 28 Q' + X(13.6) + ' 38 ' + X(14) + ' 52 Q' + X(10.4) + ' 53.6 ' + X(8) + ' 52 Q' + X(5) + ' 53.6 ' + X(2) + ' 52 Z" fill="#ffc1cf" ' + INK + '/>' +
+            '<path d="M' + X(6) + ' 6 Q' + X(6.6) + ' 17 ' + X(5.4) + ' 26 M' + X(10.5) + ' 6 Q' + X(11) + ' 16 ' + X(8.4) + ' 26 M' + X(5) + ' 31 Q' + X(5.8) + ' 40 ' + X(5) + ' 50 M' + X(8.6) + ' 31 Q' + X(10.2) + ' 40 ' + X(10) + ' 50" fill="none" stroke="#f39bb0" stroke-width="1.2" stroke-linecap="round"/>' +
+            '<path d="M' + X(2.6) + ' 28.2 Q' + X(6.6) + ' 30.6 ' + X(10.6) + ' 28" fill="none" stroke="#5b4239" stroke-width="4" stroke-linecap="round"/>' +
+            '<path d="M' + X(2.6) + ' 28.2 Q' + X(6.6) + ' 30.6 ' + X(10.6) + ' 28" fill="none" stroke="#ffe27a" stroke-width="2" stroke-linecap="round"/>';
+        }).join('') +
+        '<rect x="1" y="2" width="58" height="3.4" rx="1.7" fill="#d9a77c" stroke="#5b4239" stroke-width="1.5" stroke-linejoin="round"/>' +
+        '<circle cx="2.4" cy="3.7" r="2.3" fill="#e9bf96" stroke="#5b4239" stroke-width="1.4"/><circle cx="57.6" cy="3.7" r="2.3" fill="#e9bf96" stroke="#5b4239" stroke-width="1.4"/>'
     },
     {
       id: 'beanbag', label: 'Beanbag', x: 0.84, y: 0.78, w: 82, h: 58, view: '0 0 72 50',
       svg: '<path d="M7 44 C1 31 9 13 29 10 C47 8 64 18 66 34 C67 44 57 47 37 47 C21 47 10 47 7 44 Z" fill="#b9d9f2" ' + INK + '/>' +
         '<path d="M37 11 Q22 26 12 43 M37 11 Q52 26 62 43" fill="none" stroke="#8fbde3" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="3 3"/>' +
-        '<path d="M22 30 C30 24 44 24 52 31" fill="none" stroke="#8fbde3" stroke-width="2.4" stroke-linecap="round"/>' +
+        '<path d="M9 40 C16 44 30 45 40 45 C53 45 61 42 65 36 C65.6 42 60 46.2 37 46.2 C22 46.2 11 46 9 40 Z" fill="#9cc8ea"/>' +
         '<path d="M8 41 C14 45.4 30 46 40 46 C54 46 62 44 66 38" fill="none" stroke="#8fbde3" stroke-width="2.2" stroke-linecap="round" opacity=".8"/>' +
         '<circle cx="37" cy="11.5" r="2.6" fill="#ffc1cf" stroke="#5b4239" stroke-width="1.4"/>' +
         '<path d="M14 22 C18 17 23 14 28 13" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8"/>' +
@@ -131,9 +137,12 @@
         '<path class="clock-minute" d="M22 32 V24" stroke="#5b4239" stroke-width="1.5" stroke-linecap="round"/></g>' +
         '<circle cx="22" cy="32" r="1.4" fill="#5b4239"/>' +
         '<rect x="9" y="46" width="26" height="3" rx="1.5" fill="#c98f6a" stroke="#5b4239" stroke-width="1.4"/>' +
-        '<path d="M16 49 V56 M28 49 V52" stroke="#5b4239" stroke-width="1.2"/>' +
-        '<ellipse cx="16" cy="59.5" rx="3" ry="5" fill="#c98f6a" stroke="#5b4239" stroke-width="1.6"/>' +
-        '<ellipse cx="28" cy="55.5" rx="3" ry="5" fill="#c98f6a" stroke="#5b4239" stroke-width="1.6"/>'
+        // chains and two pine-cone weights, one hanging lower than the other
+        '<path d="M16 49 V55 M28 49 V51" stroke="#5b4239" stroke-width="1.6" stroke-dasharray="1.4 1"/>' +
+        '<path d="M13 55 h6 l-.4 2.4 q-.4 5.6 -2.6 7.6 q-2.2 -2 -2.6 -7.6 Z" fill="#c98f6a" stroke="#5b4239" stroke-width="1.4" stroke-linejoin="round"/>' +
+        '<path d="M13.8 58.4 q2.2 1.4 4.4 0 M14.4 61.2 q1.6 1.2 3.2 0" fill="none" stroke="#a9704c" stroke-width="1" stroke-linecap="round"/>' +
+        '<path d="M25 51 h6 l-.4 2.4 q-.4 5.6 -2.6 7.6 q-2.2 -2 -2.6 -7.6 Z" fill="#c98f6a" stroke="#5b4239" stroke-width="1.4" stroke-linejoin="round"/>' +
+        '<path d="M25.8 54.4 q2.2 1.4 4.4 0 M26.4 57.2 q1.6 1.2 3.2 0" fill="none" stroke="#a9704c" stroke-width="1" stroke-linecap="round"/>'
     },
     {
       id: 'desk', label: 'Gaming desk', x: 0.16, y: 0.78, w: 96, h: 76, view: '0 0 90 72',
@@ -143,8 +152,7 @@
         '<rect x="79" y="46" width="5" height="24" rx="2" fill="#b79ad6" ' + INK + '/>' +
         '<rect x="2" y="40" width="86" height="7" rx="3" fill="#d9c4f2" ' + INK + '/>' +
         '<path d="M6 42.2 H84" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".6"/>' +
-        '<rect x="62" y="48" width="16" height="9" rx="2" fill="#cbb2ec" stroke="#5b4239" stroke-width="1.6"/><circle cx="70" cy="52.5" r="1.5" fill="#fffaf4" stroke="#5b4239" stroke-width="1"/>' +
-        '<path d="M43 40 q5 -1 6 3 q1 3 5 2" fill="none" stroke="#5b4239" stroke-width="1.2" stroke-linecap="round" opacity=".6"/>' +
+        '<rect x="62" y="47" width="16" height="9" rx="2" fill="#cbb2ec" stroke="#5b4239" stroke-width="1.6"/><circle cx="70" cy="51.5" r="1.5" fill="#fffaf4" stroke="#5b4239" stroke-width="1"/>' +
         '<rect x="13" y="9" width="42" height="27" rx="4" fill="#4d3c43" ' + INK + '/>' +
         '<rect x="43" y="3.5" width="9" height="8.5" rx="1" fill="#ffe9a3" stroke="#5b4239" stroke-width="1.2" transform="rotate(-8 47 8)"/><path d="M45 7 h5 M45 9.4 h3.4" stroke="#e0a865" stroke-width="1" stroke-linecap="round" transform="rotate(-8 47 8)"/>' +
         '<rect x="16.5" y="12.5" width="35" height="20" rx="2" fill="#a9dcff"/>' +
@@ -160,8 +168,10 @@
         '<circle cx="71" cy="31" r="4.5" fill="#bfe8d4" stroke="#5b4239" stroke-width="1.4"/>' +
         '<path d="M71 16 v6 M68 19 h6 M71 28 v6 M68 31 h6" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>' +
         '<path d="M64 13 V37" stroke="#c7a6ff" stroke-width="1.6" stroke-linecap="round"/>' +
-        '<path d="M58 9 C58 2 72 0 74 7" fill="none" stroke="#ff9fb5" stroke-width="2.4" stroke-linecap="round"/>' +
-        '<path d="M58 4 l1 -4 3 3 M71 1.5 l3 -2 .5 4" fill="#ff9fb5" stroke="#5b4239" stroke-width="1" stroke-linejoin="round"/>'
+        // the kitty-ear headset resting on top of the tower
+        '<path d="M64.6 6 C64.6 0.6 77.4 0.6 77.4 6" fill="none" stroke="#5b4239" stroke-width="3.6" stroke-linecap="round"/><path d="M64.6 6 C64.6 0.6 77.4 0.6 77.4 6" fill="none" stroke="#ff9fb5" stroke-width="1.8" stroke-linecap="round"/>' +
+        '<path d="M66.4 3.4 l.6 -3 2.4 1.8 Z M75.6 3.4 l-.6 -3 -2.4 1.8 Z" fill="#ff9fb5" stroke="#5b4239" stroke-width="1" stroke-linejoin="round"/>' +
+        '<rect x="62" y="5" width="5" height="5.4" rx="2" fill="#ffc1cf" stroke="#5b4239" stroke-width="1.3"/><rect x="75" y="5" width="5" height="5.4" rx="2" fill="#ffc1cf" stroke="#5b4239" stroke-width="1.3"/>'
     },
     {
       // grows as things are ticked off (app-plant.js): the drawing here is only its picture in the Room list, the room shows the real stage
@@ -180,11 +190,11 @@
         '<rect x="21.5" y="15" width="6" height="13" rx="1" fill="#ffd65c"/><rect x="28.5" y="11.5" width="4.5" height="16.5" rx="1" fill="#a9dcff"/>' +
         '<path d="M34 28 L35.5 13 L41 14 L40.5 28 Z" fill="#c7a6ff"/></g>' +
         '<path d="M12 16.5 h2.4 M12 23 h2.4 M23 19 h3 M30 15.5 h1.4 M30 22 h1.4" stroke="#fff" stroke-width="1.1" stroke-linecap="round" opacity=".75"/>' +
-        '<path d="M10.5 42.4 H21 L19.8 32 H11.7 Z" fill="#ffc1cf" stroke="#5b4239" stroke-width="1.4" stroke-linejoin="round"/>' +
-        '<rect x="12.8" y="24.4" width="5.8" height="8.8" rx="2.9" fill="#8fd18a" stroke="#5b4239" stroke-width="1.3"/><path d="M12.8 29 q-3 0 -3 -3 M18.6 28 q3 0 3 -3" fill="none" stroke="#5b4239" stroke-width="3.4" stroke-linecap="round"/><path d="M12.8 29 q-3 0 -3 -3 M18.6 28 q3 0 3 -3" fill="none" stroke="#8fd18a" stroke-width="1.6" stroke-linecap="round"/><circle cx="15.7" cy="24.6" r="1.6" fill="#ff9fb8" stroke="#5b4239" stroke-width="1"/>' +
-        '<rect x="27" y="38.5" width="18" height="4.5" rx="1" fill="#9ed99a" stroke="#5b4239" stroke-width="1.3"/><rect x="29" y="34" width="15" height="4.5" rx="1" fill="#ffb3c6" stroke="#5b4239" stroke-width="1.3"/>' +
-        '<path d="M10 62 H21 L20.2 53 H10.8 Z" fill="#f6dcc8" stroke="#5b4239" stroke-width="1.4" stroke-linejoin="round"/><path d="M10.6 56.2 H20.4" stroke="#e0a865" stroke-width="1.2"/>' +
-        '<rect x="26" y="53.5" width="7" height="9" rx="1" fill="#bfe8d4" stroke="#5b4239" stroke-width="1.3"/><rect x="34" y="55" width="6" height="7.5" rx="1" fill="#ffe9a3" stroke="#5b4239" stroke-width="1.3"/>' +
+        '<rect x="12.8" y="35.4" width="5.8" height="7.6" rx="2.9" fill="#8fd18a" stroke="#5b4239" stroke-width="1.3"/><path d="M12.8 40 q-2.6 0 -2.6 -2.6 M18.6 39.4 q2.6 0 2.6 -2.6" fill="none" stroke="#5b4239" stroke-width="3.4" stroke-linecap="round"/><path d="M12.8 40 q-2.6 0 -2.6 -2.6 M18.6 39.4 q2.6 0 2.6 -2.6" fill="none" stroke="#8fd18a" stroke-width="1.6" stroke-linecap="round"/><circle cx="15.7" cy="35.6" r="1.5" fill="#ff9fb8" stroke="#5b4239" stroke-width="1"/>' +
+        '<path d="M10.5 48 H21 L19.8 40.4 H11.7 Z" fill="#ffc1cf" stroke="#5b4239" stroke-width="1.4" stroke-linejoin="round"/>' +
+        '<rect x="27" y="43.5" width="18" height="4.5" rx="1" fill="#9ed99a" stroke="#5b4239" stroke-width="1.3"/><rect x="29" y="39" width="15" height="4.5" rx="1" fill="#ffb3c6" stroke="#5b4239" stroke-width="1.3"/><path d="M31 41.2 h11" stroke="#fff" stroke-width="1" stroke-linecap="round" opacity=".75"/>' +
+        '<path d="M10 63.5 H21 L20.2 54.5 H10.8 Z" fill="#f6dcc8" stroke="#5b4239" stroke-width="1.4" stroke-linejoin="round"/><path d="M10.6 57.7 H20.4" stroke="#e0a865" stroke-width="1.2"/>' +
+        '<rect x="26" y="54.5" width="7" height="9" rx="1" fill="#bfe8d4" stroke="#5b4239" stroke-width="1.3"/><rect x="34" y="56" width="6" height="7.5" rx="1" fill="#ffe9a3" stroke="#5b4239" stroke-width="1.3"/>' +
         '<path d="M26 1.5 c-1.4 -2.2 -4.6 -.4 -3 1.8 l3 3 3 -3 c1.6 -2.2 -1.6 -4 -3 -1.8z" fill="#ff7a99" stroke="#5b4239" stroke-width="1.2" stroke-linejoin="round"/>' +
         '<path d="M6.5 8 V60" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".5"/>' +
         '<rect x="8" y="66" width="6" height="3" rx="1" fill="#c98f6a" stroke="#5b4239" stroke-width="1.2"/><rect x="42" y="66" width="6" height="3" rx="1" fill="#c98f6a" stroke="#5b4239" stroke-width="1.2"/>'
@@ -213,8 +223,10 @@
         '<path d="M10.6 18 Q24 21.4 37.4 18 Q38 32.6 24 35.4 Q10 32.6 10.6 18 Z" fill="#8fd0f2" opacity=".85"/>' +
         '<path d="M10.6 18 Q24 21.4 37.4 18" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".8"/>' +
         '<ellipse cx="24" cy="6.6" rx="8.4" ry="1.9" fill="none" stroke="#5b4239" stroke-width="1.4"/>' +
-        '<path d="M14.6 33 q1.4 -5 -.6 -9 M33 33.4 q-1.6 -4 .4 -7.4" fill="none" stroke="#8fd18a" stroke-width="2" stroke-linecap="round"/>' +
-        '<g stroke="#5b4239" stroke-width="1"><ellipse cx="20" cy="34.8" rx="2.2" ry="1.4" fill="#ffc1cf"/><ellipse cx="25" cy="35.4" rx="2.2" ry="1.3" fill="#fffaf4"/><ellipse cx="29.6" cy="34.6" rx="2" ry="1.3" fill="#bfe8d4"/></g>' +
+        // the weed and pebbles are clipped to the water, so nothing pokes through the glass
+        '<defs><clipPath id="decorBowlWater"><path d="M10.6 18 Q24 21.4 37.4 18 Q38 32.6 24 35.4 Q10 32.6 10.6 18 Z"/></clipPath></defs>' +
+        '<g clip-path="url(#decorBowlWater)"><path d="M14.6 34 q-1.8 -4 .4 -7 q2 -3 0 -6.6 M33.4 34 q1.6 -3.4 -.4 -6 q-1.6 -2.6 .6 -5.6" fill="none" stroke="#6fb56d" stroke-width="2" stroke-linecap="round"/>' +
+        '<g stroke="#5b4239" stroke-width="1"><ellipse cx="19.6" cy="33.8" rx="2.2" ry="1.4" fill="#ffc1cf"/><ellipse cx="24.4" cy="34.4" rx="2.2" ry="1.3" fill="#fffaf4"/><ellipse cx="29" cy="33.8" rx="2" ry="1.3" fill="#bfe8d4"/></g></g>' +
         '<path d="M28 26 l6 -4.2 v8.4 z" fill="#ffa24d" stroke="#5b4239" stroke-width="1.3" stroke-linejoin="round"/>' +
         '<ellipse cx="22.4" cy="26" rx="6.2" ry="4.2" fill="#ffa24d" stroke="#5b4239" stroke-width="1.4"/>' +
         '<path d="M22 22.4 q2.6 -2.4 5 .2" fill="#ff8a3d" stroke="#5b4239" stroke-width="1.1" stroke-linejoin="round"/>' +
