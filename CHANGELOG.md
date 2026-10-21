@@ -2,6 +2,11 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 743
+- Fix: a list from an old household can't reach a new one
+- Fix: someone else's late tick doesn't keep Fumu up
+- Fix: notes wait for update cards
+
 ## Build 742
 - Fix: synced to-dos keep their date order
 - Fix: invite links for new people and pasted links

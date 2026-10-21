@@ -212,6 +212,7 @@ function openItemSheet(id) {
   var by = state.shopList === 'shared' && item.addedWho && (typeof houseMe !== 'function' || item.addedWho !== houseMe()) ? item.addedBy || 'Someone' : '';
   $('itemWho').hidden = !by;
   $('itemWhoName').textContent = by;
+  if (item.addedBy && by === item.addedBy) $('itemWhoName').setAttribute('data-notr', ''); else $('itemWhoName').removeAttribute('data-notr');   // (a name is never translated; "Someone" is)
   sheetUnderMouth(itemSheet);
   openDialog(itemSheet);
 }

@@ -946,6 +946,7 @@
       if (!found) return fail(404, 'No household has that invite code');
       var joined = await store.houseJoin(found, acct, randomId(), name, now, HOUSE_MAX);
       if (joined === 'full') return fail(403, 'That household is full (' + HOUSE_MAX + ' people)');
+      if (joined === 'gone') return fail(404, 'No household has that invite code');
       if (joined !== 'ok') return fail(409, 'You are already in a household. Leave it first.');
       return houseAnswer(store, acct, found);
     }
@@ -955,6 +956,9 @@
 
     if (path === '/v1/household/sync') {
       if (!isObj(asked.doc)) return fail(400, 'Send {"doc": …}');
+      // the device says which membership its shared list is from (a new id each join): one that missed leaving that household,
+      // while this person joined another on a different device, must not pour the old household's list into the new one
+      if (asked.me !== mine.id) return fail(409, 'That list is from another household');
       if (Object.keys(asked.doc.items || {}).length > MAX_ITEMS) return fail(413, 'Too many items');
       var incoming = houseDoc(clamp(asked.doc, now + FUTURE_MS));
       var row = await store.houseGet(mine.house);
@@ -987,7 +991,7 @@
     if (!them) return fail(404, 'No such member');
     if (them.acct === acct) return fail(400, path === '/v1/household/remove' ? 'Use leave to take yourself out' : 'You are the owner already');
     if (path === '/v1/household/remove') await store.memberRemove(them.acct);
-    else await store.houseOwner(mine.house, them.acct);
+    else if (!(await store.houseOwner(mine.house, them.acct))) return fail(404, 'No such member');   // (they left meanwhile)
     return houseAnswer(store, acct, mine.house);
   }
 
@@ -1095,7 +1099,7 @@
       async houseCreate(house, invite, acct, member, name, now) {
         var r = await db.prepare('INSERT OR IGNORE INTO households (id, body, rev, created, updated, owner, invite) VALUES (?, NULL, 0, ?, ?, ?, ?)').bind(house, now, now, acct, invite).run();
         if (r.meta.changes !== 1) return false;
-        var m = await db.prepare('INSERT OR IGNORE INTO members (acct, house, id, name, joined, seen) VALUES (?, ?, ?, ?, ?, ?)').bind(acct, house, member, name, now, now).run();
+        var m = await db.prepare('INSERT OR IGNORE INTO members (acct, house, id, name, joined, seen) SELECT ?, ?, ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM households WHERE id = ?)').bind(acct, house, member, name, now, now, house).run();
         if (m.meta.changes === 1) return true;
         await db.prepare('DELETE FROM households WHERE id = ?').bind(house).run();   // joined another one meanwhile
         return false;
@@ -1103,9 +1107,11 @@
       /** @returns {Promise<string>} 'ok', 'full' or 'taken' (already in a household). One statement, so two joining at once can't pass the limit. */
       async houseJoin(house, acct, member, name, now, max) {
         if (await this.memberOf(acct)) return 'taken';
-        var r = await db.prepare('INSERT OR IGNORE INTO members (acct, house, id, name, joined, seen) SELECT ?, ?, ?, ?, ?, ? WHERE (SELECT COUNT(*) FROM members WHERE house = ?) < ?').bind(acct, house, member, name, now, now, house, max).run();
+        // (and only while the household still exists: the last member may have left, deleting it, since the invite was looked up)
+        var r = await db.prepare('INSERT OR IGNORE INTO members (acct, house, id, name, joined, seen) SELECT ?, ?, ?, ?, ?, ? WHERE (SELECT COUNT(*) FROM members WHERE house = ?) < ? AND EXISTS (SELECT 1 FROM households WHERE id = ?)').bind(acct, house, member, name, now, now, house, max, house).run();
         if (r.meta.changes === 1) return 'ok';
-        return (await this.memberOf(acct)) ? 'taken' : 'full';
+        if (await this.memberOf(acct)) return 'taken';
+        return (await this.houseGet(house)) ? 'full' : 'gone';
       },
       /** Writes the household's document only if nobody else did since `rev`. */
       async housePut(house, body, rev, now) {
@@ -1113,7 +1119,11 @@
         return r.meta.changes === 1;
       },
       async houseTouch(house, now) { await db.prepare('UPDATE households SET updated = ? WHERE id = ?').bind(now, house).run(); },
-      async houseOwner(house, acct) { await db.prepare('UPDATE households SET owner = ? WHERE id = ?').bind(acct, house).run(); },
+      /** Hands the household to a member. @returns {Promise<boolean>} false if they are not a member (any more). */
+      async houseOwner(house, acct) {
+        var r = await db.prepare('UPDATE households SET owner = ? WHERE id = ? AND EXISTS (SELECT 1 FROM members WHERE acct = ? AND house = ?)').bind(acct, house, acct, house).run();
+        return r.meta.changes === 1;
+      },
       /** @returns {Promise<boolean>} false if the code is taken by another household. */
       async houseInvite(house, invite) {
         var r = await db.prepare('UPDATE OR IGNORE households SET invite = ? WHERE id = ?').bind(invite, house).run();

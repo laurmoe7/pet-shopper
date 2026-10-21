@@ -70,6 +70,7 @@ setTimeout(updateAuto, 30000);   // (the start checks once itself while the load
 // ---------- Options: Check for updates ----------
 (function () {
   var btn = $('updBtn');
+  if (window.nibbleDesktop) { btn.hidden = true; return; }   // (the Windows app loads the new page when it restarts)
   function say(s) { btn.textContent = s; }
   btn.addEventListener('click', function () {
     sound('tap');

@@ -56,7 +56,7 @@ function houseSyncNow() {
   if (!account.code || houseBusy) return Promise.resolve();
   houseBusy = true;
   var code = account.code, ask = house.in
-    ? accountApi('/v1/household/sync', 'POST', code, { doc: Sync.snapshot(state, Date.now(), { house: true }), name: houseName() })
+    ? accountApi('/v1/household/sync', 'POST', code, { doc: Sync.snapshot(state, Date.now(), { house: true }), name: houseName(), me: house.me })   // (me: which membership this list is from)
     : accountApi('/v1/household', 'GET', code);
   return ask.then(function (r) {
     houseBusy = false;
@@ -65,6 +65,8 @@ function houseSyncNow() {
     // a server from before households answers 404 to everything here; 503 is a passing database hiccup (or tables not made yet), which changes nothing
     if (r.status === 404 && !house.in) { house.server = 'no'; houseSave(); houseRender(); return; }
     if (r.status === 404 && r.json && /not in a household/i.test(r.json.error || '')) { houseGone(); houseSay('You are no longer in the household.'); }
+    // this person left that household and joined another on a different device: the old list goes, then the new household is fetched
+    if (r.status === 409 && r.json && /another household/i.test(r.json.error || '')) { houseGone(); houseSyncNow(); }
   }, function () { houseBusy = false; });
 }
 

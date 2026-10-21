@@ -411,7 +411,7 @@ var lastPollAt = 0;
 function inboxPoll() {
   // away from the computer (the desktop app says so after a few idle minutes): once a minute is plenty, which keeps the server's request count down
   if (typeof deskAway === 'function' && deskAway() && Date.now() - lastPollAt < 60000) return;
-  if (polling || !receivingHere() || !account.code || syncState.stopped || inboxCard || document.querySelector('.remind-card') || document.visibilityState === 'hidden') return;
+  if (polling || !receivingHere() || !account.code || syncState.stopped || inboxCard || document.querySelector('.remind-card, .stage .update-card') || document.visibilityState === 'hidden') return;
   polling = true; lastPollAt = Date.now();
   accountApi('/v1/inbox?device=' + encodeURIComponent(inboxDevice()), 'GET', account.code).then(function (r) {
     polling = false;

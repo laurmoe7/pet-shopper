@@ -235,8 +235,9 @@ pet.addEventListener('pointerdown', function () { wakeFromNap(true); }, true);
 var SHOPPING_WINDOW_MS = 30 * 60 * 1000;
 /** @returns {boolean} Whether you are in the middle of shopping: something on the shopping list was ticked off in the last half hour and more is still to buy. Only that keeps Fumu up at night. */
 function shoppingNow() {
-  var list = isTodo() ? state.stash : state.items, now = Date.now();
-  return list.some(function (i) { return !i.done; }) && list.some(function (i) { return i.done && i.doneAt && now - i.doneAt < SHOPPING_WINDOW_MS; });
+  var list = isTodo() ? state.stash : state.items, now = Date.now(), me = typeof houseMe === 'function' ? houseMe() : '';
+  // (on a household's shared list only your own ticks: someone else shopping late does not keep your Fumu up)
+  return list.some(function (i) { return !i.done; }) && list.some(function (i) { return i.done && i.doneAt && now - i.doneAt < SHOPPING_WINDOW_MS && (!i.doneWho || i.doneWho === me); });
 }
 /** @returns {boolean} Whether nothing is left to buy. Only the shopping list counts: tasks never keep Fumu up. */
 function nothingLeft() { return !(isTodo() ? state.stash : state.items).some(function (i) { return !i.done; }); }

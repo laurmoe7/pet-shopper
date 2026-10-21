@@ -15,12 +15,12 @@ var APK = (function () {
   return { n: m ? +m[1] : APK_UNMARKED, marked: !!m };
 })();
 var APK_TAGS = 'https://api.github.com/repos/laurmoe7/pet-shopper/git/matching-refs/tags/android-';
-var APK_EVERY_MS = 6 * 3600 * 1000, APK_KEY = 'nibble-apk';
-/** What was found last time (on this device): {at, newest, skipped}. */
+var APK_EVERY_MS = 6 * 3600 * 1000, APK_RETRY_MS = 30 * 60 * 1000, APK_KEY = 'nibble-apk';
+/** What was found last time (on this device): {at, newest, skipped, failed} (failed: when GitHub last could not be asked). */
 var apkSeen = (function () {
   var s = null;
   try { s = JSON.parse(localStorage.getItem(APK_KEY)); } catch (e) { s = null; }
-  return s && typeof s === 'object' ? { at: +s.at || 0, newest: +s.newest || 0, skipped: +s.skipped || 0 } : { at: 0, newest: 0, skipped: 0 };
+  return s && typeof s === 'object' ? { at: +s.at || 0, newest: +s.newest || 0, skipped: +s.skipped || 0, failed: +s.failed || 0 } : { at: 0, newest: 0, skipped: 0, failed: 0 };
 })();
 function apkSave() { try { localStorage.setItem(APK_KEY, JSON.stringify(apkSeen)); } catch (e) { /* storage blocked */ } }
 /** @returns {string} For the Options build line: which APK this is. */
@@ -29,15 +29,16 @@ function apkLabel() { return APK ? ' · app android-' + APK.n + (APK.marked ? ''
 /** @returns {Promise<number>} The newest android-N there is (0: could not ask; the last answer is kept for 6 hours). */
 function apkNewest() {
   if (!APK) return Promise.resolve(0);
-  if (Date.now() - apkSeen.at < APK_EVERY_MS) return Promise.resolve(apkSeen.newest);
+  if (Date.now() - apkSeen.at < APK_EVERY_MS || Date.now() - apkSeen.failed < APK_RETRY_MS) return Promise.resolve(apkSeen.newest);
+  function failed() { apkSeen.failed = Date.now(); apkSave(); return 0; }   // (offline, or GitHub's limit: not again for half an hour, so each return to the app does not ask again)
   return fetch(APK_TAGS, { cache: 'no-store', headers: { Accept: 'application/vnd.github+json' } })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (refs) {
-      if (!Array.isArray(refs)) return 0;
+      if (!Array.isArray(refs)) return failed();
       var n = refs.reduce(function (top, r) { var m = /^refs\/tags\/android-(\d+)$/.exec(r && r.ref || ''); return m ? Math.max(top, +m[1]) : top; }, 0);
       apkSeen.at = Date.now(); apkSeen.newest = n; apkSave();
       return n;
-    }, function () { return 0; });
+    }, failed);
 }
 
 function showApkReady(n) {
