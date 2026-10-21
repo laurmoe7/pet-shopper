@@ -1,73 +1,15 @@
-// Updates of the Android app itself (the APK, android/; the page inside it updates by itself, app-update.js). Each APK from
-// android-6 on says which one it is (android.yml adds FumuAPK/N to the browser's name, N being the workflow's run number);
-// the app asks GitHub which android-N tags exist (at most every 6 hours, or when Options checks) and, when there is a newer
-// one, a card offers it. Install opens the APK's download in Chrome (a link to another site leaves the app); Chrome's Open
-// then hands it to Android's installer. Only in the Android app.
+// Which Android app (APK, android/) this is, for the Options build line. Each APK from android-6 on says which one it is:
+// android.yml adds FumuAPK/N to the browser's name (N being the workflow's run number) and sets Android's version to android-N,
+// which Obtainium (how Lauren updates the APK, android/README.md) matches to the release. Only in the Android app.
 'use strict';
 
-/** The newest APK from before they carried their number: one without it counts as this one, so nobody is offered one they have. */
+/** The newest APK from before they carried their number: one without it is shown as this one. */
 var APK_UNMARKED = 5;
 var APK = (function () {
   var C = window.Capacitor;
   if (!C || !C.isNativePlatform || !C.isNativePlatform() || (C.getPlatform && C.getPlatform() !== 'android')) return null;
   var m = /FumuAPK\/(\d+)/.exec(navigator.userAgent || '');
-  return { n: m ? +m[1] : APK_UNMARKED };
+  return { n: m ? +m[1] : APK_UNMARKED, marked: !!m };
 })();
-var APK_TAGS = 'https://api.github.com/repos/laurmoe7/pet-shopper/git/matching-refs/tags/android-';
-var APK_EVERY_MS = 6 * 3600 * 1000, APK_KEY = 'nibble-apk';
-function apkFile(n) { return 'https://github.com/laurmoe7/pet-shopper/releases/download/android-' + n + '/Fumufumu.apk'; }
-/** What was found last time (on this device): {at, newest, skipped}. */
-var apkSeen = (function () {
-  var s = null;
-  try { s = JSON.parse(localStorage.getItem(APK_KEY)); } catch (e) { s = null; }
-  return s && typeof s === 'object' ? { at: +s.at || 0, newest: +s.newest || 0, skipped: +s.skipped || 0 } : { at: 0, newest: 0, skipped: 0 };
-})();
-function apkSave() { try { localStorage.setItem(APK_KEY, JSON.stringify(apkSeen)); } catch (e) { /* storage blocked */ } }
 /** @returns {string} For the Options build line: which APK this is. */
-function apkLabel() { return APK ? ' · app android-' + APK.n : ''; }
-
-/** @returns {Promise<number>} The newest android-N there is (0: could not ask; the last answer is kept for 6 hours unless forced). */
-function apkNewest(force) {
-  if (!APK) return Promise.resolve(0);
-  if (!force && Date.now() - apkSeen.at < APK_EVERY_MS) return Promise.resolve(apkSeen.newest);
-  return fetch(APK_TAGS, { cache: 'no-store', headers: { Accept: 'application/vnd.github+json' } })
-    .then(function (r) { return r.ok ? r.json() : null; })
-    .then(function (refs) {
-      if (!Array.isArray(refs)) return 0;
-      var n = refs.reduce(function (top, r) { var m = /^refs\/tags\/android-(\d+)$/.exec(r && r.ref || ''); return m ? Math.max(top, +m[1]) : top; }, 0);
-      apkSeen.at = Date.now(); apkSeen.newest = n; apkSave();
-      return n;
-    }, function () { return 0; });
-}
-/** Opens the download in Chrome. */
-function apkInstall(n) { location.href = apkFile(n); }
-
-function showApkReady(n) {
-  if (document.querySelector('.apk-update-card') || n <= apkSeen.skipped) return;
-  var card = document.createElement('div');
-  card.className = 'inbox-card update-card apk-update-card';
-  card.setAttribute('role', 'status');
-  var icon = document.createElement('span'), text = document.createElement('div'), t = document.createElement('b'), d = document.createElement('span');
-  icon.textContent = '📲';
-  text.className = 'inbox-text';
-  t.textContent = 'App update android-' + n;
-  d.textContent = 'You have android-' + APK.n + '.';
-  text.append(t, d);
-  var acts = document.createElement('div');
-  acts.className = 'inbox-actions';
-  var go = document.createElement('button'); go.type = 'button'; go.textContent = 'Install';
-  go.addEventListener('click', function (e) { e.stopPropagation(); sound('tap'); card.remove(); apkInstall(n); });
-  var later = document.createElement('button'); later.type = 'button'; later.textContent = '✕'; later.className = 'inbox-done'; later.setAttribute('aria-label', 'Later');
-  later.addEventListener('click', function (e) { e.stopPropagation(); apkSeen.skipped = n; apkSave(); card.remove(); });
-  acts.append(go, later);
-  card.append(icon, text, acts);
-  document.querySelector('.stage').appendChild(card);
-}
-function apkAuto() {
-  if (!APK || document.visibilityState !== 'visible') return;
-  apkNewest(false).then(function (n) { if (n > APK.n) showApkReady(n); });
-}
-if (APK) {
-  document.addEventListener('visibilitychange', apkAuto);
-  setTimeout(apkAuto, 20000);
-}
+function apkLabel() { return APK ? ' · app android-' + APK.n + (APK.marked ? '' : ' or older') : ''; }

@@ -68,23 +68,17 @@ setInterval(updateAuto, UPDATE_EVERY_MS);
 setTimeout(updateAuto, 30000);   // (the start checks once itself while the loading card is up)
 
 // ---------- Options: Check for updates ----------
-function APK_N() { return typeof APK !== 'undefined' && APK ? APK.n : Infinity; }
 (function () {
   var btn = $('updBtn');
   function say(s) { btn.textContent = s; }
   btn.addEventListener('click', function () {
     sound('tap');
-    if (btn.dataset.apk) { apkInstall(+btn.dataset.apk); return; }
     if (btn.dataset.ready) { updateNow(say); return; }
     say('Checking…');
     updateCheck().then(function (newer) {
-      if (newer) { say('Update to ' + updNewest); btn.dataset.ready = '1'; return; }
-      // the page is up to date: in the Android app, the app itself next (app-apk.js)
-      var apk = typeof APK !== 'undefined' && APK ? apkNewest(true) : Promise.resolve(0);
-      return apk.then(function (n) {
-        if (n > APK_N()) { say('Install app android-' + n); btn.dataset.apk = String(n); }
-        else say(newer === null ? 'Could not check' : 'Up to date');
-      });
+      if (newer === null) say('Could not check');
+      else if (!newer) say('Up to date');
+      else { say('Update to ' + updNewest); btn.dataset.ready = '1'; }
     });
   });
 })();
