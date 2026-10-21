@@ -2,6 +2,9 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 749
+- Photoshoot tabs and camera tip readable in dark themes
+
 ## Build 748
 - Back button closes the photo, photoshoot and sheets (needs the new APK)
 - Tidier photoshoot: one row of choices with tabs, round shutter
