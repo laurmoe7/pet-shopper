@@ -2,6 +2,10 @@
 
 What changed in Fumufumu, newest first. Build numbers match the one in Options.
 
+## Build 754
+- New background: Cherry blossom (lanterns at night)
+- New background: Snowy hills with a snowman
+
 ## Build 753
 - Fairy lights glow brighter at night
 - Starry night: simpler, fewer stars

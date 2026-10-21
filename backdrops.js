@@ -344,6 +344,128 @@ function bdBeach(night) {
     '<g fill="' + (night ? '#a08a68' : '#e6c98a') + '"><circle cx="250" cy="146" r="1"/><circle cx="268" cy="152" r="1"/><circle cx="330" cy="150" r="1"/><circle cx="350" cy="142" r="1"/><circle cx="388" cy="148" r="1"/><circle cx="236" cy="154" r="1"/></g>';
 }
 
+/**
+ * @param {number[][]} list [x, y, r] for each circle.
+ * @param {string} fill
+ * @returns {string} One puffy shape made of circles with a single outline round the whole of it (outlines first, fills on top).
+ */
+function bdPuff(list, fill) {
+  var c = list.map(function (p) { return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + p[2] + '"/>'; }).join('');
+  return '<g fill="#5b4239" stroke="#5b4239" stroke-width="3.2">' + c + '</g><g fill="' + fill + '">' + c + '</g>';
+}
+/**
+ * @param {number} x
+ * @param {number} y
+ * @param {number} r
+ * @param {string} fill
+ * @returns {string} A five-petal blossom.
+ */
+function bdBlossom(x, y, r, fill) {
+  var p = '';
+  for (var i = 0; i < 5; i++) {
+    var a = (i * 72 - 90) * Math.PI / 180;
+    p += '<circle cx="' + (x + Math.cos(a) * r * 0.62).toFixed(1) + '" cy="' + (y + Math.sin(a) * r * 0.62).toFixed(1) + '" r="' + (r * 0.5).toFixed(1) + '"/>';
+  }
+  return '<g fill="' + fill + '" ' + BD_THIN + '>' + p + '</g><circle cx="' + x + '" cy="' + y + '" r="' + (r * 0.28).toFixed(1) + '" fill="#ffd45e"/>';
+}
+/**
+ * @param {number[][]} list [x, y, angle] for each petal.
+ * @param {string} fill
+ * @returns {string} Petals drifting down.
+ */
+function bdPetals(list, fill) {
+  return list.map(function (p) {
+    return '<path d="M0 -3.4C2.6 -2 2.6 2 0 3.4C-1 2 -.6 .6 0 0C-.6 -.6 -1 -2 0 -3.4z" transform="translate(' + p[0] + ' ' + p[1] + ') rotate(' + p[2] + ')" fill="' + fill + '" stroke="#5b4239" stroke-width=".7"/>';
+  }).join('');
+}
+
+/**
+ * @param {boolean} night
+ * @returns {string} A cherry tree in full bloom on a soft spring hill, petals drifting; paper lanterns glow in its branches at night.
+ */
+function bdSakura(night) {
+  var bloom = night ? '#c98aa8' : '#ffc4d6', bloom2 = night ? '#b77796' : '#ffadc6', bark = night ? '#7d5f4a' : '#a9785a', petal = night ? '#d9a0b8' : '#ffc4d6';
+  var tree = '<path d="M326 134Q330 112 324 96Q318 84 306 78L310 74Q322 80 330 90Q334 80 346 72L350 76Q338 88 338 100Q338 116 342 134z" fill="' + bark + '" ' + BD_LINE + '/>' +
+    bdPuff([[300, 64, 17], [322, 46, 20], [348, 50, 19], [360, 70, 12], [334, 72, 16], [310, 80, 11], [354, 84, 10], [328, 62, 16], [344, 66, 14], [316, 66, 13], [352, 74, 9]], bloom) +
+    '<path d="M300 76q8 6 18 4M338 84q10 2 18 -4" stroke="' + bloom2 + '" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
+    (night ? '' : '<path d="M310 40a16 16 0 0 1 10 -8" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".8"/>') +
+    bdBlossom(312, 52, 5, night ? '#e3b5c8' : '#fff0f5') + bdBlossom(344, 40, 4.4, night ? '#e3b5c8' : '#fff0f5') + bdBlossom(356, 66, 4, night ? '#e3b5c8' : '#fff0f5') + bdBlossom(324, 70, 3.6, night ? '#e3b5c8' : '#fff0f5');
+  var small = '<path d="M62 112Q64 102 60 94H66Q68 104 68 112z" fill="' + bark + '" ' + BD_LINE + '/>' + bdPuff([[54, 88, 9], [64, 82, 10], [74, 90, 8]], bloom);
+  var lanterns = '';
+  if (night) {
+    lanterns = '<path d="M296 82Q318 96 344 88" stroke="#5b4239" stroke-width="1.1" fill="none"/>';
+    [[304, 88, '#ffb37a'], [322, 92, '#ff9fb5'], [338, 90, '#ffe28a']].forEach(function (l) {
+      lanterns += '<circle cx="' + l[0] + '" cy="' + (l[1] + 6) + '" r="10" fill="' + l[2] + '" opacity=".28"/>' +
+        '<path d="M' + l[0] + ' ' + l[1] + 'v2" stroke="#5b4239" stroke-width="1.1"/>' +
+        '<rect x="' + (l[0] - 4.4) + '" y="' + (l[1] + 2) + '" width="8.8" height="9" rx="3.4" fill="' + l[2] + '" ' + BD_THIN + '/>' +
+        '<path d="M' + (l[0] - 3) + ' ' + (l[1] + 2.4) + 'h6M' + (l[0] - 3) + ' ' + (l[1] + 10.6) + 'h6" stroke="#5b4239" stroke-width="1.4" stroke-linecap="round"/>';
+    });
+  }
+  return (night ? bdDaySky(true) : bdSky('#bfe3f5', '#ffeef2')) +
+    (night ? bdMoon(180, 30, 13) + bdStars([[110, 24, 4], [240, 40, 3], [60, 44, 1.2], [270, 20, 1.3]]) : bdCloud(150, 40, 0.9) + bdCloud(246, 30, 0.6)) +
+    '<path d="M-10 116Q80 96 180 110T410 104V170H-10z" fill="' + (night ? '#4f7a63' : '#c4e6b0') + '" ' + BD_LINE + '/>' +
+    small + tree + lanterns +
+    '<path d="M-10 136Q100 120 210 132T410 128V170H-10z" fill="' + (night ? '#3f6a55' : '#a6d894') + '" ' + BD_LINE + '/>' +
+    bdPetals([[110, 60, 20], [214, 52, -30], [262, 78, 50], [280, 112, -10], [372, 114, 70], [236, 138, 30], [300, 146, -40], [356, 150, 10], [96, 132, 60]], petal) +
+    (night ? bdGlows([[150, 104], [262, 120]]) : bdFlower(270, 146, '#fff') + bdFlower(352, 140, '#ffb3c7'));
+}
+/**
+ * @param {number} x Trunk foot.
+ * @param {number} y
+ * @param {number} s Size (1 is about 50 tall).
+ * @param {boolean} night
+ * @returns {string} A round-tipped pine with snow on each tier.
+ */
+function bdPine(x, y, s, night) {
+  var g = night ? '#3d6b5c' : '#7cbf8e', snow = night ? '#dfe6f2' : '#fff';
+  var tiers = [[-18, -6, -22], [-15, -20, -36], [-11, -33, -48]], out = '<path d="M-3 0V-8H3V0z" fill="' + (night ? '#7d5f4a' : '#b98563') + '" ' + BD_LINE + '/>';
+  tiers.forEach(function (t) {
+    var w = -t[0], b = t[1], top = t[2];
+    out += '<path d="M' + (-w) + ' ' + b + 'Q0 ' + (b + 4) + ' ' + w + ' ' + b + 'L2 ' + (top + 1) + 'Q0 ' + (top - 1) + ' -2 ' + (top + 1) + 'z" fill="' + g + '" ' + BD_LINE + '/>' +
+      '<path d="M' + (-w * 0.45) + ' ' + (top + (b - top) * 0.5) + 'q' + (w * 0.15) + ' 3 ' + (w * 0.3) + ' 0q' + (w * 0.15) + ' 3 ' + (w * 0.3) + ' 0q' + (w * 0.15) + ' 3 ' + (w * 0.3) + ' 0L2 ' + (top + 1) + 'Q0 ' + (top - 1) + ' -2 ' + (top + 1) + 'z" fill="' + snow + '" ' + BD_THIN + '/>';
+  });
+  return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')">' + out + '</g>';
+}
+/**
+ * @param {number[][]} list [x, y, size] for each flake: big ones are six-armed, small ones dots.
+ * @param {boolean} night
+ * @returns {string} Falling snow.
+ */
+function bdFlakes(list, night) {
+  var c = night ? '#e8eefa' : '#fff';
+  return list.map(function (f) {
+    if (f[2] < 2) return '<circle cx="' + f[0] + '" cy="' + f[1] + '" r="' + (f[2] + 0.4) + '" fill="' + c + '" stroke="' + (night ? 'none' : '#b9d4e8') + '" stroke-width=".6"/>';
+    var d = '';
+    for (var i = 0; i < 3; i++) { var a = i * Math.PI / 3, dx = Math.cos(a) * f[2], dy = Math.sin(a) * f[2]; d += 'M' + (f[0] - dx).toFixed(1) + ' ' + (f[1] - dy).toFixed(1) + 'L' + (f[0] + dx).toFixed(1) + ' ' + (f[1] + dy).toFixed(1); }
+    return '<path d="' + d + '" stroke="' + (night ? '#e8eefa' : '#a9cbe6') + '" stroke-width="1.4" stroke-linecap="round"/>';
+  }).join('');
+}
+/**
+ * @param {boolean} night
+ * @returns {string} Snowy hills with frosted pines, a snowman in a pink scarf and snow drifting down.
+ */
+function bdSnow(night) {
+  var snow = night ? '#c9d3e6' : '#f6fafd', snow2 = night ? '#b3bfd8' : '#e6f0f8', shade = night ? '#a3b0cc' : '#d3e3f0';
+  var man = '<g ' + BD_LINE + '><circle cx="336" cy="120" r="15" fill="' + snow + '"/><circle cx="336" cy="96" r="11" fill="' + snow + '"/></g>' +
+    '<path d="M324 126q12 8 24 0" stroke="' + shade + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+    '<path d="M322 116L308 106M350 116L364 106M311 108l-4 -1M361 108l4 -1" stroke="#8a5a3a" stroke-width="2" stroke-linecap="round"/>' +
+    '<path d="M325 103q11 6 22 0v5q-11 6 -22 0z" fill="#ff9fb5" ' + BD_THIN + '/><path d="M341 106l4 12h-6l-1 -11z" fill="#ff9fb5" ' + BD_THIN + '/>' +
+    '<path d="M342.4 110.6h3.4M343.4 114.4h3.4" stroke="#fff" stroke-width="1.1" stroke-linecap="round"/>' +
+    '<circle cx="332" cy="94" r="1.4" fill="#5b4239"/><circle cx="340" cy="94" r="1.4" fill="#5b4239"/>' +
+    '<path d="M336 97l5 1.6l-5 1.2z" fill="#ffa24d" ' + BD_THIN + '/>' +
+    '<ellipse cx="329" cy="98.4" rx="2" ry="1.2" fill="#ff9fb8" opacity=".75"/><ellipse cx="343" cy="98.4" rx="2" ry="1.2" fill="#ff9fb8" opacity=".75"/>' +
+    '<circle cx="336" cy="116" r="1.5" fill="#5b4239"/><circle cx="336" cy="123" r="1.5" fill="#5b4239"/>' +
+    '<path d="M326 86q10 -12 20 0z" fill="#a9cbe6" ' + BD_THIN + '/><circle cx="336" cy="76.6" r="3" fill="#fff" ' + BD_THIN + '/>';
+  return (night ? bdSky('#2b3563', '#56608f') : bdSky('#bfe0f2', '#eef6fa')) +
+    (night ? bdMoon(80, 30, 14) + bdStars([[170, 24, 4], [250, 36, 3], [130, 50, 1.2], [300, 22, 1.3]]) : bdCloud(96, 40, 0.8, '#fbfdff') + bdCloud(222, 30, 0.6, '#fbfdff')) +
+    '<path d="M-10 114Q70 92 160 106T300 98T410 104V170H-10z" fill="' + snow2 + '" ' + BD_LINE + '/>' +
+    bdPine(52, 112, 0.9, night) + bdPine(78, 108, 0.6, night) + bdPine(278, 104, 0.55, night) + bdPine(362, 110, 0.75, night) +
+    '<path d="M-10 132Q100 116 210 128T410 124V170H-10z" fill="' + snow + '" ' + BD_LINE + '/>' +
+    '<path d="M40 142q30 -6 60 0M230 146q40 -6 80 0" stroke="' + shade + '" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+    '<g transform="translate(-16 0)">' + man + '</g>' +
+    bdFlakes([[36, 30, 3.4], [130, 70, 1.4], [190, 26, 1.2], [246, 62, 3], [290, 40, 1.4], [370, 52, 3.4], [108, 100, 1.2], [222, 90, 1.4], [384, 92, 1.2], [160, 128, 3], [266, 122, 1.2]], night);
+}
+
 // `night: false` for pictures that look the same at any time.
 var BACKDROPS = [
   { id: 'none', name: 'None', draw: null },
@@ -352,5 +474,7 @@ var BACKDROPS = [
   { id: 'farm', name: 'Farm', draw: bdFarm },
   { id: 'beach', name: 'Beach', draw: bdBeach },
   { id: 'aquarium', name: 'Aquarium', draw: bdAquarium },
-  { id: 'night', name: 'Starry night', draw: bdStarry, night: false }
+  { id: 'night', name: 'Starry night', draw: bdStarry, night: false },
+  { id: 'sakura', name: 'Cherry blossom', draw: bdSakura },
+  { id: 'snow', name: 'Snowy hills', draw: bdSnow }
 ];

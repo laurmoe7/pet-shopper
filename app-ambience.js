@@ -12,7 +12,9 @@ var AMBIENT_BACKDROP = {
   meadow: [['birds', 9, 18], ['breeze', 14, 26]],
   farm: [['cluck', 11, 22], ['birds', 18, 34], ['moo', 45, 90]],
   kitchen: [['sizzle', 14, 28], ['ticktock', 8, 14]],
-  night: [['crickets', 4, 8], ['owl', 22, 45]]
+  night: [['crickets', 4, 8], ['owl', 22, 45]],
+  sakura: [['birds', 10, 20], ['breeze', 12, 24]],
+  snow: [['wind', 9, 16]]
 };
 /** The same for the weather kinds (weather.js). */
 var AMBIENT_WEATHER = {
